@@ -1,0 +1,731 @@
+This is Koda Radio, episode 371, for August 19th, 2019.
+Hello and welcome to Koda Radio, Jupiter Broadcasting's weekly talk show that takes a pragmatic look at the art and business of software development and related technologies.
+My name is Wes, and of course, I'm joined by Mike. Welcome, Mike.
+Mr. Here, round two, Wes!
+Oh no, no, it's Jar Jar. I didn't plan for this. Where's Mike? What have you done with Mike, Jar Jar?
+I put him back in the legacy bin.
+Oh, okay. Well, never mind. Never mind. That's fine. That's where he belongs.
+All right. How are you, Wes, now that I'm back?
+Get out of here. Stop licking the floor. What are you doing?
+Yeah, he's pretty gross, but...
+He understands Koda Radio comes first, of course.
+Oh, I'm doing great. I'm excited to talk about something a little more abstract today.
+But before we do, let's get into some feedback. We got an email from our friend, Bob, who wanted to write to us a little bit about your adventures with Clojure.
+Thanks for the great show. I'm really enjoying the Seven Languages segment.
+I just wanted to share with Mike that if he's looking for a good free resource for Clojure, check out Clojure for the Brave and True.
+You can read it online for free or by the book.
+You might also want to check out Living Clojure by Karen Meyer and Getting Clojure by Russ Olson.
+And I'll just say here myself, those are all great resources.
+I have to say, a few people recommended Clojure for the Brave and True, and it looks very cool.
+I'm going to pick it up because, you know, I feel like not knowing a Lisp at all is just a big gap.
+And what's nice about that book is it's very approachable. All the examples are very fun and get you coding right away.
+It was a little less, in air quotes here, academic than the sort of thing I wanted personally.
+So it wasn't my favorite, but I've recommended it to other people who just really love it.
+So it's definitely worth checking out.
+Bob continues.
+At the end of the last show, you mentioned that you had to take some time to think about the code that you were writing in Clojure before you started to code.
+I know you may have found this frustrating, but I also think that part of writing good Clojure code is taking the time to think through the problem that you're attempting to solve.
+Thinking about the problem could take the form of leveraging the REPL to work out code to solve a problem.
+Or you could spend some time away from your computer screen, or in hammock time, working out problems.
+If I've learned anything from Clojure's creator, Rich Hickey, it's programming is not about typing. It's about thinking.
+Also, in reference to what Mike said about talking more about Lisp and its influences on programming,
+two interesting Lisp-slash-scheme languages you might check out are Racket and Extempore.
+I've not played with the latter, but Racket is definitely worth looking at if you just want to use a modern scheme.
+All right, well that all sounds great. Yeah, I'm definitely looking to look more into Lisp, just to kind of fill that hole.
+Yeah, I agree. Yeah, that's fair.
+We'll see. Maybe you'll make a Clojure convert out of me yet, Wes.
+We'll have links to the handy things Bob linked to us, and I will also say,
+thinking more and typing less is something we could all do better at.
+Very true. Very true.
+Moving right along, a story I wanted to check back in on.
+A few weeks ago, we talked about the surprising proof of the sensitivity conjecture.
+And I happened to notice a little update over in the comments on Scott Aaronson's blog post about that proof.
+Well, no one else but famous Don Knuth showed up to present an even simpler version he'd made after reading the proof,
+seeing a couple other suggestions from people in the comments there.
+He distilled that all down, and instead of a two-page proof, well, now it's one page.
+What can you say to that other than Knuth is key?
+Yeah, I just think it's great to see, you know, he's contributed so much to computer science.
+And a commenter over on Hacker News, I think, put it really well.
+Note what Knuth has done here.
+He's taken a published paper, understood it well, thought hard about it,
+and come up with what he feels is the best way to present this result.
+And this has been his primary activity all his life with the art of computer programming.
+Every page is full of results from the research literature that Knuth has often understood better than even the original authors
+and presented in a great and uniform style.
+He's basically digested the entire computer science literature,
+passed it through his personal interestingness filter, and presented it as something interesting.
+And that's what he's doing here too.
+And I think it's just an interesting reflection.
+I think we think a lot about produced work, but thinking is work too.
+And oftentimes, even if you're not the original researcher,
+being able to look at multiple people's work, distill things, summarize it, improve, refine,
+there's kind of multiple roles there.
+Some people really excel at just banging code out, getting the first implementation done,
+and others excel at taking existing code and tweaking it and refining it and making it better.
+And there's value in all those roles.
+Yeah, I agree.
+I mean, and also what struck me about this is kind of the open-sourcy spirit of this, right?
+That another, I won't say academic, but another researcher into the field,
+I don't know if he is an academic, I don't know why I wouldn't say that.
+Yeah, that's a distinction without a difference.
+He published a paper, it was fundamentally sound,
+Knuth saw that he could make it better, contributed back the changes.
+Is that not the spirit of, let's say, the GPL or hell, even the,
+I mean, I know the BSC is a bad example because people can take it away,
+but a free software open-source ethos,
+is that not the spirit of the whole plan we're trying to do here?
+No, it very much is.
+And I think there are many kindred spirits and principles
+between academia at its best and open-source at its best.
+Unfortunately, you know, this is coder radio and we can't be all positive.
+That's never going to work.
+Especially me, I mean, I could try.
+You could try, but you've already failed for this episode
+because you wanted to talk about something that I'm sure we've all been frustrated with.
+And it sounds like you've got a particular example that motivated this whole discussion.
+What we're talking about here are leaky abstractions.
+You know, I think the best way just to approach this is real quick,
+make sure we define what an abstraction is, right,
+before I dive into my little war story here.
+And I'm going to give my definition, other people have,
+including Joel Olson, not Joel Olson, that's very different,
+Joel Spolsky, have defined it and talked about it in greater depth.
+We have links to all that in the show notes.
+But Wes, would you agree with the definition of a leaky abstraction is
+an attempt in a piece of software to kind of fluff away complications in implementation details
+and give you a nice interface to other functionality
+or running on different operating systems or interacting with different services.
+Is that a fair working definition?
+Right, and we're just talking about abstraction in general here,
+or at least in the common programming sense.
+Right, we're purely talking about software engineering here, right.
+So I really don't want to make you this happy today, Wes,
+because you know what, you just hate Rails.
+And it is indeed in Rails, this leaky abstraction.
+I see, yeah, okay.
+I do think I like your definition.
+You know, oftentimes abstractions lift things to a higher level
+and, you know, remove some unnecessary details.
+You know, oftentimes it's about finding the sort of same thing
+or ways that you can have very similar behavior
+and not have to worry about what's different at least most of the time, right.
+I'm thinking about, you know, a common example might be implementing
+a common operation across all kinds of data structures, right.
+As long as the performance characteristics are roughly the same,
+you don't have to care, right.
+As long as you can say, like, hey, I want to add this thing to your structure.
+I don't care how you do it.
+You cover that up for me, and I'll just walk away
+and have a simple interface to understanding this.
+So I had a project that uses very large files.
+I think I mentioned it in passing a few times,
+a lot of ColorobiJs and STL files.
+Oh, this is the STL project, I see.
+Yes, and it is being deployed to AWS using S3 for storage.
+Pretty standard, right?
+Nothing controversial there, I would say.
+Well, to be clear here, right, you're also, it's running on AWS
+and then you're storing large files remotely onto,
+I mean, it's still within AWS, whatever, but onto the S3 service.
+And then you're having some library here, I assume, or a part of Rails
+that's kind of making that somewhat transparent?
+Right, so Active Storage, which is a part of Rails,
+but you do have to install a gem.
+Basically, Active Storage is a file storage and retrieval solution
+that's meant, it's really meant for large files,
+but a lot of people use it just for everything
+because it's relatively easy to use.
+And it abstracts away the file store you're using.
+So for instance, the basic, you know, 500-word blog post version of it,
+you're going to see how to use Active Storage,
+it's just saving things to like var slash Rails, whatever, right?
+Or like Rails slash storage, and that's it.
+Ah, right, just dumping it, whatever, on the local machine.
+It will work with AWS S3 as your, the name of the solution escapes me,
+but their version of S3.
+Minio, which is key here, which Minio is an open source project.
+We've mentioned it years ago on the show that they do a lot more
+than they used to now, but the way I've been using them
+is they implement the S3 API, but you can run it locally.
+Ah, local S3.
+Is this only for testing or also for production use?
+No, Minio is a pretty robust production solution.
+So if you're concerned, like they have this whole AI pitch they're doing now,
+which I don't know a lot about, I haven't used them for anything like that.
+But if you're looking for file storage and you don't want to be external
+to your, let's say your intranet, or you just don't want an S3,
+but you want all the goodness that comes with S3,
+yeah, you can just set up a RAID array or whatever and you're good to go.
+I actually have people using it. It works great.
+So I thought, okay, because I need to test a lot of this stuff.
+These files are big. It takes a long time to load them in S3.
+It's also kind of expensive because of how AWS and S3 work.
+Let me just set up a Minio instance locally.
+And it's the same API calls, and it's all abstracted away by active storage,
+which when I first started using Minio, it wasn't.
+I used to actually have to use the AWS gem directly.
+So I get everything working.
+Now, there is a processing step I have to do with these files
+that I was using a method in active storage called Path4,
+which is pretty simple.
+On an active storage object, you can call Path4 and get a temporary file path,
+or I guess if you're storing locally in slash rails, it's a permanent file path.
+Ah, I see. And if it's not locally, then it's some layer on top there.
+Well, that's what I thought. I thought it was supposed to be.
+Turns out that is the case in some systems.
+In Minio, that is the case. In S3, it just fails.
+Really?
+Right. And because I was doing this on a background worker process,
+it doesn't 500 or anything. It just fails silently.
+So it works in testing, works on local host, fails in production.
+I'm seeing over at Minio here, they say,
+100% open source enterprise grade Amazon S3 compatible objects storage.
+It's interesting then that, you know, did something change?
+Not on Minio, but not on S3. And in theory, the API is the same, right?
+So the API is exactly the same. So the irony is,
+it's because of the abstraction in active storage, right?
+This method is an active storage, not in the AWS gem.
+I see.
+And it's funny, in the documents for 4Path on the Rails documentation,
+it doesn't mention that it doesn't work in a few of the sources.
+With stack overflow, can you see the whales of the desperate?
+Of course.
+Wondering why this worked on local host or on their whatever weird
+testing implementation that I had.
+Would they find, oh yeah, it just fails on S3 because Amazon doesn't let you do that.
+And they don't for good reasons, right? Security.
+But again, if it's an intranet, you don't care.
+So, okay.
+It took me about half a day to figure out what was going on there.
+Not to fix it, right? Because once I figured out what was going on,
+there's many solutions. Convert the file to a binary and do it that way.
+Yeah, what did the debugging process look like here?
+Because when you started, you probably didn't know where the error was happening.
+Well, I did what I always do. I roll back the deployment.
+I go to the testing environment and I'm like, okay, let me reproduce this.
+Spent a significant amount of time doing that.
+But again, you said, yeah, you couldn't, right? Because you're using Minio there.
+Right. So then I started adding more logging.
+Eventually, I was just, we can name drop some gems here.
+I was using another gem called Sucker Punch to do some backgrounding on these files.
+Sucker Punch basically is another abstraction on doing background processes in Rails.
+Turns out the logging on production did catch the error,
+but threw it as it didn't like completely error out. It just put it in the log.
+And too many things were happening. The log kept refreshing.
+So I had to search specifically for a background error.
+Eventually, once I had the error, I did what everybody does, right?
+I Googled it. Yep, that's exactly what it is.
+You can no longer do that in S3. I felt like you used to be able to,
+but most of my deployments are internal.
+A lot of them are using things like Minio or alternatives to that.
+So I was pretty shocked that the Rails documentation
+didn't actually say that that method doesn't work.
+It doesn't error out in your debugger. It just errors out in production.
+Which is always the worst kind of error.
+Because this path 4 is supposed to do whatever it needs to do
+for each different file hosting environment.
+And you don't need to care, as long as you have the credentials,
+as long as you have the keys and your environment variables,
+or however you want to do that. It doesn't matter.
+But there's just one thing in the S3 implementation of this
+that this one little piece of functionality doesn't work.
+Everything else works fine.
+And that is your abstraction leaking.
+What do you say, Wes? Is that a leaky abstraction, or do you think not?
+It's interesting, right? Because obviously you were using this
+active storage method because it was useful, right?
+And part of Rails.
+Right. And it was abstracting over things for you, right?
+How much more difficult was the workaround here?
+Is the abstraction still useful, or have you had to abandon it entirely
+because of this leak, or is it just sort of a minor leak that you patch up
+a little bit in the production case and have to make some modifications?
+Does it feel gross to you, what you've had to do to solve it?
+And are you still using that method everywhere?
+I'm still using active storage. In fact, this is going back to our feedback,
+think more, code less.
+The challenge was just figuring out where the abstraction was.
+Solving it was, I don't love the solution.
+It's basically temporarily throwing around binary data.
+But it works.
+And the nice thing I like about the solution I implemented,
+it works in local host, the testing environment, and production.
+So there's not this crazy case of doing switches, like compiler flags,
+or if-def-ing your way through to say, am I in prod?
+I personally hate that. I think that's a huge code smell,
+if you're doing stuff like that.
+Again, I'm not starting a sort of flame war with anybody.
+But yeah, I think it's funny, and it's why when I slacked you,
+I was like, we have to talk about leaky abstractions.
+Because you would think, in Rails, when you see anything that starts active,
+insert other word here, that's usually rock solid.
+Right, that's one of the great things about Rails,
+is it's just been used to build these kinds of services for so long
+and in so many cases that it basically has a good solution for everything.
+Exactly, and this was just one case where once you know it,
+you know it forever, and you just know you can't call that helper method
+on an environment using S3.
+But figuring that out, damn, that's...
+I mean, that requires you paying deep attention to logs.
+You have to already have your logging set up in your production environment,
+which I know a lot of people don't do.
+So it's a pretty, I want to say annoying,
+but it's not the way you want to spend half your day.
+No, no, definitely not.
+But the alternative is terrible.
+The alternative is implementing three solutions for three different environments.
+I like this quote you put in the doc kind of relatedly.
+Since all non-trivial abstractions are imperfect and will leak in one way or another,
+this means any serious programmer should always have at least a minimal knowledge
+of the abstractions they use.
+This usually means knowing a bit about how your CPU works,
+how your network protocols work, how your kernel works, and so on.
+Yeah, exactly.
+And that seems true, right?
+I mean, there's just no way that you can escape thinking about your system.
+And abstractions are useful tools,
+and I don't think the existence of these of leaky abstractions of problems
+where it's frustrating,
+there are times maybe where you've chosen the wrong abstraction
+or it's just not possible to abstract that in that way under these circumstances.
+But even in your case, you'd be able to sort of patch things up and make it work.
+Right, and it's a leak you only miss once, right?
+So now you know forever that, okay, Amazon S3, active storage,
+it doesn't allow the helper method.
+I saw another article about this, and they had a great example.
+Think about garbage collection.
+It hides manual memory management, but as anyone who uses it knows,
+sometimes getting peak performance is hard work.
+You'd still have to think about it, right?
+You pay the cost of garbage collection, of course,
+and you may have to go try to tune things.
+You may have to try to reuse stuff instead of freeing and reallocating new objects.
+You end up having to engage with and think about how the garbage collector works.
+But is it unsuitable or just incomplete?
+It depends.
+It could be an unsuitable abstraction for whatever task you're doing,
+saying you're trying to make a very low latency sort of system or building a game,
+and you just need to do manual memory management.
+Or you could have kind of an incomplete abstraction,
+something you need to extend or work with better,
+and find the right garbage collector and the right settings for it
+so that it works for your particular case.
+But you still don't have to think about all of the nitty-gritty of memory management work.
+Either way, you end up having to understand some of your problem domain.
+Yeah, that's exactly it, right.
+You can't just blindly trust the abstraction and hope it'll all work out.
+Another common case, I'm not sure it's directly applicable,
+and I'm curious what you think, and it kind of ties back in with Rails,
+and that's the use of ORMs, right?
+Object Relational Mapping.
+Because you'll find a subset of people who really just prefer to write the query themselves
+and will often say, well, look, I end up having to write the query myself
+or waste a bunch of time fighting with the ORM to try to get it to produce the query
+that I know that it should be so that it's actually performant on the SQL backend.
+But at the same time, you know, you're writing a CRUD app,
+and an ORM just like does most of the work for you.
+Yeah, I tend to lean on the, I'm curious where you found this,
+I tend to lean on the pro ORM side of life here.
+So you end up engaging more with the relational idea, I guess, right?
+Sort of nature of how those are constructed.
+But there are some libraries that try to smooth things over, right?
+Like there are cases where the mappings work out pretty cleanly, right?
+You have some map or a structure, an object that has some fields,
+and those just, you know, they end up just mapping to columns and the rows,
+and it all just sort of works for you.
+I think it just shows, again, that, you know, anytime this is non-trivial and complex,
+it's going to be hard.
+But probably there's, you know, a trade-off you have to consider too
+with how familiar you are and how familiar you want to be with the system.
+Now, performance is almost always going to be the real limiting factor, right?
+Like if it doesn't work for the performance that you need, it's not going to work.
+But if you're already familiar with SQL, it may be easier for you to use
+a sort of more minimal system, right, where you might want some helper method,
+something that can easily translate and store an object,
+but you don't need these complicated joins being constructed for you to go to that level.
+Yeah, I mean, the whole ORM thing is tough, right?
+Because most of the time, you don't need it, at least in a Rails application.
+I'm sorry, you don't need to drop to raw SQL queries.
+But there's usually one or two in every application that you kind of end up doing.
+Right, it's on the hot path.
+It happens a lot, or for some reason, the ORM is just getting it kind of wrong.
+Right, or it's just like the code you have to write
+to make ActiveRecord do what you want is so just gnarly.
+Right, gross, gnarly, hard to understand.
+Right, that having a stored procedure for that is just easier.
+But yeah, I tend to try to do everything I can in ActiveRecord.
+We really have to go ahead and get a stored procedure.
+I think one aspect that you can't ignore when you're talking about leaky abstractions
+and abstractions in general, and it's something we kind of talked about a little bit
+without naming it in the last episode.
+And that's choosing the right level of distraction.
+Last week, you were talking a bit about large legacy C sharp code bases.
+And I've certainly seen sometimes in large, older OO projects
+that things just get abstracted too early and too far
+so that you end up with so many layers of abstraction
+that it's hard to find where the concreteness is actually happening.
+And that's important, right, because abstractions are useful,
+but at the end of the day, there's implementations down there,
+especially as you're learning a new code base.
+And it can be nice to have a layer of abstraction added
+if you know that you really need multiple implementations.
+But I'm sure you've seen cases where a bunch of abstractions are added
+and then there's only ever one implementation for each of them.
+This is probably one of the most common disagreements I think developers have, right?
+Is what level do you start at in terms of implementing abstractions
+to a lower layer, whether that's database or cross-platform, right?
+Because even in the cross-platform world, Xamarin, Flutter, whatever it's called,
+all of that stuff is just an abstraction, wouldn't you say?
+Oh, yeah, of course, right?
+It's trying to smooth things over
+so you can talk about a generic input element
+and not worry that on the Linux desktop, it's totally different than iOS.
+I mean, the Linux desktop is iOS though, right? Am I confused?
+I think that head injury was more serious than we thought, Mike.
+But yeah, you're right.
+I mean, of course those are abstractions and they are useful, right?
+I mean, look at the popularity of cross-platform frameworks like that
+or things like React Native, Electron.
+There are a lot of things you just don't want to think about
+and that can be useful.
+I don't know, you just always have to end up thinking about some aspect of it
+or you need to be aware.
+And so that's why the case you ran into is kind of interesting
+because I'm sure if you'd seen a little caveat declared for that,
+or maybe a table of backends that are supported with that that works,
+that would have been very useful knowledge upfront
+because it's okay that there's no denying that it can't work,
+but it's still a useful abstraction for a majority of use cases.
+It just has its natural limits.
+Right, for the vast majority of, yeah.
+There's just this one operation where it doesn't make sense.
+This is one of those things that I do think about,
+I hate to say the E word, but Electron, right?
+A story came out today where there's some,
+it's on Ars Technica and I'll find the link,
+but I think we are both currently running.
+I mean, how much bigger of an abstraction can you get than that, right?
+It does also show, right, though, like I think about the popularity.
+And I imagine there's many,
+I'm thinking of this as a desktop Linux user here,
+but probably many applications
+that wouldn't necessarily target the Linux desktop
+without that level of abstraction being available, right?
+Without the abstractions, you have to end up learning more.
+When they work, they can really successfully hide things from you
+and the Linux desktop or whatever small market
+doesn't usually have the necessary weight
+to demand that level of resource to go implement
+basically something that could be abstracted over
+because it wasn't fundamentally different.
+Yeah, and there's tons of examples, right?
+It's actually in itself an abstraction,
+though I would argue operating in a much lower layer,
+although maybe not, right?
+C++ is an abstraction, which is the language
+you tend to be developing when using Qt.
+Objective-C is an abstraction,
+although it's amazing and glorious
+and we should all be using it.
+Yeah, I mean, really, our whole world is based on that, right?
+I mean, even if you're programming in assembly language,
+it's compiled to the real operations going on under the hood.
+I liked the way this was put over at the principles wiki.
+A solution is bad if A, the leakiness of abstractions is ignored,
+B, the benefits of the abstraction cannot justify
+the disadvantages created by the leakiness,
+C, the abstraction is just more leaky than necessary,
+meaning you've maybe chosen the wrong abstraction.
+Yeah, completely agree.
+So where do you fall in the abstraction hierarchy?
+Do you start, like I think I'm pretty clear,
+I start at the high level and move down when I need to.
+Is that how you also operate, Wes,
+or do you prefer to somewhere in the middle, low level?
+Somewhere in the middle.
+I think they're very valuable.
+One thing about, say, Python that I think that it could do to have better
+is some of these abstraction toolings.
+I mean, you've got the double underscore methods and all that,
+but I think Java interfaces are just a good way to think about things
+in many cases, or the Clojure version is protocols, right?
+Groupings of methods that operate on,
+that can be implemented by different data types.
+It's reasonable to want to abstract early with the,
+especially if you're thinking about
+what's going to go wrong later,
+or are we going to add more backends for this, right?
+Like, oh, I need to talk to this service,
+but we might want to have a second service
+that does the same thing as a backup
+or to talk to both of them at the same time.
+And that's fine.
+I would just caution that
+you should also be trying to keep things flexible enough
+and easy to change enough
+that adding abstractions later shouldn't be difficult, right?
+I guess I'm in the middle where you should be thinking about it
+and programming in a way that allows for it to be added,
+but not necessarily adding it concretely all the time.
+I mean, it's so funny.
+That's exactly one of the use cases
+that Active Storage is meant to help.
+If you want to have a duplicate service implemented, right?
+There's actually, right in the config file,
+you can set a mirror so you can do S3 and, again,
+whatever Azure's version is,
+or Minio and something else, right?
+Right, or I mean,
+DigitalOcean has one that's S3 compatible.
+There's tons of them.
+Yeah, DO has one now, right?
+So whatever is,
+implementing the second service is quote, unquote, free.
+Exactly. That's a good way to put it.
+This is hard stuff because it's just so context dependent
+and it depends a lot on what you're doing,
+how long it's going to live,
+and how much it might grow,
+and those aren't always clear
+at the time you're actually creating it.
+We'll, of course, have links
+to all the things we talked about,
+or guides, or, you know,
+ways to think about the right level of abstraction,
+or favorite tools to deal with leaky abstractions.
+If so, let us know.
+We're at coder.show slash contact.
+Now, Mike, we took a little bit of a break.
+You were traveling.
+There was a lot of things going on
+behind the scenes for both of us.
+But it's time again
+for our seven languages challenge,
+I do.
+I know you're just jonesing for it and
+hands are shaking.
+Who am I to stand in your way?
+I mean, look at you.
+You look horrible.
+You need something to play with
+to get excited by.
+Sweating, I'm crying.
+It's terrible.
+And I know, you know,
+you were just kind of burned
+by rails here,
+so I thought we'll keep you
+kind of close to rails in Ruby,
+but also mix everything up.
+Crystal.
+You know I like my gemstone
+named languages, right?
+Oh, I sure do.
+Crystals build as a language
+that's fast as C and slick as Ruby.
+I've been lied to before.
+Yeah, but you'll also find
+that Crystals statically typed
+and seemingly very efficient.
+Got non-nullable things,
+null checks,
+so you've got that safety added.
+And green threads,
+also known as fibers,
+as a concurrency model.
+So that's exciting.
+That's something you encountered
+in a somewhat different variant
+over when you were playing
+with Elixir.
+True, true.
+Yeah, you know,
+I did take a brief look at Crystal,
+and I have to say,
+I cannot deny that my heart
+has desired this,
+ala Galadriel here.
+Yeah, you know,
+it seemed like it might make sense
+to do something with Rust.
+So perhaps something that has
+some of the similar properties,
+a nice robust type system,
+but can also target
+somewhat more lower-level tasks
+might be something
+you would actually use
+in your toolkit.
+Sounds good.
+Looking forward to it.
+So I saw you had a pick
+for us this week, Wes,
+or two, even.
+Well, one of them
+is really a supplement
+to Ruby, yeah, exactly, exactly.
+I mean, this whole episode
+has been, you know,
+it kind of started off
+in the Ruby world,
+and we might as well
+end it that way, too.
+And that's why I've picked
+Effect,
+an algebraic effects library
+for Ruby.
+Yeah, okay.
+If you're not really
+familiar with that,
+let's say you're trying to do
+some, you know,
+more functional Ruby,
+you want more of it,
+but Ruby pays your bills.
+Well, Effect is a tiny
+Ruby gem, providing a way
+to isolate and handle
+side effects in
+functional programs.
+Effect implements
+algebraic effects in Ruby,
+but can also be used
+to implement other patterns
+like object-oriented programming,
+inversion of control,
+and dependency injection.
+They've got some
+nice examples here,
+is pushing I-O
+to the boundaries,
+or other, you know,
+stateful stuff, right?
+And we've talked about this
+before, too, where that stuff's
+hard to test, right?
+You end up needing to do,
+you know, integration stuff
+or crazy mocking and stubbing,
+and it just gets rough.
+So one of the advantages
+of a library like this
+is you can use its facilities
+to do this for you,
+because instead of actually
+sending I-O, say,
+and then it's actually going to
+go do all of that for you,
+so you can test your stuff
+just by, you know,
+making sure that you've sent
+the right information
+to the library.
+Okay, okay, I'm down with that.
+Behind the scenes,
+well, there's kind of
+a lot going on.
+It's a cool concept,
+algebraic effects,
+and really at this stage,
+it's more of a research
+programming language feature.
+Yeah, I mean, you're probably
+not going to run this in production,
+and in fact,
+you probably shouldn't.
+But I think it's a useful model,
+and it's nice to play with
+new ways of thinking
+about things, right,
+and trying to add tools
+that help you separate concerns,
+push state to the edges,
+and keep things pure.
+So, you know,
+maybe don't go deploying effect
+wherever you need it to be.
+But I think it's a practical
+example of actually
+using it and has a bunch of math.
+But I saw that this came out,
+and I thought,
+if anyone's actually interested,
+they want to go play with this,
+you can still read a bunch
+of nerdy PDFs,
+and you can try to use it
+in some toy programmings
+and see what it might be like.
+And as always,
+Wes is trying to educate you,
+and I'm trying to make you
+not have to know things.
+So my pick is Minio.
+Pretend like those servers
+and S3 instances aren't there.
+Like all over the place?
+Oh, Minio, several years.
+Several years.
+It's actually funny,
+I haven't been to their main
+non-GitHub website
+for a few years since today.
+I had no idea that they had
+this whole AI library thing
+going on, too.
+Oh, it's 2019 now, Mike.
+Everyone does.
+I have Alice.
+I keep deciding if C Sharp
+is going to be there
+for the next few weeks.
+But yeah, they have a lot going on.
+I can't vouch for anything else,
+but I can tell you,
+as an open source,
+make your own little rate array
+and store your files, top shelf.
+Thanks for the great pick
+this week.
+Thank you.
+Now, where can people find you
+to learn more about
+computer science and calculus?
+Oh, you can find me rambling
+about things over on Twitter
+but they can find you
+trolling the universe
+over there, too, right?
+That's on Twitter
+at Domenico
+and visit dominechem.com.
+I will be writing up the horrors
+of abstractions this week.
+Oh, I'm looking forward to that.
+You can also find the whole
+network over at Jupiter Signal
+or jupiterbroadcasting.com
+where you'll also find
+the calendar.
+That'll let you know
+when we're doing this show live
+and if you have the time available,
+just tune in live
+when you have a chance.
+Of course, there's also a ton
+of other great Jupiter
+broadcasting shows,
+so check those out, too.
+Or if you just want Coder Radio,
+well, coder.show.
+There you can contact us
+or just subscribe to the RSS feed
+which is the easiest way
+to make sure you always
+get the latest episode.
+Thank you all so much
+for joining us
+and we'll see you right back here
+for another episode of
+Jupiter Radio.
+radio.com

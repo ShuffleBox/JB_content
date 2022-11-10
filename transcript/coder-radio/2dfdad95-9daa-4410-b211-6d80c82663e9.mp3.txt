@@ -1,0 +1,905 @@
+This is KOTOR Radio, episode 451 for January 31st, 2022.
+Hello friends and welcome into Jupiter Broadcasting's weekly talk show, taking a pragmatic look
+at the art and the business of software development and the world of technology.
+My name is Chris and joining us every single week, perhaps right next to the barbecue,
+it's our host, Mr. Dominic.
+Hello, Mike.
+Hi, I'm cooking up some shrimp on the bobbin tonight.
+Ooh, that was bad.
+It was bad.
+It was real bad.
+You know, when you try to go Australian, it's like, ooh, I'm going to get a boomerang in
+the mail, a dead fish with wrapped around a boomerang.
+I'm like 10% hung over this morning, but I think that was pretty bad.
+Only 10%?
+Yeah, I did pretty good.
+You know, we had the meetup at the studio last night.
+That's right.
+Folks came in before we started Linux Unplugged.
+We did a little meet and greet, did the show, and then did a big cookout.
+People stayed till about 8pm.
+It was a good group.
+You know what's super common is there's usually always a good portion of Coder fans at these
+meetups.
+With their M1 Macs, yes.
+That did happen, yeah.
+Jose came in from Puerto Rico, which is incredible.
+He's visually impaired, too, so it's even more impressive that he manages to make it
+all the way up here in the Pacific Northwest.
+He's a brave man, and I'm going to visit one day.
+He came up from Puerto Rico, so he's probably the furthest away.
+He's like, yeah, okay, all right.
+I've got to get going because I've got a project I'm working on, and he's going to use the
+whole flight home to work on his project.
+That's pretty great.
+It sounds like he's working a lot in Python these days, but yeah, just a lot of people
+came in.
+They wanted to see the space.
+I showed them my photo album of you.
+We talked about you a little bit.
+I'm sorry, photo album?
+Yeah, you know, I like to print them out because I used to have them just on an iPad, but it
+just feels more special when we can sit there and flip through them together.
+Some of them I just made up, so I just Photoshopped you into a couple of them.
+How many of these are of the Phantom Menace?
+The bulk of them I did back then, but I updated it recently before the meetup just because
+people want to see that.
+People were disappointed that I didn't have Lady Joops parked here at the studio because
+nobody knows what to expect.
+When you say you have a podcasting studio, that could be a closet, right?
+It could be something like the MKBHD massive warehouse that he has that is totally too
+big.
+But what we have is it's a townhouse that I used to own, then well, I still own it,
+but I used to rent it out and my renters moved out and JB moved in years ago.
+And so it's a house that has spots that are dedicated for recording, right?
+But it's just a house, so nobody knows what to expect when they get here, which is great
+because they're just completely unaware.
+So they thought like Lady Joops would be parked here and I'd be giving tours of the RV.
+But no, we weren't able to do that.
+Maybe at a future meetup, but it was a lot of fun.
+People brought a ton of food, so now I don't have to grocery shop for like the week because
+people left what they brought, so there's like basically an army's worth of cookies
+here still.
+That sounds like a party.
+See, one day I will make it up to the Pacific Northwest.
+One day when we are, not only are we like traveling again, but maybe Linux Fest is back.
+That'd be when I would head up here.
+One day.
+Just as it's getting nice at the end of April.
+First of all, we got a couple of emails, but you know what, audience, you got to be sending
+us more emails.
+That's a big part of this show.
+If you don't send us emails-
+Get out of here.
+Then there's no show.
+The show, we just pack it up.
+We come on, we say thank you to our sponsors and we put it out in the feeds.
+And so if you don't send us emails, that could happen.
+So you got to go to coder.show slash contact.
+If you've been thinking about it, because now's the time.
+That's inappropriate.
+It is not.
+But we did get an email in from listener, Chris.
+And he writes a little while ago, I think maybe it's actually quite a while ago, Mike
+mentioned that he rewrote a Ruby service in C++ for performance.
+Oh, blessed performance, he says, I'm curious to know what prompted Mike to do so.
+Was it an observation by Mike and his team?
+Was it a client complaint?
+Was there something that was just taking way too long?
+He goes on to say, I don't want to say that I have a similar problem at work, but I have
+a similar problem at work.
+And I'm curious to know what the thought process was and the steps taken in order to implement
+such a change.
+Thanks so much.
+Great question.
+Yeah, so both, right?
+So the version of it that was written in Ruby was kind of, we've got to get this to market,
+get it to ship for the customer.
+And we knew it would be slow.
+We did a little bit of monkeying around with the optimizations.
+But at some point, the level of voodoo we were doing to try to speed it up in Ruby was
+silly when doing it, quote unquote, the naive way in C++, and just compiling it as like
+a native, you know, like a.o file that we just called was significantly faster.
+Now, when I say significantly, I mean, fast enough for us, which was pretty fast.
+And it didn't require like the craziest Ruby code you've ever seen, right?
+It was pretty straightforward, because we could do all kinds of, thank you, the compiler
+for yield optimizations.
+I don't think this is that big of a crisis type war story, because it's something we
+knew was going to be slow.
+We just shipped the slow Ruby version, because we had to, we had a deadline.
+And when it came down to optimizing it, we tried for like a week to try to optimize it
+in Ruby.
+But it was actually me, I did a quick, simple, like just command line app in C++.
+And literally just put it in the slash bin of the Rails app.
+It was like, look how much faster this very, very bad version of the C++ is.
+If we even wrote some like halfway decent C++ application that could do this, that our
+Rails app can call, that solves all our problems, and we don't have to, you know, sacrifice
+a few puppies to Cthulhu to get this to work.
+The Ruby one worked, right?
+It was just slow to get it to work performantly.
+That's what happened.
+Maybe like a thousand lines of C++ later.
+We haven't had to touch it, I don't know, it's been like maybe eight months, nine months.
+What I think I just heard in there is it kind of sounds like when you originally created
+the Ruby version, you kind of knew in the back of your minds, we should probably come
+back and readdress this.
+And so when it came time to look for low hanging fruit, that was one of the first place you
+looked.
+So this was a specific use case for this Rails app that had to do like this one weird thing
+with this weird pseudo-proprietary mapping file format.
+You know, the whole time going in, it was eyes wide open, right?
+We knew it was bad, we had but we did it, the customer was okay with it, then we came
+back and fixed it, we quote unquote fixed it, right, we just, you know, made it faster.
+I don't know, the more I work in Ruby and Python, specifically Python, the more I'm
+struck like these are all just like, all these libraries, these gems, these pip packages,
+not all, but many of them are just wrappers over C or C++.
+And this might just be like old curmudgeonly Mike here.
+But I just don't think it's a huge deal to call into a lower level language for performance
+reasons from one of these high level languages.
+When the majority of the time, I'm thinking particularly now with the new thing with the
+new version of Alice, the challenge is like figuring out like what the weird hitches in
+her reading the data structures, not necessarily performance.
+But certainly when performance is an issue, there's just obvious benefits.
+There's a million Python, kind of call them compilers, but million Python interpreters
+that are like, super fast, all right, there's one that runs on dotnet that we covered a
+couple months ago.
+There's ways to compile, transpile Python into C, C++, I don't use any of that stuff
+because I think that's a little too magical for me.
+I guess Chris, my thing is I don't think this is that crazy of a use case.
+So yeah, I mean, if for Chris who's writing, consider it, I seriously would consider it.
+Now it's got to be like regular vanilla C++, right?
+But yeah, it works.
+It's good.
+I think it's a smart thing to do if you need it.
+I mean, other things can be hindering your performance though, right?
+So if I'm looking at, let's say a Rails app, or even like a Flask or Django app, the first
+thing I look at is not this type of performance thing.
+This was just because we were dealing with graphical mapping files.
+Obviously like the first thing you look at is database, right?
+You look at Active Record or SQL Alchemy.
+That's almost certainly where you're going to hit most of your bottleneck in those type
+of applications.
+And that is not solved by just rewriting something in a new performance language.
+That's a good, well-rounded answer.
+I like that.
+That's a good question too.
+If you're listening to the show and you hear us discussing something and you want to know
+the thinking behind it, that's a great kind of email to send in, coder.show.com.
+I'm going to mention it again because we need them.
+We did get a comment via Matrix.
+Alex wrote on free software funding.
+He said, I was thinking about the funding issue over the weekend.
+One of the aspects of funding I'd like to see is trying to get funding targeting open
+source software for end users.
+I think getting corporations to help pay is great, but I often think the type of corporate
+common software that is useful for huge companies and the types of software that's good for
+us users is quite different.
+If funding came from users or end user distros, I think you'd see different kinds of open
+source software get built.
+I kind of liked the general premise here.
+It's something I've been thinking about too, and I feel like you could kind of talk me
+down a little bit probably.
+I think what we need in order to get even the fraction of the healthy desktop software
+ecosystem that Mac OS has, and if you think about it, Mike, like how big of a market could
+the pro Mac user who's willing to spend money on things like rogue Amoeba software or Bartender,
+could that market really be that much larger than the enthusiast desktop Linux market?
+It just seems to me that there is a lot of software on Linux that doesn't have a cloud
+angle that a vendor isn't going to be able to sell their server product by investing
+in, so it never really gets a lot of long-term investment on the Linux side.
+If there was a way for users to directly fund, and this would have to be a way that allows
+practically anyone in any country to fund because you'd need the net to be so freaking
+wide.
+It couldn't just be like US users or Western users because you're only going to get a tiny
+fraction of people that actually participate, so it's got to essentially be a net that includes
+the entire world, but if you could do it, you might be able to get a few decent long-term
+desktop Linux applications if you could crack that nut.
+I grant you there are millions of more Mac users than desktop Linux users, but I wonder
+how many Mac users there are that are savvy enough to go buy these third-party apps to
+modify their Mac experience or have a special note-taking app.
+That's got to be, what, a 10% of the Mac user base?
+Maybe even less, maybe 5% of the Mac user base, which has got to be somewhere in the
+spitting distance of the desktop Linux enthusiast user base, but these could be way off.
+Yeah, so I think there's a couple questions.
+The general size of desktop Linux users versus Mac users, I don't have any data on that.
+I know we always laud that Linux has been gaining, but I think it's gaining not at a
+huge pace.
+The other thing is I think there's just a cultural difference.
+Folks on the Mac kind of expect to pay for things.
+Folks on Linux, and I know this is like broad generalizations will get me hammered a little
+bit here, but in terms of desktop, you know what, folks on the Macs will pay 10 bucks
+for a little cute utility app.
+That just doesn't happen on Linux very much, right?
+I once purchased from the developer a piece of Linux desktop software and tried to repackage
+it up, clean it up a little bit, and resell it, and yeah, that dude only made enough to
+buy a cheeseburger, and that's why he sold it to me for not that much money, and it's
+a hassle.
+I just don't, I think it's a cultural thing.
+Now I think there's money to be made in the Linux world, and I think all that money is
+on the server.
+I do agree that right now that is true.
+I do agree, and the only like crack in this what has been a wall of truth for a decade
+now that I see is Steam, and things like good old games, GOG.
+Like you have a growing demographic of Linux users who are willing to pay like $60 for
+a video game.
+I wonder if that user base grows and just general Linux grows, perhaps we are going
+to see ex-Mac users, ex-Windows users who are more comfortable paying for software,
+or people like myself who I run a business, so if a piece of software helps me do my business,
+I'm willing to pay for it.
+Like that user base has to be growing, but there's no mechanism to monetize it.
+Well, okay, hang on.
+There's a big, so if you want to compare like people who buy stuff from Rogo Amoeba, you
+need to compare them to people who buy that type of utility software, not to gamers, right?
+There's a lot of Mac gamers who have PS5s and Xboxes and play games on Mac.
+Yeah, I suppose that makes sense.
+Yeah, I suppose because that's one's gaming, it's leisure, it's entertainment, and the
+other is like utilities and working.
+Right.
+I mean, is there, I mean, I guess the question we end up really wanting to ask, but it's
+a bit awkward, is why isn't there the Ubuntu, you know, or whatever Linux version of a Panic
+software or Rogo Amoeba?
+Why is that not a thing?
+That's got to be a hundred different things, right?
+It's got to be shifting SANS, GTK, X11, Wayland.
+It's got to be, you know, different changes in a young ecosystem.
+And then I think, I'm trying to argue against your cultural assertion, but I think that
+could be part of it.
+That definitely seems like part of it.
+I struggle with it because I really do believe that if you make it, like it's like the iTunes
+model, right?
+Like what Steve Jobs recognized is if we made buying music easier than pirating it, on average,
+people will just buy the music.
+Yeah.
+I don't think people are pirating the software for Linux.
+I think what it is, is it's always, right?
+One of the big benefits of Linux, in fact, is that for much commercial software that
+you might buy on Mac OS, Windows, there is an open source alternative on Linux.
+Now this is less and less true as things crossover where stuff is also free on Mac OS and Windows.
+But I remember back in the day, we're talking Ubuntu like 904, 910 days, what was it called?
+Everybody uses it now.
+Oh my God.
+The graphics tool.
+Was it Blender?
+Oh, Blender.
+Yeah, sure.
+That's huge.
+Right.
+And that was just like such an OBS, right?
+Open source.
+I don't know.
+When I say it's culture, I don't mean I'm not trying to denigrate folks.
+It does seem kind of true.
+And I do think in a way, it's really super beneficial for so many parts of the world
+that this software is available and free to them.
+They couldn't afford to pay for it.
+And I don't feel like using it as piracy.
+But when you said that, part of me feels like, no, but I do kind of consider it piracy of
+the developer's time.
+Never ever giving them anything in exchange for years of work just isn't sustainable.
+It's so funny, though, because there is no Mac server software to speak of, right?
+I mean, there is Mac OS server, but it's kind of a joke.
+No, mostly you install Docker, and then you run it that way.
+So it's kind of like, I don't know, I see lots of healthy businesses, especially like
+enterprise software tools that people are licensing and selling that are effectively
+built on top of Linux and work, and it's great.
+I just don't see your boutique.
+The other problem would be with, and I know this is where you're definitely in trouble,
+with the kind of fragmentation of the desktops.
+One of the things that Mac users who buy, because remember, we're talking about a small
+percentage of Mac users here, too.
+Most people who have Macs don't know anything about Panic, don't know anything about Rogue
+Amoeba.
+And they would be damned if they ever paid those kind of prices for a small, not little,
+but independent software.
+But the reason people do buy them is because those two developers in particular and many
+of your classic Mac OS software vendors are committed to doing things, quote, the Apple
+Mac way, right?
+They quickly update when the user design language, user UX language changes.
+They follow the trends, right?
+Monterey comes out, they make things look more like Monterey, they clean it up.
+I think you'd be hard pressed to do that on desktop Linux, unless you just said, I only
+do like KDE and only do KDE Plasma, and if you customize it, my app's going to look weird.
+I have to say, even kind of then, like we're seeing this on the GNOME side, some apps that
+really try to stick with where GNOME's going, but what seems to be happening over the years
+is that an app stays strong for a while, then it kind of fades, and just a replacement eventually
+comes along, and it's kind of like a reset of the whole application, sort of re-back
+to basics, kind of like when Apple like threw out an app and just restarts it over again
+and has very limited functionality.
+That seems, we kind of seem to be in a cycle of that on the GNOME side, in my personal
+opinion, and not completely, but there are definitely some apps that just seem like we've
+done this before, but now they're reimagined in the new design paradigm.
+I find it to be a problem that I think you would hate this answer, but all of your buddies
+over in the Web3 camp are solving this with their tokens.
+This is what these tokens do.
+They have governance tokens, and these tokens allow you to have special status, or essentially
+they fundraise projects by selling these tokens, which is a total securities nightmare and
+could potentially be abused on a Ponzi scheme, but that's where they're trying to go with
+some of these coins and tokens is a revenue model that doesn't involve selling something
+like a product, but selling a token, almost like a stake in it, like a stock in the project.
+Some of them have potential and some of them don't, but that's, I think, why some of this
+is gaining traction.
+There's so much hype in that Web3 camp right now is because the one thing they have solved
+is money.
+There's a lot of money over there, and they're not asking how the hell do we fund these projects
+over there.
+That's not the problem they have.
+I can't say it's a better way to go, but they solved the funding problem.
+Speaking of funding, did you see that Sony announced that they're buying Bungie?
+I did, because you have to clap back, right?
+Wow.
+That was quick.
+Yep.
+That was...
+Destiny is a good game, so now they've got Destiny.
+Well, and ironically, Bungie was the original developer of Halo, which was originally supposed
+to be a Mac OS game, so we're full circle here.
+It's pretty wild.
+Sony says that Bungie will remain an independent subsidiary.
+This is crazy.
+Only, they only paid $3.6 billion, so they paid like nearly $60 billion less.
+Well, Bungie is not Activision.
+Yeah, for sure.
+For sure.
+For sure.
+And Sony's already in a pretty good position.
+Destiny is a great game series, so snapping that up is actually pretty brilliant.
+lino.com slash coder.
+Go there to get $100 in 60-day credit on a new account, and you go there to support
+the show.
+It's lino.com slash coder.
+Just remember that URL.
+I was just talking to my friends over at Linode, and I got a little inside scoop on what's
+coming next, and you guys are going to absolutely love it.
+I can't tell you about it yet, but you know I will.
+You know I will.
+I absolutely love this company.
+I mean, I'm just so damn impressed as a customer, but when I talk to them, and I hear about
+what they're working on, I'm super excited about the future of Linode.
+You know, they started in 2003 because they just love the technology stack.
+They saw what they think they could do with this, you know, who knew back then, right?
+And now, over 18 years later, they're the largest independent cloud provider in the
+world with 11 data centers around the world.
+But they really have just kept focused on building the best cloud computing platform
+to make it simple, affordable, and accessible to all.
+Maybe you've been doing this for 20 years, or maybe this is your first project.
+Go try out Linode.
+They've got great documentation, the best customer service, the performance is excellent,
+their dashboards are easy to understand.
+I'm used to like working through those kinds of things, but what impressed me was how the
+team has just wrapped their heads around it.
+Anyone who's wanted to get into it, even people who've never really set up a server can understand
+that interface.
+It really is pretty great.
+And they got one click deployments for some of the best open source applications out there.
+Maybe you're ready to move to your own GitLab instance.
+Linode can make that really straightforward.
+And their pricing is 30 to 50% cheaper than those huge duopolies that want to lock you
+into their crazy interfaces with their crazy terminology and processes that are only applicable
+to that platform.
+It's just kind of gross, really.
+And then Linode backs it with tons of great features and services, stuff that makes the
+computing experience even better.
+Bulletproof backups that are easy to understand exactly where you're at or kick off another
+one with status updates on where it's at.
+Cloud firewalls, S3 compatible object storage, VLAN support, DDoS protection, a powerful
+DNS manager, and much, much more.
+So go check it out.
+I can tell you about it all day long, but you got to experience it.
+And that $100 really does let you try it out.
+So go to linode.com slash coder.
+Get $100 for 60 days on a new account, and you support the show, linode.com slash coder.
+During the Epic versus Apple lawsuit, I don't know if this made it on the air.
+I think it did, but maybe it didn't.
+But we definitely discussed it off air.
+It looked like Apple was implying that Microsoft was behind the scenes giving Epic lawyer time,
+emails, information to help Epic win their fight against Apple.
+And Mike and I remember we both saw this and we're like, this is a weird thing for Apple
+to claim.
+You remember that little exchange?
+Yeah.
+Yeah.
+It seemed a little odd.
+Well, it turns out it was true.
+Now we know because 35 US states led by Utah and Microsoft have officially thrown their
+weight behind Epic's appeal.
+And in addition to that, get ready for this.
+The Biden administration is also joining this pack in the appeal against the Apple versus
+Epic decision.
+That's an allegedly neutral party, though, right?
+Where the federal government and White House leads, Microsoft always follows.
+This has been a very common thing, if you notice, like with the whole tick tock thing
+with Trump, when it comes to the Pentagon stuff, there is a real tight connection between
+what the White House wants and what Microsoft is willing to do.
+And I've noticed that for a while.
+So it's no accident, I think, that this has been going on.
+This is fascinating.
+Because you've got these 35 states, Utah at the top, you got Microsoft and the Biden administration,
+supposedly being neutral, that are all now gunning, along with Epic, that are all now
+gunning for this appeal.
+I'm just kind of taking all of this in, trying to figure out like, what's the end game here?
+Because they're not going to stop with Apple, right?
+They're going after Google.
+So Microsoft is kind of using the very system that came after them around Internet Explorer,
+hobbled them for a decade plus, and now has made them a compliant lapdog of the federal
+government.
+Microsoft is now using that very tool, that was probably an awful experience for them,
+to go after their two biggest competitors, Apple and Google.
+They're taking the machine that chewed them up, and now they're turning it against their
+competitors in what is an absolute killer move.
+I think this is, right here, showing us that Microsoft has not lost its teeth, it's just
+been doing more kind of behind the scenes stuff.
+But now with everyone's cards on the table, they had to put their name out there because
+they had to go in on this appeal.
+They were perfectly happy remaining a silent player in this, even though Apple's lawyers
+did try to out them, it just never got any traction.
+And still no one's really talking about it, but it's right here, Fosspatent has the filings,
+and it all started because they wanted to slip an app store into Fortnite, Epic did.
+Now what, Microsoft wants Game Pass.
+I think that's what pissed off Microsoft and got them involved.
+You sound like very excited about this.
+I think it's going to be a hell of a fight.
+Has Apple raised the cost of software to the end consumer?
+Or cost to be raised?
+I would say it's caused the cost of software to be lowered.
+Then you're beat.
+You're beat.
+That's it.
+You got nothing.
+Right?
+In the EU, you've got something, but you know how we feel about the EU.
+You got nothing in the United States.
+Antitrust is, did they raise, did it cause prices to go up for the consumer?
+Yes or no?
+The answer is no, because they've basically destroyed small development jobs.
+You're done.
+Right?
+So all they've done is taken value from independent developers.
+Now if a law were to be changed, that would be different, right?
+If Congress got out of what I can only consider its 30 year bender, maybe they could do something
+and sober up for a day or two.
+It's funny because I keep reading these stories about Apple and I am very much on the side
+of this is horrible, this shouldn't exist.
+If I understand what I'm reading about the law and what kind of very, very smart legal
+analysts are writing, Apple's mean, but being a dick is not illegal.
+It's just not.
+Right?
+Being super powerful is not illegal.
+I can see that.
+And I think what the hope is, is that new precedent or new law gets created as a result.
+You know, some Congress critter wakes up, but-
+So Tim Cook calls Nancy Pelosi a few more times.
+Yeah.
+So I also struggle to actually understand what Apple did wrong here.
+I wish there wasn't a green versus blue bubble thing that they had iMessages for Android.
+I wish they had third party payment options for the app store.
+I wish they didn't take such a commission, right?
+But I also wish that Walmart let me buy music that has swearing in it.
+It's their store.
+They make the rules.
+That's always been the case.
+And even just this quarter, they weren't the top phone maker.
+Samsung took the top spot for smartphones in 2021.
+For 2021.
+Samsung has 20% of the market.
+They sold 272 million phones.
+There are more Samsung phones than there are iPhones.
+And Samsung is just one brand of Android.
+So I don't buy the monopoly argument here.
+I just don't buy that.
+And I also don't buy that Epic's the victim.
+They knew the rules of the store.
+I don't like the rules, but they knew the rules of the store and they shipped an app
+store in their crappy gaming app.
+So I feel like what's happened here, and I really hate to say this because it makes me
+sound like I'm defending Apple, but I'm just telling you like I see it.
+I think Apple built the best product.
+They brought a lot of customers.
+And now the losers are trying to use the legal system to punish Apple.
+But Apple didn't do it by like how Microsoft did it back in the day where they bullied
+OEMs into shipping Windows and Internet Explorer and threatened to break them if they didn't
+do it, right?
+Apple didn't pull those kind of moves.
+They just built a good product with really strict, clear rules that everybody understood
+up front.
+These are the rules of the land.
+And consumers responded to that.
+And for some consumers, it meant they can now install apps on their phone without worrying
+about it being malware.
+Like that's a huge game changer, right?
+Yeah, I absolutely agree.
+So my thinking on all this Apple stuff has evolved.
+There's two types of Apple, let's call it dickery.
+There's kind of accidental dickery or like kind of petulant dickery.
+So for instance, I consider all the stuff we're like, oh my God, a formal Apple engineers
+app is on the App Store.
+But you know who really cares about that?
+Indies, people like me, right?
+That doesn't matter for the mass market because, okay, they did their friend a favor.
+They featured their stuff, whatever.
+And there's accidents, right?
+Where the rules are a little vague and like one reviewer sees it this way and another
+sees it that way.
+And sometimes things get approved and then not approved or you can, you know, I've had
+those awkward back and forths.
+That's like just incidental in a way.
+That's kind of, well, it's a huge App Store.
+There's always going to be some failure rate.
+Think about, think about our own code, right?
+There's always some percentage of functions that are buggy.
+The other kind is they're not making a mistake.
+They're doing it on purpose because it's their business model.
+I would just call it, you know, looking out for themselves.
+I mean, they just got another pissing context with, what was it?
+Is it Denmark or?
+Yeah.
+The Netherlands.
+Yeah.
+Yeah.
+And they don't care, right?
+Because they're in the business of the App Store in the eighties.
+We decided to change the standard, right?
+Robert Bork, you should listen to the verge if you don't, you learn a lot.
+And a standard has changed and on the existing standard of what a monopoly is.
+They are certainly not a monopoly in any way, shape or form.
+And they have not caused prices for consumers of software to rise.
+This is my thing.
+And while I wish it had to be an open App Store, I wish I had this, I could sideload.
+I wish that iMessage wasn't a siloed platform.
+I failed to actually understand what law they broke.
+And so where I kind of begin to backslide into, and I'd love the audience's thoughts
+on this is maybe, maybe I'm missing, maybe they did break some law here.
+But it seems to me like what we're saying is if you just do a really good job, become
+super successful, ultimately corporations will work with the government to come after
+you to take some of that success away.
+And so you kind of get punished if you break the law and you kind of get punished if you
+don't break the law.
+There really seems to be no difference.
+In fact, often it seems like people that break the law get away with things for longer.
+All they've done here is build a platform that has a lot of users, but they don't even
+have the majority of users.
+What they did was they did what Apple always does and what every luxury brand does.
+They targeted the whales, right?
+They targeted the people who are actually willing to spend money, frankly, it almost
+goes back to our Linux desktop conversation.
+But also Apple also has like been screwed in cases like this, not legal cases, but they
+had a lawsuit with Qualcomm about the antenna, LTE antenna licensing.
+I recall, yeah.
+Because Intel was so this is not a, this is a true story, so at making the parts that
+Apple needed, they ended up having to settle with Qualcomm, right?
+They bought into, they bought this division of Intel's modem business settled with Qualcomm
+because this is a problem I think I in the past and many of our listeners have at their
+scale, it is not about like their feelings or emotions.
+It's a business.
+So did Apple want to pay Qualcomm stupid percentage of the phone?
+No, that's why they sued them.
+But when Intel couldn't deliver, guess what?
+They sucked it up.
+Sally, they paid Qualcomm and they bought the people from Intel kind of as a hedge.
+Intel continued.
+Why are there no Nvidia MacBooks anymore?
+Well, the story is that in two, I might get the year wrong so we can correct it next week.
+I think it was like 12 or 13 was it?
+Yeah, there was 12 or 13, one of the first aluminum MacBook Pros.
+Might've been a little earlier.
+The Nvidia chips overheated.
+I had one of these all the time and Nvidia would not pony up for the repairs.
+Though Apple got pissed and decided they didn't want to deal with Nvidia.
+But guess what?
+They did that because it cost them money.
+Right?
+They didn't do it because they were...
+Right.
+They paid for the repairs.
+They wanted Nvidia to help out and Nvidia refused.
+Right.
+They took care of the end customer, myself included.
+And you know, so I don't know.
+I mean, I also like as much as I would like to see the apps to open up, it is real unfair
+if we can go back and retroactively change laws and say that, well, this thing that was
+okay, even though it's kind of of you is now not okay.
+And we're going to go back and punish you for what you did before, even though we said
+it was okay.
+I mean, how can you do that?
+You can't...
+I feel like you just can't unring the spell in a way that isn't like pure straight up,
+you know, big brother comes in and literally says, or we'll throw you in jail.
+It does go back to our discussion about Linux desktop users being willing to pay.
+Because when you're a business and you're looking at markets to address for your product,
+you consider those kinds of things.
+And Apple has decided, and they figured this out a while ago, we're going after a percentage
+of the market that is willing to have a credit card on file with us all the time.
+That's like a baseline for an Apple customer.
+You got to have an Apple account.
+You need to get a form of payment on file.
+That eliminates a good percentage of Linux users right there, right?
+But they know what their demographic is.
+So they build a product that will sell to that demographic.
+And they realized that the App Store could address an issue that has traditionally plagued
+large platforms like Windows.
+And thank God they did because it would have been a nightmare if they hadn't.
+And so they built a product with the App Store that involved that crappy review process that
+involved sandboxing, but at the end it meant you could pop on an app on your phone like
+it's candy and try it out.
+They trusted these things, so they'd be willing to try out some app called Candy Crush and
+install it on their phone.
+And that changed the market.
+They truly did innovate in that regard.
+And the market rewarded them for it.
+Yeah, I keep like, and I know I rail against the App Store all the time, I struggle to
+see what a better system would be like for people who are effectively like our non-technical
+family members, and I'm sure we all have them.
+Because for us, fine, yes, I know how to go into my Discover Card app and create a one-time
+use credit card number if I'm on Joe Blow's website, right?
+Fine.
+Honestly, I don't want my mom to be able to input a random credit card into an iPhone
+app.
+I just don't.
+I think it's bad.
+And she's a pretty technical person, but I don't want my dad in his late 70s doing it.
+There's a reason that you're not seeing independent developers blogging about the glory that
+is the Amazon Fire app store, because it's a piece of shit.
+Windows Phone, my beloved, my beloved, failed.
+Because you know why Microsoft failed?
+Microsoft is really good to developers, really bad to customers, right?
+Microsoft worked with the carriers as partners because they're also their customers.
+Where Apple, Apple's big innovation, I would argue, forget the APIs, they always say it's
+the APIs, screw the APIs.
+The security stuff, you can make arguments against it.
+It was getting the carriers out of that transaction with the end customer.
+Yeah, it was saying no to Verizon.
+Java ME was a nightmare.
+You might get, what, 5%, 10% of your app, and that's if the carrier and the phone manufacturer
+were doing what it was really to have your phone pre-installed, unless we want to talk
+about POM, and if you want to talk about POM, we'll cry about WebOS together.
+It's fine.
+But I don't know, should they have this, quote, control?
+It made the difference, right?
+I had a Sprint Android phone that would get push notifications about football team wins.
+There's nothing I could do to remove the app.
+Oh, I had that on my first smartphone, was a Verizon Droid, and it really, really thought
+I liked football.
+Yeah, same thing.
+Yeah, and I did not care at all, and I kept getting push notifications about it, and that's
+when I realized this really matters.
+This really matters.
+And that was an innovation, and it did change the market, and it did get them a lot of customers.
+We're never going to be able to educate the average Joe user, Joe or Jane user.
+I think one of the mistakes a lot of us in our community make is a lot of the things
+we just take for granted as like, oh, of course, you have 2FA on, right, naturally.
+That's a big hurdle for a lot of people, and that's just one instance.
+I don't know.
+If not them, then who?
+I certainly don't want, again, my dad or mom or whoever is cell phone to be as open
+as a Windows PC.
+How many times have I had to reinstall Windows?
+Or Android, to be honest.
+They don't get Androids.
+Android doesn't exist.
+I legitimately bought my mom an iPhone and just said, here, mom, take this.
+I cannot handle this.
+She lost all of her pictures twice on Android.
+She had years of issues, and she just kept going in, and the carrier would just like
+sell her on a phone, and it was always the Android phone, and it was an absolute disaster.
+They give her just an unbelievably cheap phone that had maybe 16 gigs of storage.
+It's just painful.
+So I eventually just bought her an iPhone and said, here, mom, just use this.
+And it's been great.
+Your mom could drive to an Apple store if there's one by her and be like, hey, my phone's
+not working.
+And most of the time, they'll just fix it with very little questioning.
+Datadog.com slash Coder Radio.
+That's right.
+When you go to datadog.com slash Coder Radio, you can get a two-week free trial over at
+datadog.com slash Coder Radio, and you'll receive a free Datadog t-shirt as well.
+Datadog is the SaaS monitoring and security platform you've needed.
+It gives you full stack observability for developers, maybe your IT operations, security,
+the business team, everyone can get full visibility, even in the cloud age now.
+And Datadog's platform, along with over 500 vendor-backed integrations, allows you to
+correlate your metrics, your traces, your logs, and your security signals across your
+applications, your infrastructure, and your third-party services, all in a single pane
+of glass.
+The capabilities that this gives you, combined with the drag and drop dashboard and the machine
+learning-based alerts, takes it to the next level.
+It lets your team troubleshoot and collaborate more effectively, which means you prevent
+downtime, and it also just means you're going to enhance performance and reliability.
+That value is huge.
+And so, as an exclusive offer for Coder Radio listeners, go sign up for a two-week free
+trial at datadog.com slash Coder Radio, get yourself a Datadog t-shirt, and check this
+out.
+It's beautiful, the dashboards explain the entire thing.
+Datadog.com slash Coder Radio, and happy monitoring.
+The iPad, however, not doing so well.
+iPad sales are down, Mac sales are up, iPad sales down.
+So Google feels like tablets are the future.
+Google says that they're focusing on tablets, they've staffed up a new division.
+We believe they say the future of computing is shifting towards a more powerful and capable
+tablet.
+We're working to deliver the next chapter of computing and input by launching seamless
+support across our platform and hero experiences that unlock new and better ways of being productive
+and creative.
+This is great.
+It's 2011 again.
+Everything's awesome.
+I mean, I love this.
+This is how I knew this was going to be awful.
+They are doing the thing that they did originally, where they're going to take the current version
+of Android and fork it for tablets.
+It's Honeycomb part two.
+They're doing the same thing.
+Yeah.
+So they're going to have Android 12L, a mid-cycle release of Android that's dedicated to tablet
+functionality.
+Oh, they won't learn.
+No.
+Why won't they learn?
+I can't believe they're going to try this again.
+They have job openings for it and they also want to develop relationships with developers
+to create ink first hero apps, is their quote.
+Oh, sweet mother of pearl.
+Ink first, which probably just means, you know, they're going to have a big focus on
+pen input.
+So all these things are coming with.
+Oh, that sounds fun.
+So when people buy the cheapest possible stylus and the cheapest possible tablet and your
+app doesn't work right and you have to.
+Because it will be a race to the bottom, like it always is with these things.
+Absolutely.
+It'll be, well, the carriers need something to give away to get you to sign that extra
+data plan.
+Oh man, I wonder how bad this is going to go.
+In some ways, I've always felt Android is actually a better tablet platform.
+I agree with that.
+I've liked iPhone with iOS and I've liked Android on a tablet.
+I always thought that was nice.
+Well, I see for me, Android would be great on the tablet as a, like an internal enterprise
+tool for customers, right?
+Developed Android is what I do a lot with the surface right now.
+The problem is that the minute you give them the Android option, everybody's looking at
+the cheapest tablets they can find and your, your code ends up having to apologize for
+whatever crap they bought on AliExpress.
+So yeah, absolutely, I've had some great apps that just run absolutely horrible on cheap
+Android tablets.
+You know, I was chatting actually with some folks last night at the meetup and how kind
+of funny it is cheaper these days.
+If you want to get, say the magic keyboard with an iPad, you just better off getting
+a MacBook Air, a low end MacBook Air.
+It's cheaper to get a Mac than it is to get a fully decked out iPad tablet these days.
+That's got to be why Apple's iPad sales are down.
+And I'd like to know how Google is going to solve that problem because Chromebooks are
+essentially sort of offering the same kind of value story.
+So the only real way I could see them offering something competitive there is if they tried
+to make them cheap.
+They're either going to go the pro route and make them way too expensive or they're going
+to have to do the race to the bottom.
+They're going to make them cheap.
+There's no way they're not.
+Yeah.
+When they say they're working with OEMs.
+Yeah.
+Google are bad people doing bad things for bad reasons.
+Google doesn't work well, do they?
+They just are broken.
+Google is not good at making hardware.
+You know what they were good at making?
+Wave.
+And they killed it.
+God damn it.
+Wow.
+Nice.
+Another one every week.
+You're on a streak.
+I love it, dude.
+That's fantastic.
+I have to say.
+Yeah, I'm just surprised that there's no mechanism internally that sort of checks this stuff.
+At least it seems outwardly there is.
+They bought Motorola at one point and they were like, oh no, what are we doing?
+This is crazy.
+You would hope internally, right?
+They've looked and said, okay, when we did Honeycomb, which right, these are back like
+Android three, Android four days.
+It's three.
+Honeycomb is three.
+They just had a bump, right?
+Honeycomb is three point X, which is important because it ended up diverging quite a bit
+from from main, right?
+So that's that's why this is bad.
+Right.
+There's like a whole UI change right around then.
+It's it's a big divergence.
+Yeah.
+I see that way.
+Yeah.
+You got to hope internally.
+Okay, team, what did we do wrong back then?
+You forked it.
+Yeah.
+And then they just repeated that mistake, though.
+Yeah.
+I mean, and but in all fairness, obviously, iPad OS is a fork, right?
+But they did that at a time when they were developing the OS and when they announced
+the next version, they announced that they were separating the OS is right.
+They did it at release time where this is mid cycle.
+They are forking mid cycle, which means Android 13 will be a totally different thing and there
+will still be Android 12 L users out there.
+Yes.
+Okay.
+So iPad OS is a fork, but that often remerges with the main, right?
+I would say iPad OS is a fork on layers, Android.
+The way they seem to have done it is Honeycomb, for lack of a better word, or Android tablet
+is effectively its only it's like the Huawei derivative of Android, right?
+It's like its own thing.
+And so far, I mean, iPad OS 15 point whatever and iPhone OS 15 point whatever are are super
+close to each other.
+You know, there's a bunch of get merges there that have happened over and over again, right?
+Yeah.
+Oh, man.
+What an embarrassment.
+I kind of I'd be curious, though.
+You know, I'll watch I'm going to keep an open mind if they could come out with an iPad
+pro like tablet that had a good quality keyboard, some decent apps.
+You know, I'd consider it.
+I would love it.
+I mean, for these enterprise cases, I would much rather be doing Android than Windows
+for reasons of, you know, good Windows tablets.
+There's like three.
+They're all made by Microsoft.
+There you go.
+I think these iPad sales are cyclical.
+Last night, my wife was kind of giving me a hard time because she would like an iPad
+with an LTE connection because she's doing mobile care now after the covid shutdown.
+So she's now doing where she's going out to see clients.
+And so she'd love to have an iPad for her chart notes instead of having to take a tablet.
+And she's like, you know, I have expected you.
+I expected by now you would have upgraded your iPad because I've had this thing since
+2018.
+I got the 2018 iPad pro and it's just been such a solid little tablet that I haven't
+needed to buy it.
+I know you're in a similar situation.
+I think a lot of people out there bought in 2018 because that's when they kind of redid
+the design too.
+And I think the sales drop off until Apple really releases a pretty substantial upgrade
+and that last one was close, but it's still not quite enough.
+I get more and more years out of these iPads than I do out of a laptop.
+And that's got to affect the sales as well.
+And so I am looking for a tablet because my wife would like one for what she does.
+So we'll see.
+Either I'll end up getting one and she'll take mine or maybe one of these Android ones
+will come out and she'll like that.
+Keep my eye out.
+I do think there is a long term use case for them.
+They're not updated as frequently because it's just a slower market.
+And for people that are using it, it's like more low key usage.
+I want to say thank you to our Coder QA members.
+The new Coderly has been put together by Drew and will be out later this week.
+So if you would like to sign up, you get access to that and all previous Coderly reports.
+Go to CoderQA.co or you can become a network member and support all the shows.
+It's a great way to help us stay independent.
+And anytime we can diversify the income of the network and make sure that a as large
+as possible percentage comes from the audience, that is a financial incentive to always just
+remain absolutely focused on making our audience happy because they're the ones paying the
+bills.
+I think it's the best way to fund media personally.
+If I could, it'd be the only way media was funded, but we're not there yet.
+But you can help us get a little bit closer at CoderQA.co or Jupiter.party for the whole
+network.
+Well, Mr. Dominic, is there anywhere you'd like to send people before we wrap up this
+week?
+Follow me on Twitter at Dumanuco.
+And if you are in Florida and want to be a Python developer, you should let me know.
+Hmm.
+Hmm.
+Very nice.
+Contact the show at Coder.show slash contact.
+You can subscribe at Coder.show slash subscribe.
+If there's an episode you liked, send it to a friend.
+Word of mouth is the best way to help a podcast grow.
+We're always appreciative of that, too.
+It's a great way to support the show without spending a dime.
+But of course, we're just grateful you listen and download as well.
+And we'd love to have you join us live.
+We do it on Mondays at noon Pacific, 3 p.m. Eastern at jblive.tv.
+You can hang out in our chat room, help us title it, do a little pre-show.
+Sometimes we get on some topics like we did this week and we get a good discussion going.
+Anyways, we'll wrap it up there.
+Thanks so much for joining us on this week's episode of the Coder Radio Program.
+And we'll see you right back here next week.

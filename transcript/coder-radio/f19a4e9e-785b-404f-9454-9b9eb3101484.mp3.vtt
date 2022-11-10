@@ -1,0 +1,2294 @@
+WEBVTT
+
+00:00.000 --> 00:07.000
+This is Koda Radio, episode 359 for May 27th, 2019.
+
+00:30.000 --> 00:40.340
+Hello and welcome to Koda Radio, Jupiter Broadcasting's weekly talk show, taking a pragmatic look
+
+00:40.340 --> 00:46.640
+at the art and business of software development and related technologies.
+
+00:46.640 --> 00:52.320
+My name is Wes and yes, I'm back and very pleased to be joined once again with Mr. Michael
+
+00:52.320 --> 00:53.320
+Dominic.
+
+00:53.320 --> 00:54.320
+Hello, Mike.
+
+00:54.320 --> 00:56.360
+Buenas tardes, señor Wes.
+
+00:56.360 --> 01:01.600
+Oh, Mike, I was in Barcelona where they speak Catalan, not Spanish.
+
+01:01.600 --> 01:02.600
+But nice try.
+
+01:02.600 --> 01:03.600
+Yes.
+
+01:03.600 --> 01:07.560
+Big, big shout out to the one, the only Mr. Chris Fisher for covering for me last week.
+
+01:07.560 --> 01:13.260
+I was attending KubeCon slash CloudNativeCon, that's a really big mouthful, in the EU over
+
+01:13.260 --> 01:14.260
+in Barcelona.
+
+01:14.260 --> 01:18.280
+That was, that was lots of fun, but I was sad to be gone from this here show, though
+
+01:18.280 --> 01:24.680
+you guys did a great job and only talked about the Mac Pro a teeny tiny bit.
+
+01:24.680 --> 01:27.520
+Yes, we showed an admirable restraint.
+
+01:27.520 --> 01:31.040
+However, Wes, you did leave me for more than 24 hours.
+
+01:31.040 --> 01:32.720
+Yeah, I know.
+
+01:32.720 --> 01:34.400
+And there are consequences to that.
+
+01:34.400 --> 01:36.360
+So I'm prepared.
+
+01:36.360 --> 01:39.240
+I may have wandered into a white place.
+
+01:39.240 --> 01:41.880
+Well, we'll get you back.
+
+01:41.880 --> 01:45.560
+And maybe the best way to do that is let's just start out with some feedback.
+
+01:45.560 --> 01:50.560
+Now, this is feedback about the previous episode, so I'm going to claim no responsibility.
+
+01:50.560 --> 01:56.720
+But still, it's great feedback over at our subreddit, coderadio.reddit.com.
+
+01:56.720 --> 01:58.920
+That's how you get there.
+
+01:58.920 --> 02:06.000
+Our longtime friend, Mr. Tom Enom writes to us about Marzipan and Electron.
+
+02:06.000 --> 02:12.160
+In the discussion of Marzipan and Electron, honestly, I think the answer is WKWebView,
+
+02:12.160 --> 02:16.080
+which just arrived in Mac OS 10.10.
+
+02:16.080 --> 02:19.440
+Now before we go any deeper, Mike, can you tell me a little bit more?
+
+02:19.440 --> 02:21.680
+What is this WKWebView?
+
+02:21.680 --> 02:27.600
+On Cocoa Touch for iOS, there was a class called UIWebView, which is exactly what it
+
+02:27.600 --> 02:28.600
+sounds like, right?
+
+02:28.600 --> 02:34.240
+It's a view that has a, oh, God, what did Apple call their rendering engine back then?
+
+02:34.240 --> 02:36.240
+It's not Gecko, right?
+
+02:36.240 --> 02:37.880
+No, no, that's Firefox.
+
+02:37.880 --> 02:42.200
+But okay, so it's just a, it's a UIView that has a little web browsing component in it.
+
+02:42.200 --> 02:46.440
+Yeah, but it was, you know, because it was Apple, it was basically a very, very nerfed
+
+02:46.440 --> 02:47.900
+WebView.
+
+02:47.900 --> 02:52.640
+So WKWebView is basically a real WebView.
+
+02:52.640 --> 02:53.640
+I don't even know how to put it.
+
+02:53.640 --> 02:57.440
+I mean, there's a bunch of performance implications of it over UIWebView.
+
+02:57.440 --> 03:04.200
+It brings iOS much more on par with, say, Android and, you know, I won't say mobile
+
+03:04.200 --> 03:09.080
+versions of Windows, but like Windows in a touch interface and how they handle PWAs.
+
+03:09.080 --> 03:12.660
+But, you know, it's iOS.
+
+03:12.660 --> 03:19.240
+So there's still, it's a lot better, and I definitely, I think, I think Tom Manam makes
+
+03:19.240 --> 03:22.120
+a lot of good points in his post.
+
+03:22.120 --> 03:24.680
+But yeah, I mean, let's just simplify this down, right, because we don't need to go into
+
+03:24.680 --> 03:29.720
+like how mobile Safari does or doesn't embrace web standards.
+
+03:29.720 --> 03:35.480
+I would say WKWebView is a more standards compliant, much more performant, significantly
+
+03:35.480 --> 03:42.280
+more performant WebView than UIWebView, which was its predecessor and previously the only
+
+03:42.280 --> 03:45.000
+way to put embedded web content in iOS.
+
+03:45.000 --> 03:46.000
+Okay.
+
+03:46.000 --> 03:47.000
+I see.
+
+03:47.000 --> 03:50.920
+So instead of using something maybe like Electron, then you could use this more, more native
+
+03:50.920 --> 03:54.640
+component where I guess there'd just be less overhead?
+
+03:54.640 --> 03:55.760
+Well, no, not exactly.
+
+03:55.760 --> 04:00.480
+So anytime in iOS, and let's say you were writing an Objective-C back in the bad old
+
+04:00.480 --> 04:06.960
+days, your only choice for any kind of web interface was UIWebView.
+
+04:06.960 --> 04:10.440
+So it doesn't matter what like JavaScript dependencies you're using.
+
+04:10.440 --> 04:12.280
+Ah, yes, okay, I see.
+
+04:12.280 --> 04:17.260
+You're confined to the performance and to the, frankly, the abilities.
+
+04:17.260 --> 04:22.360
+And at the time, you have to remember, I'm going back years now.
+
+04:22.360 --> 04:27.000
+Mobile Safari just wasn't as standards compliant as the Android equivalent was.
+
+04:27.000 --> 04:29.440
+Ah, yes, I remember these complaints.
+
+04:29.440 --> 04:30.440
+Right.
+
+04:30.440 --> 04:31.440
+Interesting.
+
+04:31.440 --> 04:32.440
+Okay.
+
+04:32.440 --> 04:34.280
+And, you know, Tom also points out some stuff.
+
+04:34.280 --> 04:38.440
+Windows has things like WinForms and WPF applications.
+
+04:38.440 --> 04:43.140
+And of course, on kind of the other side of the fence, Google's been making some big moves
+
+04:43.140 --> 04:44.140
+with Flutter.
+
+04:44.140 --> 04:47.440
+Now, I haven't really had a chance, Tom hasn't either, to play too much with Flutter.
+
+04:47.440 --> 04:53.200
+But now that they've got, you know, some desktop environment, you know, they can render things
+
+04:53.200 --> 04:58.540
+out to the desktop, that sounds pretty compelling, at least for perhaps Electron haters out there.
+
+04:58.540 --> 05:00.120
+Have you tried it at all, Mike?
+
+05:00.120 --> 05:01.120
+Not yet.
+
+05:01.120 --> 05:04.760
+I mean, there's, you know, can I make a confession?
+
+05:04.760 --> 05:05.760
+Yes, you can.
+
+05:05.760 --> 05:06.760
+All right.
+
+05:06.760 --> 05:09.280
+Well, trust me, Father, for I have sinned.
+
+05:09.280 --> 05:11.600
+I'm actually coming around to Electron.
+
+05:11.600 --> 05:14.040
+Oh, now I've been waiting for this.
+
+05:14.040 --> 05:15.040
+Okay.
+
+05:15.040 --> 05:16.040
+Okay.
+
+05:16.040 --> 05:17.040
+You heard it right here.
+
+05:17.040 --> 05:18.880
+Episode 359.
+
+05:18.880 --> 05:19.880
+Please go on.
+
+05:19.880 --> 05:20.880
+What do you mean?
+
+05:20.880 --> 05:22.480
+What does what is coming around mean?
+
+05:22.480 --> 05:24.080
+Where did you start and where are you now?
+
+05:24.080 --> 05:29.200
+I run Mac OS and desktop Linux, right, in the form of Pop OS.
+
+05:29.200 --> 05:32.960
+On both of those platforms, and frankly, even on Windows, you're running a ton of Electron
+
+05:32.960 --> 05:33.960
+apps, right?
+
+05:33.960 --> 05:34.960
+A la Slack.
+
+05:34.960 --> 05:35.960
+Yes.
+
+05:35.960 --> 05:36.960
+Yes.
+
+05:36.960 --> 05:37.960
+I mean, I'm certainly in that position.
+
+05:37.960 --> 05:38.960
+Right.
+
+05:38.960 --> 05:43.880
+And I have like, 10 Slack teams, like I'm, you know, there's so many apps on Windows,
+
+05:43.880 --> 05:48.040
+my email client is Electron on Mac, or I'm sorry, on Pop.
+
+05:48.040 --> 05:50.380
+It's the same one because it's mail spring.
+
+05:50.380 --> 05:52.720
+So I've just kind of embraced Electron.
+
+05:52.720 --> 05:56.640
+Now I still have lots of criticisms that I'm not going to go over again, because they're
+
+05:56.640 --> 05:58.360
+well documented.
+
+05:58.360 --> 06:05.960
+But the answer to like, the vast majority of my problems with Electron is WebAssembly.
+
+06:05.960 --> 06:12.120
+If it were just less resource intensive, I think I would be okay.
+
+06:12.120 --> 06:16.800
+And frankly, I think we are I mean, I'm curious, actually, Wes, if you would agree with this
+
+06:16.800 --> 06:17.800
+statement.
+
+06:17.800 --> 06:20.760
+JavaScript performance is just going to be solved by time, right?
+
+06:20.760 --> 06:24.680
+As WebAssembly is adopted more, this becomes a negligible problem.
+
+06:24.680 --> 06:29.440
+Yeah, I think it depends on what you mean by JavaScript performance.
+
+06:29.440 --> 06:33.960
+If you mean sort of runtimes associated with JavaScript, and there's probably some limitations.
+
+06:33.960 --> 06:39.640
+I mean, V8 is already pretty, pretty amazing technology.
+
+06:39.640 --> 06:44.100
+I do think you're right, the combination of WebAssembly and existing JavaScript techniques,
+
+06:44.100 --> 06:48.440
+you can, you know, because they kind of play in the same space, you can have success stories
+
+06:48.440 --> 06:53.900
+of oh, I took my, you know, super optimized C++ application, got it to run on WebAssembly.
+
+06:53.900 --> 06:57.960
+It did some of the really needed, you know, the hot paths of code stuff, you really had
+
+06:57.960 --> 06:58.960
+to get fast.
+
+06:58.960 --> 07:03.400
+And then JavaScript, JavaScript sits on top and sort of orchestrates everything.
+
+07:03.400 --> 07:08.000
+Now we'll probably also see some pure WebAssembly stuff, but I imagine that'll be the minority.
+
+07:08.000 --> 07:10.480
+Well, I'm not sure that it will be though, right?
+
+07:10.480 --> 07:13.480
+So in fact, you just like dovetailed into where I was going with it.
+
+07:13.480 --> 07:19.640
+I look at projects like Project Uno, which is a XAML.NET UWP ish port for WebAssembly
+
+07:19.640 --> 07:21.320
+and other platforms.
+
+07:21.320 --> 07:26.200
+And granted, if you're not a.NET lover like I am, you know, pick your technology.
+
+07:26.200 --> 07:29.280
+I'm sure there's a WebAssembly port of it.
+
+07:29.280 --> 07:34.600
+Why shouldn't people in let's say two to three years just target WebAssembly and run it in
+
+07:34.600 --> 07:37.240
+some sort of electron-like container, right?
+
+07:37.240 --> 07:42.280
+I'm using air quotes that you can't see, but maybe electron in name is not going to work
+
+07:42.280 --> 07:43.280
+out.
+
+07:43.280 --> 07:49.000
+But the idea of just compiling to this open standard of WebAssembly and running it basically
+
+07:49.000 --> 07:51.680
+wherever the hell you want, there will be compromises.
+
+07:51.680 --> 07:54.240
+I'm not, you know, I'm not being naive, like it's not going to be perfect.
+
+07:54.240 --> 07:59.900
+Like if somebody sits there and like finally crafts an elementary OS or a Mac OS app, sure,
+
+07:59.900 --> 08:03.960
+that will be better than your WebAssembly app in terms of user experience.
+
+08:03.960 --> 08:10.960
+But if you're just building a line of business software and you want a desktop application,
+
+08:10.960 --> 08:17.760
+I struggle to see too many cases where I would ever recommend to somebody that they not look
+
+08:17.760 --> 08:19.080
+at a WebAssembly solution.
+
+08:19.080 --> 08:22.520
+Now that doesn't necessarily mean JavaScript, right?
+
+08:22.520 --> 08:30.520
+Just like with my platform Uno example or Avalonia, those are.NET powered examples.
+
+08:30.520 --> 08:31.520
+I don't know.
+
+08:31.520 --> 08:35.920
+I think this is maybe in two to three years where we're all going to be.
+
+08:35.920 --> 08:38.040
+And frankly, I think it's a beautiful world.
+
+08:38.040 --> 08:43.680
+You're a developer, you enjoy certain technologies, do what you like and compile it to WebAssembly
+
+08:43.680 --> 08:47.960
+and you will get reasonable performance and reasonable access to native APIs.
+
+08:47.960 --> 08:49.800
+No, I mean, I think you're spot on.
+
+08:49.800 --> 08:52.920
+I hadn't quite thought about it that way, but you're right.
+
+08:52.920 --> 08:57.920
+I mean, it's sort of what Java maybe could have been in some ways if we do have this
+
+08:57.920 --> 09:04.320
+dream of a, you know, a nice universal minimal runtime layer that you can target and still
+
+09:04.320 --> 09:10.080
+get, you know, very efficient things that lets you bottom out into really nice optimized
+
+09:10.080 --> 09:11.080
+code.
+
+09:11.080 --> 09:13.320
+And it does seem like when we're talking about Electron, right, we've already kind of thrown
+
+09:13.320 --> 09:16.960
+out native apps out of the window, or at least totally native applications.
+
+09:16.960 --> 09:19.520
+But what about Marzipan, Wes?
+
+09:19.520 --> 09:20.520
+But what about Marzipan?
+
+09:20.520 --> 09:21.520
+Yeah.
+
+09:21.520 --> 09:25.760
+No, I think you guys had some pretty astute observations there and yeah, okay, maybe it'll
+
+09:25.760 --> 09:30.560
+let you get a couple more sales on the Mac, but it's not, it doesn't feel like it's going
+
+09:30.560 --> 09:32.800
+to have the same sort of universal appeal.
+
+09:32.800 --> 09:34.280
+At least that's what's my take.
+
+09:34.280 --> 09:35.280
+Yeah.
+
+09:35.280 --> 09:39.720
+I mean, having said that, I believe this once before when I was super junior running Java
+
+09:39.720 --> 09:44.200
+applets, and again, I am still sorry for what I did.
+
+09:44.200 --> 09:46.520
+But yeah, it'll, this time will be different, right, guys?
+
+09:46.520 --> 09:48.320
+Oh, I can certainly hope so.
+
+09:48.320 --> 09:50.240
+It's interesting to hear you say that, though.
+
+09:50.240 --> 09:53.760
+I mean, I guess, is that the main objection most people have to Electron?
+
+09:53.760 --> 09:56.000
+I know there's, it seems like there's kind of two camps.
+
+09:56.000 --> 09:59.440
+One is there's a sort of the philosophical camp that we shouldn't be doing things this
+
+09:59.440 --> 10:00.440
+way.
+
+10:00.440 --> 10:03.840
+It's bloated and wasteful, and it just sort of feels gross.
+
+10:03.840 --> 10:06.880
+And then there's the other camp, like maybe you just run on a machine and you have a lot
+
+10:06.880 --> 10:11.480
+of that, and so it's a practical argument that I just don't like having 10 copies of
+
+10:11.480 --> 10:13.160
+Chrome running at once.
+
+10:13.160 --> 10:18.920
+Yeah, I mean, you know, the philosophical argument, maybe there will always be a market
+
+10:18.920 --> 10:22.400
+for like high end native applications, sure.
+
+10:22.400 --> 10:27.480
+And maybe there will be some use cases where native is going to be better.
+
+10:27.480 --> 10:32.400
+But I think the strongest argument against Electron right now is that you're running
+
+10:32.400 --> 10:35.560
+10 instances of Chrome, just like you said.
+
+10:35.560 --> 10:39.800
+You know, for me, I don't know how I could do my job without running Electron, right?
+
+10:39.800 --> 10:41.680
+I work in VS code all the time.
+
+10:41.680 --> 10:43.800
+I have Slack open constantly.
+
+10:43.800 --> 10:46.640
+If the computer's on, Slack is open.
+
+10:46.640 --> 10:49.300
+And God knows what else is like, mail springs Electron, right?
+
+10:49.300 --> 10:53.400
+There's all these other applications that are on Electron that I'm probably using without
+
+10:53.400 --> 10:54.400
+knowing.
+
+10:54.400 --> 10:55.400
+Right.
+
+10:55.400 --> 11:00.040
+I mean, just the idea, the barrier to entry is so much lower if you can combine all these
+
+11:00.040 --> 11:04.480
+web technologies that you're already fluent in and ship them without having to learn several
+
+11:04.480 --> 11:09.080
+new, you know, native development environments, it's just not going to happen.
+
+11:09.080 --> 11:10.080
+And then what?
+
+11:10.080 --> 11:13.400
+Then you start making decisions because you have limited manpower of which platforms do
+
+11:13.400 --> 11:18.440
+you target instead of using something like Electron and being able to target all of them.
+
+11:18.440 --> 11:19.440
+Yeah.
+
+11:19.440 --> 11:24.340
+And I also think as a, again, as we move towards the WebAssembly future, Electron is a pretty
+
+11:24.340 --> 11:26.400
+good stop app.
+
+11:26.400 --> 11:30.200
+And there's no reason Electron apps couldn't eventually embrace WebAssembly, which I think
+
+11:30.200 --> 11:31.600
+it's where they're going.
+
+11:31.600 --> 11:32.600
+Well said.
+
+11:32.600 --> 11:35.500
+And really, this kind of touches on a lot of topics.
+
+11:35.500 --> 11:40.320
+We've covered everything from, you know, like web development to native app development.
+
+11:40.320 --> 11:46.400
+I saw you put out a little poll recently on Twitter, Mr. Dominic, and it might have a
+
+11:46.400 --> 11:48.880
+few implications for this here show.
+
+11:48.880 --> 11:49.880
+Yeah.
+
+11:49.880 --> 11:56.280
+So, I was asking our audience, now I know only a small percentage actually follows on
+
+11:56.280 --> 11:57.280
+Twitter.
+
+11:57.280 --> 12:02.040
+But, you know, what do you want to see more of on the show?
+
+12:02.040 --> 12:07.920
+Mobile Dev, Web Dev, Esoteric Languages, and Indie Biz Dev topics.
+
+12:07.920 --> 12:17.760
+Amazingly, Web Dev came in at 35% as the winner, but Biz topics came in at 32%.
+
+12:17.760 --> 12:18.760
+Those are pretty close.
+
+12:18.760 --> 12:19.760
+Yeah.
+
+12:19.760 --> 12:25.680
+Esoteric Languages followed a little bit, lagging way behind is Mobile Dev down there
+
+12:25.680 --> 12:28.400
+at 11%.
+
+12:28.400 --> 12:32.360
+Is this what you expected, or is this interesting to you?
+
+12:32.360 --> 12:36.560
+So, going in, I thought Esoteric Languages was going to win.
+
+12:36.560 --> 12:39.080
+I was actually surprised.
+
+12:39.080 --> 12:44.520
+I thought Dead Last was going to be Indie Biz Topics, and Mobile was going to be second
+
+12:44.520 --> 12:46.720
+to last.
+
+12:46.720 --> 12:51.760
+And it turned out it was Web Dev that won, Esoteric Languages, I'm sorry, Biz Topics
+
+12:51.760 --> 12:58.160
+second, Esoteric Languages, and then 11% Mobile Dev.
+
+12:58.160 --> 13:01.420
+Which is disappointing for someone who's been writing an iOS app that is going to be launching
+
+13:01.420 --> 13:02.420
+in about a month.
+
+13:02.420 --> 13:07.320
+Is that just because mobile's become sort of passe, even though we're still all using
+
+13:07.320 --> 13:08.320
+it?
+
+13:08.320 --> 13:12.720
+You know, I mean, we're still installing applications, we still use our phones every darn day.
+
+13:12.720 --> 13:17.080
+Or is that just because more and more has shifted to the back end, and mobile clients
+
+13:17.080 --> 13:18.880
+are sort of thin clients?
+
+13:18.880 --> 13:24.540
+Well, I mean, certainly some of it probably has to do with audience composition, right?
+
+13:24.540 --> 13:28.880
+But I would argue that mobile has become an implementation detail.
+
+13:28.880 --> 13:35.400
+I mean, granted, this coming Monday is WWDC's keynote, so maybe Apple will launch something
+
+13:35.400 --> 13:40.960
+that's like so earth shattering that we'll have to do an emergency live, whatever.
+
+13:40.960 --> 13:44.200
+I doubt that very much.
+
+13:44.200 --> 13:50.000
+Like I think you're going to have to endure me talking about a Mac Pro.
+
+13:50.000 --> 13:54.880
+And I will dunk on Marzipan, that'll probably be about it.
+
+13:54.880 --> 13:56.120
+I want to be wrong, though.
+
+13:56.120 --> 14:01.680
+I would love more productivity iPad APIs so that we can have our Star Trek future.
+
+14:01.680 --> 14:04.000
+Yeah, I mean, that would be nice.
+
+14:04.000 --> 14:05.400
+I need that interface, man.
+
+14:05.400 --> 14:06.400
+I need it.
+
+14:06.400 --> 14:09.040
+Yeah, but you know, I mean, I don't want to get into this again, because we've talked
+
+14:09.040 --> 14:13.960
+about it on tons of episodes, but just the limitations that iOS puts up make some of
+
+14:13.960 --> 14:21.200
+those types of productivity functionality very challenging, I think.
+
+14:21.200 --> 14:22.200
+So I don't know.
+
+14:22.200 --> 14:23.200
+I think, I don't know.
+
+14:23.200 --> 14:24.200
+What are your thoughts?
+
+14:24.200 --> 14:26.360
+I mean, I guess I'm just saying mobile is mature, but that might be a lame answer.
+
+14:26.360 --> 14:27.520
+Yeah, that's fair.
+
+14:27.520 --> 14:29.800
+I guess it's not changing that much.
+
+14:29.800 --> 14:33.600
+So if you've already sort of figured it out, then okay, there's not that.
+
+14:33.600 --> 14:37.280
+There's even less exciting new frameworks and stuff than there might be for regular
+
+14:37.280 --> 14:38.280
+programming.
+
+14:38.280 --> 14:43.040
+What struck me when I was looking at this is I was just kind of curious.
+
+14:43.040 --> 14:45.240
+How do you define web dev?
+
+14:45.240 --> 14:46.760
+What fits under that umbrella?
+
+14:46.760 --> 14:53.580
+Yeah, I didn't like that category, but I didn't want to complicate it too much.
+
+14:53.580 --> 14:57.680
+Basically anything in the browser, but I also felt that WebAssembly should have been its
+
+14:57.680 --> 14:58.680
+own category.
+
+14:58.680 --> 15:00.680
+You're really hot on WebAssembly.
+
+15:00.680 --> 15:01.680
+I like this.
+
+15:01.680 --> 15:02.680
+I am.
+
+15:02.680 --> 15:04.920
+Have you shipped anything in it yet?
+
+15:04.920 --> 15:06.120
+Oh, no.
+
+15:06.120 --> 15:08.680
+Nothing other than like little tinker toys to play around with it.
+
+15:08.680 --> 15:14.800
+And do you have one use case you've been looking forward to that you expect to be using?
+
+15:14.800 --> 15:17.520
+Either it enables something fundamentally different or you can offload.
+
+15:17.520 --> 15:21.420
+It seems like there's this new universal runtime where there's different workflows and there's
+
+15:21.420 --> 15:24.440
+also people just offloading JavaScript to make it faster.
+
+15:24.440 --> 15:25.440
+Yeah.
+
+15:25.440 --> 15:30.080
+I mean, I think in mixed OS environments, it's going to be a way to deliver a line of
+
+15:30.080 --> 15:36.080
+business apps that are much more performant and frankly less crappy than what we currently
+
+15:36.080 --> 15:41.840
+can do without writing natively or using some weird bridge framework.
+
+15:41.840 --> 15:43.240
+Well said, sir.
+
+15:43.240 --> 15:44.240
+Well said.
+
+15:44.240 --> 15:45.240
+All right.
+
+15:45.240 --> 15:48.960
+Well, you can go contribute, take that poll if you like, and of course, reach out to us
+
+15:48.960 --> 15:53.860
+and let us know about how you like what we're covering or the areas that maybe we should
+
+15:53.860 --> 15:55.360
+be covering more.
+
+15:55.360 --> 15:59.800
+You can find the best ways to get in touch over at coder.show.com.
+
+15:59.800 --> 16:10.360
+Mike, it's unfortunate, but I think we need to talk about titles.
+
+16:10.360 --> 16:13.720
+And maybe we could start with me asking you because I don't really know.
+
+16:13.720 --> 16:15.840
+I tend to make up titles for you.
+
+16:15.840 --> 16:18.200
+But how do you describe yourself to others?
+
+16:18.200 --> 16:24.160
+Are you a programmer, an entrepreneur, an independent consultant?
+
+16:24.160 --> 16:27.440
+What are you and what do you think about titles in our industry?
+
+16:27.440 --> 16:32.240
+Well, I usually describe myself as extremely tired.
+
+16:32.240 --> 16:36.520
+But beyond that, yeah, I never say programmer.
+
+16:36.520 --> 16:42.120
+I don't say entrepreneur unless I really have to or I'm filling out a LinkedIn profile.
+
+16:42.120 --> 16:48.320
+I think I say software developer, sometimes software engineer.
+
+16:48.320 --> 16:52.880
+I don't say app developer because if you've ever been to a cocktail party, you tell people
+
+16:52.880 --> 16:57.060
+you're an app developer, they don't leave you alone.
+
+16:57.060 --> 16:59.840
+Service-wise, a little precautionary principle in play.
+
+16:59.840 --> 17:00.840
+Yeah.
+
+17:00.840 --> 17:01.840
+Well, how about you?
+
+17:01.840 --> 17:02.840
+How do you put it?
+
+17:02.840 --> 17:10.520
+Yeah, I guess, I mean, programmer is not very well recognized and it sounds a bit simplistic.
+
+17:10.520 --> 17:16.480
+You have software developer, and that's true, but I mean, developer is just sort of a weird
+
+17:16.480 --> 17:17.480
+term.
+
+17:17.480 --> 17:20.240
+I mean, it doesn't really capture stuff.
+
+17:20.240 --> 17:24.720
+So I think the industry, I'll oftentimes end up falling back on engineer.
+
+17:24.720 --> 17:29.480
+But as an article you pointed me at over at the Atlantic points out, and I think rightfully
+
+17:29.480 --> 17:36.160
+so, if we are engineers, it's a very different sort of engineering than what that term has
+
+17:36.160 --> 17:40.520
+come to mean in, oh, I don't know, every other industry.
+
+17:40.520 --> 17:44.440
+And I'm more curious because I think you might have an interesting take on this as someone
+
+17:44.440 --> 17:51.480
+who works in aviation-related fields that are kind of exemplars of the discipline and
+
+17:51.480 --> 17:56.840
+practices enjoyed in those other engineering fields that just don't really apply to software.
+
+17:56.840 --> 18:01.720
+Yeah, I definitely have some takes on this.
+
+18:01.720 --> 18:07.840
+So we had an episode where we discussed this years ago, right after the healthcare marketplace,
+
+18:07.840 --> 18:12.800
+the what is it, the Affordable Care Act marketplace launched here in the States.
+
+18:12.800 --> 18:17.320
+Lots of big contracts going out to get that built and then huge implementation issues.
+
+18:17.320 --> 18:18.320
+Yeah.
+
+18:18.320 --> 18:22.600
+And there was a big movement, particularly among the software craftsmanship movement.
+
+18:22.600 --> 18:27.600
+And you can go back to the tweets and the blog posts written by people back then to
+
+18:27.600 --> 18:31.400
+basically say that software engineering, which I'm just going to use the term to simplify
+
+18:31.400 --> 18:36.720
+here, should be a licensed engineering field.
+
+18:36.720 --> 18:40.440
+I at the time pretty vehemently disagreed with that.
+
+18:40.440 --> 18:43.800
+I still disagree with it.
+
+18:43.800 --> 18:51.600
+Even engineers, so the author of this Atlantic post basically is maybe we should be fair
+
+18:51.600 --> 18:52.600
+to them, right?
+
+18:52.600 --> 18:58.800
+They're making Ian Bogost, I hope I'm saying your name right, Ian, is making the argument
+
+18:58.800 --> 19:04.840
+that what he calls engineers are in most states in the United States and most territories
+
+19:04.840 --> 19:11.880
+in Europe and in most places, to my knowledge, required to be licensed by the government.
+
+19:11.880 --> 19:13.280
+That is true.
+
+19:13.280 --> 19:15.520
+That hasn't always been true.
+
+19:15.520 --> 19:21.320
+So to me, and first of all, it depends on what type of engineer like and also there
+
+19:21.320 --> 19:25.960
+are like lots of engineers who work for a licensed engineer that aren't licensed.
+
+19:25.960 --> 19:31.360
+So one, I think he's mostly talking and he talks about building bridges and like basically
+
+19:31.360 --> 19:33.640
+basic infrastructure.
+
+19:33.640 --> 19:41.760
+He's really talking about civil engineering and Wes is right that in aerospace there are
+
+19:41.760 --> 19:45.440
+such a thing as licensed engineers and that's great.
+
+19:45.440 --> 19:47.800
+That's a thing that could be good.
+
+19:47.800 --> 19:54.920
+I kind of don't believe in licensing as a concept at the risk of like espousing some
+
+19:54.920 --> 19:58.080
+crazy libertarian philosophy here.
+
+19:58.080 --> 20:04.360
+You know, by Mr. Bogost's requirements here, Leonardo da Vinci would have been disqualified
+
+20:04.360 --> 20:08.240
+for any of his work and you know, basically all of his work, right?
+
+20:08.240 --> 20:09.240
+It would have been unacceptable.
+
+20:09.240 --> 20:12.440
+He's a jackass.
+
+20:12.440 --> 20:13.440
+Thank you.
+
+20:13.440 --> 20:15.560
+And so would like Euclid.
+
+20:15.560 --> 20:21.360
+You know, Euclid, the guy who gave us a bunch of basic arithmetic and geometry we have now.
+
+20:21.360 --> 20:28.720
+I sort of think this is like yes, Silicon Valley bros who are making stupid apps about
+
+20:28.720 --> 20:36.880
+like making the lives of 20 somethings easier to like do nothing are not really engineers
+
+20:36.880 --> 20:42.320
+in my mind, but it is not some mortal sin that they call themselves engineers.
+
+20:42.320 --> 20:48.080
+And you know, now would we really have to make some sort of delineation?
+
+20:48.080 --> 20:52.160
+So like for instance, I'm writing an iOS app to sell under the mad botter.
+
+20:52.160 --> 20:55.000
+So that would be code monkey work.
+
+20:55.000 --> 20:58.600
+But when I'm writing radars for fighter jets, I'm an engineer.
+
+20:58.600 --> 21:02.320
+Is that like the, am I an engineer sometimes, but not other times?
+
+21:02.320 --> 21:03.320
+Right.
+
+21:03.320 --> 21:04.440
+That's a great, that makes me think.
+
+21:04.440 --> 21:09.280
+I mean, part of this is software is just big and flexible, right?
+
+21:09.280 --> 21:13.480
+So if you're in the industry of making big structures, bridge building or you know, building
+
+21:13.480 --> 21:18.520
+skyscraper or something, I wonder how much more or less variance there is, right?
+
+21:18.520 --> 21:23.100
+It's from app development, say to writing software for planes, right?
+
+21:23.100 --> 21:24.720
+Those can be very different fields.
+
+21:24.720 --> 21:29.240
+I do wonder, is there something to this argument though, and maybe it has to do with some of
+
+21:29.240 --> 21:33.120
+the specificity here that, you know, there's just not that many playbooks.
+
+21:33.120 --> 21:36.920
+I mean, you can go buy a number of books that you want, but I'm not sure we have the same
+
+21:36.920 --> 21:41.720
+level of agreed upon practices or standards in the industry.
+
+21:41.720 --> 21:44.120
+Software just feels so fluid.
+
+21:44.120 --> 21:48.720
+And there's been a lot of progress on stuff like formal verification and, you know, statically
+
+21:48.720 --> 21:53.040
+typed languages and fancier compilers to try to make that less so.
+
+21:53.040 --> 21:57.680
+But I'm just not sure we've outgrown the sort of notion that we are just, you know, we're
+
+21:57.680 --> 21:58.680
+making web apps.
+
+21:58.680 --> 22:00.160
+If we break stuff, it's not that big a deal.
+
+22:00.160 --> 22:01.160
+I mean, we'll fix it.
+
+22:01.160 --> 22:03.960
+We've got to move fast and keep adding features.
+
+22:03.960 --> 22:09.760
+And is that sort of fundamentally different than sort of purity and approach to things
+
+22:09.760 --> 22:13.960
+that is more considered and practiced?
+
+22:13.960 --> 22:17.040
+It could be, I mean, but I wouldn't even say we've outgrown or we haven't outgrown the
+
+22:17.040 --> 22:21.720
+notion because in the 70s, anything we would have called the software engineer today wasn't
+
+22:21.720 --> 22:27.440
+in fact an engineer by Bogost's definition, right?
+
+22:27.440 --> 22:29.720
+So I don't know.
+
+22:29.720 --> 22:38.560
+I would almost argue, like to me, his argument is weak because it's the wrong argument.
+
+22:38.560 --> 22:43.400
+Like I don't agree with what I'm about to say, but I can make a very strong argument
+
+22:43.400 --> 22:47.720
+for it that software engineers ought to be licensed, right?
+
+22:47.720 --> 22:51.200
+I think that would destroy innovation and be terrible.
+
+22:51.200 --> 22:55.960
+But to me, that's a much stronger position than saying the Silicon Valley bros, which
+
+22:55.960 --> 23:00.480
+is basically who is complaining about here, shouldn't call themselves engineers.
+
+23:00.480 --> 23:07.880
+It's like getting mad at people who, you know, like wear things they maybe don't have the
+
+23:07.880 --> 23:08.880
+right to wear.
+
+23:08.880 --> 23:13.120
+You know, I know a guy who gets very mad when he sees some kids, young kids at a style where
+
+23:13.120 --> 23:17.480
+like derelict or imitation like military jackets, right?
+
+23:17.480 --> 23:19.280
+And some people get all pissed off about that.
+
+23:19.280 --> 23:21.080
+It doesn't matter, right?
+
+23:21.080 --> 23:29.000
+Like is it really, let me ask you, Wes, does it really hurt anyone if some frankly dumbass
+
+23:29.000 --> 23:34.760
+or douchebag working on some stupid hookup app in California calls himself an engineer,
+
+23:34.760 --> 23:36.320
+even though he's just writing JavaScript?
+
+23:36.320 --> 23:39.680
+Hey, hey, we need that hookup app, Mike.
+
+23:39.680 --> 23:40.680
+Don't get judgmental on us.
+
+23:40.680 --> 23:41.680
+No, it's not.
+
+23:41.680 --> 23:42.680
+That's my point.
+
+23:42.680 --> 23:43.680
+It doesn't matter.
+
+23:43.680 --> 23:46.800
+I mean, there's, there is something that matters about the discourse, but you're right.
+
+23:46.800 --> 23:50.320
+Like arguing against it in this way is probably not going to change anything.
+
+23:50.320 --> 23:55.520
+I wonder if it makes some interesting distinctions in the different tech fields though.
+
+23:55.520 --> 23:57.840
+Say network engineering comes to mind.
+
+23:57.840 --> 23:59.760
+That feels like it's a little closer, right?
+
+23:59.760 --> 24:03.160
+Oftentimes there are best practices that are standardized, right?
+
+24:03.160 --> 24:07.600
+Or you have big playbooks from equipment vendors that you're provided.
+
+24:07.600 --> 24:13.880
+Software at least in, you know, in new industries is a little more, you hit it on the head there,
+
+24:13.880 --> 24:15.480
+you know, craftsman like.
+
+24:15.480 --> 24:22.400
+There is this unlike in engineering, say software is oftentimes reinventing itself or at the
+
+24:22.400 --> 24:24.880
+forefront of what is current best practices.
+
+24:24.880 --> 24:27.880
+And really we haven't been doing this very long, right?
+
+24:27.880 --> 24:30.560
+I mean, how long has modern software existed?
+
+24:30.560 --> 24:31.560
+70s basically.
+
+24:31.560 --> 24:34.480
+In a blink of a blink of an eye.
+
+24:34.480 --> 24:35.480
+Yeah, exactly.
+
+24:35.480 --> 24:40.220
+So it seems like we're still also having to experiment a lot to just figure out what the
+
+24:40.220 --> 24:41.220
+heck we're even doing.
+
+24:41.220 --> 24:42.220
+Yeah.
+
+24:42.220 --> 24:45.960
+You know, what's interesting to me and what I'm a little surprised he doesn't call for
+
+24:45.960 --> 24:52.080
+in this post in the Atlantic is I would agree, like, you know, I used to be adamantly against
+
+24:52.080 --> 24:57.080
+the software craftsmanship people, but I was just wrong.
+
+24:57.080 --> 24:58.080
+Wester's right.
+
+24:58.080 --> 24:59.080
+Who is right?
+
+24:59.080 --> 25:00.080
+Wester's right.
+
+25:00.080 --> 25:01.920
+Oh, it's even worse.
+
+25:01.920 --> 25:08.600
+You know, some sort of more formalized processes of like apprenticeship or, you know, these
+
+25:08.600 --> 25:12.400
+are the way we do things, focusing on how you get things done, not just hacking things
+
+25:12.400 --> 25:17.440
+together and getting them done would be very beneficial.
+
+25:17.440 --> 25:23.160
+And Bogos, again, correctly says there have been a number of disasters, right?
+
+25:23.160 --> 25:27.820
+The healthcare marketplace, Equifax was a software issue.
+
+25:27.820 --> 25:29.720
+And this is all getting more important, right?
+
+25:29.720 --> 25:34.300
+Like software is only becoming more and more a part of our lives and tied into systems
+
+25:34.300 --> 25:36.280
+that matter more as a result.
+
+25:36.280 --> 25:37.280
+Absolutely.
+
+25:37.280 --> 25:43.440
+A bug in a credit rating agency's web portal could actually stop you from buying a house
+
+25:43.440 --> 25:44.440
+or buying a car.
+
+25:44.440 --> 25:46.240
+Yeah, yeah, you're absolutely right.
+
+25:46.240 --> 25:48.080
+That's terrifying.
+
+25:48.080 --> 25:49.080
+That's devastating.
+
+25:49.080 --> 25:51.760
+Especially as someone who's worked in software like that.
+
+25:51.760 --> 25:56.720
+That is just scary because I mean, software doesn't work.
+
+25:56.720 --> 25:57.720
+Is that too strong?
+
+25:57.720 --> 26:01.280
+Yeah, no, everything's broken and burning on fire.
+
+26:01.280 --> 26:04.160
+What's the next topic?
+
+26:04.160 --> 26:11.000
+So you don't see any long-term title or nomenclature changes coming out of this argument?
+
+26:11.000 --> 26:16.360
+No, I mean, I used to be scared of the title software engineer because I was afraid of
+
+26:16.360 --> 26:18.720
+being forced to go through licensing and stuff like that.
+
+26:18.720 --> 26:20.920
+That might be bad for me.
+
+26:20.920 --> 26:22.880
+But I've been doing this so long that I just don't care.
+
+26:22.880 --> 26:27.240
+If people want to call themselves software engineers, fine.
+
+26:27.240 --> 26:30.760
+More and more, I think I have been doing it myself because I just really don't want to
+
+26:30.760 --> 26:35.200
+say like app developer, one, because it's partially not true.
+
+26:35.200 --> 26:39.120
+I don't spend that much time writing mobile apps.
+
+26:39.120 --> 26:40.120
+But yeah, I don't know.
+
+26:40.120 --> 26:46.000
+I mean, what would the correct title be, I guess?
+
+26:46.000 --> 26:50.600
+I'm not sure we have an agreed upon one and that's sort of what's missing from this argument,
+
+26:50.600 --> 26:51.600
+I guess.
+
+26:51.600 --> 26:55.480
+It's easy to say we shouldn't be using this, but I don't know where we go from there.
+
+26:55.480 --> 26:58.600
+So I expect things will stay the same.
+
+26:58.600 --> 27:01.920
+Like ironically, the title I hate most is coder.
+
+27:01.920 --> 27:02.920
+Yes.
+
+27:02.920 --> 27:05.680
+Right, which for the host of Coder Radio is great, but...
+
+27:05.680 --> 27:07.800
+Software engineering radio, you mean?
+
+27:07.800 --> 27:10.680
+That exists and that's somebody else.
+
+27:10.680 --> 27:13.920
+So we had to, you know, second choice option, maybe third choice.
+
+27:13.920 --> 27:19.520
+Because it's that stupid Jonathan Coulton song, code monkey get up, yeah, that one.
+
+27:19.520 --> 27:20.520
+Yes, exactly.
+
+27:20.520 --> 27:24.200
+Well, all right, I think by and large, I agree with you.
+
+27:24.200 --> 27:29.280
+I am curious to see how the practice of software development and engineering proceeds.
+
+27:29.280 --> 27:33.680
+And if we do reach a place of more rigorous standards, or, you know, at least more consensus
+
+27:33.680 --> 27:38.120
+within industry, but it doesn't seem to be happening anytime soon.
+
+27:38.120 --> 27:41.200
+They can't agree on tabs or spaces, so good luck.
+
+27:41.200 --> 27:47.880
+Now one area there has been some consensus, not entire consensus, but at least a majority.
+
+27:47.880 --> 27:50.040
+That's where you keep your code.
+
+27:50.040 --> 27:54.600
+And by and large, these days, where else, it's GitHub.
+
+27:54.600 --> 28:00.640
+Now while I was off gallivanting around Europe, some news came out, GitHub announced something
+
+28:00.640 --> 28:03.340
+called sponsors.
+
+28:03.340 --> 28:04.520
+What's going on here, Mike?
+
+28:04.520 --> 28:10.320
+Yes, so you can now throw some change at your favorite open source projects and maintainers.
+
+28:10.320 --> 28:16.360
+And I just found this out today, GitHub will match, I think it's up to $5,000 per project,
+
+28:16.360 --> 28:20.520
+or I guess they define a project as a repo.
+
+28:20.520 --> 28:22.000
+But wow, that's...
+
+28:22.000 --> 28:24.360
+Oh yeah, they're right, they're right.
+
+28:24.360 --> 28:29.560
+To supercharge community funding, GitHub created the GitHub Sponsors Matching Fund, which matches
+
+28:29.560 --> 28:34.740
+up to $5,000 per sponsored developer in their first year of sponsorship.
+
+28:34.740 --> 28:36.200
+Make it rain, baby.
+
+28:36.200 --> 28:37.640
+So what's your take on this?
+
+28:37.640 --> 28:40.680
+I mean, is this a good thing?
+
+28:40.680 --> 28:46.040
+It seems like yes, in the sense that we want open source projects to be sustainable and
+
+28:46.040 --> 28:50.640
+for developers putting a lot of hard time and effort into doing this, does it make you
+
+28:50.640 --> 28:56.240
+at all nervous that this is further centralizing and entrenching GitHub as the only place to
+
+28:56.240 --> 28:58.540
+do open source software development?
+
+28:58.540 --> 29:04.120
+So I like this idea, and yes, it is further centralizing GitHub.
+
+29:04.120 --> 29:07.820
+But I think it was eventually going to become a natural monopoly.
+
+29:07.820 --> 29:12.080
+Things consolidate, that just seems to be the nature of our industry.
+
+29:12.080 --> 29:16.460
+I still think on balance, and I actually don't think the consolidation is too bad in this
+
+29:16.460 --> 29:21.480
+case, people are providing hundreds of thousands, if not millions of dollars of value with these
+
+29:21.480 --> 29:24.320
+open source projects and not being compensated.
+
+29:24.320 --> 29:30.120
+And I know there's like the whole beard, Unix beard philosophy thing, but that does not
+
+29:30.120 --> 29:32.720
+pay your rent or buy you food.
+
+29:32.720 --> 29:35.040
+So yes, you should give them some money.
+
+29:35.040 --> 29:39.440
+And if this is an easy way to give them some money, since you are basically piggybacking
+
+29:39.440 --> 29:42.160
+on the work they've already done, I am all for that.
+
+29:42.160 --> 29:47.160
+Yeah, and I suppose it maybe it does make it easier if you are a company or other developer
+
+29:47.160 --> 29:51.920
+who already right has a GitHub account, you don't have to go use some sketchy third party
+
+29:51.920 --> 29:56.200
+service that you have to sign up for and give credit card details to in order to send a
+
+29:56.200 --> 29:58.220
+couple dollars someone's way.
+
+29:58.220 --> 30:01.440
+If you're already on GitHub, you probably already trust it and they have a lot of your
+
+30:01.440 --> 30:03.400
+details already.
+
+30:03.400 --> 30:05.880
+That sounds like a pretty low barrier to entry.
+
+30:05.880 --> 30:10.040
+And oftentimes, unfortunately, it seems like those little tiny details are what gets in
+
+30:10.040 --> 30:12.640
+the way of a donation or not.
+
+30:12.640 --> 30:15.920
+And I'm curious to see how successful this is after the initial hype period.
+
+30:15.920 --> 30:22.400
+Well, I'll put the question to you, Wes, do you think GitHub, which is, of course, Microsoft,
+
+30:22.400 --> 30:27.360
+is maybe gaining too much influence on the open source community as a whole?
+
+30:27.360 --> 30:31.840
+You know, there was some other news, right there, they have some more dependency tracking
+
+30:31.840 --> 30:36.040
+and upgrading stuff that they announced recently as well.
+
+30:36.040 --> 30:38.000
+It's becoming a very full featured platform.
+
+30:38.000 --> 30:43.380
+And it's clear Microsoft cares a lot about I mean, they paid a fair amount for it.
+
+30:43.380 --> 30:47.680
+But it seems like it's developing and releasing stuff at an even faster pace now.
+
+30:47.680 --> 30:50.340
+And it's becoming a very nice spot to be.
+
+30:50.340 --> 30:53.800
+On one hand, it seems like they're giving more away for free.
+
+30:53.800 --> 30:56.480
+You know, there is more features that you can use and that they're being very friendly
+
+30:56.480 --> 31:01.200
+to open source communities and projects.
+
+31:01.200 --> 31:04.280
+I still have this little feeling in the back of my mind that makes me just like a little
+
+31:04.280 --> 31:07.280
+bit nervous about it.
+
+31:07.280 --> 31:11.600
+I'm curious if we'll see any more good faith moves, you know, maybe some open source releases
+
+31:11.600 --> 31:16.440
+from some of the GitHub codebase or some of their tools.
+
+31:16.440 --> 31:19.040
+Microsoft does seem to be playing that game.
+
+31:19.040 --> 31:25.200
+And I don't really doubt their intentions.
+
+31:25.200 --> 31:32.480
+It just seems so, so centralized, like it's, there is such a pressure to be there.
+
+31:32.480 --> 31:36.880
+Eventually, if prices get ratcheted back up, what happens, right?
+
+31:36.880 --> 31:38.680
+I mean, do you lose this stuff?
+
+31:38.680 --> 31:41.480
+Or do you have to go then get out of GitHub?
+
+31:41.480 --> 31:42.960
+I don't really have an end game there.
+
+31:42.960 --> 31:44.600
+I'm not personally that worried about it.
+
+31:44.600 --> 31:46.380
+It's not going to change my day to day habits.
+
+31:46.380 --> 31:51.280
+But every time there's a feature, I can't be just excited for it.
+
+31:51.280 --> 31:52.280
+And I don't like that.
+
+31:52.280 --> 31:55.200
+I mean, I don't see how they would have any pricing power.
+
+31:55.200 --> 31:59.320
+Because you know, some time ago, we did have the GitLab CEO on here.
+
+31:59.320 --> 32:02.720
+You know, we at TMP do use GitLab as well.
+
+32:02.720 --> 32:04.060
+It does exist, right?
+
+32:04.060 --> 32:05.360
+It's very good.
+
+32:05.360 --> 32:06.360
+It is very good.
+
+32:06.360 --> 32:08.480
+Yes, that's absolutely, that is absolutely true.
+
+32:08.480 --> 32:11.960
+But is it I mean, does it have the same sort of discovery?
+
+32:11.960 --> 32:15.760
+GitHub's a name, you know, even if you don't do software very much.
+
+32:15.760 --> 32:17.640
+And I don't know that GitLab can say the same.
+
+32:17.640 --> 32:23.460
+So the the integration for GitHub that would scare me is if they integrated it with LinkedIn
+
+32:23.460 --> 32:28.840
+and GitHub became basically how you get employed as a, you know, kind of, kind of starting
+
+32:28.840 --> 32:33.840
+out developer engineer, whichever term we choose to use trying to break into the industry.
+
+32:33.840 --> 32:37.600
+Because one day recruiters are going to figure GitHub out.
+
+32:37.600 --> 32:39.680
+They don't seem to have yet.
+
+32:39.680 --> 32:41.300
+But it's going to happen.
+
+32:41.300 --> 32:45.840
+And if they ever do that, may God have mercy on those of us that ever emails public.
+
+32:45.840 --> 32:49.960
+Oh, boy, I'm, I'm scared for bad recruiting emails already.
+
+32:49.960 --> 32:50.960
+Oh, yeah.
+
+32:50.960 --> 32:53.400
+Yeah, I guess we're just gonna have to wait and see.
+
+32:53.400 --> 32:55.560
+And I mean, don't get me wrong.
+
+32:55.560 --> 32:57.380
+Probably I should just be happy about this.
+
+32:57.380 --> 33:01.740
+If it if it nets more money in the hands of open source developers, if it makes more open
+
+33:01.740 --> 33:06.720
+source projects sustainable, well, that's just got to be a good thing.
+
+33:06.720 --> 33:11.680
+Now, okay, moving right along something I think I have a little bit more right to be
+
+33:11.680 --> 33:15.800
+skeptical about maybe and maybe you can help here because this is over in the C sharp area
+
+33:15.800 --> 33:19.160
+and that's Mr. Dominic's domain.
+
+33:19.160 --> 33:21.760
+But it's lying to the compiler.
+
+33:21.760 --> 33:23.840
+Now the compiler is supposed to be our friend, right?
+
+33:23.840 --> 33:27.740
+It's supposed to be there to guide us and say, oh, oh, hey, buddy, you got that wrong
+
+33:27.740 --> 33:30.160
+or you missed that edge case.
+
+33:30.160 --> 33:36.760
+But sometimes you got to lie or at least play some games to get things to work right.
+
+33:36.760 --> 33:37.760
+Yeah.
+
+33:37.760 --> 33:41.160
+So John Skate, very, very famous, very, very talented.net developer.
+
+33:41.160 --> 33:45.360
+I think he's like number one on Stack Overflow for questions.
+
+33:45.360 --> 33:48.080
+Put this great post lying to the compiler.
+
+33:48.080 --> 33:53.120
+For those who don't know, C sharp eight is adding nullable references, technically nullable
+
+33:53.120 --> 33:54.460
+reference types.
+
+33:54.460 --> 33:56.520
+We've talked a little bit on this here show.
+
+33:56.520 --> 33:57.520
+We did we did.
+
+33:57.520 --> 34:03.000
+If you've done Swift at all, it's basically it's not exactly like optionals, but for the
+
+34:03.000 --> 34:06.780
+purposes of this conversation, it functions like optionals, right?
+
+34:06.780 --> 34:07.780
+It's fine.
+
+34:07.780 --> 34:12.860
+And in fact, it has the same syntax, question marks and exclamation points.
+
+34:12.860 --> 34:19.480
+So unfortunately, turns out if you have like large code bases and you upgrade them to C
+
+34:19.480 --> 34:23.040
+sharp eight, guess what the compiler does, Wes?
+
+34:23.040 --> 34:25.880
+I imagine it gives you all kinds of crap.
+
+34:25.880 --> 34:29.240
+Yeah, it gives you a bunch of warnings, which it's pretty common in the dotnet world to
+
+34:29.240 --> 34:30.800
+treat warnings as errors.
+
+34:30.800 --> 34:32.760
+So basically you can't like build or deploy.
+
+34:32.760 --> 34:33.760
+Right.
+
+34:33.760 --> 34:37.120
+Suddenly all these things break up your build, little light goes red somewhere and you're
+
+34:37.120 --> 34:40.480
+going what's happening and how do I make sense of it?
+
+34:40.480 --> 34:45.320
+You know, I've been talking about more in the context of Swift because Swift was kind
+
+34:45.320 --> 34:46.320
+of what made this mainstream.
+
+34:46.320 --> 34:51.120
+You know, it's obviously good if something could possibly be null to like handle that
+
+34:51.120 --> 34:52.120
+case.
+
+34:52.120 --> 34:53.120
+Right.
+
+34:53.120 --> 34:56.280
+The compiler is sort of to force you to think about it instead of making you do it yourself.
+
+34:56.280 --> 34:57.280
+Right.
+
+34:57.280 --> 34:59.800
+Which I think is great.
+
+34:59.800 --> 35:03.600
+But I also predicted that this is exactly what's going to happen, right?
+
+35:03.600 --> 35:06.600
+Eventually people would just be like, wow, this is actually a tremendous pain in the
+
+35:06.600 --> 35:09.440
+ass and I have a ton of code that's already written.
+
+35:09.440 --> 35:14.920
+So let me pull a bunch of tricks to basically get around that.
+
+35:14.920 --> 35:16.640
+And that's what John Skeet is writing about.
+
+35:16.640 --> 35:17.960
+And it's a very thoughtful blog post.
+
+35:17.960 --> 35:21.080
+I'm not going to summarize the whole thing, but I would strongly recommend even if you're
+
+35:21.080 --> 35:24.000
+not a dotnet developer that you check it out.
+
+35:24.000 --> 35:26.480
+Yeah, this is a problem, right?
+
+35:26.480 --> 35:31.280
+I've been writing a lot of Swift recently and I can tell you that just kind of looking
+
+35:31.280 --> 35:37.520
+at some open source projects I was evaluating, a lot of people are just going around this
+
+35:37.520 --> 35:38.520
+crap.
+
+35:38.520 --> 35:43.240
+They're doing a larger refactoring that would have this architected in like a cleaner way.
+
+35:43.240 --> 35:47.560
+Is this just because of old code or is it something inherent to some of the new styles?
+
+35:47.560 --> 35:51.820
+Yeah, it seems in the dotnet world there's just tons of old code that doesn't play nice
+
+35:51.820 --> 35:53.520
+with this.
+
+35:53.520 --> 35:58.880
+But even like I'm looking at things that are recently written that let's say last six months
+
+35:58.880 --> 36:05.280
+in the Swift world, which obviously this was a Swift 1.0 thing five years ago.
+
+36:05.280 --> 36:10.800
+You know, sometimes it is just the case that you want to force unwrap something, right?
+
+36:10.800 --> 36:12.280
+Which is again the Swift terminology.
+
+36:12.280 --> 36:16.960
+Sure, it's annoying and stuff, but could one argue that really this is just telling you
+
+36:16.960 --> 36:19.680
+that your old code was fundamentally unsound?
+
+36:19.680 --> 36:25.160
+Yeah, I don't actually know what I think about that yet.
+
+36:25.160 --> 36:32.040
+There is a big philosophical question here of should your code be 100% safe?
+
+36:32.040 --> 36:35.840
+We all have run into problems where we should have been checking for null values or we didn't
+
+36:35.840 --> 36:42.240
+understand the exact semantics of the value we were talking about.
+
+36:42.240 --> 36:46.920
+But clearly, I mean, just based on your experiences and John's experiences, there's also cases
+
+36:46.920 --> 36:51.920
+where that sort of level of certainty goes beyond like we've figured out our own ways
+
+36:51.920 --> 36:54.320
+of dealing with that already and internalize them.
+
+36:54.320 --> 36:57.640
+So there's some areas where we have problems and we need more rigorous checking and there's
+
+36:57.640 --> 37:02.240
+some other areas where we could be more rigorous, but in practice, it just doesn't matter as
+
+37:02.240 --> 37:07.440
+much and adding those extra checks, at least with our current compiler technology, adds
+
+37:07.440 --> 37:09.240
+an onerous burden on top.
+
+37:09.240 --> 37:14.720
+Yeah, and I would also add that I think as new patterns or even existing patterns are
+
+37:14.720 --> 37:23.240
+modified to more embrace this, let's say, null aware or safety aware programming style,
+
+37:23.240 --> 37:25.240
+these things will be less of an issue.
+
+37:25.240 --> 37:29.760
+I mean, right, like with Kotlin, for instance, since they've had that from the start, you're
+
+37:29.760 --> 37:35.400
+seeing there was less old code, at least for stuff developed Kotlin first, now Interopt,
+
+37:35.400 --> 37:36.400
+that's another story.
+
+37:36.400 --> 37:38.480
+Yeah, well, Kotlin is actually the perfect example, Wes, right?
+
+37:38.480 --> 37:42.360
+As soon as you Interopt with a classic Java library, it's like a holy crap.
+
+37:42.360 --> 37:44.520
+Oh, hello there, null.
+
+37:44.520 --> 37:46.920
+Yes, oh, null, ooh, there you are.
+
+37:46.920 --> 37:48.160
+Yeah, that's interesting.
+
+37:48.160 --> 37:52.180
+Well, definitely go check out that post if you are someone playing with some of these
+
+37:52.180 --> 37:59.120
+new fancier type systems and null checking abilities, and just because Chachansky's blog
+
+37:59.120 --> 38:02.080
+posts are always enlightening.
+
+38:02.080 --> 38:07.400
+Speaking of language styles and different ways of programming, Mike, you've had a fun
+
+38:07.400 --> 38:11.560
+idea for the next couple of shows, and I think it's great.
+
+38:11.560 --> 38:18.080
+It all stems from a book by Bruce A. Tate, Seven Languages in Seven Weeks.
+
+38:18.080 --> 38:19.080
+That's right.
+
+38:19.080 --> 38:23.200
+So, and longtime listener Sean McBride has been tweeting about this and blogging about,
+
+38:23.200 --> 38:28.080
+he is doing this challenge which comes from this book where, and I read this book years
+
+38:28.080 --> 38:35.120
+ago, basically you do somewhat non-trivial but not super hard exercises in seven languages
+
+38:35.120 --> 38:36.120
+over seven weeks.
+
+38:36.120 --> 38:40.480
+And the book has seven prescribed languages that are very much an artifact of when it
+
+38:40.480 --> 38:41.480
+was written.
+
+38:41.480 --> 38:44.120
+And I'd like to twist this a bit, Wes, for us.
+
+38:44.120 --> 38:46.000
+Ooh, tell me more.
+
+38:46.000 --> 38:52.800
+So starting now, for the next seven weeks, I will pick a language for you to study up
+
+38:52.800 --> 38:54.080
+on and do an example in.
+
+38:54.080 --> 38:55.080
+Uh-oh.
+
+38:55.080 --> 38:56.800
+And you will pick one for me.
+
+38:56.800 --> 38:58.480
+Now a couple of rules.
+
+38:58.480 --> 39:01.480
+Something tells me I know what the first one's going to be.
+
+39:01.480 --> 39:03.360
+Oh, I can't imagine what.
+
+39:03.360 --> 39:08.180
+So it has to be something we can do on our standard OSs, right, which I think we both
+
+39:08.180 --> 39:10.240
+run Linux and I run Mac.
+
+39:10.240 --> 39:14.400
+Okay, so no like legacy small talk VMs or anything crazy obscure.
+
+39:14.400 --> 39:19.480
+Yeah, no legacy small talk, no like old vBasic that someone would have to, yeah.
+
+39:19.480 --> 39:20.480
+Okay, yeah.
+
+39:20.480 --> 39:21.480
+That's fair.
+
+39:21.480 --> 39:22.480
+Yeah.
+
+39:22.480 --> 39:23.480
+And that's it.
+
+39:23.480 --> 39:26.320
+So the idea would be we'd each come with a little example.
+
+39:26.320 --> 39:32.520
+Maybe we throw it on a GitHub gist and can share it on the show if we have that ability.
+
+39:32.520 --> 39:36.520
+And will we be trying to implement maybe the same challenge each week or something?
+
+39:36.520 --> 39:37.520
+I think that's good.
+
+39:37.520 --> 39:39.680
+We should actually just have a default challenge that we're implementing.
+
+39:39.680 --> 39:45.400
+I don't know, maybe something like scraping Twitter for mentions of Coderadio.
+
+39:45.400 --> 39:46.400
+I have no idea.
+
+39:46.400 --> 39:47.400
+Yeah.
+
+39:47.400 --> 39:50.320
+We could maybe also pick one of those fun advent of code challenges.
+
+39:50.320 --> 39:51.320
+Oh, that's good.
+
+39:51.320 --> 39:52.320
+I like that.
+
+39:52.320 --> 39:53.320
+Yeah, right.
+
+39:53.320 --> 39:56.760
+Something that's a little bit fun but stresses some built-in data structures or some of the,
+
+39:56.760 --> 40:01.080
+you know, main constructs of the languages and perhaps even a little concurrency.
+
+40:01.080 --> 40:02.080
+Damn.
+
+40:02.080 --> 40:03.080
+Wes is making it hard.
+
+40:03.080 --> 40:04.080
+All right.
+
+40:04.080 --> 40:07.280
+I mean, we don't have to go that far, but I guess we'll figure it out as we go along.
+
+40:07.280 --> 40:10.000
+But Wes, have you thought of a language for me?
+
+40:10.000 --> 40:17.640
+See, I don't know if I want to save it for the end or if I should just start off with
+
+40:17.640 --> 40:19.880
+something, you know, like a little bit easier.
+
+40:19.880 --> 40:21.440
+It's up to you.
+
+40:21.440 --> 40:22.440
+Yeah, okay.
+
+40:22.440 --> 40:23.440
+Yeah, okay.
+
+40:23.440 --> 40:24.440
+I think I have thought of one.
+
+40:24.440 --> 40:25.680
+Should we announce them now?
+
+40:25.680 --> 40:26.680
+Go for it.
+
+40:26.680 --> 40:29.000
+Well, all right, Mr. Dominic.
+
+40:29.000 --> 40:30.720
+I'd like you to try Elixir.
+
+40:30.720 --> 40:31.720
+Elixir?
+
+40:31.720 --> 40:34.160
+I am shocked at that.
+
+40:34.160 --> 40:38.480
+I mean, I'm just curious what you take from, you know, maybe you can try playing with Phoenix,
+
+40:38.480 --> 40:41.360
+which is their seemingly excellent web framework.
+
+40:41.360 --> 40:45.560
+I'd be curious to hear what you think as someone who's done a lot of Rails because I think
+
+40:45.560 --> 40:49.760
+those two developer communities in particular have a lot in common.
+
+40:49.760 --> 40:50.760
+Okay.
+
+40:50.760 --> 40:51.760
+Okay.
+
+40:51.760 --> 40:52.760
+So what will I be playing with?
+
+40:52.760 --> 40:55.920
+Well, I'm going to start with something easy.
+
+40:55.920 --> 40:58.120
+I would like you to try TypeScript.
+
+40:58.120 --> 40:59.120
+Oh, okay.
+
+40:59.120 --> 41:00.120
+I like it.
+
+41:00.120 --> 41:01.120
+Excellent.
+
+41:01.120 --> 41:02.120
+All right.
+
+41:02.120 --> 41:03.720
+So we'll have to decide on some challenges.
+
+41:03.720 --> 41:09.400
+We'll find something good that we both agree seems like fun and demonstrates, you know,
+
+41:09.400 --> 41:12.920
+some strengths or weaknesses of the particular language chosen.
+
+41:12.920 --> 41:16.800
+And just make sure you come back here for Coder Radio 360.
+
+41:16.800 --> 41:17.800
+We'll have our first report.
+
+41:17.800 --> 41:18.800
+What?
+
+41:18.800 --> 41:19.800
+Yeah, yeah, yeah.
+
+41:19.800 --> 41:20.800
+All right.
+
+41:20.800 --> 41:21.800
+Well, that's a great idea.
+
+41:21.800 --> 41:22.800
+I'm excited.
+
+41:22.800 --> 41:26.560
+And we'll keep announcing what we're doing and we'll tweet about whatever challenge we
+
+41:26.560 --> 41:27.560
+decide on.
+
+41:27.560 --> 41:31.160
+And that way, you guys out there in the audience, why not join us?
+
+41:31.160 --> 41:32.160
+Pick one of the two.
+
+41:32.160 --> 41:33.160
+Do both.
+
+41:33.160 --> 41:34.880
+We'll all have a lot of fun.
+
+41:34.880 --> 41:35.880
+Great.
+
+41:35.880 --> 41:38.960
+And I think we should keep the repos open, too, so people can laugh at my Elixir.
+
+41:38.960 --> 41:39.960
+Yeah.
+
+41:39.960 --> 41:40.960
+Right.
+
+41:40.960 --> 41:41.960
+Well, we're going to embarrass ourselves for sure.
+
+41:41.960 --> 41:42.960
+Oh, yeah.
+
+41:42.960 --> 41:43.960
+This is going to be bad.
+
+41:43.960 --> 41:47.720
+Something tells me the way smarter and more knowledgeable audience will show up and test
+
+41:47.720 --> 41:48.720
+set us straight.
+
+41:48.720 --> 41:49.720
+I think so.
+
+41:49.720 --> 41:50.720
+All right.
+
+41:50.720 --> 41:54.040
+Well, we better get out of here because I got to go install TypeScript.
+
+41:54.040 --> 41:55.040
+I got to install Elixir.
+
+41:55.040 --> 41:56.600
+What the hell is Elixir run on?
+
+41:56.600 --> 41:57.600
+Yeah.
+
+41:57.600 --> 41:58.600
+Right.
+
+41:58.600 --> 41:59.600
+You got to go figure that out.
+
+41:59.600 --> 42:01.120
+I'm curious to see what you think already.
+
+42:01.120 --> 42:03.140
+I think I'm going to be reading a lot.
+
+42:03.140 --> 42:06.440
+So I think you will.
+
+42:06.440 --> 42:07.680
+That'll do it for this episode.
+
+42:07.680 --> 42:09.720
+We've got lots to do.
+
+42:09.720 --> 42:13.240
+But you know, you can find more of the show at coder.show.
+
+42:13.240 --> 42:15.160
+We've got the whole backlog.
+
+42:15.160 --> 42:20.760
+Maybe go check out 343, which is the episode where we previously talked about C-Sharp 8.0
+
+42:20.760 --> 42:23.080
+and the nullable reference types.
+
+42:23.080 --> 42:29.680
+Or hey, go to Jupiterbroadcasting.com and find all the other great shows on the network.
+
+42:29.680 --> 42:32.160
+You can also find us both on Twitter.
+
+42:32.160 --> 42:37.400
+I'm at Westpane and Mr. Dominic, you're at Domenico.
+
+42:37.400 --> 42:42.360
+The network's there too, of course, at Jupiter Signal.
+
+42:42.360 --> 42:44.520
+Thank you all for joining us.
+
+42:44.520 --> 42:50.160
+You can also catch us live every Monday, just about at 12 p.m. Pacific.
+
+42:50.160 --> 42:54.960
+Head on over to Jupiterbroadcasting.com slash calendar to convert that to a time zone near
+
+42:54.960 --> 42:55.960
+you.
+
+42:55.960 --> 42:56.960
+Thanks for joining.
+
+42:56.960 --> 43:26.480
+We'll see you right here next time.
+

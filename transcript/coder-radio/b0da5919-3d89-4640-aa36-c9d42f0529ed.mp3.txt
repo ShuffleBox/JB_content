@@ -1,0 +1,1108 @@
+This is Kota Radio, Episode 407 for March 29th, 2021.
+Hey friend, welcome in to Jupiter Broadcasting's weekly talk show,
+taking a pragmatic look at the art in the business of software development
+and the whole world of technology.
+This episode is brought to you by a cloud guru.
+A cloud guru now includes Cloud Playground, Azure AWS,
+or Google on ACG's credit card, not yours.
+Get certified, get hired, get learning at acloudguru.com.
+My name is Chris, and joining us like the podcaster he is,
+even when the young ones awake, it's our host, Mr. Dominic.
+Hello, Mike.
+The younglings, man, the younglings.
+It's like every night they think bedtime's new,
+like they don't go to bed every night.
+Right, they feel like bedtime is the opposition.
+And they fight it.
+And I've got good news for you.
+As far as I know, it never ends because I've got one that's 11 years old
+and he still fights it.
+You need to redefine good.
+Well, never fear.
+To put us in a better mood, that handsome bastard, Wes Payne,
+has rejoined us.
+Hello, Wes.
+Hello.
+Hey, Wes.
+Thanks for being here.
+Thanks for having me.
+I have a little thing I wanted to share with the class before we go on.
+Wes and I did a little, well, we, I should not take any credit for it.
+The only credit I should get is that I'm actually going to make Wes
+talk about it and take some credit for it.
+A little scoop and move of our J-bot that we use in the chat room
+to title our episodes and get all kinds of information.
+And while he was at it, he did a little modernization,
+a little dash of new libraries and baked it all up in a new container for us
+to get it off a totally failing arch box from like 2014, 2015.
+So, give us a little, just a little taste of what you did, Wes.
+Yeah, I mean, this was kind of an unfortunate situation.
+It was an ancient arch box that had not been upgraded
+and our previous solution was basically like old style lift and shift.
+Like, okay, well, we'll just keep the VM running and everything in there.
+We won't look inside, we won't touch it,
+and we just hope that it keeps working with a whole bunch of restarts.
+That wasn't exactly great or super tenable.
+And really, I wanted to get rid of everything in there.
+So, I spent some time on Saturday dockerifying this ancient Ruby web app.
+So, that was kind of a chore
+because a whole bunch of things had changed since then, of course, right?
+Various dependency interfaces, breaking changes to libraries.
+So, I had to go hunt down, all right, well,
+can I just change the code a little bit to make it work with the new version
+or do I have to explore, can I pin that dependency?
+And if I pin that dependency, does that break any of the dependency resolution
+for any of the other gems involved here?
+But eventually, with enough little futzing and disabling one feature
+that we have to figure out a workaround for, which is the calendar integration,
+it actually built the Docker container, started right up,
+and now it's running on a shiny new Linode.
+No more legacy except for what's in the container,
+which is exactly how I want it.
+Yay. Yes, and it seems faster.
+It does. So, that's nice, too.
+It does seem faster.
+I mean, we'll see. I put a memory limit on the container.
+We'll see if that makes it die
+or if we get some better stats about just what's going on in there.
+But hopefully now we at least have something that's reusable, replaceable,
+manageable until eventually we come up with some better JBot alternative.
+Mike, you know what this is?
+It's when Wes Payne kicks a can down the road,
+he kicks it really far down the road.
+He bent it like Beckham, really.
+I mean, I have nothing to say. It's fantastic.
+It's pretty good.
+Wes, I think also, before we go too much further into the show,
+I got to also get a closure update.
+Hang on. Let me get my barf back and then…
+Okay, go on, Wes.
+Just a quick one. Just a quick one.
+Because we got emails we got to get to, but are you still loving Clojure?
+Oh, very much so.
+I mean, come on. It's a functional Lisp.
+What's not to love there?
+There it is.
+No, really, I like it because you can take Clojure anywhere.
+There's Clojure script running in the browser.
+There's a.NET version and, of course, the main version,
+which is running on the JVM.
+And if you like Python, if you like LISPs,
+if you like functional programming,
+there's something in there that you'll like in Clojure,
+and it just presents a nice, simple way to program.
+It's all about using data structures
+without a whole bunch of crazy objects and custom APIs.
+And when you are on a small team or you just have a job
+that doesn't need a giant enterprise set of developers,
+Clojure really helps you keep things simple and just get your work done,
+focus on the problem at hand, and keep it maintainable.
+Get the hell out of here.
+Have you heard of objects sending…
+Chris knew I was going to jump in on this.
+He had the soundboard ready.
+Have you heard of objects just sending messages to each other,
+including Nil, and being like, meh, whatever?
+Yes, I have.
+You know, it's really just the objects part.
+I'm okay with the message passing and actors and all that,
+but there's just this, especially in the Java world,
+there's this sort of classes for everything,
+objects for everything worldview.
+Oh, you know I'm not talking about Java.
+True, yes.
+You're probably talking about Ruby, unless you mean Smalltalk?
+No, I think you meant Swift.
+It's definitely not Objective-C.
+All right, well, there's no need for hate speech, Chris.
+Let's just move on.
+I'm sorry, Mike. I'm sorry.
+You know, Mike, if you like Nil,
+I think you'll find the Nil punning in Clojure very enjoyable.
+Oh, my goodness.
+That's hurting me too.
+This is why we don't do the challenges anymore.
+This trolling has got like blowback on me right now.
+You asked for it, buddy.
+You're right, you're right.
+And we definitely have some Ruby stuff that we need to get into.
+A lot of people in the Ruby community not having a good week.
+We'll explain why.
+But you remember that email we got last week from Matt,
+the dude from Australia who was really having a tough time of it?
+I have a vague recollection, yes.
+Yeah, and he was thinking about like, you know, what do I do?
+I'm feeling really super trapped.
+You know, I have a family.
+I'm making a good enough money where I can't quit,
+but I'm making not so much great money that I can invest
+in something really big.
+And he was feeling really stuck.
+And we got a couple of people that wrote in.
+Chuck wrote in and said, you know, this Matt guy,
+he's going through something that I went through at one point, he says.
+And he linked a YouTube video that I'll have in the show notes for Matt.
+He thinks that what we touched on, a hobby is really what Matt needs.
+He says that he calls them professional hobbies.
+He's had two in his life, Tai Chi and doing a side programming gig
+for a university.
+His main job is always paid for the ability to do those side things.
+Matt's family is his reward for his sacrifice.
+If he gets to complimentary tech hobby like raspberry pies
+or maybe he gets into something to that degree that he could share with his kids,
+he could use that as a springboard to learn totally new stuff.
+And here's a clip from that YouTube video that Chuck passed along
+that I thought was kind of great.
+Also know a man who said once after years of standing
+on the platform of the subway, I die a little bit down there every day,
+but I know I'm doing so for my family.
+There are small acts of heroism that occur without regard to the nobility
+or the notoriety.
+And there is something to that, you know, making your family fruitful
+and feeding them and providing for them is a reward,
+but it's a mindset.
+So I think I've been thinking about Matt for the last week,
+and I think some of our listeners have too,
+but I have an email that came in from Jimmy from New Zealand.
+He says, loves the show and we can never take it away from him again.
+I don't know.
+I think maybe threatening harm there.
+I'm not sure.
+But he goes on to say, I wanted to touch on that email from Matt in Australia.
+I studied network engineering at college and I was finishing my final paper.
+I was offered a job overseas in a technical support position.
+At the time, it sounded like a great idea.
+I was floating around the world a few times to meet up with teams and do training.
+My pay was very good for what I needed.
+Fast forward six years.
+I'm closing in my 30s, still in the same role, and I'm burnt out, bored.
+And the pay was really not so good anymore,
+especially considering I was about to get married and had to get on the way.
+Something in my head just snapped, he says.
+I freaked out.
+My degree was becoming redundant as technology had moved on.
+Plus I had no real skill set.
+I'd been doing tech support for niche products for a while.
+Oh, crap, he says, I thought.
+I wasted all this time.
+I'd become complacent with my work because I felt secure.
+And now I felt stuck with no way to level up.
+Like Matt, I also had an interest in programming.
+I'd done a few papers in college and had played around with web apps,
+just kind of messing around in my spare time.
+I saw an opportunity at my work.
+We don't create our products.
+We are a reseller who sells their products
+and then offers consultancy and tech support on top.
+Over the years, I had heard all of the complaints from customers
+about what they wished our products integrated with.
+So I took it upon myself to learn JavaScript, Node, React,
+as well as a bunch of other technologies.
+I had, over time, created various applications that helped our clients
+and I logged the process and I helped them manage their different applications.
+I created essentially value for our clients.
+I told my boss about it.
+And even though the code was essentially dog crap taped to the wall,
+it was at least a working solution.
+Fast forward a couple of years, I sparked many ideas
+and now my boss has pulled me off tech support.
+I still have a way to go, but it's a lot to learn
+and I get paid a lot more and, of course, I'm doing things that I love
+and I get to build stuff.
+I'm not sure if this really helps Matt,
+but maybe he could think of something that his clients would benefit from.
+Maybe building something in his spare time as a hobby
+could help him go down a path into transitioning to a developer.
+His current position as a consultant
+gives him the ability to figure out solutions to problems.
+It's a great asset as a developer.
+Love the show, Jimmy from New Zealand.
+There's a lot there, but people, I think Matt touched people last week.
+We had a coder connection on the show.
+That's wonderful.
+Beautiful.
+I mean, I'm literally in tears right now.
+But you know what would soak up those tears better
+than me just crying into my sad polo shirt?
+A robe.
+A robe.
+Yes.
+Hold on, let me see if I can say what I want to be able to say.
+I got to double check.
+I'm opening up the thing right now.
+We're checking the logistics right now, people.
+Let's see.
+And if I have a new, I don't.
+I don't have a new email saying we've heard back.
+I was hoping, because you know, people will hear this like Wednesday, Thursday.
+And so I definitely will have an update by then.
+But as we record Monday evening,
+we had three more people that were international.
+So it turns out one of the issues is like the thread that we used
+is not legal in some of these countries.
+It's illegal thread.
+You and your fancy thread.
+I mean, can you believe this?
+So first, the first issue that hung it up was that custom required phone numbers.
+And I didn't put on the order page a space that like required a phone number.
+So we had to contact people and get their phone numbers.
+But of course, a lot of people didn't come back.
+So then like a handful of them ended up with my personal phone number on them
+for several logistical reasons.
+And then some of them had to get canceled because of customs or legal reasons.
+But that's all sorted now.
+It's all done.
+And it takes them just like a business week to actually get the embroidery done and whatnot.
+They ship from the U.S.
+That I've learned was going to always cause me pain.
+If I was working with somebody who maybe had shipping facilities in multiple parts of the world,
+maybe I wouldn't have had some of these problems.
+But the tradeoff is the type of selection of material that they have
+and the variety and the quality.
+And that is a notch above what I could get for the people that have worldwide distributions.
+So these are the tradeoffs.
+Man, I wanted to have this like totally wrapped up by now
+because I wanted all lessons learned and figured out for LUP 400.
+So we could do something for LUP 400, which is just like two weeks away.
+And I'm still not in a position to be able to do that.
+And when you think about the kind of lead time you need for designers
+and then to work with the company to get mockups and let alone
+if you even want to get like a test piece to like make sure it's valid before you put it up for sale,
+like two weeks is just really just probably not possible.
+So something's going to have to slide.
+It's just swag turns out way harder.
+And I expect it is possible at this point that I will be paying into this to get it to ship internationally
+because of the cost to ship this thing to some people.
+But I just didn't know because it was apparently for whatever reason
+impossible to give me an accurate quote ahead of time.
+And I don't know the logistics on this.
+I'd love to figure that part out.
+But they needed the address of each individual place they were going to drop ship to
+before they could give me a quote.
+And they couldn't just give me like some like estimate based on experience.
+So I'll tell you what.
+I mean, part of me would love to get this figured out and then just get a process,
+a business process that just makes this smooth.
+And maybe just there's a few companies that we have to use a different partner to ship to or something.
+But then part of me just wants to never touch this again.
+Or as they say on filter, F the EU.
+That's right.
+Oh, she has been known.
+So anonymous penguin coder writes in and he's looking for our advice as two dads.
+He's hoping to shed some light on a situation that he finds himself in.
+He wants us to be the light at that end of the tunnel.
+He says, I am a huge Linux fan.
+I have a family of three kids six and under.
+Wow, man.
+Wow.
+He says, over the last show, you talked about the sirens call of the Apple platform.
+I've recently been hearing that call in regards of mobile devices.
+I have a pine tab.
+And while the future potential is there, it just isn't there today.
+It barely does simple web pages correctly.
+I know there's potential, but I want something that just works today.
+And I have very little time.
+I have a couple other computers that I need because my machines are getting pretty old.
+I have nothing newer than 2003.
+I do like the Android pixel ecosystem, but Android tablets just don't seem appealing.
+So my questions are, what are your guys' thoughts on the iPad Pro?
+Should I look into buying one?
+Is Michael going to invest in one if they update one soon?
+Which there's rumors they will be.
+And what are the gotchas for a Linux user or a sys admin?
+Thank you, anonymous penguin coder.
+We both have the iPad Pro.
+I think around the same one, too.
+2018?
+Yeah, I think it's like an 18, yeah.
+Yeah, iPad Pro 2018 I think is what we both have.
+I have the 11-inch.
+Yeah, I have the small one, yeah.
+Would you consider upgrading?
+No.
+No need to?
+Unless there was a development reason where I wanted to build something for it.
+My iPad is a glorified iTunes or Apple TV, whatever.
+I just watch movies.
+Oh, yeah, OK.
+Content machine.
+Yeah, it's a content machine.
+I don't need anything else.
+Honestly, it's an extreme overkill for what I have.
+I have a different feeling.
+I also would not upgrade because I feel like mine's a five-year machine.
+But I use mine quite a bit for the productivity apps that I don't think are great on Linux.
+Do you have a MacBook Air for that?
+Yeah, this is my way of avoiding the MacBook Air.
+Sure, yeah.
+Because I don't love email on Linux or calendars.
+I mean, who does?
+We went in the wrong direction here.
+So, yes, to correct it, the gotchas, I'd say, is the only real kind of integration you're going to get with the Linux desktop is via cloud services.
+Some you could roll yourself if you have the time to set something up like Nextcloud or something like that.
+But for the most part, it's just going to be ones that are standard cloud services that you know of and either love or hate already.
+So depending on your point of view, that's a downside to that.
+I'm kind of curious, Wes, what your thoughts are because you don't have an iPad or an iPhone.
+You're not necessarily against owning one, but it doesn't seem like they've just ever crossed the threshold of interest.
+And what would that take?
+Actually, my very first smartphone was an iPhone.
+So I started out that way.
+Like how long?
+Which one was it?
+I don't know.
+This was probably 2011, 2010.
+I thought 4, I think.
+Yeah, okay.
+Yeah, 4G maybe.
+Yeah.
+So I enjoyed that.
+Of course, I was also doing all kinds of stuff.
+Had Cydia on there.
+You know, it was jailbroken a lot of the time.
+So those were kind of like the old playful days.
+And I've administered a lot of Macs.
+So I'm definitely, you know, interested.
+I can appreciate the ecosystem.
+And honestly, these days, I think about it.
+I mean, you know, I see you a lot.
+You're somewhat invested now these days.
+And I don't really do anything with my phone that's not just a phone use.
+I haven't really had root on any of my Android devices for, I don't know, a couple years now.
+It's mostly that because I'm not already invested, I just see that to get a lot of the benefits,
+it seems like I'd have to have a couple devices.
+And I don't really need a tablet.
+Like I just, it doesn't really fit in my lifestyle right now.
+I don't spend that much time on the couch where I'd really need a tablet.
+And I just have it.
+I live by myself.
+I've got the desk set up that I want.
+It's easy enough, you know.
+And I don't have all the AirPlay gadgets.
+I really like AirPlay.
+It seems so much better than the equivalent Chromecast setup.
+But Chromecast is a fairly open ecosystem.
+I can just ask it to play a URL for me very easily.
+So that's kind of why I'm stuck where I'm at.
+That's totally fair.
+I also agree that it does seem to multiply.
+You know, if he was asking for his kids, I'd say don't get the iPad Pro.
+That's overkill for how fast kids would burn through it, you know, if you wanted a family.
+But his kids are young.
+For my kids, you know, for me, if I can get a refurbished iPad, that's perfect.
+If not, I try to get one that's the most reasonably priced for them if it's like out of just the wrong time buying season.
+I think it's actually for me been a nice supplement because it takes the pressure off my laptop to be all things.
+And the iPad Pro has a very consistent performance.
+And then, Wes, you know this is true.
+The other thing that I use the hell out of is I got an iPad with LTE connectivity.
+I think Mike did, too.
+And I love that.
+It is so great to always have data.
+It just doesn't matter where I go.
+If I'm on Wi-Fi, I don't have to worry about Wi-Fi.
+I always have a data connection if I have signal.
+And that really kind of goes along hand in hand with that productivity aspect of the machine.
+So I do kind of recommend it if that sounds like your use case.
+The iPad Pro could be overkill, but in my opinion, performance is king.
+I will say I got my dad an iPad.
+And while he's not a child, that was about his level of experience using computers.
+He's an outdoors kind of man, you know, not really interested in any of that.
+Yeah, for non-technical folks, the iPad is actually a great computer.
+Yeah, he's done a lot.
+And it's inviting enough for him that I haven't really had to hold his hand the whole time.
+He's been able to explore confidently.
+He's not going to break stuff.
+So that lets him sort of push the boundaries a little bit and actually teach himself on his own, which is great.
+Linode.com slash coder.
+Go there to get a $100 60-day credit towards your new account.
+And of course, you support this here show.
+Linode is the largest independent cloud for developers and our cloud hosting provider.
+Like we were just talking, that new bot work we did.
+That's on Linode.
+Everything we've done for JB 3.0, we host there.
+They have native SSD storage, 40 gigabit network connections, really easy to use cloud manager dashboard and the best connections.
+I mean, they're super fast between their data centers.
+That's something else that I've learned to really appreciate as I've built out more Linodes.
+Something else that we learn to take advantage of in different ways that we never really considered,
+but saves us time and money is Linode's S3 compatible object storage.
+Now, you probably know object storage is an easy way for you to store and access data without the need for running an entire server in front of it.
+It's perfect for data that doesn't change that often, like images or the multimedia files that we're often working with, which are FLAC files.
+It's awesome for backups.
+It's great for like getting a giant archive up into the cloud that you want to make accessible or maybe just private.
+You can do that obviously as well. By default, it's private.
+And it just adds more storage space as you go for, as you use it, as you go forward.
+So you don't have to sit there and try to allocate like I'll do 20 gigs at a time and then fill that up and then go allocate another 20 gigs.
+And the pricing is great.
+And one of the best cases for object storage is actually just hosting a static website.
+You can get a crazy fast, highly available website on Linode's object storage with just a little HTML and CSS.
+It's really cool.
+So there's so many great ways to use Linode besides the way we use it, which is hosting all of our services for our backend stuff, for the tools that we use and don't really ever expose to the public and for our public facing stuff.
+That's that's what I really like about the different kinds of systems.
+They have rigs that are like five dollars a month and there's a lot of use cases for that.
+And then they have rigs that have like dedicated AMD epic CPUs and they beat everyone else in the cloud in speed comparisons.
+And that's not just me saying that Cloud Spectator did a did a research study and found that AMD's epic dedicated CPUs are killer fast.
+You know, they're just really dedicated to making sure that if you want to run something on Linux, it'll run great on Linode.
+And then they just have different choices, super easy to parse for you to pick from.
+And then they wrap that all up with fantastic customer service, real human beings.
+You know, it doesn't matter if you've got 15 Linodes or 1000 Linodes or one, you're still going to get that same great support.
+And that matters. That matters. They started in 2003 as one of the first companies in cloud computing.
+And that matters, too. They've stuck around, they've refined the product and they've remained independent.
+So go try it out. See what I've been talking about. Linode.com slash coder.
+So there's some hoopla today that was really our excuse to bring Wes onto the show again because, you know, he works all day.
+So I feel bad at the end of the day asking him to just basically stay at his desk and get on another call.
+But this one kind of felt like we needed your help because Mike and I had not got a chance to read it yet.
+And you had a chance to follow it since it started breaking. So the Ruby community is off the rails this week.
+What's going on, Wes? Off the rails because rails was broken.
+It all started last Wednesday when the maintainer of a software library called Shared MIME Info informed the maintainer of a Ruby library called MIME Magic.
+And he was shipping MIME Magic under an incompatible software license. Yes, this story is all about licenses.
+Is it really coming down to it's a GPL versus MIT thing?
+Yes. So this is a free desktop, like basically a MIME database of, you know, all these all these various MIME types.
+It's maintained by the free desktop and therefore it's licensed as GPL.
+This Ruby library was automatically taking that, parsing it and shipping it as code in their library.
+So all you had to do was download this gem, install it. You had access to that to that library and that database functionality in a nice Ruby API.
+You go figure out what MIME types files are, et cetera. But that library was licensed as MIT.
+And as you know, those two don't exactly play nicely in that way.
+Yeah, there's a viral nature to the GPL, which must be the core issue here.
+Right. So to their credit, the maintainer of MIME Magic promptly moved the latest version over to GPL,
+but then withdrew the prior versions from distribution. And that's because really they were licensed wrongly.
+Right. I mean, you're pulling down what says it's an MIT project, but it's using GPL code and therefore it actually is a derived work and should be GPL.
+So what do you do? Do you leave that up there as a potential liability and risk for people who download an incorrectly labeled and licensed package?
+Or do you do what they did, which was pull all those wrong packages, which meant that anyone using CI systems to automatically build and deploy from those old versions.
+So you actually pinned your versions. You weren't just using the latest like Rails.
+Those all broke, including like 172 other packages. But of course, Rails is the one that caught everyone's attention.
+Oh, I just want to say this is why I hate the GPL. OK.
+I mean, I feel like we have kind of talked about this before, like this is a problem.
+For years, like the GPL does not benefit individual developers or individual users.
+It benefits big companies who don't give a crap because you could never hit their scale.
+So they don't care if their stuff is forced to be open source because it's like the Linux kernel.
+You can't touch it through a small company, BSD, MIT, Apache to everything else.
+Right. Like it's a waste of time.
+You're just going to get screwed over. The GPL was meant to be subversive and help the little guy.
+It actually just helps the big corporations. It's a waste of time.
+Free software sucks. Open source for life. I'm done.
+This does kind of seem like, though, it's it is a case in point of what you kind of have been worrying about forever.
+Well, no, because who got screwed by this? Small companies and small software consultancies like me.
+It's a knock on effect. It wasn't the big guys. Microsoft doesn't give a shit.
+Like they're fine. Yeah. Like the GPL is poison unless you're Microsoft Red Hat, which is IBM or someone that size.
+I'm sorry, but it needs to go. So are you saying that they're fine just because they have lawyers to deal with it or for other reasons?
+I think they're fine because they have the money. They don't care that spending the resources contributing back hurts them.
+Right. And they have lawyers. Not that they would violate it.
+But when you only have, let's say, 20 or 30 developers, the GPL is a big drain on you.
+It's just too much. I think some would argue that that's making you pay back for the resources you're benefiting from.
+OK, but like Mac, BSD, right? Like, I don't know. I don't think the proof is there.
+But that's an argument we can have another day.
+I think where I fall down on is it seems like GPL is appropriate for things like the kernel or the desktop environment.
+But when it comes to something that ends up a gem, that's a big deal. That's a bigger decision.
+That's where I start to agree with you.
+Well, when it's a library, right? The kernel is a bad example, fair enough. When it's a library and it becomes poison to your entire application,
+that seems just like fundamentally benefits big players and hurts small players to me.
+Because how many Rails shops were crapping their pants in the last week because they couldn't do their CI builds?
+Yeah. The other story here, though, I think, I mean, the license, you're right, that is part of it.
+Although you could argue, I mean, that's up to the people, right? The free desktop.org, if they want to maintain it, they want help maintaining it.
+They're like, hey, we make this whole database of file types. We want people to update that when they add files.
+We want to make sure it's accurate.
+But the other side of the story is basically, one, the nature of how we all rely on online, up-to-date, live binary artifacts, you know,
+like these gems or other things else out there. We rely on those always working forever, immutably.
+And this library was basically unmaintained, and it was even archived for a little bit after this update because the maintainer was like,
+well, look, this is just a library that pulls from stuff someone else maintains.
+I'm not really touching this or worried about it anymore.
+So it's another example of, like, we always have a thousand million dependencies deep.
+Not everyone's paying attention to a lot of them. Will Rails shift eventually?
+Yeah, maybe. And there has been some updates to the story, which we can get to.
+But there's a lot of modern software development microcosms to be found here.
+No, that's a razor-sharp point there, Wes.
+And in fact, internally, we've been having this conversation at TMB about some of the Python and Ruby applications we've developed.
+And Ruby is just a proxy for Rails for us, and Python is usually Flask.
+The number of dependencies that they rely on over time, particularly on the Rails ones because we've been doing Rails a lot longer,
+has become problematic, let's say, where the dependencies may shift.
+The Ruby 3.0 shift was problematic for API compatibility reasons.
+But this kind of thing, like, I somehow ducked this by the grace of God.
+But, I mean, I would have sent some mean tweets, right?
+Like, if this had happened to me, you know me.
+I do worry, and I know you're going to jump down my throat, Wes,
+that maybe we're just relying on other people's software too much, too many gems, too many PIP packages, too many jars, too many NuGet packages.
+Is that sane?
+I think we see often that there are risks to that, and it makes sense to try to minimize the dependencies you have.
+That's not always easy, right?
+Like, especially for a giant framework like Rails, there's a whole bunch of dependencies, optional dependencies, that gets complicated.
+But it makes sense to me to at least try to limit things, look at your dependencies, go visit their GitHub, go look at the community.
+Are they getting updates?
+Now, that doesn't always matter.
+Sometimes things are done, or they, you know, don't need updates all the time because it's a standalone package.
+But by and large, for things on the internet these days, they at least got to keep up with very small changes, tweaks, updates to interfaces, etc.
+So go assess what those are.
+Go see how deep their dependency chains are.
+All of this is extra work.
+But if you want to prevent this from happening to you, it's at least worth thinking about.
+Well, right.
+And if you want a really stable platform to develop on where the dependencies haven't shifted in about a decade, I can definitely recommend Objective-C.
+Oh, my God.
+Sorry, Wes.
+Now, not all of the projects are going to be affected immediately because it's really only going to be a problem when they try to build an update and, you know, fetch the latest version.
+So it's kind of like a time bomb for some of these projects.
+So do they have a solution?
+I mean, are they going to fork it?
+Like, what happens next?
+Yeah. Okay.
+So basically the idea was there's now a new version, a new new version, which was restored to the MIT license.
+And you just have to provide your own database.
+So that was basically the idea they came up with was instead of actually shipping the database mungedified into Ruby code,
+you just have to load it at module time when you're running your program.
+That way it's not like linked together GPL wise.
+You just aren't going to pull in this file from the disk and leverage that in your own application, not in this library that's distributed.
+No, it wasn't the library itself that was the problem.
+It was the database of the different whatever data types or whatever it was.
+MIME type data mappings.
+The MIME types.
+Yeah.
+Right. Yeah.
+So it was that they had taken the MIME type database and then basically used at build time,
+loaded that in and then converted that into just like static Ruby code that got shipped in the module.
+But they didn't do that with the appropriate license.
+So now at runtime, when you load your thing, it's actually going to go load it from disk, pull that all in.
+So now it's your application doing it and not the library so they can keep the license MIT.
+Basically, they'll have the barn doors fixed as the cows are coming home.
+It's an open question now of, is this really the way we want to be doing that?
+And is this all kind of a hack?
+Should we have a better library?
+What's Rails going to do?
+Do we need something that has more active maintainership?
+That part is still an open question, I think.
+That doesn't sound good.
+I feel like this needs to be built into Rails, but maybe that's a different conversation.
+Yeah, it doesn't seem ideal, huh?
+What a crazy series of events.
+The Register did, I think, one of the best write ups I've seen on this.
+We'll have that linked in the show notes.
+Thanks for helping us break that down, Wes.
+You're the best, Wes.
+I just hope I get to avoid Bundler, Gems, and all of it until the next time J-Pop breaks.
+Datadog.com slash Coder Radio.
+Go to datadog.com slash Coder Radio and sign up for a 14-day free trial.
+And you know what?
+If you do that, you'll also, after you create a dashboard, can get a Datadog t-shirt.
+That's right, you get merch.
+But Datadog is a series of tools to help you analyze code-level performance across your environment
+and troubleshoot issues faster.
+Datadog is a tool to do that and communicate.
+And they have something called the Continuous Profiler that automatically collects information.
+It profiles your production servers all the time, so you can analyze your data quickly
+from any particular point in time with minimal overhead.
+You get a unified picture of your environment, correlating code performance with metrics
+from your servers and your applications, and you can monitor real-time information
+and put it up on these beautiful dashboards.
+It's gorgeous.
+These are the kind of dashboards you'd want to just have screens around your office
+with these dashboards up.
+Go to datadog.com slash Coder Radio to see what I'm talking about.
+They tightly integrate with a bunch of different applications.
+They have this tracing and they have the log management.
+Of course, that Continuous Profiler, it all comes together in Datadog.
+One platform enables you to pinpoint the root cause of issues faster than ever.
+Save time with Datadog.
+Datadog.com slash Coder Radio.
+Go there and get a 14-day trial, and when you create one dashboard,
+you'll get a free Datadog t-shirt.
+That's pretty great.
+Datadog.com slash Coder Radio.
+So did you see this?
+Did you see this?
+The Dino Company from the original developers of Node.js.
+It is an attempt to breathe new life into the ecosystem.
+They say to provide a modern, productive programming system that adheres to browser APIs.
+Dino is not a monolithic system, but rather a set of technologies we believe
+can be repurposed into a variety of needs.
+Dino is here.
+They've announced it.
+They have a company now behind it.
+I think it's Ryan Dahl and Bert Felder, who are the two co-creators of Node.js.
+And they also have $4.9 million of seed capital to get this thing off the ground.
+I have to respect them on two fronts.
+One, they got paid, so dollar-dollar bill, y'all.
+But also, they were wrong to put JavaScript on the server the first time.
+But instead of backing down, they said, to hell with this.
+We're doing it again.
+F you guys.
+Now TypeScript is first-class citizen, but it's really JavaScript.
+They said, do you want your server-side software to move as fast and crazy as your browser-side does?
+We're going to do it.
+Do you like instability, sir?
+Well, we've got something for you.
+I mean, that really is their complaint, is that Node.js got stagnant
+and hasn't really innovated much and isn't moving fast enough.
+Stagnant had to stabilize because a bunch of consultants like me,
+but not me because I don't sell Node because I was not smoking that crack pipe,
+sold it to enterprises.
+Again, not me.
+I was selling them Rails, which, okay, not the best week for Rails.
+I've changed my opinion on lots of things over the years, Chris.
+On this, I have been consistent.
+JavaScript does not belong on the server, period.
+They also have this deploy system.
+They say it's a globally distributed JavaScript VM,
+so you don't have to run it on your server.
+You could run it on their server.
+I see.
+Taking dog shit and putting it on my neighbor's lawn is better.
+Got it.
+Obviously.
+Then it's not on your lawn, man.
+Everybody knows that.
+I mean, no disrespect to Mr. Dahl and Mr. Belder.
+I mean, it's great engineering,
+but there is absolutely no reason for this to exist.
+There are many better server-side languages,
+and the idea that you need to unify your language between server and client,
+well, then nobody can make fun of me if I do a cappuccino
+to do Objective-C on the server,
+which you guys have mercilessly done for a decade.
+So this is a bad idea, just like Node is a bad idea.
+Why don't you all learn Python?
+Nicely done.
+Now, I don't disagree, but I'm curious.
+Wes is coming in for the fight.
+Modern Python with async and UV loop,
+I mean, is it that much different than, say, TypeScript,
+which has been improved a lot?
+No.
+Python is, in fact, getting progressively worse.
+I agree with you.
+I sort of think that better server-side languages are C Sharp and Java.
+It just seems like that argument is pushing a lot of work
+on what might be a small development team
+that, say, you were talking about earlier.
+They don't have a lot of time.
+They don't really have expertise in multiple languages.
+They have to ship some front-end products anyway.
+I would push back hard on that, because front-end developers,
+the real talent is not like JavaScript coding.
+It's going to be CSS design, HTML,
+knowing how to integrate templates quickly, stuff like that.
+It's not going to be, you know,
+they're not going to know about threading on V8,
+because if they're front-end developers, they don't care, right,
+for the most part.
+I would almost challenge, I guess, that if you had a full JavaScript team,
+you would still have some developers
+who are better on the back-end on the server-side
+and some who actually know how to do CSS.
+And my CSS is weak, right?
+I am probably, in my company, the worst guy for CSS around.
+I think you could do it probably with a non-Java language,
+but to go from JavaScript to Java,
+there's just such an impedance mismatch
+when you could just otherwise ship JSON objects really easily,
+and there's a whole bunch of libraries that will set things up for you
+so you can just send data structures back and forth.
+You don't have to deal with all kinds of serialization
+going down the Java route or figuring out how to make serialization work
+on these weird custom classes that you're defining.
+None of that.
+Okay, so pick another non-statically typed language then, right?
+But then you have to pick.
+Wow, life is about hard choices.
+I'm not saying I endorse it.
+I'm just saying if you have to learn JavaScript anyway,
+much like why Electron apps exist, right?
+It's the same sort of reasoning.
+It's just easier.
+And then Denno adds more stuff like TypeScript as default.
+You get better APIs that are modernized.
+You get sandboxing with permission.
+You get a better self-contained binary deployment strategy.
+I just don't know, Wes. I just don't know.
+I don't know.
+I just don't know if JavaScript belongs on the server.
+I mean, maybe this is my old madness,
+and I'm just being like, no, don't put your peanut butter
+in my jelly or my chocolate.
+But I just – it's such a bad language.
+I'm sorry.
+Now that I can't disagree with.
+And you and I don't agree on languages at all.
+But I think that's where TypeScript as a first-class citizen
+is maybe some of their argument.
+Okay, but TypeScript – I mean, we should do a whole show on, like,
+is TypeScript different from JavaScript?
+Because isn't it – okay, I'm very conflicted on TypeScript.
+Is it the next simplified evolution of C-sharp slash Java,
+or is it JavaScript where it hides the pain from you?
+And I don't know the answer to that.
+That's a real question.
+Yeah, and I think part of that is, like,
+when you get to ship more modern JavaScript,
+at least some of the pains are better.
+It's still a gross, ugly language that's had a crazy evolution,
+but at least it's not –
+It was never meant to be a full language.
+It's been bolted on like Frankenstein.
+It's like the crappiest version of Voltron.
+Oh, man.
+Why would you want that running in your database?
+I don't know. Maybe I'm just being a jerk.
+Yeah, that's why I love you.
+I've hated Node from the beginning.
+I hate Dino, too.
+Yeah, you have been consistent.
+I've been very consistent.
+And now the creators of Node.js apparently hate it as well,
+which I think is what you really love about this story.
+What I love is they got paid doing something I still think is insane,
+and I'm still broke.
+So, hey, whatever. Maybe I'm wrong.
+Boy, we have just, I guess, nothing but to wait and see where Dino goes, I suppose.
+I don't have much more to say about it.
+It's brand new to me.
+They will come on the show one day.
+I'm sure they will enjoy this commentary.
+Coder.show slash contact.
+You know, it's the typescript.
+That's what's going to get people fired up.
+All right. Well, let's do our last topic of the day then.
+This one is the one that has spooked me all week.
+I really stepped in it last week
+when I opened my mouth about how I was worried
+that Apple's new platform goodies would draw Linux users in
+because then I started getting notes from people all week long
+that confirmed my fears.
+So let's start with Grav because he says, don't worry about it.
+Mac OS is crap.
+He says, I know you guys are still freaking out about the M1,
+but the general public doesn't care how many cores are in a system.
+Look at Intel laptops that still sell despite AMD's amazing 4700U or 4800U.
+You guys remind me back when the console fanboys would freak out
+when the opposing team suddenly got better and faster hardware.
+Just like the console space, it's games that sell the platform.
+Big Sur is a pain in the butt.
+It has huge compatibility issues
+and Apple's dominance in the computing space
+has really only existed in a niche.
+Mac OS simply isn't designed for productivity.
+Mac OS is designed for ease of...
+Okay. All right.
+Let's back away. I think he means like the Microsoft kind of productivity,
+like Excel, Word, perhaps.
+That's what I think, you know.
+Ask the legions of developers at every conference ever who have Macbooks.
+Sure.
+Yeah. But he thinks like, you know, it lacks decent Windows snap features
+that like Windows has had since 7.
+There's just basic like navigation stuff you can't do.
+Like when you click closing a window, it's still running and that confuses users.
+He says that he talked to his buddy at Best Buy
+and that people return even the M1 Macs because they hate Mac OS.
+I mean, 20 hours of battery life.
+You know, he thinks that's it.
+But unfortunately, Grav was very much, very much in the minority.
+We had many more people that wrote in that said, yeah.
+So Jeff was one of them.
+He says, I was listening to episode 406
+and Chris's worry about the M1 Macs illustrates the battle in my soul right now.
+He says that I've pretty much written everything off except for ThinkPads,
+but the more I look at it, I really can't justify a ThinkPad
+to the MacBook Air's performance and battery life.
+And then you add in lack of fan noise
+and I just really can't justify the cost of an Intel laptop.
+I'm pretty uncomfortable with this because I've been running Linux,
+usually Fedora or OpenSUSE, exclusively for over a decade.
+But comparing an Intel machine, an M1, as an investment,
+well, it's just obvious which machine is a better buy.
+It's true that you give up a lot of control with Apple,
+but compromises I'd be making over just getting a Mac
+are starting to stack up now.
+I'd never have considered an Intel Mac,
+but looking at the M1 MacBook Air,
+which laptop decision is a lot harder than it's ever been?
+I don't think Chris's fears are unfounded at all.
+Okay, all right.
+I mean, you could just buy Magnet for $5
+and you have Windows snapping on Mac.
+Yeah, Magnet is pretty nice.
+Last one, listener Mike writes in, get this.
+He's a card-carrying member of the FSF.
+He says, I just listened to the latest Koda radio,
+longtime Linux user.
+I switched to 100% desktop Linux in 1997.
+Wow.
+I'm going to get some butterscotch for this, hang on.
+Could you imagine full-time desktop Linux since 1997?
+I mean, I've been pretty close to full-time,
+but I mean, there's occasional Mac-age in there.
+Oh, yeah, yeah, yeah.
+That's just wild.
+Around the time Mac OS 10.3 came out,
+I was one of those people who switched away from Linux to the Mac.
+I still use Linux on the server, but until 2015,
+I used Mac OS on the desktop.
+Oh, okay.
+In 2015, I switched back to Linux for the desktop for reasons,
+and I've been mostly happy since then.
+We recently upgraded out of a family computer to an M1 Mac Mini,
+and it's so fast.
+Not only is it so fast, but it integrates with all the things,
+text messages, iMessage, HomeKit, Apple TV.
+It's a level of integration that I never really considered
+and didn't realize I was missing on Linux.
+As an associate member of the FSF since 2004,
+software freedom is important to me,
+but I'm also in my 40s now with a busy family.
+I have less time to tinker, and I just need to get stuff done.
+I'm due for a machine upgrade this year,
+and I work with containers and virtualization.
+If Apple releases a MacBook Pro with 32 gigs of RAM this year,
+I'm going to pull the trigger.
+I'm going to go back to Mac for a daily driver.
+Software freedom is important,
+but so is running my workload 25% to 30% faster on an $800 Mac Mini.
+There you go.
+And the battery life is nuts on the MacBook Air.
+That's just going to win out.
+So could I be a dick for a second?
+Why is it bad that Apple has a better architecture?
+Why isn't this an opportunity for the Linux vendors to step up?
+Well, and that is being done.
+Somebody has to write all of the drivers,
+all of the support for the GPU, the sound system, the network, everything.
+And Wes only has so much time.
+So building an amazing CPU architecture is hard.
+Tell me more.
+Oh, I mean, if Apple were to release drivers or some documentation even,
+it would make it a lot easier.
+But they hate you.
+That's the other problem is it's a vendor-hostile system, right?
+I mean, you don't really want to.
+Or they at least don't care about you.
+No, no, they hate you.
+I'm going to go with that.
+Well, the reason why this still haunts me,
+I was actually just talking to somebody about this earlier today,
+it's because I watched it happen last time.
+I watched when the Intel Macs came out and stuff.
+And it killed me to see all of my brothers and sisters switching away
+from Linux on the desktop to Mac.
+And I never forgot that.
+Because they were all glowing apples.
+We just went to halls of glowing apples.
+And I've never forgotten that.
+And I look at this chip shortage that we have
+and how it's affecting all these different manufacturers.
+It's affecting GPU supply.
+It's affecting motherboard supply.
+All the components.
+Well, Apple, of course, buys their components years in advance.
+So they're going to be probably one of the best here.
+They have prices and stocks that's pre-contracted
+and locked in years in advance in time.
+And so if the chip manufacturer or whoever,
+if the foundry can't deliver,
+Apple's in a pretty good negotiation position there.
+They can get higher prices at the foundry.
+Apple can probably get something they want out of it.
+And they can easily either just eat that cost
+or happily pass it along to the customers
+and the customers are going to pay for it.
+And when you look at the people in the market
+who are upgrading for performance right now,
+and we hear from them,
+the Mac platform may be one of the only platforms
+that's selling in any bulk quantity right now
+because of Apple's position in the market and the chip shortage.
+And when the chip shortage is over,
+Apple will probably have weathered it the best
+and probably have secured contracts for components.
+They'll probably be at the front of the line for this stuff.
+And that's going to mean that they're going to be able to ship
+and sell the most systems.
+There are vendors right now that are reporting
+that their sales are being artificially limited
+just because they don't have the supply.
+They cannot ship enough product,
+and so they can't sell anymore.
+That is a perfect storm.
+You have the M1 platform.
+I was just talking with a well-known developer
+who will be on Linux Unplugged tomorrow.
+He's from the GTK Python era of the Linux desktop,
+and he says that he kind of, this was 10 years ago
+when he created the Lutris application,
+and everybody was doing GTK Python, GTK Python, GTK Python
+all over the Linux desktop all day long every week, GTK Python.
+And now it's just pretty much gone.
+There's hardly no new projects at all that are using GTK Python,
+and there's no clear development path forward for him.
+He doesn't have a clear strategy.
+Should he move on? Should he stay with it?
+Should he switch over?
+I mean, he's considering everything.
+He's even considering Vala and GTK and elementary,
+like whatever he can do to just keep it relevant.
+But the platform just sort of piddled out,
+and there's not a good solution for him.
+And you look at developers like him.
+He's a special case because he's creating something specifically for Linux.
+But developers like him, and in that similar position,
+they're just burning out.
+He's, and I can't say their names,
+but he's been talking to developers
+that are like productivity applications for Linux.
+They're feeling the same way.
+They're feeling like they're done.
+And what they're all kind of universally saying is
+there just needs to be a shift in Linux,
+like a new way for open source developers to monetize
+that doesn't burden them with tons of pull requests or support issues
+that scales and properly monetizes.
+And then they need a platform that they can target
+and isn't shifting under them constantly.
+So that way they can actually ship an application for 10 years
+and whittle away at it and refine it with a limited staff.
+And that's just not there right now.
+And there's a lot of frustration.
+There's something bubbling that people are not talking about
+because the only things people talk about in Linux media
+on YouTube and Reddit and podcasts and blogs is mostly positive shit.
+They only talk about the good stuff because nobody wants a downer.
+But the reality is there is a storm brewing,
+and I'm going to touch on it a little bit in Linux Unplugged,
+and I think that storm combined with the chip shortage,
+combined with people looking for performance,
+combined with the compelling aspects of the M1 by itself
+is creating a perfect storm that will create a vacuum on Linux
+and suck people over to the Apple platform.
+It's not me trying to justify buying some M1 Mac.
+It's not me just making nothing out of something
+because I've watched it happen once before
+and I'm seeing the components arrive
+and they're aligning to create a Linux desktop exodus.
+And it would be a damn shame
+because things are getting so great over there right now.
+Anyways, you know, all week.
+But are they getting great because of these application developers?
+Not that I don't appreciate them, but to me like Lutris in particular
+and a lot of these kind of weird native apps for Linux,
+like they've never been well supported.
+They've never been very robust.
+They kind of only made sense before we had networked services
+and they were like good enough.
+Oh yeah, I've got my little to-do app.
+I don't know, most of the main things I use,
+I end up having to collaborate with other people anyway.
+And I guess that's a sad statement about those apps,
+but I've already gotten there as a Linux user.
+I'm just going to go use Steam.
+I'm just going to go use OWA in a browser.
+Yeah, I felt like we were approaching the next precipice of wave of users
+because when you look at Fedora 34 right now,
+it's really getting there with GNOME 40, with Wayland, with PipeWire.
+They actually have a decent audio video system
+that's compelling and competitive with Mac OS.
+The kernel has gotten really good in these later iterations,
+the shipping with a modern kernel.
+It's got ButterFS, so it has a file system that is competitive with NTFS and APFS,
+and it has transparent compression now, which reduces excessive write SSD,
+so it's going to prolong disk.
+And it's like a really solid OS
+and truly represents what desktop Linux workstation can be,
+and it just needs more application developers.
+But I don't think application developers are going to stick around.
+This is something I've just been coming to because, honestly,
+I've been getting telegrams and tweets and emails all week from people saying,
+yeah, I think I'm going to switch.
+My other question, are desktop apps, I mean,
+it doesn't really seem like a renaissance in desktop apps for any platform.
+I mean, Mac definitely has more established ones,
+but I think on this show already you guys have talked about like how hard that is,
+how hard it is to keep up with Apple's breaking changes,
+how it's pretty small single developers who get stressed out about maintaining these things,
+how app store profits are going down.
+Maybe Windows has a lot of native,
+it just seems like native applications are not really a thing that's in vogue.
+Windows does not have a good independent native ecosystem.
+It's more you can monetize an app across Mac OS and iOS easier
+than you can on say Linux and Android,
+where Android is the closest corollary to Linux.
+Yeah, I actually think in a weird way Mac OS is having not a renaissance,
+but a renewed influx of desktop applications
+because of some of the cross platform stuff that they've been doing.
+I actually kind of disagree.
+I actually think the Mac has a pretty vibrant third party app ecosystem.
+It is competitive and it is hard to get paid
+and the app store issues are there and they are real,
+but there's a lot and there's some big apps now.
+If I can be shameless on my old interview show, the Mike Dominic show,
+we had the folks from Rocamiba on and they don't deal with the app store at all.
+They sell their apps directly and they've been in business for what, 30 years?
+Something like that.
+Ridiculous since the early aughts, maybe 20 years.
+They're one of my favorite examples because the software they make is awesome.
+I use it every day.
+That's one of those tools that makes me go, oh, I wish I could switch.
+Or Wes, you remember that machine learning powered video editor
+that let you edit as a text document because that's Mac only.
+That thing is pretty advanced and pretty new.
+Anyways, I don't know.
+Like I said, I'm pretty happy with Linux.
+I think it's gotten pretty great, but we'll see.
+We'll see what happens.
+You spooked me, y'all, is what happened.
+I got real spooked.
+I've been belly aching to Wes for a week about it.
+Haven't I?
+I've been telling you for a week about the notes I'm getting in.
+Yes, you have.
+I mean, I feel it's hard when there's something on the market that's,
+you're like, well, that's compelling.
+I could see having an M1 hanging around.
+I don't know that I would turn it into my dedicated system I spend all my time on,
+but great battery life, good performance for media production.
+It's definitely compelling.
+I can let that topic rest unless the audience has more they want to discuss,
+coder.show slash contact, but that was sort of my follow-up on that one.
+Wes, thanks for coming and hanging out with us.
+Thanks, Mr. Payne.
+Thanks for having me.
+Absolutely.
+Go check out some Wes Payne on Linux Action News.
+He's joining me over there and killing it.
+Been enjoying that a lot.
+And the last episode we just did, I was told today, was a barn burner.
+It was really good.
+Episode 182, linuxactionnews.com slash 182.
+And we break down some of the new interface enhancements and technical
+enhancements to GNOME 40, also talk about the RMS situation,
+him being back with the FSF, and we go deep into the chip shortage.
+And Carl from System76 gives us an update on how System76 is handling the
+chip shortage and what they expect.
+So that's all at linuxactionnews.com.
+Go get more Wes.
+Also, thank you to our members over at coderqa.co.
+If you haven't signed up yet and you want to get the Coderly,
+go sign up right now as you're listening to this because there will be a new
+Coderly very, very soon.
+So you go to coderqa.co for that.
+Plus, you support the show, which is really what's great, right?
+And you get a limited ad feed, so it's nice, tight, and clean.
+Still the same full, great production, but just a little bit snappier.
+That's all at coderqa.co.
+And you can find a Cloud Guru on social media.
+They are slash a Cloud Guru at YouTube, Twitter, you know, everywhere.
+Everywhere, it's just slash a Cloud Guru.
+And you can find Mike on Twitter.
+He's at Dumanuku.
+His company is at the Mad Botter Inc.
+Is there anything else you want to mention, Mr. Dominic?
+Nope, all good.
+Wow, nice and tidy right there.
+I'm also there.
+The podcast network is at Jupiter Signal, and the show is at Coder Radio Show.
+Links to just about most of the things we talked about today are at coder.show
+slash 407.
+There you're going to find our contact form, the RSS feed, links to our sponsors,
+how to support the show, all of that.
+Of course, you can also join us live.
+We do the show 5 p.m. Pacific, 8 p.m. Eastern at jblive.tv on a Monday.
+Come hang out.
+Maybe give Fat Cat a hard time in there, you know?
+Oh, and title the show, too.
+That's another advantage.
+Thanks so much for joining us on this week's episode of the Coder Radio program.
+See you right back here next week.

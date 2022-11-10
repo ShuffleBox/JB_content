@@ -1,0 +1,4432 @@
+1
+00:00:00,000 --> 00:00:07,000
+This is Kota Radio, Episode 407 for March 29th, 2021.
+
+2
+00:00:15,000 --> 00:00:18,000
+Hey friend, welcome in to Jupiter Broadcasting's weekly talk show,
+
+3
+00:00:18,000 --> 00:00:21,000
+taking a pragmatic look at the art in the business of software development
+
+4
+00:00:21,000 --> 00:00:23,000
+and the whole world of technology.
+
+5
+00:00:23,000 --> 00:00:26,000
+This episode is brought to you by a cloud guru.
+
+6
+00:00:26,000 --> 00:00:30,000
+A cloud guru now includes Cloud Playground, Azure AWS,
+
+7
+00:00:30,000 --> 00:00:32,000
+or Google on ACG's credit card, not yours.
+
+8
+00:00:32,000 --> 00:00:37,000
+Get certified, get hired, get learning at acloudguru.com.
+
+9
+00:00:37,000 --> 00:00:41,000
+My name is Chris, and joining us like the podcaster he is,
+
+10
+00:00:41,000 --> 00:00:45,000
+even when the young ones awake, it's our host, Mr. Dominic.
+
+11
+00:00:45,000 --> 00:00:46,000
+Hello, Mike.
+
+12
+00:00:46,000 --> 00:00:48,000
+The younglings, man, the younglings.
+
+13
+00:00:48,000 --> 00:00:51,000
+It's like every night they think bedtime's new,
+
+14
+00:00:51,000 --> 00:00:52,000
+like they don't go to bed every night.
+
+15
+00:00:52,000 --> 00:00:55,000
+Right, they feel like bedtime is the opposition.
+
+16
+00:00:55,000 --> 00:00:57,000
+And they fight it.
+
+17
+00:00:57,000 --> 00:00:59,000
+And I've got good news for you.
+
+18
+00:00:59,000 --> 00:01:05,000
+As far as I know, it never ends because I've got one that's 11 years old
+
+19
+00:01:05,000 --> 00:01:06,000
+and he still fights it.
+
+20
+00:01:06,000 --> 00:01:10,000
+You need to redefine good.
+
+21
+00:01:10,000 --> 00:01:11,000
+Well, never fear.
+
+22
+00:01:11,000 --> 00:01:14,000
+To put us in a better mood, that handsome bastard, Wes Payne,
+
+23
+00:01:14,000 --> 00:01:15,000
+has rejoined us.
+
+24
+00:01:15,000 --> 00:01:16,000
+Hello, Wes.
+
+25
+00:01:16,000 --> 00:01:17,000
+Hello.
+
+26
+00:01:17,000 --> 00:01:18,000
+Hey, Wes.
+
+27
+00:01:18,000 --> 00:01:19,000
+Thanks for being here.
+
+28
+00:01:19,000 --> 00:01:20,000
+Thanks for having me.
+
+29
+00:01:20,000 --> 00:01:23,000
+I have a little thing I wanted to share with the class before we go on.
+
+30
+00:01:23,000 --> 00:01:28,000
+Wes and I did a little, well, we, I should not take any credit for it.
+
+31
+00:01:28,000 --> 00:01:30,000
+The only credit I should get is that I'm actually going to make Wes
+
+32
+00:01:30,000 --> 00:01:32,000
+talk about it and take some credit for it.
+
+33
+00:01:32,000 --> 00:01:36,000
+A little scoop and move of our J-bot that we use in the chat room
+
+34
+00:01:36,000 --> 00:01:39,000
+to title our episodes and get all kinds of information.
+
+35
+00:01:39,000 --> 00:01:42,000
+And while he was at it, he did a little modernization,
+
+36
+00:01:42,000 --> 00:01:47,000
+a little dash of new libraries and baked it all up in a new container for us
+
+37
+00:01:47,000 --> 00:01:52,000
+to get it off a totally failing arch box from like 2014, 2015.
+
+38
+00:01:52,000 --> 00:01:56,000
+So, give us a little, just a little taste of what you did, Wes.
+
+39
+00:01:56,000 --> 00:01:58,000
+Yeah, I mean, this was kind of an unfortunate situation.
+
+40
+00:01:58,000 --> 00:02:01,000
+It was an ancient arch box that had not been upgraded
+
+41
+00:02:01,000 --> 00:02:05,000
+and our previous solution was basically like old style lift and shift.
+
+42
+00:02:05,000 --> 00:02:08,000
+Like, okay, well, we'll just keep the VM running and everything in there.
+
+43
+00:02:08,000 --> 00:02:10,000
+We won't look inside, we won't touch it,
+
+44
+00:02:10,000 --> 00:02:15,000
+and we just hope that it keeps working with a whole bunch of restarts.
+
+45
+00:02:15,000 --> 00:02:17,000
+That wasn't exactly great or super tenable.
+
+46
+00:02:17,000 --> 00:02:20,000
+And really, I wanted to get rid of everything in there.
+
+47
+00:02:20,000 --> 00:02:25,000
+So, I spent some time on Saturday dockerifying this ancient Ruby web app.
+
+48
+00:02:25,000 --> 00:02:27,000
+So, that was kind of a chore
+
+49
+00:02:27,000 --> 00:02:30,000
+because a whole bunch of things had changed since then, of course, right?
+
+50
+00:02:30,000 --> 00:02:33,000
+Various dependency interfaces, breaking changes to libraries.
+
+51
+00:02:33,000 --> 00:02:35,000
+So, I had to go hunt down, all right, well,
+
+52
+00:02:35,000 --> 00:02:38,000
+can I just change the code a little bit to make it work with the new version
+
+53
+00:02:38,000 --> 00:02:40,000
+or do I have to explore, can I pin that dependency?
+
+54
+00:02:40,000 --> 00:02:43,000
+And if I pin that dependency, does that break any of the dependency resolution
+
+55
+00:02:43,000 --> 00:02:46,000
+for any of the other gems involved here?
+
+56
+00:02:46,000 --> 00:02:50,000
+But eventually, with enough little futzing and disabling one feature
+
+57
+00:02:50,000 --> 00:02:54,000
+that we have to figure out a workaround for, which is the calendar integration,
+
+58
+00:02:54,000 --> 00:02:56,000
+it actually built the Docker container, started right up,
+
+59
+00:02:56,000 --> 00:03:00,000
+and now it's running on a shiny new Linode.
+
+60
+00:03:00,000 --> 00:03:02,000
+No more legacy except for what's in the container,
+
+61
+00:03:02,000 --> 00:03:04,000
+which is exactly how I want it.
+
+62
+00:03:04,000 --> 00:03:07,000
+Yay. Yes, and it seems faster.
+
+63
+00:03:07,000 --> 00:03:09,000
+It does. So, that's nice, too.
+
+64
+00:03:09,000 --> 00:03:10,000
+It does seem faster.
+
+65
+00:03:10,000 --> 00:03:12,000
+I mean, we'll see. I put a memory limit on the container.
+
+66
+00:03:12,000 --> 00:03:14,000
+We'll see if that makes it die
+
+67
+00:03:14,000 --> 00:03:18,000
+or if we get some better stats about just what's going on in there.
+
+68
+00:03:18,000 --> 00:03:22,000
+But hopefully now we at least have something that's reusable, replaceable,
+
+69
+00:03:22,000 --> 00:03:26,000
+manageable until eventually we come up with some better JBot alternative.
+
+70
+00:03:26,000 --> 00:03:27,000
+Mike, you know what this is?
+
+71
+00:03:27,000 --> 00:03:29,000
+It's when Wes Payne kicks a can down the road,
+
+72
+00:03:29,000 --> 00:03:31,000
+he kicks it really far down the road.
+
+73
+00:03:31,000 --> 00:03:33,000
+He bent it like Beckham, really.
+
+74
+00:03:33,000 --> 00:03:36,000
+I mean, I have nothing to say. It's fantastic.
+
+75
+00:03:36,000 --> 00:03:37,000
+It's pretty good.
+
+76
+00:03:37,000 --> 00:03:41,000
+Wes, I think also, before we go too much further into the show,
+
+77
+00:03:41,000 --> 00:03:43,000
+I got to also get a closure update.
+
+78
+00:03:43,000 --> 00:03:45,000
+Hang on. Let me get my barf back and then…
+
+79
+00:03:45,000 --> 00:03:47,000
+Okay, go on, Wes.
+
+80
+00:03:47,000 --> 00:03:48,000
+Just a quick one. Just a quick one.
+
+81
+00:03:48,000 --> 00:03:51,000
+Because we got emails we got to get to, but are you still loving Clojure?
+
+82
+00:03:51,000 --> 00:03:53,000
+Oh, very much so.
+
+83
+00:03:53,000 --> 00:03:55,000
+I mean, come on. It's a functional Lisp.
+
+84
+00:03:55,000 --> 00:03:56,000
+What's not to love there?
+
+85
+00:03:56,000 --> 00:03:57,000
+There it is.
+
+86
+00:03:57,000 --> 00:03:59,000
+No, really, I like it because you can take Clojure anywhere.
+
+87
+00:03:59,000 --> 00:04:01,000
+There's Clojure script running in the browser.
+
+88
+00:04:01,000 --> 00:04:03,000
+There's a.NET version and, of course, the main version,
+
+89
+00:04:03,000 --> 00:04:06,000
+which is running on the JVM.
+
+90
+00:04:06,000 --> 00:04:09,000
+And if you like Python, if you like LISPs,
+
+91
+00:04:09,000 --> 00:04:11,000
+if you like functional programming,
+
+92
+00:04:11,000 --> 00:04:13,000
+there's something in there that you'll like in Clojure,
+
+93
+00:04:13,000 --> 00:04:15,000
+and it just presents a nice, simple way to program.
+
+94
+00:04:15,000 --> 00:04:17,000
+It's all about using data structures
+
+95
+00:04:17,000 --> 00:04:21,000
+without a whole bunch of crazy objects and custom APIs.
+
+96
+00:04:21,000 --> 00:04:24,000
+And when you are on a small team or you just have a job
+
+97
+00:04:24,000 --> 00:04:27,000
+that doesn't need a giant enterprise set of developers,
+
+98
+00:04:27,000 --> 00:04:30,000
+Clojure really helps you keep things simple and just get your work done,
+
+99
+00:04:30,000 --> 00:04:33,000
+focus on the problem at hand, and keep it maintainable.
+
+100
+00:04:33,000 --> 00:04:35,000
+Get the hell out of here.
+
+101
+00:04:35,000 --> 00:04:37,000
+Have you heard of objects sending…
+
+102
+00:04:37,000 --> 00:04:39,000
+Chris knew I was going to jump in on this.
+
+103
+00:04:39,000 --> 00:04:42,000
+He had the soundboard ready.
+
+104
+00:04:42,000 --> 00:04:45,000
+Have you heard of objects just sending messages to each other,
+
+105
+00:04:45,000 --> 00:04:48,000
+including Nil, and being like, meh, whatever?
+
+106
+00:04:48,000 --> 00:04:50,000
+Yes, I have.
+
+107
+00:04:50,000 --> 00:04:52,000
+You know, it's really just the objects part.
+
+108
+00:04:52,000 --> 00:04:55,000
+I'm okay with the message passing and actors and all that,
+
+109
+00:04:55,000 --> 00:04:58,000
+but there's just this, especially in the Java world,
+
+110
+00:04:58,000 --> 00:05:00,000
+there's this sort of classes for everything,
+
+111
+00:05:00,000 --> 00:05:02,000
+objects for everything worldview.
+
+112
+00:05:02,000 --> 00:05:04,000
+Oh, you know I'm not talking about Java.
+
+113
+00:05:04,000 --> 00:05:06,000
+True, yes.
+
+114
+00:05:06,000 --> 00:05:09,000
+You're probably talking about Ruby, unless you mean Smalltalk?
+
+115
+00:05:09,000 --> 00:05:12,000
+No, I think you meant Swift.
+
+116
+00:05:12,000 --> 00:05:15,000
+It's definitely not Objective-C.
+
+117
+00:05:15,000 --> 00:05:17,000
+All right, well, there's no need for hate speech, Chris.
+
+118
+00:05:17,000 --> 00:05:20,000
+Let's just move on.
+
+119
+00:05:20,000 --> 00:05:22,000
+I'm sorry, Mike. I'm sorry.
+
+120
+00:05:22,000 --> 00:05:24,000
+You know, Mike, if you like Nil,
+
+121
+00:05:24,000 --> 00:05:27,000
+I think you'll find the Nil punning in Clojure very enjoyable.
+
+122
+00:05:27,000 --> 00:05:30,000
+Oh, my goodness.
+
+123
+00:05:30,000 --> 00:05:32,000
+That's hurting me too.
+
+124
+00:05:32,000 --> 00:05:34,000
+This is why we don't do the challenges anymore.
+
+125
+00:05:34,000 --> 00:05:37,000
+This trolling has got like blowback on me right now.
+
+126
+00:05:37,000 --> 00:05:39,000
+You asked for it, buddy.
+
+127
+00:05:39,000 --> 00:05:40,000
+You're right, you're right.
+
+128
+00:05:40,000 --> 00:05:43,000
+And we definitely have some Ruby stuff that we need to get into.
+
+129
+00:05:43,000 --> 00:05:45,000
+A lot of people in the Ruby community not having a good week.
+
+130
+00:05:45,000 --> 00:05:47,000
+We'll explain why.
+
+131
+00:05:47,000 --> 00:05:50,000
+But you remember that email we got last week from Matt,
+
+132
+00:05:50,000 --> 00:05:52,000
+the dude from Australia who was really having a tough time of it?
+
+133
+00:05:52,000 --> 00:05:54,000
+I have a vague recollection, yes.
+
+134
+00:05:54,000 --> 00:05:56,000
+Yeah, and he was thinking about like, you know, what do I do?
+
+135
+00:05:56,000 --> 00:05:57,000
+I'm feeling really super trapped.
+
+136
+00:05:57,000 --> 00:05:58,000
+You know, I have a family.
+
+137
+00:05:58,000 --> 00:06:00,000
+I'm making a good enough money where I can't quit,
+
+138
+00:06:00,000 --> 00:06:02,000
+but I'm making not so much great money that I can invest
+
+139
+00:06:02,000 --> 00:06:03,000
+in something really big.
+
+140
+00:06:03,000 --> 00:06:05,000
+And he was feeling really stuck.
+
+141
+00:06:05,000 --> 00:06:07,000
+And we got a couple of people that wrote in.
+
+142
+00:06:07,000 --> 00:06:09,000
+Chuck wrote in and said, you know, this Matt guy,
+
+143
+00:06:09,000 --> 00:06:13,000
+he's going through something that I went through at one point, he says.
+
+144
+00:06:13,000 --> 00:06:18,000
+And he linked a YouTube video that I'll have in the show notes for Matt.
+
+145
+00:06:18,000 --> 00:06:22,000
+He thinks that what we touched on, a hobby is really what Matt needs.
+
+146
+00:06:22,000 --> 00:06:26,000
+He says that he calls them professional hobbies.
+
+147
+00:06:26,000 --> 00:06:30,000
+He's had two in his life, Tai Chi and doing a side programming gig
+
+148
+00:06:30,000 --> 00:06:31,000
+for a university.
+
+149
+00:06:31,000 --> 00:06:35,000
+His main job is always paid for the ability to do those side things.
+
+150
+00:06:35,000 --> 00:06:38,000
+Matt's family is his reward for his sacrifice.
+
+151
+00:06:38,000 --> 00:06:42,000
+If he gets to complimentary tech hobby like raspberry pies
+
+152
+00:06:42,000 --> 00:06:45,000
+or maybe he gets into something to that degree that he could share with his kids,
+
+153
+00:06:45,000 --> 00:06:48,000
+he could use that as a springboard to learn totally new stuff.
+
+154
+00:06:48,000 --> 00:06:52,000
+And here's a clip from that YouTube video that Chuck passed along
+
+155
+00:06:52,000 --> 00:06:54,000
+that I thought was kind of great.
+
+156
+00:06:54,000 --> 00:06:58,000
+Also know a man who said once after years of standing
+
+157
+00:06:58,000 --> 00:07:02,000
+on the platform of the subway, I die a little bit down there every day,
+
+158
+00:07:02,000 --> 00:07:05,000
+but I know I'm doing so for my family.
+
+159
+00:07:05,000 --> 00:07:10,000
+There are small acts of heroism that occur without regard to the nobility
+
+160
+00:07:10,000 --> 00:07:12,000
+or the notoriety.
+
+161
+00:07:12,000 --> 00:07:16,000
+And there is something to that, you know, making your family fruitful
+
+162
+00:07:16,000 --> 00:07:20,000
+and feeding them and providing for them is a reward,
+
+163
+00:07:20,000 --> 00:07:22,000
+but it's a mindset.
+
+164
+00:07:22,000 --> 00:07:25,000
+So I think I've been thinking about Matt for the last week,
+
+165
+00:07:25,000 --> 00:07:27,000
+and I think some of our listeners have too,
+
+166
+00:07:27,000 --> 00:07:30,000
+but I have an email that came in from Jimmy from New Zealand.
+
+167
+00:07:30,000 --> 00:07:33,000
+He says, loves the show and we can never take it away from him again.
+
+168
+00:07:33,000 --> 00:07:35,000
+I don't know.
+
+169
+00:07:35,000 --> 00:07:36,000
+I think maybe threatening harm there.
+
+170
+00:07:36,000 --> 00:07:37,000
+I'm not sure.
+
+171
+00:07:37,000 --> 00:07:40,000
+But he goes on to say, I wanted to touch on that email from Matt in Australia.
+
+172
+00:07:40,000 --> 00:07:44,000
+I studied network engineering at college and I was finishing my final paper.
+
+173
+00:07:44,000 --> 00:07:47,000
+I was offered a job overseas in a technical support position.
+
+174
+00:07:47,000 --> 00:07:49,000
+At the time, it sounded like a great idea.
+
+175
+00:07:49,000 --> 00:07:52,000
+I was floating around the world a few times to meet up with teams and do training.
+
+176
+00:07:52,000 --> 00:07:54,000
+My pay was very good for what I needed.
+
+177
+00:07:54,000 --> 00:07:56,000
+Fast forward six years.
+
+178
+00:07:56,000 --> 00:08:01,000
+I'm closing in my 30s, still in the same role, and I'm burnt out, bored.
+
+179
+00:08:01,000 --> 00:08:04,000
+And the pay was really not so good anymore,
+
+180
+00:08:04,000 --> 00:08:07,000
+especially considering I was about to get married and had to get on the way.
+
+181
+00:08:07,000 --> 00:08:10,000
+Something in my head just snapped, he says.
+
+182
+00:08:10,000 --> 00:08:11,000
+I freaked out.
+
+183
+00:08:11,000 --> 00:08:14,000
+My degree was becoming redundant as technology had moved on.
+
+184
+00:08:14,000 --> 00:08:16,000
+Plus I had no real skill set.
+
+185
+00:08:16,000 --> 00:08:19,000
+I'd been doing tech support for niche products for a while.
+
+186
+00:08:19,000 --> 00:08:21,000
+Oh, crap, he says, I thought.
+
+187
+00:08:21,000 --> 00:08:23,000
+I wasted all this time.
+
+188
+00:08:23,000 --> 00:08:25,000
+I'd become complacent with my work because I felt secure.
+
+189
+00:08:25,000 --> 00:08:28,000
+And now I felt stuck with no way to level up.
+
+190
+00:08:28,000 --> 00:08:31,000
+Like Matt, I also had an interest in programming.
+
+191
+00:08:31,000 --> 00:08:34,000
+I'd done a few papers in college and had played around with web apps,
+
+192
+00:08:34,000 --> 00:08:36,000
+just kind of messing around in my spare time.
+
+193
+00:08:36,000 --> 00:08:38,000
+I saw an opportunity at my work.
+
+194
+00:08:38,000 --> 00:08:40,000
+We don't create our products.
+
+195
+00:08:40,000 --> 00:08:42,000
+We are a reseller who sells their products
+
+196
+00:08:42,000 --> 00:08:45,000
+and then offers consultancy and tech support on top.
+
+197
+00:08:45,000 --> 00:08:48,000
+Over the years, I had heard all of the complaints from customers
+
+198
+00:08:48,000 --> 00:08:50,000
+about what they wished our products integrated with.
+
+199
+00:08:50,000 --> 00:08:53,000
+So I took it upon myself to learn JavaScript, Node, React,
+
+200
+00:08:53,000 --> 00:08:56,000
+as well as a bunch of other technologies.
+
+201
+00:08:56,000 --> 00:09:01,000
+I had, over time, created various applications that helped our clients
+
+202
+00:09:01,000 --> 00:09:07,000
+and I logged the process and I helped them manage their different applications.
+
+203
+00:09:07,000 --> 00:09:10,000
+I created essentially value for our clients.
+
+204
+00:09:10,000 --> 00:09:11,000
+I told my boss about it.
+
+205
+00:09:11,000 --> 00:09:15,000
+And even though the code was essentially dog crap taped to the wall,
+
+206
+00:09:15,000 --> 00:09:17,000
+it was at least a working solution.
+
+207
+00:09:17,000 --> 00:09:20,000
+Fast forward a couple of years, I sparked many ideas
+
+208
+00:09:20,000 --> 00:09:22,000
+and now my boss has pulled me off tech support.
+
+209
+00:09:22,000 --> 00:09:25,000
+I still have a way to go, but it's a lot to learn
+
+210
+00:09:25,000 --> 00:09:28,000
+and I get paid a lot more and, of course, I'm doing things that I love
+
+211
+00:09:28,000 --> 00:09:30,000
+and I get to build stuff.
+
+212
+00:09:30,000 --> 00:09:31,000
+I'm not sure if this really helps Matt,
+
+213
+00:09:31,000 --> 00:09:34,000
+but maybe he could think of something that his clients would benefit from.
+
+214
+00:09:34,000 --> 00:09:36,000
+Maybe building something in his spare time as a hobby
+
+215
+00:09:36,000 --> 00:09:40,000
+could help him go down a path into transitioning to a developer.
+
+216
+00:09:40,000 --> 00:09:42,000
+His current position as a consultant
+
+217
+00:09:42,000 --> 00:09:45,000
+gives him the ability to figure out solutions to problems.
+
+218
+00:09:45,000 --> 00:09:48,000
+It's a great asset as a developer.
+
+219
+00:09:48,000 --> 00:09:50,000
+Love the show, Jimmy from New Zealand.
+
+220
+00:09:50,000 --> 00:09:54,000
+There's a lot there, but people, I think Matt touched people last week.
+
+221
+00:09:54,000 --> 00:09:57,000
+We had a coder connection on the show.
+
+222
+00:09:57,000 --> 00:09:58,000
+That's wonderful.
+
+223
+00:09:58,000 --> 00:09:59,000
+Beautiful.
+
+224
+00:09:59,000 --> 00:10:02,000
+I mean, I'm literally in tears right now.
+
+225
+00:10:03,000 --> 00:10:06,000
+But you know what would soak up those tears better
+
+226
+00:10:06,000 --> 00:10:09,000
+than me just crying into my sad polo shirt?
+
+227
+00:10:09,000 --> 00:10:10,000
+A robe.
+
+228
+00:10:10,000 --> 00:10:11,000
+A robe.
+
+229
+00:10:11,000 --> 00:10:12,000
+Yes.
+
+230
+00:10:12,000 --> 00:10:14,000
+Hold on, let me see if I can say what I want to be able to say.
+
+231
+00:10:14,000 --> 00:10:15,000
+I got to double check.
+
+232
+00:10:15,000 --> 00:10:17,000
+I'm opening up the thing right now.
+
+233
+00:10:17,000 --> 00:10:19,000
+We're checking the logistics right now, people.
+
+234
+00:10:19,000 --> 00:10:20,000
+Let's see.
+
+235
+00:10:20,000 --> 00:10:21,000
+And if I have a new, I don't.
+
+236
+00:10:21,000 --> 00:10:24,000
+I don't have a new email saying we've heard back.
+
+237
+00:10:24,000 --> 00:10:28,000
+I was hoping, because you know, people will hear this like Wednesday, Thursday.
+
+238
+00:10:28,000 --> 00:10:31,000
+And so I definitely will have an update by then.
+
+239
+00:10:31,000 --> 00:10:34,000
+But as we record Monday evening,
+
+240
+00:10:34,000 --> 00:10:36,000
+we had three more people that were international.
+
+241
+00:10:36,000 --> 00:10:40,000
+So it turns out one of the issues is like the thread that we used
+
+242
+00:10:40,000 --> 00:10:42,000
+is not legal in some of these countries.
+
+243
+00:10:42,000 --> 00:10:44,000
+It's illegal thread.
+
+244
+00:10:44,000 --> 00:10:46,000
+You and your fancy thread.
+
+245
+00:10:46,000 --> 00:10:48,000
+I mean, can you believe this?
+
+246
+00:10:48,000 --> 00:10:52,000
+So first, the first issue that hung it up was that custom required phone numbers.
+
+247
+00:10:52,000 --> 00:10:57,000
+And I didn't put on the order page a space that like required a phone number.
+
+248
+00:10:57,000 --> 00:10:59,000
+So we had to contact people and get their phone numbers.
+
+249
+00:10:59,000 --> 00:11:02,000
+But of course, a lot of people didn't come back.
+
+250
+00:11:02,000 --> 00:11:05,000
+So then like a handful of them ended up with my personal phone number on them
+
+251
+00:11:05,000 --> 00:11:07,000
+for several logistical reasons.
+
+252
+00:11:07,000 --> 00:11:10,000
+And then some of them had to get canceled because of customs or legal reasons.
+
+253
+00:11:10,000 --> 00:11:12,000
+But that's all sorted now.
+
+254
+00:11:12,000 --> 00:11:13,000
+It's all done.
+
+255
+00:11:13,000 --> 00:11:19,000
+And it takes them just like a business week to actually get the embroidery done and whatnot.
+
+256
+00:11:19,000 --> 00:11:21,000
+They ship from the U.S.
+
+257
+00:11:21,000 --> 00:11:26,000
+That I've learned was going to always cause me pain.
+
+258
+00:11:26,000 --> 00:11:32,000
+If I was working with somebody who maybe had shipping facilities in multiple parts of the world,
+
+259
+00:11:32,000 --> 00:11:34,000
+maybe I wouldn't have had some of these problems.
+
+260
+00:11:34,000 --> 00:11:39,000
+But the tradeoff is the type of selection of material that they have
+
+261
+00:11:39,000 --> 00:11:42,000
+and the variety and the quality.
+
+262
+00:11:42,000 --> 00:11:47,000
+And that is a notch above what I could get for the people that have worldwide distributions.
+
+263
+00:11:47,000 --> 00:11:49,000
+So these are the tradeoffs.
+
+264
+00:11:49,000 --> 00:11:52,000
+Man, I wanted to have this like totally wrapped up by now
+
+265
+00:11:52,000 --> 00:11:56,000
+because I wanted all lessons learned and figured out for LUP 400.
+
+266
+00:11:56,000 --> 00:12:00,000
+So we could do something for LUP 400, which is just like two weeks away.
+
+267
+00:12:00,000 --> 00:12:03,000
+And I'm still not in a position to be able to do that.
+
+268
+00:12:03,000 --> 00:12:05,000
+And when you think about the kind of lead time you need for designers
+
+269
+00:12:05,000 --> 00:12:09,000
+and then to work with the company to get mockups and let alone
+
+270
+00:12:09,000 --> 00:12:13,000
+if you even want to get like a test piece to like make sure it's valid before you put it up for sale,
+
+271
+00:12:13,000 --> 00:12:17,000
+like two weeks is just really just probably not possible.
+
+272
+00:12:17,000 --> 00:12:19,000
+So something's going to have to slide.
+
+273
+00:12:19,000 --> 00:12:23,000
+It's just swag turns out way harder.
+
+274
+00:12:23,000 --> 00:12:30,000
+And I expect it is possible at this point that I will be paying into this to get it to ship internationally
+
+275
+00:12:30,000 --> 00:12:33,000
+because of the cost to ship this thing to some people.
+
+276
+00:12:33,000 --> 00:12:37,000
+But I just didn't know because it was apparently for whatever reason
+
+277
+00:12:37,000 --> 00:12:40,000
+impossible to give me an accurate quote ahead of time.
+
+278
+00:12:40,000 --> 00:12:42,000
+And I don't know the logistics on this.
+
+279
+00:12:42,000 --> 00:12:44,000
+I'd love to figure that part out.
+
+280
+00:12:44,000 --> 00:12:48,000
+But they needed the address of each individual place they were going to drop ship to
+
+281
+00:12:48,000 --> 00:12:50,000
+before they could give me a quote.
+
+282
+00:12:50,000 --> 00:12:54,000
+And they couldn't just give me like some like estimate based on experience.
+
+283
+00:12:54,000 --> 00:13:00,000
+So I'll tell you what.
+
+284
+00:13:00,000 --> 00:13:03,000
+I mean, part of me would love to get this figured out and then just get a process,
+
+285
+00:13:03,000 --> 00:13:06,000
+a business process that just makes this smooth.
+
+286
+00:13:06,000 --> 00:13:11,000
+And maybe just there's a few companies that we have to use a different partner to ship to or something.
+
+287
+00:13:11,000 --> 00:13:14,000
+But then part of me just wants to never touch this again.
+
+288
+00:13:14,000 --> 00:13:16,000
+Or as they say on filter, F the EU.
+
+289
+00:13:16,000 --> 00:13:17,000
+That's right.
+
+290
+00:13:17,000 --> 00:13:19,000
+Oh, she has been known.
+
+291
+00:13:19,000 --> 00:13:24,000
+So anonymous penguin coder writes in and he's looking for our advice as two dads.
+
+292
+00:13:24,000 --> 00:13:28,000
+He's hoping to shed some light on a situation that he finds himself in.
+
+293
+00:13:28,000 --> 00:13:31,000
+He wants us to be the light at that end of the tunnel.
+
+294
+00:13:31,000 --> 00:13:33,000
+He says, I am a huge Linux fan.
+
+295
+00:13:33,000 --> 00:13:36,000
+I have a family of three kids six and under.
+
+296
+00:13:36,000 --> 00:13:38,000
+Wow, man.
+
+297
+00:13:38,000 --> 00:13:39,000
+Wow.
+
+298
+00:13:39,000 --> 00:13:43,000
+He says, over the last show, you talked about the sirens call of the Apple platform.
+
+299
+00:13:43,000 --> 00:13:47,000
+I've recently been hearing that call in regards of mobile devices.
+
+300
+00:13:47,000 --> 00:13:48,000
+I have a pine tab.
+
+301
+00:13:48,000 --> 00:13:53,000
+And while the future potential is there, it just isn't there today.
+
+302
+00:13:53,000 --> 00:13:55,000
+It barely does simple web pages correctly.
+
+303
+00:13:55,000 --> 00:13:58,000
+I know there's potential, but I want something that just works today.
+
+304
+00:13:58,000 --> 00:14:00,000
+And I have very little time.
+
+305
+00:14:00,000 --> 00:14:04,000
+I have a couple other computers that I need because my machines are getting pretty old.
+
+306
+00:14:04,000 --> 00:14:07,000
+I have nothing newer than 2003.
+
+307
+00:14:07,000 --> 00:14:11,000
+I do like the Android pixel ecosystem, but Android tablets just don't seem appealing.
+
+308
+00:14:11,000 --> 00:14:15,000
+So my questions are, what are your guys' thoughts on the iPad Pro?
+
+309
+00:14:15,000 --> 00:14:17,000
+Should I look into buying one?
+
+310
+00:14:17,000 --> 00:14:21,000
+Is Michael going to invest in one if they update one soon?
+
+311
+00:14:21,000 --> 00:14:23,000
+Which there's rumors they will be.
+
+312
+00:14:23,000 --> 00:14:25,000
+And what are the gotchas for a Linux user or a sys admin?
+
+313
+00:14:25,000 --> 00:14:28,000
+Thank you, anonymous penguin coder.
+
+314
+00:14:28,000 --> 00:14:29,000
+We both have the iPad Pro.
+
+315
+00:14:29,000 --> 00:14:32,000
+I think around the same one, too.
+
+316
+00:14:32,000 --> 00:14:33,000
+2018?
+
+317
+00:14:33,000 --> 00:14:35,000
+Yeah, I think it's like an 18, yeah.
+
+318
+00:14:35,000 --> 00:14:37,000
+Yeah, iPad Pro 2018 I think is what we both have.
+
+319
+00:14:37,000 --> 00:14:38,000
+I have the 11-inch.
+
+320
+00:14:38,000 --> 00:14:40,000
+Yeah, I have the small one, yeah.
+
+321
+00:14:40,000 --> 00:14:42,000
+Would you consider upgrading?
+
+322
+00:14:42,000 --> 00:14:43,000
+No.
+
+323
+00:14:43,000 --> 00:14:44,000
+No need to?
+
+324
+00:14:44,000 --> 00:14:48,000
+Unless there was a development reason where I wanted to build something for it.
+
+325
+00:14:48,000 --> 00:14:54,000
+My iPad is a glorified iTunes or Apple TV, whatever.
+
+326
+00:14:54,000 --> 00:14:55,000
+I just watch movies.
+
+327
+00:14:55,000 --> 00:14:56,000
+Oh, yeah, OK.
+
+328
+00:14:56,000 --> 00:14:57,000
+Content machine.
+
+329
+00:14:57,000 --> 00:14:58,000
+Yeah, it's a content machine.
+
+330
+00:14:58,000 --> 00:15:00,000
+I don't need anything else.
+
+331
+00:15:00,000 --> 00:15:03,000
+Honestly, it's an extreme overkill for what I have.
+
+332
+00:15:03,000 --> 00:15:04,000
+I have a different feeling.
+
+333
+00:15:04,000 --> 00:15:07,000
+I also would not upgrade because I feel like mine's a five-year machine.
+
+334
+00:15:07,000 --> 00:15:12,000
+But I use mine quite a bit for the productivity apps that I don't think are great on Linux.
+
+335
+00:15:12,000 --> 00:15:14,000
+Do you have a MacBook Air for that?
+
+336
+00:15:14,000 --> 00:15:17,000
+Yeah, this is my way of avoiding the MacBook Air.
+
+337
+00:15:17,000 --> 00:15:18,000
+Sure, yeah.
+
+338
+00:15:18,000 --> 00:15:20,000
+Because I don't love email on Linux or calendars.
+
+339
+00:15:20,000 --> 00:15:22,000
+I mean, who does?
+
+340
+00:15:22,000 --> 00:15:24,000
+We went in the wrong direction here.
+
+341
+00:15:24,000 --> 00:15:32,000
+So, yes, to correct it, the gotchas, I'd say, is the only real kind of integration you're going to get with the Linux desktop is via cloud services.
+
+342
+00:15:32,000 --> 00:15:37,000
+Some you could roll yourself if you have the time to set something up like Nextcloud or something like that.
+
+343
+00:15:37,000 --> 00:15:44,000
+But for the most part, it's just going to be ones that are standard cloud services that you know of and either love or hate already.
+
+344
+00:15:44,000 --> 00:15:47,000
+So depending on your point of view, that's a downside to that.
+
+345
+00:15:47,000 --> 00:15:52,000
+I'm kind of curious, Wes, what your thoughts are because you don't have an iPad or an iPhone.
+
+346
+00:15:52,000 --> 00:15:57,000
+You're not necessarily against owning one, but it doesn't seem like they've just ever crossed the threshold of interest.
+
+347
+00:15:57,000 --> 00:15:58,000
+And what would that take?
+
+348
+00:15:58,000 --> 00:16:01,000
+Actually, my very first smartphone was an iPhone.
+
+349
+00:16:01,000 --> 00:16:03,000
+So I started out that way.
+
+350
+00:16:03,000 --> 00:16:04,000
+Like how long?
+
+351
+00:16:04,000 --> 00:16:05,000
+Which one was it?
+
+352
+00:16:05,000 --> 00:16:06,000
+I don't know.
+
+353
+00:16:06,000 --> 00:16:09,000
+This was probably 2011, 2010.
+
+354
+00:16:09,000 --> 00:16:10,000
+I thought 4, I think.
+
+355
+00:16:10,000 --> 00:16:11,000
+Yeah, okay.
+
+356
+00:16:11,000 --> 00:16:12,000
+Yeah, 4G maybe.
+
+357
+00:16:12,000 --> 00:16:13,000
+Yeah.
+
+358
+00:16:13,000 --> 00:16:14,000
+So I enjoyed that.
+
+359
+00:16:14,000 --> 00:16:16,000
+Of course, I was also doing all kinds of stuff.
+
+360
+00:16:16,000 --> 00:16:17,000
+Had Cydia on there.
+
+361
+00:16:17,000 --> 00:16:19,000
+You know, it was jailbroken a lot of the time.
+
+362
+00:16:19,000 --> 00:16:21,000
+So those were kind of like the old playful days.
+
+363
+00:16:21,000 --> 00:16:23,000
+And I've administered a lot of Macs.
+
+364
+00:16:23,000 --> 00:16:25,000
+So I'm definitely, you know, interested.
+
+365
+00:16:25,000 --> 00:16:28,000
+I can appreciate the ecosystem.
+
+366
+00:16:28,000 --> 00:16:30,000
+And honestly, these days, I think about it.
+
+367
+00:16:30,000 --> 00:16:32,000
+I mean, you know, I see you a lot.
+
+368
+00:16:32,000 --> 00:16:35,000
+You're somewhat invested now these days.
+
+369
+00:16:35,000 --> 00:16:38,000
+And I don't really do anything with my phone that's not just a phone use.
+
+370
+00:16:38,000 --> 00:16:43,000
+I haven't really had root on any of my Android devices for, I don't know, a couple years now.
+
+371
+00:16:43,000 --> 00:16:48,000
+It's mostly that because I'm not already invested, I just see that to get a lot of the benefits,
+
+372
+00:16:48,000 --> 00:16:51,000
+it seems like I'd have to have a couple devices.
+
+373
+00:16:51,000 --> 00:16:53,000
+And I don't really need a tablet.
+
+374
+00:16:53,000 --> 00:16:55,000
+Like I just, it doesn't really fit in my lifestyle right now.
+
+375
+00:16:55,000 --> 00:16:58,000
+I don't spend that much time on the couch where I'd really need a tablet.
+
+376
+00:16:58,000 --> 00:16:59,000
+And I just have it.
+
+377
+00:16:59,000 --> 00:17:00,000
+I live by myself.
+
+378
+00:17:00,000 --> 00:17:02,000
+I've got the desk set up that I want.
+
+379
+00:17:02,000 --> 00:17:03,000
+It's easy enough, you know.
+
+380
+00:17:03,000 --> 00:17:06,000
+And I don't have all the AirPlay gadgets.
+
+381
+00:17:06,000 --> 00:17:07,000
+I really like AirPlay.
+
+382
+00:17:07,000 --> 00:17:11,000
+It seems so much better than the equivalent Chromecast setup.
+
+383
+00:17:11,000 --> 00:17:13,000
+But Chromecast is a fairly open ecosystem.
+
+384
+00:17:13,000 --> 00:17:16,000
+I can just ask it to play a URL for me very easily.
+
+385
+00:17:16,000 --> 00:17:19,000
+So that's kind of why I'm stuck where I'm at.
+
+386
+00:17:19,000 --> 00:17:21,000
+That's totally fair.
+
+387
+00:17:21,000 --> 00:17:23,000
+I also agree that it does seem to multiply.
+
+388
+00:17:23,000 --> 00:17:27,000
+You know, if he was asking for his kids, I'd say don't get the iPad Pro.
+
+389
+00:17:27,000 --> 00:17:32,000
+That's overkill for how fast kids would burn through it, you know, if you wanted a family.
+
+390
+00:17:32,000 --> 00:17:33,000
+But his kids are young.
+
+391
+00:17:33,000 --> 00:17:37,000
+For my kids, you know, for me, if I can get a refurbished iPad, that's perfect.
+
+392
+00:17:37,000 --> 00:17:43,000
+If not, I try to get one that's the most reasonably priced for them if it's like out of just the wrong time buying season.
+
+393
+00:17:43,000 --> 00:17:51,000
+I think it's actually for me been a nice supplement because it takes the pressure off my laptop to be all things.
+
+394
+00:17:51,000 --> 00:17:54,000
+And the iPad Pro has a very consistent performance.
+
+395
+00:17:54,000 --> 00:17:55,000
+And then, Wes, you know this is true.
+
+396
+00:17:55,000 --> 00:17:59,000
+The other thing that I use the hell out of is I got an iPad with LTE connectivity.
+
+397
+00:17:59,000 --> 00:18:00,000
+I think Mike did, too.
+
+398
+00:18:00,000 --> 00:18:01,000
+And I love that.
+
+399
+00:18:01,000 --> 00:18:04,000
+It is so great to always have data.
+
+400
+00:18:04,000 --> 00:18:06,000
+It just doesn't matter where I go.
+
+401
+00:18:06,000 --> 00:18:08,000
+If I'm on Wi-Fi, I don't have to worry about Wi-Fi.
+
+402
+00:18:08,000 --> 00:18:10,000
+I always have a data connection if I have signal.
+
+403
+00:18:10,000 --> 00:18:14,000
+And that really kind of goes along hand in hand with that productivity aspect of the machine.
+
+404
+00:18:14,000 --> 00:18:18,000
+So I do kind of recommend it if that sounds like your use case.
+
+405
+00:18:18,000 --> 00:18:23,000
+The iPad Pro could be overkill, but in my opinion, performance is king.
+
+406
+00:18:23,000 --> 00:18:26,000
+I will say I got my dad an iPad.
+
+407
+00:18:26,000 --> 00:18:30,000
+And while he's not a child, that was about his level of experience using computers.
+
+408
+00:18:30,000 --> 00:18:34,000
+He's an outdoors kind of man, you know, not really interested in any of that.
+
+409
+00:18:34,000 --> 00:18:37,000
+Yeah, for non-technical folks, the iPad is actually a great computer.
+
+410
+00:18:37,000 --> 00:18:38,000
+Yeah, he's done a lot.
+
+411
+00:18:38,000 --> 00:18:42,000
+And it's inviting enough for him that I haven't really had to hold his hand the whole time.
+
+412
+00:18:42,000 --> 00:18:44,000
+He's been able to explore confidently.
+
+413
+00:18:44,000 --> 00:18:45,000
+He's not going to break stuff.
+
+414
+00:18:45,000 --> 00:18:50,000
+So that lets him sort of push the boundaries a little bit and actually teach himself on his own, which is great.
+
+415
+00:18:52,000 --> 00:18:54,000
+Linode.com slash coder.
+
+416
+00:18:54,000 --> 00:18:57,000
+Go there to get a $100 60-day credit towards your new account.
+
+417
+00:18:57,000 --> 00:18:59,000
+And of course, you support this here show.
+
+418
+00:18:59,000 --> 00:19:04,000
+Linode is the largest independent cloud for developers and our cloud hosting provider.
+
+419
+00:19:04,000 --> 00:19:06,000
+Like we were just talking, that new bot work we did.
+
+420
+00:19:06,000 --> 00:19:08,000
+That's on Linode.
+
+421
+00:19:08,000 --> 00:19:10,000
+Everything we've done for JB 3.0, we host there.
+
+422
+00:19:10,000 --> 00:19:18,000
+They have native SSD storage, 40 gigabit network connections, really easy to use cloud manager dashboard and the best connections.
+
+423
+00:19:18,000 --> 00:19:20,000
+I mean, they're super fast between their data centers.
+
+424
+00:19:20,000 --> 00:19:25,000
+That's something else that I've learned to really appreciate as I've built out more Linodes.
+
+425
+00:19:25,000 --> 00:19:30,000
+Something else that we learn to take advantage of in different ways that we never really considered,
+
+426
+00:19:30,000 --> 00:19:36,000
+but saves us time and money is Linode's S3 compatible object storage.
+
+427
+00:19:36,000 --> 00:19:42,000
+Now, you probably know object storage is an easy way for you to store and access data without the need for running an entire server in front of it.
+
+428
+00:19:42,000 --> 00:19:50,000
+It's perfect for data that doesn't change that often, like images or the multimedia files that we're often working with, which are FLAC files.
+
+429
+00:19:50,000 --> 00:19:52,000
+It's awesome for backups.
+
+430
+00:19:52,000 --> 00:19:57,000
+It's great for like getting a giant archive up into the cloud that you want to make accessible or maybe just private.
+
+431
+00:19:57,000 --> 00:20:01,000
+You can do that obviously as well. By default, it's private.
+
+432
+00:20:01,000 --> 00:20:06,000
+And it just adds more storage space as you go for, as you use it, as you go forward.
+
+433
+00:20:06,000 --> 00:20:11,000
+So you don't have to sit there and try to allocate like I'll do 20 gigs at a time and then fill that up and then go allocate another 20 gigs.
+
+434
+00:20:11,000 --> 00:20:13,000
+And the pricing is great.
+
+435
+00:20:13,000 --> 00:20:17,000
+And one of the best cases for object storage is actually just hosting a static website.
+
+436
+00:20:17,000 --> 00:20:23,000
+You can get a crazy fast, highly available website on Linode's object storage with just a little HTML and CSS.
+
+437
+00:20:23,000 --> 00:20:25,000
+It's really cool.
+
+438
+00:20:25,000 --> 00:20:37,000
+So there's so many great ways to use Linode besides the way we use it, which is hosting all of our services for our backend stuff, for the tools that we use and don't really ever expose to the public and for our public facing stuff.
+
+439
+00:20:37,000 --> 00:20:40,000
+That's that's what I really like about the different kinds of systems.
+
+440
+00:20:40,000 --> 00:20:44,000
+They have rigs that are like five dollars a month and there's a lot of use cases for that.
+
+441
+00:20:44,000 --> 00:20:53,000
+And then they have rigs that have like dedicated AMD epic CPUs and they beat everyone else in the cloud in speed comparisons.
+
+442
+00:20:53,000 --> 00:21:02,000
+And that's not just me saying that Cloud Spectator did a did a research study and found that AMD's epic dedicated CPUs are killer fast.
+
+443
+00:21:02,000 --> 00:21:06,000
+You know, they're just really dedicated to making sure that if you want to run something on Linux, it'll run great on Linode.
+
+444
+00:21:06,000 --> 00:21:10,000
+And then they just have different choices, super easy to parse for you to pick from.
+
+445
+00:21:10,000 --> 00:21:15,000
+And then they wrap that all up with fantastic customer service, real human beings.
+
+446
+00:21:15,000 --> 00:21:22,000
+You know, it doesn't matter if you've got 15 Linodes or 1000 Linodes or one, you're still going to get that same great support.
+
+447
+00:21:22,000 --> 00:21:27,000
+And that matters. That matters. They started in 2003 as one of the first companies in cloud computing.
+
+448
+00:21:27,000 --> 00:21:33,000
+And that matters, too. They've stuck around, they've refined the product and they've remained independent.
+
+449
+00:21:33,000 --> 00:21:37,000
+So go try it out. See what I've been talking about. Linode.com slash coder.
+
+450
+00:21:39,000 --> 00:21:47,000
+So there's some hoopla today that was really our excuse to bring Wes onto the show again because, you know, he works all day.
+
+451
+00:21:47,000 --> 00:21:53,000
+So I feel bad at the end of the day asking him to just basically stay at his desk and get on another call.
+
+452
+00:21:53,000 --> 00:21:58,000
+But this one kind of felt like we needed your help because Mike and I had not got a chance to read it yet.
+
+453
+00:21:58,000 --> 00:22:04,000
+And you had a chance to follow it since it started breaking. So the Ruby community is off the rails this week.
+
+454
+00:22:04,000 --> 00:22:09,000
+What's going on, Wes? Off the rails because rails was broken.
+
+455
+00:22:09,000 --> 00:22:20,000
+It all started last Wednesday when the maintainer of a software library called Shared MIME Info informed the maintainer of a Ruby library called MIME Magic.
+
+456
+00:22:20,000 --> 00:22:27,000
+And he was shipping MIME Magic under an incompatible software license. Yes, this story is all about licenses.
+
+457
+00:22:27,000 --> 00:22:31,000
+Is it really coming down to it's a GPL versus MIT thing?
+
+458
+00:22:31,000 --> 00:22:37,000
+Yes. So this is a free desktop, like basically a MIME database of, you know, all these all these various MIME types.
+
+459
+00:22:37,000 --> 00:22:41,000
+It's maintained by the free desktop and therefore it's licensed as GPL.
+
+460
+00:22:41,000 --> 00:22:47,000
+This Ruby library was automatically taking that, parsing it and shipping it as code in their library.
+
+461
+00:22:47,000 --> 00:22:54,000
+So all you had to do was download this gem, install it. You had access to that to that library and that database functionality in a nice Ruby API.
+
+462
+00:22:54,000 --> 00:23:00,000
+You go figure out what MIME types files are, et cetera. But that library was licensed as MIT.
+
+463
+00:23:00,000 --> 00:23:04,000
+And as you know, those two don't exactly play nicely in that way.
+
+464
+00:23:04,000 --> 00:23:07,000
+Yeah, there's a viral nature to the GPL, which must be the core issue here.
+
+465
+00:23:07,000 --> 00:23:14,000
+Right. So to their credit, the maintainer of MIME Magic promptly moved the latest version over to GPL,
+
+466
+00:23:14,000 --> 00:23:21,000
+but then withdrew the prior versions from distribution. And that's because really they were licensed wrongly.
+
+467
+00:23:21,000 --> 00:23:30,000
+Right. I mean, you're pulling down what says it's an MIT project, but it's using GPL code and therefore it actually is a derived work and should be GPL.
+
+468
+00:23:30,000 --> 00:23:38,000
+So what do you do? Do you leave that up there as a potential liability and risk for people who download an incorrectly labeled and licensed package?
+
+469
+00:23:38,000 --> 00:23:47,000
+Or do you do what they did, which was pull all those wrong packages, which meant that anyone using CI systems to automatically build and deploy from those old versions.
+
+470
+00:23:47,000 --> 00:23:51,000
+So you actually pinned your versions. You weren't just using the latest like Rails.
+
+471
+00:23:51,000 --> 00:23:58,000
+Those all broke, including like 172 other packages. But of course, Rails is the one that caught everyone's attention.
+
+472
+00:23:58,000 --> 00:24:03,000
+Oh, I just want to say this is why I hate the GPL. OK.
+
+473
+00:24:03,000 --> 00:24:07,000
+I mean, I feel like we have kind of talked about this before, like this is a problem.
+
+474
+00:24:07,000 --> 00:24:14,000
+For years, like the GPL does not benefit individual developers or individual users.
+
+475
+00:24:14,000 --> 00:24:18,000
+It benefits big companies who don't give a crap because you could never hit their scale.
+
+476
+00:24:18,000 --> 00:24:23,000
+So they don't care if their stuff is forced to be open source because it's like the Linux kernel.
+
+477
+00:24:23,000 --> 00:24:30,000
+You can't touch it through a small company, BSD, MIT, Apache to everything else.
+
+478
+00:24:30,000 --> 00:24:33,000
+Right. Like it's a waste of time.
+
+479
+00:24:33,000 --> 00:24:39,000
+You're just going to get screwed over. The GPL was meant to be subversive and help the little guy.
+
+480
+00:24:39,000 --> 00:24:43,000
+It actually just helps the big corporations. It's a waste of time.
+
+481
+00:24:43,000 --> 00:24:47,000
+Free software sucks. Open source for life. I'm done.
+
+482
+00:24:47,000 --> 00:24:54,000
+This does kind of seem like, though, it's it is a case in point of what you kind of have been worrying about forever.
+
+483
+00:24:54,000 --> 00:25:00,000
+Well, no, because who got screwed by this? Small companies and small software consultancies like me.
+
+484
+00:25:00,000 --> 00:25:04,000
+It's a knock on effect. It wasn't the big guys. Microsoft doesn't give a shit.
+
+485
+00:25:04,000 --> 00:25:13,000
+Like they're fine. Yeah. Like the GPL is poison unless you're Microsoft Red Hat, which is IBM or someone that size.
+
+486
+00:25:13,000 --> 00:25:20,000
+I'm sorry, but it needs to go. So are you saying that they're fine just because they have lawyers to deal with it or for other reasons?
+
+487
+00:25:20,000 --> 00:25:25,000
+I think they're fine because they have the money. They don't care that spending the resources contributing back hurts them.
+
+488
+00:25:25,000 --> 00:25:28,000
+Right. And they have lawyers. Not that they would violate it.
+
+489
+00:25:28,000 --> 00:25:35,000
+But when you only have, let's say, 20 or 30 developers, the GPL is a big drain on you.
+
+490
+00:25:35,000 --> 00:25:42,000
+It's just too much. I think some would argue that that's making you pay back for the resources you're benefiting from.
+
+491
+00:25:42,000 --> 00:25:48,000
+OK, but like Mac, BSD, right? Like, I don't know. I don't think the proof is there.
+
+492
+00:25:48,000 --> 00:25:51,000
+But that's an argument we can have another day.
+
+493
+00:25:51,000 --> 00:25:58,000
+I think where I fall down on is it seems like GPL is appropriate for things like the kernel or the desktop environment.
+
+494
+00:25:58,000 --> 00:26:05,000
+But when it comes to something that ends up a gem, that's a big deal. That's a bigger decision.
+
+495
+00:26:05,000 --> 00:26:07,000
+That's where I start to agree with you.
+
+496
+00:26:07,000 --> 00:26:15,000
+Well, when it's a library, right? The kernel is a bad example, fair enough. When it's a library and it becomes poison to your entire application,
+
+497
+00:26:15,000 --> 00:26:21,000
+that seems just like fundamentally benefits big players and hurts small players to me.
+
+498
+00:26:21,000 --> 00:26:26,000
+Because how many Rails shops were crapping their pants in the last week because they couldn't do their CI builds?
+
+499
+00:26:26,000 --> 00:26:30,000
+Yeah. The other story here, though, I think, I mean, the license, you're right, that is part of it.
+
+500
+00:26:30,000 --> 00:26:36,000
+Although you could argue, I mean, that's up to the people, right? The free desktop.org, if they want to maintain it, they want help maintaining it.
+
+501
+00:26:36,000 --> 00:26:41,000
+They're like, hey, we make this whole database of file types. We want people to update that when they add files.
+
+502
+00:26:41,000 --> 00:26:42,000
+We want to make sure it's accurate.
+
+503
+00:26:42,000 --> 00:26:51,000
+But the other side of the story is basically, one, the nature of how we all rely on online, up-to-date, live binary artifacts, you know,
+
+504
+00:26:51,000 --> 00:26:56,000
+like these gems or other things else out there. We rely on those always working forever, immutably.
+
+505
+00:26:56,000 --> 00:27:03,000
+And this library was basically unmaintained, and it was even archived for a little bit after this update because the maintainer was like,
+
+506
+00:27:03,000 --> 00:27:07,000
+well, look, this is just a library that pulls from stuff someone else maintains.
+
+507
+00:27:07,000 --> 00:27:10,000
+I'm not really touching this or worried about it anymore.
+
+508
+00:27:10,000 --> 00:27:14,000
+So it's another example of, like, we always have a thousand million dependencies deep.
+
+509
+00:27:14,000 --> 00:27:18,000
+Not everyone's paying attention to a lot of them. Will Rails shift eventually?
+
+510
+00:27:18,000 --> 00:27:21,000
+Yeah, maybe. And there has been some updates to the story, which we can get to.
+
+511
+00:27:21,000 --> 00:27:26,000
+But there's a lot of modern software development microcosms to be found here.
+
+512
+00:27:26,000 --> 00:27:28,000
+No, that's a razor-sharp point there, Wes.
+
+513
+00:27:28,000 --> 00:27:36,000
+And in fact, internally, we've been having this conversation at TMB about some of the Python and Ruby applications we've developed.
+
+514
+00:27:36,000 --> 00:27:40,000
+And Ruby is just a proxy for Rails for us, and Python is usually Flask.
+
+515
+00:27:40,000 --> 00:27:48,000
+The number of dependencies that they rely on over time, particularly on the Rails ones because we've been doing Rails a lot longer,
+
+516
+00:27:48,000 --> 00:27:53,000
+has become problematic, let's say, where the dependencies may shift.
+
+517
+00:27:53,000 --> 00:27:58,000
+The Ruby 3.0 shift was problematic for API compatibility reasons.
+
+518
+00:27:58,000 --> 00:28:03,000
+But this kind of thing, like, I somehow ducked this by the grace of God.
+
+519
+00:28:03,000 --> 00:28:06,000
+But, I mean, I would have sent some mean tweets, right?
+
+520
+00:28:06,000 --> 00:28:09,000
+Like, if this had happened to me, you know me.
+
+521
+00:28:09,000 --> 00:28:14,000
+I do worry, and I know you're going to jump down my throat, Wes,
+
+522
+00:28:14,000 --> 00:28:22,000
+that maybe we're just relying on other people's software too much, too many gems, too many PIP packages, too many jars, too many NuGet packages.
+
+523
+00:28:22,000 --> 00:28:23,000
+Is that sane?
+
+524
+00:28:23,000 --> 00:28:31,000
+I think we see often that there are risks to that, and it makes sense to try to minimize the dependencies you have.
+
+525
+00:28:31,000 --> 00:28:32,000
+That's not always easy, right?
+
+526
+00:28:32,000 --> 00:28:38,000
+Like, especially for a giant framework like Rails, there's a whole bunch of dependencies, optional dependencies, that gets complicated.
+
+527
+00:28:38,000 --> 00:28:44,000
+But it makes sense to me to at least try to limit things, look at your dependencies, go visit their GitHub, go look at the community.
+
+528
+00:28:44,000 --> 00:28:45,000
+Are they getting updates?
+
+529
+00:28:45,000 --> 00:28:46,000
+Now, that doesn't always matter.
+
+530
+00:28:46,000 --> 00:28:51,000
+Sometimes things are done, or they, you know, don't need updates all the time because it's a standalone package.
+
+531
+00:28:51,000 --> 00:28:58,000
+But by and large, for things on the internet these days, they at least got to keep up with very small changes, tweaks, updates to interfaces, etc.
+
+532
+00:28:58,000 --> 00:29:00,000
+So go assess what those are.
+
+533
+00:29:00,000 --> 00:29:03,000
+Go see how deep their dependency chains are.
+
+534
+00:29:03,000 --> 00:29:04,000
+All of this is extra work.
+
+535
+00:29:04,000 --> 00:29:08,000
+But if you want to prevent this from happening to you, it's at least worth thinking about.
+
+536
+00:29:08,000 --> 00:29:09,000
+Well, right.
+
+537
+00:29:09,000 --> 00:29:18,000
+And if you want a really stable platform to develop on where the dependencies haven't shifted in about a decade, I can definitely recommend Objective-C.
+
+538
+00:29:18,000 --> 00:29:19,000
+Oh, my God.
+
+539
+00:29:19,000 --> 00:29:20,000
+Sorry, Wes.
+
+540
+00:29:20,000 --> 00:29:29,000
+Now, not all of the projects are going to be affected immediately because it's really only going to be a problem when they try to build an update and, you know, fetch the latest version.
+
+541
+00:29:29,000 --> 00:29:32,000
+So it's kind of like a time bomb for some of these projects.
+
+542
+00:29:32,000 --> 00:29:35,000
+So do they have a solution?
+
+543
+00:29:35,000 --> 00:29:36,000
+I mean, are they going to fork it?
+
+544
+00:29:36,000 --> 00:29:38,000
+Like, what happens next?
+
+545
+00:29:38,000 --> 00:29:39,000
+Yeah. Okay.
+
+546
+00:29:39,000 --> 00:29:46,000
+So basically the idea was there's now a new version, a new new version, which was restored to the MIT license.
+
+547
+00:29:46,000 --> 00:29:48,000
+And you just have to provide your own database.
+
+548
+00:29:48,000 --> 00:29:54,000
+So that was basically the idea they came up with was instead of actually shipping the database mungedified into Ruby code,
+
+549
+00:29:54,000 --> 00:29:58,000
+you just have to load it at module time when you're running your program.
+
+550
+00:29:58,000 --> 00:30:00,000
+That way it's not like linked together GPL wise.
+
+551
+00:30:00,000 --> 00:30:05,000
+You just aren't going to pull in this file from the disk and leverage that in your own application, not in this library that's distributed.
+
+552
+00:30:05,000 --> 00:30:08,000
+No, it wasn't the library itself that was the problem.
+
+553
+00:30:08,000 --> 00:30:13,000
+It was the database of the different whatever data types or whatever it was.
+
+554
+00:30:13,000 --> 00:30:14,000
+MIME type data mappings.
+
+555
+00:30:14,000 --> 00:30:15,000
+The MIME types.
+
+556
+00:30:15,000 --> 00:30:16,000
+Yeah.
+
+557
+00:30:16,000 --> 00:30:17,000
+Right. Yeah.
+
+558
+00:30:17,000 --> 00:30:24,000
+So it was that they had taken the MIME type database and then basically used at build time,
+
+559
+00:30:24,000 --> 00:30:29,000
+loaded that in and then converted that into just like static Ruby code that got shipped in the module.
+
+560
+00:30:29,000 --> 00:30:31,000
+But they didn't do that with the appropriate license.
+
+561
+00:30:31,000 --> 00:30:36,000
+So now at runtime, when you load your thing, it's actually going to go load it from disk, pull that all in.
+
+562
+00:30:36,000 --> 00:30:40,000
+So now it's your application doing it and not the library so they can keep the license MIT.
+
+563
+00:30:40,000 --> 00:30:45,000
+Basically, they'll have the barn doors fixed as the cows are coming home.
+
+564
+00:30:45,000 --> 00:30:48,000
+It's an open question now of, is this really the way we want to be doing that?
+
+565
+00:30:48,000 --> 00:30:50,000
+And is this all kind of a hack?
+
+566
+00:30:50,000 --> 00:30:51,000
+Should we have a better library?
+
+567
+00:30:51,000 --> 00:30:52,000
+What's Rails going to do?
+
+568
+00:30:52,000 --> 00:30:56,000
+Do we need something that has more active maintainership?
+
+569
+00:30:56,000 --> 00:30:58,000
+That part is still an open question, I think.
+
+570
+00:30:58,000 --> 00:30:59,000
+That doesn't sound good.
+
+571
+00:30:59,000 --> 00:31:02,000
+I feel like this needs to be built into Rails, but maybe that's a different conversation.
+
+572
+00:31:02,000 --> 00:31:04,000
+Yeah, it doesn't seem ideal, huh?
+
+573
+00:31:04,000 --> 00:31:06,000
+What a crazy series of events.
+
+574
+00:31:06,000 --> 00:31:09,000
+The Register did, I think, one of the best write ups I've seen on this.
+
+575
+00:31:09,000 --> 00:31:11,000
+We'll have that linked in the show notes.
+
+576
+00:31:11,000 --> 00:31:13,000
+Thanks for helping us break that down, Wes.
+
+577
+00:31:13,000 --> 00:31:14,000
+You're the best, Wes.
+
+578
+00:31:14,000 --> 00:31:19,000
+I just hope I get to avoid Bundler, Gems, and all of it until the next time J-Pop breaks.
+
+579
+00:31:20,000 --> 00:31:23,000
+Datadog.com slash Coder Radio.
+
+580
+00:31:23,000 --> 00:31:28,000
+Go to datadog.com slash Coder Radio and sign up for a 14-day free trial.
+
+581
+00:31:28,000 --> 00:31:29,000
+And you know what?
+
+582
+00:31:29,000 --> 00:31:33,000
+If you do that, you'll also, after you create a dashboard, can get a Datadog t-shirt.
+
+583
+00:31:33,000 --> 00:31:35,000
+That's right, you get merch.
+
+584
+00:31:35,000 --> 00:31:41,000
+But Datadog is a series of tools to help you analyze code-level performance across your environment
+
+585
+00:31:41,000 --> 00:31:43,000
+and troubleshoot issues faster.
+
+586
+00:31:43,000 --> 00:31:46,000
+Datadog is a tool to do that and communicate.
+
+587
+00:31:46,000 --> 00:31:50,000
+And they have something called the Continuous Profiler that automatically collects information.
+
+588
+00:31:50,000 --> 00:31:56,000
+It profiles your production servers all the time, so you can analyze your data quickly
+
+589
+00:31:56,000 --> 00:31:59,000
+from any particular point in time with minimal overhead.
+
+590
+00:31:59,000 --> 00:32:04,000
+You get a unified picture of your environment, correlating code performance with metrics
+
+591
+00:32:04,000 --> 00:32:09,000
+from your servers and your applications, and you can monitor real-time information
+
+592
+00:32:09,000 --> 00:32:12,000
+and put it up on these beautiful dashboards.
+
+593
+00:32:12,000 --> 00:32:13,000
+It's gorgeous.
+
+594
+00:32:13,000 --> 00:32:17,000
+These are the kind of dashboards you'd want to just have screens around your office
+
+595
+00:32:17,000 --> 00:32:18,000
+with these dashboards up.
+
+596
+00:32:18,000 --> 00:32:22,000
+Go to datadog.com slash Coder Radio to see what I'm talking about.
+
+597
+00:32:22,000 --> 00:32:25,000
+They tightly integrate with a bunch of different applications.
+
+598
+00:32:25,000 --> 00:32:27,000
+They have this tracing and they have the log management.
+
+599
+00:32:27,000 --> 00:32:32,000
+Of course, that Continuous Profiler, it all comes together in Datadog.
+
+600
+00:32:32,000 --> 00:32:37,000
+One platform enables you to pinpoint the root cause of issues faster than ever.
+
+601
+00:32:37,000 --> 00:32:39,000
+Save time with Datadog.
+
+602
+00:32:39,000 --> 00:32:41,000
+Datadog.com slash Coder Radio.
+
+603
+00:32:41,000 --> 00:32:46,000
+Go there and get a 14-day trial, and when you create one dashboard,
+
+604
+00:32:46,000 --> 00:32:48,000
+you'll get a free Datadog t-shirt.
+
+605
+00:32:48,000 --> 00:32:49,000
+That's pretty great.
+
+606
+00:32:49,000 --> 00:32:52,000
+Datadog.com slash Coder Radio.
+
+607
+00:32:52,000 --> 00:32:55,000
+So did you see this?
+
+608
+00:32:55,000 --> 00:32:57,000
+Did you see this?
+
+609
+00:32:57,000 --> 00:33:03,000
+The Dino Company from the original developers of Node.js.
+
+610
+00:33:03,000 --> 00:33:07,000
+It is an attempt to breathe new life into the ecosystem.
+
+611
+00:33:07,000 --> 00:33:12,000
+They say to provide a modern, productive programming system that adheres to browser APIs.
+
+612
+00:33:12,000 --> 00:33:17,000
+Dino is not a monolithic system, but rather a set of technologies we believe
+
+613
+00:33:17,000 --> 00:33:21,000
+can be repurposed into a variety of needs.
+
+614
+00:33:21,000 --> 00:33:24,000
+Dino is here.
+
+615
+00:33:24,000 --> 00:33:25,000
+They've announced it.
+
+616
+00:33:25,000 --> 00:33:26,000
+They have a company now behind it.
+
+617
+00:33:26,000 --> 00:33:33,000
+I think it's Ryan Dahl and Bert Felder, who are the two co-creators of Node.js.
+
+618
+00:33:33,000 --> 00:33:39,000
+And they also have $4.9 million of seed capital to get this thing off the ground.
+
+619
+00:33:39,000 --> 00:33:41,000
+I have to respect them on two fronts.
+
+620
+00:33:41,000 --> 00:33:45,000
+One, they got paid, so dollar-dollar bill, y'all.
+
+621
+00:33:45,000 --> 00:33:50,000
+But also, they were wrong to put JavaScript on the server the first time.
+
+622
+00:33:50,000 --> 00:33:54,000
+But instead of backing down, they said, to hell with this.
+
+623
+00:33:54,000 --> 00:33:55,000
+We're doing it again.
+
+624
+00:33:55,000 --> 00:33:57,000
+F you guys.
+
+625
+00:33:57,000 --> 00:34:00,000
+Now TypeScript is first-class citizen, but it's really JavaScript.
+
+626
+00:34:00,000 --> 00:34:06,000
+They said, do you want your server-side software to move as fast and crazy as your browser-side does?
+
+627
+00:34:06,000 --> 00:34:07,000
+We're going to do it.
+
+628
+00:34:07,000 --> 00:34:09,000
+Do you like instability, sir?
+
+629
+00:34:09,000 --> 00:34:12,000
+Well, we've got something for you.
+
+630
+00:34:12,000 --> 00:34:16,000
+I mean, that really is their complaint, is that Node.js got stagnant
+
+631
+00:34:16,000 --> 00:34:19,000
+and hasn't really innovated much and isn't moving fast enough.
+
+632
+00:34:19,000 --> 00:34:23,000
+Stagnant had to stabilize because a bunch of consultants like me,
+
+633
+00:34:23,000 --> 00:34:29,000
+but not me because I don't sell Node because I was not smoking that crack pipe,
+
+634
+00:34:29,000 --> 00:34:31,000
+sold it to enterprises.
+
+635
+00:34:31,000 --> 00:34:32,000
+Again, not me.
+
+636
+00:34:32,000 --> 00:34:38,000
+I was selling them Rails, which, okay, not the best week for Rails.
+
+637
+00:34:38,000 --> 00:34:41,000
+I've changed my opinion on lots of things over the years, Chris.
+
+638
+00:34:41,000 --> 00:34:43,000
+On this, I have been consistent.
+
+639
+00:34:43,000 --> 00:34:47,000
+JavaScript does not belong on the server, period.
+
+640
+00:34:47,000 --> 00:34:50,000
+They also have this deploy system.
+
+641
+00:34:50,000 --> 00:34:53,000
+They say it's a globally distributed JavaScript VM,
+
+642
+00:34:53,000 --> 00:34:55,000
+so you don't have to run it on your server.
+
+643
+00:34:55,000 --> 00:34:57,000
+You could run it on their server.
+
+644
+00:34:57,000 --> 00:34:58,000
+I see.
+
+645
+00:34:58,000 --> 00:35:01,000
+Taking dog shit and putting it on my neighbor's lawn is better.
+
+646
+00:35:01,000 --> 00:35:02,000
+Got it.
+
+647
+00:35:02,000 --> 00:35:03,000
+Obviously.
+
+648
+00:35:03,000 --> 00:35:04,000
+Then it's not on your lawn, man.
+
+649
+00:35:04,000 --> 00:35:05,000
+Everybody knows that.
+
+650
+00:35:05,000 --> 00:35:07,000
+I mean, no disrespect to Mr. Dahl and Mr. Belder.
+
+651
+00:35:07,000 --> 00:35:09,000
+I mean, it's great engineering,
+
+652
+00:35:09,000 --> 00:35:12,000
+but there is absolutely no reason for this to exist.
+
+653
+00:35:12,000 --> 00:35:15,000
+There are many better server-side languages,
+
+654
+00:35:15,000 --> 00:35:19,000
+and the idea that you need to unify your language between server and client,
+
+655
+00:35:19,000 --> 00:35:22,000
+well, then nobody can make fun of me if I do a cappuccino
+
+656
+00:35:22,000 --> 00:35:24,000
+to do Objective-C on the server,
+
+657
+00:35:24,000 --> 00:35:27,000
+which you guys have mercilessly done for a decade.
+
+658
+00:35:27,000 --> 00:35:32,000
+So this is a bad idea, just like Node is a bad idea.
+
+659
+00:35:32,000 --> 00:35:34,000
+Why don't you all learn Python?
+
+660
+00:35:34,000 --> 00:35:38,000
+Nicely done.
+
+661
+00:35:38,000 --> 00:35:40,000
+Now, I don't disagree, but I'm curious.
+
+662
+00:35:40,000 --> 00:35:42,000
+Wes is coming in for the fight.
+
+663
+00:35:42,000 --> 00:35:45,000
+Modern Python with async and UV loop,
+
+664
+00:35:45,000 --> 00:35:48,000
+I mean, is it that much different than, say, TypeScript,
+
+665
+00:35:48,000 --> 00:35:50,000
+which has been improved a lot?
+
+666
+00:35:50,000 --> 00:35:51,000
+No.
+
+667
+00:35:51,000 --> 00:35:53,000
+Python is, in fact, getting progressively worse.
+
+668
+00:35:53,000 --> 00:35:54,000
+I agree with you.
+
+669
+00:35:54,000 --> 00:35:59,000
+I sort of think that better server-side languages are C Sharp and Java.
+
+670
+00:35:59,000 --> 00:36:01,000
+It just seems like that argument is pushing a lot of work
+
+671
+00:36:01,000 --> 00:36:03,000
+on what might be a small development team
+
+672
+00:36:03,000 --> 00:36:05,000
+that, say, you were talking about earlier.
+
+673
+00:36:05,000 --> 00:36:06,000
+They don't have a lot of time.
+
+674
+00:36:06,000 --> 00:36:08,000
+They don't really have expertise in multiple languages.
+
+675
+00:36:08,000 --> 00:36:11,000
+They have to ship some front-end products anyway.
+
+676
+00:36:11,000 --> 00:36:13,000
+I would push back hard on that, because front-end developers,
+
+677
+00:36:13,000 --> 00:36:16,000
+the real talent is not like JavaScript coding.
+
+678
+00:36:16,000 --> 00:36:19,000
+It's going to be CSS design, HTML,
+
+679
+00:36:19,000 --> 00:36:22,000
+knowing how to integrate templates quickly, stuff like that.
+
+680
+00:36:22,000 --> 00:36:24,000
+It's not going to be, you know,
+
+681
+00:36:24,000 --> 00:36:26,000
+they're not going to know about threading on V8,
+
+682
+00:36:26,000 --> 00:36:29,000
+because if they're front-end developers, they don't care, right,
+
+683
+00:36:29,000 --> 00:36:31,000
+for the most part.
+
+684
+00:36:31,000 --> 00:36:35,000
+I would almost challenge, I guess, that if you had a full JavaScript team,
+
+685
+00:36:35,000 --> 00:36:37,000
+you would still have some developers
+
+686
+00:36:37,000 --> 00:36:39,000
+who are better on the back-end on the server-side
+
+687
+00:36:39,000 --> 00:36:42,000
+and some who actually know how to do CSS.
+
+688
+00:36:42,000 --> 00:36:44,000
+And my CSS is weak, right?
+
+689
+00:36:44,000 --> 00:36:49,000
+I am probably, in my company, the worst guy for CSS around.
+
+690
+00:36:49,000 --> 00:36:52,000
+I think you could do it probably with a non-Java language,
+
+691
+00:36:52,000 --> 00:36:54,000
+but to go from JavaScript to Java,
+
+692
+00:36:54,000 --> 00:36:56,000
+there's just such an impedance mismatch
+
+693
+00:36:56,000 --> 00:37:00,000
+when you could just otherwise ship JSON objects really easily,
+
+694
+00:37:00,000 --> 00:37:03,000
+and there's a whole bunch of libraries that will set things up for you
+
+695
+00:37:03,000 --> 00:37:05,000
+so you can just send data structures back and forth.
+
+696
+00:37:05,000 --> 00:37:07,000
+You don't have to deal with all kinds of serialization
+
+697
+00:37:07,000 --> 00:37:10,000
+going down the Java route or figuring out how to make serialization work
+
+698
+00:37:10,000 --> 00:37:12,000
+on these weird custom classes that you're defining.
+
+699
+00:37:12,000 --> 00:37:13,000
+None of that.
+
+700
+00:37:13,000 --> 00:37:17,000
+Okay, so pick another non-statically typed language then, right?
+
+701
+00:37:17,000 --> 00:37:19,000
+But then you have to pick.
+
+702
+00:37:19,000 --> 00:37:21,000
+Wow, life is about hard choices.
+
+703
+00:37:21,000 --> 00:37:23,000
+I'm not saying I endorse it.
+
+704
+00:37:23,000 --> 00:37:25,000
+I'm just saying if you have to learn JavaScript anyway,
+
+705
+00:37:25,000 --> 00:37:27,000
+much like why Electron apps exist, right?
+
+706
+00:37:27,000 --> 00:37:29,000
+It's the same sort of reasoning.
+
+707
+00:37:29,000 --> 00:37:31,000
+It's just easier.
+
+708
+00:37:31,000 --> 00:37:33,000
+And then Denno adds more stuff like TypeScript as default.
+
+709
+00:37:33,000 --> 00:37:35,000
+You get better APIs that are modernized.
+
+710
+00:37:35,000 --> 00:37:37,000
+You get sandboxing with permission.
+
+711
+00:37:37,000 --> 00:37:40,000
+You get a better self-contained binary deployment strategy.
+
+712
+00:37:40,000 --> 00:37:42,000
+I just don't know, Wes. I just don't know.
+
+713
+00:37:42,000 --> 00:37:43,000
+I don't know.
+
+714
+00:37:43,000 --> 00:37:45,000
+I just don't know if JavaScript belongs on the server.
+
+715
+00:37:45,000 --> 00:37:47,000
+I mean, maybe this is my old madness,
+
+716
+00:37:47,000 --> 00:37:49,000
+and I'm just being like, no, don't put your peanut butter
+
+717
+00:37:49,000 --> 00:37:51,000
+in my jelly or my chocolate.
+
+718
+00:37:51,000 --> 00:37:55,000
+But I just – it's such a bad language.
+
+719
+00:37:55,000 --> 00:37:56,000
+I'm sorry.
+
+720
+00:37:56,000 --> 00:37:58,000
+Now that I can't disagree with.
+
+721
+00:37:58,000 --> 00:38:00,000
+And you and I don't agree on languages at all.
+
+722
+00:38:00,000 --> 00:38:02,000
+But I think that's where TypeScript as a first-class citizen
+
+723
+00:38:02,000 --> 00:38:04,000
+is maybe some of their argument.
+
+724
+00:38:04,000 --> 00:38:08,000
+Okay, but TypeScript – I mean, we should do a whole show on, like,
+
+725
+00:38:08,000 --> 00:38:10,000
+is TypeScript different from JavaScript?
+
+726
+00:38:10,000 --> 00:38:14,000
+Because isn't it – okay, I'm very conflicted on TypeScript.
+
+727
+00:38:14,000 --> 00:38:18,000
+Is it the next simplified evolution of C-sharp slash Java,
+
+728
+00:38:18,000 --> 00:38:21,000
+or is it JavaScript where it hides the pain from you?
+
+729
+00:38:21,000 --> 00:38:22,000
+And I don't know the answer to that.
+
+730
+00:38:22,000 --> 00:38:23,000
+That's a real question.
+
+731
+00:38:23,000 --> 00:38:25,000
+Yeah, and I think part of that is, like,
+
+732
+00:38:25,000 --> 00:38:27,000
+when you get to ship more modern JavaScript,
+
+733
+00:38:27,000 --> 00:38:29,000
+at least some of the pains are better.
+
+734
+00:38:29,000 --> 00:38:32,000
+It's still a gross, ugly language that's had a crazy evolution,
+
+735
+00:38:32,000 --> 00:38:34,000
+but at least it's not –
+
+736
+00:38:34,000 --> 00:38:36,000
+It was never meant to be a full language.
+
+737
+00:38:36,000 --> 00:38:38,000
+It's been bolted on like Frankenstein.
+
+738
+00:38:38,000 --> 00:38:41,000
+It's like the crappiest version of Voltron.
+
+739
+00:38:41,000 --> 00:38:43,000
+Oh, man.
+
+740
+00:38:43,000 --> 00:38:45,000
+Why would you want that running in your database?
+
+741
+00:38:45,000 --> 00:38:47,000
+I don't know. Maybe I'm just being a jerk.
+
+742
+00:38:47,000 --> 00:38:48,000
+Yeah, that's why I love you.
+
+743
+00:38:48,000 --> 00:38:50,000
+I've hated Node from the beginning.
+
+744
+00:38:50,000 --> 00:38:51,000
+I hate Dino, too.
+
+745
+00:38:51,000 --> 00:38:53,000
+Yeah, you have been consistent.
+
+746
+00:38:53,000 --> 00:38:55,000
+I've been very consistent.
+
+747
+00:38:55,000 --> 00:38:59,000
+And now the creators of Node.js apparently hate it as well,
+
+748
+00:38:59,000 --> 00:39:01,000
+which I think is what you really love about this story.
+
+749
+00:39:01,000 --> 00:39:05,000
+What I love is they got paid doing something I still think is insane,
+
+750
+00:39:05,000 --> 00:39:06,000
+and I'm still broke.
+
+751
+00:39:06,000 --> 00:39:08,000
+So, hey, whatever. Maybe I'm wrong.
+
+752
+00:39:08,000 --> 00:39:14,000
+Boy, we have just, I guess, nothing but to wait and see where Dino goes, I suppose.
+
+753
+00:39:14,000 --> 00:39:16,000
+I don't have much more to say about it.
+
+754
+00:39:16,000 --> 00:39:17,000
+It's brand new to me.
+
+755
+00:39:17,000 --> 00:39:19,000
+They will come on the show one day.
+
+756
+00:39:19,000 --> 00:39:21,000
+I'm sure they will enjoy this commentary.
+
+757
+00:39:21,000 --> 00:39:23,000
+Coder.show slash contact.
+
+758
+00:39:23,000 --> 00:39:24,000
+You know, it's the typescript.
+
+759
+00:39:24,000 --> 00:39:26,000
+That's what's going to get people fired up.
+
+760
+00:39:26,000 --> 00:39:30,000
+All right. Well, let's do our last topic of the day then.
+
+761
+00:39:30,000 --> 00:39:34,000
+This one is the one that has spooked me all week.
+
+762
+00:39:34,000 --> 00:39:36,000
+I really stepped in it last week
+
+763
+00:39:36,000 --> 00:39:38,000
+when I opened my mouth about how I was worried
+
+764
+00:39:38,000 --> 00:39:42,000
+that Apple's new platform goodies would draw Linux users in
+
+765
+00:39:42,000 --> 00:39:46,000
+because then I started getting notes from people all week long
+
+766
+00:39:46,000 --> 00:39:47,000
+that confirmed my fears.
+
+767
+00:39:47,000 --> 00:39:50,000
+So let's start with Grav because he says, don't worry about it.
+
+768
+00:39:50,000 --> 00:39:52,000
+Mac OS is crap.
+
+769
+00:39:52,000 --> 00:39:54,000
+He says, I know you guys are still freaking out about the M1,
+
+770
+00:39:54,000 --> 00:39:58,000
+but the general public doesn't care how many cores are in a system.
+
+771
+00:39:58,000 --> 00:40:04,000
+Look at Intel laptops that still sell despite AMD's amazing 4700U or 4800U.
+
+772
+00:40:04,000 --> 00:40:07,000
+You guys remind me back when the console fanboys would freak out
+
+773
+00:40:07,000 --> 00:40:10,000
+when the opposing team suddenly got better and faster hardware.
+
+774
+00:40:10,000 --> 00:40:14,000
+Just like the console space, it's games that sell the platform.
+
+775
+00:40:14,000 --> 00:40:17,000
+Big Sur is a pain in the butt.
+
+776
+00:40:17,000 --> 00:40:19,000
+It has huge compatibility issues
+
+777
+00:40:19,000 --> 00:40:21,000
+and Apple's dominance in the computing space
+
+778
+00:40:21,000 --> 00:40:24,000
+has really only existed in a niche.
+
+779
+00:40:24,000 --> 00:40:27,000
+Mac OS simply isn't designed for productivity.
+
+780
+00:40:27,000 --> 00:40:30,000
+Mac OS is designed for ease of...
+
+781
+00:40:30,000 --> 00:40:31,000
+Okay. All right.
+
+782
+00:40:31,000 --> 00:40:35,000
+Let's back away. I think he means like the Microsoft kind of productivity,
+
+783
+00:40:35,000 --> 00:40:37,000
+like Excel, Word, perhaps.
+
+784
+00:40:37,000 --> 00:40:39,000
+That's what I think, you know.
+
+785
+00:40:39,000 --> 00:40:43,000
+Ask the legions of developers at every conference ever who have Macbooks.
+
+786
+00:40:43,000 --> 00:40:44,000
+Sure.
+
+787
+00:40:44,000 --> 00:40:47,000
+Yeah. But he thinks like, you know, it lacks decent Windows snap features
+
+788
+00:40:47,000 --> 00:40:49,000
+that like Windows has had since 7.
+
+789
+00:40:49,000 --> 00:40:52,000
+There's just basic like navigation stuff you can't do.
+
+790
+00:40:52,000 --> 00:40:56,000
+Like when you click closing a window, it's still running and that confuses users.
+
+791
+00:40:56,000 --> 00:40:58,000
+He says that he talked to his buddy at Best Buy
+
+792
+00:40:58,000 --> 00:41:03,000
+and that people return even the M1 Macs because they hate Mac OS.
+
+793
+00:41:03,000 --> 00:41:06,000
+I mean, 20 hours of battery life.
+
+794
+00:41:06,000 --> 00:41:07,000
+You know, he thinks that's it.
+
+795
+00:41:07,000 --> 00:41:12,000
+But unfortunately, Grav was very much, very much in the minority.
+
+796
+00:41:12,000 --> 00:41:15,000
+We had many more people that wrote in that said, yeah.
+
+797
+00:41:15,000 --> 00:41:16,000
+So Jeff was one of them.
+
+798
+00:41:16,000 --> 00:41:18,000
+He says, I was listening to episode 406
+
+799
+00:41:18,000 --> 00:41:23,000
+and Chris's worry about the M1 Macs illustrates the battle in my soul right now.
+
+800
+00:41:23,000 --> 00:41:27,000
+He says that I've pretty much written everything off except for ThinkPads,
+
+801
+00:41:27,000 --> 00:41:30,000
+but the more I look at it, I really can't justify a ThinkPad
+
+802
+00:41:30,000 --> 00:41:33,000
+to the MacBook Air's performance and battery life.
+
+803
+00:41:33,000 --> 00:41:35,000
+And then you add in lack of fan noise
+
+804
+00:41:35,000 --> 00:41:39,000
+and I just really can't justify the cost of an Intel laptop.
+
+805
+00:41:39,000 --> 00:41:42,000
+I'm pretty uncomfortable with this because I've been running Linux,
+
+806
+00:41:42,000 --> 00:41:47,000
+usually Fedora or OpenSUSE, exclusively for over a decade.
+
+807
+00:41:47,000 --> 00:41:50,000
+But comparing an Intel machine, an M1, as an investment,
+
+808
+00:41:50,000 --> 00:41:53,000
+well, it's just obvious which machine is a better buy.
+
+809
+00:41:53,000 --> 00:41:56,000
+It's true that you give up a lot of control with Apple,
+
+810
+00:41:56,000 --> 00:41:59,000
+but compromises I'd be making over just getting a Mac
+
+811
+00:41:59,000 --> 00:42:01,000
+are starting to stack up now.
+
+812
+00:42:01,000 --> 00:42:03,000
+I'd never have considered an Intel Mac,
+
+813
+00:42:03,000 --> 00:42:05,000
+but looking at the M1 MacBook Air,
+
+814
+00:42:05,000 --> 00:42:08,000
+which laptop decision is a lot harder than it's ever been?
+
+815
+00:42:08,000 --> 00:42:12,000
+I don't think Chris's fears are unfounded at all.
+
+816
+00:42:12,000 --> 00:42:14,000
+Okay, all right.
+
+817
+00:42:14,000 --> 00:42:17,000
+I mean, you could just buy Magnet for $5
+
+818
+00:42:17,000 --> 00:42:19,000
+and you have Windows snapping on Mac.
+
+819
+00:42:19,000 --> 00:42:21,000
+Yeah, Magnet is pretty nice.
+
+820
+00:42:21,000 --> 00:42:25,000
+Last one, listener Mike writes in, get this.
+
+821
+00:42:25,000 --> 00:42:29,000
+He's a card-carrying member of the FSF.
+
+822
+00:42:29,000 --> 00:42:31,000
+He says, I just listened to the latest Koda radio,
+
+823
+00:42:31,000 --> 00:42:33,000
+longtime Linux user.
+
+824
+00:42:33,000 --> 00:42:38,000
+I switched to 100% desktop Linux in 1997.
+
+825
+00:42:38,000 --> 00:42:42,000
+Wow.
+
+826
+00:42:42,000 --> 00:42:44,000
+I'm going to get some butterscotch for this, hang on.
+
+827
+00:42:44,000 --> 00:42:47,000
+Could you imagine full-time desktop Linux since 1997?
+
+828
+00:42:47,000 --> 00:42:49,000
+I mean, I've been pretty close to full-time,
+
+829
+00:42:49,000 --> 00:42:51,000
+but I mean, there's occasional Mac-age in there.
+
+830
+00:42:51,000 --> 00:42:52,000
+Oh, yeah, yeah, yeah.
+
+831
+00:42:52,000 --> 00:42:53,000
+That's just wild.
+
+832
+00:42:53,000 --> 00:42:55,000
+Around the time Mac OS 10.3 came out,
+
+833
+00:42:55,000 --> 00:42:58,000
+I was one of those people who switched away from Linux to the Mac.
+
+834
+00:42:58,000 --> 00:43:00,000
+I still use Linux on the server, but until 2015,
+
+835
+00:43:00,000 --> 00:43:02,000
+I used Mac OS on the desktop.
+
+836
+00:43:02,000 --> 00:43:03,000
+Oh, okay.
+
+837
+00:43:03,000 --> 00:43:06,000
+In 2015, I switched back to Linux for the desktop for reasons,
+
+838
+00:43:06,000 --> 00:43:08,000
+and I've been mostly happy since then.
+
+839
+00:43:08,000 --> 00:43:11,000
+We recently upgraded out of a family computer to an M1 Mac Mini,
+
+840
+00:43:11,000 --> 00:43:13,000
+and it's so fast.
+
+841
+00:43:13,000 --> 00:43:16,000
+Not only is it so fast, but it integrates with all the things,
+
+842
+00:43:16,000 --> 00:43:19,000
+text messages, iMessage, HomeKit, Apple TV.
+
+843
+00:43:19,000 --> 00:43:22,000
+It's a level of integration that I never really considered
+
+844
+00:43:22,000 --> 00:43:25,000
+and didn't realize I was missing on Linux.
+
+845
+00:43:25,000 --> 00:43:29,000
+As an associate member of the FSF since 2004,
+
+846
+00:43:29,000 --> 00:43:31,000
+software freedom is important to me,
+
+847
+00:43:31,000 --> 00:43:35,000
+but I'm also in my 40s now with a busy family.
+
+848
+00:43:35,000 --> 00:43:38,000
+I have less time to tinker, and I just need to get stuff done.
+
+849
+00:43:38,000 --> 00:43:40,000
+I'm due for a machine upgrade this year,
+
+850
+00:43:40,000 --> 00:43:43,000
+and I work with containers and virtualization.
+
+851
+00:43:43,000 --> 00:43:47,000
+If Apple releases a MacBook Pro with 32 gigs of RAM this year,
+
+852
+00:43:47,000 --> 00:43:49,000
+I'm going to pull the trigger.
+
+853
+00:43:49,000 --> 00:43:51,000
+I'm going to go back to Mac for a daily driver.
+
+854
+00:43:51,000 --> 00:43:53,000
+Software freedom is important,
+
+855
+00:43:53,000 --> 00:43:58,000
+but so is running my workload 25% to 30% faster on an $800 Mac Mini.
+
+856
+00:43:58,000 --> 00:43:59,000
+There you go.
+
+857
+00:43:59,000 --> 00:44:01,000
+And the battery life is nuts on the MacBook Air.
+
+858
+00:44:01,000 --> 00:44:03,000
+That's just going to win out.
+
+859
+00:44:03,000 --> 00:44:05,000
+So could I be a dick for a second?
+
+860
+00:44:05,000 --> 00:44:08,000
+Why is it bad that Apple has a better architecture?
+
+861
+00:44:08,000 --> 00:44:11,000
+Why isn't this an opportunity for the Linux vendors to step up?
+
+862
+00:44:11,000 --> 00:44:13,000
+Well, and that is being done.
+
+863
+00:44:13,000 --> 00:44:16,000
+Somebody has to write all of the drivers,
+
+864
+00:44:16,000 --> 00:44:19,000
+all of the support for the GPU, the sound system, the network, everything.
+
+865
+00:44:19,000 --> 00:44:21,000
+And Wes only has so much time.
+
+866
+00:44:21,000 --> 00:44:24,000
+So building an amazing CPU architecture is hard.
+
+867
+00:44:24,000 --> 00:44:25,000
+Tell me more.
+
+868
+00:44:25,000 --> 00:44:29,000
+Oh, I mean, if Apple were to release drivers or some documentation even,
+
+869
+00:44:29,000 --> 00:44:31,000
+it would make it a lot easier.
+
+870
+00:44:31,000 --> 00:44:32,000
+But they hate you.
+
+871
+00:44:32,000 --> 00:44:35,000
+That's the other problem is it's a vendor-hostile system, right?
+
+872
+00:44:35,000 --> 00:44:37,000
+I mean, you don't really want to.
+
+873
+00:44:37,000 --> 00:44:39,000
+Or they at least don't care about you.
+
+874
+00:44:39,000 --> 00:44:40,000
+No, no, they hate you.
+
+875
+00:44:40,000 --> 00:44:41,000
+I'm going to go with that.
+
+876
+00:44:41,000 --> 00:44:43,000
+Well, the reason why this still haunts me,
+
+877
+00:44:43,000 --> 00:44:46,000
+I was actually just talking to somebody about this earlier today,
+
+878
+00:44:46,000 --> 00:44:48,000
+it's because I watched it happen last time.
+
+879
+00:44:48,000 --> 00:44:50,000
+I watched when the Intel Macs came out and stuff.
+
+880
+00:44:50,000 --> 00:44:54,000
+And it killed me to see all of my brothers and sisters switching away
+
+881
+00:44:54,000 --> 00:44:57,000
+from Linux on the desktop to Mac.
+
+882
+00:44:57,000 --> 00:45:01,000
+And I never forgot that.
+
+883
+00:45:01,000 --> 00:45:04,000
+Because they were all glowing apples.
+
+884
+00:45:04,000 --> 00:45:06,000
+We just went to halls of glowing apples.
+
+885
+00:45:06,000 --> 00:45:07,000
+And I've never forgotten that.
+
+886
+00:45:07,000 --> 00:45:11,000
+And I look at this chip shortage that we have
+
+887
+00:45:11,000 --> 00:45:14,000
+and how it's affecting all these different manufacturers.
+
+888
+00:45:14,000 --> 00:45:16,000
+It's affecting GPU supply.
+
+889
+00:45:16,000 --> 00:45:17,000
+It's affecting motherboard supply.
+
+890
+00:45:17,000 --> 00:45:19,000
+All the components.
+
+891
+00:45:19,000 --> 00:45:23,000
+Well, Apple, of course, buys their components years in advance.
+
+892
+00:45:23,000 --> 00:45:26,000
+So they're going to be probably one of the best here.
+
+893
+00:45:26,000 --> 00:45:32,000
+They have prices and stocks that's pre-contracted
+
+894
+00:45:32,000 --> 00:45:34,000
+and locked in years in advance in time.
+
+895
+00:45:34,000 --> 00:45:38,000
+And so if the chip manufacturer or whoever,
+
+896
+00:45:38,000 --> 00:45:41,000
+if the foundry can't deliver,
+
+897
+00:45:41,000 --> 00:45:44,000
+Apple's in a pretty good negotiation position there.
+
+898
+00:45:44,000 --> 00:45:46,000
+They can get higher prices at the foundry.
+
+899
+00:45:46,000 --> 00:45:48,000
+Apple can probably get something they want out of it.
+
+900
+00:45:48,000 --> 00:45:51,000
+And they can easily either just eat that cost
+
+901
+00:45:51,000 --> 00:45:53,000
+or happily pass it along to the customers
+
+902
+00:45:53,000 --> 00:45:55,000
+and the customers are going to pay for it.
+
+903
+00:45:55,000 --> 00:45:58,000
+And when you look at the people in the market
+
+904
+00:45:58,000 --> 00:46:00,000
+who are upgrading for performance right now,
+
+905
+00:46:00,000 --> 00:46:02,000
+and we hear from them,
+
+906
+00:46:02,000 --> 00:46:04,000
+the Mac platform may be one of the only platforms
+
+907
+00:46:04,000 --> 00:46:07,000
+that's selling in any bulk quantity right now
+
+908
+00:46:07,000 --> 00:46:10,000
+because of Apple's position in the market and the chip shortage.
+
+909
+00:46:10,000 --> 00:46:12,000
+And when the chip shortage is over,
+
+910
+00:46:12,000 --> 00:46:14,000
+Apple will probably have weathered it the best
+
+911
+00:46:14,000 --> 00:46:17,000
+and probably have secured contracts for components.
+
+912
+00:46:17,000 --> 00:46:20,000
+They'll probably be at the front of the line for this stuff.
+
+913
+00:46:20,000 --> 00:46:23,000
+And that's going to mean that they're going to be able to ship
+
+914
+00:46:23,000 --> 00:46:25,000
+and sell the most systems.
+
+915
+00:46:25,000 --> 00:46:27,000
+There are vendors right now that are reporting
+
+916
+00:46:27,000 --> 00:46:29,000
+that their sales are being artificially limited
+
+917
+00:46:29,000 --> 00:46:31,000
+just because they don't have the supply.
+
+918
+00:46:31,000 --> 00:46:33,000
+They cannot ship enough product,
+
+919
+00:46:33,000 --> 00:46:35,000
+and so they can't sell anymore.
+
+920
+00:46:35,000 --> 00:46:37,000
+That is a perfect storm.
+
+921
+00:46:37,000 --> 00:46:39,000
+You have the M1 platform.
+
+922
+00:46:39,000 --> 00:46:41,000
+I was just talking with a well-known developer
+
+923
+00:46:41,000 --> 00:46:43,000
+who will be on Linux Unplugged tomorrow.
+
+924
+00:46:43,000 --> 00:46:47,000
+He's from the GTK Python era of the Linux desktop,
+
+925
+00:46:47,000 --> 00:46:49,000
+and he says that he kind of, this was 10 years ago
+
+926
+00:46:49,000 --> 00:46:51,000
+when he created the Lutris application,
+
+927
+00:46:51,000 --> 00:46:55,000
+and everybody was doing GTK Python, GTK Python, GTK Python
+
+928
+00:46:55,000 --> 00:46:58,000
+all over the Linux desktop all day long every week, GTK Python.
+
+929
+00:46:58,000 --> 00:47:00,000
+And now it's just pretty much gone.
+
+930
+00:47:00,000 --> 00:47:04,000
+There's hardly no new projects at all that are using GTK Python,
+
+931
+00:47:04,000 --> 00:47:07,000
+and there's no clear development path forward for him.
+
+932
+00:47:07,000 --> 00:47:10,000
+He doesn't have a clear strategy.
+
+933
+00:47:10,000 --> 00:47:12,000
+Should he move on? Should he stay with it?
+
+934
+00:47:12,000 --> 00:47:14,000
+Should he switch over?
+
+935
+00:47:14,000 --> 00:47:16,000
+I mean, he's considering everything.
+
+936
+00:47:16,000 --> 00:47:18,000
+He's even considering Vala and GTK and elementary,
+
+937
+00:47:18,000 --> 00:47:21,000
+like whatever he can do to just keep it relevant.
+
+938
+00:47:21,000 --> 00:47:24,000
+But the platform just sort of piddled out,
+
+939
+00:47:24,000 --> 00:47:27,000
+and there's not a good solution for him.
+
+940
+00:47:27,000 --> 00:47:29,000
+And you look at developers like him.
+
+941
+00:47:29,000 --> 00:47:32,000
+He's a special case because he's creating something specifically for Linux.
+
+942
+00:47:32,000 --> 00:47:35,000
+But developers like him, and in that similar position,
+
+943
+00:47:35,000 --> 00:47:37,000
+they're just burning out.
+
+944
+00:47:37,000 --> 00:47:39,000
+He's, and I can't say their names,
+
+945
+00:47:39,000 --> 00:47:41,000
+but he's been talking to developers
+
+946
+00:47:41,000 --> 00:47:44,000
+that are like productivity applications for Linux.
+
+947
+00:47:44,000 --> 00:47:46,000
+They're feeling the same way.
+
+948
+00:47:46,000 --> 00:47:48,000
+They're feeling like they're done.
+
+949
+00:47:48,000 --> 00:47:50,000
+And what they're all kind of universally saying is
+
+950
+00:47:50,000 --> 00:47:53,000
+there just needs to be a shift in Linux,
+
+951
+00:47:53,000 --> 00:47:57,000
+like a new way for open source developers to monetize
+
+952
+00:47:57,000 --> 00:48:02,000
+that doesn't burden them with tons of pull requests or support issues
+
+953
+00:48:02,000 --> 00:48:06,000
+that scales and properly monetizes.
+
+954
+00:48:06,000 --> 00:48:09,000
+And then they need a platform that they can target
+
+955
+00:48:09,000 --> 00:48:11,000
+and isn't shifting under them constantly.
+
+956
+00:48:11,000 --> 00:48:14,000
+So that way they can actually ship an application for 10 years
+
+957
+00:48:14,000 --> 00:48:17,000
+and whittle away at it and refine it with a limited staff.
+
+958
+00:48:17,000 --> 00:48:19,000
+And that's just not there right now.
+
+959
+00:48:19,000 --> 00:48:21,000
+And there's a lot of frustration.
+
+960
+00:48:21,000 --> 00:48:24,000
+There's something bubbling that people are not talking about
+
+961
+00:48:24,000 --> 00:48:27,000
+because the only things people talk about in Linux media
+
+962
+00:48:27,000 --> 00:48:32,000
+on YouTube and Reddit and podcasts and blogs is mostly positive shit.
+
+963
+00:48:32,000 --> 00:48:35,000
+They only talk about the good stuff because nobody wants a downer.
+
+964
+00:48:35,000 --> 00:48:38,000
+But the reality is there is a storm brewing,
+
+965
+00:48:38,000 --> 00:48:40,000
+and I'm going to touch on it a little bit in Linux Unplugged,
+
+966
+00:48:40,000 --> 00:48:43,000
+and I think that storm combined with the chip shortage,
+
+967
+00:48:43,000 --> 00:48:44,000
+combined with people looking for performance,
+
+968
+00:48:44,000 --> 00:48:47,000
+combined with the compelling aspects of the M1 by itself
+
+969
+00:48:47,000 --> 00:48:50,000
+is creating a perfect storm that will create a vacuum on Linux
+
+970
+00:48:50,000 --> 00:48:53,000
+and suck people over to the Apple platform.
+
+971
+00:48:53,000 --> 00:48:55,000
+It's not me trying to justify buying some M1 Mac.
+
+972
+00:48:55,000 --> 00:48:58,000
+It's not me just making nothing out of something
+
+973
+00:48:58,000 --> 00:49:00,000
+because I've watched it happen once before
+
+974
+00:49:00,000 --> 00:49:02,000
+and I'm seeing the components arrive
+
+975
+00:49:02,000 --> 00:49:06,000
+and they're aligning to create a Linux desktop exodus.
+
+976
+00:49:06,000 --> 00:49:08,000
+And it would be a damn shame
+
+977
+00:49:08,000 --> 00:49:11,000
+because things are getting so great over there right now.
+
+978
+00:49:11,000 --> 00:49:14,000
+Anyways, you know, all week.
+
+979
+00:49:14,000 --> 00:49:18,000
+But are they getting great because of these application developers?
+
+980
+00:49:18,000 --> 00:49:22,000
+Not that I don't appreciate them, but to me like Lutris in particular
+
+981
+00:49:22,000 --> 00:49:25,000
+and a lot of these kind of weird native apps for Linux,
+
+982
+00:49:25,000 --> 00:49:26,000
+like they've never been well supported.
+
+983
+00:49:26,000 --> 00:49:28,000
+They've never been very robust.
+
+984
+00:49:28,000 --> 00:49:31,000
+They kind of only made sense before we had networked services
+
+985
+00:49:31,000 --> 00:49:32,000
+and they were like good enough.
+
+986
+00:49:32,000 --> 00:49:34,000
+Oh yeah, I've got my little to-do app.
+
+987
+00:49:34,000 --> 00:49:36,000
+I don't know, most of the main things I use,
+
+988
+00:49:36,000 --> 00:49:38,000
+I end up having to collaborate with other people anyway.
+
+989
+00:49:38,000 --> 00:49:40,000
+And I guess that's a sad statement about those apps,
+
+990
+00:49:40,000 --> 00:49:43,000
+but I've already gotten there as a Linux user.
+
+991
+00:49:43,000 --> 00:49:45,000
+I'm just going to go use Steam.
+
+992
+00:49:45,000 --> 00:49:48,000
+I'm just going to go use OWA in a browser.
+
+993
+00:49:48,000 --> 00:49:53,000
+Yeah, I felt like we were approaching the next precipice of wave of users
+
+994
+00:49:53,000 --> 00:49:56,000
+because when you look at Fedora 34 right now,
+
+995
+00:49:56,000 --> 00:50:00,000
+it's really getting there with GNOME 40, with Wayland, with PipeWire.
+
+996
+00:50:00,000 --> 00:50:02,000
+They actually have a decent audio video system
+
+997
+00:50:02,000 --> 00:50:05,000
+that's compelling and competitive with Mac OS.
+
+998
+00:50:05,000 --> 00:50:08,000
+The kernel has gotten really good in these later iterations,
+
+999
+00:50:08,000 --> 00:50:09,000
+the shipping with a modern kernel.
+
+1000
+00:50:09,000 --> 00:50:15,000
+It's got ButterFS, so it has a file system that is competitive with NTFS and APFS,
+
+1001
+00:50:15,000 --> 00:50:19,000
+and it has transparent compression now, which reduces excessive write SSD,
+
+1002
+00:50:19,000 --> 00:50:21,000
+so it's going to prolong disk.
+
+1003
+00:50:21,000 --> 00:50:22,000
+And it's like a really solid OS
+
+1004
+00:50:22,000 --> 00:50:26,000
+and truly represents what desktop Linux workstation can be,
+
+1005
+00:50:26,000 --> 00:50:29,000
+and it just needs more application developers.
+
+1006
+00:50:29,000 --> 00:50:33,000
+But I don't think application developers are going to stick around.
+
+1007
+00:50:33,000 --> 00:50:36,000
+This is something I've just been coming to because, honestly,
+
+1008
+00:50:36,000 --> 00:50:40,000
+I've been getting telegrams and tweets and emails all week from people saying,
+
+1009
+00:50:40,000 --> 00:50:41,000
+yeah, I think I'm going to switch.
+
+1010
+00:50:41,000 --> 00:50:44,000
+My other question, are desktop apps, I mean,
+
+1011
+00:50:44,000 --> 00:50:48,000
+it doesn't really seem like a renaissance in desktop apps for any platform.
+
+1012
+00:50:48,000 --> 00:50:51,000
+I mean, Mac definitely has more established ones,
+
+1013
+00:50:51,000 --> 00:50:55,000
+but I think on this show already you guys have talked about like how hard that is,
+
+1014
+00:50:55,000 --> 00:50:57,000
+how hard it is to keep up with Apple's breaking changes,
+
+1015
+00:50:57,000 --> 00:51:01,000
+how it's pretty small single developers who get stressed out about maintaining these things,
+
+1016
+00:51:01,000 --> 00:51:03,000
+how app store profits are going down.
+
+1017
+00:51:03,000 --> 00:51:05,000
+Maybe Windows has a lot of native,
+
+1018
+00:51:05,000 --> 00:51:09,000
+it just seems like native applications are not really a thing that's in vogue.
+
+1019
+00:51:09,000 --> 00:51:13,000
+Windows does not have a good independent native ecosystem.
+
+1020
+00:51:13,000 --> 00:51:19,000
+It's more you can monetize an app across Mac OS and iOS easier
+
+1021
+00:51:19,000 --> 00:51:21,000
+than you can on say Linux and Android,
+
+1022
+00:51:21,000 --> 00:51:24,000
+where Android is the closest corollary to Linux.
+
+1023
+00:51:24,000 --> 00:51:30,000
+Yeah, I actually think in a weird way Mac OS is having not a renaissance,
+
+1024
+00:51:30,000 --> 00:51:35,000
+but a renewed influx of desktop applications
+
+1025
+00:51:35,000 --> 00:51:38,000
+because of some of the cross platform stuff that they've been doing.
+
+1026
+00:51:38,000 --> 00:51:40,000
+I actually kind of disagree.
+
+1027
+00:51:40,000 --> 00:51:44,000
+I actually think the Mac has a pretty vibrant third party app ecosystem.
+
+1028
+00:51:44,000 --> 00:51:46,000
+It is competitive and it is hard to get paid
+
+1029
+00:51:46,000 --> 00:51:49,000
+and the app store issues are there and they are real,
+
+1030
+00:51:49,000 --> 00:51:53,000
+but there's a lot and there's some big apps now.
+
+1031
+00:51:53,000 --> 00:51:56,000
+If I can be shameless on my old interview show, the Mike Dominic show,
+
+1032
+00:51:56,000 --> 00:52:00,000
+we had the folks from Rocamiba on and they don't deal with the app store at all.
+
+1033
+00:52:00,000 --> 00:52:04,000
+They sell their apps directly and they've been in business for what, 30 years?
+
+1034
+00:52:04,000 --> 00:52:05,000
+Something like that.
+
+1035
+00:52:05,000 --> 00:52:07,000
+Ridiculous since the early aughts, maybe 20 years.
+
+1036
+00:52:07,000 --> 00:52:10,000
+They're one of my favorite examples because the software they make is awesome.
+
+1037
+00:52:10,000 --> 00:52:12,000
+I use it every day.
+
+1038
+00:52:12,000 --> 00:52:17,000
+That's one of those tools that makes me go, oh, I wish I could switch.
+
+1039
+00:52:17,000 --> 00:52:22,000
+Or Wes, you remember that machine learning powered video editor
+
+1040
+00:52:22,000 --> 00:52:26,000
+that let you edit as a text document because that's Mac only.
+
+1041
+00:52:26,000 --> 00:52:29,000
+That thing is pretty advanced and pretty new.
+
+1042
+00:52:29,000 --> 00:52:33,000
+Anyways, I don't know.
+
+1043
+00:52:33,000 --> 00:52:36,000
+Like I said, I'm pretty happy with Linux.
+
+1044
+00:52:36,000 --> 00:52:38,000
+I think it's gotten pretty great, but we'll see.
+
+1045
+00:52:38,000 --> 00:52:39,000
+We'll see what happens.
+
+1046
+00:52:39,000 --> 00:52:41,000
+You spooked me, y'all, is what happened.
+
+1047
+00:52:41,000 --> 00:52:42,000
+I got real spooked.
+
+1048
+00:52:42,000 --> 00:52:45,000
+I've been belly aching to Wes for a week about it.
+
+1049
+00:52:45,000 --> 00:52:47,000
+Haven't I?
+
+1050
+00:52:47,000 --> 00:52:49,000
+I've been telling you for a week about the notes I'm getting in.
+
+1051
+00:52:49,000 --> 00:52:50,000
+Yes, you have.
+
+1052
+00:52:50,000 --> 00:52:53,000
+I mean, I feel it's hard when there's something on the market that's,
+
+1053
+00:52:53,000 --> 00:52:54,000
+you're like, well, that's compelling.
+
+1054
+00:52:54,000 --> 00:52:56,000
+I could see having an M1 hanging around.
+
+1055
+00:52:56,000 --> 00:53:01,000
+I don't know that I would turn it into my dedicated system I spend all my time on,
+
+1056
+00:53:01,000 --> 00:53:05,000
+but great battery life, good performance for media production.
+
+1057
+00:53:05,000 --> 00:53:07,000
+It's definitely compelling.
+
+1058
+00:53:07,000 --> 00:53:10,000
+I can let that topic rest unless the audience has more they want to discuss,
+
+1059
+00:53:10,000 --> 00:53:14,000
+coder.show slash contact, but that was sort of my follow-up on that one.
+
+1060
+00:53:14,000 --> 00:53:16,000
+Wes, thanks for coming and hanging out with us.
+
+1061
+00:53:16,000 --> 00:53:17,000
+Thanks, Mr. Payne.
+
+1062
+00:53:17,000 --> 00:53:18,000
+Thanks for having me.
+
+1063
+00:53:18,000 --> 00:53:19,000
+Absolutely.
+
+1064
+00:53:19,000 --> 00:53:21,000
+Go check out some Wes Payne on Linux Action News.
+
+1065
+00:53:21,000 --> 00:53:24,000
+He's joining me over there and killing it.
+
+1066
+00:53:24,000 --> 00:53:26,000
+Been enjoying that a lot.
+
+1067
+00:53:26,000 --> 00:53:30,000
+And the last episode we just did, I was told today, was a barn burner.
+
+1068
+00:53:30,000 --> 00:53:31,000
+It was really good.
+
+1069
+00:53:31,000 --> 00:53:34,000
+Episode 182, linuxactionnews.com slash 182.
+
+1070
+00:53:34,000 --> 00:53:39,000
+And we break down some of the new interface enhancements and technical
+
+1071
+00:53:39,000 --> 00:53:43,000
+enhancements to GNOME 40, also talk about the RMS situation,
+
+1072
+00:53:43,000 --> 00:53:47,000
+him being back with the FSF, and we go deep into the chip shortage.
+
+1073
+00:53:47,000 --> 00:53:52,000
+And Carl from System76 gives us an update on how System76 is handling the
+
+1074
+00:53:52,000 --> 00:53:54,000
+chip shortage and what they expect.
+
+1075
+00:53:54,000 --> 00:53:57,000
+So that's all at linuxactionnews.com.
+
+1076
+00:53:57,000 --> 00:53:59,000
+Go get more Wes.
+
+1077
+00:53:59,000 --> 00:54:02,000
+Also, thank you to our members over at coderqa.co.
+
+1078
+00:54:02,000 --> 00:54:05,000
+If you haven't signed up yet and you want to get the Coderly,
+
+1079
+00:54:05,000 --> 00:54:08,000
+go sign up right now as you're listening to this because there will be a new
+
+1080
+00:54:08,000 --> 00:54:10,000
+Coderly very, very soon.
+
+1081
+00:54:10,000 --> 00:54:13,000
+So you go to coderqa.co for that.
+
+1082
+00:54:13,000 --> 00:54:16,000
+Plus, you support the show, which is really what's great, right?
+
+1083
+00:54:16,000 --> 00:54:19,000
+And you get a limited ad feed, so it's nice, tight, and clean.
+
+1084
+00:54:19,000 --> 00:54:23,000
+Still the same full, great production, but just a little bit snappier.
+
+1085
+00:54:23,000 --> 00:54:25,000
+That's all at coderqa.co.
+
+1086
+00:54:25,000 --> 00:54:28,000
+And you can find a Cloud Guru on social media.
+
+1087
+00:54:28,000 --> 00:54:32,000
+They are slash a Cloud Guru at YouTube, Twitter, you know, everywhere.
+
+1088
+00:54:32,000 --> 00:54:34,000
+Everywhere, it's just slash a Cloud Guru.
+
+1089
+00:54:34,000 --> 00:54:36,000
+And you can find Mike on Twitter.
+
+1090
+00:54:36,000 --> 00:54:37,000
+He's at Dumanuku.
+
+1091
+00:54:37,000 --> 00:54:39,000
+His company is at the Mad Botter Inc.
+
+1092
+00:54:39,000 --> 00:54:41,000
+Is there anything else you want to mention, Mr. Dominic?
+
+1093
+00:54:41,000 --> 00:54:42,000
+Nope, all good.
+
+1094
+00:54:42,000 --> 00:54:44,000
+Wow, nice and tidy right there.
+
+1095
+00:54:44,000 --> 00:54:45,000
+I'm also there.
+
+1096
+00:54:45,000 --> 00:54:49,000
+The podcast network is at Jupiter Signal, and the show is at Coder Radio Show.
+
+1097
+00:54:49,000 --> 00:54:53,000
+Links to just about most of the things we talked about today are at coder.show
+
+1098
+00:54:53,000 --> 00:54:54,000
+slash 407.
+
+1099
+00:54:54,000 --> 00:54:58,000
+There you're going to find our contact form, the RSS feed, links to our sponsors,
+
+1100
+00:54:58,000 --> 00:55:00,000
+how to support the show, all of that.
+
+1101
+00:55:00,000 --> 00:55:02,000
+Of course, you can also join us live.
+
+1102
+00:55:02,000 --> 00:55:08,000
+We do the show 5 p.m. Pacific, 8 p.m. Eastern at jblive.tv on a Monday.
+
+1103
+00:55:08,000 --> 00:55:09,000
+Come hang out.
+
+1104
+00:55:09,000 --> 00:55:12,000
+Maybe give Fat Cat a hard time in there, you know?
+
+1105
+00:55:12,000 --> 00:55:13,000
+Oh, and title the show, too.
+
+1106
+00:55:13,000 --> 00:55:14,000
+That's another advantage.
+
+1107
+00:55:14,000 --> 00:55:18,000
+Thanks so much for joining us on this week's episode of the Coder Radio program.
+
+1108
+00:55:18,000 --> 00:55:45,000
+See you right back here next week.
+

@@ -1,0 +1,737 @@
+This is Koda Radio, episode 348, from March 11th, 2019.
+Hello, and welcome to Koda Radio, Jupiter Broadcasting's weekly talk show that takes
+a pragmatic look at the art and business of software development and related technologies.
+My name is Wes, and I'm joined by that crazy hacker himself, the one, the only, Mr. Michael
+Dominic.
+Mwa ha ha! After 340 episodes, I'm free! It's time to conquer scale!
+Oh yes, that's right. I just got back from scale. Actually, the whole JB crew was out
+there and I gotta tell ya, it was my first scale. It was a ton of fun.
+Really? So tell me, what was the highlight of scale?
+Okay, well the personal highlight for me was getting to see Brendan Gregg, the incredible
+performance engineer at Netflix, give a great talk all about the modern traceability tools
+that we have with EBPF on Linux. It's like D-Trace, but actually slightly more powerful.
+And you know, you might not care about that, we have some great tech snaps about that if
+people want to go find out more, but a cool demo he did, which he prepared like an hour
+before, was a live performance debugging of Minecraft, which is not only a complex Java
+application, but was also a game Brendan had obviously never played before, because mid-talk
+he had to ask the audience how to mine, which if you don't play Minecraft, that's a button
+click on your mouse.
+You know, there's nothing more horrible than it performed Minecrafter.
+Yeah, right? Isn't that the case? Now, there was actually a lot to like. I've been to all
+kinds of different conferences, but this was my first bigger Linux convention, right? So
+I've been to Linux Fest Northwest, and it's got a small friendly vibe. And you know, there's
+things like Defcon or Ozcon or some of the bigger re-invent that are just crazy, but
+they feel they are business conferences, right? It's people making business networking and
+connections and selling services.
+Bring on the suits, baby.
+Bring on the suits, yeah. Scale's nothing like that. It's still big enough that like,
+you know, I got to go see Brendan Gray talk, which was awesome. And all the people that
+you might want to see, experts are there, but everyone's friendly. Everyone's there
+because they love Linux, they want to talk about technology, and you can actually have
+some space at the end of a talk to go shake hands, say hi, get your picture taken with
+people in a way that you just can't at bigger, more businessy conventions.
+That sounds great.
+Yeah, it was great. Also, at the same time, America's Got Talent was there, and they were
+in the building right between the two buildings that Scale was using. It was pretty funny.
+Totally different crowds. And I got to see Simon Cowell ever so briefly go from his car
+to the venue.
+That's probably enough about Scale for now. If you want to hear more about JB's trip to
+Scale, go check out the upcoming episode of Linux Unplugged.
+Let's get things rolling with some feedback from our friend Tom over in the Coder Radio
+subreddit. He's got feedback for us about our last episode, Rusty Ruby's number 347,
+where we had some concerns about Google's growing browser dominance. Tom writes,
+I don't think people need to worry so much about Google or Chrome's dominance the way
+we did about IE6. It's not just that Chrome is cross-platform and open-source, but it
+also sticks to standards in a way that IE never did. Amen, Tom.
+Practically speaking, we should also keep in mind that iOS exists, and it's always going
+to be locked down in a way that means no matter how popular Chrome becomes, an important portion
+of mobile users will always be using Apple's browser engine.
+Some might also lose big in some areas like web components or web assembly. That's the
+beauty of a standards-based platform.
+Thank you very much for your feedback, Tom. We really appreciate all the feedback we get,
+and you can provide us more over at coderradio.reddit.com or coder.show.com. What's your take, Mike?
+Did we hype things a little bit out of proportion last week?
+Yeah, I think we may have overhyped it just a little bit, right? Because you know what,
+you always care about mobile. I don't know if you followed me on Twitter this weekend
+because I know you were busy hanging out with Scale and those America's Got Talents girls,
+and God bless you, I wish I was there. But my son whipped out the Marvel coloring app
+for iPad, and I have the Apple Pencil, you know, Wes?
+Oh, yeah, those are pretty slick.
+And I have the new one where it has all the fancy, the Apple Pencil 2, so all the different
+— like if you shade it sideways, it shades instead of just coloring. He spent two hours
+just coloring Captain Marvel. He's a Marvel Captain Marvel.
+That's awesome.
+To a level of detail, that's a little scary for a two-year-old, but my faith in the iPad
+as a harbinger of the future of computing for the masses is renewed. So yeah, I think
+Tom's point is well taken, that mobile superiority is a significant thing, and it's definitely
+going to be a check against Chrome.
+Yeah, interesting. I was kind of always — I hadn't thought of that, so that's a great
+point, Tom, because I kept thinking of Firefox as something of the backstop, and in some
+ways it is, but that's a lot of hope in one corner.
+So I hear we have a new way to deploy these iPad apps that my boy likes.
+Right? I mean, that's something interesting to you because we previously talked about
+some of the links you're going to figure out your build system integrating with iOS,
+especially since you've been using more Linux these days, and those ecosystems — well,
+let's say interop is a challenge.
+Yes, I'm on Linux right now.
+So maybe you can explain this, because I saw this over in the CoderRadio subreddit, and
+it's a post over on GitLab's blog, but titled, How to Publish iOS Apps to the App Store with
+GitLab and Fastlane. And I'll admit, Fastlane was not something I knew about, and I also
+have only gone the official route for App Store interactions, on a Mac, doing all the
+normal stuff.
+What is this?
+Can you break this down for me, Mike?
+Yeah, so I'm not going to go into details, because I know people get all upset when I
+go into line-by-line iOS Swift or deployment stuff, but basically GitLab and a company
+called Fastlane — Fastlane has been around for a while.
+They are basically — geez, you have to be deep into the iOS world, but TestFlight actually
+was not part of Apple for a long time.
+Really?
+Yeah, they were an independent company that offered Android deployment and iOS deployment
+and distribution services.
+Then Apple bought them, and the Android stuff just kind of went away.
+So the beautiful thing about TestFlight is you could write — back in the day, you could
+write a bunch of scripts that integrated with it, and basically CI slash automate all your
+deployments.
+Fastlane is offering a much more modern slash easier version of the same thing, and now
+they have integration with GitLab, although I imagine they have one with GitHub, too.
+That makes it fairly simple to deploy your iOS testing deployments, so your beta deployments
+to your customer or to your internal stakeholders, simply by merging a GitLab branch, for example.
+Oh, that sounds pretty slick.
+Yeah, I mean, there's still quite a bit of work in it, but it's definitely a —
+Like what?
+What's an example?
+You have to generate the profiles, and you have to have a little file in there for Fastlane
+to pull the profiles.
+Oh, sure.
+You've got to do some integration to get their hooks in.
+There's some integration stuff, yeah, but it's the same thing you would be doing if
+you went my approach with the physical machine doing, say, Jenkins.
+Right.
+Because then it just becomes a question of how much do you not want to have to set all
+that up, and what's the ongoing price going to be?
+Right.
+Or do you want a physical machine or not?
+That becomes a big deal.
+Right.
+You want it in the cloud.
+Yeah, right.
+Exactly.
+Do you need this to scale, or are there benefits that you can get, like it seems like you might
+be able to do, of just having a physical machine that can wear multiple hats?
+Right.
+So, right now, you're baiting me, but right now I'm on a Mac Mini that is our build machine,
+but also my podcast machine, so for the amount of native iOS development we currently do,
+it's easier just to have one build machine and automate that via the local machine.
+Certainly in the future, Fastlane could make sense, and I think, in fact, if you don't
+have access to a Mac OS mission, although it's going to be hard to generate the profiles
+if you don't, but if you can somehow generate the provisioning profiles and the certificates,
+then plus the GitLab integration is definitely a great choice, and in general, if you were
+a larger team than what we are at Team B, it's a great choice.
+That made me think the same thing, right?
+Like, if you can have a couple people, one person maybe, who kind of handles all that,
+gets it set up, and then the other team members, they might not need to care about it at all.
+It's integrated into CI.
+They just can push some changes and have it go through the pipeline.
+Right.
+So, right now, I am the CI.
+I pull the few native iOS things we have, and I build them, and bombs are on call.
+I have a few scripts I have, but it's all local, so again, at scale, I think this makes
+a lot of sense.
+Yeah, that really does.
+Interesting.
+Well, we'll have to see, audience members, dear audience members, if you're using it
+or have other solutions.
+Well, we'd always love to hear it.
+We'd always love to hear about it over at coder.show slash contact.
+All right.
+I'm going to hijack the show just for a little bit here.
+We're going to call this maybe the Clojure Corner.
+Really, it's not about Clojure at all, but as you know, I'm a little bit fascinated.
+One thing that's recently been happening in the Clojure world is that Alex Miller, the
+wonderful developer who works at Cognitecht, mostly on Clojure itself, well, he had some
+of his tests posted on Reddit this week, which, as he says, was unexpected.
+And I thought that was kind of interesting because tests, well, they're important, obviously,
+but there's a lot of different approaches, and too often, I think, we end up in a world
+of like tests are good, you need tests, write tests, but then we stop talking about it.
+So in this case, the tests in question are checking, among other things, that maps returned
+by spec, which is a validation library for Clojure, which we can and should get into
+another time.
+Basically, it's returning some maps, right?
+But the key point here, what I want to talk about today is you might not always care to
+validate every attribute, and more importantly, you often don't want tests to fail when you
+enhance something, right?
+So this is often stuff like reporting information about a data structure, how it conforms, what
+the internal structure of it is, and if someone adds additional attributes, more information
+to that map, which is generally a non-breaking change, right?
+I'm talking about adding a key to a map, so you still have all the other keys, nothing's
+been removed.
+Having tests break due to just non-breaking, accretive code changes, not only is it a drag
+on progress, but if you're like me and Rich Hickey, the creator of Clojure, it just bugs
+you on a philosophical level.
+In this case, also, there's kind of an interesting little custom function called submap as a
+concrete example, which rather than checking for stricter quality in your tests, it just
+verifies that whatever you're looking for is a subset of what you get, right?
+So you can set up, like, I want to validate that this little chunk of data is always in
+the data I get, but if you get extra data, you might not need to break all your tests,
+and what it immediately makes me think of is all the tests I've seen so many times where
+you basically just end up with two lists of stuff, right?
+Like, in your code, you do a bunch of stuff, and then your tests, you just write exactly
+the same stuff.
+You're not sharing a data structure, so anytime you make a code change, even if it doesn't
+really break anything, even if a test didn't catch that it had a downstream conflict, which
+is ideally what you're actually trying to test for, you still got to go update things
+in both places.
+Is this a problem you've encountered?
+You know, brittle tests, needless tests, I see it mostly in some unit tests that are
+just poorly thought out, and it makes me think, what were you trying to test here?
+Yeah, testing has been a long-visited topic of the show.
+I'm surprised at your take, actually.
+I thought you were going to tell me that the Clojure world had solved this problem.
+Well, I think there is a little bit of a different culture there.
+TDD can be great.
+I'm not a particularly strict adherent.
+My personal philosophy is a little bit more like you just got to be thinking about software.
+Obviously, tests are a part of the way that you do that, and you need tests, especially
+for maintenance mode.
+In the Clojure world, because it's so REPL-driven, a lot of time REPL interactions form the basis
+of TDD, and then REPL interactions get refactored into tests, and that's just sort of trying
+to take the interactivity of development up one level, because it's just faster.
+So it's so funny.
+One of the criticisms, and I've been doing a ton of Ruby on Rails, as you know, as other
+Rails devs have had at me, is that I am not a 100% test coverage seller.
+I test things that are like, and people who have been long-time listeners know, I test
+things that are like algorithmic or basically code that's complex and quote-unquote mathy.
+We're computing some value.
+Keep in mind, we mostly work in the aerospace industry, so, you know, things that are-
+Right.
+You implemented some real algorithms here that you need to validate.
+Right.
+And you want to make sure that when you deploy something new, they don't blow up on you,
+right?
+Or even like inventory control systems, same thing.
+You want to make sure that you're always making sense.
+Let me kind of sharpen that point.
+I do not actually believe in UI testing in terms of automated UX testing, and I'll just
+stop there and say, what are your thoughts on that?
+Hmm.
+I mean, I want to test as much as possible, but I think you do need to consider, and speaking
+to your 100% test coverage thing, you do have to consider return on investment because everything
+costs time, especially in the business world, and it's just going to always be a value tradeoff.
+So I do see use in good integration tests.
+They're often harder to make and more of a time suck, but if you can validate things
+are really working in as close to the real world as you can get, then I like that.
+But UI testing can be pretty tricky.
+Like emulating clicks and taps and things like that.
+That's what I'm talking about by UI testing.
+Yes.
+Right.
+And I think part of that too is just because like UIs are so stateful.
+That's kind of why I'm a fan of some of the React style of development and the way Clojure
+approaches that too, where it's a little more functional and you've got data and then data
+fed to views that just returns whatever you're going to render out to the page so that you
+can hopefully have like a little bit less state or like one central state.
+I know a fun example of this was for a while, the CircleCI interface was written in Clojure
+script and so they just had one big ball of state that was everything.
+And so if you got into a funky state in the UI, you could just hit, you can just serialize
+that out, save it or do a bug report.
+And then when you're going back to go troubleshoot that, all you needed was that one little blob
+of state loaded in and then the entire thing is exactly back to where your user had the
+problem.
+So I think there are some steps you can do to minimize that.
+You'll probably need either still like humans looking at stuff to validate that it still
+looks good or some weird little thing didn't break it.
+And it is also, that's where it gets really complicated, right?
+Because there's just so much difference.
+This is maybe where Chrome dominance would help on the flip side, but it's probably still
+not worth it.
+So it's so funny though, you mentioned, you kind of glossed over it as just like a matter
+of fact, but statefulness.
+I actually think that's a huge deal, right?
+Like I've written a bunch of Kotlin, geez, it must be about seven or eight months ago.
+And I found just the way I ended up writing Kotlin was much more functional.
+Does that make sense?
+Like...
+Oh yeah, absolutely.
+And that, and I wrote, I had 100% test coverage on that only because it was, by being functional,
+it was so much easier to conceive of and write those tests in a relatively trivial amount
+of time where my normal Rails code, I can test the algorithms, but the UI changes more
+than the algorithms, right?
+I mean, that's...
+Right.
+Yes.
+Right.
+Once you've got that really solid algorithm implementation, well, unless the business
+needs change, hopefully that's not changing too much.
+But you're right.
+That's exactly right.
+Yeah.
+Adding a little bit more functional stuff, just item potency in general, being able to
+understand that functions are pure and they don't have secret hidden away state.
+That seems nice.
+But if there could be one thing where a central state store in the UI can do, instead of little
+tiny blobs of state hidden all over in each of your individual components, that can be
+complicated to keep track of.
+I will say too, just like Turth is talking in the IRC and stuff, I don't want to come
+across as against tests.
+And if you'd like to, do it.
+Tests are good.
+You need them.
+They help especially on large teams.
+And as always, it's about thinking about what you're programming.
+And tests can help you do that.
+It's a good way to start exploring APIs before you've implemented them and understanding
+what you're going to do.
+And it's a good way to check your assumptions.
+I just want to push back against the rote copying style of unit tests.
+And I don't know, have you ever played with generative testing, Mike?
+I haven't.
+But go ahead.
+And I do have another comment.
+But go ahead.
+Yeah.
+We should probably do a bigger segment on it.
+But it's a way to try to enforce invariance.
+I think the biggest example people use is Quick Check, which came out of the Haskell
+community.
+But the idea is, let's say you want to show something that A times B is always the same
+as B times A. And you could have a 100 unit test case that you do that.
+But another way to do it is to generate, if you can spec out what your input is, like
+this function takes two integers or floating points or whatever, and then have the computer
+be smart enough to generate you a whole bunch of inputs, throw it at your function, and
+then test that the outputs meet your criteria.
+That makes a lot of sense to me.
+And in fact, we should do that in a few weeks, and I will study up on it and try it out.
+Excellent.
+All right.
+Well, I interrupted.
+What was your comment?
+Yeah.
+The only other comment I had to make is I have employed and seen, just in other people's
+code, a weird desire, and I'm speaking specifically about the kind of Rails community here, of
+writing 100% test coverage, but really shallow test.
+You know what I mean by shallow, Wes?
+Yeah, I think so.
+It's not really testing anything deep.
+It's not poking.
+You're right.
+It just tests like, yeah, is it of type string, right?
+Those kind of tests.
+Yeah.
+Yeah, exactly.
+It's kind of like the classic example of testing reverse, right?
+If all you care about is the type, that doesn't tell you anything about what the function's
+doing.
+Right.
+We're implementing static compilation via unit test, basically.
+Yes.
+That's the perfect way to describe it.
+Yeah.
+So that's bad, right?
+If that's your version of testing, that's not good.
+You should be testing the actual business logic or algorithm, Wes, I'm going to look
+into this generative test stuff.
+I think we should cover it one day and you can educate me on it, because that sounds
+like something that could be very useful.
+Yeah.
+And I've had some people worried too, like, oh, that's like weird randomness in your testing.
+And that can be true.
+But there's also always ways that you can sort of like, if you have good, you'll probably
+still have some specific examples, right, the edge cases you're aware of that you want
+to test around.
+And you can often, like if they're done well, they all start with the same random seed.
+So you could save that seed and then always get the same, quote unquote, randomly generated
+test example.
+So it is a more robust than I made it sound.
+Yeah.
+And that's, yeah.
+I mean, oh, you know what, Wes, we should have a whole day on testing, I think, in the
+next month.
+I think that is a great idea.
+Can we commit to that on the air with no prior conversation?
+Done.
+Done.
+Done.
+So it was written, so it will be done, Ramesses the second.
+There you go.
+So moving right along, now that we've made that little commitment, while I was at scale,
+I did see the wonderful folks from System76.
+And that made me, Mike, well, that made me think of you and that new little toy that
+I know you have been using.
+The Darter Pro.
+So I wrote a review of the Darter Pro on DominicM.com.
+I like it.
+I think I like it more than Thaleo, actually, which they're not going to be pleased to hear.
+The fan noise is less offensive.
+The battery life is about five to seven hours.
+This is obviously a laptop.
+It's got a beautiful matte screen at 1080 by 1920, I want to say, off the top of my
+head.
+I am a sucker for a nice matte screen.
+Yeah.
+You know what?
+I used to not be a matte screen guy, if you listen to the back catalog, but I've kind
+of got taken in by the matte screen.
+And it depends right on your use case there, like where you're going to use it.
+But for something that's real portable and I might, you know, I was on my laptop last
+night on the light rail, so it can be pretty handy.
+It's got a full keyboard with a number pad, which is a little awkward because it makes
+the regular QWERTY keyboard kind of off-center, if you know what I mean.
+But other than that, the keyboard's great.
+It's much better than a MacBook Pro keyboard.
+I have a few complaints, like the microphone input jack has a red light that's constantly
+on, which during the day you don't notice, but if you're working late at night, like
+there's a giant glowing red Danger Will Robinson light.
+Which I guess could be, yeah, that sounds pretty distracting.
+The spouse approval goes much lower on that one, especially if you're working in bed.
+It's got an RGB keyboard.
+I don't care about that, though I've played with it some, but if you like backlit keys
+with like funky colors, God bless you.
+Does that also mean then that the backlighting is fairly robust, you know?
+You can adjust it.
+See, that does seem nice, that's one thing my ThinkPad doesn't have that I sometimes
+wish for.
+I mean, I just turn it off, but you can adjust it.
+The only other negative thing I'd really mention is that it comes with two USB 3.0 Gen 1s and
+one USB 2.0, which, I don't know, I would have liked to see two USB 3.0 Gen 2s and then
+one USB 3.0 Gen 1 ports.
+I know that's like a super pedantic, like, bitchy port argument, and to its credit it
+does have like an HDMI display port and even has a Thunderbolt-powered USB-C, so it's a
+great machine.
+I just, you know, I just point out what I point out, right?
+Yeah, I will say I am still, I wish I wasn't, but I do still really like having some classic
+USB stuff, but you're right that, I don't know, USB-C is just in such a weird place
+right now.
+Yeah.
+Yeah, it is.
+I mean, I don't mind that it's USB-A, I would just prefer, like, I don't understand why
+we still have USB 2.0 ports instead of all USB 3.0, especially when there's USB 3.0 Gen
+1 and Gen 2.
+Right?
+Mmm, that's a good point.
+Having said that, the trackpad is good.
+What do you mean by good?
+And you're someone who's used the top-of-the-line trackpad.
+Yeah.
+I would say it is better comparing it to the Galago.
+It's about the same if not better than the Galago.
+It's definitely better than, like, I have an HP Spectre that we use for demoing.
+It's better than the Spectre.
+It's maybe slightly worse than a MacBook Pro, if not on par.
+Wow, really?
+Yeah.
+That is pretty good.
+It's not bad.
+So the only, and in fact, I didn't even put this in the review, the only issues I have
+is that, like, YouTube screen tears a little bit on Firefox, but I think that's a Firefox
+issue because it happens on Mac too.
+Oh, yeah, probably just, like, your hardware acceleration or something about the way that
+you're rendering it is not quite right.
+There's some weird in code, right?
+You know, if you really want a Linux-installed laptop, I would recommend this.
+I have not tested the newest generation of XPS 13, but I have tested the most recent
+Galago from System76, and I would say if you're in the market for a Galago, if you intolerate
+a 15-inch screen, the Darter Pro is significantly better, the battery life alone makes it worth
+the bigger screen.
+Oh, yeah, that makes sense.
+What about the weight?
+How portable is this guy?
+Oh, you're looking at 3.5 pounds.
+Okay, that's not too bad.
+It's not bad.
+I can handle that, yeah.
+Yeah, yeah.
+I've only had some pretty beefy machines before, and it was stressing my back, so that's something
+I think about these days.
+Yeah, no, I like it.
+I mean, it's not like an Oryx Pro or anything like that.
+Exactly.
+Yeah.
+We also have one of those at TMB here.
+That's a beefy machine.
+No, it's a good machine, and mine is spec'd up, so the battery life, quotes I'm giving
+in the article, are five to seven hours with an i7 and upgraded to 16 gigs of RAMs and
+an NVMe drive.
+I would also recommend, if you're going to buy one of these, do not skimp on the NVMe
+drive.
+It's a huge performance increase, especially if you're a dev and you're doing a lot of
+compiling and linking.
+NVMe is just such a blessing.
+It really is.
+We thought SSD was good, and now it's just the whole new world, and it feels expensive.
+I've thought about that, too, when looking at laptops, but you're right.
+If you at all care about wait time and doing a lot of file stuff, especially building programs
+can often be that, don't skimp.
+Sure.
+Don't skimp on that.
+I do have to ask, is this review in Pop!
+OS, or have you installed something else on there?
+Yeah, it's Pop!
+OS 18.10.
+Nice.
+It seems like you are actually really enjoying Pop!
+OS.
+I am.
+The Thaleo is on Pop!
+18.10.
+The Darter is on 18.10.
+I love elementary.
+I love Pop!
+I've ended up landing on Pop!
+What is it about it?
+You know what, I like some of the easy stuff for installing TensorFlow, but more importantly,
+I just don't want to deal with drivers.
+This is such a stupid reason, but if elementary was an option from System76, I might have
+done that, but I really don't want to go and pull drivers and compile AMD drivers or whatever.
+I'm thinking of the Thaleo in particular here.
+I want it to be pre-installed and pre-configured and done for me.
+I am the Mac turned Linux guy, but I want it to be like a Mac, where I open the box
+and I don't mind installing my tool chain, but I don't want to have to fiddle with drivers.
+You want an operating system that's already built for and well-supported on the hardware
+that you're running and not having to futz with things like screen tearing.
+Exactly.
+That makes a lot of sense.
+Do you think, if you had a non-System76 rig, would you be tempted to install POP on that?
+We have a flight simulation machine here, which is an Optiplex 7050, which was running
+both POP and later elementary.
+It was fine.
+I just had to pull down the AMD driver and set it up.
+I do think, though, I'm going to stick with POP, just for convenience.
+Yeah.
+Once you find something that works, why change it, especially when you've got code to write?
+Speaking of unfortunate changes, we started chatting, getting ready for the show today,
+talking through things, and I came to realize that something had gone wrong in your morning.
+You were clearly stressed over some things, and it turned out to be our old friend, Googs.
+Back in the days when the gods were petty and cruel and Hercules roamed the earth, played
+by Kevin Sorbo, a deep reference.
+There was a social network.
+I don't know, Wes, are you familiar?
+There was a social network called Google Plus.
+Oh, yeah, right.
+It was sort of like Facebook, except no one used it.
+I used it.
+Geez, man.
+No, it did seem like it had a tech following, and that was about it.
+It was really popular with the hashtag Linux.
+I just want to say that.
+It was real popular.
+Through that Google Plus, there was an API that allowed authentication, even for internal
+Google emails, like Google for Work.
+Oh, really?
+It went through, somehow it was tied to Google Plus?
+Google Plus, yeah.
+But then the gods were cruel on March 7th, because at midnight March 7th, the Google
+Plus API went to Hades.
+Yeah, right.
+As they say, legacy Google APIs have been shut down as of March 7th, 2019.
+So I did not know this.
+I had to find this out the hard way, and they did a staggered shutdown.
+So some things wouldn't work, but some things would.
+I was scrambling.
+Now we predominantly work in Rails right now for this kind of thing.
+So it turned out that we're using a gem called OmniAuth.
+All we had to do after checking it out for a while was upgrade the version of the OmniAuth
+gem, change no code, just to use the non-Google Plus version of the Google Auth API.
+So this is kind of a PSA.
+If you're having authentication problems, and you are running OmniAuth, and your authentication
+problems are with Google, make sure you're running at least version, I think it's like
+6 or 0.6, however they do the versioning.
+Anything with a 5 or 0.5 is not going to work for you.
+Wow.
+You know, that is a dependency success story that you don't always think about, because
+that could have been a really painful process, requiring you to change dependencies or rewrite
+how some of your internal applications.
+Rewrite the authentication scheme.
+That's not simple.
+Yeah.
+And then I, you know, I have to say I was the hero of the story.
+My guy was crying, I would rewrite the dependency, but I'm like, I don't know about this.
+It's Ruby.
+Let's go find the gems.
+You should believe me.
+And sure enough, right there in the build notes for OmniAuth 6 was, oh, no longer dependent
+on the Google Plus API, now using Google authentication, and it's a clean upgrade.
+So that's a code radio success story.
+Give me my bill.
+Yes.
+Yeah, it is.
+I was about to say that.
+Like, it's great.
+It looks like back in January, they added it.
+It's in the change log and everything.
+So OmniAuth is a good job.
+Yeah, and we'll have links in the show notes for that.
+And I'm sure there's similar things if you're doing Django or Java, right, there's similar
+dependencies.
+I will also say just from having to do a little bit of it in the past, some about the way
+there's a lot of stuff Google does pretty well.
+But there's some about some of their APIs that I just find really unpleasant.
+You know, I always felt it was because originally they were a Java shop, right, like, oh, that
+could be it.
+Yeah.
+They did like super verbose.
+Yeah.
+And, you know, it's fine.
+But it's great that you can have a gem that you can rely on and hopefully abstract that
+thing.
+Yeah.
+I mean, that's one of the challenges of Rails, though, managing your gems.
+I mean, I guess it's a challenge even in like.NET and stuff because, you know, obviously
+you have new gets and it's always I mean, I'm curious how you approach this.
+It's always a balancing act, though, right, between your dependencies and your own code.
+Yeah, right.
+And these days, it's pretty hard unless you're doing something really low level or brand
+new.
+You're just going to have a lot of dependencies because half the stuff we do is basically
+tying different systems together, right?
+Yeah, basically modern internet connected age.
+Yeah.
+And so it is I think that's one thing that can take new programmers a while to learn,
+especially in maybe a more complicated environment is just that, yes, dependencies are great
+and there's really great libraries that can do a lot of the work for you or really simplify
+how you think about things, but you do need to actually do a little research before you
+go and add it.
+It's one thing to go try it out in a shell really quick or something.
+But if you're really going to start adding it into your build system and start depending
+on it, do a little research, dig into the code, see if you can understand it.
+Maybe try to estimate like, what would it take to fix a bug in this if I really had
+to?
+What's the community like?
+Are they receptive?
+Are they harsh?
+Do they not take feedback or criticism or pull requests?
+Those are all just good things to research and figure out.
+I agree.
+Just to pull it back, one thing I do really like about the Clojure ecosystem is because
+it is so high level and often does rely on other things from Java or other JVM ecosystem
+libraries, I do find that I can almost always read through the code base.
+Now, I might not read every little bit, but I found it very refreshing.
+Unlike say Java, I can usually find the parts of the code that I actually need to care about.
+Even if I'm new to the library, I can at least skim through it and get like, okay, it might
+be one or 2,000 lines of code, perhaps.
+But that's actually not that big.
+And if I had to, I could wrap my head around it.
+Yeah, that makes sense, right?
+Unfortunately, well, you're still going to need a tool to do that.
+And that is where we go to our next topic, which is our tool of the week.
+I do have to start out right out of the gate.
+They stole what should be our domain name.
+Did you notice that, Mike?
+I did not.
+What did they steal?
+Yeah.
+Well, they got Coder.
+Codeserver.
+Well, but if you see the company behind it here, they've got coder.com, which, oh, man,
+I mean, coder.show.
+Coder.show is great.
+Keep going to coder.show.
+But dang, if only they hadn't taken it from us.
+Oh, why are we featuring this again?
+I know, right?
+I just thought it was an interesting little case study of tooling, and I wanted your perspective
+on it.
+So, Codeserver, it's open source.
+It's VS code running on a remote server, accessible through the browser.
+What's nice is they've also got it all broken out.
+So of course, if you want to, you can go pay for this as a service.
+They'll run all the servers for you, provide you account details, you log in, use your
+favorite IDE.
+But they have a pretty easy to use little Docker container too.
+So if you're more like me and you're like, well, I got way too many servers running all
+the time, you can just pop this over there.
+So maybe you're developing on a Chromebook or a tablet, you don't have to worry about
+trying to get VS code installed on that environment.
+You can just use your web browser.
+That's interesting.
+It reminds me of a few years ago, we featured Cloud9.
+Yep, and that's exactly what came to my mind.
+That's exactly what came to my mind.
+AWS bought them, right?
+I think so, right?
+It was Amazon.
+And so it's clearly like, quote, unquote, cloud workspaces, excuse me while I go vomit
+really quick.
+It seems to be a thing.
+Now, it's not an area I really need to use.
+And that's just probably because I have fairly simple tooling and mostly just run on Linux.
+But I'm curious as someone who was just talking about renewed faith in the iPad, is this something
+that you have a use case for?
+You know, it could be good, honestly, I like this idea more for teaching than anything
+else.
+Right?
+Just like I like Cloud9.
+I think like cloud IDEs or cloud text editors are make a lot of sense for sort of an educational
+environment we're trying to teach like dev concepts, right?
+Does that make sense at all, Wes?
+Right, right.
+So you're trying to get people started programming.
+It can be pretty rough if you have to go through all the hurdles of carefully setting up a
+development environment.
+I mean, you can you can see that even in for experienced developers, right?
+You just often there's a lot going on, especially if you're picking up a code base.
+So I can see this right instead of having to go futz with this, you just point them
+give them a login to whatever system, tell them to have at it and they can explore play
+with use all the neat helpful features of VS code without having to deal with any of
+the complications of running it.
+Exactly, exactly.
+I do however, think on the iPad, you'll definitely need online accents.
+Yeah, right.
+Totally.
+I guess I suppose if you were running it on your local network, that would be one advantage
+of the open source nature of this.
+That would be I still feel like the way native iOS iPad app that is a text editor would be
+pretty valuable at least to me.
+Yeah, okay, that's true.
+So some of the advantages they listed here are, you know, Chromebook, tablet, tablet,
+whatever or if you're like on a Windows or Mac, you can use this and know that it's already
+talking to stuff on the back end of running in Linux.
+And of course, you might be able to preserve battery life.
+One thing they mentioned here is, right, all of the intensive stuff runs on the server
+and because VS code is electron, well, if it's just a tab in a browser, that's one less
+Chrome instance that's running.
+Right.
+That's true.
+I just had to note the reason this works so well and the reason that they can basically
+just fork VS code and you know, kind of patch it up to make it run in a server environment
+is because electron uses web technologies, right?
+Like we have a common base of this stuff and while it kind of sucks in some ways, especially
+the memory overhead, there are a lot of advantages to the speed of things because you have one
+toolset.
+I don't know, I think that like somehow web technologies are eventually going to take
+over.
+But I'm not sure that on the iPad in particular we're there yet.
+Yeah, that's true.
+And iOS is obviously a platform with really high expectations both by Apple and end users.
+So if you're going to do it, like you probably want to make sure it's going to be kick ass.
+Yeah, you really need it to be super responsive and kind of follow I think the Apple like
+command structure, right?
+Just even like keyboard shortcuts because many people using an iPad Pro are using those
+Apple external keyboards.
+So but yeah, I think this is great.
+I mean, I would, you know, I have a little brother West who's 11 and he wants to learn
+some coding.
+So this is the kind of thing I would definitely use with him.
+That makes a lot of sense.
+Well, thank you, Mike.
+I appreciate that.
+I've played with a little bit.
+I mean, I just I'm not I'm not going to use it anymore.
+But perhaps the audience will find it useful.
+That's what we hope.
+And you can give us feedback about it if you'd like to just head on over to coder.show.
+You can also find all the ways to subscribe.
+We're on basically all the platforms you want.
+We even just got a plain old RSS feed if you want to do it old school or just you know,
+download an MP3 like a maniac.
+I don't know why you do that, but but but you could you could.
+And of course, you can find all the other wonderful Jupiter broadcasting shows over
+at Jupiter broadcasting dot com dot com dot com.
+And if you just want more, you can't wait till the very next episode.
+Well, we're both on Twitter.
+I'm at Westpane and you're at Dumanuco.
+You can also find the network there at Jupiter Signal.
+If you want to hear a little bit more discussion of the recent JB trip down to scale, well,
+tune into the next Linux Unplugged.
+I'm sure we'll be talking about it there.
+Thank you all for joining us today and come back next week.
