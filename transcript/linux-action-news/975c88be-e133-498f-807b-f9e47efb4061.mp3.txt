@@ -1,0 +1,360 @@
+Hello, and welcome to Linux Action News, episode 200, recorded on August 1st, 2021.
+I'm Chris.
+And I'm Wes.
+Hello, Wes, and 200 episodes sure feels great.
+Indeed.
+And congratulations to you, to Joe, and to our wonderful audience out there.
+Really a big thank you to the audience and to everyone who maybe has been listening since
+Linux Action Show, to everybody who just tuned in recently, we're glad to have you aboard
+and to celebrate, we added a new Linux Action News sticker to the jupytergarage.com store.
+It was created using our MP3 album art as a template.
+So it just sort of feels like a really nice way to celebrate 200 releases of that album
+art.
+There are multiple sizes up and ready to go at jupytergarage.com.
+But with that, let's do the news.
+Over the years, managing the use of a Linux system's block devices has become more and
+more complicated.
+There's several disk tracking methods out there, but nothing really solves the complexity.
+The common issue here is users end up using the same device multiple times.
+I mean, I know I sure do.
+And as it stands now, a program watching for events from a new device can't really tell
+whether a particular event is related to the device it just set up.
+Or maybe it could just be an earlier instance with the same name.
+There isn't really a straightforward way for all the different components in a Linux system
+to track these devices in a consistent way, keep track of them and not step on each other.
+On slow and overloaded systems, it's even worse.
+It can lead to a race condition if you have a box with really high latency.
+And block devices don't have exclusive owners in user space.
+So any process can set one up.
+And that sometimes is great.
+That's why you can mount a snap as a regular user and don't have to run as root.
+But a system wide tracking system that kept track of which device is actually which device
+is clearly useful in many ways.
+And you could really see how it could be useful with something like system D, which could
+really benefit from a system wide numbering scheme to handle events to avoid issues around
+device reuse and confusion around that, or even just events arriving to user space out
+of order.
+And it looks like work to address this issue might be landing in Linux 5.15.
+Along with that support from the system D team that you kind of alluded to there, Chris,
+the set of patches that's actually fixing or well, attempting to fix this whole mess,
+it was submitted by Microsoft.
+Their patches would add a bit of order to this whole problem by associating a new, unique,
+always increasing sequential number to the lifetime of each block device.
+Yes, practically speaking, when you add a new block device, like you plug in a USB drive,
+or you add a new loopback device, this new disk sequence number is incremented.
+It isn't stored permanently.
+But while your system is up, this disk sequence number list is exported via uevents, sysfs,
+and there's even a new I octal interface, meaning it will just plug right in with the
+existing stack.
+Yeah, if you're a program trying to add a new device here, once you've done that, you
+can immediately then query the system and find out what this new disk sequence number
+is.
+And then when you're listening for new events happening, you can actually tell just immediately
+by looking, oh, does the ID match or not?
+You always have that ID to go by now.
+Exactly.
+And assuming there are no last minute design objections, this code is slated to make it
+in as part of a series of pending block subsystem updates queued for 5.15.
+There is a lot in the works there in general.
+And while we're chatting about 5.15, the new NTFS driver code we covered recently on the
+show looks like it is ready to ship in 5.15.
+And I know you all just can't wait to format your home partitions in NTFS.
+Wait, yours isn't already NTFS?
+No, it's not.
+Well, we'll have more coverage when it lands, of course.
+But if you want to know more right now, we'll have a link in the show notes.
+Speaking of Microsoft, we thought it was notable that a rich and well positioned company like
+the blokes out of Redmond were sounding the alarm this week about supply chain shortages
+that were not going away anytime soon.
+In reporting its Q4 2021 earnings, Microsoft disclosed that both its Surface and Windows
+revenues were affected negatively by those supply chain constraints.
+While they did note that remote work has continued to fuel PC demand, Microsoft and its OEM partners
+had problems getting enough components, things like chips, power cords, and all the other
+electronic parts that are required to make a new PC.
+And Microsoft said this week, they don't expect this problem to get much better.
+In their latest reporting, they said that Surface revenues had fallen 20%.
+And year ago comparisons, well, it's pretty bad because a year ago, that was really the
+height of people buying PCs for the remote work push.
+So it was never really going to be a rosy comparison between now and then.
+But Microsoft is warning Wall Street, they expect things to get worse, not just for them,
+but really for everyone.
+Chief Financial Officer Amy Hood told analysts on an earnings call that Microsoft anticipated
+Surface revenues would continue to fall next quarter due to those very same supply chain
+constraints.
+But it's not just going to hurt for Microsoft.
+Other vendors in the Windows ecosystem are expected to take a hit too.
+Hood told analysts to expect Windows OEM revenues in Q1 2022 to decline mid to high single digits.
+I guess it's just not a great time to be a Windows OEM.
+But speaking of revenue, let's talk about Mozilla.
+The story of Mozilla over the last few years has been a lot about their sources of revenue
+and how they're going to survive.
+And that story hasn't always been a positive one.
+It seems outside of fancy ad deals, services revenue might be the only hope for an independent
+Mozilla in the future.
+So it's with that context that we've all been watching the rollout of their VPN service
+with some genuine interest, even if they don't make a Linux client directly available.
+Well this week, Mozilla announced some additional improvements to that lifeline of theirs.
+Mozilla says as a result of user feedback, they've added split tunneling to their VPN.
+This feature allows users to divide their internet traffic by choosing which apps will
+connect through that VPN tunnel and which ones will just use your regular old open network.
+Yeah, or put another way, users can just easily choose with a little UI which apps go through
+the VPN and which ones don't.
+And along with that, Mozilla has been working on a system to suggest users turn the VPN
+on when they're in public Wi-Fi.
+A feature that maybe tech users might find nagging, but average users could really benefit
+from something like that.
+And I think this is where I see Mozilla's role here with this VPN service and why I'm
+not so upset they don't make a VPN client for Linux.
+They're creating a service techies can recommend to normies.
+They're not really creating a service for me.
+I mean, they don't even target my platform of choice, but they are creating a service
+I feel comfortable recommending to Android and iOS users who just want better privacy
+at the coffee shop.
+Yeah, they really do still have that reputation, right?
+We trust that they'll get things right technically and that they have the right motivations and
+philosophy behind them.
+Now, if enough people can use it, maybe this thing will work.
+I don't know.
+You're right that I don't want to help anyone with their open VPN config if they're a normie.
+After Valve announced the tech, some of us wondered if Linux's Steam client was really
+up to snuff for the general public.
+It seems Valve might have shared those very concerns.
+A few days ago, they released a significant Steam beta update and Linux absolutely gets
+in on the fun.
+Yeah, the Linux version of Steam got quite a few specific updates, including many quality
+of life improvements, along with some updates to the Linux container runtime, restored compatibility
+with NixOS, significant performance improvements in the library UI, and silencing some annoying
+preload messages you might have seen on the console.
+I did indeed.
+I am that guy that likes to run Steam from the console just to get all of the messages.
+But I think the improvements that you're really going to notice are the ones in the UI.
+And those are across Windows, Mac and Linux.
+And what I'm most excited about is the new downloads page, which really is more minimal
+and focused, and it has a variety of improvements over the old design.
+I think just overall, the UI looks a lot more streamlined and approachable.
+And I think it is really getting things more up to snuff for a new wave of users.
+Another story we've been following for a while is the slow transformation of Chrome OS to
+a workstation desktop is attempting to appeal to technical users.
+Part of this effort has materialized recently in the team's attempts to make virtual desktops
+more discoverable.
+This drive to seemingly appeal to the quote unquote developers out there has seen all
+kinds of engineering efforts recently invested into all desktop OSes in a way that doesn't
+seem like we've really seen since the hype wave for mobile kicked off so many years ago.
+I think in retrospect, Microsoft investing in things like WSL, that makes sense.
+But Google's investment in higher end features in Chrome OS continues to surprise me.
+It just it seems like it goes beyond the scope of Chrome OS, like what it was originally
+created for.
+But Google must clearly see otherwise.
+And this push to get everyone to use virtual desktops now seems like a really clear signal
+of just that.
+And the latest development releases of Chrome OS will now have a persistent desk bar along
+the top of the screen calling out your available virtual desktops.
+Google's calling it Bento.
+Now we're looking at development builds here, so things could always change.
+But really what's new is the balance between simple and complex, shifting further to the
+complex side.
+I mean, Chrome OS has gone from sort of subtle about this to persistently being in your face
+about a power user feature.
+It really is a bold statement saying Chrome OS is becoming a full fledged desktop environment
+where you can really get some work done.
+And we thought this was worth passing along.
+It's a milestone in the efforts to port Linux to Apple's M1 architecture.
+Those of you hoping to run Linux on your M1 Macs will be happy to hear things are looking
+up.
+With Asahi Linux developer Alyssa Rosenzweig successfully got Debian running on a bare
+metal Apple M1 with a mainline kernel, no less.
+She built that upstream kernel with fellow Asahi Linux developer Sven Peters IOMMU patches,
+which was required to get working USB support.
+But it seems like there's actually full frame buffer support as well.
+So you even got a basic X11 session available.
+I think you might just call that a nearly working computer.
+Linode.com slash LAN.
+Go there to get $100 in 60 day credit on a new account and you go there to support the
+show.
+This show is really made possible by you taking advantage of our sponsors offers and Linode
+is one that we enthusiastically endorse.
+You know, they started in 2003 as one of the very first companies in cloud computing.
+And now 18 years later, Linode is the largest independent open cloud provider in the world.
+With 11 data centers serving nearly a million customers and businesses around the globe.
+But their mission remains unchanged.
+Make cloud computing simple, affordable, and accessible to all.
+They do that with things like their S3 compatible object storage, VLAN support, powerful DNS
+manager, a simple, clean interface, and much more.
+Recently, Linode teamed up with the hackersploit team to release an ebook that helps you secure
+your Docker installation.
+This ebook focuses on the process from beginning to end, and we'll have a link to that in the
+show notes.
+It's free, not even your emails required.
+Just go grab it and learn.
+And once you get set up with Linode, if you ever run into any trouble, they've got the
+best customer support 24 seven by phone or ticket, along with hundreds of guides and
+tutorials to help you get started and one click application deployments that can just
+deploy the base of a Linux box or all the way up to the application stack.
+It's your choice.
+Linode is such a great way to learn too, and Linode is investing in our community by making
+the Jupiter colony reunion road trip possible with meetups in Salt Lake City and Denver
+and more all along the way powered by Linode.
+So go grab that $100, performance test your network, learn something, challenge something,
+and maybe deploy something in production.
+You just got to go check out Linode for yourself and take advantage of that offering because
+it's fantastic.
+Linode is dedicated to offering the best in virtualized cloud computing.
+If it runs on Linux, it runs on Linode.
+So sign up today at linode.com slash LAN, get $100 in 60 day credit, and you support
+the show, linode.com slash LAN.
+Linux.ting.com.
+If you're sick of overpaying for cell service, go see how much you could save and then take
+$25 off that, linux.ting.com.
+Ting is an MVNO or a mobile virtual network operator.
+What that means for you is they get access to the big carrier networks, but with way
+better customer support and a lower cost for you.
+Ting mobile gives you the same coast to coast coverage as you would with one of the big carriers.
+You just get to pay less.
+And that's why I've been a Ting customer since 2013.
+Ting stayed flexible, reliable, and trust me, I changed it up.
+And they've adapted like no other carrier could dream of.
+And Ting's plans are simple and straightforward.
+Like their new set 12 plan, which gives you 12 gigs of data with unlimited talk and unlimited
+text, 35 bucks a month period, boom, out the door, there you go.
+And be sure to check out Ting on Twitter.
+They've been doing some giveaways recently.
+They've got some great stuff they're featuring on their blog.
+They have some tips for great cell phone battery life and maybe you might want to send that
+to a friend or family to give them some gentle guidance on how to get the most out of their
+phone because Ting's a carrier that geeks out about this stuff.
+And if you use two gigs or 20 gigs, or maybe a lot more, there's a perfect Ting plan for
+you.
+Every plan comes with Ting's award winning customer service.
+You get nationwide LTE and 5G and fantastic customer service with no contracts ever.
+It's simple to switch to Ting.
+Pretty much any phone will work, so just head over to linux.ting.com.
+Check your current phone, sign up for a plan.
+Ting will send you a SIM card.
+You pop that in, you get activated in minutes.
+It's so straightforward.
+So cutting your phone bill in half has never been easier with Ting's brand new plans, but
+you got to go to linux.ting.com to see it.
+It truly is the next generation of Ting mobile.
+It's here.
+I can tell you I'm witnessing it and you could save.
+So go to linux.ting.com.
+After much secrecy, this week Google has turned on their latest undersea cable connecting
+Europe and Asia.
+The revelation of this development made us curious just how much of our intercontinental
+connectivity was owned by the big tech companies.
+The project's budget was estimated at $400 million and includes the laying of two subsea
+cables.
+The first, named Blue, will connect Italy, France, Greece, and Israel.
+The second, named Raman, will connect between Jordan, Saudi Arabia, and India.
+Reading through this, which we have linked in the notes, it was sort of revealing.
+I didn't fully appreciate how much of our undersea international cables running along
+the bottom of the ocean were owned by the big tech companies and the major hyperscalers
+out there.
+And it wasn't always this way.
+It definitely started with Google, but it's rapidly expanded from there.
+In an interview on the Data Center Knowledge podcast, Alan Molden from Telegeography shed
+some light on these semi-recent developments.
+Many of these hyperscale companies or content providers, whatever you want to call them,
+they have very large demands for international capacity.
+And so for years, they were buying capacity in the market from the traditional carriers.
+But at some point, they were growing so fast and becoming so large, it made sense to actually
+move to a different layer and opt to invest directly in submarine cable systems themselves.
+So Google was the first one, as you mentioned, with their investment in the Unity cable,
+which entered service in 2010.
+And since then, you've seen them invest in many other cables from the world.
+One was launched just this last week, the Do Not Cable from France to the United States.
+And they are involved in many other planned cables.
+So besides Google, Facebook also is a very heavy investor in new cables.
+Also Amazon and Microsoft, to a smaller extent, also are investing directly in owning submarine
+cables.
+So you might be wondering just how far the private sector has gotten involved with these
+international links compared to governments around the world.
+Alan addressed that as well.
+So governments do play a role really in helping more remote communities to build cables.
+So if it's an island in the South Pacific, or some remote communities in the Arctic right
+now, there is some government involvement there.
+But largely, it's private funding that is being used to build and fund submarine cables
+around the world.
+This is an extremely expensive endeavor.
+So it seems often what happens is the companies go in on a portion of the cable, and sometimes
+more or sometimes less, and along with other companies, they'll kind of buy up this cable
+and complete the deal.
+And in some cases, they'll just pay for the entire thing.
+How much bandwidth of the cables allocated to those companies is basically based on the
+level of investment they've made into that particular cable.
+So in the last decade, content providers have invested roughly about $20 billion in new
+cables really all over the world.
+And that's probably about 20, 30 cables that they've invested in.
+And there's many more planned for the coming years.
+I think looking at from what's planned to be deployed this year, in the next two years,
+we could see another $8 billion worth of investment from content providers coming in.
+Now, remember, they aren't the only ones investing in new cables.
+So overall, there's going to be an even larger amount of investment coming.
+The content provider share of investment, let's say, for the next couple of years, it's
+going to be about 30% to 50% of the overall total.
+But on certain routes, such as the Atlantic or the Pacific, there's a much higher concentration
+of content provider investment.
+That's really due to where they're trying to link, which is their largest data centers
+in Europe and Asia back to the United States.
+Just to give you an idea here, the capacity of these subsea cables is crazy.
+Earlier this year, Google broke some records with their Dunant cable, which has 12 fiber
+pairs providing 250 terabits per second of capacity, or as they put it in a blog post,
+enough to transmit the entire digitized Library of Congress three times every second.
+Okay.
+Wow.
+You know, of course, all this must be happening in the background, because things have gotten
+better, faster.
+You know, I often am on a video or voice call with somebody who's in a totally different
+part of the world, and you just take it all for granted now.
+You know that there was a lot of investments happening, but I didn't really connect all
+of the dots here, like Microsoft is another company that's been buying up a lot of cable.
+Amazon, of course, or really anybody in the game is buying up portions of cable.
+I don't know.
+How do you feel about that?
+It is a little strange to have the big hyperscalers sort of dictate where these cables lands,
+and you just know that they're going to build this around their infrastructure, so it's
+going to depend on which company and where they've already built their data centers.
+And where they have customers, and they're going to be disincentivized to invest in areas
+that don't have their customers or the appropriate topology for their data center.
+But I suppose, in a way, because these large hyperscalers are investing in cables themselves,
+it leaves governments with limited budgets available to invest in areas that the hyperscalers
+wouldn't be interested in.
+So it kind of helps a limited budget spread out a little more, I suppose.
+Silver lining.
+Part of me doesn't like the idea that we privatize the internet in any way, but then another
+part of me has to realize, I mean, this is a massive cost.
+I mean, they're literally doing this with submarines out there.
+Think about the coordination and engineering that must be happening in these big tech companies.
+It really is wild.
+All of the systems that these hyperscalers are bringing in-house.
+I mean, you think about the custom CPU development, you think about Microsoft making an operating
+system for their switches, and then you think, well, yeah, let's just build some undersea
+cables.
+Why not?
+They basically must have their own internal telco departments that interface with other
+telcos because what was revealed in this interview, which we have linked, is essentially the hyperscalers
+just decided, well, let's stop dealing with the telcos and let's just go build it ourselves
+and become telcos.
+And that is just like a transition that happens.
+So it's just a wild development.
+But I guess the upshot is we have faster connectivity, right?
+All the YouTube you could want.
+But really, it just makes me think, what's it like having these jobs, working with these
+cables under the water, actually laying them, connecting continents?
+And how do you get that job?
+Yeah, what's that job posting even look like?
+I can't even really picture it.
+But I think all Linux admins out there probably owe a debt of gratitude to those working on
+those submarines doing that hard work.
+It's probably not a fun job.
+But we'll keep an eye on it and everything else going on in the world of Linux and open
+source.
+So go to linuxactionnews.com slash subscribe for all the ways to get new episodes.
+And linuxactionnews.com slash contact if you've got any subsea openings to send us.
+And don't forget, we have those brand new linuxactionnews stickers at jupytergarage.com.
+And get your mimosas ready for Coder Radio's new live time at 10 a.m. Pacific, 1 p.m. Eastern
+at jblive.tv.
+As for us, well, we'll be back next Monday, of course, with our weekly take on the latest
+Linux and open source news.
+Thanks for joining us.
+And that's all the news for this week.

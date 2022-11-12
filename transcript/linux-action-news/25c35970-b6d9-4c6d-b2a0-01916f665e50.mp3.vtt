@@ -1,0 +1,902 @@
+WEBVTT
+
+00:00.000 --> 00:09.380
+Hello, and welcome to Linux Action News, episode 231, recorded on March 9th, 2022.
+
+00:09.380 --> 00:10.380
+I'm Chris.
+
+00:10.380 --> 00:11.380
+And I'm Wes.
+
+00:11.380 --> 00:12.380
+Hello, Wes.
+
+00:12.380 --> 00:14.540
+Let's do the news.
+
+00:14.540 --> 00:18.860
+We start this week with a dirty pipe.
+
+00:18.860 --> 00:24.340
+The name for a new vulnerability disclosed this week that's supposed to imply similarities
+
+00:24.340 --> 00:30.280
+to the recent dirty cow vulnerability, and perhaps provide some clues about this new
+
+00:30.280 --> 00:32.400
+vulnerability's origins.
+
+00:32.400 --> 00:37.720
+In this case, pipe refers to our beloved Unix pipelines.
+
+00:37.720 --> 00:44.420
+Tracked as CVE-2022-0847, the vulnerability came to light when a developer for website
+
+00:44.420 --> 00:50.220
+builder CM4ALL was troubleshooting a series of corrupted files that kept appearing on
+
+00:50.220 --> 00:52.760
+a customer's Linux box.
+
+00:52.760 --> 00:57.600
+After months of dead-end analysis, the dev finally figured out that the customer's corrupted
+
+00:57.600 --> 01:02.500
+files were actually the result of a bug in the kernel.
+
+01:02.500 --> 01:06.760
+The developer, Max Kellerman, not only found the source of the bug, but quickly created
+
+01:06.760 --> 01:08.440
+an exploit based on it too.
+
+01:08.440 --> 01:15.420
+The issue has been in the Linux kernel since Linux 5.8, and it allows for overriding data
+
+01:15.420 --> 01:17.440
+in an arbitrary read-only file.
+
+01:17.440 --> 01:18.920
+It's not good.
+
+01:18.920 --> 01:24.400
+Yeah, it wasn't long until researchers out there had the nobody account overriding whatever
+
+01:24.400 --> 01:27.240
+read-only files they wanted with a simple bash script.
+
+01:27.240 --> 01:31.840
+No, it didn't matter if this was in a read-only snapshot or on a read-only file system for
+
+01:31.840 --> 01:33.040
+that matter.
+
+01:33.040 --> 01:35.800
+You could still overwrite it.
+
+01:35.800 --> 01:38.400
+And that meant that the damage from dirty pipe?
+
+01:38.400 --> 01:42.160
+It wasn't just limited to overriding files because, well, you can build on that.
+
+01:42.160 --> 01:46.520
+You can create a cron job that runs and gives you a backdoor, you can add a new user account
+
+01:46.520 --> 01:52.840
+to Etsy password and shadow, or you can just directly modify a script or even a set UID
+
+01:52.840 --> 01:55.120
+binary to help give yourself a root account.
+
+01:55.120 --> 01:59.160
+Yeah, really demonstrating that you have to build your systems in such a way that they
+
+01:59.160 --> 02:01.600
+can be continuously updated.
+
+02:01.600 --> 02:05.960
+And as you're probably also guessing right now, dirty pipe also afflicts Android, at
+
+02:05.960 --> 02:09.360
+least Androids that are based on one of the vulnerable Linux kernel versions.
+
+02:09.360 --> 02:13.400
+So as you might imagine, it's a little more complicated when it comes to Android because
+
+02:13.400 --> 02:14.400
+of the various versions.
+
+02:14.400 --> 02:20.480
+But put simply, the latest version of Android for the Pixel 6 and the Samsung Galaxy S22,
+
+02:20.480 --> 02:23.940
+for instance, is impacted.
+
+02:23.940 --> 02:26.880
+Those are on version 5.10 of the Linux kernel.
+
+02:26.880 --> 02:32.680
+But for example, a Pixel 4, that's on Android 12, which runs on Linux 4.14.
+
+02:32.680 --> 02:33.680
+That's unaffected.
+
+02:33.680 --> 02:38.420
+So really, to check, what you need to do is take your device, go to Settings, About Phone,
+
+02:38.420 --> 02:41.920
+and then check your Android version there, and it'll tell you which version of the Linux
+
+02:41.920 --> 02:42.920
+kernel you're using.
+
+02:42.920 --> 02:48.240
+Now, I'll be honest, my first instinct is to make a joke about ancient Android kernels
+
+02:48.240 --> 02:52.600
+and whatever I may be running with my Pixel 3 in my pocket.
+
+02:52.600 --> 02:56.200
+But I tried to give this a go on a few of my boxes.
+
+02:56.200 --> 02:59.920
+And yeah, actually, I still have a few of those out there that had kernels that were
+
+02:59.920 --> 03:02.120
+too old to be affected.
+
+03:02.120 --> 03:03.920
+So I guess I'll shut up.
+
+03:03.920 --> 03:08.640
+Yeah, but you did find a system that was vulnerable.
+
+03:08.640 --> 03:13.560
+Yeah, on the flip side, a few of my boxes, I'd already done updates since this was released
+
+03:13.560 --> 03:14.560
+and patched.
+
+03:14.560 --> 03:15.560
+So those weren't.
+
+03:15.560 --> 03:20.800
+But I'd spun up a 2110 box last week to be a Steam game server for a few friends.
+
+03:20.800 --> 03:24.160
+And I hadn't touched it since then.
+
+03:24.160 --> 03:27.920
+Turns out, yep, it was vulnerable, and it was pretty straightforward.
+
+03:27.920 --> 03:31.080
+We'll have linked in the show notes to a quick little proof of concept exploit.
+
+03:31.080 --> 03:34.400
+But it's maybe like a half page of some C code.
+
+03:34.400 --> 03:38.200
+Copy and pasted that into vim on the server, wrote it out, gave it a quick compile with
+
+03:38.200 --> 03:39.200
+gcc.
+
+03:39.200 --> 03:42.840
+And then you just take that binary and you run it and you point it at another binary
+
+03:42.840 --> 03:45.880
+in the system that's a setuid binary.
+
+03:45.880 --> 03:46.880
+That was easy.
+
+03:46.880 --> 03:48.480
+In this case, it was user bin su.
+
+03:48.480 --> 03:52.760
+Run that as a totally unprivileged user, and boom, root account.
+
+03:52.760 --> 03:59.520
+That'd be kind of handy if you ever forgot the pseudo password on that box, but you still
+
+03:59.520 --> 04:01.520
+had another account on there.
+
+04:01.520 --> 04:03.240
+You can fix that now.
+
+04:03.240 --> 04:08.280
+Actually, I have to say, the developer did a really good job on the write up on this
+
+04:08.280 --> 04:09.280
+one.
+
+04:09.280 --> 04:13.160
+We don't always say this, and so this one is actually worth a read after you get done
+
+04:13.160 --> 04:14.160
+listening to the show.
+
+04:14.160 --> 04:15.760
+So we will have a link to that in the show notes.
+
+04:15.760 --> 04:20.320
+And like Wes just said, we also have that exploit that you can try in your own system
+
+04:20.320 --> 04:23.320
+if for some reason you want to pop one of your own boxes.
+
+04:23.320 --> 04:25.920
+That'll also be linked in the show notes.
+
+04:25.920 --> 04:34.600
+Well, it looks like we might be seeing a lot more kernel code inbound in the not so distant
+
+04:34.600 --> 04:35.600
+future.
+
+04:35.600 --> 04:42.160
+That's because AMD is hiring more Linux engineers, filling out various roles seemingly across
+
+04:42.160 --> 04:46.880
+the organization from Linux semiconductor engineers to kernel virtualization experts
+
+04:46.880 --> 04:51.200
+to just general systems and sys admins, a whole bunch more.
+
+04:51.200 --> 04:58.240
+Yeah, I was pleased to see some specific focus on a position to apparently work with KVM
+
+04:58.240 --> 04:59.880
+and QMU.
+
+04:59.880 --> 05:00.880
+That's really cool.
+
+05:00.880 --> 05:04.080
+I'm looking forward to see where that eventually ends up.
+
+05:04.080 --> 05:08.240
+But you know, what's even more interesting if you kind of zoom out here is it was about
+
+05:08.240 --> 05:14.200
+a year ago, maybe give or take a little bit that we were covering right here on the show,
+
+05:14.200 --> 05:20.360
+a new internal organization inside AMD that was focused on commercial partners using Linux.
+
+05:20.360 --> 05:24.160
+And so when you look at these job openings now that you're seeing and the spectrum that
+
+05:24.160 --> 05:28.400
+they're covering, I think it's probably pretty fair to speculate that these new positions
+
+05:28.400 --> 05:33.220
+are opening up as a result of the feedback and engagement that that organization has
+
+05:33.220 --> 05:34.880
+gotten with those customers.
+
+05:34.880 --> 05:36.900
+But here's what really strikes me.
+
+05:36.900 --> 05:41.900
+It actually even kind of blows me away, Wes, is when you go to AMD's open jobs board, which
+
+05:41.900 --> 05:47.240
+we'll have linked in the notes, and you use Linux as a keyword filter and say you limit
+
+05:47.240 --> 05:55.480
+those results to just Austin, Texas, you'll get 229 open jobs that either list Linux as
+
+05:55.480 --> 06:00.520
+a skill requirement or a primary function of the job at AMD.
+
+06:00.520 --> 06:06.760
+And that number gets even a lot higher when you expand that to a worldwide search.
+
+06:06.760 --> 06:08.920
+There's actually over 700 results.
+
+06:08.920 --> 06:15.120
+Yeah, it's kind of amazing between stuff, you know, whether you're working on actually
+
+06:15.120 --> 06:19.440
+tweaking kernel builds to work better with AMD hardware, or you're working on the virtualization
+
+06:19.440 --> 06:23.320
+framework, or you're working to help clients engage with that hardware, or maybe you're
+
+06:23.320 --> 06:27.300
+a BIOS engineer who's working on, you know, integration with the firmware level.
+
+06:27.300 --> 06:30.840
+There's also a bunch of job openings aimed at optimizing machine learning frameworks
+
+06:30.840 --> 06:32.920
+for AMD hardware.
+
+06:32.920 --> 06:36.720
+And this all just kind of underscores that regardless of even if you're not a, you know,
+
+06:36.720 --> 06:42.560
+a Linux focused hardware company, you just need Linux to run a big modern business.
+
+06:42.560 --> 06:49.000
+I mean, some jobs that came up here are senior PHP developer, not because you know, Linux
+
+06:49.000 --> 06:52.400
+is essential necessarily to the main part of your job, but because of course, what's
+
+06:52.400 --> 06:54.440
+that PHP running on?
+
+06:54.440 --> 06:57.880
+It's Linux.
+
+06:57.880 --> 07:02.560
+Well the folks behind the most popular matrix client element have just announced element
+
+07:02.560 --> 07:03.860
+call.
+
+07:03.860 --> 07:11.440
+It's a new simple web based conferencing app that is, of course, built on top of matrix.
+
+07:11.440 --> 07:16.200
+But don't worry, you don't need your own matrix server to use it.
+
+07:16.200 --> 07:21.560
+But because this is matrix, if you do have your own server, well, yeah, you can self
+
+07:21.560 --> 07:26.320
+host it there yourself and have an all in one integrated setup while still being able
+
+07:26.320 --> 07:30.640
+to talk to anyone else anywhere on the wider matrix network.
+
+07:30.640 --> 07:32.620
+I do love that feature.
+
+07:32.620 --> 07:35.720
+So if you want to try it out to see what it's like, you can just get started by going to
+
+07:35.720 --> 07:40.200
+call.element.io in just about any browser.
+
+07:40.200 --> 07:44.760
+The team has worked really hard to support as many browsers as possible, even making
+
+07:44.760 --> 07:47.320
+it a progressive web app on mobile.
+
+07:47.320 --> 07:52.920
+Once you're in, I think you'll find a sensible, but quite usable video call client with a
+
+07:52.920 --> 07:57.200
+couple of nice layout options, quick and really easy screen sharing.
+
+07:57.200 --> 08:02.560
+I mean, even on, you know, an older Linux system with XFCE popped right into that screen
+
+08:02.560 --> 08:04.040
+sharing.
+
+08:04.040 --> 08:07.740
+And the other thing that of course is now table stakes, but still nice to see is the
+
+08:07.740 --> 08:12.900
+ability to share that meeting via a link, sort of like how Zoom made so popular in the
+
+08:12.900 --> 08:13.900
+before times.
+
+08:13.900 --> 08:16.020
+Yeah, you don't even need an account to get started.
+
+08:16.020 --> 08:21.500
+You can just log in as an automated anonymous user like we did, and that works just fine.
+
+08:21.500 --> 08:26.440
+It's obviously a bit of an MVP, but what is there felt snappy and pretty much just worked
+
+08:26.440 --> 08:29.600
+at least on the quick try we gave it.
+
+08:29.600 --> 08:34.360
+But we should stress that this is very much in beta and has a ton of limitations, at least
+
+08:34.360 --> 08:35.500
+for now.
+
+08:35.500 --> 08:41.520
+Things like end-to-end encryption not yet being enabled, login if you are choosing to
+
+08:41.520 --> 08:42.520
+use a login.
+
+08:42.520 --> 08:46.620
+Well, that's limited to just using a single predefined server, whether that's the server
+
+08:46.620 --> 08:52.180
+you're using to self host or the shared instance that call.element.io is using.
+
+08:52.180 --> 08:55.400
+You also can't use the same user on multiple devices.
+
+08:55.400 --> 08:58.740
+Not sure if that's ever going to be supported, but you can't right now.
+
+08:58.740 --> 09:04.080
+And it's not really optimized, both in terms of the client, in terms of bandwidth, CPU
+
+09:04.080 --> 09:09.480
+bandwidth, but also it only implements a full peer-to-peer mesh call.
+
+09:09.480 --> 09:13.640
+With WebRTC, you've got some other options, things called selective forwarding units and
+
+09:13.640 --> 09:18.120
+a few other tricks out there, which the big names in this space used to make things scale
+
+09:18.120 --> 09:19.120
+a bit more.
+
+09:19.120 --> 09:23.220
+Because if you have to send a copy of your video and audio to each single participant
+
+09:23.220 --> 09:26.480
+in your call, yeah, that doesn't scale great.
+
+09:26.480 --> 09:31.820
+And in testing, they've found that the implementation so far can support about eight people before
+
+09:31.820 --> 09:34.320
+it starts to fall over.
+
+09:34.320 --> 09:35.320
+Yeah.
+
+09:35.320 --> 09:41.360
+So I don't think this is ready to replace those company-wide or project-wide or event
+
+09:41.360 --> 09:43.360
+solutions that are using Jitsi right now.
+
+09:43.360 --> 09:45.640
+It's just not quite there.
+
+09:45.640 --> 09:47.720
+They do already have plans to address it, like Wes said.
+
+09:47.720 --> 09:49.200
+They already have it kind of figured out.
+
+09:49.200 --> 09:50.980
+It's just not implemented yet.
+
+09:50.980 --> 09:54.760
+But if you don't need it for more than about five people, it's probably going to be just
+
+09:54.760 --> 09:56.200
+fine for you.
+
+09:56.200 --> 09:59.400
+And really, for just like two of us, it's totally great.
+
+09:59.400 --> 10:01.360
+I mean, we're pretty picky about this kind of stuff.
+
+10:01.360 --> 10:04.320
+And we found it really pretty usable.
+
+10:04.320 --> 10:06.920
+Yeah, you know, it definitely was.
+
+10:06.920 --> 10:11.960
+If we didn't already have a few different back channel methods to use while we're recording,
+
+10:11.960 --> 10:17.080
+I think we could have definitely used element call to get this show done.
+
+10:17.080 --> 10:19.280
+And I think it's probably only going to get better.
+
+10:19.280 --> 10:20.680
+I mean, this is really excited.
+
+10:20.680 --> 10:21.800
+Not that Jitsi hasn't worked.
+
+10:21.800 --> 10:27.440
+I think the team acknowledges that Jitsi embedded as a widget has served really well to enable
+
+10:27.440 --> 10:30.040
+this within the element platform.
+
+10:30.040 --> 10:35.320
+But this new version, I mean, it's directly using matrix as the signaling layer, which
+
+10:35.320 --> 10:37.760
+means some exciting stuff can happen.
+
+10:37.760 --> 10:39.720
+I mean, it's a little funny right now.
+
+10:39.720 --> 10:45.280
+This doesn't support chat, even though it's, you know, based on matrix and element, which
+
+10:45.280 --> 10:48.460
+we think of as a chat app, but it can do so much more.
+
+10:48.460 --> 10:49.720
+So chat's going to get added.
+
+10:49.720 --> 10:53.080
+They're talking about adding, you know, moderation control, being able to mute or kick other
+
+10:53.080 --> 10:54.580
+people out.
+
+10:54.580 --> 10:58.120
+Some of the fancy stuff you expect from like Google Hangouts or Zoom, like being able to
+
+10:58.120 --> 11:01.080
+blur your video or replace it with an image.
+
+11:01.080 --> 11:06.720
+But the part I'm most excited for, this is getting directly integrated into element.
+
+11:06.720 --> 11:16.280
+So you can have voice and video rooms or hold group calls right inside the app.
+
+11:16.280 --> 11:17.840
+Linode.com slash LAN.
+
+11:17.840 --> 11:22.080
+Go there to get $100 in 60 day credit on a new account and you go there to support the
+
+11:22.080 --> 11:23.080
+show.
+
+11:23.080 --> 11:27.800
+Linode is a great option for developers, IT experts, or those of you that are just getting
+
+11:27.800 --> 11:28.800
+loaded.
+
+11:28.800 --> 11:30.520
+No one gets fired for recommending Linode.
+
+11:30.520 --> 11:35.000
+I mean, you don't want to have to hassle with the complexities that the hyperscalers try
+
+11:35.000 --> 11:38.720
+to throw on to you just so you can just get locked into their platform.
+
+11:38.720 --> 11:39.720
+Linode's a great option.
+
+11:39.720 --> 11:43.360
+Not only that, but Linode has a better price and they have better performance.
+
+11:43.360 --> 11:44.480
+It's not just me saying that.
+
+11:44.480 --> 11:48.160
+That's actually something that's been researched and been proven out.
+
+11:48.160 --> 11:50.240
+You can definitely tell just when you use Linode.
+
+11:50.240 --> 11:52.600
+It's how we've built everything for the last couple of years.
+
+11:52.600 --> 11:55.700
+When we run it in the cloud, we run it on Linode.
+
+11:55.700 --> 11:58.280
+Even like us, Linode loves Linux.
+
+11:58.280 --> 11:59.480
+They use it every single day.
+
+11:59.480 --> 12:02.720
+They have people that run it on their desktop, they run it in their environments.
+
+12:02.720 --> 12:05.520
+They're fans and you can see in the way they build things too.
+
+12:05.520 --> 12:06.520
+You can spot it.
+
+12:06.520 --> 12:11.720
+You know, that's really the base of why they even started Linode almost 19 years ago.
+
+12:11.720 --> 12:13.940
+And now, geez, look at them go.
+
+12:13.940 --> 12:15.700
+They've built the best system out there.
+
+12:15.700 --> 12:18.060
+They've got 11 data centers around the world.
+
+12:18.060 --> 12:21.560
+They've got brand new MVME PCIe storage on some of their systems.
+
+12:21.560 --> 12:27.000
+Their high-end CPU boxes have AMD EPYC processors, 40 gigabit connections, because not only do
+
+12:27.000 --> 12:34.300
+they have fast connections to the individual machines, but Linode is their own ISP.
+
+12:34.300 --> 12:36.640
+And they've got some of the best support in the business.
+
+12:36.640 --> 12:38.260
+It really is something special.
+
+12:38.260 --> 12:41.400
+You bring it all together, you combine it with their great interface that makes it simple
+
+12:41.400 --> 12:47.720
+to deploy an entire application stack or a system that you build up from the ground.
+
+12:47.720 --> 12:51.120
+Whatever your performance, whatever your preference, whatever your style, you know, whatever you
+
+12:51.120 --> 12:52.760
+want to do, you can do it at Linode.
+
+12:52.760 --> 12:58.660
+I actually built myself an extremely custom from the ground up image twice on Linode,
+
+12:58.660 --> 12:59.780
+and it's just been really handy.
+
+12:59.780 --> 13:03.360
+Those two times in the last couple of years that I really needed that, it was great to
+
+13:03.360 --> 13:07.640
+not only know that it was possible, but Linode was actually going to help me do it with documentation
+
+13:07.640 --> 13:09.080
+and support too.
+
+13:09.080 --> 13:10.080
+So go build something.
+
+13:10.080 --> 13:15.480
+Go learn something and try it for yourself and support the show, linode.com slash lan.
+
+13:15.480 --> 13:22.720
+Linux.ting.com.
+
+13:22.720 --> 13:26.680
+If you're sick of overpaying for cell service, go see how much you could save and then take
+
+13:26.680 --> 13:30.520
+25 bucks off of that by going to linux.ting.com.
+
+13:30.520 --> 13:33.500
+Ting is a mobile virtual network operator.
+
+13:33.500 --> 13:36.580
+That means they don't have to dig holes in the ground and fight with local regulators
+
+13:36.580 --> 13:38.120
+to stand up towers.
+
+13:38.120 --> 13:41.980
+They interface with the big carriers and nation to nation coverage, but you end up getting
+
+13:41.980 --> 13:46.440
+way better customer service at a much lower cost.
+
+13:46.440 --> 13:52.000
+Ting Mobile offers nationwide coverage with a great mix of plans, fast data on LTE or
+
+13:52.000 --> 13:55.800
+5G, and no contracts ever.
+
+13:55.800 --> 13:59.040
+And you know, Ting Mobile was recently named the number one carrier by Consumer Reports
+
+13:59.040 --> 14:00.040
+in 2021.
+
+14:00.040 --> 14:03.920
+That's probably why I have been a Ting customer since 2013.
+
+14:03.920 --> 14:07.800
+I really appreciate all of their plans are simple and straightforward.
+
+14:07.800 --> 14:09.840
+It's just a smarter way to do mobile.
+
+14:09.840 --> 14:13.680
+It's how they'd have to do mobile in the States if the industry were to somehow reboot and
+
+14:13.680 --> 14:14.680
+have to start today.
+
+14:14.680 --> 14:16.400
+They'd have to compete like this.
+
+14:16.400 --> 14:21.080
+They have straightforward, simple plans for individuals, families, and really small businesses.
+
+14:21.080 --> 14:22.080
+I can attest to that.
+
+14:22.080 --> 14:26.080
+It's a great option for small businesses and every plan gets access to Ting's award winning
+
+14:26.080 --> 14:27.460
+customer service.
+
+14:27.460 --> 14:32.720
+You get that nationwide LTE and 5G, you get that Ting support and Ting value, and your
+
+14:32.720 --> 14:35.920
+phone's probably going to work because of their network support.
+
+14:35.920 --> 14:38.540
+So it makes it really simple to switch to Ting.
+
+14:38.540 --> 14:43.280
+Just head to linux.ting.com, check your current phone, create an account, pick the plans right
+
+14:43.280 --> 14:44.280
+for you.
+
+14:44.280 --> 14:49.520
+If you want to get a new phone, that linux.ting.com $25 discount could apply to a new phone as
+
+14:49.520 --> 14:50.520
+well.
+
+14:50.520 --> 14:51.520
+Sometimes it's worth treating yourself.
+
+14:51.520 --> 14:54.800
+Either way, I say go to linux.ting.com to get started.
+
+14:54.800 --> 14:56.480
+Once you're there, check things out.
+
+14:56.480 --> 14:58.000
+I think you're going to be impressed.
+
+14:58.000 --> 14:59.000
+It's a really great value.
+
+14:59.000 --> 15:03.200
+Again, I mean, I've been a customer for like ever since 2013.
+
+15:03.200 --> 15:04.640
+There's a reason for that.
+
+15:04.640 --> 15:11.940
+Go try it out today and support the show, linux.ting.com.
+
+15:11.940 --> 15:17.760
+Over the next few weeks, you'll likely see a lot written and said about Elementary OS
+
+15:17.760 --> 15:19.880
+and its future.
+
+15:19.880 --> 15:25.320
+That's because this week it became public that the two co-founders of Elementary OS
+
+15:25.320 --> 15:29.880
+are in active discussions about their roles in the project going forward.
+
+15:29.880 --> 15:34.320
+From what's been stated publicly so far, it seems the company behind the project has
+
+15:34.320 --> 15:37.280
+been struggling since the start of the pandemic.
+
+15:37.280 --> 15:43.560
+And for the last month or so, difficult discussions about future ownership have been ongoing.
+
+15:43.560 --> 15:47.560
+We reached out to Cassidy James Blady and Daniel Foray for comment.
+
+15:47.560 --> 15:51.120
+Yeah, and Danny relayed to us two things primarily.
+
+15:51.120 --> 15:54.240
+Number one, that this is all still being worked out.
+
+15:54.240 --> 15:58.160
+There's nothing really to report at this time, although you may notice some slowdowns on
+
+15:58.160 --> 16:01.840
+GitHub and social media presence temporarily.
+
+16:01.840 --> 16:05.760
+And the second thing that Danny really stressed is that Elementary is a volunteer community
+
+16:05.760 --> 16:11.520
+first, and the company behind it is small, it doesn't have a lot of power.
+
+16:11.520 --> 16:14.960
+And that the contributors are still there, they're still working, fixing bugs, responding
+
+16:14.960 --> 16:18.600
+to issues, working on new features and all of that.
+
+16:18.600 --> 16:22.480
+Cass also stressed that the contributors are continuing their work and Cass relayed to
+
+16:22.480 --> 16:27.040
+us that there's still actually a lot of exciting things in the pipeline being worked on, and
+
+16:27.040 --> 16:31.720
+that whatever happens, they'll make sure that the end users are taken care of.
+
+16:31.720 --> 16:37.840
+Besides that commentary directly to us, there has been some discussion over on Reddit where
+
+16:37.840 --> 16:45.160
+Blake Costner, a former Elementary OS staffer, said, quote, the situation is ongoing.
+
+16:45.160 --> 16:50.720
+As with everything, there are two sides to the story, and I'd ask everyone to please
+
+16:50.720 --> 16:58.080
+reserve judgment until the situation is resolved and the company has made an official statement.
+
+16:58.080 --> 17:01.480
+That seems pretty reasonable, and it does seem like some changes are in store for Elementary
+
+17:01.480 --> 17:05.640
+OS, but Danny and Cass do seem to have the user's best interest in mind as they try to
+
+17:05.640 --> 17:08.240
+work through this new structure.
+
+17:08.240 --> 17:12.360
+But for now, it's just too early to really know where things will end up and where things
+
+17:12.360 --> 17:14.180
+are going to land.
+
+17:14.180 --> 17:19.160
+Something tells me this won't help the project keep up with that soon-to-be-released Ubuntu
+
+17:19.160 --> 17:21.320
+LTS, though.
+
+17:21.320 --> 17:23.760
+But we're pulling for them.
+
+17:23.760 --> 17:28.000
+Yeah, we'll keep an eye on this situation and everything going on in the world of Linux
+
+17:28.000 --> 17:32.660
+and open source news, so be sure you check out linuxactionnews.com slash subscribe.
+
+17:32.660 --> 17:36.880
+That way you get every single new episode when it releases.
+
+17:36.880 --> 17:41.880
+And linuxactionnews.com slash contact to let us know how we're doing.
+
+17:41.880 --> 17:47.760
+And we've announced an East Coast meetup on April 9th, 2022 in Raleigh, North Carolina.
+
+17:47.760 --> 17:51.800
+For details, visit meetup.com slash Jupiter Broadcasting.
+
+17:51.800 --> 17:57.480
+We'll be back next week with our take on the latest Linux and open source news.
+
+17:57.480 --> 18:00.680
+Thanks for joining us, and that's all the news for this week.
+

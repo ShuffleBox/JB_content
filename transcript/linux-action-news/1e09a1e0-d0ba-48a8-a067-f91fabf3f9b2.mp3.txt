@@ -1,0 +1,277 @@
+Hello, and welcome to Linux Action News, our weekly take on Linux and the open source world.
+This is episode 108, recorded on June 2nd, 2019. I'm Chris.
+And I'm Joe.
+Hello, Joe. Good to be connected with you. I'm fresh off of Texas Linux Fest, and I think
+I even managed to avoid the Fest hangover this time. I'm getting good at this, Joe.
+What do you say we kick things off with hidden wasp, some Linux malware?
+Yeah, this is quite an unusual bit of Linux malware in that it's not a crypto miner,
+and it's not just a botnet that's designed to do DDoSs and stuff. It seems to be fairly
+targeted and designed to take over machines completely.
+Yeah, it's not really about mining crypto. It's more about command and control. And I
+think one of the interesting things about this one, it's like three different projects
+mashed together into one Frankenstein piece of malware. That's not something we've seen
+a lot of. And some of it's from like open public code, and some of it's from some well-known
+malware. And despite the fact that it's this Frankenstein based on known malware, most
+detection systems haven't been catching it.
+This is not really one of those stories where you have to worry about your box being vulnerable.
+I mean, I suppose theoretically it's possible. But generally, according to initial research
+so far, it seems that the systems are already compromised in some way. And then this is
+left behind to use it, to manipulate it, to control it, and not necessarily used to like
+steal CPU cycles or route mail or anything like that. And it's really kind of early days
+right now, because we've only gotten a couple of files to look at, some bash scripts and
+whatnot.
+And they think that the main way that the malware is used is really just to kind of
+keep control of the systems that have already been ransacked, which I think is fascinating.
+And it doesn't seem very professional either, does it? Because they've just mashed all these
+different things together to create this new hybrid beast.
+Well, isn't that the spirit of open source? Take existing stuff and put it together to
+make something better?
+I agree. It's just the article that we've linked in ours sort of tries to really kind
+of point the finger at China as a state-sponsored attack. But it doesn't really seem like it's
+very sophisticated, like a state wouldn't necessarily just mash something like this
+together. They'd probably create one unified piece of attack code.
+At least traditionally, that's the case. Who knows? I mean, I'm just sitting here speculating
+because it's just one of these fascinating stories where it's not a big threat, but it's
+a weird beast that's going by undetected. And a lot of times that's the case with these
+vulnerabilities is people are chaining a series of vulnerabilities together. So you get onto
+the box, and you get what you need. But then how do you retain control, right? Each one
+of those is an individual problem, getting into the box, executing what you need done,
+and then retaining control, three separate problems. And this is solving just the latter
+one.
+Well, it wasn't the only security issue this week. There was also yet another vulnerability
+in Docker.
+In the show notes, we'll have a link to a great write up by Dennis Fisher, who breaks
+down both sides of the argument here. You have the researchers case, and then you have
+Docker responding, and I'll get to both of it too briefly. But from a high level, the
+flaw is a weakness that results in a race condition in Docker. And there's already a
+fix that's in the works, but there's also a workaround you could already take advantage
+of. And like our previous story, you already have to be on the box to take advantage of
+this flaw. And I think that's really key here, because with this particular flaw, and the
+last one we just discussed with the malware, if somebody's already on your system and executing
+that code and has access to these things, you're already messed up. A line has been
+already crossed.
+So it's funny too, because this is like the simplest thing to check this out. It's a bug
+that's a result of the way Docker handles symbolic links. And it was discovered by security
+researchers that in some situations, an attacker can insert their own symlink into a path during
+a very short time window. I'm saying like in some cases, a millisecond or so of a time
+window between the time that the path has been resolved, and then the time that it's
+operated on. So this is a tiny, tiny fraction of time in there. An attacker could add that
+link to something that's on the root file system of the host, and get out of containment
+and get access to something on there. This happens when somebody executes Docker CP.
+That's when this opportunity comes up. Because when you run Docker CP, it's giving you read
+write access to the host file system. The obvious and super easy solution is, A, make
+sure your containers are secure, and B, pause the container when you use Docker CP. And
+that solves the problem.
+But that's not always possible when those containers are in production.
+Yeah, I suppose so. And that's definitely not ideal. I think Docker plans later on to
+upstream this as the default behavior in future releases of Docker, even later this year.
+And what they'll do is it'll just be a very, very brief pause. You execute the copy command,
+it pauses for a few microseconds, and then it completes, or however long it takes, and
+then it unpauses.
+But Docker doesn't seem to think this is that serious, because it's such an edge case. And
+that's why they were kind of willing to let this vulnerability go out there into the wild
+before they had a fix ready for it.
+Yeah, the Docker official said in a statement that the attack scenario needed to exploit
+this vulnerability is quote, rare, slash unlikely. And that in the next monthly update, they'll
+have the fix merged. In the meantime, use Docker pause, and in the future release, they'll
+have Docker pause automatically.
+Well this week saw a release of a bit of software that I have been using since the very beginning
+of my Linux journey. And I can't believe that after 15 years, it is finally getting to a
+1.0 release. And that is G parted.
+Such great software. Really have so much appreciation for this team. And it is so cool to see this
+happen after 15 years. And which, I don't know, at this point, it almost feels like
+a meme. This release completes the migration to GTK 3.
+Yeah.
+There's a couple other things besides just switching to GTK 3, though, that jumped out
+at me. I thought this was one of the features that was already in there. Maybe I was running
+an early build, but they've added the ability to save your partition layout to an HTML file,
+which is really nice for documentation purposes.
+There's a couple of other noteworthy changes in here. Number one is they've improved the
+refresh of NTFS file systems. They say it's a fix for slow refreshing of NTFS. And then
+in the bug fix section of the release notes, they note, we've removed support for the ButterFS
+Progues utilities to manage the ButterFS file system. So it appears that they've removed,
+even if the underlying distribution has BTRFS Progues installed, they don't support it in
+G parted 1.0 anymore. I think that's what I'm reading here, Joe.
+Yeah, it certainly looks that way. But then again, who's using ButterFS these days? Oh
+yeah. I'm Sousa.
+Besides, everybody knows the future is BcacheFS. Everybody knows that. Actually, I think the
+reality is, at least for future technologies, Unity is looking really strong. And they have
+a brand new announcement for Linux users.
+We're not talking about the desktop environment for Ubuntu here. We're talking about the game
+engine. And they've announced that the Linux version of Unity editor has got official Linux
+support now.
+I struggle to be excited because I've been underwhelmed by more Unity based games that
+I have been excited by them. But it's also one of those Electron style compromises. And
+I don't mean to ascribe the performance comparisons there. I'm just talking about, it's a bit
+of a, what do you call it? Common denominator? Is that the right term? A common denominator
+where it's, you can't really go all in because you're not writing natively for that platform.
+You're kind of targeting a common problem set. And that's sometimes good though, because
+it means it opens up the door to a lot more games. And it means that people can actually
+now do some of that game production on a Linux desktop, which means more desktop users. But
+it also means these games might be just a little more refined under Linux now. It's
+probably not going to take off like Wildfire, but it appears they're doing this based on
+customer demand, which is a great sign, Joe.
+It is a good sign. And they have offered experimental and unofficial builds for quite a long time.
+But now it's good to see that because of commercial pressures, they're actually going official
+with it and they're going to properly support it. But it's not just for games, is it? There
+are other industries that can utilize the engine for various 3D stuff. Things like the
+automotive industry and of course the movie industry and even some manufacturing and stuff.
+And so it goes to show that even if gaming on Linux isn't massively big, those other
+industries are adopting Linux across the board. And they've been using it on the server for
+a long time, but maybe more and more so on the desktop.
+So let's look at these desktop specs they have here. They want you to run either Ubuntu
+16.04 or 18.04. So you need to be on one of the LTSs for the supported configuration.
+Your mileage may vary. Or CentOS 7 is acceptable. It needs to be the x86-64 architecture. And
+here's an interesting requirement. GNOME Desktop is a requirement running on X. No Wayland
+for you and no plasma if you want, again, a supported configuration. And then they require
+you to use either the NVIDIA official proprietary graphics or the AMD Mesa graphics driver.
+And they recommend a full desktop form factor running on a device or slash hardware with
+no emulation or compatibility layers. So my PCIe pass-through setup is out.
+I'm sure that XFC would be fine with this. Of course.
+But realistically, they have to set some standards here and say these are the supported configurations
+and these are what we recommend for a best experience.
+Yeah, it's kind of impressive. It's not just Ubuntu 16.04. End of sentence.
+Yeah, that's true. And it sounds like it is going to work perfectly well on other systems,
+but they just have to set some standards, don't they? They can't support every last
+Linux distro and desktop environment and configuration.
+Oh, you said standards, Joe. You know how that triggers me these days. The browser vendors
+are applying more and more leverage over W3C, the folks that are supposed to be setting
+the standards for the World Wide Web. But of course, without the browser vendors being
+on board, they don't really have much leverage, do they? You can't really set a standard if
+the people that would implement them aren't on board.
+Well, yeah. And this goes back years, the Web Hypertext Application Technology Working
+Group or how would you say the acronym?
+Woodwig.
+Woodwig, yeah. That's been around since 2004 and has almost been battling with the W3C.
+You've got the browser vendors on one side trying to set the standards and W3C on the
+other side. And it's kind of gone back and forth. And now it seems the W3C is just kind
+of folded on this and just accepted the reality that they are going to be dictated to by the
+browser manufacturers.
+This has been a long time brewing, like you said. I mean, I don't know how else it could
+have gone down because if you've got Apple, Mozilla, and Opera and generally Google working
+outside of what the... I'll give you an example, actually. So this is one of the better examples.
+The W3C really wanted to kind of convert the web over to XHTML so everything would have
+an XML-like structure, which then the browsers would render for you. But they hated the idea.
+The browser vendors hated the idea. And from that rebellion against that idea, this is
+Chris paraphrasing here, we got the HTML5 standard, which then later on, the W3C later
+formally approved as the next major iteration of the HTML web standard to sort of make nice
+with the browser vendors because they were putting the support behind it and things were
+going in the right direction.
+But this week, things have taken a major shift. In a press release, the W3C and the Wodawig
+announced that they were finally putting their differences aside and signed a new, quote,
+memorandum of understanding.
+That's certainly one way to put it, yeah.
+Yeah. They say, per this new agreement, the W3C is officially giving up publishing of
+future HTML and DOM standards in favor of Wodawig, again, that's W-H-A-T-W-G, that group
+effectively giving them full control, which really means the browser vendors having full
+control.
+Which ultimately means Google having most of that control.
+I do wonder about that. I do wonder if we'll look back in 2025 and look back at May 28th,
+2019 is the day where something major shifted and the standards, but that body, that group
+also, Microsoft sits on there, Apple sits on there, Mozilla's in there, Opera's in that
+conversation. Really, isn't the solution now just to open that group up a little more?
+Because at the end of the day, if they're the ones writing the software, they always
+had ultimate control. The W3C has just sort of been a, I mean, it's a theater piece in
+a way. They can make good suggestions, but if Firefox and Google alone decide not to
+do it, it's like they're effectively powerless.
+Well, yeah, and the market will just go to whatever the most popular browser is. Already
+we're in a situation where some sites just don't work without Chrome. Source Connect,
+for example, is a web app that we sometimes use in production that requires Chrome. It's
+just got that hard requirement. And I don't really understand why all that underlying
+technology ought to work in a standards compliant browser like Firefox, but it just doesn't.
+There's some interesting parallels here with the free desktop standards and the conversations
+going on around the desktop and theming for Linux. In fact, I bet you a listener out there
+knows the perfect XKCD comic they could tweet me at Chris LAS that it's like we set these
+standards and then we get all the support behind them and then everybody goes off and
+does their own thing. And then we all decide the standards need to be redone completely
+all over again. And I don't, it's almost like what's the effing point? I mean, not to curse
+on your show, Joe, but what is the effing point of it all? At the end of the day, it's
+like people just want to sit around and make stuff up and then people go off into their
+own corners and do their own thing anyways. I find it frustrating.
+Yeah. 927, by the way, is that XKCD you're thinking of.
+Oh, okay.
+How standards proliferate.
+Yeah. Oh, that's a good one. But I feel like there's another one where we all go off and
+make standards and then throw them out. And I'm not talking about a standard for our standards
+either. That's not what we need here.
+So tell me about Texas Linux Fest then. How's that been going?
+Yeah, Texas Linux Fest was two days here in Irving, Texas, Irving, which is kind of nice
+because it's only about 30 or 40 minutes from the Linux Academy office. So I was able to
+shoot over here to do the show today. It was good. Friday was kind of slow. It is typically,
+you know, when it's a work day, like that first day is usually a little slow going.
+But by the second day, it's all the people you saw on Friday, plus a new batch of people.
+And they kicked off with, I think it was Thomas Cameron is his name, I believe. He's a local
+log number here and just gave a killer keynote. Both Elle and I just looked at each other
+after the keynote and was like, that's one of the best talks we've ever attended at any
+conference ever. It was really good. And we got the audio for it. So I'm going to see
+if we can release it. And we got some video of it for them too. So we're going to try
+to help them release it on their own channels as well.
+And it was at the same time, you know, there was a few bumps here and there. But as far
+as a community event goes, there's something kind of special around the 300 number because
+you see the same faces five or six, seven times over a weekend. And by day two, everybody
+kind of loosens up a little bit because you've been around each other. You've kind of gotten
+all the social awkwardness out of the way. And so day two is really casual and it's sort
+of a very friendly atmosphere. And so I just I really enjoyed the heck out of day two.
+And we got a hell of a thunderstorm here. It was raining and lightning like, like only
+Texas can provide. It was quite the show. And we had some great meetups, got to get
+some good beers and good food, some good company. So all in all, I'm very, very glad I made
+it down. And I hope they keep growing. I think they might try to go back to Austin possibly.
+But I hope they keep it up because it's like, it's like that plucky little conference you
+want to see keep going and grow.
+And what was the kind of topic trend there then? Was it all about cloud and hybrid cloud
+and corporate stuff? Or was it much more community desktop type stuff?
+Hmm, good question. You know, I hadn't really I hadn't really kind of thought about it.
+But as you're asking, I kind of went through it all. And I'd say my first my first hot
+take on that question would be it was fairly container focused and cloud focused, but not
+in like the buzzy, commercial cloud sense, but in the I'll give you an example, like
+the first talk that was really well attended of the day was about going from a total noob
+with ansible to going to brilliant. And it was a workshop talk. So about halfway through
+the talk, the author takes a 10 minute break puts up the download URLs for virtual machines
+and to get configuration files going. And then for the rest of the talk, you work along
+with the presenter and get ansible working by the end of the talk. And so it was that
+kind of stuff. And there was several of those workshops each day, which are very valuable.
+And there was a there was a really good message underneath it all. And that is, you could
+be a Linux admin today. And that's that's a really good living and you've probably got
+like a good solid 10 years where that's going to be a great living. But at some point, the
+Linux admin is going to go the way of the Unix admin. And that is to say not going away
+completely but becoming much, much more of a niche job. And what is going to take over
+is a cloud admin. Now, what does that mean? That's a lot of things. That's understanding
+networking, that's understanding Linux basics, that's understanding storage and network storage,
+that's understanding network fundamentals, that's understanding how data centers work,
+that's understanding how these services work and how to interface with them. It's a very
+complex job. But the awesome thing is, is if you're already a Linux admin, or you're
+even if you have a basic understanding of Linux, you're in a really good position to
+leverage that knowledge to pick up those other skill sets and have a really complete skill
+set resume. And so you're in a good position for the next 10 years, you just have to act
+on it and learn and train yourself up.
+It sounds like a really cool conference, then I might have to try and make it over for
+next year.
+Especially if you like to eat, because there's always really good food in Texas Joe. As my
+stomach will tell you, it's just a little bit bigger now.
+So there's a bit of breaking news that we don't have much info on it's happening as
+we record. This seems to happen every every Sunday when we record, doesn't it? And that's
+the Google Cloud seems to be down.
+Yeah, which is affecting things in weird ways on the internet right now. So of course, it's
+a big topic of conversation. But at the moment, we just have Google status page, not a lot
+of information about what's caused the outage or exactly how widespread it is. But what
+we do know is I'm in Texas and Joe's in London, and we're both impacted by the outage right
+now.
+The document that we used to do this show has been kind of connecting and not working.
+It's working right now, but it's been hit and miss. So yes, not sure how bad this is
+yet. But if it does turn out to be a bad one, then maybe you can follow up on Linux Unplugged
+on Tuesday.
+Yeah, if we find out something interesting, I will do that. I will do that. You know,
+Joe, sometimes it's just worth self hosting these kinds of things. Maybe this is our lesson.
+I know Nextcloud is starting to look more and more attractive to me.
+Well, we'll keep an eye on all kinds of things throughout the week and report them here for
+you. Check out linuxactionnews.com slash subscribe for all the ways to get new episodes.
+And linuxactionnews.com slash contact for ways to get in touch with us.
+And speaking of getting trained up, we've released the Don't Be Famous Learning Kubernetes
+and Securing Your Cluster talk, which is up on our YouTube channel, youtube.com slash
+Jupiter Broadcasting. A great introduction to getting Kubernetes secured away and an
+information packed talk in general.
+We'll be back next Monday with our weekly take on the latest Linux and open source news.
+I'm at Chris LAS.
+I'm at Joe Rissington.
+Thanks for joining us. And we will see you next week.
+See you later.

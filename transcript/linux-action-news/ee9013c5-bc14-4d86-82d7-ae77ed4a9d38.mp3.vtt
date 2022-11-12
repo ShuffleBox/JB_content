@@ -1,0 +1,815 @@
+WEBVTT
+
+00:00.000 --> 00:09.520
+Hello, and welcome to Linux Action News, episode 265, recorded on November 2, 2022.
+
+00:09.520 --> 00:10.520
+I'm Chris.
+
+00:10.520 --> 00:11.520
+And I'm Wes.
+
+00:11.520 --> 00:12.520
+Hello, Wes.
+
+00:12.520 --> 00:14.720
+Let's do the news.
+
+00:14.720 --> 00:20.920
+We start this week with that open SSL vulnerability we told you to keep an eye out for.
+
+00:20.920 --> 00:27.520
+Well, it turns out, actually, two high-severity vulnerabilities have now been disclosed.
+
+00:27.520 --> 00:33.200
+The critical issues include an x509 email address 4-byte buffer overflow and a separate
+
+00:33.200 --> 00:37.840
+x509 email address variable length buffer overflow.
+
+00:37.840 --> 00:41.080
+Now the one that you're probably thinking of, the one that caused the delay in the Fedora
+
+00:41.080 --> 00:46.920
+release, that's CVE-2022-3602, if you'd like to go look it up.
+
+00:46.920 --> 00:51.300
+Now it turns out, after further analysis, they decided to downgrade it as just a high-severity
+
+00:51.300 --> 00:52.300
+issue.
+
+00:52.300 --> 00:57.960
+Additionally, research done before the public was notified seems to demonstrate that platforms
+
+00:57.960 --> 01:02.560
+which implement stack overflow protections can take these issues from a risk of remote
+
+01:02.560 --> 01:07.160
+code execution to just a risk of an application crash.
+
+01:07.160 --> 01:09.440
+Still not great, but a whole lot better.
+
+01:09.440 --> 01:13.120
+Yeah, definitely take that over remote code execution.
+
+01:13.120 --> 01:18.100
+The project, open SSL, still does warn everyone, though, that they can't really account for
+
+01:18.100 --> 01:21.680
+every platform and compiler combination out there in their testing.
+
+01:21.680 --> 01:27.000
+So it might still be theoretically possible to trigger a buffer overflow that results
+
+01:27.000 --> 01:32.320
+in remote code execution in some circumstances, even with protections in place.
+
+01:32.320 --> 01:37.240
+So USC Linux users out there, don't get too smug.
+
+01:37.240 --> 01:44.440
+And that's why users of OpenSSL 3.0.0 through 3.0.6 are highly encouraged to upgrade to
+
+01:44.440 --> 01:48.680
+3.0.7 as soon as possible.
+
+01:48.680 --> 01:55.680
+Now if you're curious about the timeline of all this like we were, so that's CVE-2022-3602.
+
+01:55.680 --> 02:01.120
+That was reported in private to the OpenSSL project on the 17th of this October by a username
+
+02:01.120 --> 02:05.840
+Polar Bear, who was performing an audit of the OpenSSL code.
+
+02:05.840 --> 02:11.300
+Now another individual did a subsequent analysis later on the 18th of October, and they found
+
+02:11.300 --> 02:19.000
+a second independently triggerable issue, which has been labeled CVE-2022-3786.
+
+02:19.000 --> 02:23.800
+Then on the 25th of October, the OpenSSL project notified various organizations about these
+
+02:23.800 --> 02:27.620
+vulnerabilities under their pre-notification policy.
+
+02:27.620 --> 02:33.880
+And then we got version 3.0.7 of OpenSSL, which contains the fixes for these issues
+
+02:33.880 --> 02:36.060
+on the 1st of November.
+
+02:36.060 --> 02:38.160
+And special thanks to our buddy Alex.
+
+02:38.160 --> 02:42.560
+Jupyter Broadcasting's info machines were upgraded this morning, and we're very happy
+
+02:42.560 --> 02:48.960
+to report everything went smoothly.
+
+02:48.960 --> 02:54.880
+Now keep in mind that Linux 6.1 is not even out yet, but that doesn't stop the world from
+
+02:54.880 --> 02:58.600
+looking at the code and seeing where Linux 6.2 is going.
+
+02:58.600 --> 03:02.200
+And as always, when you're this far along in the development process, there is quite
+
+03:02.200 --> 03:05.280
+a bit going on in the development branch.
+
+03:05.280 --> 03:13.200
+Among many other things, work has been going on at Google on a, quote, lazy RCU implementation,
+
+03:13.200 --> 03:18.560
+which is aiming to reduce power usage, and it might just land in 6.2.
+
+03:18.560 --> 03:24.160
+If you're not familiar, RCU is the read-copy-update synchronization mechanism that's built into
+
+03:24.160 --> 03:25.160
+the kernel.
+
+03:25.160 --> 03:27.320
+This seems like a perfect time for this.
+
+03:27.320 --> 03:29.880
+We've got Linux successful on the Steam Deck.
+
+03:29.880 --> 03:33.240
+Of course, the Linux kernel powers Android.
+
+03:33.240 --> 03:36.800
+Batchy prices are an area of big concern right now.
+
+03:36.800 --> 03:42.640
+So I feel like the community should think of Linux 6.2 as the lazy kernel.
+
+03:42.640 --> 03:46.680
+So here's what making the RCU lazy really means.
+
+03:46.680 --> 03:53.440
+It means batching callbacks and other activities and then flushing them after a certain delay.
+
+03:53.440 --> 03:56.560
+Batching them all up when the memory pressure gets to a certain point or after a certain
+
+03:56.560 --> 04:02.000
+amount of time has expired means reducing power usage by the kernel by up to 5 to 10
+
+04:02.000 --> 04:03.000
+percent.
+
+04:03.000 --> 04:04.280
+Which is pretty significant.
+
+04:04.280 --> 04:08.800
+The reason is, quite simply, you're not waking the whole system up all the time every single
+
+04:08.800 --> 04:10.200
+time something comes up.
+
+04:10.200 --> 04:16.140
+Instead, you hold onto them, sort of a common practice on some mobile operating systems,
+
+04:16.140 --> 04:17.680
+and then you send them all in a batch.
+
+04:17.680 --> 04:22.320
+And by doing that, you wake up the CPU less and you save a lot of power.
+
+04:22.320 --> 04:29.200
+Sticking with Linux 6.2 a bit longer, it seems mainline support for the Apple M1 Pro, Macs,
+
+04:29.200 --> 04:33.120
+and Ultra hardware should be landing this time around.
+
+04:33.120 --> 04:38.200
+Hey, it looks like the patches for Apple's fanciest SoCs, which is quite notably I think
+
+04:38.200 --> 04:43.280
+for people out there, really kind of translates to the Mac Studio system, that landed.
+
+04:43.280 --> 04:47.620
+That code is there and it may be in Linux 6.2.
+
+04:47.620 --> 04:53.140
+That is assuming everything can get in there and the Asahi team hasn't spoiled their relationship
+
+04:53.140 --> 04:54.140
+with upstream.
+
+04:54.140 --> 04:57.200
+Yeah, some context on that.
+
+04:57.200 --> 05:03.800
+In a now deleted tweet, Asahi Linux lead Hector Martin took to Twitter to vent about, quote,
+
+05:03.800 --> 05:06.520
+arguing with kernel maintainers.
+
+05:06.520 --> 05:12.000
+Going on to say he recently spent six hours arguing on IRC with an upstream developer.
+
+05:12.000 --> 05:17.280
+Yeah, and then Hector followed that up with another tweet saying, quote, like dude, if
+
+05:17.280 --> 05:21.000
+you aren't going to step into my world and actually understand what I'm trying to do
+
+05:21.000 --> 05:23.700
+here, just suck it up and act my patch.
+
+05:23.700 --> 05:28.240
+It's not my job to drag you kicking and screaming until you either give up or have a light bulb
+
+05:28.240 --> 05:29.240
+moment.
+
+05:29.240 --> 05:35.600
+And it seems some on the kernel team have noticed that thread and apparently did not
+
+05:35.600 --> 05:38.600
+take very kindly to the tweets.
+
+05:38.600 --> 05:42.600
+It really would be a shame if these kinds of things resulted in a slowdown of progress
+
+05:42.600 --> 05:48.040
+on this important work just due to personal issues between teams.
+
+05:48.040 --> 05:56.200
+But sadly, it would not be the first time we've seen that.
+
+05:56.200 --> 06:00.280
+I think one of the really great aspects of basing your infrastructure and tooling on
+
+06:00.280 --> 06:04.960
+open source is that you can watch and plan to see what's coming down the pipe and build
+
+06:04.960 --> 06:07.280
+accordingly, like we just did with the kernel.
+
+06:07.280 --> 06:11.920
+And you can watch for stuff that's anywhere in the stack, or you can watch for stuff that
+
+06:11.920 --> 06:13.440
+just Westpain is excited about.
+
+06:13.440 --> 06:16.240
+And BcashFS is certainly one of those.
+
+06:16.240 --> 06:18.440
+Yes, it is.
+
+06:18.440 --> 06:21.540
+And things are just looking better and better.
+
+06:21.540 --> 06:26.920
+On Friday, BcashFS developer Kent Overstreet published a new status update.
+
+06:26.920 --> 06:32.020
+And while the file system has been in development since 2015, progress has really been picking
+
+06:32.020 --> 06:33.020
+up of late.
+
+06:33.020 --> 06:37.920
+In his most recent update, Overstreet noted that the on disk format changes are finally
+
+06:37.920 --> 06:42.620
+starting to slow down, which is an important development if you want a file system that
+
+06:42.620 --> 06:44.560
+doesn't change things out from under you.
+
+06:44.560 --> 06:49.280
+Yeah, and it also is an important milestone for tooling to get built around that file
+
+06:49.280 --> 06:50.280
+system.
+
+06:50.280 --> 06:52.080
+I mean, I know we're not quite there yet.
+
+06:52.080 --> 06:54.640
+It'll be ready when it's ready.
+
+06:54.640 --> 06:57.900
+But it does feel like we're getting within throwing distance and just getting to this
+
+06:57.900 --> 07:01.040
+milestone where all of that's getting finalized.
+
+07:01.040 --> 07:02.200
+That's huge.
+
+07:02.200 --> 07:06.960
+Also, Overstreet has a completely rewritten allocator in here now that's been developed
+
+07:06.960 --> 07:10.560
+to address issues that were less than ideal with the previous allocator.
+
+07:10.560 --> 07:15.200
+And Overstreet notes that the new allocator is much more scalable and simpler as well.
+
+07:15.200 --> 07:20.480
+Yeah, that definitely seems to be one of the bigger recent developments, as well as snapshots,
+
+07:20.480 --> 07:26.280
+having stabilized recently, and RAID 5 and 6 support, which is now quote, getting close
+
+07:26.280 --> 07:27.920
+to usable.
+
+07:27.920 --> 07:30.220
+And performance, let's not forget that.
+
+07:30.220 --> 07:31.220
+Don't bury the lead here.
+
+07:31.220 --> 07:34.680
+I know that's one of the reasons you've always been fascinated by the potential performance
+
+07:34.680 --> 07:36.240
+of BcashFS.
+
+07:36.240 --> 07:39.740
+And it seems some work has been going into that area, continues to go into that area.
+
+07:39.740 --> 07:47.600
+But just recent work has resulted in a 50% improvement for 4K direct random writes.
+
+07:47.600 --> 07:49.040
+This is all going pretty smooth.
+
+07:49.040 --> 07:50.940
+We don't have any timelines yet.
+
+07:50.940 --> 08:01.720
+But it does mean that Chris is bearish on Extended 4 and bullish on BcashFS.
+
+08:01.720 --> 08:08.240
+Back in late 2020, FreeBSD introduced a WireGuard driver and the development cycle of FreeBSD
+
+08:08.240 --> 08:09.400
+13.
+
+08:09.400 --> 08:16.300
+But then during the FreeBSD 13 release candidate phase, that very same driver was removed over
+
+08:16.300 --> 08:19.080
+concerns about the quality of the implementation.
+
+08:19.080 --> 08:25.920
+Well, this week, a new WireGuard driver has landed with many fixes and improvements over
+
+08:25.920 --> 08:29.240
+that old code from 2020.
+
+08:29.240 --> 08:33.600
+Something crucial about this new work is that it was developed in cooperation with the upstream
+
+08:33.600 --> 08:38.360
+WireGuard developers led by Jason Donenfeld.
+
+08:38.360 --> 08:45.680
+And with this merge, there's now 7,600 new lines of fancy WireGuard kernel driver in
+
+08:45.680 --> 08:51.100
+the mainline FreeBSD repo, which should be included with FreeBSD 14.
+
+08:51.100 --> 08:55.040
+And for those of you on a current FreeBSD release, well, don't worry, the WireGuard
+
+08:55.040 --> 09:02.080
+module is also available via FreeBSD Ports.
+
+09:02.080 --> 09:04.360
+Leno.com slash LAN.
+
+09:04.360 --> 09:07.640
+That's where you go to get $100 in 60 day credit on a new account.
+
+09:07.640 --> 09:11.840
+And it's a great way to support the show while you're checking out something great.
+
+09:11.840 --> 09:15.560
+Linode is fast, reliable cloud hosting with the best support in the business.
+
+09:15.560 --> 09:18.520
+It's what I choose to use for everything we've deployed recently.
+
+09:18.520 --> 09:20.900
+Our whole team knows how to use Linode now.
+
+09:20.900 --> 09:24.240
+Their API is super easy to integrate with our scripts.
+
+09:24.240 --> 09:27.600
+We can have systems take snapshots before we make any major changes and we can just
+
+09:27.600 --> 09:30.320
+integrate it with our infrastructure management tools.
+
+09:30.320 --> 09:34.600
+We upgraded to the new open SSL vulnerability in just minutes, thanks to the tooling that
+
+09:34.600 --> 09:36.540
+we can use at Linode.
+
+09:36.540 --> 09:38.720
+So when I say we love it, I mean it.
+
+09:38.720 --> 09:42.320
+And it's 30 to 50% cheaper than the hyperscalers out there that just want to lock you into
+
+09:42.320 --> 09:43.960
+their crazy platforms.
+
+09:43.960 --> 09:46.820
+And you guys know I come on here every single week and I tell you Linode's getting better
+
+09:46.820 --> 09:47.820
+and it's true.
+
+09:47.820 --> 09:49.640
+I mean, can you imagine what it's going to be like today?
+
+09:49.640 --> 09:53.440
+They have 11 data centers around the world and they're going to double that.
+
+09:53.440 --> 09:54.440
+And more, really.
+
+09:54.440 --> 09:57.920
+They have a concept for micro data centers that's coming out soon too that you'll hear
+
+09:57.920 --> 09:58.920
+more about.
+
+09:58.920 --> 09:59.920
+So check it out.
+
+09:59.920 --> 10:01.720
+It's a great time to get started.
+
+10:01.720 --> 10:03.240
+Leno.com slash LAN.
+
+10:03.240 --> 10:07.740
+When you get that $100, you support the show and you can try out the world's best platform
+
+10:07.740 --> 10:11.600
+to run Linux and applications on Linux.
+
+10:11.600 --> 10:15.080
+There are a lot of options in the market, but none of them.
+
+10:15.080 --> 10:16.840
+None of them check all the boxes.
+
+10:16.840 --> 10:18.240
+And Linode has the staying power.
+
+10:18.240 --> 10:21.440
+You build it once, you deploy it on Linode, it lasts forever.
+
+10:21.440 --> 10:26.960
+Linode.com slash LAN.
+
+10:26.960 --> 10:28.960
+Kalyde.com slash LAN.
+
+10:28.960 --> 10:33.400
+Kalyde is endpoint security that takes advantage of your most powerful untapped resource in
+
+10:33.400 --> 10:34.400
+IT.
+
+10:34.400 --> 10:35.400
+End users.
+
+10:35.400 --> 10:38.800
+And when you're trying to achieve security goals for yourself or a third party audit,
+
+10:38.800 --> 10:43.900
+a lot of times shops have gone to old school tools, MDMs that force disruptive agents onto
+
+10:43.900 --> 10:45.500
+employees' devices.
+
+10:45.500 --> 10:48.120
+The old way of doing things, you lock it down like it's Fort Knox.
+
+10:48.120 --> 10:51.780
+You often introduce new vulnerabilities thanks to that software and horrible performance
+
+10:51.780 --> 10:54.880
+that turns IT and end users against each other.
+
+10:54.880 --> 10:56.760
+Kalyde does things differently.
+
+10:56.760 --> 11:02.240
+Instead of forcing changes on users, Kalyde sends them security recommendations via Slack.
+
+11:02.240 --> 11:05.960
+It'll automatically notify your team when their devices are insecure, and then Kalyde
+
+11:05.960 --> 11:08.860
+gives them step-by-step instructions on how to solve that problem.
+
+11:08.860 --> 11:13.080
+So by reaching out to employees via a friendly Slack DM and educating them about policies
+
+11:13.080 --> 11:18.280
+that your company follows, Kalyde can help you build a culture in which everyone contributes
+
+11:18.280 --> 11:22.920
+to security because everyone understands how and why to do it.
+
+11:22.920 --> 11:25.640
+And for IT admins, you get a fantastic dashboard.
+
+11:25.640 --> 11:28.700
+Kalyde lets you monitor your entire fleet, Mac, Windows, or Linux.
+
+11:28.700 --> 11:32.480
+At a glance, you can see the state of your machines and make sure they're following the
+
+11:32.480 --> 11:34.720
+policies that you care about.
+
+11:34.720 --> 11:38.800
+And you can prove compliance to your auditors, customers, and your leadership.
+
+11:38.800 --> 11:39.960
+So that's Kalyde.
+
+11:39.960 --> 11:44.220
+User-centered, cross-platform, endpoint security for teams that Slack.
+
+11:44.220 --> 11:48.060
+You can meet your compliance goals by putting users first.
+
+11:48.060 --> 11:50.900
+Visit Kalyde.com slash LAN to find out how.
+
+11:50.900 --> 11:54.880
+You go there, you sign up for a free trial, they'll give you a goody bag that includes
+
+11:54.880 --> 11:55.880
+a free t-shirt.
+
+11:55.880 --> 11:58.120
+I'd like a free t-shirt right now.
+
+11:58.120 --> 11:59.120
+I could use a free t-shirt.
+
+11:59.120 --> 12:05.520
+So go try it out, support the show, and do security better and differently with Kalyde.
+
+12:05.520 --> 12:08.280
+K-O-L-I-D-E dot com slash LAN.
+
+12:08.280 --> 12:13.280
+Kalyde dot com slash LAN.
+
+12:13.280 --> 12:16.080
+Last week, we covered the formation of GITTI Limited.
+
+12:16.080 --> 12:21.880
+As they put it, a company to help ensure the goals of the project are met.
+
+12:21.880 --> 12:26.920
+However, over the last week, we've seen a number of issues raised by the GITTI development
+
+12:26.920 --> 12:27.920
+community.
+
+12:27.920 --> 12:32.920
+It seems a good number of them were surprised by the announcement and published an open
+
+12:32.920 --> 12:38.560
+letter demanding, quote, restitution of the GITTI project after the takeover announced
+
+12:38.560 --> 12:40.900
+on 25 October.
+
+12:40.900 --> 12:46.160
+The open letter stresses that the group behind it actually supports the creation of the for-profit
+
+12:46.160 --> 12:47.160
+company.
+
+12:47.160 --> 12:52.320
+It seems their core issue resolves around the ownership of the domains and the trademarks.
+
+12:52.320 --> 12:56.360
+They state in the letter that they, quote, want to believe this is an honest mistake
+
+12:56.360 --> 13:02.400
+and ask that a non-profit organization owned by the GITTI community is created, and that
+
+13:02.400 --> 13:07.880
+the GITTI trademark and domains are transferred to that non-profit, and that the name of the
+
+13:07.880 --> 13:12.000
+company is changed to avoid any confusion with the non-profit.
+
+13:12.000 --> 13:18.080
+However, it seems no response was given within a satisfactory time period, and the authors
+
+13:18.080 --> 13:23.840
+of the letter have stated they have no alternative but to fork the project under a new name,
+
+13:23.840 --> 13:29.480
+writing, quote, this unfortunately concludes the GITTI open letter has failed, and there
+
+13:29.480 --> 13:34.560
+is no alternative but forking the project under a new name with a healthy democratic
+
+13:34.560 --> 13:41.000
+governance, exactly as it was before 25 October in the GITTI project.
+
+13:41.000 --> 13:47.960
+But this time in the context of an incorporated non-profit that provides a legal framework.
+
+13:47.960 --> 13:52.080
+In my opinion, surprise and disappointment are the general themes that I get when reading
+
+13:52.080 --> 13:53.700
+this open letter.
+
+13:53.700 --> 13:58.160
+They state that it was the community who elected these folks last year who are now creating
+
+13:58.160 --> 14:02.920
+this new company, and it seems that the authors of the open letter believe that they should
+
+14:02.920 --> 14:09.280
+be the ones retaining ownership of those domains and trademarks, and I can totally understand
+
+14:09.280 --> 14:11.960
+that and see that from the community's perspective.
+
+14:11.960 --> 14:15.920
+It's sort of a form of guaranteed ultimate control.
+
+14:15.920 --> 14:22.860
+But I also just can't see a for-profit business that currently has possession of those things
+
+14:22.860 --> 14:28.040
+willfully giving them up unless they're just truly bought into the community message and
+
+14:28.040 --> 14:29.040
+ideas overall.
+
+14:29.040 --> 14:32.760
+But I don't know, Wes, to me, this seems like a direct conflict of interest.
+
+14:32.760 --> 14:34.760
+Yeah, it's a complicated scenario.
+
+14:34.760 --> 14:39.920
+You know, you got to think of the risk that you have, obviously, having community members
+
+14:39.920 --> 14:45.400
+develop a fork, take efforts away from developing, you know, the main existing GITTI project.
+
+14:45.400 --> 14:46.400
+That's a real threat.
+
+14:46.400 --> 14:52.320
+But on the other hand, what they're proposing is a more complicated structure.
+
+14:52.320 --> 14:56.520
+And I could see, I'm not saying this is my position, but I could see how the founders
+
+14:56.520 --> 14:59.920
+of the for-profit company don't quite see the benefit.
+
+14:59.920 --> 15:05.280
+I suppose in one sense, it's asking the question, what is the future of the project?
+
+15:05.280 --> 15:11.120
+Is it a for-profit entity that is happening to make an open source project?
+
+15:11.120 --> 15:16.960
+Or is it an open source project first that also has a for-profit company there to support
+
+15:16.960 --> 15:18.200
+that effort?
+
+15:18.200 --> 15:19.560
+Those are different models.
+
+15:19.560 --> 15:24.920
+And I think with all the surprise and maybe lack of communication, it's hard to know exactly
+
+15:24.920 --> 15:26.960
+what the intentions are here.
+
+15:26.960 --> 15:30.200
+They may be good, but it's just hard to say.
+
+15:30.200 --> 15:35.360
+I think what you just articulated there is what the community and this for-profit organization
+
+15:35.360 --> 15:38.960
+are going to go through the process of figuring out with this.
+
+15:38.960 --> 15:44.940
+And I was wondering when we covered the story last week if we'd see a fork out of this.
+
+15:44.940 --> 15:49.280
+And it seems like it's 50-50 with these types of announcements.
+
+15:49.280 --> 15:53.160
+And unfortunately, this is one that's going to result in a fork.
+
+15:53.160 --> 15:59.640
+I say unfortunately just because you always hate to see any kind of talent, time, skills
+
+15:59.640 --> 16:00.640
+diffused out.
+
+16:00.640 --> 16:05.040
+I mean, this has been a project that many folks in the Jupiter Broadcasting community
+
+16:05.040 --> 16:09.440
+and the larger sort of open source tech world, they use and rely on and have trusted for
+
+16:09.440 --> 16:10.440
+years now.
+
+16:10.440 --> 16:12.320
+So definitely, it's concerning.
+
+16:12.320 --> 16:13.320
+Yeah.
+
+16:13.320 --> 16:14.320
+We'll see where it goes.
+
+16:14.320 --> 16:15.760
+It could work out for the best.
+
+16:15.760 --> 16:19.600
+Sometimes these things do, or perhaps it all gets resolved.
+
+16:19.600 --> 16:21.340
+These are the interesting bits.
+
+16:21.340 --> 16:24.560
+There's a bit of a theme in this week's episode is this stuff in open source is all out in
+
+16:24.560 --> 16:26.420
+the open for all of us to watch.
+
+16:26.420 --> 16:28.420
+And so we get to document it in real time.
+
+16:28.420 --> 16:30.480
+And that's the goal of this show.
+
+16:30.480 --> 16:34.160
+We try to pull out the little bits and nuggets that are happening in this world that we think
+
+16:34.160 --> 16:38.400
+really matter to you this week and can help inform you in your career and in your passion.
+
+16:38.400 --> 16:42.920
+So go to linuxactionnews.com slash subscribe for all the ways to get new episodes every
+
+16:42.920 --> 16:44.280
+single week.
+
+16:44.280 --> 16:48.680
+And linuxactionnews.com slash contact for ways to get in touch.
+
+16:48.680 --> 16:51.880
+If we missed a story, something you'd like to hear about, boost in with a new podcast
+
+16:51.880 --> 16:54.760
+app at newpodcastapps.com and tell us about it.
+
+16:54.760 --> 16:55.760
+Don't worry.
+
+16:55.760 --> 17:01.200
+We'll be back next week with our take on the latest Linux and open source news.
+
+17:01.200 --> 17:02.200
+Thanks for joining us.
+
+17:02.200 --> 17:20.520
+And that's all the news for this week.
+

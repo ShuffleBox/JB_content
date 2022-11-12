@@ -1,0 +1,1136 @@
+1
+00:00:00,000 --> 00:00:08,340
+Hello, and welcome to Linux Action News Episode 216, recorded on November 21st, 2021.
+
+2
+00:00:08,340 --> 00:00:09,340
+I'm Chris.
+
+3
+00:00:09,340 --> 00:00:10,340
+And I'm Wes.
+
+4
+00:00:10,340 --> 00:00:11,340
+Hello, Wes.
+
+5
+00:00:11,340 --> 00:00:12,340
+Let's do the news.
+
+6
+00:00:12,340 --> 00:00:16,080
+This week, we wanted to start with a story you may have seen passed around online, with
+
+7
+00:00:16,080 --> 00:00:21,320
+a headline stating that a serious security problem exists in Linux that enables DNS cache
+
+8
+00:00:21,320 --> 00:00:22,320
+poisoning.
+
+9
+00:00:22,320 --> 00:00:29,080
+It really all started back in 2008, when Dan Kamsky demonstrated a method to attack DNS
+
+10
+00:00:29,080 --> 00:00:33,360
+infrastructure and change the results for a particular DNS lookup.
+
+11
+00:00:33,360 --> 00:00:37,320
+So first, the attacker masquerades as an authoritative DNS server.
+
+12
+00:00:37,320 --> 00:00:40,680
+That's the server that's responsible for a particular domain, the one that they want
+
+13
+00:00:40,680 --> 00:00:43,580
+to attack, say, tuxes.party.
+
+14
+00:00:43,580 --> 00:00:48,920
+They then flood a DNS resolver, like maybe Cloudflare's public 1.1.1.1 service.
+
+15
+00:00:48,920 --> 00:00:52,840
+They give that service, they just flood it with fake lookup results that have a different
+
+16
+00:00:52,840 --> 00:00:56,580
+destination IP than the actual legitimate destination.
+
+17
+00:00:56,580 --> 00:01:01,280
+And any client using the server for their lookups in the future would receive this bogus
+
+18
+00:01:01,280 --> 00:01:02,280
+result.
+
+19
+00:01:02,280 --> 00:01:05,360
+Worse, they wouldn't get their vote in over a tuxes.party.
+
+20
+00:01:05,360 --> 00:01:11,040
+The core of the issue here comes down to the fact that DNS uses a 16-bit transaction ID
+
+21
+00:01:11,040 --> 00:01:13,060
+in an attempt to stop this kind of thing.
+
+22
+00:01:13,060 --> 00:01:16,100
+But unfortunately, 16 bits, it's just not that big.
+
+23
+00:01:16,100 --> 00:01:21,240
+It's easily brute forcible and predictable because there's only about 65,000 possible
+
+24
+00:01:21,240 --> 00:01:22,240
+transaction IDs.
+
+25
+00:01:22,240 --> 00:01:24,720
+Yeah, maybe that was a lot back in the day.
+
+26
+00:01:24,720 --> 00:01:27,800
+But now here we are in 2021.
+
+27
+00:01:27,800 --> 00:01:29,480
+That's pretty easy to calculate.
+
+28
+00:01:29,480 --> 00:01:32,800
+Now it's not all that easy for it actually to work.
+
+29
+00:01:32,800 --> 00:01:37,360
+The attacker has to slam the DNS server that's being attacked with these bogus lookup results
+
+30
+00:01:37,360 --> 00:01:41,080
+with predicted transaction IDs in there and then the fake IP address.
+
+31
+00:01:41,080 --> 00:01:46,080
+But they have to hope that their forged response arrives before the reply from the real authoritative
+
+32
+00:01:46,080 --> 00:01:47,080
+DNS server.
+
+33
+00:01:47,080 --> 00:01:50,920
+So it's basically like, hey, I'm the resolver, I'm Cloudflare, I go out and ask whoever's
+
+34
+00:01:50,920 --> 00:01:55,760
+hosting tuxes.party, what's the IP address, and then the person attacking sends their
+
+35
+00:01:55,760 --> 00:02:01,160
+fake response in with the guest transaction ID and hopes that I receive it first because
+
+36
+00:02:01,160 --> 00:02:02,160
+this is UDP here.
+
+37
+00:02:02,160 --> 00:02:05,680
+I have no other way of knowing besides that transaction ID if this is the real response
+
+38
+00:02:05,680 --> 00:02:06,680
+or not.
+
+39
+00:02:06,680 --> 00:02:07,680
+Yeah, okay.
+
+40
+00:02:07,680 --> 00:02:08,680
+So this has all been figured out since 2008.
+
+41
+00:02:08,680 --> 00:02:11,520
+What we're talking about here isn't necessarily new.
+
+42
+00:02:11,520 --> 00:02:15,800
+And we came up with ways to solve this problem essentially, or so we thought.
+
+43
+00:02:15,800 --> 00:02:19,560
+Essentially this was solved by reconfiguring DNS servers to send their responses back on
+
+44
+00:02:19,560 --> 00:02:23,580
+ephemeral port instead of reusing port 53.
+
+45
+00:02:23,580 --> 00:02:28,560
+So the attacker is not only then forced to guess the transaction ID, but now they also
+
+46
+00:02:28,560 --> 00:02:33,280
+have to figure out the reply port being used and for a while that worked.
+
+47
+00:02:33,280 --> 00:02:37,960
+But unfortunately, new research shows there are unexpected ways an attacker could determine
+
+48
+00:02:37,960 --> 00:02:39,880
+that ephemeral reply port.
+
+49
+00:02:39,880 --> 00:02:43,920
+A team at the University of California at Riverside, building on research conducted
+
+50
+00:02:43,920 --> 00:02:48,480
+last year, found a new side channel attack that does just that.
+
+51
+00:02:48,480 --> 00:02:53,120
+Writing, quote, we find that the handling of ICMP messages in the Linux kernel uses
+
+52
+00:02:53,120 --> 00:02:59,060
+shared resources in a predictable manner such that it can be leveraged as a side channel.
+
+53
+00:02:59,060 --> 00:03:03,440
+This allows an attacker to infer the ephemeral port number of a DNS query and ultimately
+
+54
+00:03:03,440 --> 00:03:05,320
+lead to DNS cache poisoning attacks.
+
+55
+00:03:05,320 --> 00:03:06,320
+Yeah, okay.
+
+56
+00:03:06,320 --> 00:03:12,020
+So think of this side channel attack as a type of ICMP port scanning where the attackers
+
+57
+00:03:12,020 --> 00:03:16,840
+are sending spoofed ICMP packets in attempt to determine the ephemeral UDP port that is
+
+58
+00:03:16,840 --> 00:03:19,240
+being used for those DNS lookup replies.
+
+59
+00:03:19,240 --> 00:03:25,640
+The problem is these ICMP packets are used for network diagnostics, at least most commonly.
+
+60
+00:03:25,640 --> 00:03:29,200
+And by design, that means they don't necessarily receive a reply.
+
+61
+00:03:29,200 --> 00:03:33,720
+However, that didn't stop these researchers because they observed that even though they
+
+62
+00:03:33,720 --> 00:03:39,280
+don't get a reply, they're still changing some internal data structures in the kernel.
+
+63
+00:03:39,280 --> 00:03:42,380
+Then they thought to themselves, well, if we can just expose that data structure some
+
+64
+00:03:42,380 --> 00:03:46,560
+other way, we can still determine what that reply port is.
+
+65
+00:03:46,560 --> 00:03:50,760
+They managed to do this and it starts with the attacker pinging the DNS server under
+
+66
+00:03:50,760 --> 00:03:57,000
+attack while at the same time sending some spoofed ICMP requests that ask that DNS server
+
+67
+00:03:57,000 --> 00:04:00,600
+to change its packet fragmentation size.
+
+68
+00:04:00,600 --> 00:04:06,360
+In those spoofed ICMP requests, the attackers have to guess that ephemeral port number.
+
+69
+00:04:06,360 --> 00:04:10,480
+And if they guess it right, they'll observe that the fragmentation on the replies to their
+
+70
+00:04:10,480 --> 00:04:13,220
+pings has actually changed.
+
+71
+00:04:13,220 --> 00:04:16,720
+That's the signal they've managed to guess the right port.
+
+72
+00:04:16,720 --> 00:04:21,880
+And now with that port in hand, they just have to simply brute force that 16-bit transaction
+
+73
+00:04:21,880 --> 00:04:26,160
+ID and they're back to the good old DNS cache poisoning attack from 2008.
+
+74
+00:04:26,160 --> 00:04:29,320
+Yeah, really, they just had to solve for that ephemeral port problem.
+
+75
+00:04:29,320 --> 00:04:32,560
+Once they had that figured out, the original attack works.
+
+76
+00:04:32,560 --> 00:04:36,920
+Now this vulnerability affects DNS software running on Linux, including Bind, Unbound
+
+77
+00:04:36,920 --> 00:04:38,400
+and DNS Mask.
+
+78
+00:04:38,400 --> 00:04:43,280
+It does not seem to impact FreeBSD, Mac OS or Windows, and the researchers have proposed
+
+79
+00:04:43,280 --> 00:04:46,680
+several defenses to fix the issue on Linux.
+
+80
+00:04:46,680 --> 00:04:51,400
+One is just setting Linux to ignore ICMP messages that effectively closes the side channel,
+
+81
+00:04:51,400 --> 00:04:53,260
+but obviously has downsides.
+
+82
+00:04:53,260 --> 00:04:57,960
+Another proposed defense is randomizing the cache structure to make the side channel unusable.
+
+83
+00:04:57,960 --> 00:05:01,320
+And then a third is reject ICMP redirects.
+
+84
+00:05:01,320 --> 00:05:05,480
+And of course, DNSSEC can be a mitigation of this attack, but requires the size you're
+
+85
+00:05:05,480 --> 00:05:11,940
+using it supported, which it appears about 1.8% of the top 10,000 Alexa websites actually
+
+86
+00:05:11,940 --> 00:05:13,680
+support DNSSEC.
+
+87
+00:05:13,680 --> 00:05:16,880
+So DNSSEC might not actually be an option for most of us.
+
+88
+00:05:16,880 --> 00:05:19,200
+And really right now, this is in the research phase.
+
+89
+00:05:19,200 --> 00:05:22,280
+As far as we know, we haven't seen much of this in the wild, but we'll keep an eye on
+
+90
+00:05:22,280 --> 00:05:23,280
+that.
+
+91
+00:05:23,280 --> 00:05:29,800
+And if mitigation ship, we'll keep an eye on that and let you know.
+
+92
+00:05:29,800 --> 00:05:36,880
+Some distributions are known for their documentation, like Arch and their famous Wiki, but it seems
+
+93
+00:05:36,880 --> 00:05:37,880
+now canonical.
+
+94
+00:05:37,880 --> 00:05:45,440
+We'll be investing in a new comprehensive long term project to transform their documentation.
+
+95
+00:05:45,440 --> 00:05:51,040
+Daniela Prachita, the recent director of engineering at the Ubuntu maker laid out plans to dramatically
+
+96
+00:05:51,040 --> 00:05:55,920
+improve their documentation efforts moving forward, writing on their blog, quote, our
+
+97
+00:05:55,920 --> 00:06:01,800
+aim is to create and maintain technical documentation and documentation practices that will represent
+
+98
+00:06:01,800 --> 00:06:04,680
+a standard of excellence in the industry.
+
+99
+00:06:04,680 --> 00:06:08,780
+He goes on to say, we want it to be the best it possibly can be.
+
+100
+00:06:08,780 --> 00:06:12,980
+By best, we mean documentation that above all else understands, respects and reflects
+
+101
+00:06:12,980 --> 00:06:15,360
+and serves its users needs.
+
+102
+00:06:15,360 --> 00:06:19,860
+Canonical really is emphasizing that this is a company wide effort, not just limited
+
+103
+00:06:19,860 --> 00:06:25,760
+to engineering, writing on their blog, quote, this is a permanent ongoing commitment.
+
+104
+00:06:25,760 --> 00:06:30,600
+It's work that will never end, and it's already started and will become part of the fundamental
+
+105
+00:06:30,600 --> 00:06:33,920
+canonical discipline of making software.
+
+106
+00:06:33,920 --> 00:06:38,660
+We'll have their entire blog post linked in the notes.
+
+107
+00:06:38,660 --> 00:06:44,380
+After a rather public failure during a recent YouTuber Linux switch challenge, a new version
+
+108
+00:06:44,380 --> 00:06:48,740
+of the apt package manager version 2.312 has been released.
+
+109
+00:06:48,740 --> 00:06:54,240
+This update includes a fix for that recent famous apt scenario.
+
+110
+00:06:54,240 --> 00:06:59,920
+Yeah, this change changes the way apt handles a conflict resolution situation.
+
+111
+00:06:59,920 --> 00:07:04,720
+Instead of warning the user and prompting them to proceed with apps suggested fix, which
+
+112
+00:07:04,720 --> 00:07:07,800
+as we see, doesn't always work out so well.
+
+113
+00:07:07,800 --> 00:07:12,480
+apt will now just error out, providing no suggestion and deferring the critical conflict
+
+114
+00:07:12,480 --> 00:07:14,600
+resolutions to the user explicitly.
+
+115
+00:07:14,600 --> 00:07:19,040
+Right, so the change here is going from asking the user if they're super sure they want
+
+116
+00:07:19,040 --> 00:07:24,000
+to proceed with a risky change to now telling them there's a problem, and then leaving
+
+117
+00:07:24,000 --> 00:07:26,520
+it to them to solve it manually.
+
+118
+00:07:26,520 --> 00:07:31,800
+System 76 had actually started working to solve this in Pop OS directly, but has already
+
+119
+00:07:31,800 --> 00:07:34,680
+prepared to bring these new upstream changes in.
+
+120
+00:07:34,680 --> 00:07:38,680
+The Plasma software discover app is also being updated.
+
+121
+00:07:38,680 --> 00:07:43,320
+Discover now has a new way to ensure you keep a working system with an updated mechanism
+
+122
+00:07:43,320 --> 00:07:48,000
+to detect important packages getting removed and give you a friendly warning.
+
+123
+00:07:48,000 --> 00:07:50,400
+That's a good change for discover to make.
+
+124
+00:07:50,400 --> 00:07:54,680
+That's the kind of tool new users should be using to manage their software and something
+
+125
+00:07:54,680 --> 00:07:59,200
+else discover is doing is they're hiding some of the technical jargon behind a button.
+
+126
+00:07:59,200 --> 00:08:02,840
+So you're going to get that friendly warning, but then there will be a button with technical
+
+127
+00:08:02,840 --> 00:08:06,840
+details you can press to actually tell you what's going on.
+
+128
+00:08:06,840 --> 00:08:08,620
+That really feels like a sweet spot.
+
+129
+00:08:08,620 --> 00:08:12,420
+And I have seen some complaints online that, you know, a power tool is being made less
+
+130
+00:08:12,420 --> 00:08:16,160
+powerful for new users that probably shouldn't be using it.
+
+131
+00:08:16,160 --> 00:08:17,160
+And it's a loss.
+
+132
+00:08:17,160 --> 00:08:18,840
+I don't know.
+
+133
+00:08:18,840 --> 00:08:23,360
+You know, when you take all of this in, this seems like a pretty balanced change.
+
+134
+00:08:23,360 --> 00:08:26,680
+I mean, you can still manually resolve these issues if you're a power user and you know
+
+135
+00:08:26,680 --> 00:08:28,220
+what you're doing.
+
+136
+00:08:28,220 --> 00:08:32,920
+And while Linus Sebastian did ignore a warning in the GUI, and then he later ignored a warning
+
+137
+00:08:32,920 --> 00:08:38,040
+in the terminal, he'd really have to go out of his way to break his system with this change.
+
+138
+00:08:38,040 --> 00:08:43,400
+That might just be the right spot of user intervention versus automatically solving
+
+139
+00:08:43,400 --> 00:08:45,760
+problems for users.
+
+140
+00:08:45,760 --> 00:08:49,880
+I guess we better just hope Linus doesn't find out about the RM command during this
+
+141
+00:08:49,880 --> 00:08:50,880
+challenge.
+
+142
+00:08:50,880 --> 00:08:55,080
+Then we might have some serious patches landing.
+
+143
+00:08:55,080 --> 00:09:01,440
+Linux 5.16 hit RC2 today and has some significant IO improvements.
+
+144
+00:09:01,440 --> 00:09:05,360
+But this week, we also got a better picture of the performance patches landing in Linux
+
+145
+00:09:05,360 --> 00:09:06,360
+5.17.
+
+146
+00:09:06,360 --> 00:09:11,860
+Much of the work landing in both those kernels is the NVMe codepath optimizations we told
+
+147
+00:09:11,860 --> 00:09:17,560
+you about in Linux Extra News 2.12, with four more patches landing today, bringing the total
+
+148
+00:09:17,560 --> 00:09:18,560
+to 38.
+
+149
+00:09:18,560 --> 00:09:23,360
+Yeah, and on the networking side, Wes, we're also seeing some improvements land in 5.17's
+
+150
+00:09:23,360 --> 00:09:24,600
+network substack.
+
+151
+00:09:24,600 --> 00:09:28,400
+One of the set of changes that was merged earlier this week was actually from Google,
+
+152
+00:09:28,400 --> 00:09:32,360
+which provides a sizable gain in TCP performance in the data center.
+
+153
+00:09:32,360 --> 00:09:37,360
+But not just that, the new patch also allows Linux's TCP code to defer SKB freeing after
+
+154
+00:09:37,360 --> 00:09:39,040
+the socket lock is released.
+
+155
+00:09:39,040 --> 00:09:43,120
+The existing kernel code was found to just introduce excessive latency there.
+
+156
+00:09:43,120 --> 00:09:47,500
+And it seems after success in the TCP stack, the team's looking to fix this problem for
+
+157
+00:09:47,500 --> 00:09:50,800
+protocols besides TCP as well.
+
+158
+00:09:50,800 --> 00:09:54,020
+And looking at a few project updates this week, the Ubiport Foundation released Ubuntu
+
+159
+00:09:54,020 --> 00:09:56,400
+Touch OTA 20.
+
+160
+00:09:56,400 --> 00:10:00,320
+It's a maintenance update that introduces support for the notification LED and vibration
+
+161
+00:10:00,320 --> 00:10:04,200
+indicator for incoming notifications on Helium 9 devices.
+
+162
+00:10:04,200 --> 00:10:07,280
+And the installer has been updated for even more devices.
+
+163
+00:10:07,280 --> 00:10:11,560
+And it also has your typical batch of features, tweaks, and bug fixes.
+
+164
+00:10:11,560 --> 00:10:15,960
+The Ubuntu Touch OTA 20 update is rolling out right now to supported devices, and you
+
+165
+00:10:15,960 --> 00:10:19,800
+can check on your device by going to the system settings and then navigating to the update
+
+166
+00:10:19,800 --> 00:10:20,800
+screen.
+
+167
+00:10:20,800 --> 00:10:25,800
+FWAP-D, the leading open source solution for handling firmware updates on Linux devices
+
+168
+00:10:25,800 --> 00:10:29,800
+has a new release, version 1.7.2.
+
+169
+00:10:29,800 --> 00:10:35,520
+1.7.2 adds support for handling exported MTD block devices, tweaking the compiler flags
+
+170
+00:10:35,520 --> 00:10:41,760
+to reduce the install size by around 300 kilobits, speeding up the daemon startup by almost 40%,
+
+171
+00:10:41,760 --> 00:10:44,240
+and a variety of other fixes.
+
+172
+00:10:44,240 --> 00:10:45,640
+Yeah, that's nice to see.
+
+173
+00:10:45,640 --> 00:10:49,360
+Project lead Richard Hughes also shared via Twitter that the project is still seeing pretty
+
+174
+00:10:49,360 --> 00:10:50,840
+remarkable growth.
+
+175
+00:10:50,840 --> 00:10:55,640
+And I hope that will encourage even more vendors to participate in the project because I know
+
+176
+00:10:55,640 --> 00:10:59,560
+when I'm shopping for new hardware, I'm checking for LVFS compatibility.
+
+177
+00:10:59,560 --> 00:11:04,400
+Yeah, hopefully an area we'll see improving as those numbers go up.
+
+178
+00:11:04,400 --> 00:11:09,760
+And our last quick project update, Rocky Linux 8.5 released this week.
+
+179
+00:11:09,760 --> 00:11:14,600
+And this latest release also catches up to Alma Linux by adding secure boot support.
+
+180
+00:11:14,600 --> 00:11:20,600
+Both projects seem to be increasing the significance of their ARM builds with 8.5 as well.
+
+181
+00:11:20,600 --> 00:11:22,240
+linode.com slash LAN.
+
+182
+00:11:22,240 --> 00:11:25,640
+Linode is how we run everything we've built in the last few years in the cloud.
+
+183
+00:11:25,640 --> 00:11:28,800
+And like us, they love Linux.
+
+184
+00:11:28,800 --> 00:11:31,680
+They use it every day, their environment and their tools.
+
+185
+00:11:31,680 --> 00:11:34,000
+So go to linode.com slash LAN to check it out.
+
+186
+00:11:34,000 --> 00:11:38,280
+They use that base that love for Linux to build everything 18 years ago.
+
+187
+00:11:38,280 --> 00:11:39,440
+That's what got them started.
+
+188
+00:11:39,440 --> 00:11:43,760
+And now they are the largest independent cloud provider in the world.
+
+189
+00:11:43,760 --> 00:11:47,520
+Linode has learned during that time that customer support is just absolutely critical.
+
+190
+00:11:47,520 --> 00:11:51,040
+So that's why they've invested in having the best customer support in the business.
+
+191
+00:11:51,040 --> 00:11:55,040
+I got a note from listener Kevin this week and he said, I only have a $5 Linode but their
+
+192
+00:11:55,040 --> 00:11:56,640
+support was great and helpful.
+
+193
+00:11:56,640 --> 00:12:00,920
+I've never seen such expert level customer support on any other cloud provider.
+
+194
+00:12:00,920 --> 00:12:03,040
+This company really does what they say.
+
+195
+00:12:03,040 --> 00:12:06,980
+No support tiers, no hands off, only highly trained technicians.
+
+196
+00:12:06,980 --> 00:12:08,540
+It really is the best.
+
+197
+00:12:08,540 --> 00:12:09,540
+And that's true.
+
+198
+00:12:09,540 --> 00:12:12,740
+And on top of that, Kevin, they also have some of the best performance, 11 data centers
+
+199
+00:12:12,740 --> 00:12:17,320
+for you to choose from, great features such as object storage, cloud firewall and backups
+
+200
+00:12:17,320 --> 00:12:20,660
+and a lot more including one click deployments for lots of applications.
+
+201
+00:12:20,660 --> 00:12:24,620
+So go build something, go learn something and try it out for yourself while supporting
+
+202
+00:12:24,620 --> 00:12:25,620
+the show.
+
+203
+00:12:25,620 --> 00:12:26,680
+linode.com slash LAN.
+
+204
+00:12:26,680 --> 00:12:30,700
+Go there to get $100 in 60 day credit on a new account and you go there to kick the tires
+
+205
+00:12:30,700 --> 00:12:32,900
+for yourself and support this here show.
+
+206
+00:12:32,900 --> 00:12:36,360
+That's linode.com slash LAN.
+
+207
+00:12:36,360 --> 00:12:39,980
+And thanks to Ting for making this episode possible, linux.ting.com.
+
+208
+00:12:39,980 --> 00:12:43,460
+If you're sick of overpaying for your cell service, go see how much you could save and
+
+209
+00:12:43,460 --> 00:12:47,880
+get $25 off when you go to linux.ting.com.
+
+210
+00:12:47,880 --> 00:12:53,260
+Ting has great customer service, great flexible rates and nationwide coverage on multiple
+
+211
+00:12:53,260 --> 00:12:54,260
+networks.
+
+212
+00:12:54,260 --> 00:12:55,260
+The key is they're an MVNO.
+
+213
+00:12:55,260 --> 00:12:58,900
+So instead of digging holes in the ground and figuring out local jurisdiction over building
+
+214
+00:12:58,900 --> 00:13:04,220
+towers, they focus on the customer support, the flexible plans and they run on top of
+
+215
+00:13:04,220 --> 00:13:06,860
+the nationwide networks that exist already.
+
+216
+00:13:06,860 --> 00:13:11,980
+So you get access to a great mix of plans and super fast LTE and 5G data.
+
+217
+00:13:11,980 --> 00:13:14,340
+And Ting's plans are always simple and straightforward.
+
+218
+00:13:14,340 --> 00:13:17,060
+That's why I've been a Ting customer for eight years.
+
+219
+00:13:17,060 --> 00:13:19,420
+Think about that eight years with Ting.
+
+220
+00:13:19,420 --> 00:13:22,260
+It's just a smarter way to do mobile and I've appreciated that.
+
+221
+00:13:22,260 --> 00:13:24,500
+They have plans that start around $10.
+
+222
+00:13:24,500 --> 00:13:30,420
+My plan I think on average these days is about $45 a month.
+
+223
+00:13:30,420 --> 00:13:31,580
+It really depends on your usage.
+
+224
+00:13:31,580 --> 00:13:33,000
+You just tune it to what works for you.
+
+225
+00:13:33,000 --> 00:13:35,540
+If you use a lot of data, they got a plan for you.
+
+226
+00:13:35,540 --> 00:13:39,500
+If you use very little data, and that's actually pretty easy to do these days because you can
+
+227
+00:13:39,500 --> 00:13:43,420
+sync before you head out when you're on Wi-Fi, you just sync your stuff down, you can save
+
+228
+00:13:43,420 --> 00:13:45,940
+so much money it's kind of ridiculous.
+
+229
+00:13:45,940 --> 00:13:51,380
+And every plan gets access to Ting's award-winning customer service and the LTE and 5G networks.
+
+230
+00:13:51,380 --> 00:13:53,100
+And it's so simple to switch to Ting.
+
+231
+00:13:53,100 --> 00:13:55,740
+Pretty much any phone works because of their broad network support.
+
+232
+00:13:55,740 --> 00:13:58,580
+So get started by going to linux.ting.com.
+
+233
+00:13:58,580 --> 00:14:02,660
+Check out your current phone, create an account and pick the plan that's right for you.
+
+234
+00:14:02,660 --> 00:14:04,140
+Ting's going to send you a SIM card.
+
+235
+00:14:04,140 --> 00:14:07,060
+You're going to pop that thing in your phone and you're going to get activated in minutes
+
+236
+00:14:07,060 --> 00:14:08,780
+because their dashboard is great.
+
+237
+00:14:08,780 --> 00:14:12,900
+So go there, check them out and see how much you could save while supporting the show.
+
+238
+00:14:12,900 --> 00:14:13,900
+linux.ting.com.
+
+239
+00:14:13,900 --> 00:14:20,500
+That's right, get $25 off at linux.ting.com.
+
+240
+00:14:20,500 --> 00:14:25,700
+And we end this week with the release of Proxmox Virtual Environment 7.1.
+
+241
+00:14:25,700 --> 00:14:34,220
+Based on Debian 11, but using a newer Linux kernel 5.13, QEMU 6.1 and OpenZFS 2.1, Proxmox
+
+242
+00:14:34,220 --> 00:14:38,380
+VE brings several new functionalities and a range of improvements for management tasks
+
+243
+00:14:38,380 --> 00:14:39,880
+in the web interface.
+
+244
+00:14:39,880 --> 00:14:44,880
+This is also the first version with support for Windows 11 and TPM, plus an enhanced creation
+
+245
+00:14:44,880 --> 00:14:49,080
+wizard for virtual machines and containers, as well as the ability to set backup retention
+
+246
+00:14:49,080 --> 00:14:51,940
+policies per backup job right in the GUI.
+
+247
+00:14:51,940 --> 00:14:52,940
+Yeah.
+
+248
+00:14:52,940 --> 00:14:56,460
+And they have a new scheduler daemon in 7.1 too that supports a more flexible schedule
+
+249
+00:14:56,460 --> 00:14:57,460
+setup.
+
+250
+00:14:57,460 --> 00:15:00,380
+I mean, all around to me, this looks like a real humdinger of a release, Wes.
+
+251
+00:15:00,380 --> 00:15:06,580
+It all just comes together in 7.1 because you get Linux 5.13, QEMU 6.1 and OpenZFS 2.1.
+
+252
+00:15:06,580 --> 00:15:10,620
+Those are all great releases on their own with fantastic features, but they all are
+
+253
+00:15:10,620 --> 00:15:13,100
+brought under the Proxmox hood.
+
+254
+00:15:13,100 --> 00:15:17,420
+Plus on top of all of that, they have some nice updates to the GUI for two factor authentication
+
+255
+00:15:17,420 --> 00:15:23,260
+settings as well as new container templates for Fedora, Ubuntu, AMA Linux and Rocky Linux.
+
+256
+00:15:23,260 --> 00:15:27,020
+Proxmox sure seems great, but it's one of those projects we don't actually have a ton
+
+257
+00:15:27,020 --> 00:15:30,780
+of experience with, a little bit, but not a great deal.
+
+258
+00:15:30,780 --> 00:15:35,740
+That might change, though, as we build out the new local JB infrastructure.
+
+259
+00:15:35,740 --> 00:15:38,820
+Tune into a future Linux Unplugged for more of that.
+
+260
+00:15:38,820 --> 00:15:39,820
+Spoilers!
+
+261
+00:15:39,820 --> 00:15:45,540
+Now, for those of you looking to upgrade Proxmox, well, they offer both a GUI upgrade or a command
+
+262
+00:15:45,540 --> 00:15:47,020
+line based upgrade path.
+
+263
+00:15:47,020 --> 00:15:48,020
+Yeah.
+
+264
+00:15:48,020 --> 00:15:49,020
+And they've documented that process too.
+
+265
+00:15:49,020 --> 00:15:50,020
+So that's kind of nice.
+
+266
+00:15:50,020 --> 00:15:53,260
+I think overall, I'm just kind of looking forward to spending some more time with Proxmox
+
+267
+00:15:53,260 --> 00:15:54,260
+soon.
+
+268
+00:15:54,260 --> 00:15:57,780
+I also noticed when I was doing a little bit of research for this episode that they're
+
+269
+00:15:57,780 --> 00:16:01,540
+really good about posting at least part of their feature roadmap.
+
+270
+00:16:01,540 --> 00:16:06,460
+So you get a little hint, at least a pretty good idea of what's coming in future updates
+
+271
+00:16:06,460 --> 00:16:07,740
+of Proxmox.
+
+272
+00:16:07,740 --> 00:16:11,180
+And I always feel like when you're targeting the enterprise or anybody that might be in
+
+273
+00:16:11,180 --> 00:16:14,700
+a data center type workload, whenever you can be transparent about that kind of stuff
+
+274
+00:16:14,700 --> 00:16:19,220
+and let people plan, that always gets an A grade from me.
+
+275
+00:16:19,220 --> 00:16:23,180
+Also, it seems like these most recent versions of Proxmox have just been getting really good
+
+276
+00:16:23,180 --> 00:16:26,780
+packing in some really nice features and some nice fixes.
+
+277
+00:16:26,780 --> 00:16:31,080
+So we'll be following all of that and the whole world of open source and Linux.
+
+278
+00:16:31,080 --> 00:16:36,420
+So be sure you go to LinuxActionNews.com slash subscribe for all the ways to get new episodes.
+
+279
+00:16:36,420 --> 00:16:40,340
+And LinuxActionNews.com slash contact for ways to get in touch.
+
+280
+00:16:40,340 --> 00:16:43,280
+And take a couple of minutes and go visit Tuxies.party.
+
+281
+00:16:43,280 --> 00:16:46,740
+Help vote for the open source project of the year and more.
+
+282
+00:16:46,740 --> 00:16:51,980
+We'll be back next Monday with our weekly take on the latest Linux and open source news.
+
+283
+00:16:51,980 --> 00:16:52,980
+Thanks for joining us.
+
+284
+00:16:52,980 --> 00:17:13,740
+And that's all the news for this week.
+

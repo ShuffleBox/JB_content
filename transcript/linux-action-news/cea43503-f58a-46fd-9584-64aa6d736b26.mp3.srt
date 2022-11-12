@@ -1,0 +1,1040 @@
+1
+00:00:00,000 --> 00:00:08,480
+Hello, and welcome to Linux Action News, episode 206, recorded on September 12th, 2021. I'm
+
+2
+00:00:08,480 --> 00:00:09,480
+Chris.
+
+3
+00:00:09,480 --> 00:00:10,480
+And I'm Wes.
+
+4
+00:00:10,480 --> 00:00:14,000
+Hello, Wes, from Northern California. Let's do the news.
+
+5
+00:00:14,000 --> 00:00:19,640
+This week, kernel developers have been hard at work on the Linux 5.15 merge window, which
+
+6
+00:00:19,640 --> 00:00:28,320
+closes today. Now, 3,440 patches may seem like a slow start to some, but those patches
+
+7
+00:00:28,320 --> 00:00:30,840
+are packed with significant new features.
+
+8
+00:00:30,840 --> 00:00:35,120
+Actually, those numbers still continue to impress me. But a feature looking through
+
+9
+00:00:35,120 --> 00:00:39,800
+all of them that really caught our attention, well, was one that was 17 years in the making.
+
+10
+00:00:39,800 --> 00:00:45,320
+The real time preemption locking code has been merged. That work began back in 2004,
+
+11
+00:00:45,320 --> 00:00:49,920
+and it's ended up touching so many different parts of the kernel. So we will have more
+
+12
+00:00:49,920 --> 00:00:52,640
+on preemption locking in the future.
+
+13
+00:00:52,640 --> 00:00:59,320
+But for today, another fascinating feature in 5.15 is the idle scheduling class control
+
+14
+00:00:59,320 --> 00:01:05,940
+group. This new group will only run when there's nothing else for the CPU to do. But using
+
+15
+00:01:05,940 --> 00:01:10,880
+the control group architecture means you can control the relative allocation of those idle
+
+16
+00:01:10,880 --> 00:01:16,120
+resources within the group. It's really a nice use of a collection of existing kernel
+
+17
+00:01:16,120 --> 00:01:17,120
+technologies.
+
+18
+00:01:17,120 --> 00:01:23,560
+We're also seeing improvements to some of our favorite file systems, the block IO subsystem,
+
+19
+00:01:23,560 --> 00:01:26,120
+and of course, improved hardware support.
+
+20
+00:01:26,120 --> 00:01:30,440
+Yeah, we've been reviewing some of the development chatter and it seems like there's a lot going
+
+21
+00:01:30,440 --> 00:01:36,820
+on with this development cycle. And it hasn't all necessarily been good news, actually.
+
+22
+00:01:36,820 --> 00:01:41,720
+But at least in this case, the robots have our back. Intel's kernel test bot found a
+
+23
+00:01:41,720 --> 00:01:47,160
+noticeable performance regression that made it into Linux 5.15. The performance regression
+
+24
+00:01:47,160 --> 00:01:52,780
+came from the new memcg accounting support that was merged just last week. It turned
+
+25
+00:01:52,780 --> 00:01:58,920
+out to have a lot more overhead than anyone expected about a 33% performance impact, at
+
+26
+00:01:58,920 --> 00:02:03,840
+least according to Intel's tests. And well, when Linus saw that he quickly reverted the
+
+27
+00:02:03,840 --> 00:02:08,400
+patch and he noted, quote, it was completely broken, and I should have caught on to it
+
+28
+00:02:08,400 --> 00:02:11,000
+earlier, end quote.
+
+29
+00:02:11,000 --> 00:02:15,320
+And while we're speaking of errors in the kernel, there's another kernel-related story
+
+30
+00:02:15,320 --> 00:02:20,960
+we wanted to fill you in on. Landing this past weekend was the surprising move by Linus
+
+31
+00:02:20,960 --> 00:02:29,480
+to enable the werror compiler flag by default for all kernel builds. That flag makes all
+
+32
+00:02:29,480 --> 00:02:34,720
+warnings be treated as errors, which in turn stops the kernel build if it runs into those
+
+33
+00:02:34,720 --> 00:02:40,360
+new errors. And unfortunately, it turns out there are a few more warnings than one might
+
+34
+00:02:40,360 --> 00:02:43,800
+have thought. This change has led to quite a mess.
+
+35
+00:02:43,800 --> 00:02:48,280
+Oh, man, in particular, like test farms, like the Intel bot we were just talking about,
+
+36
+00:02:48,280 --> 00:02:53,120
+you know, they're set up sometimes to validate just recent or specific changes in the kernel
+
+37
+00:02:53,120 --> 00:02:57,320
+that they're interested in. Well, a lot of these farms were just stopped cold due to
+
+38
+00:02:57,320 --> 00:03:01,280
+warnings in the code base that aren't even related to what they're working on, sort of
+
+39
+00:03:01,280 --> 00:03:07,000
+rendering the farm semi-useless. And a Googler who has been involved with the LLVM Clang
+
+40
+00:03:07,000 --> 00:03:12,720
+building of the Linux kernel, ended up submitting a patch that reverted the change by Linus.
+
+41
+00:03:12,720 --> 00:03:18,640
+And he noted that, quote, while I can appreciate the intent of enabling WR, I don't think it's
+
+42
+00:03:18,640 --> 00:03:24,720
+the right tool to address the root cause of developers not testing certain tool chains
+
+43
+00:03:24,720 --> 00:03:29,440
+or configurations or taking existing reports seriously enough.
+
+44
+00:03:29,440 --> 00:03:35,600
+No one wants to see their CI system turn red. He went on to say that the WR flag might be
+
+45
+00:03:35,600 --> 00:03:40,960
+useful to prevent new warnings from creeping in, but doesn't seem like a good fit for the
+
+46
+00:03:40,960 --> 00:03:47,500
+current state of the kernel, unfortunately. Linus being Linus responded and basically
+
+47
+00:03:47,500 --> 00:03:53,960
+rejected the notion of disabling it by default outright, saying, no, it was merged in response
+
+48
+00:03:53,960 --> 00:04:00,480
+to years of pain. I'm not going to revert that change. Now, I will probably have to
+
+49
+00:04:00,480 --> 00:04:05,640
+limit it. But basically, any maintainer who has code that causes warnings should expect
+
+50
+00:04:05,640 --> 00:04:08,360
+that they will have to fix those warnings.
+
+51
+00:04:08,360 --> 00:04:11,800
+You could tell the tensions were getting high and Linus went on to say that he spent hours
+
+52
+00:04:11,800 --> 00:04:16,160
+recently getting rid of warnings. And he really shouldn't be the one fixing other people's
+
+53
+00:04:16,160 --> 00:04:20,120
+code. He also noted that they shouldn't really be shocked when he tells them it's time to
+
+54
+00:04:20,120 --> 00:04:24,920
+clean their own house. Marco Elver chimed in shortly after with the idea of maybe just
+
+55
+00:04:24,920 --> 00:04:30,560
+enabling WR when doing a compile test kernel build. That's really the type of build that
+
+56
+00:04:30,560 --> 00:04:35,640
+makes sure the kernel and all of its drivers can successfully compile. And that idea seems
+
+57
+00:04:35,640 --> 00:04:39,920
+to have taken hold with Linus calling it a reasonable change and merging the patch that
+
+58
+00:04:39,920 --> 00:04:45,000
+demotes it to compile test only by default. Really, it seems Linus just wants developers
+
+59
+00:04:45,000 --> 00:04:48,200
+to start dealing with their compiler warnings.
+
+60
+00:04:48,200 --> 00:04:52,480
+And while we're speaking of things Linus is trying to correct, you might have heard about
+
+61
+00:04:52,480 --> 00:04:58,480
+the merge of the new Paragon NTFS driver we've been telling you about. And Linus's subsequent
+
+62
+00:04:58,480 --> 00:05:02,640
+complaints regarding GitHub merges. Here's what he said.
+
+63
+00:05:02,640 --> 00:05:07,160
+That's another one of those things that I really don't want to see. GitHub creates absolutely
+
+64
+00:05:07,160 --> 00:05:14,200
+useless garbage merges. And you should never ever use the GitHub interface to merge anything.
+
+65
+00:05:14,200 --> 00:05:18,880
+Linus goes on to note that to him, GitHub creates totally worthless commit messages
+
+66
+00:05:18,880 --> 00:05:23,960
+as well, adding GitHub is a perfectly fine hosting site, and it does a number of other
+
+67
+00:05:23,960 --> 00:05:30,240
+things well too. But merges is not one of those things. For a little context around
+
+68
+00:05:30,240 --> 00:05:35,560
+that complaint, you've got to remember that the kernel is a pre GitHub, and even a pre
+
+69
+00:05:35,560 --> 00:05:41,480
+Git project. Modern, what you might call GitHub native projects tend to outsource some of
+
+70
+00:05:41,480 --> 00:05:46,480
+this bookkeeping to the pull request process. And that kind of workflow was never adopted
+
+71
+00:05:46,480 --> 00:05:50,960
+by the kernel team. Yeah, and after all, Linus created Git. So this is not a complaint about
+
+72
+00:05:50,960 --> 00:05:56,480
+Git, but really how GitHub creates merge commits. He kind of hits the nail on the head with
+
+73
+00:05:56,480 --> 00:06:01,600
+this point when he says, quote, the Linux kernel merges need to be done properly. That
+
+74
+00:06:01,600 --> 00:06:07,560
+means proper commit messages with information about what is being merged and why you are
+
+75
+00:06:07,560 --> 00:06:13,720
+merging something. But it also means proper authorship and committer information, etc.
+
+76
+00:06:13,720 --> 00:06:19,040
+All of which GitHub entirely screws up. And then Linus goes on to mention that they had
+
+77
+00:06:19,040 --> 00:06:26,760
+this same issue with the KSMB server request, which reminded me that we're putting a Samba
+
+78
+00:06:26,760 --> 00:06:33,920
+server in the kernel. But file servers built in the kernel aside, if you're an AMD user,
+
+79
+00:06:33,920 --> 00:06:40,400
+check the show notes. There's some nice to haves landing in 5.15 just for you.
+
+80
+00:06:40,400 --> 00:06:45,640
+One of the lesser known realities of large companies running enterprise Linux distributions
+
+81
+00:06:45,640 --> 00:06:52,120
+in production is the need for newer software mixed in with that tried and tested stable
+
+82
+00:06:52,120 --> 00:06:53,120
+base.
+
+83
+00:06:53,120 --> 00:06:58,480
+Absolutely. I don't know how much of a little known reality this is because we have heard
+
+84
+00:06:58,480 --> 00:07:04,160
+tales from Amazon employees who ripped out the TCP IP stack and wrote their own on Linux.
+
+85
+00:07:04,160 --> 00:07:09,320
+We have heard tales from Facebook developers rolling their own centos kernels and repositories
+
+86
+00:07:09,320 --> 00:07:16,200
+replacing entire large chunks of the traditional centos release. And just as an aside, this
+
+87
+00:07:16,200 --> 00:07:20,560
+is one of the reasons the Facebook server team is really super excited about centos
+
+88
+00:07:20,560 --> 00:07:26,560
+stream is they can now participate directly in the future development of the platform.
+
+89
+00:07:26,560 --> 00:07:31,840
+That's going to be something of a game changer, I expect. But back to this poorly kept industry
+
+90
+00:07:31,840 --> 00:07:36,960
+secret. Something needed to be done to address the needs of Red Hat Enterprise Linux and
+
+91
+00:07:36,960 --> 00:07:42,400
+CentOS users who might not have the resources of Facebook or Amazon and are just kind of
+
+92
+00:07:42,400 --> 00:07:46,760
+stuck in the position of needing newer components for their chosen operating system.
+
+93
+00:07:46,760 --> 00:07:51,800
+Yep. And long story short, Fedora team members realize, well, they had mostly what they needed
+
+94
+00:07:51,800 --> 00:07:55,720
+to solve the problem right there in front of them for their enterprise cousins. And
+
+95
+00:07:55,720 --> 00:08:01,800
+that's how the Apple project was born. It stands for extra packages for enterprise Linux.
+
+96
+00:08:01,800 --> 00:08:06,640
+Apple packages are typically based on their Fedora counterparts and Apple uses a large
+
+97
+00:08:06,640 --> 00:08:12,360
+part of the same infrastructure as Fedora, including the build system, the bugzilla instance,
+
+98
+00:08:12,360 --> 00:08:16,600
+the update manager, the mirror manager. And well, now the group has recently begun building
+
+99
+00:08:16,600 --> 00:08:22,100
+packages against centos stream as REL calling it Apple next. The initiative has gone through
+
+100
+00:08:22,100 --> 00:08:27,120
+various transformations over the years from a test project to now a full special interest
+
+101
+00:08:27,120 --> 00:08:33,080
+group responsible for over 3000 additional packages not included in REL.
+
+102
+00:08:33,080 --> 00:08:38,380
+And this week, Red Hat announced they will officially support the community based special
+
+103
+00:08:38,380 --> 00:08:45,000
+interest group. A new team is being formed and expected to start work sometime in October.
+
+104
+00:08:45,000 --> 00:08:50,020
+It's a part of the community platform engineering group or CPR for short. That's the Red Hat
+
+105
+00:08:50,020 --> 00:08:55,940
+team that unites it and release engineering from both Fedora and CentOS.
+
+106
+00:08:55,940 --> 00:09:00,000
+This is nice from the standpoint of seeing Red Hat acknowledge that this is a workflow
+
+107
+00:09:00,000 --> 00:09:05,120
+that their customers are dependent on. And I would expect that probably give some peace
+
+108
+00:09:05,120 --> 00:09:09,320
+of mind to users who are taking advantage of Apple. But overall, there's still major
+
+109
+00:09:09,320 --> 00:09:14,440
+parts of the centos story that are still coming together. We do not yet have a complete picture.
+
+110
+00:09:14,440 --> 00:09:20,120
+I mean, we still have the transition to stream. There are new rebuilds yet to be announced.
+
+111
+00:09:20,120 --> 00:09:25,800
+And there are large well resourced companies that are just getting started working upstream
+
+112
+00:09:25,800 --> 00:09:31,080
+with stream. And now you have this official Red Hat backing of Apple. Well, all of this
+
+113
+00:09:31,080 --> 00:09:39,060
+suggests to me that we could be about to witness some kind of centos revolution.
+
+114
+00:09:39,060 --> 00:09:45,280
+Good news everyone, Microsoft's first full Linux distribution has an update that might
+
+115
+00:09:45,280 --> 00:09:51,920
+just pique your interest. As you probably recall, CBL Mariner is a Linux distribution
+
+116
+00:09:51,920 --> 00:09:58,840
+maintained by Microsoft for their own internal usage, but it's publicly available for anyone
+
+117
+00:09:58,840 --> 00:10:06,360
+interested. CBL Mariner is used as part of WSL. It packs Azure Sphere OS, Sonic, and
+
+118
+00:10:06,360 --> 00:10:13,800
+a whole bunch of other Linux based efforts within Microsoft. And now that we are in September,
+
+119
+00:10:13,800 --> 00:10:21,120
+Microsoft has just published their August 2021 update. CBL Mariner continues using the
+
+120
+00:10:21,120 --> 00:10:26,840
+Linux 5.10 kernel, which makes sense given it's a long term support release. And they've
+
+121
+00:10:26,840 --> 00:10:32,840
+added many new packages this time around, including cockpit. But the biggest feature
+
+122
+00:10:32,840 --> 00:10:39,900
+as far as we're concerned, is that they're now shipping a public ISO image ready to download.
+
+123
+00:10:39,900 --> 00:10:45,480
+So of course, I had to give it a go. I mean, is Microsoft they've released a Linux distribution
+
+124
+00:10:45,480 --> 00:10:51,520
+and it's now available as an ISO? Yeah, yeah, that's that's gonna get a download. And it's
+
+125
+00:10:51,520 --> 00:10:58,320
+quaint and not in like a bad way. It's clearly a lean mean working machine. It has a similar
+
+126
+00:10:58,320 --> 00:11:03,400
+approach to other tiny distros like alpine and container Linux came to mind. But CBL
+
+127
+00:11:03,400 --> 00:11:08,720
+Mariner only has just like basic packages needed to basically run containers. I mean,
+
+128
+00:11:08,720 --> 00:11:12,160
+it's very minimum. You know, you have some common Linux tools in there, of course, like
+
+129
+00:11:12,160 --> 00:11:17,640
+PS and LS. And it's got bash and all of that. And it uses RPM for packages. So you can install
+
+130
+00:11:17,640 --> 00:11:24,880
+packages that way. It's about a 700 megabyte ISO image. When you boot it up. It starts
+
+131
+00:11:24,880 --> 00:11:29,520
+with a text to speech at the boot menu. It's not like grub either was it's like their own
+
+132
+00:11:29,520 --> 00:11:35,280
+boot menu, I think. And it starts talking to you immediately. I had other audio playing.
+
+133
+00:11:35,280 --> 00:11:39,440
+It was very disorienting. Clearly, that's a weird lesson they've learned from the Windows
+
+134
+00:11:39,440 --> 00:11:44,320
+side. I mean, I guess it's friendly. Yeah, and I could kind of see it being useful, obviously,
+
+135
+00:11:44,320 --> 00:11:47,640
+for visually impaired folks, but maybe for those that are installing it on a headless
+
+136
+00:11:47,640 --> 00:11:53,680
+system as well. It has three options. It has text installer with speech, the text installer
+
+137
+00:11:53,680 --> 00:11:58,720
+and then the graphical installer. And so of course, I was like, well, let's see what Microsoft's
+
+138
+00:11:58,720 --> 00:12:04,240
+graphical Linux installer is like. So I chose that and then it immediately and hilariously
+
+139
+00:12:04,240 --> 00:12:09,720
+crashed. And then this green reader ridiculously read the error message to me. But I didn't
+
+140
+00:12:09,720 --> 00:12:15,000
+expect much with that. So I rebooted and I did the CLI install. And it's a bare minimum
+
+141
+00:12:15,000 --> 00:12:20,160
+installer. I mean, very, very bare. But it gets the job done. It's kind of exactly what
+
+142
+00:12:20,160 --> 00:12:25,240
+you'd want and expect from something like CBL. And it installs quick, like quicker than
+
+143
+00:12:25,240 --> 00:12:30,680
+I even expected. I want to say maybe within two minutes, the entire distro was installed.
+
+144
+00:12:30,680 --> 00:12:35,400
+It was about two gigabytes on disk once everything was all said and done. You reboot, you got
+
+145
+00:12:35,400 --> 00:12:38,640
+a real minimal install. I mean, your your basic tools are there, you're going to have
+
+146
+00:12:38,640 --> 00:12:43,080
+bash when you log in at the shell, and you got system D. So you're pretty much good to
+
+147
+00:12:43,080 --> 00:12:47,960
+go and you could start running containers. I mean, all in all, I can see they clearly
+
+148
+00:12:47,960 --> 00:12:53,560
+have built something for their particular use case. And it is designed to a T for that.
+
+149
+00:12:53,560 --> 00:12:58,800
+Microsoft for their part has stated that they're committed to keeping CPL Mariner up to date,
+
+150
+00:12:58,800 --> 00:13:04,080
+noting that it actually enhances Microsoft's ability overall to stay current on Linux updates.
+
+151
+00:13:04,080 --> 00:13:09,000
+They also note that the stripped back nature of the OS makes for better security saying,
+
+152
+00:13:09,000 --> 00:13:14,760
+quote, by focusing the features in the core image to just what is needed for our internal
+
+153
+00:13:14,760 --> 00:13:21,520
+cloud customers. They're just fewer services to load and fewer attack vectors. Now, it
+
+154
+00:13:21,520 --> 00:13:26,600
+still strikes us as a little bit strange to watch Microsoft build and maintain their own
+
+155
+00:13:26,600 --> 00:13:33,040
+Linux distribution, which is now even available as an ISO. But they seem to have a clear vision
+
+156
+00:13:33,040 --> 00:13:38,320
+for CPL Mariner, crafting it for their own specific needs. And it's gonna be fascinating
+
+157
+00:13:38,320 --> 00:13:43,800
+to watch if anyone else chooses to adopt it. For my part, though, I'm just hoping they
+
+158
+00:13:43,800 --> 00:13:59,840
+ship a version with plasma baked in sometime soon.
+
+159
+00:13:59,840 --> 00:14:17,920
+The
+
+160
+00:14:17,920 --> 00:14:22,440
+big large hyperscaler cloud vendors, they're going to present themselves as a one stop
+
+161
+00:14:22,440 --> 00:14:26,480
+shop. They're going to invite you to just come on in, become wholly dependent on them
+
+162
+00:14:26,480 --> 00:14:31,040
+as a single source for everything you might ever need. But you know, that's that's not
+
+163
+00:14:31,040 --> 00:14:34,760
+a good thing. The problem with relying on a single source cloud provider is vendor lock
+
+164
+00:14:34,760 --> 00:14:39,660
+in, you get so deeply intertwined into the vendors ecosystem that it becomes impossible
+
+165
+00:14:39,660 --> 00:14:44,100
+or at least cost prohibitive, if nothing else to break away. And then if your business needs
+
+166
+00:14:44,100 --> 00:14:49,280
+to change, you're stuck. And beyond being stuck and trapped, it's a single source architecture
+
+167
+00:14:49,280 --> 00:14:55,080
+that well makes your business less adaptable, and less resilient. So little really can be
+
+168
+00:14:55,080 --> 00:14:59,460
+part of your multi cloud strategy. And you know, there is a significant shift happening
+
+169
+00:14:59,460 --> 00:15:03,760
+in the industry right now. Gardner recently estimated that two thirds of all cloud industry
+
+170
+00:15:03,760 --> 00:15:09,420
+customers are going to adopt a multi cloud strategy as a means for specifically avoiding
+
+171
+00:15:09,420 --> 00:15:14,080
+vendor lock in by the end of 2024. So it's something we all really should be thinking
+
+172
+00:15:14,080 --> 00:15:18,480
+about. And if you ever run into any trouble with Linode, they have the best customer support.
+
+173
+00:15:18,480 --> 00:15:23,840
+I mean, it's truly amazing. 24 seven customer support by phone ticket or social, they're
+
+174
+00:15:23,840 --> 00:15:27,700
+going to help you along with hundreds of guides and tutorials. And they're always reaching
+
+175
+00:15:27,700 --> 00:15:31,820
+out to content creators to help create an ecosystem of content that makes it easier
+
+176
+00:15:31,820 --> 00:15:36,500
+to use Linode. They also recently invested in our colony reunion road trip to make it
+
+177
+00:15:36,500 --> 00:15:40,020
+possible for our community to connect because they understand that it's important to invest
+
+178
+00:15:40,020 --> 00:15:44,620
+in those areas of the Linux community as well. And not a lot of companies get that there's
+
+179
+00:15:44,620 --> 00:15:49,140
+a lot of ways to host something. But Linode is one of the companies that truly gets it.
+
+180
+00:15:49,140 --> 00:15:53,400
+They're dedicated to offering the best virtualized cloud computing ever runs on Linux, it runs
+
+181
+00:15:53,400 --> 00:15:57,700
+on the node. So go see what you can build, go see what you can learn. Sign up today at
+
+182
+00:15:57,700 --> 00:16:02,900
+Linode comm slash LAN, get $100 in 60 day credit on your new account, and you support
+
+183
+00:16:02,900 --> 00:16:11,240
+the show, Linode comm slash LAN, Linux dot ting.com. If you're sick of overpaying for
+
+184
+00:16:11,240 --> 00:16:15,780
+cell service, go see how much you could save and then take 25 bucks off that at Linux dot
+
+185
+00:16:15,780 --> 00:16:20,200
+ting.com. This episode of Linux action news is also made possible by our friends at ting
+
+186
+00:16:20,200 --> 00:16:24,180
+and there's something special over there. They're making the big networks that you hear
+
+187
+00:16:24,180 --> 00:16:28,540
+about all the time the coast to coast networks, they're making them available to everybody
+
+188
+00:16:28,540 --> 00:16:33,300
+ting is a mobile virtual network operator. That means ting customers get access to the
+
+189
+00:16:33,300 --> 00:16:39,760
+big carrier networks, but with way better customer service, and at a lot lower cost.
+
+190
+00:16:39,760 --> 00:16:44,980
+So it's just a win win. I've been a ting customer since 2003. And they've stayed flexible with
+
+191
+00:16:44,980 --> 00:16:48,460
+me. They've worked with me over the years. And they're great for those of you who are
+
+192
+00:16:48,460 --> 00:16:52,140
+traveling as well. And their plans are simple and straightforward. They have ones that are
+
+193
+00:16:52,140 --> 00:16:56,460
+really easy to understand. They have ones that are flexible for families. It's great.
+
+194
+00:16:56,460 --> 00:17:00,660
+And ting is also doing a bit of a giveaway right now. If you go over to their Twitter
+
+195
+00:17:00,660 --> 00:17:05,780
+page, you'll see more about it. They're at ting FTW on Twitter. They're doing a Yeti
+
+196
+00:17:05,780 --> 00:17:12,180
+prize pack giveaway, you can get a Yeti cooler, a Rambler, a Tumblr, a backpack and more.
+
+197
+00:17:12,180 --> 00:17:15,740
+So I have information on their Twitter feed and you can sign up they have like, I think
+
+198
+00:17:15,740 --> 00:17:19,860
+it's like seven different ways you could sign up to win. You might as well get in on that
+
+199
+00:17:19,860 --> 00:17:24,900
+and then check out their plans to, you know, a good plan is hard to find and they're flexible.
+
+200
+00:17:24,900 --> 00:17:28,680
+And if you can be clever on how you use your technology, like download your podcast and
+
+201
+00:17:28,680 --> 00:17:32,380
+sync a little bit of music before you hit the road, you could be shocked at how much
+
+202
+00:17:32,380 --> 00:17:37,260
+you could save. And the great thing about ting is there's no contracts ever. And it's
+
+203
+00:17:37,260 --> 00:17:40,800
+super simple to switch to ting pretty much any phones going to work because they support
+
+204
+00:17:40,800 --> 00:17:46,780
+the major networks. So you get started by going to linux.ting.com. You check your current
+
+205
+00:17:46,780 --> 00:17:50,420
+phone, get all the information, they have a really easy, smooth process to do all of
+
+206
+00:17:50,420 --> 00:17:54,340
+that. And you get set within minutes, they'll send you a SIM card, you pop that in, you
+
+207
+00:17:54,340 --> 00:17:58,380
+go back to their website, once you got it, another couple of minutes, you're activated,
+
+208
+00:17:58,380 --> 00:18:02,620
+you're good to go. They have a great dashboard to manage all of it. If you do need to talk
+
+209
+00:18:02,620 --> 00:18:06,820
+to a human, you're going to be set. But if you don't, you're going to love the website.
+
+210
+00:18:06,820 --> 00:18:12,340
+But the key is to support the show and get 25 bucks off by visiting linux.ting.com. It's
+
+211
+00:18:12,340 --> 00:18:16,920
+never been a better time to be a ting customer. Their plans are more competitive than ever.
+
+212
+00:18:16,920 --> 00:18:25,780
+And they're needed in the industry more than ever. So go sign up and save 25 bucks at linux.ting.com.
+
+213
+00:18:25,780 --> 00:18:31,020
+We don't spend a lot of time going meta on this show, by which I mean talking about the
+
+214
+00:18:31,020 --> 00:18:38,140
+show in the show. But with the summer coming to a close, we wanted to touch base on an
+
+215
+00:18:38,140 --> 00:18:43,900
+editorial choice that we made during the summer lull of development and general free software
+
+216
+00:18:43,900 --> 00:18:49,480
+news. Really, we thought you should know that more than a dozen additional stories were
+
+217
+00:18:49,480 --> 00:18:55,900
+considered and rejected for this episode. Not because they were bad stories, but because
+
+218
+00:18:55,900 --> 00:19:02,700
+we know you're busy. We're trying to focus on the news that matters this week. That's
+
+219
+00:19:02,700 --> 00:19:07,820
+the Linux action news promise. And it often means we're going to pass on more stories
+
+220
+00:19:07,820 --> 00:19:14,540
+than we can include each week. Not as a judgment call on those stories, but out of respect
+
+221
+00:19:14,540 --> 00:19:21,180
+for your time. We know you're busy. And the value of this show is getting concise, accurate
+
+222
+00:19:21,180 --> 00:19:28,020
+information to help you do your job and stay informed. As a concrete example, we didn't
+
+223
+00:19:28,020 --> 00:19:32,980
+cover the latest point release of the OpenShot project. Not because we don't think it's
+
+224
+00:19:32,980 --> 00:19:38,220
+a valuable project or a worthwhile release, or even something we personally are excited
+
+225
+00:19:38,220 --> 00:19:43,940
+about. But because unless you're an OpenShot user, this release hasn't really changed
+
+226
+00:19:43,940 --> 00:19:48,860
+the value proposition of the project. And that means it doesn't really fit in Linux
+
+227
+00:19:48,860 --> 00:19:53,680
+action news. And that's true for a lot of stories, some of which might just be a better
+
+228
+00:19:53,680 --> 00:19:58,780
+fit for some of our other shows, like Linux Unplugged. And I think we also realize you
+
+229
+00:19:58,780 --> 00:20:03,420
+can read headlines in a million different places in a million different ways if you
+
+230
+00:20:03,420 --> 00:20:08,740
+want. So we have a job to do. And our job is to provide value and context and some selection
+
+231
+00:20:08,740 --> 00:20:16,120
+where it's helpful. And more often than not, it will mean the episodes are short and concise.
+
+232
+00:20:16,120 --> 00:20:20,500
+And it doesn't mean that we're not digging into every story and seeking comment and evaluating
+
+233
+00:20:20,500 --> 00:20:26,620
+all of the news in a broader context. In fact, ironically, a shorter show often takes more
+
+234
+00:20:26,620 --> 00:20:31,140
+work. As backwards as that might seem on the surface, it takes more work to make a show
+
+235
+00:20:31,140 --> 00:20:37,280
+shorter because it's a process of working through each story, identifying the ones that
+
+236
+00:20:37,280 --> 00:20:41,820
+have a larger impact and taking those lists of stories and whittling it down into something
+
+237
+00:20:41,820 --> 00:20:47,580
+more refined. It means after we've concluded our research, messaging our contacts and sleuthing
+
+238
+00:20:47,580 --> 00:20:51,780
+around the mailing list and reading through our RSS feeds, what makes it into the show
+
+239
+00:20:51,780 --> 00:20:56,180
+is the stuff that we think you should really know about. And I should probably add, it
+
+240
+00:20:56,180 --> 00:21:00,980
+does sometimes mean occasionally longer episodes too, usually not in the summer. But if that's
+
+241
+00:21:00,980 --> 00:21:04,780
+what the content calls for, well, we'll hope you stick around for the longer episodes when
+
+242
+00:21:04,780 --> 00:21:06,740
+it's a big show week as well.
+
+243
+00:21:06,740 --> 00:21:11,980
+And really, that's the kind of flexibility that we think new media productions like this
+
+244
+00:21:11,980 --> 00:21:17,380
+podcast should lean into, not getting trapped in the formats of the past that follow the
+
+245
+00:21:17,380 --> 00:21:24,660
+clock. Making Linux industry news more accessible to busy professionals is something we take
+
+246
+00:21:24,660 --> 00:21:30,560
+seriously because in a very real way, this is the new show I would want to listen to
+
+247
+00:21:30,560 --> 00:21:37,420
+if I wasn't already making it. Now, with all of this said, we are always interested in
+
+248
+00:21:37,420 --> 00:21:45,380
+your thoughts. Our inbox is open to you. LinuxActionNews.com slash contact. Indeed, we always like to hear
+
+249
+00:21:45,380 --> 00:21:50,660
+your ideas or story suggestions or leads or announcements. You can send those there as
+
+250
+00:21:50,660 --> 00:21:54,180
+well. You know, Linux Action News, if you haven't been around for a while, you might
+
+251
+00:21:54,180 --> 00:22:00,860
+not know this, but it started life off as just a news segment in the Linux Action show.
+
+252
+00:22:00,860 --> 00:22:06,380
+In that context, the news could be five minutes long, or it could be the entire episode. It
+
+253
+00:22:06,380 --> 00:22:11,940
+was just the news segment, and it was what it needed to be. And that general idea echoes
+
+254
+00:22:11,940 --> 00:22:17,100
+today in Linux Action News. In a way, I guess we are we're asking the audience to trust
+
+255
+00:22:17,100 --> 00:22:23,660
+us and disconnect episode length from quality of episode. In our view, our value to you,
+
+256
+00:22:23,660 --> 00:22:27,320
+our listener, is in creating a high quality episode that provides you the information
+
+257
+00:22:27,320 --> 00:22:32,620
+you need in the most concise and accurate delivery possible. And we're going to keep
+
+258
+00:22:32,620 --> 00:22:38,680
+trying to do that every single week. So make sure you get every episode by going to LinuxActionNews.com
+
+259
+00:22:38,680 --> 00:22:44,260
+slash subscribe. And of course, we'll be back next Monday with our weekly take on the latest
+
+260
+00:22:44,260 --> 00:23:03,620
+Linux and open source news. Thanks for joining us. And that's all the news for this week.
+

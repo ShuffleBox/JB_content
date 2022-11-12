@@ -1,0 +1,938 @@
+WEBVTT
+
+00:00.000 --> 00:05.200
+Hello, and welcome to Linux Action News.
+
+00:05.200 --> 00:08.240
+Episode 148, recorded on March 8, 2020.
+
+00:08.240 --> 00:09.240
+I'm Chris.
+
+00:09.240 --> 00:10.240
+And I'm Joe.
+
+00:10.240 --> 00:11.240
+Hello, Joe.
+
+00:11.240 --> 00:12.240
+Good to be connected with you.
+
+00:12.240 --> 00:14.280
+Let's start with news from Let's Encrypt this week.
+
+00:14.280 --> 00:18.480
+Yeah, this is a story that developed throughout the week because originally, Let's Encrypt
+
+00:18.480 --> 00:23.920
+said that due to a bug, they were going to have to revoke 3 million certificates, and
+
+00:23.920 --> 00:27.720
+they were going to do it very quickly within a couple of days.
+
+00:27.720 --> 00:33.760
+But then a couple of days went by, and they realized that they would end up revoking 1.3
+
+00:33.760 --> 00:37.880
+million certificates that people hadn't replaced.
+
+00:37.880 --> 00:43.640
+And so now they've delayed that revocation, and they've been quite vague about it.
+
+00:43.640 --> 00:48.020
+It's interesting because they had the data to see, oh, people are not taking action here.
+
+00:48.020 --> 00:51.400
+This all goes back to a pretty simple bug in Boulder, which is Let's Encrypt's automated
+
+00:51.400 --> 00:53.800
+certificate management environment.
+
+00:53.800 --> 00:58.520
+I'm no Go developer, but I guess it's a very common bug in Go, taking a reference to a
+
+00:58.520 --> 01:00.180
+loop iterator variable.
+
+01:00.180 --> 01:06.800
+And that bug, that simple bug meant if a subscriber validated a domain name at time X, and the
+
+01:06.800 --> 01:12.840
+CAA records for that domain at time X allowed Let's Encrypt's insurance, that subscriber
+
+01:12.840 --> 01:18.760
+would be able to issue a certificate containing that domain name for X plus 30 days.
+
+01:18.760 --> 01:23.900
+Even if some time later, someone installed a record on the domain name that prohibited
+
+01:23.900 --> 01:27.340
+its insurance by Let's Encrypt at a later point, if it had already been issued, it was
+
+01:27.340 --> 01:29.860
+too late, it'd be considered valid.
+
+01:29.860 --> 01:34.840
+The funny thing is, the code fix was deployed in about two hours after they discovered the
+
+01:34.840 --> 01:35.840
+bug.
+
+01:35.840 --> 01:36.840
+So it really got fixed fast.
+
+01:36.840 --> 01:41.640
+It's just the issue is at that scale, you're talking about millions of certificates, and
+
+01:41.640 --> 01:44.600
+it takes a while for people to get the word and to fix it.
+
+01:44.600 --> 01:49.060
+Well, just last week, they announced that they'd issued a billion certificates total.
+
+01:49.060 --> 01:54.440
+This has really taken off for Let's Encrypt, it has done exactly what they wanted.
+
+01:54.440 --> 01:58.360
+It's made HTTPS the default across the web.
+
+01:58.360 --> 02:05.000
+And so bugs like this are quite wide reaching now, and have caused quite a bit of upset.
+
+02:05.000 --> 02:10.400
+Yeah, if you think this might impact you, I encourage you to check out our link at linuxactionnews.com
+
+02:10.400 --> 02:11.400
+slash 148.
+
+02:11.400 --> 02:14.440
+It'll be towards the very top of the show notes.
+
+02:14.440 --> 02:18.920
+I feel like we should have a special segment in the show for what's the latest Intel hardware
+
+02:18.920 --> 02:20.520
+vulnerability.
+
+02:20.520 --> 02:22.620
+Because this week, we've got another one.
+
+02:22.620 --> 02:25.520
+Are you feeling the Intel fatigue yet, folks?
+
+02:25.520 --> 02:31.480
+Yeah, virtually all Intel chips released in the past five years contain an unfixable flaw
+
+02:31.480 --> 02:36.400
+that would allow a sophisticated and I underscore that word attack to defeat a host of security
+
+02:36.400 --> 02:38.160
+measures that have been built in.
+
+02:38.160 --> 02:42.560
+Intel has issued patches to lessen the damage of the exploits and make them even harder
+
+02:42.560 --> 02:44.740
+to actually take advantage of.
+
+02:44.740 --> 02:49.680
+But a security firm named Positive Technology said the mitigations are not enough to protect
+
+02:49.680 --> 02:51.600
+a system fully.
+
+02:51.600 --> 02:57.160
+These flaws reside in that converged security and management engine, a subsystem of Intel
+
+02:57.160 --> 03:02.240
+CPUs and chipsets that's roughly like AMD's platform security processor.
+
+03:02.240 --> 03:06.300
+We'll have a link to an Ars Technica article that was done by Dan Gooden that goes into
+
+03:06.300 --> 03:07.300
+more details.
+
+03:07.300 --> 03:08.300
+It's a good write up.
+
+03:08.300 --> 03:13.240
+So this CSME, which is often a contention point for people, implements a firmware based
+
+03:13.240 --> 03:15.480
+trusted platform module.
+
+03:15.480 --> 03:20.840
+Lots of tools and even things like UFI BIOS firmware take advantage of this.
+
+03:20.840 --> 03:23.560
+Microsoft's BitLocker is another example.
+
+03:23.560 --> 03:28.080
+The bug stems from a failure of input and output memory management.
+
+03:28.080 --> 03:31.600
+Kind of simple on the surface, but actually exploiting that's pretty tough.
+
+03:31.600 --> 03:32.880
+I think that's the key here.
+
+03:32.880 --> 03:36.840
+And it's like with a lot of the other hardware vulnerabilities that we're seeing in Intel
+
+03:36.840 --> 03:38.520
+processors.
+
+03:38.520 --> 03:39.520
+It's theoretical.
+
+03:39.520 --> 03:46.640
+Yes, it's concerning, but is anyone actually taking advantage of this?
+
+03:46.640 --> 03:47.640
+Probably not.
+
+03:47.640 --> 03:52.320
+And if so, it's extremely targeted attacks, maybe by governments or something.
+
+03:52.320 --> 03:57.880
+But I don't think this is going to be widely exploited in the wild.
+
+03:57.880 --> 04:02.080
+That's my take on it, although there is the look of this at this point.
+
+04:02.080 --> 04:05.880
+It's a problem from them from a brand standpoint.
+
+04:05.880 --> 04:10.680
+And I think that will have impacts for a long time on their performance in the data center,
+
+04:10.680 --> 04:14.920
+especially as AMD keeps making fantastic processors.
+
+04:14.920 --> 04:18.240
+And they don't seem to be quite as impacted by these vulnerabilities.
+
+04:18.240 --> 04:22.760
+It opens up a big window of vulnerability for Intel here at a time when they need that
+
+04:22.760 --> 04:24.600
+data center sale more than ever.
+
+04:24.600 --> 04:28.260
+And it's not only AMD coming after them in the data center.
+
+04:28.260 --> 04:29.960
+Look what's happening with ARM.
+
+04:29.960 --> 04:37.360
+This week, we saw Ampere announce a new 80-core, 64-bit ARM processor that is specifically
+
+04:37.360 --> 04:39.680
+targeted at the data center.
+
+04:39.680 --> 04:45.720
+And they're claiming twice the performance of x86 per watt, which does not look good
+
+04:45.720 --> 04:48.760
+for Intel long term if this is where we're going with ARM.
+
+04:48.760 --> 04:49.760
+It's not just them.
+
+04:49.760 --> 04:50.760
+There's Marvell, too.
+
+04:50.760 --> 04:53.160
+They have a 36-core, 64-bit ARM.
+
+04:53.160 --> 04:55.720
+But that Ampere one is really fascinating.
+
+04:55.720 --> 04:58.640
+So 80 cores, 64-bit, yep, okay, okay.
+
+04:58.640 --> 05:00.680
+That sounds real.
+
+05:00.680 --> 05:05.700
+Three gigahertz turbo boost, and the chip only consumes, like you were saying, 210 watts
+
+05:05.700 --> 05:07.080
+of power.
+
+05:07.080 --> 05:11.360
+That is less power than a modern Xeon with a dozen cores.
+
+05:11.360 --> 05:13.320
+And we're talking real numbers here.
+
+05:13.320 --> 05:17.580
+Three gigahertz, and we're talking 80 cores on a single chip.
+
+05:17.580 --> 05:22.900
+This is really competitive from both a performance standpoint and a power usage standpoint.
+
+05:22.900 --> 05:26.320
+And that's why this is just a super vulnerable time for Intel right now.
+
+05:26.320 --> 05:30.840
+But it's interesting that there's a story developing about AMD and their processors
+
+05:30.840 --> 05:34.040
+and a new paper released by Graz University of Technology.
+
+05:34.040 --> 05:36.080
+I think that's how you say it.
+
+05:36.080 --> 05:38.940
+AMD have denied that it is a new vulnerability.
+
+05:38.940 --> 05:42.440
+So we'll have to see how this works out over the next week or so.
+
+05:42.440 --> 05:49.000
+But it does go to show that it's not necessarily just Intel who are vulnerable here and that
+
+05:49.000 --> 05:53.160
+ARM might well come and just take over the data center.
+
+05:53.160 --> 05:57.000
+We've been saying it for a long time, but it feels like it's actually happening now.
+
+05:57.000 --> 06:00.840
+I'm skeptical still, I have to be honest with you.
+
+06:00.840 --> 06:07.040
+Watching the server environments from the early 90s to the early 2000s to where we're
+
+06:07.040 --> 06:14.120
+at now, one thing that's really held true is large industrial grade server side applications
+
+06:14.120 --> 06:17.080
+rarely go through major architecture rewrites.
+
+06:17.080 --> 06:22.900
+And you can have just these crazy legacy systems that could drug 30 years past their real viability
+
+06:22.900 --> 06:26.240
+date simply because large enterprises don't want to change.
+
+06:26.240 --> 06:31.880
+I think we'll be with x86 in some form or another likely for nearly the rest of our
+
+06:31.880 --> 06:33.000
+natural lives.
+
+06:33.000 --> 06:36.180
+It's just there may be way more different architectures out there.
+
+06:36.180 --> 06:42.000
+There may be more popular architectures out there, but x86 will be here forever as all
+
+06:42.000 --> 06:45.260
+of my friends out there that are still working on system 390s are probably nodding their
+
+06:45.260 --> 06:46.260
+heads to right now.
+
+06:46.260 --> 06:47.260
+Yeah, I suppose.
+
+06:47.260 --> 06:50.720
+Well, let's transition to talking a little Debian.
+
+06:50.720 --> 06:53.920
+We have some updates for the Debian project leader in 2020.
+
+06:53.920 --> 06:59.200
+Yeah, Sam Hartman has written quite a lengthy post explaining why he doesn't want to stand
+
+06:59.200 --> 07:02.000
+again for the role of Debian project lead.
+
+07:02.000 --> 07:07.800
+He writes though, I hope to be DPL again some year, but 2020 is the wrong year for me and
+
+07:07.800 --> 07:08.980
+for the project.
+
+07:08.980 --> 07:14.800
+So I will not nominate myself this year, but hope to do so some future year.
+
+07:14.800 --> 07:18.880
+It sounds like he's pretty disappointed with how things have gone over the last year.
+
+07:18.880 --> 07:23.720
+He had some quite grand ambitions and they just haven't really panned out.
+
+07:23.720 --> 07:29.400
+He kind of is diplomatic about that and says that there's been some successes, but I think
+
+07:29.400 --> 07:34.040
+some of the fundamental things that he wanted to deal with haven't been dealt with.
+
+07:34.040 --> 07:38.480
+He has dragged up the system D debate again, or at least dragged it to the surface.
+
+07:38.480 --> 07:44.160
+It sounds like it was clearly bubbling under the surface and that has not been resolved.
+
+07:44.160 --> 07:49.880
+He tried to have this general resolution and get it solved, but that just didn't work out.
+
+07:49.880 --> 07:52.360
+And there's also the conflict resolution aspect of that.
+
+07:52.360 --> 07:58.000
+The system D debate within Debian several years ago really did bring out quite a lot
+
+07:58.000 --> 08:00.680
+of unpleasantness.
+
+08:00.680 --> 08:03.720
+And again, it has done this time.
+
+08:03.720 --> 08:09.360
+And I think Sam wanted to implement some processes to deal with this conflict and have conflict
+
+08:09.360 --> 08:12.600
+resolution and that doesn't seem to have worked out either.
+
+08:12.600 --> 08:17.560
+Yeah, after this last year, I could completely understand why Sam wants to check out for
+
+08:17.560 --> 08:18.560
+a bit.
+
+08:18.560 --> 08:23.920
+Let somebody with a different set of tools and skill set step in, maybe fix some of this,
+
+08:23.920 --> 08:28.200
+set up whatever needs to be set up to resolve issues, get things on the straight and narrow.
+
+08:28.200 --> 08:32.600
+And then when their work's done, hand it off to somebody else who can run a healthy project.
+
+08:32.600 --> 08:38.280
+I think it's really unfortunate that this has continued to evolve now for years and
+
+08:38.280 --> 08:40.520
+I think it's going to impact the distribution.
+
+08:40.520 --> 08:46.320
+But I hope, perhaps with some leadership change, somebody else can step in that maybe can resolve
+
+08:46.320 --> 08:49.860
+things if it is even at all possible.
+
+08:49.860 --> 08:55.440
+Which reading through Sam's post here makes me think that maybe it's dark.
+
+08:55.440 --> 09:00.040
+Yeah, I remember talking about this before and thinking, Oh, well, Debian has been going
+
+09:00.040 --> 09:06.080
+for such a long time now and it'll be fine, but I'm starting to doubt that.
+
+09:06.080 --> 09:07.080
+Yep.
+
+09:07.080 --> 09:08.080
+Same.
+
+09:08.080 --> 09:11.720
+That was the conclusion when I started reading through all of this for the show.
+
+09:11.720 --> 09:16.020
+And there seems to be different factions setting up that are even establishing their own news
+
+09:16.020 --> 09:18.920
+outlets to report Debian news as they see it.
+
+09:18.920 --> 09:26.840
+It's becoming partisan and I really think it's going to damage the project.
+
+09:26.840 --> 09:30.940
+It is in a precarious situation right now and it just seems like some sort of fork is
+
+09:30.940 --> 09:36.000
+going to have to happen or some kind of really large understanding at a group level will
+
+09:36.000 --> 09:37.000
+have to be achieved.
+
+09:37.000 --> 09:40.120
+Well, we've already seen the fork, haven't we, with Dev1.
+
+09:40.120 --> 09:44.960
+That was to make it completely system D free and that didn't solve it.
+
+09:44.960 --> 09:46.120
+I thought that had solved it.
+
+09:46.120 --> 09:52.360
+I thought that we'd kind of split the community there into those who were behind system D
+
+09:52.360 --> 09:55.500
+and those who weren't, but that didn't work.
+
+09:55.500 --> 10:01.640
+And I think that there's also a broader political change that's happened, a social change that
+
+10:01.640 --> 10:08.860
+has happened in the last five or 10 years, which has polarized the world, really.
+
+10:08.860 --> 10:10.920
+It's polarized the discourse in the mailing list.
+
+10:10.920 --> 10:14.360
+The mailing list conversations are heated.
+
+10:14.360 --> 10:22.240
+I agree that there is a new vitriol and velocity to the words that people use in the mailing
+
+10:22.240 --> 10:24.720
+list that just wasn't really present.
+
+10:24.720 --> 10:28.900
+There was disagreements for sure, even some pretty passionate ones.
+
+10:28.900 --> 10:30.840
+But this is at a whole new level now.
+
+10:30.840 --> 10:33.360
+It's just really, it seems unmanageable.
+
+10:33.360 --> 10:38.160
+I hope that you're right and someone does step up and solve all of this because with
+
+10:38.160 --> 10:43.000
+the right communication, it may be possible and with the right leadership.
+
+10:43.000 --> 10:44.920
+And I think that's our only hope here.
+
+10:44.920 --> 10:47.720
+Someone comes along and just sorts it out.
+
+10:47.720 --> 10:50.840
+I just wouldn't envy the person who has to do that.
+
+10:50.840 --> 10:55.820
+And just as a quick aside while we're talking about system D, system D home D has officially
+
+10:55.820 --> 10:57.120
+been added.
+
+10:57.120 --> 11:01.080
+We covered that pretty extensively in Linux Unplugged recently, but it's a way to do built
+
+11:01.080 --> 11:04.240
+in encryption and add portability to Linux home directories.
+
+11:04.240 --> 11:08.420
+Yeah, and that comes with version 2.4.5 of system D, which has now been released, coming
+
+11:08.420 --> 11:09.920
+to a distro near you soon.
+
+11:09.920 --> 11:15.240
+And it's probably worth mentioning, don't worry, it's entirely optional and off by default.
+
+11:15.240 --> 11:18.840
+So even if your distro does ship that version of system D, it doesn't mean it's using home
+
+11:18.840 --> 11:19.840
+D.
+
+11:19.840 --> 11:20.840
+For now.
+
+11:20.840 --> 11:24.200
+IX Systems caught our attention this week when they announced that free NAS and true
+
+11:24.200 --> 11:26.840
+NAS are becoming one.
+
+11:26.840 --> 11:32.340
+With version 12 coming later on this year, there'll be true NAS core and true NAS enterprise.
+
+11:32.340 --> 11:36.000
+And they say that that will be one image that you can install.
+
+11:36.000 --> 11:41.320
+And then if you have a license key, then you can unlock the enterprise features.
+
+11:41.320 --> 11:45.480
+But otherwise, you can just use the completely open source version true NAS core.
+
+11:45.480 --> 11:49.880
+And adopting some language that the broader industry outside of our bubble is a little
+
+11:49.880 --> 11:51.000
+more familiar with.
+
+11:51.000 --> 11:56.160
+True NAS core provides all of the same unrestricted functionality as free NAS that is already
+
+11:56.160 --> 11:57.160
+today.
+
+11:57.160 --> 12:01.560
+It's essentially full free NAS just with a new name.
+
+12:01.560 --> 12:06.520
+You can even if you want in the UI, change an option so that we still see the free NAS
+
+12:06.520 --> 12:07.520
+logo.
+
+12:07.520 --> 12:12.160
+And then you get what they consider more enterprise features when you license and that's things
+
+12:12.160 --> 12:16.760
+to do with fiber channel, some certain high availability features, and other encryption
+
+12:16.760 --> 12:18.880
+features outside the standard CFS set.
+
+12:18.880 --> 12:23.680
+See, I think it's a smart move more from a developer resources standpoint, just unifying
+
+12:23.680 --> 12:28.320
+their work on one product, not taking free NAS and then setting a bunch of dedicated
+
+12:28.320 --> 12:33.320
+work to make it true NAS just one product with the base being free NAS.
+
+12:33.320 --> 12:38.480
+I almost wonder if free NAS isn't the stronger brand overall, but obviously they know better
+
+12:38.480 --> 12:40.680
+and decided true NAS is the route to go.
+
+12:40.680 --> 12:46.560
+Well, that's for commercial reasons, because free sounds like it's no cost and therefore
+
+12:46.560 --> 12:51.320
+terrible in the enterprise that that's why we have open source, right?
+
+12:51.320 --> 12:56.120
+Because the whole free software thing not appealing to the money men back in the late
+
+12:56.120 --> 12:57.120
+90s.
+
+12:57.120 --> 12:58.120
+Right.
+
+12:58.120 --> 12:59.880
+Whereas true NAS sounds like the one true NAS.
+
+12:59.880 --> 13:00.880
+Yeah, exactly.
+
+13:00.880 --> 13:02.400
+No one can argue with that.
+
+13:02.400 --> 13:06.080
+When this does ship and they just say right now, latter half of this year, I'm going to
+
+13:06.080 --> 13:07.080
+give it a go.
+
+13:07.080 --> 13:12.920
+And what I'm going to be looking for is how this line is handled between true NAS core
+
+13:12.920 --> 13:14.320
+and true NAS enterprise.
+
+13:14.320 --> 13:17.920
+Is it all truly open source bits just sitting there on the disk that I could get access
+
+13:17.920 --> 13:18.920
+to?
+
+13:18.920 --> 13:22.160
+Is there closed source bits that get downloaded and activated?
+
+13:22.160 --> 13:26.000
+Is there closed source that ships on the ISO but just isn't enabled by default and only
+
+13:26.000 --> 13:28.240
+open source is enabled by default?
+
+13:28.240 --> 13:30.400
+These are the types of questions I have about the implementation.
+
+13:30.400 --> 13:34.500
+Plus, as a long time on and off free NAS user, I'm just kind of curious to see where they
+
+13:34.500 --> 13:35.500
+take it.
+
+13:35.500 --> 13:36.500
+Sure.
+
+13:36.500 --> 13:38.000
+Do you just delete it and install Arch?
+
+13:38.000 --> 13:44.480
+Well, first Fedora, then Arch and then maybe Ubuntu in the future.
+
+13:44.480 --> 13:51.560
+Yeah, then ultimately Ubuntu LTS because that makes the most sense.
+
+13:51.560 --> 13:56.840
+You know, I love a good cryptocurrency story and Facebook's Libra is back in the news this
+
+13:56.840 --> 13:57.840
+week.
+
+13:57.840 --> 13:58.840
+Is this a good one though?
+
+13:58.840 --> 14:02.480
+In fact, if anything, it kind of seems like the market's cooling and they're altering
+
+14:02.480 --> 14:04.860
+their plans pretty significantly.
+
+14:04.860 --> 14:10.000
+You remember that Libra was their cryptocurrency project that was announced like last June?
+
+14:10.000 --> 14:11.000
+It's been quite a while.
+
+14:11.000 --> 14:15.920
+Well, a new report from the information released on Tuesday suggests that Facebook will transition
+
+14:15.920 --> 14:21.720
+to supporting both existing government backed currencies like the US dollar or the euro
+
+14:21.720 --> 14:24.640
+and the Libra token when it is eventually launched.
+
+14:24.640 --> 14:28.280
+But according to the information, Facebook is just going to delay a separate digital
+
+14:28.280 --> 14:33.000
+wallet altogether and they're reducing the scope of this entire project, dialing it back
+
+14:33.000 --> 14:34.880
+just like the Telegram folks had to.
+
+14:34.880 --> 14:38.960
+So it's going to be filthy fiat currencies instead of proper blockchain, eh?
+
+14:38.960 --> 14:44.200
+That seems to be the route they're going and the implication is they got spooked by the
+
+14:44.200 --> 14:47.000
+regulators and they don't want to upset the regulators.
+
+14:47.000 --> 14:50.380
+Well, it's not necessarily just Facebook that got spooked.
+
+14:50.380 --> 14:55.180
+It's all of the other payment processes like Visa that pulled out when the regulators started
+
+14:55.180 --> 14:56.180
+sniffing around.
+
+14:56.180 --> 15:00.160
+Yeah, that definitely was when things had to take a bad turn for them.
+
+15:00.160 --> 15:02.680
+I bet this has been in the works since that moment.
+
+15:02.680 --> 15:07.300
+Yeah, so now there's just more delay while they try and retool it, but it's not looking
+
+15:07.300 --> 15:11.160
+like it's going to end up being what they originally wanted it to be.
+
+15:11.160 --> 15:12.800
+It's finally happened, Joe.
+
+15:12.800 --> 15:19.260
+I can finally run Android on iPhone hardware, as long as I'm willing to rock an iPhone 7
+
+15:19.260 --> 15:20.920
+or an equivalent iPod touch device.
+
+15:20.920 --> 15:25.520
+Yeah, now it was possible to run Android on the very first iPhone, but it's been a while
+
+15:25.520 --> 15:27.240
+since you could do this.
+
+15:27.240 --> 15:32.600
+And now Project Sandcastle has come along, which allows you to at least temporarily boot
+
+15:32.600 --> 15:38.080
+Android 10 on the iPhone 7, which is pretty cool, I think.
+
+15:38.080 --> 15:39.240
+This has always kind of been my dream.
+
+15:39.240 --> 15:44.720
+I love this idea, Android on iPhone hardware, perfect.
+
+15:44.720 --> 15:48.380
+Except for with Project Sandcastle, the way this is being done, the jailbreak that's being
+
+15:48.380 --> 15:54.260
+used to achieve this is only persistent during the iPhone's boot time.
+
+15:54.260 --> 15:59.760
+It modifies the bootloader at boot, which means if you reboot the iPhone, it goes away.
+
+15:59.760 --> 16:03.320
+Now, that could be good, because you could just get right back to using your phone.
+
+16:03.320 --> 16:07.700
+That's probably not a bad idea, because it's not fully functional under this jailbreak.
+
+16:07.700 --> 16:14.440
+Certain things don't work, like the LTE, the Bluetooth, the GPU, you know, kind of like
+
+16:14.440 --> 16:15.440
+a Librem 5.
+
+16:15.440 --> 16:18.680
+It's not fully functional, so you'd probably want to boot into a functional OS from time
+
+16:18.680 --> 16:19.680
+to time.
+
+16:19.680 --> 16:22.960
+But the idea is pretty great, and they'll get that stuff eventually if they stick with
+
+16:22.960 --> 16:23.960
+it.
+
+16:23.960 --> 16:28.440
+This is a really cool example of just hacking for the sake of it, just for the fun of it.
+
+16:28.440 --> 16:34.840
+Although it is something of an advert, really, for a virtualization platform called Corellium,
+
+16:34.840 --> 16:38.840
+which is run by Chris Wade and David Wang, the two guys who have done this.
+
+16:38.840 --> 16:42.280
+But I think fair play to them, even though they're just trying to get their platform
+
+16:42.280 --> 16:47.660
+out there and more publicity, I think being able to run Android on an iPhone, even if
+
+16:47.660 --> 16:50.840
+it's a few years old, that is still really cool.
+
+16:50.840 --> 16:52.560
+It is a really cool technical feat.
+
+16:52.560 --> 16:56.140
+There'll be a link in the show notes that explains the tweaks they made to the Android
+
+16:56.140 --> 17:01.640
+subsystem and the Linux kernel to make this possible, and I'm really impressed.
+
+17:01.640 --> 17:05.040
+I don't care if they're plugging Corellium, I think it's worth it, and I'd love to see
+
+17:05.040 --> 17:06.960
+this running on an actual physical iPhone.
+
+17:06.960 --> 17:11.480
+Well, one of the things that made it possible was CheckRain, which is how you root iPhones
+
+17:11.480 --> 17:13.080
+in the first place.
+
+17:13.080 --> 17:17.880
+And because CheckRain is now supported by Linux, you can actually use a rooted Android
+
+17:17.880 --> 17:23.120
+phone to jailbreak an iPhone without having a proper computer.
+
+17:23.120 --> 17:24.780
+That is just so cool to me.
+
+17:24.780 --> 17:26.000
+That is one of the great parts.
+
+17:26.000 --> 17:30.400
+It's also the part that's not persistent through a reboot, but it's so great because like
+
+17:30.400 --> 17:36.860
+an Android phone or tablet or a Linux box can now help you do this, and everything about
+
+17:36.860 --> 17:39.760
+it is, it's exactly what you love.
+
+17:39.760 --> 17:43.480
+Remember the good old days where the joke would be, what's Linux running on now?
+
+17:43.480 --> 17:47.280
+It's like going back to that old joke, like we got Linux running on the iPhone again.
+
+17:47.280 --> 17:53.360
+Yeah, from a Raspberry Pi Zero up to a supercomputer via even an iPhone now, Linux is everywhere.
+
+17:53.360 --> 17:55.740
+And that's why we do a weekly news show about it.
+
+17:55.740 --> 18:00.000
+So be sure to go to linuxactionnews.com slash subscribe for all the ways to get new episodes.
+
+18:00.000 --> 18:03.480
+And linuxactionnews.com slash contact for ways to get in touch with us.
+
+18:03.480 --> 18:05.280
+And I want to mention FOSStalk Live.
+
+18:05.280 --> 18:07.880
+Go check it out at FOSStalk.com.
+
+18:07.880 --> 18:08.880
+Coming up soon.
+
+18:08.880 --> 18:09.880
+Well, soon-ish.
+
+18:09.880 --> 18:12.740
+Yeah, this is going to be on the 20th of June in London.
+
+18:12.740 --> 18:16.700
+It's a bunch of us podcasters all getting together, and there'll be some talks and maybe
+
+18:16.700 --> 18:22.640
+some workshops during the day, starting at lunchtime until the pub kicks out.
+
+18:22.640 --> 18:24.240
+And tickets are now available.
+
+18:24.240 --> 18:26.240
+You can pay what you want, including nothing.
+
+18:26.240 --> 18:29.040
+So yeah, go to FOSStalk.com and find out more.
+
+18:29.040 --> 18:33.320
+We'll be back next Monday with our weekly take on the latest Linux and open source news.
+
+18:33.320 --> 18:35.120
+You can find me at chrislass.com.
+
+18:35.120 --> 18:38.120
+And you can find me at joeress.com.
+
+18:38.120 --> 18:40.660
+Thanks for joining us, and we'll see you next week.
+
+18:40.660 --> 18:59.080
+See you later.
+

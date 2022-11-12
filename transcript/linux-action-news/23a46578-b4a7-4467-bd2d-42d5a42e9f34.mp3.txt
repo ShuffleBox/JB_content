@@ -1,0 +1,496 @@
+Hello, and welcome to Linux Action News, episode 163, recorded on November 15, 2020.
+I'm Chris.
+And I'm Wes.
+Hello, Wes.
+Let's do the news.
+And let's start with a fix landing for Ubuntu users that allowed standard users to gain
+root access.
+We're finding this out from a blog post by Kevin Backhouse, a researcher over at GitHub
+who describes an astonishingly straightforward way to escalate privileges on Ubuntu.
+With a few simple commands in the terminal and a few mouse clicks, a standard user can
+create an administrator account for themselves.
+The first series of commands triggered a denial of service bug in a daemon called account
+service, which, as its name suggests, is used to manage user accounts on the computer.
+To do this, Backhouse created a symlink that linked a file named.pam environment to slash
+dev slash zero, changed the regional language setting, and sent account service a sig stop
+signal.
+With the help of a few extra commands, Backhouse was able to set a timer that gave him just
+enough time to log out of the account before account service was crashed.
+And when he does this just right, Ubuntu would restart and open a window that allowed the
+user to create a new account that, you guessed it, had root privileges.
+Backhouse said that Ubuntu uses a modified version of the account service that contains
+code that's not necessarily included in the upstream version.
+That extra code looks at that pam environment file in the home directory.
+By making a file that symlinks to dev0, pam environment gets stuck in an infinite loop.
+There's also a second bug, and that bug involved a hack that resided in the GNOME display manager,
+which among other things manages the user session and login screen.
+The display manager, which is often abbreviated as GDM3, also triggers the initial setup of
+the OS when it detects there is no users that currently exist.
+Yeah, that was the problem, Chris.
+We've all seen that setup screen when you're first configuring your computer on a GNOME-based
+system.
+If you don't have any accounts, well, you need to set one up.
+Unfortunately, what happens here is GDM tries to do a talk to account service to check like,
+hey, are there any users on the system?
+But the code, well, there's a small problem in that the variable is already set to false
+is are there users?
+And since that call never completes, that variable never gets changed to true, and it
+just shows you that screen right away.
+OK.
+Yeah, and in fact, Backhouse says that he discovered these essentially by accident.
+The Ubuntu account service issue was fixed on November 3, and the GNOME desktop issue
+was patched a day later on November 4.
+The vulnerability only impacted desktop users, and it required access to the GUI.
+So not necessarily easy to exploit in most cases.
+I suppose that that said, you could be a maniac like me and occasionally install a desktop
+environment on your server, but not most.
+Most people don't normally do that, but sometimes I find it handy, actually.
+So install your patches.
+According to the Ubuntu notes, all releases from 16.04 LTS to the most recent 2010 were
+affected, and the team cranked that out and got that fix out.
+So go get them installed.
+You know, I do think this is kind of noteworthy just in that these days, most vulnerabilities,
+you know, they require some code knowledge, some trickery, some complicated setups of
+memory, state, and corruption, and this was all just done by basic Linux commands in the
+terminal in the GUI, which is kind of interesting.
+I should also stress here that the author points out that, you know, he spent a lot
+of time recently looking for bugs in Ubuntu, and you shouldn't take this to mean that Ubuntu
+is filled with bugs.
+That's not his experience.
+He looked for a lot and happened to find this one by accident, but there's a lot of eyes
+here, and in general, it's secure.
+It seems like it was actually relatively easy to surface in certain scenarios, but you really
+have, you had that situation with GDM that perhaps the Ubuntu development team didn't
+even consider, because that's such an edge case there, where, you know, GDM comes up
+and it wants to be super helpful, and then in that environment, it leads to a problem,
+but it's good to see everything fixed.
+Those of you in the industry may be familiar with Proxmox.
+Well, they've just released an open-source, Debian-based enterprise backup solution.
+We are big fans of Proxmox here at Jupyter Broadcasting.
+Used it for years, and it's been a bit, but we were just talking about trying it again,
+and this backup server news might just be the excuse we need.
+If you're not familiar with Proxmox, it's a virtualization suite that supports really
+two ways to run your workloads, either something container-based with LXC or full virtualization
+with KVM, and then on top of that, it includes a web console, command line tools, a REST
+API for third-party tools, and some really high-end enterprise features that you need
+with virtualization.
+Now, it's been around for about 12 years.
+It started in April in 2008, and this is a nice addition to this.
+This backup server looks pretty cool, and I like that it's based on Debian.
+Yeah, all right.
+So the Proxmox backup server is based on the latest Debian Buster release, and it's powered
+by the long-term supported Linux 5.4 kernel series.
+It also uses powerful open-source technologies like ZFS on Linux for advanced file system
+and volume management.
+It supports things like incremental backups, data deduplication, compression, and authenticated
+encryption.
+And Chris, you'll like this.
+Using Rust as an implementation language guarantees high-performance, low-resource usage, and a safe, high-quality
+code base.
+Well, at least in theory.
+It must be.
+No, it must be.
+It's proven because it's Rust.
+This is nice to see this.
+There are various subscription models available with Proxmox and the backup server.
+Obviously, if you're running this thing in production, that's always recommended you
+get access to the enterprise repository and support, so it's probably pretty important.
+But the cool thing about Proxmox and why we wanted to mention it here in the show is it's
+also free for you to go download and use fully featured for the most part.
+You don't get access to some of the enterprise updates and obviously the enterprise support,
+but you can get a real sense of what's possible with this virtualization suite, and you can
+take a headless Linux box and turn it into like a closet VM machine.
+Or here in the studio, we used to run encoding systems on it, and a lot of the things we
+transitioned to the cloud, we first ran here locally on-premises, and Proxmox is just a
+great way to do it.
+So this backup server is pretty nice to see.
+The incremental backups means that you're gonna have the minimum amount of transfer
+for these VMs, which means maybe even WAN backups might be possible.
+Data deduplication, I should say, compression, and authenticated encryption are also available.
+So that to me is speaking like this is seriously something maybe even for offsite VMs.
+I gotta play with it.
+Yeah, I mean, I think having ZFS built right in, I would probably use that to roll my own
+backup server anyway.
+And so you can either adopt this standalone if you just need a backup server, and here's
+a great open source offering.
+But if you're already using Proxmox virtualization solution, this just integrates right in, right?
+It makes it super simple through the web GUI to go back everything up, take snapshots,
+restore from those snapshots, and it seems pretty nice.
+And of course, we've been talking about this in the context of virtual machines, but with
+Proxmox, it's good to keep in mind that it supports containers.
+So the Proxmox backup server will also support backing up your containers.
+Yeah, it gets fancier than that.
+They even have support for granular restore where you can do file level restore of container
+backups.
+Even better, they've got some interesting items on their roadmap, including LDAP and
+Active Directory authentication and two factor support.
+Support for backing up other solutions, things like their mail gateway, or actually backing
+up the Proxmox host itself to the backup server.
+And what I'm excited for, tape support.
+Now as a final note, Proxmox backup solution is AGPL, and we'll have links to everything
+we've talked about here, including their Git repository in our show notes.
+Linode.com slash land.
+Go there to get a $100 60 day credit towards your new account.
+Linode is our server hosting provider and they can be yours too.
+They provide virtual servers that make it easy and affordable for you to host anything
+in the cloud.
+They have native SSD storage on these virtual machines.
+So you get really fast disk IO and Linode costs 30 to 50% less than major cloud providers
+like AWS or Google Cloud or Azure.
+And they've been around three years before AWS started.
+They started with a love for Linux.
+They saw what KVM could do.
+They saw what the Linux kernel user mode could do and all of that.
+And they've built something around it that's pretty special.
+And as the years have gone on, they've made it better and better.
+They're independently owned and they're founded on a love for Linux.
+And because they got started in this thing so early on, they were able to build a diverse
+flexible network powered by Linux.
+They just recently, I think on like November 9th, put up a blog post that talks a little
+bit about their networking model and why it's particularly useful for developers that need
+really low latency high speed connections between their servers.
+They got data centers in 11 places around the world.
+So there's probably ones either close to you or close to your client.
+You combine that with the high speed disk and the nice high end systems that you can
+get and you can have something extremely high performance.
+But maybe you need something approachable.
+Well they have systems that start at $5 a month.
+You want to host a portfolio or a blog or a website that you could even back with object
+storage so it's crazy super fast.
+All of that's available.
+And when you go to linode.com slash LAN, you get that $100 60 day credit.
+You can really try it.
+You can really see what it's capable of.
+Maybe build yourself a VPN box.
+I've been asking people to tweet me at Chris LAS what they do with their Linodes and I've
+heard some really cool stories about how people can use SSH to do amazing things.
+And a $5 a month rig is perfect for that.
+And like myself I heard from someone who set up a Minecraft server for their kids on Linode.
+Also really great for that.
+Check out linode.com slash LAN to get started.
+You go there, you support the show, it lets them know you heard about it here and it gets
+you that $100 60 day credit.
+Go there.
+Check them out.
+See what they have.
+And also by the way, Linode's often hiring.
+Go to linode.com slash careers to see if they have a job position that might fit you.
+There could be a great opportunity there.
+Linode.com slash LAN receive a $100 60 day credit, support the show and much more.
+Linode.com slash LAN and thanks to Linode for sponsoring Linux Action News.
+I don't know if you heard Chris, but Bitcoin, well, it's up again.
+It's outrageous.
+Yeah, we talked about PayPal and their eventual support for Bitcoin.
+Well guess what?
+It's already here.
+The CEO of PayPal noted too with the announcement of it going live that the shift to supporting
+crypto was driven what he sees by inevitable drift towards virtual currencies.
+But like you touched on, Wes, every time the price comes up, people start getting Bitcoin
+crazy.
+Here's a sample of a little mainstream coverage of a very technical topic.
+PayPal cashing in on the crypto craze, a payment company announcing a new feature that will
+allow users to buy, sell and hold crypto currencies, including Bitcoin.
+The news any Bitcoin soaring more than 7 percent to its highest level of the year.
+And our next guest is a crypto pro who says PayPal just gave a major stamp of approval
+for the entire crypto space.
+Joining us now is coinshare's chief strategy officer, Melton Demurers.
+Melton, great to see you.
+It's been a while.
+It has been a while.
+I feel like Bitcoin's exciting again.
+So here we are.
+It's great to be back.
+Here we are.
+In fact, we have the Bitcoin bug back up in the corner because it's gotten so exciting
+now.
+Gotta have that live price tracker, Wes.
+Of course.
+Yeah.
+And so PayPal has has gone live with its support as it as it said it would.
+There's there's, of course, some gotchas in there.
+PayPal's in this to make money after all.
+And so there's transaction fees and whatnot.
+Yeah.
+And actually, in an interesting twist, your coins can't really leave PayPal.
+So you can hold them.
+You can buy them.
+You can trade them back into, you know, into the currency of your choice, but you can't
+take them with you.
+Yeah.
+Yeah.
+And like global support from PayPal, I don't think really comes until 2021.
+So it's sort of limited in the rollout at this point.
+And for to say nothing about using Bitcoin to actually pay PayPal merchants, that's also
+a ways off still.
+But it's kind of getting there.
+I mean, I guess I guess this is early days.
+So they have time to kind of hone this just right.
+You also just have to figure for a company like PayPal, they've got to figure out a hold
+such a volatile currency and represent that information accurately to users.
+Could you imagine people who are not really familiar with this to the point that we just
+heard from that clip?
+The excitement is ridiculous.
+I actually got a telegram from my mom last night asking me if I was familiar with the
+cryptos and if I was if I was following any of the cryptos.
+Everybody's talking about it again.
+As we record, it's just below 16,000.
+It was over 16,000 this weekend.
+And it seems to be like an annual tradition, like every year as we approach the end of
+the year, Bitcoin just goes crazy on this and we talk about it here on the show.
+And here we are again now because of PayPal.
+And this is adding in some ways a lot of legitimacy.
+I mean, you heard in that clip to to people who are in the financial markets, a company
+like PayPal getting behind something like this is a serious nod of legitimacy and approval
+and brings it a little bit more to the mainstream.
+Now I think that's the key.
+If you're already interested in crypto currencies, you already have Bitcoin of your own.
+You're probably not going to go use PayPal solution, at least at the moment.
+But many folks already have a PayPal account.
+I know.
+I know I do.
+And that makes it pretty easy.
+You just got to go set up their PayPal cash account so you can actually store cash there,
+transfer some stuff from your bank and then you can just buy Bitcoin or Ethereum or Bitcoin
+cash or Litecoin.
+Man, 2020 is a weird year.
+What's nice to see about this, though, is and this will be a differentiator as time
+goes on.
+PayPal has received the first conditional bit license from the New York Department of
+Financial Services, which is one of the most hawkish subnational financial regulators in
+the US.
+So many have noted that the fact that it got that's a good sign and the PayPal's crypto
+services would entail coins that are bought on the platform and would not be able to leave.
+And that may be tied back to this conditional bit license.
+We will see it may be a compromise they had to make to bring crypto currency to a wider
+audience on the PayPal platform.
+And if that is a limit of their conditional bit license, that could have long term limiting
+effects on what the service is capable of doing.
+I think, you know, there are some things in their favor there.
+And at least at the moment, Bitcoin seems to be more of a, you know, a store for value
+differentiator in your portfolio than it is really for buying things in the street day
+to day.
+True, true.
+So we've talked about Bitcoin, but there's also Ethereum, Bitcoin Cash and Litecoin support,
+I believe, in PayPal as well.
+Indeed.
+So it's not all just one crypto.
+And you obviously are not in direct control of your private keys.
+PayPal doesn't give you access to your cryptocurrency keys.
+So you're not going to be able to take them out of PayPal and store them in your own wallet.
+And that's something people should be aware of.
+Yes, it's very much if you're going to get into this, you're doing it on PayPal's terms.
+Yeah.
+Otherwise, you're gonna have to learn some more technical solutions.
+Well, some breaking changes may be inbound to system D 247.
+Funny enough, though, it all stems from a kernel change in 4.14.
+Yeah, that long ago.
+It was a change designed to allow user space to handle devices that needed a little bit
+of help before they could become fully functional.
+To do that, the kernel added two new event types called bind and unbind.
+Why is that a problem?
+Well, it all comes down to Udev, which unfortunately has an assumption built in that there will
+only be one event associated with, say, plugging in a new device.
+And well, with two new events, that's no longer true.
+At first, system D did have a short term fix.
+But that was just to ignore the new events.
+And obviously, that was never going to be a long term solution.
+They have now come up with a long term solution.
+But unfortunately, some parts of that solution have some unfortunate implications for users
+with custom Udev rules.
+Yeah.
+So we seem to have two fixes and the first fix is a change in how tags will work for
+Udev.
+Now, if you're not familiar, tags are special properties that can be attached, then matched
+in subsequent rules or consumed by user space.
+So rather than attaching tags to events, as is currently done, Udev will start attaching
+them to devices so that tags added in response to, say, an add event will still be there
+when that second bind event shows up and you won't lose all the state and you won't be
+in a confusing place where your device didn't actually initialize successfully.
+That's nice.
+Then there's that second fix, which may affect people with custom Udev rules, something that's
+going to probably cause distribution some work.
+Right.
+So you've got all these Udev rule sets, which can match on these tags, perform actions after
+devices are added or removed.
+The problem here is that a lot of these rules were written under the assumption that no
+new event types would be added.
+So anything that wasn't recognized as adding or modifying a device, well, that could just
+be ignored.
+That's not the case now, and that's where the breaking change comes in.
+We need new rules.
+They're going to have to write new Udev rules.
+Exactly.
+Wilson, break.
+Everyone's quick to jump on the system to hate train, but they're actually saying this
+one's not on us.
+This is actually technically on the kernel and that change that happened at 4.14.
+Was this a violation of the kernel's no regressions rule?
+The answer must almost certainly be yes.
+Food that worked with the 4.13 kernel no longer worked with 4.14, but what should have been
+done about it?
+Well, that's a bit less clear.
+Yeah, indeed.
+And the other thing is, is it was kind of hard to track this one down.
+This is one of those funny things about open source software development.
+The bug was first reported on KDE's Bugzilla, not to the kernel team, not to system D, but
+on the KDE Bugzilla, and you can kind of see how that would take a while to work its way
+through the process.
+Yeah, I mean, it was almost a year later by the time it made it to the kernel mailing
+list.
+And by that time, 4.14 had been anointed an LTS release and distributed by distributions.
+Yeah, and the kernel team may be ultimately responsible.
+I mean, I guess the system D team could make that call here because of the change in 4.14,
+but I think what it really has underscored is maybe not who's at fault, but how to keep
+all of these teams in sync and properly communicating because they each have their own mailing list,
+but that's not really the place for this style of collaboration, because if you zoom out,
+what we have here is a bug that was caused by the kernel a long time ago that impacted
+the way system D behaved, which is forcing a breaking change for Udev.
+And then ultimately users who are relying on these Udev rules, and it's a big, messy,
+complicated ecosystem, but fundamentally we're all working on that same system, and we would
+probably have an easier time of it if we could talk things through a little bit more.
+Linux.ting.com, go there to get $25 off a device, or if you bring a device, and you
+probably can, you'll get $25 in service credit.
+And rest assured, Ting's going to have you covered.
+They have three nationwide networks you can pick and choose from, which means they support
+a lot of devices too.
+Ting is really simple mobile that just makes sense.
+It's a fair price for however much you talk, text, and however much data you use.
+If you use less, you pay less.
+I'm on Wi-Fi during the day, so Ting makes a lot of sense for me.
+And when you combine the nationwide coverage, it means there's a lot of options when I travel.
+And the brilliant thing about Ting is their dashboard.
+They have the best dashboard in the industry.
+You can take control of your entire account.
+You can see your usage at a glance.
+You can set usage alerts, which I think is pretty great.
+And let's talk devices.
+With Ting, the BYOD options are crazy with their three network support.
+So go to linux.ting.com.
+Support there, support the show, get that $25 credit, and then click on the Check Your
+Phone link.
+When you click on that, you'll plug in your phone's IM, EI number, put it all in there.
+They'll tell you if you can bring it over or not.
+It's really simple.
+And you can get that simply off your phone by doing star pound zero six pound.
+And then you get that number, you put it in the website, see what you can do.
+Of course, you can buy devices from Ting directly as well or get a SIM card.
+Ting has all of these really nice features.
+And you might wonder, what is it about Ting that makes it possible?
+Well, they're an MVNO.
+Are you familiar with that?
+It's a mobile virtual network operator.
+They ride on top of several networks.
+So they don't have to worry about building the towers.
+They can focus on customer support.
+They can focus on high value.
+They really have something special here.
+70% of MVNO customers that were surveyed recently said they were extremely happy with their
+service and pricing, satisfied or very satisfied.
+And Ting is at the very top of that stack.
+Nobody doesn't like Ting.
+MVNOs are pretty great.
+And Ting is the top.
+They're the one that they're the leader.
+Everybody follows Ting.
+So you should check them out.
+They really get the pricing right.
+They get the options right.
+And they nail the support.
+Linux.ting.com.
+Go there, try them out and see why people love using Ting and see if your phone's compatible.
+And then you have no contract.
+You just pay for what you use.
+Great price.
+Use less, pay less.
+That's the brilliant thing about Ting.
+That's Linux.ting.com.
+Thanks to Ting for sponsoring Linux Action News.
+And thanks to everyone who supports the show by going to linux.ting.com.
+KDE and Pine64 are announcing today the imminent availability of the new PinePhone KDE Community
+Edition.
+Hmm.
+Very interesting.
+And I think we're all pretty familiar with Plasma Mobile.
+As you know, it's a direct descendant from KDE's successful Plasma desktop.
+And there's some underlying technologies that drive both the desktop environment and the
+mobile environment.
+There are things in there like KDE Connect, which obviously lets you connect your phone
+to your desktop, Ocular for document reading, Wave for music playing, and a bunch of other
+apps that work both in phone mode and in desktop mode.
+Now of course, the idea of having mobile devices that can display a full workstation desktop
+when connected to a monitor, keyboard, and mouse has been around for years.
+Hey, don't call it convergence.
+And both the KDE Community and Pine64 have been working to make it a reality.
+The PinePhone handset itself is also ready for that convergence.
+You can use any USB-C dock to connect it to an extra USB device like mouse, keyboard,
+storage.
+You can also connect it to external monitors or even a wired network.
+And in fact, the three gigabyte version of the PinePhone already comes with a dock that
+provides two extra USB ports, a full size HD video port, and an RJ-45.
+Yeah, I love the idea of having Ethernet on my phone.
+On your phone.
+This also comes at a nice time for Plasma Mobile in general.
+Michael Larbrel over on Pharaonyx has a nice write-up about some of the niceties that are
+landing in Plasma Mobile here towards the end of 2020, kind of polishing things off.
+And they've worked hard on this.
+And they just put out a report, an October 2020 report, outlining all of the strides
+they've made in like the last month and change.
+Yeah, some of those nice accomplishments are stuff like support for task switcher thumbnails.
+That's always nice, tweaks to the task panel appearance, and a whole bunch of refactoring
+for their spacebar, SMS, and MMS handling application.
+Yeah, so the PinePhone is kind of becoming the go-to for community firmwares and different
+desktop, sorry, phone environments.
+That's a tricky one.
+But what's nice about the Plasma Mobile version is we haven't seen a lot of these environments
+that are Qt-based.
+And Plasma seems like they've really put a lot of work into this mobile version.
+So you finally get to see some hardware that's really going to showcase this desktop environment.
+And for those of you who aren't huge GTK fans, you've got something non-GTK to throw on a
+device now.
+But if it doesn't work for you, you've still got all of the other OSs that you can load
+on the Pine 64.
+It's just an SD card swap away.
+Hey, that's the power of Linux.
+Well, from the next billion dollar industry file, we have some more eBPF news.
+Some things are coming out because eBPF Summit just wrapped up a couple of weeks ago.
+And just a few days ago, Cillium announced a massive $29 million Series A financing round
+backed by Anderson Horowitz, Google, and Cisco.
+And what's kind of unique about Cillium and great about them is they're early adopters
+and heavy users of eBPF.
+Cillium is an open source project that's been designed on top of eBPF to address the networking,
+security, and visibility requirements of container workloads, especially our friend Kubernetes.
+It provides a high level abstraction on top of eBPF that basically lets Linux kernel better
+integrate with these Kubernetes workloads.
+That's probably getting more and more important.
+And during a Q&A session after Greg Cache's talk at the Linux application summit that
+just happened this last weekend as we're recording this, Greg Cache said something that caught
+our attention.
+He said, out of all of the technologies as the kernel's number two, as the commander
+Riker of the Linux kernel, out of all of the technologies he's excited about, eBPF has
+got to be one of the top.
+All right.
+eBPF, if you care about networking and networking control planes and stuff like that, and tracing
+and modifications of the kernel as it runs, eBPF is great.
+You don't have to write kernel modules anymore.
+You don't have to write drivers anymore.
+You can do some really cool stuff.
+eBPF just keeps getting better and better.
+There's more.
+There's an eBPF conference last week.
+So go look at the notes for that.
+There's a book now about it.
+It changes all the time in the kernel, but it's really, really, really good.
+If I was buying and selling kernel stocks in new technologies for the Linux kernel,
+this would be one I'd be, buy, buy, buy.
+I know where I'm investing my Bitcoin.
+There was one other technology that he was really super excited about, but I'm going
+to save that clip for this week's Linux Unplugged, where I also have an Epic Dell laptop review.
+So once you get done listening to Linux Action News, make sure you save a little bit of room
+for Linux Unplugged, because it's going to be a good one this week.
+But that does bring us to the end of this week's Linux Action News.
+Be sure you go to linuxactionnews.com slash subscribe for all the ways to get new episodes.
+And linuxactionnews.com slash contact for ways to get in touch.
+We'd love to hear from you, so do send us in your contact information.
+Links to everything we talked about today at linuxactionnews.com slash 163.
+We'll be back next Monday with our weekly take on the latest Linux and open source news.
+Thanks for joining us, and we'll see you next week.

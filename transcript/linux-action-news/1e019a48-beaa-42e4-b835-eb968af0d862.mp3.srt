@@ -1,0 +1,816 @@
+1
+00:00:00,000 --> 00:00:10,480
+Hello, and welcome to Linux Action News. Episode 237, recorded on April 20, 2022. I'm Chris.
+
+2
+00:00:10,480 --> 00:00:11,480
+And I'm Wes.
+
+3
+00:00:11,480 --> 00:00:14,200
+Hello, Wes. Let's do the news.
+
+4
+00:00:14,200 --> 00:00:20,440
+And we start with something going down in NVIDIA town. Another week, and another code
+
+5
+00:00:20,440 --> 00:00:28,040
+drop for review. This latest 13,000 lines of kernel driver code are responsible for
+
+6
+00:00:28,040 --> 00:00:33,360
+the direct rendering manager in NVIDIA's deep learning accelerator.
+
+7
+00:00:33,360 --> 00:00:39,440
+You may have also heard to it referred as NVDLA. And a few years back in 2017, NVIDIA
+
+8
+00:00:39,440 --> 00:00:43,540
+made the announcement that suggested some deep learning hardware would have an open
+
+9
+00:00:43,540 --> 00:00:50,280
+source driver component sometime in the future. Well, the future is now.
+
+10
+00:00:50,280 --> 00:00:56,320
+At least we hope. There's also we should say an open source user mode driver that interfaces
+
+11
+00:00:56,320 --> 00:01:02,080
+with this new kernel driver, including some stuff around the compiler and runtime code.
+
+12
+00:01:02,080 --> 00:01:07,400
+Slater stump is out for review right now. And if that goes well, it could clear the
+
+13
+00:01:07,400 --> 00:01:14,080
+way for the NVDLA stack to be at least considered for mainline kernel adoption sometime down
+
+14
+00:01:14,080 --> 00:01:15,080
+the line.
+
+15
+00:01:15,080 --> 00:01:18,960
+Right. And then we'd be looking at an open source driver from NVIDIA in the kernel and
+
+16
+00:01:18,960 --> 00:01:24,600
+open source user space driver as well. And one wants to believe maybe NVIDIA is building
+
+17
+00:01:24,600 --> 00:01:29,780
+towards something here, establishing new relationships and doing things differently, laying some
+
+18
+00:01:29,780 --> 00:01:35,520
+kind of groundwork for maybe an open source driver for the rest of their hardware.
+
+19
+00:01:35,520 --> 00:01:39,280
+But I think the other way to look at this is NVIDIA is really just kind of doing the
+
+20
+00:01:39,280 --> 00:01:45,100
+bare minimum to create a competitive developer focused product in 2022. And they probably
+
+21
+00:01:45,100 --> 00:01:50,720
+should have this thing out in 2019. I mean, it could be that or it could be that we are
+
+22
+00:01:50,720 --> 00:01:56,280
+seeing a change in how they approach kernel software development. Only time will tell,
+
+23
+00:01:56,280 --> 00:02:01,080
+but we'll keep our eye on it.
+
+24
+00:02:01,080 --> 00:02:06,440
+Well since we love talking about kernel level goodies here on the show, it caught our attention
+
+25
+00:02:06,440 --> 00:02:09,880
+this week that Sony made a rather notable contribution.
+
+26
+00:02:09,880 --> 00:02:14,640
+Yeah, if you're like us and you're wondering, well, OK, I can imagine Sony does a lot of
+
+27
+00:02:14,640 --> 00:02:18,440
+contributions for like the PlayStation, but what else does Sony contribute to the Linux
+
+28
+00:02:18,440 --> 00:02:24,280
+kernel? Well, I'm happy to say this week, it's speed, at least for the exFAT file system.
+
+29
+00:02:24,280 --> 00:02:31,880
+Yeah, and a rather impressive 73% improvement at that. What's going on under the hood?
+
+30
+00:02:31,880 --> 00:02:37,280
+Well, previously before this patch, when an exFAT file system was mounted in its dir sync
+
+31
+00:02:37,280 --> 00:02:43,040
+mode and then went to go zero out and on disk cluster, that request would be translated
+
+32
+00:02:43,040 --> 00:02:49,480
+into sector by sector requests, which generated a ton of tiny little requests that really
+
+33
+00:02:49,480 --> 00:02:54,400
+kept the exFAT file system from being able to perform as fast as the hardware would otherwise
+
+34
+00:02:54,400 --> 00:03:00,240
+allow, basically just getting bogged down with bookkeeping. But after this patch, those
+
+35
+00:03:00,240 --> 00:03:04,920
+requests will instead be submitted all in one big go, which reduces the number of tiny
+
+36
+00:03:04,920 --> 00:03:10,600
+little requests and unlocks the true speed of whatever hardware you might be using. In
+
+37
+00:03:10,600 --> 00:03:15,480
+this case, Sony engineer Yu-Heng Mo tested this out on an ARM platform with a pretty
+
+38
+00:03:15,480 --> 00:03:23,000
+bog standard SD card and found that performance improvements actually started at 73% and went
+
+39
+00:03:23,000 --> 00:03:25,640
+even higher for larger block sizes.
+
+40
+00:03:25,640 --> 00:03:31,920
+Oh, I love hearing that. And so this patch has been queued this week in the Linux exFAT
+
+41
+00:03:31,920 --> 00:03:37,280
+file system driver development branch, and this performance improvement should land for
+
+42
+00:03:37,280 --> 00:03:44,320
+Linux 5.19 later this summer.
+
+43
+00:03:44,320 --> 00:03:50,880
+There are some weeks when a free software project just sees a flurry of new development.
+
+44
+00:03:50,880 --> 00:03:55,320
+But unlike commercial software companies that can batch those announcements together and
+
+45
+00:03:55,320 --> 00:04:01,240
+have careful marketing language, praise them on a large stage with fancy graphics and lights,
+
+46
+00:04:01,240 --> 00:04:06,800
+the open distributed nature of free software, well, they can just mean that some of the
+
+47
+00:04:06,800 --> 00:04:14,440
+best work just flies right under the radar. And I think that might be happening with Plasma.
+
+48
+00:04:14,440 --> 00:04:20,000
+KDE developer Nate Graham came out this week with his KDE development summary, as he does
+
+49
+00:04:20,000 --> 00:04:27,320
+pretty much every week. After reading through it, though, I think it might just be the year
+
+50
+00:04:27,320 --> 00:04:29,120
+of the Wayland desktop.
+
+51
+00:04:29,120 --> 00:04:35,400
+Absolutely. There are so many nice features, fixes and improvements for Wayland users pretty
+
+52
+00:04:35,400 --> 00:04:40,440
+much throughout everything in the Plasma desktop, like even like the awake drop down terminal
+
+53
+00:04:40,440 --> 00:04:45,400
+has one of my favorite fixes. There's some crash fixes of the lock screen, even inside
+
+54
+00:04:45,400 --> 00:04:50,160
+the task manager, the way things display for processes running on Wayland or X11 or X Wayland
+
+55
+00:04:50,160 --> 00:04:55,880
+now look better the way virtual desktops are handled. I mean, on and on you guys. If you
+
+56
+00:04:55,880 --> 00:05:00,760
+run Wayland, you're getting a fix. You're getting a fix. Everyone gets a Wayland fix.
+
+57
+00:05:00,760 --> 00:05:07,680
+Yeah, no kidding. There are a ton of fixes all over the place, even outside of Wayland.
+
+58
+00:05:07,680 --> 00:05:14,200
+The list, it's long. But one bug fix that caught my particular attention, KDE apps that
+
+59
+00:05:14,200 --> 00:05:21,360
+are capable of opening PSD files no longer crash when opening a malformed image. Super
+
+60
+00:05:21,360 --> 00:05:26,220
+random, yes, but that's the kind of polish that's just really nice to see, especially
+
+61
+00:05:26,220 --> 00:05:31,920
+since PSD files come from all kinds of sources and still show up way more than I'd like.
+
+62
+00:05:31,920 --> 00:05:35,920
+I just ended up getting sent one earlier this week. I'm like, Oh, yeah, okay. All right.
+
+63
+00:05:35,920 --> 00:05:41,640
+I think I can do this. We'll have a link to Nate's full post so you can read through this
+
+64
+00:05:41,640 --> 00:05:46,400
+and you can expect these improvements to trickle into the next few releases of Plasma. But
+
+65
+00:05:46,400 --> 00:05:53,520
+zooming out and looking at the free desktops, major desktop players now with GNOME 42 landing
+
+66
+00:05:53,520 --> 00:05:58,520
+in everyone's hands in Fedora 36 and Ubuntu 2204, which are shipping just in a matter
+
+67
+00:05:58,520 --> 00:06:04,600
+of days as we record this. Both of those distros are using Wayland by default, even in Fedora's
+
+68
+00:06:04,600 --> 00:06:08,340
+case with the NVIDIA driver. And you just put it all together. It's like we were kind
+
+69
+00:06:08,340 --> 00:06:14,040
+of joking, but maybe a little more serious than joking. It does indeed feel like the
+
+70
+00:06:14,040 --> 00:06:19,360
+year of the Wayland desktop, with Ubuntu and Fedora shipping it as default, with Plasma
+
+71
+00:06:19,360 --> 00:06:24,280
+and the GNOME project working so hard to make it work as smooth to the point now where it
+
+72
+00:06:24,280 --> 00:06:29,900
+often works and performs better than it does on X. Well, it's like the transition is really
+
+73
+00:06:29,900 --> 00:06:34,280
+here now. We've been talking about it for a decade, but it's real now and it's happening
+
+74
+00:06:34,280 --> 00:06:41,120
+at scale and it's only going to accelerate from here.
+
+75
+00:06:41,120 --> 00:06:48,120
+A very observant Pharaonix reader noted a newly started experiment to give Google Chrome
+
+76
+00:06:48,120 --> 00:06:55,760
+a Qt backend. Yeah, I know. It's very early days and to be honest, there's a whole bunch
+
+77
+00:06:55,760 --> 00:07:00,960
+of things here that indicate that maybe it's just a proof of concept, flags like do not
+
+78
+00:07:00,960 --> 00:07:09,600
+land or work in progress labels everywhere. But it does make you wonder, what is Google's
+
+79
+00:07:09,600 --> 00:07:15,660
+interest in using Qt? Honestly, I'm not quite sure right now, but I'd love to hear your
+
+80
+00:07:15,660 --> 00:07:21,160
+best guesses. Send us a boost.
+
+81
+00:07:21,160 --> 00:07:26,160
+Linode dot com slash land. Go there to get $100 in 60 day credit on a new account and
+
+82
+00:07:26,160 --> 00:07:31,720
+you go there to support the show. Linode offers options for developers, users and businesses
+
+83
+00:07:31,720 --> 00:07:37,480
+that don't want the complexities of the hyperscalers and you don't need all of their endless options.
+
+84
+00:07:37,480 --> 00:07:42,760
+You want something that covers everything, does what it focuses on right. That's Linode.
+
+85
+00:07:42,760 --> 00:07:47,880
+That's how we run everything for the last few years. And like us, Linode loves Linux.
+
+86
+00:07:47,880 --> 00:07:51,480
+They use it every day in their environment and their production and their tools. It's
+
+87
+00:07:51,480 --> 00:07:57,520
+why they built Linode almost 19 years ago. And now they are the developers cloud. You
+
+88
+00:07:57,520 --> 00:08:02,680
+want to build a project? Go to Linode. You want to learn something? Go to Linode. And
+
+89
+00:08:02,680 --> 00:08:07,720
+customer support over there is the best. And on top of that, they have the best performance
+
+90
+00:08:07,720 --> 00:08:12,920
+benchmarked by independent providers. And they have 11 data centers for you to choose
+
+91
+00:08:12,920 --> 00:08:19,080
+from. They have great features like object storage, cloud firewall, fantastic backups
+
+92
+00:08:19,080 --> 00:08:23,920
+and much, much more. They got an API. It'll be so easy for you to build tooling around.
+
+93
+00:08:23,920 --> 00:08:28,680
+You'll be surprised you never tried it. And I mean it. I'm not like Mr. Developer over
+
+94
+00:08:28,680 --> 00:08:34,560
+here and I can make it work. It's pretty great. So go build something. Go learn something.
+
+95
+00:08:34,560 --> 00:08:39,200
+Go try it for yourself and support the show. See why it's so great. See why it's one of
+
+96
+00:08:39,200 --> 00:08:46,880
+the remaining standing champions. linode.com slash lan. Get $100 in 60 day credit and kick
+
+97
+00:08:46,880 --> 00:08:52,160
+the tires for yourself. Look, they've survived against the big tech monopolies this long.
+
+98
+00:08:52,160 --> 00:08:57,160
+They must be doing something right. Go see what it is and get $100 to try it yourself.
+
+99
+00:08:57,160 --> 00:09:06,220
+linode.com slash lan. And a big thank you to Ting, linux.ting.com. If you're sick of
+
+100
+00:09:06,220 --> 00:09:11,600
+overpaying for your cell service, go see how much you could save and get $25 off of that
+
+101
+00:09:11,600 --> 00:09:15,640
+partner. Yeah, I just got a little Southwest there because Ting is so great. I'll put a
+
+102
+00:09:15,640 --> 00:09:19,120
+cowboy hat on to celebrate it. I don't know why, but that's what I feel like. I've been
+
+103
+00:09:19,120 --> 00:09:25,040
+a customer since 2013 and I can tell you wholeheartedly, it's the smarter way to do mobile. It's the
+
+104
+00:09:25,040 --> 00:09:30,320
+way they have to do it today. But since we have the environment we have, Ting's like
+
+105
+00:09:30,320 --> 00:09:35,080
+a next generation Ninja network. They're a mobile virtual network operator that rides
+
+106
+00:09:35,080 --> 00:09:42,560
+on top of the big duopoly's nationwide network. Short to short coverage with Ting, but you
+
+107
+00:09:42,560 --> 00:09:48,360
+pay their fantastic great prices and you get their best customer support. Ting was just
+
+108
+00:09:48,360 --> 00:09:53,300
+recently named the number one carrier by Consumer Reports in 2021. They have plans for those
+
+109
+00:09:53,300 --> 00:09:57,360
+of you who are super price savvy and they have plans for those of you who've got a lot
+
+110
+00:09:57,360 --> 00:10:02,060
+of work to get done. And it's simple to switch to Ting. Pretty much any phone's gonna work
+
+111
+00:10:02,060 --> 00:10:07,640
+and there's no contracts ever. So just head to linux.ting.com. Check your current phone,
+
+112
+00:10:07,640 --> 00:10:11,360
+create an account and pick the plan that's right for you. Ting will send you a SIM card.
+
+113
+00:10:11,360 --> 00:10:15,800
+You're gonna pop that thing in. You'll get activated in minutes and you'll think to yourself,
+
+114
+00:10:15,800 --> 00:10:21,200
+why didn't I start saving money sooner? There's never been a better time to start saving money
+
+115
+00:10:21,200 --> 00:10:25,400
+on those monthly costs and Ting's a great way to do it because you get access to those
+
+116
+00:10:25,400 --> 00:10:37,960
+same networks. You just get Ting's great prices. Linux.ting.com. Midway through the Fedora 36
+
+117
+00:10:37,960 --> 00:10:44,760
+development cycle, a proposal was submitted for the next release of Fedora 37 to deprecate
+
+118
+00:10:44,760 --> 00:10:51,720
+legacy BIOS support, which would make Fedora a UEFI only operating system, at least on
+
+119
+00:10:51,720 --> 00:10:59,100
+x86. And as Michael Horrible over at Pharaonix noticed, this really seemed to kick the proverbial
+
+120
+00:10:59,100 --> 00:11:04,440
+hornet's nest with many Fedora users coming out of the woodwork to express their concern
+
+121
+00:11:04,440 --> 00:11:05,440
+at this idea.
+
+122
+00:11:05,440 --> 00:11:10,260
+Yeah, you can imagine if you've been around the Linux community for a while, this kicks
+
+123
+00:11:10,260 --> 00:11:16,320
+off robust conversation, not just on the official mailing list, but all around Fedora in the
+
+124
+00:11:16,320 --> 00:11:20,840
+wider community, including even, you know, in our channels with our community. And project
+
+125
+00:11:20,840 --> 00:11:25,880
+lead Matthew Miller noted that they've gotten 300 plus messages and that threatened just
+
+126
+00:11:25,880 --> 00:11:30,680
+one week. And within that time frame, they had 66 different participants. And he noted
+
+127
+00:11:30,680 --> 00:11:36,280
+that that handily beaded discussions around system D resolve D, butter a fast by default
+
+128
+00:11:36,280 --> 00:11:43,080
+and even the big switch to nano as the default editor. And it seemed like in the thread that
+
+129
+00:11:43,080 --> 00:11:48,640
+many were adamant for Fedora to keep the legacy BIOS support and seemed like a lot of them
+
+130
+00:11:48,640 --> 00:11:53,360
+were critical of what they felt was Red Hat clearly looking to reduce their support burden
+
+131
+00:11:53,360 --> 00:11:58,680
+and just have the simplicity of focusing on hardware released in the past decade.
+
+132
+00:11:58,680 --> 00:12:03,640
+So it seems like what might happen is rather than gutting out legacy BIOS support right
+
+133
+00:12:03,640 --> 00:12:10,240
+away may lead to the creation of a new Fedora special interest group or SIG that would be
+
+134
+00:12:10,240 --> 00:12:15,680
+tasked with maintaining and testing future Fedora releases with legacy BIOS compatibility.
+
+135
+00:12:15,680 --> 00:12:22,080
+Honestly, that might be the best happy middle ground right now. I can certainly appreciate
+
+136
+00:12:22,080 --> 00:12:26,400
+why people still want legacy BIOS support, especially in the open source and free software
+
+137
+00:12:26,400 --> 00:12:31,520
+world and especially for Linux operating systems in particular, which I mean, over the years,
+
+138
+00:12:31,520 --> 00:12:36,160
+how many stories have we heard on on the network about folks that, you know, their original
+
+139
+00:12:36,160 --> 00:12:41,880
+operating system dropped support, but good old Linux still made it work. Right. As you
+
+140
+00:12:41,880 --> 00:12:46,600
+say, though, Chris, we got to balance this because there are real maintenance considerations
+
+141
+00:12:46,600 --> 00:12:50,840
+and Fedora's got something of a reputation these days as pushing the leading edge, which
+
+142
+00:12:50,840 --> 00:12:54,400
+I'm not sure you can really call legacy BIOS anymore.
+
+143
+00:12:54,400 --> 00:13:00,380
+Okay, that's fair. And you also kind of have to wonder, like, is Fedora uniquely positioned
+
+144
+00:13:00,380 --> 00:13:04,840
+in this architecture where they have these special interest groups, where dedicated members
+
+145
+00:13:04,840 --> 00:13:10,120
+who are interested in something can dedicate their resources, their time, their talent
+
+146
+00:13:10,120 --> 00:13:14,720
+without putting undue burden on the primary project team? That does seem like a pretty
+
+147
+00:13:14,720 --> 00:13:19,040
+good middle ground. It seems like a way to kind of measure interest over the long term
+
+148
+00:13:19,040 --> 00:13:25,300
+as well. But it really, really just touches on a core issue in our community that comes
+
+149
+00:13:25,300 --> 00:13:31,160
+up in various iterations again and again. Another iteration of this is dropping 32 bit
+
+150
+00:13:31,160 --> 00:13:37,360
+support and going with a 64 bit only distro. And it's that same kind of divide that is
+
+151
+00:13:37,360 --> 00:13:43,720
+a divide in how people perceive free software should be made available. And it's a divide
+
+152
+00:13:43,720 --> 00:13:50,240
+in the value that people place on hardware and what is reasonable in maintaining hardware
+
+153
+00:13:50,240 --> 00:13:56,040
+support. And it's like people have very strong feelings and opinions on these things, and
+
+154
+00:13:56,040 --> 00:13:59,640
+it comes together in these sorts of issues. And I think the other thing that stands out
+
+155
+00:13:59,640 --> 00:14:03,840
+to me, Wes, and I'm curious to know your take on this, is I feel like the argument that,
+
+156
+00:14:03,840 --> 00:14:07,560
+well, there's lots of distros to choose from, so just run a different distro that still
+
+157
+00:14:07,560 --> 00:14:14,160
+has BIOS support. That sort of works. But in my opinion, it kind of falls down because
+
+158
+00:14:14,160 --> 00:14:18,320
+we all know the reality is the further you go from a mainstream distro, the more challenging
+
+159
+00:14:18,320 --> 00:14:22,460
+you're going to have, especially as maybe a user who's not super proficient. And so
+
+160
+00:14:22,460 --> 00:14:25,640
+we're basically saying, well, you're going to just have to go live on Niche Island.
+
+161
+00:14:25,640 --> 00:14:30,480
+Yeah, I do think there is that aspect, you know, it comes and goes and what exactly you
+
+162
+00:14:30,480 --> 00:14:34,760
+consider niche, you know, may vary. So it might be that just moving over and sticking
+
+163
+00:14:34,760 --> 00:14:38,920
+on something like Debian could keep you happy here for quite some time because, you know,
+
+164
+00:14:38,920 --> 00:14:42,760
+they've kind of got a different approach to some of these issues. But you're right, you
+
+165
+00:14:42,760 --> 00:14:47,840
+know, maybe Debian is not the operating system you want to use or let's own up a little here.
+
+166
+00:14:47,840 --> 00:14:51,000
+We're pushing Fedora pretty hard these days, right? Because they're doing a lot of neat
+
+167
+00:14:51,000 --> 00:14:54,880
+new stuff that we like, we find useful, we want to play with. And if you're suddenly
+
+168
+00:14:54,880 --> 00:14:59,560
+told, well, there's this one thing about your hardware, which means, nope, sorry, you just
+
+169
+00:14:59,560 --> 00:15:01,600
+don't have access to that.
+
+170
+00:15:01,600 --> 00:15:07,640
+And there is the reality that the longer we can get life out of older hardware, the more
+
+171
+00:15:07,640 --> 00:15:12,640
+sustainable that makes this equipment, the better it is for the entire world. And so
+
+172
+00:15:12,640 --> 00:15:20,000
+there's that like very strong argument too. And there is the absolutely unavoidable reality
+
+173
+00:15:20,000 --> 00:15:25,080
+that we have limited developer time and limited developer focus that can go towards these
+
+174
+00:15:25,080 --> 00:15:30,400
+projects. And we have to treat that like a precious commodity as well. And so these seem
+
+175
+00:15:30,400 --> 00:15:38,040
+to me like very hard problems to solve. And Fedora sort of seems like the ideal place
+
+176
+00:15:38,040 --> 00:15:41,840
+to sort this out because they are seen as a leading edge distribution, because they
+
+177
+00:15:41,840 --> 00:15:45,360
+have these special interest groups that can take some of the burden off of the primary
+
+178
+00:15:45,360 --> 00:15:50,920
+project. And they can develop something here, they can work something out that I think eventually
+
+179
+00:15:50,920 --> 00:15:54,680
+other distributions will learn from. And so it's sort of great that it's starting here
+
+180
+00:15:54,680 --> 00:15:57,960
+with Fedora. I mean, it's not necessarily starting here, but it's going mainstream
+
+181
+00:15:57,960 --> 00:15:58,960
+with Fedora.
+
+182
+00:15:58,960 --> 00:16:04,400
+Yeah, it does seem like it might be a particularly effective way to handle this just in that,
+
+183
+00:16:04,400 --> 00:16:09,720
+you know, boot support is not entirely, but often components of it are limited to sort
+
+184
+00:16:09,720 --> 00:16:13,880
+of getting the operating system booted. And once you've got the regular old kernel running,
+
+185
+00:16:13,880 --> 00:16:18,240
+once you're in user space, you got your desktop, maybe the changes can be minimal versus something
+
+186
+00:16:18,240 --> 00:16:23,960
+like, you know, keeping 32 bit support around, which involves a lot more recompilation. You
+
+187
+00:16:23,960 --> 00:16:27,440
+know, in this world, that might just mean that the folks who are interested in keeping
+
+188
+00:16:27,440 --> 00:16:31,000
+the support alive, well, they'd have to deal with some of the bug reports coming in, they'd
+
+189
+00:16:31,000 --> 00:16:36,160
+have to do testing for upcoming releases and verify that legacy BIOS support works. But,
+
+190
+00:16:36,160 --> 00:16:41,360
+you know, grub supports both. So if you can just keep grub going and allow those extra
+
+191
+00:16:41,360 --> 00:16:45,560
+options, maybe it's a couple additional packages with a couple different defaults. That seems
+
+192
+00:16:45,560 --> 00:16:51,160
+like it might work at least for as long as those with BIOS still need it.
+
+193
+00:16:51,160 --> 00:16:56,000
+There is a lot in Fedora 36 under the hood and for the desktop, and it's coming out in
+
+194
+00:16:56,000 --> 00:17:01,980
+just a matter of days, currently aiming for an April 26, 2022 release. Go check out Linux
+
+195
+00:17:01,980 --> 00:17:07,520
+Unplugged episode 454 for our rundown and all the new stuff in there. And of course,
+
+196
+00:17:07,520 --> 00:17:13,680
+as we record now, Ubuntu 22.04 is scheduled to release tomorrow. We also covered that
+
+197
+00:17:13,680 --> 00:17:19,340
+in Linux Unplugged 454. And that is an LTS release. So there's a lot to discuss there
+
+198
+00:17:19,340 --> 00:17:24,200
+as well. But that does bring us to the end of this week's broadcast. So go get every
+
+199
+00:17:24,200 --> 00:17:29,280
+episode of Linux Action News by going to linuxactionnews.com slash subscribe for all the ways to get every
+
+200
+00:17:29,280 --> 00:17:35,640
+episode. And linuxactionnews.com slash contact to let us know how upset about the BIOS removal
+
+201
+00:17:35,640 --> 00:17:39,620
+you really are. And get your message and your feedback to the front of the line. Send us
+
+202
+00:17:39,620 --> 00:17:45,600
+a boost with a new podcast app, newpodcastapps.com. We'll see you right back here next week for
+
+203
+00:17:45,600 --> 00:17:50,760
+our take on the latest Linux and open source news. Thanks for joining us. And that's all
+
+204
+00:17:50,760 --> 00:18:08,280
+the news for this week.
+

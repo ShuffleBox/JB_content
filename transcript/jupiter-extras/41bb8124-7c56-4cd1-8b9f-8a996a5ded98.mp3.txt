@@ -1,0 +1,779 @@
+So we have a very special guest coming on the show this afternoon.
+And he is the developer behind Merger FS.
+But joining me in studio today is the host of Choose Linux, Drew.
+Hello, hello.
+And I also have the one and the only Brent.
+Well, hello.
+And the reason we have these two folks is Brent has never used Merger FS before.
+He is a curious mind.
+He is looking to build the ultimate photo backup storage solution.
+Is that right?
+I don't know about ultimate, but I need something that really works for me.
+Yeah, that pile of external hard drives.
+Don't tell them too much about that.
+Oh, my goodness.
+I was watching a video with Linus Tech Tips and the guy behind, what was it?
+Smarter Every Day.
+And Linus went to this guy's house and he lives in Alabama near the, near
+the like rocket city, what's it called?
+Just outside of Atlanta anyway.
+And this guy had huge plastic totes.
+I'm talking, he had over a hundred terabytes worth of external hard drives, all
+neatly labeled.
+And this guy went to a spreadsheet and looked at, right.
+I want to reference this project.
+I want to look for Apollo landings.
+I need to go to hard drive Q37.
+So you go to box Q, get out hard drive 37 and copy that folder to his.
+Was he a librarian before he started doing this?
+I have no idea.
+Did he use the Dewey Decimal System?
+It's a heck of a system when we have projects like Merger FS in the world.
+So, Drew, what's your, what's your background with Merger FS?
+I've been using it since I found your blog post talking about Merger FS and
+it's joys and I've been loving it.
+I run it on a Ubuntu 18.04 server with a bunch of Docker containers and
+Linux containers you mean?
+Well, yeah.
+I mean, okay.
+So yes, they are kind of like, they're like, they're like,
+containers running under Docker.
+I call them Docker containers all the time as well.
+I'm just as guilty.
+Well, I'm using it with Docker.
+If it were Podman, then they'd be OCI containers.
+Correct.
+So the funny thing is before the show, actually, we were just talking and I
+showed Drew my blog post from 2016 and he went, I've read this before.
+Yes.
+Before we, long before we met, cause we first met at LinuxFest Northwest this
+year in April.
+That's right.
+And, uh, it's just funny how the internet is so, it's such a small community
+that you never know who you're going to run into.
+Yeah, it's a little world.
+But yeah, it's, uh, that got me up and running with, uh, MergerFS and SnapRate
+on top for Parity and I am a big, big fan.
+So I'm really excited to talk to Antonio here.
+And what do you do with it?
+Is it mainly media files?
+It's media, Nextcloud, mail, uh, you know, I got a little bit of everything going
+on.
+It's a big, big server with lots of RAM and lots of storage.
+And so you're not running databases off this thing then?
+Um, well, there's a Nextcloud database.
+Does that count?
+Maybe not.
+Yeah, maybe not.
+I mean, nothing, nothing high power.
+For your container app data, how do you handle that?
+Do you have a separate mount point?
+Yeah, so I found that MergerFS wasn't very good with databases, so I ended up
+moving all of my databases and what I call control for my containers over to an
+SSD and then it's just data, just dumb, dumb data living on the MergerFS pool.
+And it does a great job.
+Write once, read many.
+That's where it excels.
+Exactly.
+Large, static, often unchanging data sets.
+And so we've heard from Drew and Brent, uh, I'd like to pull in Antonio at this
+point, who is the main developer, I think the only developer of MergerFS actually
+looking through the GitHub.
+He has 69,000 lines of code to his name and the rest of the world has about 70.
+So Antonio, it's great to hear from you.
+Thank you for having me.
+Well, thanks for being on the show.
+So first of all, I wanted to, uh, ask you, what is MergerFS in your own words?
+It's a, uh, union file system.
+I don't know.
+Uh, I ha I think my, uh, tagline on, uh, on GitHub right now is a
+featureful, uh, union file system.
+It's just a simple way of, of taking a union of all the directories and files
+that you may have on a, uh, across a number of file systems or even the same
+file system, but from different, uh, paths.
+So it's more or less just a proxy with some smarts for routing where the, uh, the
+specific functions of a file system, uh, get, uh, dispatched to.
+So it's, it's really just, uh, like any other proxy, uh, mostly, I mean, there's
+some additional features that are relevant for, uh, the file system space.
+But if you think of a web proxy or anything else, it's
+largely doing the same thing.
+And, uh, the purpose is just to simplify that, that workflow, that, that behavior.
+There's many use cases for unionizing, uh, existing file systems.
+And, uh, there are many different implementations and I created MergerFS
+due to a, I think, uh, a technical limitation that existed in, in the
+different popular, uh, implementations that were out there at the time.
+Yeah, I use it a lot.
+And, um, the way I would explain it is it allows you to take just a bunch of
+drives and make them appear as if they're an array of devices, if you like.
+So you could have five, 10, 20, uh, different hard drives, each with an
+individually readable file system on it and present that under a single mount
+point for your applications to use.
+Is there a limitation out of interest on the number of devices that
+we can put together under Merger?
+Not a specific one.
+Um, 65,536, I guess, right?
+Not even that it'd be the amount of RAM that you probably have.
+Uh, I think you're going to run out of, uh, connections before you run out of,
+uh, like physical connections to mount drives before you run out of, uh, the
+ability to, to merge them together.
+Uh, I had a question about, um, you mentioned there was a feature that was
+missing, uh, in most of the popular, um, system alternatives that you were
+looking at previously.
+Um, can you, can you mention that specific feature that kind of made you dive in?
+Well, I think the biggest, this might not be a feature per se, but support
+was a big one, um, MHTDFS, which I think a lot of people, uh, used to use and
+I find, uh, a number of people still use, um, the author had abandoned it quite
+some time ago.
+That was one of the primary reasons I started looking into this space.
+And, um, when I did, I recognized quickly that there was a lot of, uh, security
+issues with the software and, um, lack of configurability.
+So I think one of the biggest features for MergerFS versus MHTDFS is the ability
+to choose what I call a policy, um, in the, the way in which it figures out which
+drive or which branch to work on within the union.
+So this is a really interesting feature of MergerFS that I absolutely love.
+And this is the create policies.
+So how, how would you explain it to the layman, right?
+Cause the, the, the first, uh, and the default setting is existing path, most
+free space.
+So, I mean, how would you explain that to the layman?
+Uh, so most free space should be somewhat obvious.
+You know, each drive has X number of bytes.
+And if we look at the more simple version of that, those, that policy is just most
+free space at the time a create request comes in, it simply looks at all the drives
+at that time, takes a snapshot of those values of how many bytes are free and just
+picks the one with the most.
+Uh, it's a very simple algorithm.
+Most of the algorithms are quite simple and it's a snapshot in time, unless it's
+being cached, there's some caveats there, but, um, the existing path part in
+retrospect, I actually regret making that the default because it leads to a lot of
+confusion, but the intent was, uh, so existing path, there's a behavior in
+mergerFS called path preservation.
+So imagine you have four drives and you want, uh, media of some sort on one, say
+movies, uh, TV shows on the second drive, and you have a lot of eBooks and you want
+them on the other two drives and, uh, the path preservation would allow you to sort
+of manually go in, create the paths, uh, in each of those drives that you wish to
+have that particular data on. So you might make a movies directory on the first one
+and the TV directory on the second one and, and books on the third and fourth.
+And so the path preservation will filter out in effect, the drives when it's making
+decision based on the path, the relative path of that file.
+So it's kind of, basically it does a, uh, a, uh, der name.
+If you were thinking of it from like a command shell, uh, perspective and looks
+for that path across all the devices.
+And if it finds it, it is included in the kind of secondary filter, which is most
+free space.
+Um, and there's other filters too that happen at that time, but so it's kind of
+creating sub pools based on the directory hierarchy.
+Could you see this as almost like a hybrid approach in a way that it's
+kind of, you know, the defined folders that you've preset on those specific
+drives are sort of, um, chosen ahead of time are sort of the legacy way of
+storing data as we typically see it.
+Uh, and then everything else that you pull on those drives is just sort of, um,
+dealt with through the algorithms.
+Would that be a way of seeing it?
+Yeah.
+I mean, most people, you know, grow out their collection or of devices, their
+storage devices, pretty organically.
+Unless you're a business or whatever.
+And, uh, you tend to kind of just put a, this drive's going to have X and this
+drive's going to have Y and that drive's going to have said, and then you have to
+remember which drive is where, which one contains which data sounds familiar.
+Right.
+This data manages that, or this behavior, I should say, manages that for you.
+Um, it does require a little overhead.
+It does require you to either seed those paths, um, or to, at some point, you know,
+in the future to manage them, if a drive becomes more full or not.
+Um, and, and that's why I was saying that there tends to be confusion because as
+default, if you follow through step-by-step of, if you have a pool of, of a number of
+drives and they're all empty, then the first time you create a directory, it's
+going to end up on one of those drives with the defaults.
+And so a lot of people get caught up and they're like, Oh, I just copied over a huge
+amount of data to my pool and it's all going to one drive.
+And that's because the very first maker happens on one drive and they all had the
+same amount of space free effectively.
+And then that one, that one path is then used for, you know, all the sub directories
+are associated with that path.
+So it's something I can't really change now, uh, because it's the default, but, uh, if
+there's a merger FS three, I might change that.
+If you were to change it, what would be your preferred default now?
+Just, uh, most free space.
+I think the, the average person using merger FS is that's what they're expecting.
+Uh, some people would prefer a percentage wise or least free space or whatnot, but
+I think, um, most free space is kind of the, the common expectation.
+I think that's wise.
+Uh, I'm, I'm a merger FS user myself, and I was, uh, a little taken aback when I
+first discovered that it was not using least free space or, uh, most free space,
+excuse me, and ended up, you know, switching to that and then balancing the
+drives, uh, which leads me to another question.
+Is there a particular reason that you decided to keep the merger FS tools
+separate instead of including them in the base package?
+Mostly the release cadence, um, and the language.
+So merger FS is C plus plus and the tools they're written in Python three.
+And the reason there is just, they're doing very simple things.
+It's, it's kind of easier to get off the ground.
+And I wanted the tools to be more easily manipulated by third parties,
+cause it really started as examples of how to accomplish certain things out
+of band so that they didn't have to be in merger FS.
+The concern I have is that, you know, I'm the file system or merger
+FS is your file system, or at least a proxy for your, your data.
+And if I ever screw something up in merger FS, I can screw up your data.
+Uh, worst case, I could corrupt it silently, uh, best case, you know,
+maybe it crashes or it, uh, you know, deletes a file, hopefully that's.
+You know, in a, in an obvious way or whatever, but there's a lot of subtlety
+there and granted merger FS is way, way, way more simplistic than most file
+systems, but fuse, uh, historically has not always been the most stable.
+So I was kind of bounded by the stability of lib fuse and the kernel.
+And for any of those who've followed a fuse or merger FS over the years,
+they've seen that there's a number of issues that are outside of my control.
+And, uh, so with that in mind, I've tried very hard to limit what I put
+into the main product so that if there are any issues, these things can be
+managed out of band, um, or, or, or at least like even if merger FS isn't there.
+Cause one of the nice things, one of the appealing aspects of merger
+FS that a lot of users, uh, say is why they like it is, is that you can always
+take it out and you can always remove it.
+And there's no merger FS isn't really a file system.
+I mean, technically it is, but in terms of the traditional sense where it's
+controlling the blocks on the device, it's not doing that.
+It's just a proxy and as a result, you can always remove it and all your data
+is going to be totally accessible.
+Um, and that has other side effects.
+Meaning if you have a drive that dies, you only lose that one drive, your stuff,
+full access in real time to all your other data.
+Um, but making everything the separate repo, separate apps, uh, it allow it,
+it's, it's in that vein so that, uh, if you want a balance tool and I didn't
+write the balance tool the way you want, it's Python.
+There's a lot of people that know Python, uh, go at it.
+So you touched on the balance tool just then.
+Um, which of the other tools do you think that people need to know
+about that they perhaps don't?
+The dupe tool can be useful.
+Uh, so it, uh, it allows you to point at a directory or a file and give like
+a number of copies that you want and it will find the drives with the most
+free space and make, uh, uses rsync under the covers because I'd rather, rather
+than trying to create all that very solid logic of copying files, uh, safely.
+I just leverage rsync, but, um, Python is orchestrating that and it will go and.
+Uh, find a drive, make end copies, and, uh, it'll just kind of recursively go
+through the path that you have instructed it to that's quite useful if you're
+if, uh, I know the drive pool has the ability to replicate across, uh, a number
+of drives mergerFS doesn't, and in some ways that's purposeful, but, uh, this kind
+of allows you on a schedule to do something similar, uh, there's the FSCK
+tool, which I don't think I've updated in quite some time, but, uh, a lot of issues
+with mergerFS come down to permissions and that tool can help suss out some
+of those permission issues.
+For instance, if you have two relative paths on two different drives that have
+different, um, permissions or, uh, owners, then it can help you find that.
+I ran into that issue the other day, actually.
+So I now know how to fix it.
+Thank you.
+Yeah.
+Uh, one of my coworkers, uh, has for long has, uh, for a long time, uh,
+complain that I allow there to be inconsistencies on the underlying drives,
+but the, the problem is with it being a file system, you really don't have a good
+API or mechanism for reporting that you found these inconsistencies.
+And while I could in effect, just when I notice it, report it in some log
+somewhere, uh, why add that to the main product and complicate the code when
+it's just as simple as right, uh, to, to write something in Python that just
+doesn't audit once in a while.
+Uh, usually the only time you need that is when you're mucking around underneath,
+uh, merger FS or you're adding in preexisting drives.
+So it tends not to be something you need that often, but I think it
+was the full first tool I wrote.
+I guess the other question there is, could the file system just be doing
+that since it has, you know, maybe that's a job it should be doing as well.
+So merger FS really needs to be running as root.
+And certainly I could go and change permissions, um, or change, uh, owners
+or whatnot and try to make them consistent, but what's the heuristic, right?
+So if you have four drives and three of them say it's owned by nobody and, and,
+uh, the fourth one says it's owned by root, w what do you choose?
+Do you choose the one based on the policy for stat?
+Do you do it based on a different policy for a different function?
+It's not really clear and to try to make it configurable adds like a whole
+another level of configuration to the product that would almost
+never be used by most people.
+I wanted to touch on the fact that you say that it's safe to run as root.
+And I was just wondering, um, if we could, if we could talk about
+the security of it a little bit, I'd like to know a little bit more about
+what safeguards you have in place for that.
+Sure.
+I mean, there's a section in the docs, which I try to recommend everyone
+look at the merger FS docs.
+Uh, I have a long career in software development and documentation tends
+to be very crappy for most products.
+And I spend a lot of time working on docs.
+So when in doubt, first check the documents.
+From a, from a user to the developer, I'd just like to say a huge thank you.
+It makes such a difference when someone puts this much effort into the docs.
+So yes, please, if you're listening and haven't read them and are
+interested, go take a look.
+And these are some of the best written docs I've seen in any
+project in a long, long time.
+They are really fantastic and robust.
+So yes, thank you.
+Thank you.
+Uh, that said, um, I am biased.
+It is my software and I've been using it for a long time and I've, I'm very
+intimate with systems level development.
+So if there's anything that is unclear for some, uh, Linux newbie, which that
+tends to be the, uh, the, the issue, um, feel free to contact me.
+There's all the co all my contacts are also in the documents.
+So I'm happy to try to reword anything to make it more clear, but, uh,
+back to the original question.
+So there is a section in there where I go over this relative to M8, uh, MHC
+DFS, so MHC DFS could be run as root.
+And in fact, generally expected you to run it as root.
+If you were, if, if you were only ever running stuff as one user ID, then you
+probably wouldn't ever notice if you didn't run it as root, but in the code,
+there are very explicitly, um, assumptions that it has the ability to
+shown or chmod any random file.
+And the way it worked was let's say it creates a file and it's
+was, let's say it creates a file.
+It would create the file as root and then change the owner to whatever
+it was supposed to be based because the way fuse works, you get an instruction
+or command from the kernel and a part of the payload is to say, uh, this is
+the PID it came from, and this is the user ID and the group ID and some other
+metadata.
+And so, you know, who has made this request on the other side from the client
+app and, uh, MHDFS would simply shown or chmod the file after creating it as root.
+Now, from a security perspective, that's not actually a bad idea.
+However, that leads to non-posix standard behavior, because if you're root,
+uh, you cannot, uh, well in traditional file system APIs, you couldn't, you
+couldn't really replicate the permission checking that would happen at, in the
+same way that would happen by the current via the kernel.
+So your root, you can, uh, ignoring capabilities and such, you can basically
+open any file and in certain circumstances, it would allow you to, so
+you would be able to do things through MHDFS running as root that you
+shouldn't be able to do.
+Uh, the proper behavior, uh, is to change before you're do any of these, uh,
+commands to change to that user, to that effective user or effectively change
+that user user, I should say, and, uh, that's what merger FS does.
+So anytime a request comes in where the user ID is relevant, because not all, um,
+there's a overhead to changing user IDs.
+And so I don't do it if it's unnecessary for like a read and a write, um, the
+kernel doesn't actually check the permissions.
+So if you chmod or chown a file while you're reading and writing it, um, it's
+that's irrelevant to, to, uh, the situation.
+And so I don't actually change in those for those commands, but anything else
+like a stat or create, mkdir, et cetera, you, it, the only solution that I
+use secure way to do that is to become that user and then to, uh, take that
+action just like you would normally.
+And so that's, that's the biggest security change, um, relative to the,
+uh, MHDFS and some others, similar file systems out there.
+It's in effect, the same thing that, uh, Samba does.
+And I use the same tricks that they do.
+So in Linux, or I should say POSIX in general, uh, says that every thread within
+a process needs to be the same user ID, but Linux doesn't work the same way as
+traditional Unix.
+And it uses for those who are familiar, the clone system call, which is a much
+more flexible version of fork basically.
+And every thread it can have its own, uh, user ID and its own credentials.
+And so I abuse that, uh, by calling directly into the kernel so that as a
+multi-threaded application, merger FS can simulate being multiple users at once.
+And this is a behavior that, uh, Samba also uses.
+That's super interesting.
+Uh, I always wondered why there was so many processes showing up in top or
+something, and now I know why.
+The number of threads are configurable now.
+Um, that was something that I, when I vendored the libfuse library, I, uh, made
+that more configurable because you do lose some throughput when you increase the
+number of threads, because there's more contention on the pipe going into the
+kernel, but, uh, generally, yeah, that's, that's why you, you by default will get
+one thread per core and then the, there's a primary thread.
+Um, let's shift gears a little bit.
+What, uh, what considerations do people need to make in terms of CPU?
+Because traditionally one of the limitations in fuse has been it's high,
+quote unquote, high CPU usage.
+What sort of CPUs are people going to need to, to sustain a
+gigabit transfer, for example?
+That's hard to say.
+Um, for those who don't know fuse is a serial protocol that, uh,
+that the kernel exposes to user space.
+And it allows an app, a user land application to serially communicate
+over, uh, a device dev fuse.
+And every time, uh, say your client app is, uh, LS every time it's making some
+system call that's, that's a file system API, it's got to go into the kernel when
+the syscall say an open is, is called, there's the open from the app gets
+translated, there's a wrapper for the C library, then that calls a system call
+into the kernel and with fuse, it's got to see, Oh, okay.
+You're talking to a fuse file system.
+So I have to look up who's on the under other end of this file system,
+transfer that through this, uh, character device.
+And that's kind of where this overhead comes from.
+So you have to go into kernel space, into user space from user space back at well,
+as a proxy, I'm going back into kernel.
+Like, so merger merger FS is going back into the kernel to ask the question like,
+okay, I need to start this file, whatever the original app was asking.
+So that's another round back into the kernel, then back into user space and then
+back into the kernel and then back to the original app.
+So it's, it, there's a lot of latency there because it's serial.
+It's, uh, copying this data back and forth into the kernel and that there's
+a lot of overhead to that and it's CPU intensive, not in the traditional way.
+So it's, it's more IO intensive.
+And because it's a user land app, you're seeing the CPU utilization.
+So if you're using ZFS or butter FS or similar, those can take a lot of compute
+as well, but because they don't represent themselves in user space in quite the
+same way, uh, you don't see the CPU grinding away doing block deduplication
+or in ZFS or, or the raid behavior or whatnot.
+Um, and so in some ways, I think fuse gets a bad rap because of that, because
+you're seeing the actual compute that it needs that said there is this extra
+latency introduced because there's these extra hops going in and out of the
+kernel and the speed at which you can do that, um, Is it doesn't seem
+dependent entirely on the CPU.
+So I have had people use raspberry PI twos and no problem whatsoever.
+Fully, you know, uh, getting full throughput as they would expect either
+from the Nick or the drives they have connected and minimal CPU utilization.
+And I've had people on Xeons say that their CPU utilization is through the
+roof and I haven't been able to figure out why that is, uh, I've had similar
+systems, same kernel, same OS, uh, different drives and HBAs or controllers
+for the drives and had different behavior between the two.
+And I'm still trying to figure out why that is.
+I don't know if it's a driver issue.
+I don't know if it's a drive issue.
+Um, if it's a, there's a bunch of other crap going on on the machine that's not
+being accounted for issue, uh, it's hard to say.
+And, uh, what I really need to do is there's all these variables and arguments
+that I allow to be modified in merger FS that I would like to hide from the user.
+But the reason that they're there is because I've found that different
+people get different performance, um, based on those different options.
+And what I really need to do is stop being lazy and build a, uh, like a
+benchmarking tool that just kind of goes through all the different permutations
+of those arguments and then runs, you know, very simple DD kind of benchmark
+and tries to find the best, um, the best permutation of values.
+You heard it here first folks, measure of first three is going to have a built
+in tool for testing performance.
+Nice.
+Um, so I had another question for you.
+Uh, how long has measure of first been around and what was your, your
+motivation really to create it?
+I know you touched on that at the beginning with the, uh, the lacking
+features in other products, but, uh, just curious, really sure how long it's been
+around, um, we'd have to check it hub.
+It's been longer than I, than I'd probably say.
+Um, cause if, for instance, this other tool I have BBF that I've been working
+on recently, which is a tool that is kind of bad blocks, plugs and
+blocks plus, uh, HD parm, um, plus some extra features, uh, that tool I thought
+I wrote like a year ago and it turned out I wrote it three years ago.
+So, um, my memory is not so good.
+Yeah.
+Time flies.
+It really does.
+But the, uh, I guess a little backstory is that I've always been a, uh, media
+collector.
+So in the eighties and nineties, I had all the CDs and all the movies.
+And once it became, uh, financially viable to store digital media, um, in
+bulk, I started doing so, and I had a iRiver H, uh, three 40 with all my
+AUG level six encoded or AUG Vorbis, um, level six encoded, um, music.
+And I had to immediately when I bought it, I bought an upgraded hard drive
+on the, you know, third, third party and took it apart and upgraded the hard
+drive to like 60 gigs, I think it was, um, just because I had a bunch of music
+and I wanted all my music in one spot.
+And, uh, as my music collection grew and hard drive prices declined, I
+started ripping my DVDs and, uh, I never liked the idea of transcoding it to
+some other format, especially because even if you're not someone who's ripping
+and then selling, which I don't, I just have tons, tons and tons of, uh, um,
+CD holders, DVD holders up in the closet, but just re ripping stuff as a pain.
+And so I ended up slowly building this hard drive collection.
+And it became, as soon as I got to a point where one hard drive couldn't
+hold the full collection of certain types of media, it got really annoying.
+And that's when I started looking for a solution, which led me to MHDFS.
+And cause that was so simple to do.
+And I, you know, I wasn't gonna spend the money for a raid set up or whatever.
+I think we both use MHDFS for a while.
+Cause before I use mergerFS, uh, I used MHDFS and AUFS and Unraid for a bit too.
+And I even tried FreeNAS, uh, and then your tool literally came out of nowhere.
+I've just found the first commit was March, 2014.
+Yeah.
+And I, I had a coworker who was also using MHDFS and, you know, it was a data hoarder.
+And, oh yeah, I love that subreddit.
+Do you?
+Oh, I'm on there and you'll find me, uh, anytime there's a, I have a, uh, if
+then, then that, uh, search for mergerFS.
+So people apparently know that anytime something comes up, I
+come in and snipe a response.
+You do.
+I've noticed that every time I post something, there you are, like a bad smell.
+So what does your home server look like?
+How many terabytes are we talking?
+I have, um, so, uh, I do have a Wiki page on the mergerFS GitHub, uh,
+account or whatever repo, and I invite people to go there and add their own home
+setup, um, mine's on there.
+So I have currently, uh, so I just redid my system.
+So I actually don't have that fancy of a setup, um, though I do have a lot of
+storage, so I used to just have a four port, uh, eSATA, AS media based multiple,
+um, can, uh, eSATA controller card.
+And then I had four IC dock port multiplier, four port, uh, enclosures.
+They fit well in my entertainment center.
+You know, I don't need a lot of throughput.
+It worked.
+Uh, but when it doesn't work, it really doesn't work because unfortunately port
+multipliers, uh, don't handle failing drives particularly well.
+And so just about a month ago, I decided I was fed up and I bought a old, uh, uh,
+LSI 90 201, uh, four port 16 or 16 port, um, uh, HPA, and I bought two generic, uh,
+eight bay, three and a half inch drive enclosures.
+I assume you flashed that LSI thing to it mode.
+Yes, yes.
+And, uh, these enclosures I linked to them on the Wiki page.
+I'd never come across them before.
+They're basically the, if you've ever seen an eight port SANS digital, it's
+that enclosure, but without anything, without a backplane or anything.
+Um, and so it's pretty bare bones, but at $70 shipped, it's pretty good.
+Nice if you're just kind of putting your own thing together and you don't have
+rack space, which I don't, I'm in a Manhattan apartment, uh, downtown.
+So I bought two of those and I bought four, um, For, uh, mini SAS to four port
+SEDA connector cables and just fish the wires through and hooked it all up.
+And, uh, that's what I'm on now.
+It works.
+It's way more stable.
+So I have, uh, let's see, I have 12, eight terabyte drives.
+I have a few thrown in there that were like dying drives, like a one, a two, one
+and a half, something like that, that I'm using as guinea pigs for my, uh, hard
+drive tool.
+And then I have a, uh, the audio isn't bad.
+Um, or, you know, how loud the drives are, aren't that bad.
+They're all sitting in the car.
+You know, how loud the drives are, aren't that bad, they're all sitting in my
+living room.
+Um, and I I'm in Manhattan.
+There's a lot of outside noise, so kind of all drones together.
+It's not the biggest of deals, but in terms of heat and the noise, especially
+from the fans gets annoying at times, um, I have updated the fans, so they're,
+they're less awful, but in any case, I've kind of started moving to two and a half
+inch, five terabyte drives.
+The, um, Seagate, oh, I forget what the serial numbers are, but
+in any case, they're the only five terabyte, two and a half drives out there.
+They're reasonably priced per terabyte and I've started using those.
+So I have, uh, three of those now.
+And so my total capacity is around a hundred terabytes.
+And unfortunately it's almost full.
+So that's really impressive.
+Do you have any kind of parity on there?
+Uh, I don't.
+So I used to use snap raid, but I kind of, I was using crash plan.
+So if you look in the trap exit, get hub, um, account, you'll find a repo.
+That's just, uh, examples on how to set up different environments, different
+storage environments and how to use different tools for maintenance and
+formatting and et cetera.
+And you'll notice that there's numerous mentions to crash plan, which I still
+technically have a crash plan plan, but I haven't been using it much lately.
+Uh, and for those who don't know, they were kind of the last, maybe
+kind of still are besides, um, well, I guess the only cross-platform fully,
+um, unlimited backup service, like true backup service, not a cloud, um, kind
+of data source like G drive or Dropbox.
+And so a lot of, I know a lot of data hoarders, including myself use that for
+years, but the company I don't think is doing that great or whatever.
+So that was kind of my backup plan because it, once I successfully backed
+up all my data, that was fine, right?
+Cause I have, I also have another tool called scorch, which is used to find bit
+rot.
+So if I ever lost a file or drive, if I ever found bit rot, I could just
+restore it from crash plan.
+And because it was true backup in the same way that maybe time machine or
+snapshots and in ZFS or butter FSR, then it really wasn't a big deal.
+I really didn't need, um, parody, um, or any sort of, uh, backup like snap rate.
+Uh, when that started giving me a problem, mostly because they store all their data
+when they're scanning your drive in memory.
+And so you need a ton of Ram to, uh, scan.
+And the more data you have, the more Ram you need and it just doesn't scale well.
+Uh, I did move to, uh, to snap rate for a while, but I realized that if I had a
+different backup service, then I could get rid of that again and get that storage
+back, which at the time I really needed similar to now, I guess.
+And so I kind of got off of snap rate at that point when I found a better backup
+service, which is I use G-suite now and our clone and that works quite well for me.
+Very well.
+Yes.
+I use that myself as well.
+Um, so you got, you mentioned snapshots just then, um, is there any technical
+reason why snapshots couldn't ever make it into merger FS one day?
+Is that something you might consider adding at some point?
+It would have to be based on top of existing technologies.
+Like the underlying file system would have to support it in some way, uh, because
+there's just too much going on there for me to replicate.
+I do have a number of optimizations that I really don't talk about because you
+wouldn't notice, but if you've ever used the CP, the GNU CP tool, right?
+Like CP, you're copying a file around.
+If you look in the man page, there's the ref link argument.
+And so certain file systems like ZFS, butter FS, and new versions of XFS have
+this ref link thing.
+So this copy on right, the ability to say that this file and this file use the same
+blocks.
+And so if you're going to copy a 10 terabyte file, it can happen in, in a, you
+know, in a second because it's really just making references to preexisting data,
+which is how snapshots work.
+And so in merger FS, when it is needing to copy a file from one location to another,
+and there's a few situations where that may occur, uh, it'll try to use those
+optimized, um, behaviors.
+And if they fail, it falls back to just traditional, you know, read from one file,
+copy and write to the other file.
+And so I could in effect extend on that.
+And if certain commands were made to, uh, merger FS, I could forward them
+appropriately to the underlying file system, but because merger FS is really
+just a proxy and I'm not messing with the data itself, there isn't a real way for
+me without in effect rewriting the whole product to offer snapshots.
+Yeah, that makes a lot of sense.
+You mentioned very briefly earlier how, um, if merger FS is removed from the
+system, uh, then the drives are still, the data is still available on the drives.
+Um, that is one thing that has kept me from exploring various options.
+I'm, I'm looking to build my own sort of storage system, uh, in my place.
+And I've been sort of looking at a bunch of tools, but haven't jumped in.
+Although Alex has convinced me that merger FS is probably the way to go.
+It is.
+Um, and so you can stop looking.
+One big question that I have is, and which I have applied to all of my systems, uh,
+in various ways is that I want to be able to understand the data if something goes
+wrong.
+So can you give me sort of a run through of what the data might look like if
+something goes wrong?
+Exactly as you would expect if it was a single drive.
+Well, I guess, uh, to dive into that a little bit, like I know the, let's say I
+write a file, it gets sent to the, um, free most drive.
+And so if I'm looking at several drives, um, that have a similar folder, for
+instance, uh, right.
+So, uh, I mean, in, in that case, what you're going to have is a federation of
+that data across those drives, um, but at a file level, right?
+So you're not going to be, let's say you've got an album and, uh, you've got
+most free space enabled, um, that album, you know, say of three drives and
+there's 10, 10 songs and they all happen to be around the same size, you might
+end up with three files, three files and four files, uh, across those three
+drives, uh, that's really not predictable at any one time.
+I mean, obviously at the specific time of creation, it's predictable.
+That's how merger FS is working.
+Um, though there is a random option, uh, policy, but, uh, you're not going to
+know ahead of time, obviously where that data exists.
+However, it will be in the same relative path.
+You'll be able to very easily see that this specific data, I mean, you'll know
+that that data is missing, but you're not going to be missing like half a file.
+You'll be missing maybe half an album, but, uh, you'll know every, every drive
+will have the same, largely the same layout.
+They'll all have the same directories or at least, uh, the directories that
+matter to be on multiple drives.
+You'll see this, the same relative layout, but so defined like a specific
+file, we would then use find or locate or whatever search tool against the drive
+Mount paths rather than the merger FS pool, correct?
+Right.
+And, uh, and my tool scorch, uh, to plug that a little bit, I actually use
+that, uh, for this kind of use case.
+I need to enhance the tool to make it so right now it hashes everything.
+I want to make the hashing algorithm configurable, and that includes no hash.
+So that would make the tool more of an indexing tool, but when you're merging
+together all these different drives and you lose a random drive, it's incredibly.
+Frustrating to not know what data you're missing.
+Like it's convenient that I still have my other drives live.
+Um, and I'm missing only this one drive, but then you have to go through
+the process of fixing that situation.
+And I started writing scorch in part because of that, where I wanted
+to know very simply, I wanted to have a database in effect that I can say, okay,
+show me every file in this system that I'm missing, uh, since my last, uh, you
+know, update of the database.
+And if you pointed that to the mounts rather than say the union, then you could
+find exactly what files you are missing.
+Now I'm going to probably release these random scripts that I have, um, where it
+kind of creates an audit of every drive that's in my pool every day and then
+creates a diff and so, and I use like a log rotate to keep those for 90 days or
+something.
+So if I miss a drive or accidentally delete something or, um, you know,
+whatever, I can just kind of unzip the file, check, do a quick grep and find
+where the file was at any particular time in the past 90 days.
+Um, and then that combined with scorch, which gives, I use to index all the data
+in my main union, uh, mount point.
+I can very easily find the data that I need to help me reconstruct the situation.
+I need to start using this scorch tool.
+It sounds wonderful, but just to expand a little bit on what's just been
+said, um, the, the key thing that merger FS lets you do, and to be honest, it's
+the same with, um, unraid and many of these other kinds of union file systems
+is you still have a, an individually readable file system on each disc and how
+that differs from traditional raid or, uh, ZFS or something is that rather than
+the data being striped, uh, across multiple drives.
+So if you lose disc five, you better hope that the stuff that was on disc five is
+striped somewhere on disc one through four, whereas with merger FS, like, um,
+Antonio said, it writes entire files to a disc rather than partial files or
+anything like that.
+Um, and so if you pull any of these drives from underneath merger FS and stick it in
+another Linux system, you'll be able to read that ext four or that XFS or that
+ZFS drive, but you know, that, that for me is the real win of these kinds of
+systems rather than striping dates or it's individually readable on each drive.
+So, yeah.
+And there are certainly, I am in, and I try to make this very clear in the FAQ
+section for merger FS, uh, that this is not a substitute for certain
+workflows and workloads.
+Um, you know, raid has its place, uh, granted with very large hard drives,
+raid is becoming precarious, but that aside, um, merger FS is really meant for
+the casual user who has numerous random drives and they just want to have some
+kind of single view into their data or prosumer who knows the risk or is using
+some other tool like snap raid or has full backups or whatever, and is willing
+to take these trans, uh, these trade-offs between, okay, I can lose one drive and
+the rest of my system will continue to work just fine.
+And I don't have to worry about, you know, okay.
+If two drives go, oh, that sucks.
+I'm going to have to restore a bunch of data, or maybe I've used a path
+preservation policy.
+So I put all the data that I really don't care about on these two drives.
+So if they die, you know, so what?
+And I back up the other number of five drives, whereas on raid, you may, if you
+lose two drives, you know, all your data is gone.
+So it's, it's really just about offering another tool.
+And I try to be very clear about where merger FS falls flat and where it is,
+uh, more beneficial than some of these other technologies.
+And because it's so much more simplistic to use, um, you know, certain people try
+to make raid systems like, you know, uh, free NAS and un-raid, they try to make
+things extremely simple.
+I don't think it's safe for un-raid.
+I don't think it's the cost that is a barrier to people.
+I think it's, you know, it's closed source or it's just scarier, you know,
+there's just a lot more knobs to tweak.
+I mean, granted, there's a lot of knobs to tweak and merger FS, but out of
+the box, it just kind of works.
+And, um, yeah.
+So most people, I think understand that trade-off and, uh, it, for a lot of us,
+it's worth it.
+Yeah.
+But un-raid, uh, has a GUI and merger FS doesn't, so it must be better.
+Uh, you know, I'm trying to fix that.
+Uh, the problem is I'm, I'm very much a low level developer and web development
+makes me want to rip my eyes out and, uh, uh, no offense to the web people, but.
+The web people, the web people.
+I love it.
+The web people.
+Um, anyway, uh, so I, uh, I've looked into doing it myself and, uh, that's
+probably just not going to happen.
+I ideally in the same way that I try and make merger FS as simple as possible.
+I know the guys over at, uh, open media vault, they have, you know, their front
+end and they have a merger FS exclusively as their union file system
+option, which thank you for them.
+Uh, but you know, it, their UI is very simplistic and obviously you have to have
+the whole package and not everyone wants to use open media vault.
+Um, what I would like to be able to do is have a simple binary or.
+You know, script that someone can download that it's its own web server
+that you run as root, um, or give proper permissions to access the merger FS,
+um, control runtime API that would allow you to kind of just start up a web
+browser, go to, um, whatever machines IP address that you've launched it on and
+just kind of drag and drop drives that you have, you know, it'll query my, the
+way I imagine is with query all your drives, look at the ones that are probably
+your boot drive, separate them out from your data drives, and then give you click
+boxes or dropdowns for all the different options and for merger FS.
+And then maybe I think it would be nice after if I could get that done to add
+maybe some snap raid stuff since that's a very common tool to use with merger FS
+and anything else in that space.
+But, um, I do have a number of web, uh, developer friends, but none of
+who are in this space.
+So I've been meaning to go on like data hoarder and, and home lab or any of those
+subreddits and just throw out a, um, requests to see if anyone's interested.
+I wanted to say thank you very much for joining us.
+It's been a pleasure speaking with you and, uh, from the community as well.
+I know that many, many people are very grateful for all the work you've
+done on this, on this amazing tool.
+Um, do you have any way you'd like to send people to follow you like Twitter
+maybe, or plug your GitHub?
+Yeah, just, uh, you can find me.
+I mean, trap exit is, uh, so that username comes from Erlang.
+I was a big Erlang or am a big Erlang fan and, uh, kind of, uh, use that as my handle.
+It's you'll almost always find any, any service.
+If you look up trap exit, it's probably me.
+There's a few that aren't, but that's pretty rare.
+If you just go to github.com slash trap exit, you'll find all my stuff.
+And, uh, I work on all these tools regularly.
+You can find me on Reddit or email, whatever, like contact me
+any way you will, you wish.
+I have a discord as well for those who want to chat about stuff.
+Um, yeah, I'm very open.
+Feel free to contact me.
+Contact me any which way.
+Well, thank you very much.
+Thank you for having me.

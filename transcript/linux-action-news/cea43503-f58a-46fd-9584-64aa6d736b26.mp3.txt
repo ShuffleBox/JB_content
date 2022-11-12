@@ -1,0 +1,260 @@
+Hello, and welcome to Linux Action News, episode 206, recorded on September 12th, 2021. I'm
+Chris.
+And I'm Wes.
+Hello, Wes, from Northern California. Let's do the news.
+This week, kernel developers have been hard at work on the Linux 5.15 merge window, which
+closes today. Now, 3,440 patches may seem like a slow start to some, but those patches
+are packed with significant new features.
+Actually, those numbers still continue to impress me. But a feature looking through
+all of them that really caught our attention, well, was one that was 17 years in the making.
+The real time preemption locking code has been merged. That work began back in 2004,
+and it's ended up touching so many different parts of the kernel. So we will have more
+on preemption locking in the future.
+But for today, another fascinating feature in 5.15 is the idle scheduling class control
+group. This new group will only run when there's nothing else for the CPU to do. But using
+the control group architecture means you can control the relative allocation of those idle
+resources within the group. It's really a nice use of a collection of existing kernel
+technologies.
+We're also seeing improvements to some of our favorite file systems, the block IO subsystem,
+and of course, improved hardware support.
+Yeah, we've been reviewing some of the development chatter and it seems like there's a lot going
+on with this development cycle. And it hasn't all necessarily been good news, actually.
+But at least in this case, the robots have our back. Intel's kernel test bot found a
+noticeable performance regression that made it into Linux 5.15. The performance regression
+came from the new memcg accounting support that was merged just last week. It turned
+out to have a lot more overhead than anyone expected about a 33% performance impact, at
+least according to Intel's tests. And well, when Linus saw that he quickly reverted the
+patch and he noted, quote, it was completely broken, and I should have caught on to it
+earlier, end quote.
+And while we're speaking of errors in the kernel, there's another kernel-related story
+we wanted to fill you in on. Landing this past weekend was the surprising move by Linus
+to enable the werror compiler flag by default for all kernel builds. That flag makes all
+warnings be treated as errors, which in turn stops the kernel build if it runs into those
+new errors. And unfortunately, it turns out there are a few more warnings than one might
+have thought. This change has led to quite a mess.
+Oh, man, in particular, like test farms, like the Intel bot we were just talking about,
+you know, they're set up sometimes to validate just recent or specific changes in the kernel
+that they're interested in. Well, a lot of these farms were just stopped cold due to
+warnings in the code base that aren't even related to what they're working on, sort of
+rendering the farm semi-useless. And a Googler who has been involved with the LLVM Clang
+building of the Linux kernel, ended up submitting a patch that reverted the change by Linus.
+And he noted that, quote, while I can appreciate the intent of enabling WR, I don't think it's
+the right tool to address the root cause of developers not testing certain tool chains
+or configurations or taking existing reports seriously enough.
+No one wants to see their CI system turn red. He went on to say that the WR flag might be
+useful to prevent new warnings from creeping in, but doesn't seem like a good fit for the
+current state of the kernel, unfortunately. Linus being Linus responded and basically
+rejected the notion of disabling it by default outright, saying, no, it was merged in response
+to years of pain. I'm not going to revert that change. Now, I will probably have to
+limit it. But basically, any maintainer who has code that causes warnings should expect
+that they will have to fix those warnings.
+You could tell the tensions were getting high and Linus went on to say that he spent hours
+recently getting rid of warnings. And he really shouldn't be the one fixing other people's
+code. He also noted that they shouldn't really be shocked when he tells them it's time to
+clean their own house. Marco Elver chimed in shortly after with the idea of maybe just
+enabling WR when doing a compile test kernel build. That's really the type of build that
+makes sure the kernel and all of its drivers can successfully compile. And that idea seems
+to have taken hold with Linus calling it a reasonable change and merging the patch that
+demotes it to compile test only by default. Really, it seems Linus just wants developers
+to start dealing with their compiler warnings.
+And while we're speaking of things Linus is trying to correct, you might have heard about
+the merge of the new Paragon NTFS driver we've been telling you about. And Linus's subsequent
+complaints regarding GitHub merges. Here's what he said.
+That's another one of those things that I really don't want to see. GitHub creates absolutely
+useless garbage merges. And you should never ever use the GitHub interface to merge anything.
+Linus goes on to note that to him, GitHub creates totally worthless commit messages
+as well, adding GitHub is a perfectly fine hosting site, and it does a number of other
+things well too. But merges is not one of those things. For a little context around
+that complaint, you've got to remember that the kernel is a pre GitHub, and even a pre
+Git project. Modern, what you might call GitHub native projects tend to outsource some of
+this bookkeeping to the pull request process. And that kind of workflow was never adopted
+by the kernel team. Yeah, and after all, Linus created Git. So this is not a complaint about
+Git, but really how GitHub creates merge commits. He kind of hits the nail on the head with
+this point when he says, quote, the Linux kernel merges need to be done properly. That
+means proper commit messages with information about what is being merged and why you are
+merging something. But it also means proper authorship and committer information, etc.
+All of which GitHub entirely screws up. And then Linus goes on to mention that they had
+this same issue with the KSMB server request, which reminded me that we're putting a Samba
+server in the kernel. But file servers built in the kernel aside, if you're an AMD user,
+check the show notes. There's some nice to haves landing in 5.15 just for you.
+One of the lesser known realities of large companies running enterprise Linux distributions
+in production is the need for newer software mixed in with that tried and tested stable
+base.
+Absolutely. I don't know how much of a little known reality this is because we have heard
+tales from Amazon employees who ripped out the TCP IP stack and wrote their own on Linux.
+We have heard tales from Facebook developers rolling their own centos kernels and repositories
+replacing entire large chunks of the traditional centos release. And just as an aside, this
+is one of the reasons the Facebook server team is really super excited about centos
+stream is they can now participate directly in the future development of the platform.
+That's going to be something of a game changer, I expect. But back to this poorly kept industry
+secret. Something needed to be done to address the needs of Red Hat Enterprise Linux and
+CentOS users who might not have the resources of Facebook or Amazon and are just kind of
+stuck in the position of needing newer components for their chosen operating system.
+Yep. And long story short, Fedora team members realize, well, they had mostly what they needed
+to solve the problem right there in front of them for their enterprise cousins. And
+that's how the Apple project was born. It stands for extra packages for enterprise Linux.
+Apple packages are typically based on their Fedora counterparts and Apple uses a large
+part of the same infrastructure as Fedora, including the build system, the bugzilla instance,
+the update manager, the mirror manager. And well, now the group has recently begun building
+packages against centos stream as REL calling it Apple next. The initiative has gone through
+various transformations over the years from a test project to now a full special interest
+group responsible for over 3000 additional packages not included in REL.
+And this week, Red Hat announced they will officially support the community based special
+interest group. A new team is being formed and expected to start work sometime in October.
+It's a part of the community platform engineering group or CPR for short. That's the Red Hat
+team that unites it and release engineering from both Fedora and CentOS.
+This is nice from the standpoint of seeing Red Hat acknowledge that this is a workflow
+that their customers are dependent on. And I would expect that probably give some peace
+of mind to users who are taking advantage of Apple. But overall, there's still major
+parts of the centos story that are still coming together. We do not yet have a complete picture.
+I mean, we still have the transition to stream. There are new rebuilds yet to be announced.
+And there are large well resourced companies that are just getting started working upstream
+with stream. And now you have this official Red Hat backing of Apple. Well, all of this
+suggests to me that we could be about to witness some kind of centos revolution.
+Good news everyone, Microsoft's first full Linux distribution has an update that might
+just pique your interest. As you probably recall, CBL Mariner is a Linux distribution
+maintained by Microsoft for their own internal usage, but it's publicly available for anyone
+interested. CBL Mariner is used as part of WSL. It packs Azure Sphere OS, Sonic, and
+a whole bunch of other Linux based efforts within Microsoft. And now that we are in September,
+Microsoft has just published their August 2021 update. CBL Mariner continues using the
+Linux 5.10 kernel, which makes sense given it's a long term support release. And they've
+added many new packages this time around, including cockpit. But the biggest feature
+as far as we're concerned, is that they're now shipping a public ISO image ready to download.
+So of course, I had to give it a go. I mean, is Microsoft they've released a Linux distribution
+and it's now available as an ISO? Yeah, yeah, that's that's gonna get a download. And it's
+quaint and not in like a bad way. It's clearly a lean mean working machine. It has a similar
+approach to other tiny distros like alpine and container Linux came to mind. But CBL
+Mariner only has just like basic packages needed to basically run containers. I mean,
+it's very minimum. You know, you have some common Linux tools in there, of course, like
+PS and LS. And it's got bash and all of that. And it uses RPM for packages. So you can install
+packages that way. It's about a 700 megabyte ISO image. When you boot it up. It starts
+with a text to speech at the boot menu. It's not like grub either was it's like their own
+boot menu, I think. And it starts talking to you immediately. I had other audio playing.
+It was very disorienting. Clearly, that's a weird lesson they've learned from the Windows
+side. I mean, I guess it's friendly. Yeah, and I could kind of see it being useful, obviously,
+for visually impaired folks, but maybe for those that are installing it on a headless
+system as well. It has three options. It has text installer with speech, the text installer
+and then the graphical installer. And so of course, I was like, well, let's see what Microsoft's
+graphical Linux installer is like. So I chose that and then it immediately and hilariously
+crashed. And then this green reader ridiculously read the error message to me. But I didn't
+expect much with that. So I rebooted and I did the CLI install. And it's a bare minimum
+installer. I mean, very, very bare. But it gets the job done. It's kind of exactly what
+you'd want and expect from something like CBL. And it installs quick, like quicker than
+I even expected. I want to say maybe within two minutes, the entire distro was installed.
+It was about two gigabytes on disk once everything was all said and done. You reboot, you got
+a real minimal install. I mean, your your basic tools are there, you're going to have
+bash when you log in at the shell, and you got system D. So you're pretty much good to
+go and you could start running containers. I mean, all in all, I can see they clearly
+have built something for their particular use case. And it is designed to a T for that.
+Microsoft for their part has stated that they're committed to keeping CPL Mariner up to date,
+noting that it actually enhances Microsoft's ability overall to stay current on Linux updates.
+They also note that the stripped back nature of the OS makes for better security saying,
+quote, by focusing the features in the core image to just what is needed for our internal
+cloud customers. They're just fewer services to load and fewer attack vectors. Now, it
+still strikes us as a little bit strange to watch Microsoft build and maintain their own
+Linux distribution, which is now even available as an ISO. But they seem to have a clear vision
+for CPL Mariner, crafting it for their own specific needs. And it's gonna be fascinating
+to watch if anyone else chooses to adopt it. For my part, though, I'm just hoping they
+ship a version with plasma baked in sometime soon.
+The
+big large hyperscaler cloud vendors, they're going to present themselves as a one stop
+shop. They're going to invite you to just come on in, become wholly dependent on them
+as a single source for everything you might ever need. But you know, that's that's not
+a good thing. The problem with relying on a single source cloud provider is vendor lock
+in, you get so deeply intertwined into the vendors ecosystem that it becomes impossible
+or at least cost prohibitive, if nothing else to break away. And then if your business needs
+to change, you're stuck. And beyond being stuck and trapped, it's a single source architecture
+that well makes your business less adaptable, and less resilient. So little really can be
+part of your multi cloud strategy. And you know, there is a significant shift happening
+in the industry right now. Gardner recently estimated that two thirds of all cloud industry
+customers are going to adopt a multi cloud strategy as a means for specifically avoiding
+vendor lock in by the end of 2024. So it's something we all really should be thinking
+about. And if you ever run into any trouble with Linode, they have the best customer support.
+I mean, it's truly amazing. 24 seven customer support by phone ticket or social, they're
+going to help you along with hundreds of guides and tutorials. And they're always reaching
+out to content creators to help create an ecosystem of content that makes it easier
+to use Linode. They also recently invested in our colony reunion road trip to make it
+possible for our community to connect because they understand that it's important to invest
+in those areas of the Linux community as well. And not a lot of companies get that there's
+a lot of ways to host something. But Linode is one of the companies that truly gets it.
+They're dedicated to offering the best virtualized cloud computing ever runs on Linux, it runs
+on the node. So go see what you can build, go see what you can learn. Sign up today at
+Linode comm slash LAN, get $100 in 60 day credit on your new account, and you support
+the show, Linode comm slash LAN, Linux dot ting.com. If you're sick of overpaying for
+cell service, go see how much you could save and then take 25 bucks off that at Linux dot
+ting.com. This episode of Linux action news is also made possible by our friends at ting
+and there's something special over there. They're making the big networks that you hear
+about all the time the coast to coast networks, they're making them available to everybody
+ting is a mobile virtual network operator. That means ting customers get access to the
+big carrier networks, but with way better customer service, and at a lot lower cost.
+So it's just a win win. I've been a ting customer since 2003. And they've stayed flexible with
+me. They've worked with me over the years. And they're great for those of you who are
+traveling as well. And their plans are simple and straightforward. They have ones that are
+really easy to understand. They have ones that are flexible for families. It's great.
+And ting is also doing a bit of a giveaway right now. If you go over to their Twitter
+page, you'll see more about it. They're at ting FTW on Twitter. They're doing a Yeti
+prize pack giveaway, you can get a Yeti cooler, a Rambler, a Tumblr, a backpack and more.
+So I have information on their Twitter feed and you can sign up they have like, I think
+it's like seven different ways you could sign up to win. You might as well get in on that
+and then check out their plans to, you know, a good plan is hard to find and they're flexible.
+And if you can be clever on how you use your technology, like download your podcast and
+sync a little bit of music before you hit the road, you could be shocked at how much
+you could save. And the great thing about ting is there's no contracts ever. And it's
+super simple to switch to ting pretty much any phones going to work because they support
+the major networks. So you get started by going to linux.ting.com. You check your current
+phone, get all the information, they have a really easy, smooth process to do all of
+that. And you get set within minutes, they'll send you a SIM card, you pop that in, you
+go back to their website, once you got it, another couple of minutes, you're activated,
+you're good to go. They have a great dashboard to manage all of it. If you do need to talk
+to a human, you're going to be set. But if you don't, you're going to love the website.
+But the key is to support the show and get 25 bucks off by visiting linux.ting.com. It's
+never been a better time to be a ting customer. Their plans are more competitive than ever.
+And they're needed in the industry more than ever. So go sign up and save 25 bucks at linux.ting.com.
+We don't spend a lot of time going meta on this show, by which I mean talking about the
+show in the show. But with the summer coming to a close, we wanted to touch base on an
+editorial choice that we made during the summer lull of development and general free software
+news. Really, we thought you should know that more than a dozen additional stories were
+considered and rejected for this episode. Not because they were bad stories, but because
+we know you're busy. We're trying to focus on the news that matters this week. That's
+the Linux action news promise. And it often means we're going to pass on more stories
+than we can include each week. Not as a judgment call on those stories, but out of respect
+for your time. We know you're busy. And the value of this show is getting concise, accurate
+information to help you do your job and stay informed. As a concrete example, we didn't
+cover the latest point release of the OpenShot project. Not because we don't think it's
+a valuable project or a worthwhile release, or even something we personally are excited
+about. But because unless you're an OpenShot user, this release hasn't really changed
+the value proposition of the project. And that means it doesn't really fit in Linux
+action news. And that's true for a lot of stories, some of which might just be a better
+fit for some of our other shows, like Linux Unplugged. And I think we also realize you
+can read headlines in a million different places in a million different ways if you
+want. So we have a job to do. And our job is to provide value and context and some selection
+where it's helpful. And more often than not, it will mean the episodes are short and concise.
+And it doesn't mean that we're not digging into every story and seeking comment and evaluating
+all of the news in a broader context. In fact, ironically, a shorter show often takes more
+work. As backwards as that might seem on the surface, it takes more work to make a show
+shorter because it's a process of working through each story, identifying the ones that
+have a larger impact and taking those lists of stories and whittling it down into something
+more refined. It means after we've concluded our research, messaging our contacts and sleuthing
+around the mailing list and reading through our RSS feeds, what makes it into the show
+is the stuff that we think you should really know about. And I should probably add, it
+does sometimes mean occasionally longer episodes too, usually not in the summer. But if that's
+what the content calls for, well, we'll hope you stick around for the longer episodes when
+it's a big show week as well.
+And really, that's the kind of flexibility that we think new media productions like this
+podcast should lean into, not getting trapped in the formats of the past that follow the
+clock. Making Linux industry news more accessible to busy professionals is something we take
+seriously because in a very real way, this is the new show I would want to listen to
+if I wasn't already making it. Now, with all of this said, we are always interested in
+your thoughts. Our inbox is open to you. LinuxActionNews.com slash contact. Indeed, we always like to hear
+your ideas or story suggestions or leads or announcements. You can send those there as
+well. You know, Linux Action News, if you haven't been around for a while, you might
+not know this, but it started life off as just a news segment in the Linux Action show.
+In that context, the news could be five minutes long, or it could be the entire episode. It
+was just the news segment, and it was what it needed to be. And that general idea echoes
+today in Linux Action News. In a way, I guess we are we're asking the audience to trust
+us and disconnect episode length from quality of episode. In our view, our value to you,
+our listener, is in creating a high quality episode that provides you the information
+you need in the most concise and accurate delivery possible. And we're going to keep
+trying to do that every single week. So make sure you get every episode by going to LinuxActionNews.com
+slash subscribe. And of course, we'll be back next Monday with our weekly take on the latest
+Linux and open source news. Thanks for joining us. And that's all the news for this week.

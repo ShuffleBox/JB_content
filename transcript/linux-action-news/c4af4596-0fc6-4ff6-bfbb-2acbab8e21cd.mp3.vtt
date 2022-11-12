@@ -1,0 +1,965 @@
+WEBVTT
+
+00:00.000 --> 00:10.000
+Hello, and welcome to Linux Action News, episode 249, recorded on July 13th, 2022.
+
+00:10.000 --> 00:11.000
+I'm Chris.
+
+00:11.000 --> 00:12.000
+And I'm Wes.
+
+00:12.000 --> 00:13.000
+Hello, Wes.
+
+00:13.000 --> 00:15.000
+Let's do the news.
+
+00:15.000 --> 00:20.000
+Well, if you thought rolling distributions were just a fad, that misconception was laid
+
+00:20.000 --> 00:23.000
+to rest this week.
+
+00:23.000 --> 00:28.000
+Google made quite the splash with a comprehensive blog post on how they ended up deploying rolling
+
+00:28.000 --> 00:30.000
+Linux desktops.
+
+00:30.000 --> 00:35.000
+Now, more than 15 years ago, Google chose Ubuntu as the base for their internal Linux bin.
+
+00:35.000 --> 00:41.000
+They liked that it was easy to use, and they noted it had, quote, lots of fancy extras.
+
+00:41.000 --> 00:46.000
+And of course, they went with the LTS because they valued that release cycle.
+
+00:46.000 --> 00:51.000
+But as time went on, they discovered challenges, and even an LTS cycle comes to an end.
+
+00:51.000 --> 00:56.000
+And that eventually meant they'd need to upgrade their fleet of over 100,000 devices before
+
+00:56.000 --> 00:59.000
+the end of life date of Ubuntu.
+
+00:59.000 --> 01:05.000
+And as you might expect, Google has some unique and complex workloads that were sensitive
+
+01:05.000 --> 01:08.000
+to large operating system upgrades.
+
+01:08.000 --> 01:13.000
+Inevitably, Google ended up building a whole bunch of internal tools to manage all the
+
+01:13.000 --> 01:19.000
+edge cases, writing on their blog, quote, for each OS cycle, we had a rather large version
+
+01:19.000 --> 01:25.000
+bump in major packages that could require significant changes to software configuration.
+
+01:25.000 --> 01:30.000
+To automate this process, we wrote an untended in-place upgrade tool that took care of a
+
+01:30.000 --> 01:32.000
+lot of the common problems.
+
+01:32.000 --> 01:36.000
+This automation-focused approach meant that most of the Google employees didn't have to
+
+01:36.000 --> 01:42.000
+manually upgrade their machines by reinstalling them and recreating all their configurations.
+
+01:42.000 --> 01:48.000
+But as most custom tools are, it wasn't perfect, and it still took nearly a year to upgrade
+
+01:48.000 --> 01:50.000
+their entire fleet.
+
+01:50.000 --> 01:55.000
+There was also typically a long tail of special use case upgrades that could sometimes drag
+
+01:55.000 --> 01:57.000
+on for several years.
+
+01:57.000 --> 02:02.000
+As you can probably imagine, just managing the process of doing the upgrades was a lot
+
+02:02.000 --> 02:07.000
+of overhead to say nothing of doing the actual upgrade work.
+
+02:07.000 --> 02:09.000
+Amen.
+
+02:09.000 --> 02:14.000
+And so enters a new internal Google distribution.
+
+02:14.000 --> 02:20.000
+Known as G-Linux Rotet, it's based on Debian testing.
+
+02:20.000 --> 02:25.000
+One of their primary aims was to remove the two-year upgrade cycle and instead spread
+
+02:25.000 --> 02:30.000
+out smaller updates and thus spread out the load on the team throughout time instead of
+
+02:30.000 --> 02:33.000
+one big old push every two years.
+
+02:33.000 --> 02:37.000
+And don't underplay the significance of a new distribution like this.
+
+02:37.000 --> 02:42.000
+This move is considerable, and Google put a lot of research into this.
+
+02:42.000 --> 02:47.000
+They write on the post, quote, we considered going with other Linux distributions but ended
+
+02:47.000 --> 02:51.000
+up choosing Debian because we wanted to offer a smooth in-place migration.
+
+02:51.000 --> 02:55.000
+This also included considerations towards the availability of packages in Debian, the
+
+02:55.000 --> 03:00.000
+large Debian community, and also the existing internal packages and tooling that we were
+
+03:00.000 --> 03:02.000
+using that were already in the Debian format.
+
+03:02.000 --> 03:08.000
+While the Debian stable track follows a roughly two-year jump between releases, Debian testing
+
+03:08.000 --> 03:11.000
+track works as a rolling release.
+
+03:11.000 --> 03:16.000
+Google also notes that the testing release cadence means they get much more granular
+
+03:16.000 --> 03:20.000
+changes to work with while also being able to provide the latest software to their engineers
+
+03:20.000 --> 03:23.000
+without having to wait for the next LTS.
+
+03:23.000 --> 03:27.000
+And reading through the post, you get a sense that that was a friction point for Google
+
+03:27.000 --> 03:29.000
+staffers on G-Linux.
+
+03:29.000 --> 03:31.000
+They wanted access to fresher and fresher packages.
+
+03:31.000 --> 03:36.000
+And of course, no new Google effort would be complete without some brand new tooling.
+
+03:36.000 --> 03:41.000
+So to manage all of these new complex tasks, like building the upstream packages that are
+
+03:41.000 --> 03:46.000
+from source, Google's team has created a new workflow system called sieve.
+
+03:46.000 --> 03:51.000
+Whenever a new version of, say, a new Debian package is detected, they start a build.
+
+03:51.000 --> 03:56.000
+Then they run the entire thing through a suite of virtualized tests on various configurations.
+
+03:56.000 --> 04:01.000
+And then once all the checks are passed, they merge that new package with their local latest
+
+04:01.000 --> 04:02.000
+pool of packages.
+
+04:02.000 --> 04:07.000
+And it seems through that effort, they've already flagged a common issue.
+
+04:07.000 --> 04:12.000
+Writing, quote, one issue that we run into a few times, for example, is that in upstream
+
+04:12.000 --> 04:16.000
+Debian, packages are usually built in Debian unstable.
+
+04:16.000 --> 04:21.000
+After a few days, those already built packages migrate over to Debian testing.
+
+04:21.000 --> 04:27.000
+In some cases, it's possible, however, that a build dependency is stuck in unstable, and
+
+04:27.000 --> 04:31.000
+thus building within testing might not yet be feasible.
+
+04:31.000 --> 04:36.000
+Google wraps up the whole post with some really positive arguments for moving their organization
+
+04:36.000 --> 04:37.000
+to a rolling desktop.
+
+04:37.000 --> 04:39.000
+It's quite the read in some sense.
+
+04:39.000 --> 04:43.000
+And they say in there that the life of the G-Linux team member just looks a lot different
+
+04:43.000 --> 04:47.000
+now, with significant reductions in the overhead for a release.
+
+04:47.000 --> 04:52.000
+And they also say there's just no more need for this multi-stage alpha, beta, and GA phase
+
+04:52.000 --> 04:57.000
+they used to have to go through for new LTS releases, while then also simultaneously chasing
+
+04:57.000 --> 05:02.000
+down older machines that were still running old, out-of-date Ubuntu releases.
+
+05:02.000 --> 05:05.000
+That process is done now.
+
+05:05.000 --> 05:10.000
+They also highlight that this move has dramatically improved Google's security stance by operating
+
+05:10.000 --> 05:13.000
+their fleet much closer to upstream releases.
+
+05:13.000 --> 05:17.000
+Plus, the new testing system they set up to integrate a rolling release has resulted in
+
+05:17.000 --> 05:20.000
+improved stability for their desktop users.
+
+05:20.000 --> 05:21.000
+More secure, more stable?
+
+05:21.000 --> 05:23.000
+Who doesn't like that?
+
+05:23.000 --> 05:28.000
+Indeed, and the cherry on top here is they even encourage other organizations to give
+
+05:28.000 --> 05:30.000
+this serious consideration.
+
+05:30.000 --> 05:34.000
+They write with a little bit of parting advice saying consider balancing the needs of the
+
+05:34.000 --> 05:37.000
+company against upgrade agility.
+
+05:37.000 --> 05:43.000
+Being in control of our own moving target and baseline has helped to slow down whenever
+
+05:43.000 --> 05:48.000
+we encountered too many problems and broke any of our team's SLOs.
+
+05:48.000 --> 05:53.000
+Our journey has ultimately reinforced our belief that incremental changes are better
+
+05:53.000 --> 05:56.000
+manageable than Big Bang releases.
+
+05:59.000 --> 06:05.000
+Sticking with some industry news for a moment, Red Hat named a new CEO this week.
+
+06:05.000 --> 06:10.000
+Matt Hicks is stepping into the role, a Red Hat veteran and currently head of products
+
+06:10.000 --> 06:12.000
+and technologies.
+
+06:12.000 --> 06:17.000
+Matt Hicks will be replacing Paul Cormier, the company's CEO and president since 2020,
+
+06:17.000 --> 06:21.000
+as of this recording, we're still trying to find out where the former CEO is headed.
+
+06:21.000 --> 06:26.000
+There have been some rumors for months that he may retire soon, but as of now, all we
+
+06:26.000 --> 06:31.000
+know is he seems to be staying with Red Hat, but moving to a position that is quote a
+
+06:31.000 --> 06:34.000
+somewhat less demanding position.
+
+06:34.000 --> 06:38.000
+Cormier is known as one of the early leading voices there.
+
+06:38.000 --> 06:43.000
+Back in 2003, he advocated for Red Hat to leave the consumer market and instead focus
+
+06:43.000 --> 06:48.000
+on becoming a full blown business Linux.
+
+06:48.000 --> 06:52.000
+A move that still kind of stings to this day, but was clearly a money making idea.
+
+06:52.000 --> 06:55.000
+Yeah, you're not alone in thinking that.
+
+06:55.000 --> 07:01.000
+Cormier had said in 2012 that many of the developers at Red Hat were upset about that
+
+07:01.000 --> 07:07.000
+move, stating in an interview with ours, quote, engineers at the time didn't care about a
+
+07:07.000 --> 07:08.000
+business model.
+
+07:08.000 --> 07:11.000
+They wanted to work on Red Hat Linux.
+
+07:11.000 --> 07:16.000
+We had some level of turmoil inside the company with going to this new model.
+
+07:16.000 --> 07:19.000
+Some engineers left, but more stayed.
+
+07:19.000 --> 07:22.000
+Ultimately, I think Cormier was pretty well respected in the company.
+
+07:22.000 --> 07:28.000
+As for the new CEO, Hicks joined Red Hat in 2016 as a developer, and he said in a note
+
+07:28.000 --> 07:33.000
+to Red Hat employees that he'd quote, never imagined that my career would lead me to this
+
+07:33.000 --> 07:34.000
+moment.
+
+07:34.000 --> 07:38.000
+If I had followed my initial path, not raised my hand for certain projects, or shied away
+
+07:38.000 --> 07:43.000
+from contributing ideas and asking questions, I might not be here.
+
+07:43.000 --> 07:45.000
+He also seems to know how to play the corporate game.
+
+07:45.000 --> 07:51.000
+In a statement, he flexed those skills a bit, saying, quote, together, IBM and Red Hat can
+
+07:51.000 --> 07:54.000
+really lead a new era of hybrid computing.
+
+07:54.000 --> 07:58.000
+Red Hat has the technological expertise and the open source model.
+
+07:58.000 --> 08:01.000
+IBM has the reach.
+
+08:01.000 --> 08:04.000
+Moving ahead, the former CEO will still be around.
+
+08:04.000 --> 08:09.000
+Cormier will continue to work alongside IBM Chairman and CEO Arvind Krishna.
+
+08:09.000 --> 08:16.000
+Both the former CEO Cormier and the new CEO Hicks will report to Krishna going forward.
+
+08:20.000 --> 08:26.000
+2022 is turning into an impressive year for Linux hardware, especially Linux first hardware.
+
+08:26.000 --> 08:31.000
+I mean, just off the top of my head, a few standouts so far are the Steam Deck, the HP
+
+08:31.000 --> 08:38.000
+Dev 1, the System76 Slimr Pro, and now the KDE Slimbook 4 laptop.
+
+08:38.000 --> 08:46.000
+Yeah, this new plasma first laptop features an AMD Ryzen 7 5700U processor, and it's available
+
+08:46.000 --> 08:51.000
+with either a 14-inch or a 15.6-inch screen.
+
+08:51.000 --> 08:58.000
+That smaller model sells for just over $1,000 USD, and the 15.6-inch model sells for just
+
+08:58.000 --> 09:00.000
+under $1,100.
+
+09:00.000 --> 09:04.000
+And important to note about what you're getting for those prices, a portion of the proceeds
+
+09:04.000 --> 09:07.000
+is donated to KDE Development.
+
+09:07.000 --> 09:10.000
+And they really promote it as a whale-in-first experience with that.
+
+09:10.000 --> 09:12.000
+I thought that was kind of interesting.
+
+09:12.000 --> 09:18.000
+And this week, System76 teased an updated Launch Keyboard Lite, a smaller version of
+
+09:18.000 --> 09:21.000
+their fully hackable mechanical keyboard.
+
+09:21.000 --> 09:26.000
+It's a 67% sized keyboard, which System76 calls portable.
+
+09:26.000 --> 09:32.000
+The Launch Lite features the ability to customize the layout and lighting in firmware via System76's
+
+09:32.000 --> 09:34.000
+keyboard configurator utility.
+
+09:34.000 --> 09:42.000
+It's got a USB Type-C 2.0 port, of course, System76's open-source QMK firmware, and a
+
+09:42.000 --> 09:44.000
+nice selection of key switch options.
+
+09:44.000 --> 09:49.000
+And as you would hope, the firmware is upgradable with FWEPD from your Linux system.
+
+09:49.000 --> 09:59.000
+System76 says that orders should be going live by the time you hear this episode.
+
+09:59.000 --> 10:04.000
+Sticking with hardware for just a moment longer, we often speak quite highly of AMD's efforts
+
+10:04.000 --> 10:07.000
+to upstream their graphics driver code.
+
+10:07.000 --> 10:12.000
+And that's great for those of us on a fairly up-to-date distribution.
+
+10:12.000 --> 10:18.000
+But what about those enterprise distro users stuck on old versions of everything?
+
+10:18.000 --> 10:20.000
+Well, AMD is on it.
+
+10:20.000 --> 10:23.000
+You're just going to have to wait a bit longer.
+
+10:23.000 --> 10:26.000
+Yeah, but you're probably used to that by now anyways.
+
+10:26.000 --> 10:31.000
+The good news is AMD is actually hiring to fix this problem, which, let's be honest,
+
+10:31.000 --> 10:33.000
+that's the real long-term fix here.
+
+10:33.000 --> 10:38.000
+The new job position with AMD states, quote, we are looking for experienced software engineers
+
+10:38.000 --> 10:41.000
+to enhance build, packaging, and install.
+
+10:41.000 --> 10:45.000
+Successful candidates will utilize their knowledge of Linux application development or Linux
+
+10:45.000 --> 10:51.000
+system administration to become key contributors to the ongoing development of AMD GPU drivers
+
+10:51.000 --> 10:53.000
+for current and future hardware.
+
+10:53.000 --> 10:57.000
+Experience with multiple Linux distributions and use of multiple package managers such
+
+10:57.000 --> 11:01.000
+as RPM, apt, yum, dnf, zipper, etc.
+
+11:01.000 --> 11:09.000
+We'll have a link to the job posting in the show notes.
+
+11:09.000 --> 11:14.000
+You might have noticed some consternation online this week over a new Lenovo model being
+
+11:14.000 --> 11:18.000
+limited to Windows only, at least by default.
+
+11:18.000 --> 11:24.000
+Well, Matthew Garrett has written a post that gets into an apparent Microsoft policy change
+
+11:24.000 --> 11:31.000
+around secured core PCs that makes it more difficult to boot Linux on these systems.
+
+11:31.000 --> 11:36.000
+It doesn't just complicate things for Linux users though, this new policy also restricts
+
+11:36.000 --> 11:41.000
+the system from using any drivers that are stored in flash on Thunderbolt devices, which
+
+11:41.000 --> 11:47.000
+means eGPU setups may be a bit more complicated, as will, say, netbooting off a Thunderbolt
+
+11:47.000 --> 11:49.000
+attached NIC.
+
+11:49.000 --> 11:54.000
+Garrett ends the post with a call to Microsoft to be transparent about the justification
+
+11:54.000 --> 11:56.000
+for this policy change.
+
+11:56.000 --> 12:01.000
+The post is well worth your time, especially if you might be considering a new Linux laptop
+
+12:01.000 --> 12:02.000
+sometime.
+
+12:02.000 --> 12:03.000
+We'll have it linked in the show notes.
+
+12:03.000 --> 12:11.000
+Give it a read and tell us what you think.
+
+12:11.000 --> 12:12.000
+Linode.com slash LAN.
+
+12:12.000 --> 12:17.000
+Go there to get $100 in 60 day credit so you can try it out and you go there to support
+
+12:17.000 --> 12:18.000
+the show.
+
+12:18.000 --> 12:20.000
+$100 means you can really try it out.
+
+12:20.000 --> 12:27.000
+Linode is easy to use and powerful with great performance, 11 data centers around the world
+
+12:27.000 --> 12:32.000
+and they're making our trip to go see JPL to take a tour down at JPL and meet up with
+
+12:32.000 --> 12:33.000
+our West Coast listeners.
+
+12:33.000 --> 12:34.000
+They're making it possible.
+
+12:34.000 --> 12:41.000
+And the truth about Linode is they are really aggressively priced with pricing 30 to 50
+
+12:41.000 --> 12:46.000
+percent cheaper than the other major hyperscalers that want to lock you into their crazy platform.
+
+12:46.000 --> 12:50.000
+I mean, the way to talk about Linode is to talk about really how they are everything
+
+12:50.000 --> 12:52.000
+those platforms are not.
+
+12:52.000 --> 12:56.000
+You know, the largest hyperscalers, they want to present themselves as kind of like a one
+
+12:56.000 --> 13:01.000
+stop shop, inviting you to become wholly dependent on them as a single source for everything
+
+13:01.000 --> 13:02.000
+you might need.
+
+13:02.000 --> 13:05.000
+But of course, you know that means lock in.
+
+13:05.000 --> 13:10.000
+Linode, they let you build as you need, their services are straightforward, simple to use
+
+13:10.000 --> 13:16.000
+and they work with your existing management platforms like Kubernetes, Terraform and Ansible
+
+13:16.000 --> 13:22.000
+and they have great services like S3 compatible object storage and it's all backed by real
+
+13:22.000 --> 13:23.000
+human support.
+
+13:23.000 --> 13:28.000
+So with pricing 30 to 50 percent cheaper, 11 data centers around the world, a cloud
+
+13:28.000 --> 13:32.000
+dashboard that beginners and pros can use, the only thing missing is a great opportunity
+
+13:32.000 --> 13:35.000
+to try it and really see what I'm talking about.
+
+13:35.000 --> 13:38.000
+So go to linode.com slash LAN and take advantage of that opportunity.
+
+13:38.000 --> 13:43.000
+Go get $100 in 60 day credit on your new account and you support the show.
+
+13:43.000 --> 13:49.000
+Linode.com slash LAN.
+
+13:49.000 --> 13:50.000
+And thank you to Kalyde.
+
+13:50.000 --> 13:53.000
+Kalyde.com slash LAN.
+
+13:53.000 --> 13:57.000
+Kalyde is an endpoint security solution that uses the most powerful untapped resource in
+
+13:57.000 --> 14:00.000
+IT, end users.
+
+14:00.000 --> 14:04.000
+And when you're trying to achieve security goals, either for yourself or maybe a third
+
+14:04.000 --> 14:09.000
+party audit, the conventional wisdom is to treat every single device like Fort Knox,
+
+14:09.000 --> 14:15.000
+old school device management tools like MDMs, while they force disruptive agents onto employees
+
+14:15.000 --> 14:17.000
+devices and slow down performance.
+
+14:17.000 --> 14:22.000
+I resisted that type of software whenever I was a staffer.
+
+14:22.000 --> 14:28.000
+It turns the IT admins into enemies of the users and it also creates its own security
+
+14:28.000 --> 14:29.000
+problems.
+
+14:29.000 --> 14:30.000
+Let's be real.
+
+14:30.000 --> 14:37.000
+And I think it creates this sort of shadow habits for users to avoid IT detecting things.
+
+14:37.000 --> 14:39.000
+So Kalyde just does things differently.
+
+14:39.000 --> 14:45.000
+Instead of forcing changes on users, Kalyde sends them security recommendations via Slack.
+
+14:45.000 --> 14:50.000
+Kalyde will automatically notify your team when their devices are insecure and give them
+
+14:50.000 --> 14:53.000
+step by step instructions on how to solve the problem.
+
+14:53.000 --> 14:58.000
+By reaching out to employees via a friendly Slack DM and educating them about company
+
+14:58.000 --> 15:04.000
+policies, Kalyde can help you build a culture in which everyone contributes to security
+
+15:04.000 --> 15:09.000
+because everyone understands and knows why they should be doing it.
+
+15:09.000 --> 15:14.000
+And for IT admins, well, Kalyde provides a single dashboard that lets you monitor the
+
+15:14.000 --> 15:16.000
+security of your entire fleet.
+
+15:16.000 --> 15:19.000
+If they're on a Mac, they're on Windows, and of course, Linux.
+
+15:19.000 --> 15:25.000
+So you can see at a glance which employees have encrypted setups, which ones have up-to-date
+
+15:25.000 --> 15:30.000
+OSs or not, which ones might be using a password manager, and it's really simple to generate
+
+15:30.000 --> 15:36.000
+reports so you can prove compliance to your auditors, customers, or of course, leadership.
+
+15:36.000 --> 15:37.000
+So that's Kalyde.
+
+15:37.000 --> 15:42.000
+User-centered cross-platform endpoint security for teams that Slack.
+
+15:42.000 --> 15:45.000
+You can meet your compliance goals by putting users first.
+
+15:45.000 --> 15:49.000
+Visit Kalyde.com slash LAN to find out how.
+
+15:49.000 --> 15:51.000
+And if you go to that link, they'll hook you up with a goodie bag that includes a free
+
+15:51.000 --> 15:53.000
+t-shirt too.
+
+15:53.000 --> 15:57.000
+So that's K-O-L-I-D-E.com slash LAN.
+
+15:57.000 --> 16:00.000
+Kalyde.com slash LAN.
+
+16:04.000 --> 16:09.000
+We wrap things up today with two serious Xorg security disclosures.
+
+16:09.000 --> 16:14.000
+These issues are due to out-of-bounds accesses within the Xorg server and can lead to local
+
+16:14.000 --> 16:19.000
+privilege escalation on systems where the Xorg server is running with elevated permissions.
+
+16:19.000 --> 16:24.000
+It can also lead to remote code execution when SSHX forwarding is in use.
+
+16:24.000 --> 16:29.000
+The issues are tracked as CVE 2022, 2319, and 2320.
+
+16:29.000 --> 16:37.000
+Both deal with the Xorg server's XKB keyboard extension not properly validating input, which
+
+16:37.000 --> 16:41.000
+is what can trigger the server to write to out-of-bounds memory addresses.
+
+16:41.000 --> 16:50.000
+I, of course, love SSHX forwarding, but the good news is Xorg Server 21.1.4 is now available.
+
+16:50.000 --> 16:51.000
+It does include the fixes.
+
+16:51.000 --> 16:54.000
+It was released on July 12, 2022.
+
+16:54.000 --> 16:59.000
+But this kind of highlights something that Wes and I have been uneasy about for a while,
+
+16:59.000 --> 17:02.000
+and that is the remaining prevalence of Xorg.
+
+17:02.000 --> 17:06.000
+It still ships as default on several popular distributions.
+
+17:06.000 --> 17:11.000
+And I think it's sort of been suggested that Xorg is completely dead, and that's obviously
+
+17:11.000 --> 17:17.000
+been exaggerated because this past weekend, a longtime Xorg contributor, Alan Coopersmith
+
+17:17.000 --> 17:24.000
+of Oracle, issued many updates to various old, seldom-maintained Xorg projects.
+
+17:24.000 --> 17:30.000
+And while that's very nice to see, make no mistake, there's basically no one working
+
+17:30.000 --> 17:36.000
+on Xorg, a point that developers seem to be trying to make over and over.
+
+17:36.000 --> 17:42.000
+I mean, these updates came from a single developer who spent some of his own free time on the
+
+17:42.000 --> 17:44.000
+weekend making it happen.
+
+17:44.000 --> 17:50.000
+Yeah, and it's not like the Xorg project is onboarding new, excited developers to keep
+
+17:50.000 --> 17:51.000
+things going.
+
+17:51.000 --> 17:57.000
+The folks that are around have been around for a really long time, and we've been told,
+
+17:57.000 --> 18:02.000
+off the record by some of them, that anyone who's left that still spends serious time
+
+18:02.000 --> 18:07.000
+on this stack has moved to Wayland, and the developers are just sort of waiting for people
+
+18:07.000 --> 18:09.000
+to figure it out.
+
+18:09.000 --> 18:14.000
+Yeah, this is admittedly something of a tricky position for the Linux desktop to be in, something
+
+18:14.000 --> 18:19.000
+that app image developer Pro Bono has been documenting on GitHub.
+
+18:19.000 --> 18:24.000
+I mean, from a user's perspective, there really are still quite a few important features that
+
+18:24.000 --> 18:26.000
+are just still missing.
+
+18:26.000 --> 18:31.000
+Yep, he touches on things like auto key not working, many screen recording applications
+
+18:31.000 --> 18:37.000
+that don't work, and issues that affect projects like app image amongst a long list of other
+
+18:37.000 --> 18:39.000
+problems.
+
+18:39.000 --> 18:43.000
+And none of them are really wrong, especially from an end user standpoint, it does seem
+
+18:43.000 --> 18:45.000
+like something is just broken.
+
+18:45.000 --> 18:50.000
+But I can't really help but feel that they don't matter in the grand scheme of things.
+
+18:50.000 --> 18:54.000
+The free software desktop is not a product made by a company.
+
+18:54.000 --> 19:01.000
+You know, sometimes we live through transitions and these transitions have regressions.
+
+19:01.000 --> 19:05.000
+And maybe you call that a community development tax.
+
+19:05.000 --> 19:07.000
+But I still think it's a fair trade.
+
+19:07.000 --> 19:12.000
+It's always been the best policy to follow upstream, wherever it's going.
+
+19:12.000 --> 19:16.000
+It's just the reality and the life of a long term Linux user.
+
+19:16.000 --> 19:19.000
+You always go where upstream is going.
+
+19:19.000 --> 19:22.000
+Yeah, I mean, what other choice do we have here, right?
+
+19:22.000 --> 19:26.000
+If folks feel strongly enough in community that they'd like to continue supporting and
+
+19:26.000 --> 19:27.000
+maintaining X, then that could work, right?
+
+19:27.000 --> 19:30.000
+We maintain that power in the open source world.
+
+19:30.000 --> 19:35.000
+But pending any moves there, what else can we do, right?
+
+19:35.000 --> 19:36.000
+You can keep using X.
+
+19:36.000 --> 19:37.000
+I think that helps, right?
+
+19:37.000 --> 19:40.000
+It's not like X is going anywhere and it's not broken.
+
+19:40.000 --> 19:44.000
+But we should probably be honest about some of the limitations of X, some of the reasons
+
+19:44.000 --> 19:47.000
+that Wayland was necessary.
+
+19:47.000 --> 19:49.000
+Yeah, that's a good point.
+
+19:49.000 --> 19:54.000
+I agree it is nice that Xorg is still around, but the argument that we should just keep
+
+19:54.000 --> 20:01.000
+it and fix it sort of ignores the reality that if Linux ever really got to a really
+
+20:01.000 --> 20:07.000
+large user share, say even the size of Mac OS, the vulnerabilities in the Xorg stack
+
+20:07.000 --> 20:10.000
+would become a constant plague for Linux.
+
+20:10.000 --> 20:14.000
+And it would probably tarnish Linux's reputation as a secure platform.
+
+20:14.000 --> 20:16.000
+We've got serious issues here.
+
+20:16.000 --> 20:23.000
+Like, for example, one of the reasons Autokey doesn't work on Wayland is because under Wayland,
+
+20:23.000 --> 20:28.000
+arbitrary applications in your GUI can't just simply monitor all of the desktop input for
+
+20:28.000 --> 20:30.000
+every single application.
+
+20:30.000 --> 20:32.000
+They can't see the input for the other apps.
+
+20:32.000 --> 20:37.000
+That's a good security practice, but it does break some applications like Autokey.
+
+20:37.000 --> 20:42.000
+And these things won't get fixed until, you know, there's a critical mass.
+
+20:42.000 --> 20:45.000
+And so that's where we find ourselves.
+
+20:45.000 --> 20:48.000
+We've had Wayland for, what, 13 some years now?
+
+20:48.000 --> 20:51.000
+It's still not maybe where it needs to be.
+
+20:51.000 --> 20:55.000
+But what other choices do we have than to just push forward?
+
+20:55.000 --> 20:58.000
+If we don't start trying, if we don't start making it work and complaining, adding support,
+
+20:58.000 --> 21:04.000
+lobbying to fix the issues that need to get fixed, how will we ever progress?
+
+21:04.000 --> 21:07.000
+This is one of the things, though, that I really like about the free software community
+
+21:07.000 --> 21:09.000
+and open source software development.
+
+21:09.000 --> 21:12.000
+The code and the conversation is out in the open.
+
+21:12.000 --> 21:14.000
+So as users, we can see what's coming.
+
+21:14.000 --> 21:18.000
+We are aware of what the future holds and we can make decisions.
+
+21:18.000 --> 21:23.000
+We can choose different distributions and desktop environments that suit our preferences accordingly.
+
+21:23.000 --> 21:28.000
+And it also makes for a fascinating thing to watch and just discuss the progress on.
+
+21:28.000 --> 21:32.000
+So of course, we're going to keep our eye on all of this and everything else in the world of Linux
+
+21:32.000 --> 21:34.000
+and open source software.
+
+21:34.000 --> 21:40.000
+So be sure you go to linuxactionnews.com slash subscribe for all the ways to get new episodes.
+
+21:40.000 --> 21:45.000
+And linuxactionnews.com slash contact to let us know what we got wrong.
+
+21:45.000 --> 21:47.000
+Would you like a factory tour?
+
+21:47.000 --> 21:52.000
+Go check out Jupiter Dot Tube and find the live video versions of some of your favorite JB shows
+
+21:52.000 --> 21:54.000
+and see how they get put together.
+
+21:54.000 --> 21:56.000
+As for this show, well, don't worry.
+
+21:56.000 --> 22:01.000
+We'll be back next week with our take on the latest links and open source news.
+
+22:01.000 --> 22:02.000
+Thanks for joining us.
+
+22:02.000 --> 22:22.000
+And that's all the news for this week.
+

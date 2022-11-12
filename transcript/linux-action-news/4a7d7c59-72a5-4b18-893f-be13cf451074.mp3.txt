@@ -1,0 +1,379 @@
+Hello, and welcome to Linux Action News, our weekly take on Linux and the open source world.
+This is episode 106, recorded on May 19th, 2019. I'm Chris.
+And I'm Joe.
+Hello, Joe. Good to be connected with you again. This week, we're starting out with
+a story that is maybe a theme of 2019. And that is the side channel attacks specifically
+on the Intel processors. And another one has been discovered this week that also impacts
+Linux.
+Yet another side channel speculative execution bug in Intel hardware. This is starting to
+get a bit old, isn't it? This time they're calling it zombie load.
+Yeah, the idea is that like it gets zombie information, it resurrects information from
+the dead. The technical name for it is MDS, micro architectural data sampling. I guess
+zombies are way, way cooler than micro architectural data sampling. Fair enough.
+It's actually a combination of three different vulnerabilities. And Red Hat have got a great
+write up of this, and some videos, they've got a kind of high level video that explains
+it with metaphors, and then a really deep dive video. So very impressed with Red Hat
+for this. I suppose that's kind of their job. But either way, that's my go to on this if
+you want to learn all about it.
+It is actually kind of interesting that Red Hat has one of the best takes for different
+levels of understanding. We'll link to a couple of different things in the show notes that
+are worth checking out, including their breakdown of the differences of MDS, say versus Meltdown
+or Spectre. But there's another aspect to the story that I think is fascinating to chat
+about a little bit, Joe, and that is, number one, you're not really fully safe, even after
+all the microcode updates and whatnot, unless you disable hyperthreading. And number two,
+it's really something that shared hosting providers or cloud providers that have multi
+tenant users on there need to worry about more so than people that are on premises or
+on a desktop PC. Not that those systems aren't affected, but just simply, it's a lot more
+of a risk when you have untrusted users on one box.
+Yeah, and if you've got six physical cores and no hyperthreading like me on my i5, then
+you're completely safe. But yeah, either way, it's not a huge deal if you're just using
+a personal system and you're completely in control of it. But yeah, those shared cloud
+hosting environments, that's where this is really going to cause a problem.
+Yeah, and some of the numbers are pretty dramatic. When you apply the fixes and you disable hyperthreading,
+you can get to nearly a 40% reduction in performance. And those are Intel's numbers. So those if
+anything may be a little conservative.
+And that's why Red Hat is saying that you really have to look at your specific use case,
+your specific workload, and do the risk assessment. Is it worth that performance impact to mitigate
+the risk? And in a lot of cases, it probably isn't.
+This really does seem like a tricky one for multi-tenant systems. And you kind of wonder
+like long term, maybe this is going to sell some AMD systems because they're immune to
+the MDS vulnerabilities. And all rise in box is looking better and better for that desktop,
+Joe. I got to say, they're making it really appealing these days.
+Yeah, I mean, the value for money proposition is better. And now if the security proposition
+is better, then it feels like a no brainer, really. I've always gone Intel because I don't
+know really, it's the name you know, you know, you're not gonna have any problems with Linux
+on it. But I hear great things about Ryzen. And really, the data center is where this
+matters. And the Xeons are just absolutely dominating there. Maybe this is excellent
+news for AMD. But that said, some of the older side channel attacks, you know, they're still
+vulnerable to that. And it is conceivable that there will be future ones. I mean, it's
+almost certain, isn't it that we're going to have future potential vulnerabilities for
+both Intel and AMD. I remember talking about that at the time that Spectre and Meltdown
+came out, you know, around Christmas, we knew that was going to be just the start of it.
+Mm hmm. Yeah, sure. Yep. And we called it on TechSnap too. We said this is 2019 is going
+to be the year of speculative execution and side channel attacks. It's, it's a pretty
+handy feature that is right for the picking if you can get a process on the local box.
+And it was part of Intel's secret sauce. Now AMD likes to boast that well, we designed
+it with security in mind. You know, that'd be that'd be what it is. I'm sure future Intel
+processors will work this out. But in the meantime, I just can't get over that 40% number.
+I can't tell if that's if that's real or not. And I'd love to get some information from
+the audience that has hands on with this and data centers. Just let me know at Chris LAS,
+are you seeing performance impacts from these fixes? And are they as dramatic or worse even
+than 40%? I'd love to just collect some anecdotal evidence from the audience from various sources
+because that's that's a huge story if it's true. There's also another topic I'm really,
+really interested in getting feedback. That's AMP. Now, I was a couple of months ago, we
+talked about this new committee that was being set up to oversee AMP, you'll have to forgive
+my brief summary of it. And we weren't sure what that would result in. But it seems like
+maybe we're seeing some of the first fruits of that committee's work.
+Yeah, AMP being accelerated mobile pages, which Google are very much in control of even
+though they're trying to kind of spin it that they're not. And this makes websites load
+really quickly on mobile, specifically on Chrome on Android.
+Right. And from a publisher standpoint, you get featured in their carousel of search results
+with a live preview. So you get essentially top tier placement, like what you would get
+for a Google ad placement.
+Yeah, and the performance is amazing. It's really, really fast for the user. But one
+of the problems that publishers have is that the URL always shows as google.com slash whatever
+slash AMP, and then the URL of the page. And that's a bit confusing for people, you know,
+you think you read in TechCrunch or the register or whatever, but in fact, you read in something
+that's on a Google URL.
+Well, and publishers hate it because you're not sharing their URL, you're sharing a Google
+URL. It doesn't have their brand. It doesn't link directly to them. It's hard to track
+metrics. They hate it. Yeah. And fair enough. It's their content, I suppose. Fair enough.
+Well, yeah. And so the solution to this is just obfuscate it, just hide the fact that
+it's on Google servers and pretend that it's coming from the actual source.
+Yep. This is a thing. It's called signed exchange. And it is another Google initiative to solve
+a problem that was caused by Google AMP. So if you're not familiar, just a super brief
+overview. The reason AMP is so dang fast is because it's all coming from Google server.
+Google pre-renders the page, caches everything. It's all prefetched. And then they deliver
+you a fully realized result immediately. Of course, the issue is, is then you're sending
+around Google links instead of website links. You lose that idea and that branding. So Google
+figured, well, what about this signed exchange idea that we have? It's a Google technology
+that provides a way to prove the source and origin of a web document. You can use signed
+exchange to determine a page's original publisher, no matter where that document is being hosted
+at currently. A publisher can sign an HTTP request response pair with their domain certificate.
+So it's their cert that's signed. Thus, it generates a signed exchange and it can be
+served to browsers similar to the way a web page is now, but it's served from Google's
+servers with your domain name, even though it's from their domain, but it's using your
+SSL key to prove that it's legitimately from you, even though it's from Google.
+This makes me feel very, very uncomfortable because at least those who are tech savvy
+can know, all right, hang on. This is an AMP page that is hosted on Google servers because
+you can technically host an AMP page on your own server and it will be fast and everything,
+but obviously the Google cache is going to be amazingly fast. So that's what a lot of
+the publishers go for.
+Oh, it's a slippery slope, my friend, because it's not only fast, but it uses less data.
+So it's cheaper for mobile users. It uses less CPU because the client isn't doing the
+rendering so it saves battery life and you get that carousel placement. And now you take
+it a step further. This is a Google technology. It's the signed exchange thing is something
+they're proposing. I mean, they're proposing as a standard working with other people. So
+it's something anybody could theoretically adopt except for Safari and Firefox have signaled
+they have no intention of supporting it. So what you have is AMP content being served
+up by Google servers that only works in Google Chrome.
+I think the European commission might be having a word with them about this shortly if they're
+not careful.
+Man, this does not seem like the direction Google wants to go with this. I kind of get
+it and I appreciate that signed exchange actually is pretty clever technology that they're trying
+to establish as a standard and Firefox could change its position. That's a really tough
+spot for Mozilla, though, because they lose either way. Because if they enable Google,
+then they encourage more lock in. But if they don't support this, they're essentially left
+out of a game that is a lot larger than they can ever hope to be. That's a rock in a hard
+place for Firefox.
+Well, except that if you're using Firefox as your primary browser, then you won't even
+really know about this. And so you won't see the benefits of it. But you won't know what
+you're missing.
+Yeah. And I suppose it's possible to that Firefox could support this later on. It seems
+that the publishers don't like this very much. And that was something that the committee
+has also been very focused on. I'll put some supporting links in the show notes for that.
+It's an interesting position. So Google is trying to drive this with a lot of energy.
+And there's no real clear demand on end user side. And there's no real clear demand on
+publisher side. So who is it that wants this?
+Well, Google, obviously, they want to have more control. I mean, we both tweeted about
+that purchase history thing this week, where you can see everything you've ever bought
+online, as long as you got the receipt going into your Gmail. And it just backs up the
+obvious fact that, of course, Google knows everything you're buying if your receipts
+all go through Gmail.
+Yeah, of course. Of course, they're indexing and categorizing that. We knew that. I actually
+kind of appreciate that they're willing to tell me that. In a way, at least if they're
+transparent, then I can make an informed decision. So in a way, I respect that. It was alarming
+to go through that because I was thinking like they'd have anything I bought on a Google
+account. No, no, no, no, no. Anything that's ever emailed my Gmail account a receipt, an
+Uber ride, a DoorDash, buying something with Stripe out in the real world, Google has it
+on a list.
+Suddenly, you realized how many sandwiches you'd be buying.
+Yeah, a lot of sandwiches, Joe. So maybe I should cut back and I could just use the Google
+list to keep track of things.
+But it really does just come down to Google wanting complete control over all the data
+in the world so they can sell you stuff.
+I don't know. I feel like that's a hard line you're taking. To me, it seems like there
+is, there is a couple of things that it's doing that I like. Loading pages very, very
+fast and pre-rendering them. So they're saving bandwidth on mobile and CPU cycles. I get
+that. I think it would be better served from publishers directly. And the other thing that
+I, the other reason why I think that'd be a lot better is you could be better than your
+competition and get ranked higher in Google.
+Like if you really invested on building a responsive, fast website, you invested in
+designing things correctly, you did the right kind of images, you cashed everything correctly.
+Like you really, as a business, made that part of your focus. And as a result, the Google
+search results would reward you and you may show up above your competitors, which could
+matter a lot.
+All of that's gone now. It removes that pressure for publishers to really invest in their technology
+because now Google can come around, suck it all up, pre-render it, and then deliver it
+in a consumable way and your site can be dog crap slow. And that I don't like at all. So
+there's the control aspect that we talk a lot about and that feels like it's going to
+make the web experience for the rest of us, not in Chrome, a little less great. And control
+or not, there's that element to it too that I think is part of why people care about the
+AMP story.
+Well, I really hope that this advisory committee can do some good here. And I'm not very impressed
+with this first move that they've made, but it could be this amazing standard, this open
+standard that Google has kind of talked about and is trying to make happen that individual
+publishers could use and adopt and potentially have different variants of instead of just
+having all of that centralized control and obfuscating URLs is just the complete opposite
+of what I wanted to see with AMP.
+Well, I guess we've said our piece. If this topic does interest you, I want to draw your
+attention to a link in the show notes. We have a blog post by an individual who is a
+self-admitted AMP critic, but I love where he took it. He decided to join the advisory
+committee for AMP and they just recently had a meeting and he documents it on his blog.
+I appreciate this level of transparency. He seems to have a rather rational take on it
+and links and cites a lot of the stuff that he talks about. So it's a really good reference
+and we'll have a link to that in the show notes.
+Yeah, linuxactionnews.com slash 106.
+But you won't be reading that blog post running Windows on a Chromebook. Not that you'd ever
+want to, but it was almost, almost a real official bonafide thing.
+Yeah, we talked about this last summer and the Windows aspect is not particularly interesting,
+but if you can dual boot Chrome OS and Windows, then it's going to make dual booting Chrome
+OS and Linux that little bit easier, at least you would assume. But unfortunately that project
+went nowhere and so it's going to be just straight up Chrome OS with all the Android
+apps and the Linux apps on top of it.
+I love this story though, because first of all, it had a great codename, Project Campfire,
+and it's one of those where just loose on Reddit find this stuff and they noticed recently
+it was like a user cross frog or something like that on Reddit. Notice that there was
+comments in the latest Chrome code bases that said that these features have been deprecated.
+They were pulling them out. I think about a world where you kind of had a Chromebook
+that was running Android apps, Linux applications and tribooting Chrome OS, Windows and Linux.
+I don't know the use case for that, but that's a hell of a lot of different ways you could
+use a $300, $400, $500 laptop. That straight up would have been impressive. I think they've
+determined they've gotten there close enough with where Chrome OS has gone recently that
+they thought, let's pull the plug on this for now. We don't need people running Windows
+on these things.
+And you know that Project Campfire, only a Mac user could have come up with that. That's
+pretty close to boot camp for my money.
+Oh, you know what? I guess I hadn't really put that together. I suppose I kind of see
+it, Project Campfire. I was thinking because it was like a summer project.
+Oh, maybe. Maybe I'm casting aspersions there, but that's the first thing I thought about
+was boot camp.
+Yeah. You could see where the logic had come though. I bet you the thought process was,
+well the one thing that's preventing people from switching to Chrome OS is that one Windows
+app. Because that's the same thing with Linux desktops. The one thing that prevents people
+from switching is like the one or two applications on Windows that you can't get on Linux. Maybe
+it's Premier or it's some game or whatever it might be. They had to have a similar conversation
+at some Chrome OS development meeting and said, you know, if we made it possible for
+people to run Windows 10, even if it was like in a tiny light VM or something, then they
+could run that one application and switch to Chromebooks. That had to be it.
+And then they sat back and looked at the way the market's going. And they said to themselves,
+ah, we don't really need to bother, but maybe old Goog saw that Gardner market forecast
+that was published in April. And they said, ah, I don't know. They read this report and
+the report says something to the effect of only 75% of professional PCs will be running
+Windows 10 by 2021. I mean, it's a good chunk, right? But it's maybe not where the future's
+headed. And so they decided to invest in other places. That's got to be, that's got to be
+like the whole logic process. If I were to guess.
+Well, surely the other 25% is going to be Windows 7 because people are desperately clinging
+onto it.
+Yeah, actually can understand, right? If you just want to get something done and you need
+something that's compatible with Windows, Windows 7 does a heck of a job. The only problem
+is that pesky support that's expiring. And if you're say the South Korean government,
+you got to make some plans and they are at least considering and testing migrating to
+Linux instead of Windows 10. That's according to the Korean Herald.
+Can I put my extremely cynical hat on for a second?
+Of course. I thought you were always wearing that hat.
+Oh yeah, that's true. Let me put my extra cynical hat on top of it then. I can't help
+but think this is the South Korean government trying to shake down Microsoft for a bit of
+extra free support, just threatening them that we're going to move over to Linux. Because
+if you actually look at life in South Korea, you need Windows to do a lot of stuff. I remember
+having a conversation with a listener, it must be a few years ago now, about how to
+do any sort of interaction with the government, you need to have a Windows PC.
+Yeah, ActiveX, I think specifically is what it is.
+Yeah, and some other applications that are only available for it. So for them to move
+over, it's not like switching out Office for LibreOffice.
+I think there's also some character support issues that aren't as solid as they should
+be.
+Yeah. And so it's not really a realistic proposition that South Korea could do this.
+Maybe. At a certain point, you have to move on from ActiveX, right? There's other factors
+at play here. My understanding, I don't know, I've never actually been directly familiar
+with it. But from conversations I've had, and from what I've read, that ActiveX requirement
+comes about because the government has their own self-implemented form of encryption. Because
+at the time that they built all those systems, it was illegal to export anything beyond 40
+bit from the United States. And so they came up with their own solution that is implemented
+with ActiveX. But if they own that, then they can move it to something newer. And it's high
+time to do that. Let's be honest, Microsoft is deprecating Internet Explorer. They're
+deprecating Windows 7. They're up against a couple of massive market forces. And yeah,
+they could be trying to leverage a few more years of free support. But it looks like they're
+doing the math. They say it would cost them about 780 billion won or I think that's 655
+US greenbacks, 655 million US greenbacks. But it also anticipates long-term cost reductions
+after the entire total cost of ownership has been calculated. So they've been looking into
+that. They don't mention like specific plans or actions, but they do say one of their goals
+is to avoid building reliance on a single operating system.
+The most disappointing thing about this whole story is that they're going to build their
+own custom distro based on Ubuntu instead of using Red Star OS.
+Well, yeah, I agree. Red Star OS is best OS, no doubt about it. But I really hope this
+doesn't go the route of Munich where they really like they fork off their own version
+of Ubuntu. They fork off their own thing of LibreOffice. If they were smart, they would
+do this in a very standardized enterprise rollout form. Get mainline Ubuntu, get a support
+contract. It's $25 a desktop. Get a support contract with Canonical. Do it the proper
+way. So that way these are supported machines. These things are performing a critical function.
+To treat them otherwise is just asking for disaster. This is just, oh, just spend a little
+bit of money here.
+Yeah. Even if it ends up costing you a little bit more, at least you're not completely locked
+in. At least Ubuntu does use all open source and open standards and you could hire a consulting
+firm to carry on if Canonical goes away or stops supporting the desktop or whatever.
+This is why I think it's really important in businesses and in enterprises and in governments,
+you shouldn't go in talking about cost at all. In fact, let's say it's even a little
+more expensive. Let's say that because I think the total overall win for the public is open
+formats and avoiding vendor lock-in for the core operating system which powers your entire
+infrastructure. The value of that long-term, especially when it's government money, so
+it's citizens tax money, that's just critical. Having document formats that we can open for
+the next 25 years, that matters. That matters a lot in these types of deployments. Having
+something where different contract support companies or internal IT support can actually
+build and extend your system and maintain it and avoid technical debt is so much more
+valuable than the cost of the machine license or the support license. It's phenomenally
+more valuable in these institutions because these are long-term institutions that get
+10 plus years out of these machines if they can and they're creating documents that have
+to be consumed for 30 plus 50 years. That's the value that we should be selling to these
+institutions, not the cost of the software. We're going to lose if that's what we focus
+on.
+Yeah. You have to figure that changing from say Ubuntu to Red Hat, it's got to be a hell
+of a lot easier and cheaper than moving from Windows to Linux or vice versa.
+Absolutely. Yeah. No doubt about it. No doubt about it. Just from a file system standpoint,
+it's easier to move your data from one Extended 4 file system to another Extended 4 file system.
+It doesn't matter what the kernel is or what the user land is, but going from NTFS to Extended
+4, that's a hell of a transition. Just simple things at that level or backing up your configuration
+file for NGINX, you could use that on another box. There's direct one-to-one value, skill
+set, et cetera. You make the migration once and then you reap those benefits for the life
+of the systems. That's the real value there. We'll see where South Korea goes.
+I hope they're not just leveraging. One would think that if they're at this stage, they've
+still got a year and change of support from Microsoft Extended support for Windows 7,
+so they're in a good position right now.
+Well, if they do switch to open standards and open source, then surely they're going
+to be taking full advantage of Microsoft open sourcing one of the algorithms behind the
+Bing search engine.
+I was going to come on here and be all like, womp, womp, Bing algorithm, open source, who
+knows? I was wrong, man. I did some investigation into what this actually does, and it really
+makes me appreciate that search is a way harder problem than I ever have appreciated.
+Yeah, because if you think about doing just a find or grep or whatever, the time that
+that takes, usually you're only dealing with a few hundred or a few thousand files and
+if it takes a second, whatever. But if you're dealing with billions of files and it needs
+to be instant, then that is a very tricky problem to solve.
+Especially when you have the variability of human language. An example they give in the
+documentation and in a video is a user sits down and wants to search for the Rocky 4 movie,
+but Rocky 4, the proper spelling is in Roman numerals, but being just an average user,
+they sit down, they type in Rocky and the number 4. The system has to be smart enough
+to consider other factors and still return the right results.
+Another example they gave is the word bank generally means like a financial institution,
+but you can also bank things. You can have a bank side of a hill. There's a lot of different
+uses for the word bank when you think about it and a computer has to know what the intention
+is. That's the element they've open sourced here, a key piece of what makes that possible.
+It seems Microsoft's intention by making this open source isn't to make Bing take off like
+crazy, but to just give developers another tool to work with machine learning and AI.
+Essentially what you have here is a Python library with AI models pre-built and it has,
+I quote, a space partition tree and graph algorithm, speed tag. That's what's at the
+core of the open source Python library that Microsoft is making available. It's not a
+new idea of vector search, but it's really powerful and they are teaming vector search
+up with machine learning here, buzz, buzz, buzz, and then releasing that as an MIT licensed
+Python library.
+That's it. I'll spin it up in Azure instance and run in this tomorrow.
+To the cloud, Joe. It's time to do some vector based searches.
+Do you think that's what it's about though, just driving people to Azure? I know that's
+the kind of cliche go to, but I can't really see any other reason why they would open source
+this.
+I think so. I mean, machine learning is a big part of the platform's future plans and
+it I think is very valuable from a brand standpoint, even if there's not a direct correlation to
+Azure. I think it's pretty powerful from a brand standpoint to be a leader in this industry,
+to have services that enable machine learning, to be releasing software that enables machine
+learning.
+I think it's pretty clever on Microsoft's part. They're trying to get legitimacy with
+the developer community and giving them really good free open source software. Well, how
+are developers not going to like that? People just have to keep looking for ways to hate
+Microsoft, but this one isn't going to be one of them.
+Oh, I'm sure people will find some way to hate them about it.
+Yeah, there's a way to twist this, I'm sure. I mean, after all, it does have Bing in the
+name.
+Well, before we get out of here, there's a breaking story as we've been recording. Details
+are a little bit light at this point, but it seems that Google have cut off Huawei,
+and so there'll be no more GApps for them. And if they want to sell any Android phones,
+then it's just AOSP all the way for them.
+Boy, what a story. As we're recording, Reuters publishes that Alphabet Inc., Google's parent
+company has suspended business with Huawei that requires any transfer of hardware, software
+or technical services, except for those that are available in the open source project,
+which Joe said. Here's the direct quote from a Google source, Huawei will only be able
+to use the public versions of Android and will not be able to get access to proprietary
+apps and services from Google. Google has clarified that includes the Play Store and
+Play services, and has also clarified that existing Huawei users that currently have
+access to the Play Store will still be able to update the apps that they have now from
+Google. So your Gmail app and whatnot will still get updated, but what happens to your
+operating system and telco updates and things like that, that's all up in the air right
+now. This has got to be a massive blow for the company.
+Well, it's fine for the users. They can just flash lineage and the Google apps and they'll
+be fine. Oh wait, no, Huawei locked down the bootloaders so no one can do that.
+Right, right. Yeah, this is a hell of a story. And there's some deep political sides to this
+that we're not going to get into. On Thursday, the Trump administration added Huawei to a
+trade blacklist. So I think this is likely Google responding to that. They probably don't
+have much of a choice in this situation.
+He does have the best blacklist. Tremendous.
+People say Joe, people say. People tell him.
+Not a lot of people know this.
+Everybody knows.
+I think you're going to have to follow up on Linux Unplugged on Tuesday with this because
+this is going to be a big story this week, by the looks of things.
+Yeah, I would imagine the next couple of days it'll develop. So if something interesting
+does come out of this, you bet. We'll put it on there. And like always, we're going
+to get the latest and greatest that's happening in the open source world every single week
+right here on Linux Action News. Go to linuxactionnews.com slash subscribe for all the ways to get new
+episodes.
+And go to linuxactionnews.com slash contact for ways to get in touch with us.
+Also, we have two events coming up at meetup.com slash Jupiter Broadcasting. We've got a Kubernetes
+study group coming up and a dinner at Texas Linux Fest. If you're going to Texas Linux
+Fest, it'll be awesome to see you there. Meetup.com slash Jupiter Broadcasting for those and future
+events.
+And we'll put a link in the show notes to the last study group that has been published
+on YouTube, Command Line Threat Hunting. So do check that out.
+We'll be back next Monday with our weekly take on the latest Linux and open source news.
+I am at Chris LAS.
+I am at Joe Ressington.
+Thank you for joining us and we will see you next week.
+Have a great night, y'all.

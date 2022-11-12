@@ -1,0 +1,1490 @@
+WEBVTT
+
+00:00.000 --> 00:09.400
+Hello, and welcome to Linux Action News, episode 163, recorded on November 15, 2020.
+
+00:09.400 --> 00:10.400
+I'm Chris.
+
+00:10.400 --> 00:11.400
+And I'm Wes.
+
+00:11.400 --> 00:12.400
+Hello, Wes.
+
+00:12.400 --> 00:13.400
+Let's do the news.
+
+00:13.400 --> 00:18.760
+And let's start with a fix landing for Ubuntu users that allowed standard users to gain
+
+00:18.760 --> 00:20.400
+root access.
+
+00:20.400 --> 00:25.000
+We're finding this out from a blog post by Kevin Backhouse, a researcher over at GitHub
+
+00:25.000 --> 00:30.400
+who describes an astonishingly straightforward way to escalate privileges on Ubuntu.
+
+00:30.400 --> 00:34.720
+With a few simple commands in the terminal and a few mouse clicks, a standard user can
+
+00:34.720 --> 00:38.040
+create an administrator account for themselves.
+
+00:38.040 --> 00:42.160
+The first series of commands triggered a denial of service bug in a daemon called account
+
+00:42.160 --> 00:46.920
+service, which, as its name suggests, is used to manage user accounts on the computer.
+
+00:46.920 --> 00:53.240
+To do this, Backhouse created a symlink that linked a file named.pam environment to slash
+
+00:53.240 --> 00:59.320
+dev slash zero, changed the regional language setting, and sent account service a sig stop
+
+00:59.320 --> 01:00.780
+signal.
+
+01:00.780 --> 01:04.840
+With the help of a few extra commands, Backhouse was able to set a timer that gave him just
+
+01:04.840 --> 01:08.760
+enough time to log out of the account before account service was crashed.
+
+01:08.760 --> 01:13.520
+And when he does this just right, Ubuntu would restart and open a window that allowed the
+
+01:13.520 --> 01:19.000
+user to create a new account that, you guessed it, had root privileges.
+
+01:19.000 --> 01:23.240
+Backhouse said that Ubuntu uses a modified version of the account service that contains
+
+01:23.240 --> 01:26.840
+code that's not necessarily included in the upstream version.
+
+01:26.840 --> 01:30.800
+That extra code looks at that pam environment file in the home directory.
+
+01:30.800 --> 01:35.600
+By making a file that symlinks to dev0, pam environment gets stuck in an infinite loop.
+
+01:35.600 --> 01:42.080
+There's also a second bug, and that bug involved a hack that resided in the GNOME display manager,
+
+01:42.080 --> 01:46.020
+which among other things manages the user session and login screen.
+
+01:46.020 --> 01:50.120
+The display manager, which is often abbreviated as GDM3, also triggers the initial setup of
+
+01:50.120 --> 01:54.000
+the OS when it detects there is no users that currently exist.
+
+01:54.000 --> 01:56.900
+Yeah, that was the problem, Chris.
+
+01:56.900 --> 02:00.800
+We've all seen that setup screen when you're first configuring your computer on a GNOME-based
+
+02:00.800 --> 02:01.800
+system.
+
+02:01.800 --> 02:03.960
+If you don't have any accounts, well, you need to set one up.
+
+02:03.960 --> 02:08.520
+Unfortunately, what happens here is GDM tries to do a talk to account service to check like,
+
+02:08.520 --> 02:10.880
+hey, are there any users on the system?
+
+02:10.880 --> 02:15.240
+But the code, well, there's a small problem in that the variable is already set to false
+
+02:15.240 --> 02:16.800
+is are there users?
+
+02:16.800 --> 02:21.400
+And since that call never completes, that variable never gets changed to true, and it
+
+02:21.400 --> 02:23.640
+just shows you that screen right away.
+
+02:23.640 --> 02:24.640
+OK.
+
+02:24.640 --> 02:29.560
+Yeah, and in fact, Backhouse says that he discovered these essentially by accident.
+
+02:29.560 --> 02:34.400
+The Ubuntu account service issue was fixed on November 3, and the GNOME desktop issue
+
+02:34.400 --> 02:37.960
+was patched a day later on November 4.
+
+02:37.960 --> 02:43.720
+The vulnerability only impacted desktop users, and it required access to the GUI.
+
+02:43.720 --> 02:47.600
+So not necessarily easy to exploit in most cases.
+
+02:47.600 --> 02:52.040
+I suppose that that said, you could be a maniac like me and occasionally install a desktop
+
+02:52.040 --> 02:55.280
+environment on your server, but not most.
+
+02:55.280 --> 02:59.600
+Most people don't normally do that, but sometimes I find it handy, actually.
+
+02:59.600 --> 03:01.840
+So install your patches.
+
+03:01.840 --> 03:06.960
+According to the Ubuntu notes, all releases from 16.04 LTS to the most recent 2010 were
+
+03:06.960 --> 03:10.380
+affected, and the team cranked that out and got that fix out.
+
+03:10.380 --> 03:11.380
+So go get them installed.
+
+03:11.380 --> 03:16.280
+You know, I do think this is kind of noteworthy just in that these days, most vulnerabilities,
+
+03:16.280 --> 03:20.120
+you know, they require some code knowledge, some trickery, some complicated setups of
+
+03:20.120 --> 03:24.120
+memory, state, and corruption, and this was all just done by basic Linux commands in the
+
+03:24.120 --> 03:26.960
+terminal in the GUI, which is kind of interesting.
+
+03:26.960 --> 03:30.440
+I should also stress here that the author points out that, you know, he spent a lot
+
+03:30.440 --> 03:34.480
+of time recently looking for bugs in Ubuntu, and you shouldn't take this to mean that Ubuntu
+
+03:34.480 --> 03:35.480
+is filled with bugs.
+
+03:35.480 --> 03:36.480
+That's not his experience.
+
+03:36.480 --> 03:40.440
+He looked for a lot and happened to find this one by accident, but there's a lot of eyes
+
+03:40.440 --> 03:42.880
+here, and in general, it's secure.
+
+03:42.880 --> 03:47.640
+It seems like it was actually relatively easy to surface in certain scenarios, but you really
+
+03:47.640 --> 03:52.120
+have, you had that situation with GDM that perhaps the Ubuntu development team didn't
+
+03:52.120 --> 03:56.560
+even consider, because that's such an edge case there, where, you know, GDM comes up
+
+03:56.560 --> 04:01.880
+and it wants to be super helpful, and then in that environment, it leads to a problem,
+
+04:01.880 --> 04:04.260
+but it's good to see everything fixed.
+
+04:04.260 --> 04:06.960
+Those of you in the industry may be familiar with Proxmox.
+
+04:06.960 --> 04:12.320
+Well, they've just released an open-source, Debian-based enterprise backup solution.
+
+04:12.320 --> 04:15.240
+We are big fans of Proxmox here at Jupyter Broadcasting.
+
+04:15.240 --> 04:19.280
+Used it for years, and it's been a bit, but we were just talking about trying it again,
+
+04:19.280 --> 04:22.940
+and this backup server news might just be the excuse we need.
+
+04:22.940 --> 04:27.440
+If you're not familiar with Proxmox, it's a virtualization suite that supports really
+
+04:27.440 --> 04:33.680
+two ways to run your workloads, either something container-based with LXC or full virtualization
+
+04:33.680 --> 04:39.120
+with KVM, and then on top of that, it includes a web console, command line tools, a REST
+
+04:39.120 --> 04:44.580
+API for third-party tools, and some really high-end enterprise features that you need
+
+04:44.580 --> 04:45.580
+with virtualization.
+
+04:45.580 --> 04:47.440
+Now, it's been around for about 12 years.
+
+04:47.440 --> 04:51.840
+It started in April in 2008, and this is a nice addition to this.
+
+04:51.840 --> 04:55.600
+This backup server looks pretty cool, and I like that it's based on Debian.
+
+04:55.600 --> 04:56.600
+Yeah, all right.
+
+04:56.600 --> 05:01.160
+So the Proxmox backup server is based on the latest Debian Buster release, and it's powered
+
+05:01.160 --> 05:04.320
+by the long-term supported Linux 5.4 kernel series.
+
+05:04.320 --> 05:09.120
+It also uses powerful open-source technologies like ZFS on Linux for advanced file system
+
+05:09.120 --> 05:11.080
+and volume management.
+
+05:11.080 --> 05:15.360
+It supports things like incremental backups, data deduplication, compression, and authenticated
+
+05:15.360 --> 05:16.360
+encryption.
+
+05:16.360 --> 05:17.600
+And Chris, you'll like this.
+
+05:17.600 --> 05:22.920
+Using Rust as an implementation language guarantees high-performance, low-resource usage, and a safe, high-quality
+
+05:22.920 --> 05:23.920
+code base.
+
+05:23.920 --> 05:24.920
+Well, at least in theory.
+
+05:24.920 --> 05:25.920
+It must be.
+
+05:25.920 --> 05:26.920
+No, it must be.
+
+05:26.920 --> 05:29.600
+It's proven because it's Rust.
+
+05:29.600 --> 05:31.240
+This is nice to see this.
+
+05:31.240 --> 05:35.520
+There are various subscription models available with Proxmox and the backup server.
+
+05:35.520 --> 05:39.200
+Obviously, if you're running this thing in production, that's always recommended you
+
+05:39.200 --> 05:43.480
+get access to the enterprise repository and support, so it's probably pretty important.
+
+05:43.480 --> 05:47.800
+But the cool thing about Proxmox and why we wanted to mention it here in the show is it's
+
+05:47.800 --> 05:51.720
+also free for you to go download and use fully featured for the most part.
+
+05:51.720 --> 05:56.160
+You don't get access to some of the enterprise updates and obviously the enterprise support,
+
+05:56.160 --> 06:00.520
+but you can get a real sense of what's possible with this virtualization suite, and you can
+
+06:00.520 --> 06:04.840
+take a headless Linux box and turn it into like a closet VM machine.
+
+06:04.840 --> 06:09.500
+Or here in the studio, we used to run encoding systems on it, and a lot of the things we
+
+06:09.500 --> 06:14.960
+transitioned to the cloud, we first ran here locally on-premises, and Proxmox is just a
+
+06:14.960 --> 06:15.960
+great way to do it.
+
+06:15.960 --> 06:18.280
+So this backup server is pretty nice to see.
+
+06:18.280 --> 06:23.440
+The incremental backups means that you're gonna have the minimum amount of transfer
+
+06:23.440 --> 06:30.120
+for these VMs, which means maybe even WAN backups might be possible.
+
+06:30.120 --> 06:34.680
+Data deduplication, I should say, compression, and authenticated encryption are also available.
+
+06:34.680 --> 06:40.280
+So that to me is speaking like this is seriously something maybe even for offsite VMs.
+
+06:40.280 --> 06:41.280
+I gotta play with it.
+
+06:41.280 --> 06:45.520
+Yeah, I mean, I think having ZFS built right in, I would probably use that to roll my own
+
+06:45.520 --> 06:46.800
+backup server anyway.
+
+06:46.800 --> 06:50.500
+And so you can either adopt this standalone if you just need a backup server, and here's
+
+06:50.500 --> 06:51.880
+a great open source offering.
+
+06:51.880 --> 06:56.240
+But if you're already using Proxmox virtualization solution, this just integrates right in, right?
+
+06:56.240 --> 07:00.800
+It makes it super simple through the web GUI to go back everything up, take snapshots,
+
+07:00.800 --> 07:03.720
+restore from those snapshots, and it seems pretty nice.
+
+07:03.720 --> 07:06.880
+And of course, we've been talking about this in the context of virtual machines, but with
+
+07:06.880 --> 07:10.440
+Proxmox, it's good to keep in mind that it supports containers.
+
+07:10.440 --> 07:14.520
+So the Proxmox backup server will also support backing up your containers.
+
+07:14.520 --> 07:16.160
+Yeah, it gets fancier than that.
+
+07:16.160 --> 07:20.560
+They even have support for granular restore where you can do file level restore of container
+
+07:20.560 --> 07:21.560
+backups.
+
+07:21.560 --> 07:26.200
+Even better, they've got some interesting items on their roadmap, including LDAP and
+
+07:26.200 --> 07:29.520
+Active Directory authentication and two factor support.
+
+07:29.520 --> 07:33.160
+Support for backing up other solutions, things like their mail gateway, or actually backing
+
+07:33.160 --> 07:37.240
+up the Proxmox host itself to the backup server.
+
+07:37.240 --> 07:40.520
+And what I'm excited for, tape support.
+
+07:40.520 --> 07:46.640
+Now as a final note, Proxmox backup solution is AGPL, and we'll have links to everything
+
+07:46.640 --> 07:52.480
+we've talked about here, including their Git repository in our show notes.
+
+07:52.480 --> 07:54.080
+Linode.com slash land.
+
+07:54.080 --> 07:57.960
+Go there to get a $100 60 day credit towards your new account.
+
+07:57.960 --> 08:00.680
+Linode is our server hosting provider and they can be yours too.
+
+08:00.680 --> 08:05.400
+They provide virtual servers that make it easy and affordable for you to host anything
+
+08:05.400 --> 08:06.540
+in the cloud.
+
+08:06.540 --> 08:09.640
+They have native SSD storage on these virtual machines.
+
+08:09.640 --> 08:14.820
+So you get really fast disk IO and Linode costs 30 to 50% less than major cloud providers
+
+08:14.820 --> 08:18.320
+like AWS or Google Cloud or Azure.
+
+08:18.320 --> 08:21.440
+And they've been around three years before AWS started.
+
+08:21.440 --> 08:23.080
+They started with a love for Linux.
+
+08:23.080 --> 08:25.060
+They saw what KVM could do.
+
+08:25.060 --> 08:28.600
+They saw what the Linux kernel user mode could do and all of that.
+
+08:28.600 --> 08:30.480
+And they've built something around it that's pretty special.
+
+08:30.480 --> 08:33.240
+And as the years have gone on, they've made it better and better.
+
+08:33.240 --> 08:35.940
+They're independently owned and they're founded on a love for Linux.
+
+08:35.940 --> 08:40.880
+And because they got started in this thing so early on, they were able to build a diverse
+
+08:40.880 --> 08:43.820
+flexible network powered by Linux.
+
+08:43.820 --> 08:47.960
+They just recently, I think on like November 9th, put up a blog post that talks a little
+
+08:47.960 --> 08:52.460
+bit about their networking model and why it's particularly useful for developers that need
+
+08:52.460 --> 08:55.900
+really low latency high speed connections between their servers.
+
+08:55.900 --> 08:58.460
+They got data centers in 11 places around the world.
+
+08:58.460 --> 09:01.800
+So there's probably ones either close to you or close to your client.
+
+09:01.800 --> 09:05.560
+You combine that with the high speed disk and the nice high end systems that you can
+
+09:05.560 --> 09:08.360
+get and you can have something extremely high performance.
+
+09:08.360 --> 09:10.640
+But maybe you need something approachable.
+
+09:10.640 --> 09:12.680
+Well they have systems that start at $5 a month.
+
+09:12.680 --> 09:18.400
+You want to host a portfolio or a blog or a website that you could even back with object
+
+09:18.400 --> 09:21.020
+storage so it's crazy super fast.
+
+09:21.020 --> 09:22.080
+All of that's available.
+
+09:22.080 --> 09:26.780
+And when you go to linode.com slash LAN, you get that $100 60 day credit.
+
+09:26.780 --> 09:27.920
+You can really try it.
+
+09:27.920 --> 09:29.160
+You can really see what it's capable of.
+
+09:29.160 --> 09:30.960
+Maybe build yourself a VPN box.
+
+09:30.960 --> 09:35.640
+I've been asking people to tweet me at Chris LAS what they do with their Linodes and I've
+
+09:35.640 --> 09:40.340
+heard some really cool stories about how people can use SSH to do amazing things.
+
+09:40.340 --> 09:43.200
+And a $5 a month rig is perfect for that.
+
+09:43.200 --> 09:47.640
+And like myself I heard from someone who set up a Minecraft server for their kids on Linode.
+
+09:47.640 --> 09:49.100
+Also really great for that.
+
+09:49.100 --> 09:51.640
+Check out linode.com slash LAN to get started.
+
+09:51.640 --> 09:54.360
+You go there, you support the show, it lets them know you heard about it here and it gets
+
+09:54.360 --> 09:57.340
+you that $100 60 day credit.
+
+09:57.340 --> 09:58.340
+Go there.
+
+09:58.340 --> 09:59.340
+Check them out.
+
+09:59.340 --> 10:00.340
+See what they have.
+
+10:00.340 --> 10:01.960
+And also by the way, Linode's often hiring.
+
+10:01.960 --> 10:06.280
+Go to linode.com slash careers to see if they have a job position that might fit you.
+
+10:06.280 --> 10:08.200
+There could be a great opportunity there.
+
+10:08.200 --> 10:13.520
+Linode.com slash LAN receive a $100 60 day credit, support the show and much more.
+
+10:13.520 --> 10:16.920
+Linode.com slash LAN and thanks to Linode for sponsoring Linux Action News.
+
+10:16.920 --> 10:22.360
+I don't know if you heard Chris, but Bitcoin, well, it's up again.
+
+10:22.360 --> 10:23.360
+It's outrageous.
+
+10:23.360 --> 10:28.440
+Yeah, we talked about PayPal and their eventual support for Bitcoin.
+
+10:28.440 --> 10:29.560
+Well guess what?
+
+10:29.560 --> 10:30.880
+It's already here.
+
+10:30.880 --> 10:35.520
+The CEO of PayPal noted too with the announcement of it going live that the shift to supporting
+
+10:35.520 --> 10:40.340
+crypto was driven what he sees by inevitable drift towards virtual currencies.
+
+10:40.340 --> 10:46.640
+But like you touched on, Wes, every time the price comes up, people start getting Bitcoin
+
+10:46.640 --> 10:47.640
+crazy.
+
+10:47.640 --> 10:51.320
+Here's a sample of a little mainstream coverage of a very technical topic.
+
+10:51.320 --> 10:55.040
+PayPal cashing in on the crypto craze, a payment company announcing a new feature that will
+
+10:55.040 --> 10:59.200
+allow users to buy, sell and hold crypto currencies, including Bitcoin.
+
+10:59.200 --> 11:03.600
+The news any Bitcoin soaring more than 7 percent to its highest level of the year.
+
+11:03.600 --> 11:07.520
+And our next guest is a crypto pro who says PayPal just gave a major stamp of approval
+
+11:07.520 --> 11:09.440
+for the entire crypto space.
+
+11:09.440 --> 11:12.280
+Joining us now is coinshare's chief strategy officer, Melton Demurers.
+
+11:12.280 --> 11:13.560
+Melton, great to see you.
+
+11:13.560 --> 11:14.560
+It's been a while.
+
+11:14.560 --> 11:15.560
+It has been a while.
+
+11:15.560 --> 11:16.560
+I feel like Bitcoin's exciting again.
+
+11:16.560 --> 11:17.560
+So here we are.
+
+11:17.560 --> 11:18.560
+It's great to be back.
+
+11:18.560 --> 11:19.560
+Here we are.
+
+11:19.560 --> 11:25.040
+In fact, we have the Bitcoin bug back up in the corner because it's gotten so exciting
+
+11:25.040 --> 11:26.040
+now.
+
+11:26.040 --> 11:27.960
+Gotta have that live price tracker, Wes.
+
+11:27.960 --> 11:28.960
+Of course.
+
+11:28.960 --> 11:29.960
+Yeah.
+
+11:29.960 --> 11:34.680
+And so PayPal has has gone live with its support as it as it said it would.
+
+11:34.680 --> 11:36.480
+There's there's, of course, some gotchas in there.
+
+11:36.480 --> 11:38.760
+PayPal's in this to make money after all.
+
+11:38.760 --> 11:41.360
+And so there's transaction fees and whatnot.
+
+11:41.360 --> 11:42.360
+Yeah.
+
+11:42.360 --> 11:46.960
+And actually, in an interesting twist, your coins can't really leave PayPal.
+
+11:46.960 --> 11:47.960
+So you can hold them.
+
+11:47.960 --> 11:48.960
+You can buy them.
+
+11:48.960 --> 11:52.520
+You can trade them back into, you know, into the currency of your choice, but you can't
+
+11:52.520 --> 11:53.520
+take them with you.
+
+11:53.520 --> 11:54.520
+Yeah.
+
+11:54.520 --> 11:55.520
+Yeah.
+
+11:55.520 --> 11:59.600
+And like global support from PayPal, I don't think really comes until 2021.
+
+11:59.600 --> 12:03.360
+So it's sort of limited in the rollout at this point.
+
+12:03.360 --> 12:11.440
+And for to say nothing about using Bitcoin to actually pay PayPal merchants, that's also
+
+12:11.440 --> 12:12.800
+a ways off still.
+
+12:12.800 --> 12:14.000
+But it's kind of getting there.
+
+12:14.000 --> 12:17.480
+I mean, I guess I guess this is early days.
+
+12:17.480 --> 12:20.720
+So they have time to kind of hone this just right.
+
+12:20.720 --> 12:23.760
+You also just have to figure for a company like PayPal, they've got to figure out a hold
+
+12:23.760 --> 12:28.840
+such a volatile currency and represent that information accurately to users.
+
+12:28.840 --> 12:32.820
+Could you imagine people who are not really familiar with this to the point that we just
+
+12:32.820 --> 12:33.820
+heard from that clip?
+
+12:33.820 --> 12:35.320
+The excitement is ridiculous.
+
+12:35.320 --> 12:40.480
+I actually got a telegram from my mom last night asking me if I was familiar with the
+
+12:40.480 --> 12:44.560
+cryptos and if I was if I was following any of the cryptos.
+
+12:44.560 --> 12:45.880
+Everybody's talking about it again.
+
+12:45.880 --> 12:48.520
+As we record, it's just below 16,000.
+
+12:48.520 --> 12:50.800
+It was over 16,000 this weekend.
+
+12:50.800 --> 12:55.520
+And it seems to be like an annual tradition, like every year as we approach the end of
+
+12:55.520 --> 12:59.280
+the year, Bitcoin just goes crazy on this and we talk about it here on the show.
+
+12:59.280 --> 13:01.560
+And here we are again now because of PayPal.
+
+13:01.560 --> 13:04.120
+And this is adding in some ways a lot of legitimacy.
+
+13:04.120 --> 13:08.280
+I mean, you heard in that clip to to people who are in the financial markets, a company
+
+13:08.280 --> 13:13.200
+like PayPal getting behind something like this is a serious nod of legitimacy and approval
+
+13:13.200 --> 13:15.760
+and brings it a little bit more to the mainstream.
+
+13:15.760 --> 13:17.080
+Now I think that's the key.
+
+13:17.080 --> 13:20.280
+If you're already interested in crypto currencies, you already have Bitcoin of your own.
+
+13:20.280 --> 13:23.860
+You're probably not going to go use PayPal solution, at least at the moment.
+
+13:23.860 --> 13:26.360
+But many folks already have a PayPal account.
+
+13:26.360 --> 13:27.360
+I know.
+
+13:27.360 --> 13:28.360
+I know I do.
+
+13:28.360 --> 13:29.360
+And that makes it pretty easy.
+
+13:29.360 --> 13:33.240
+You just got to go set up their PayPal cash account so you can actually store cash there,
+
+13:33.240 --> 13:37.080
+transfer some stuff from your bank and then you can just buy Bitcoin or Ethereum or Bitcoin
+
+13:37.080 --> 13:38.080
+cash or Litecoin.
+
+13:38.080 --> 13:40.540
+Man, 2020 is a weird year.
+
+13:40.540 --> 13:44.560
+What's nice to see about this, though, is and this will be a differentiator as time
+
+13:44.560 --> 13:45.560
+goes on.
+
+13:45.560 --> 13:49.100
+PayPal has received the first conditional bit license from the New York Department of
+
+13:49.100 --> 13:54.200
+Financial Services, which is one of the most hawkish subnational financial regulators in
+
+13:54.200 --> 13:55.200
+the US.
+
+13:55.200 --> 13:58.320
+So many have noted that the fact that it got that's a good sign and the PayPal's crypto
+
+13:58.320 --> 14:02.240
+services would entail coins that are bought on the platform and would not be able to leave.
+
+14:02.240 --> 14:06.400
+And that may be tied back to this conditional bit license.
+
+14:06.400 --> 14:11.760
+We will see it may be a compromise they had to make to bring crypto currency to a wider
+
+14:11.760 --> 14:13.740
+audience on the PayPal platform.
+
+14:13.740 --> 14:20.220
+And if that is a limit of their conditional bit license, that could have long term limiting
+
+14:20.220 --> 14:22.080
+effects on what the service is capable of doing.
+
+14:22.080 --> 14:24.360
+I think, you know, there are some things in their favor there.
+
+14:24.360 --> 14:28.480
+And at least at the moment, Bitcoin seems to be more of a, you know, a store for value
+
+14:28.480 --> 14:32.120
+differentiator in your portfolio than it is really for buying things in the street day
+
+14:32.120 --> 14:33.120
+to day.
+
+14:33.120 --> 14:34.120
+True, true.
+
+14:34.120 --> 14:38.560
+So we've talked about Bitcoin, but there's also Ethereum, Bitcoin Cash and Litecoin support,
+
+14:38.560 --> 14:40.120
+I believe, in PayPal as well.
+
+14:40.120 --> 14:41.120
+Indeed.
+
+14:41.120 --> 14:42.720
+So it's not all just one crypto.
+
+14:42.720 --> 14:46.800
+And you obviously are not in direct control of your private keys.
+
+14:46.800 --> 14:50.000
+PayPal doesn't give you access to your cryptocurrency keys.
+
+14:50.000 --> 14:53.000
+So you're not going to be able to take them out of PayPal and store them in your own wallet.
+
+14:53.000 --> 14:54.480
+And that's something people should be aware of.
+
+14:54.480 --> 14:58.320
+Yes, it's very much if you're going to get into this, you're doing it on PayPal's terms.
+
+14:58.320 --> 14:59.320
+Yeah.
+
+14:59.320 --> 15:01.640
+Otherwise, you're gonna have to learn some more technical solutions.
+
+15:01.640 --> 15:05.480
+Well, some breaking changes may be inbound to system D 247.
+
+15:05.480 --> 15:08.840
+Funny enough, though, it all stems from a kernel change in 4.14.
+
+15:08.840 --> 15:11.260
+Yeah, that long ago.
+
+15:11.260 --> 15:15.980
+It was a change designed to allow user space to handle devices that needed a little bit
+
+15:15.980 --> 15:18.960
+of help before they could become fully functional.
+
+15:18.960 --> 15:24.280
+To do that, the kernel added two new event types called bind and unbind.
+
+15:24.280 --> 15:25.280
+Why is that a problem?
+
+15:25.280 --> 15:30.620
+Well, it all comes down to Udev, which unfortunately has an assumption built in that there will
+
+15:30.620 --> 15:35.200
+only be one event associated with, say, plugging in a new device.
+
+15:35.200 --> 15:39.040
+And well, with two new events, that's no longer true.
+
+15:39.040 --> 15:42.560
+At first, system D did have a short term fix.
+
+15:42.560 --> 15:45.080
+But that was just to ignore the new events.
+
+15:45.080 --> 15:48.440
+And obviously, that was never going to be a long term solution.
+
+15:48.440 --> 15:50.560
+They have now come up with a long term solution.
+
+15:50.560 --> 15:55.280
+But unfortunately, some parts of that solution have some unfortunate implications for users
+
+15:55.280 --> 15:56.880
+with custom Udev rules.
+
+15:56.880 --> 15:57.880
+Yeah.
+
+15:57.880 --> 16:04.800
+So we seem to have two fixes and the first fix is a change in how tags will work for
+
+16:04.800 --> 16:05.800
+Udev.
+
+16:05.800 --> 16:10.040
+Now, if you're not familiar, tags are special properties that can be attached, then matched
+
+16:10.040 --> 16:13.280
+in subsequent rules or consumed by user space.
+
+16:13.280 --> 16:18.360
+So rather than attaching tags to events, as is currently done, Udev will start attaching
+
+16:18.360 --> 16:23.240
+them to devices so that tags added in response to, say, an add event will still be there
+
+16:23.240 --> 16:27.320
+when that second bind event shows up and you won't lose all the state and you won't be
+
+16:27.320 --> 16:30.980
+in a confusing place where your device didn't actually initialize successfully.
+
+16:30.980 --> 16:31.980
+That's nice.
+
+16:31.980 --> 16:38.520
+Then there's that second fix, which may affect people with custom Udev rules, something that's
+
+16:38.520 --> 16:40.800
+going to probably cause distribution some work.
+
+16:40.800 --> 16:41.800
+Right.
+
+16:41.800 --> 16:45.200
+So you've got all these Udev rule sets, which can match on these tags, perform actions after
+
+16:45.200 --> 16:47.460
+devices are added or removed.
+
+16:47.460 --> 16:51.460
+The problem here is that a lot of these rules were written under the assumption that no
+
+16:51.460 --> 16:53.700
+new event types would be added.
+
+16:53.700 --> 16:58.200
+So anything that wasn't recognized as adding or modifying a device, well, that could just
+
+16:58.200 --> 16:59.940
+be ignored.
+
+16:59.940 --> 17:03.000
+That's not the case now, and that's where the breaking change comes in.
+
+17:03.000 --> 17:04.000
+We need new rules.
+
+17:04.000 --> 17:06.440
+They're going to have to write new Udev rules.
+
+17:06.440 --> 17:07.440
+Exactly.
+
+17:07.440 --> 17:08.440
+Wilson, break.
+
+17:08.440 --> 17:12.680
+Everyone's quick to jump on the system to hate train, but they're actually saying this
+
+17:12.680 --> 17:13.780
+one's not on us.
+
+17:13.780 --> 17:18.360
+This is actually technically on the kernel and that change that happened at 4.14.
+
+17:18.360 --> 17:21.980
+Was this a violation of the kernel's no regressions rule?
+
+17:21.980 --> 17:25.320
+The answer must almost certainly be yes.
+
+17:25.320 --> 17:31.000
+Food that worked with the 4.13 kernel no longer worked with 4.14, but what should have been
+
+17:31.000 --> 17:32.000
+done about it?
+
+17:32.000 --> 17:33.440
+Well, that's a bit less clear.
+
+17:33.440 --> 17:34.440
+Yeah, indeed.
+
+17:34.440 --> 17:37.100
+And the other thing is, is it was kind of hard to track this one down.
+
+17:37.100 --> 17:40.740
+This is one of those funny things about open source software development.
+
+17:40.740 --> 17:48.040
+The bug was first reported on KDE's Bugzilla, not to the kernel team, not to system D, but
+
+17:48.040 --> 17:52.360
+on the KDE Bugzilla, and you can kind of see how that would take a while to work its way
+
+17:52.360 --> 17:53.360
+through the process.
+
+17:53.360 --> 17:56.600
+Yeah, I mean, it was almost a year later by the time it made it to the kernel mailing
+
+17:56.600 --> 17:57.600
+list.
+
+17:57.600 --> 18:02.240
+And by that time, 4.14 had been anointed an LTS release and distributed by distributions.
+
+18:02.240 --> 18:06.720
+Yeah, and the kernel team may be ultimately responsible.
+
+18:06.720 --> 18:11.740
+I mean, I guess the system D team could make that call here because of the change in 4.14,
+
+18:11.740 --> 18:16.680
+but I think what it really has underscored is maybe not who's at fault, but how to keep
+
+18:16.680 --> 18:22.040
+all of these teams in sync and properly communicating because they each have their own mailing list,
+
+18:22.040 --> 18:25.920
+but that's not really the place for this style of collaboration, because if you zoom out,
+
+18:25.920 --> 18:31.480
+what we have here is a bug that was caused by the kernel a long time ago that impacted
+
+18:31.480 --> 18:37.800
+the way system D behaved, which is forcing a breaking change for Udev.
+
+18:37.800 --> 18:42.480
+And then ultimately users who are relying on these Udev rules, and it's a big, messy,
+
+18:42.480 --> 18:47.640
+complicated ecosystem, but fundamentally we're all working on that same system, and we would
+
+18:47.640 --> 18:53.160
+probably have an easier time of it if we could talk things through a little bit more.
+
+18:53.160 --> 18:57.760
+Linux.ting.com, go there to get $25 off a device, or if you bring a device, and you
+
+18:57.760 --> 19:00.800
+probably can, you'll get $25 in service credit.
+
+19:00.800 --> 19:02.360
+And rest assured, Ting's going to have you covered.
+
+19:02.360 --> 19:06.280
+They have three nationwide networks you can pick and choose from, which means they support
+
+19:06.280 --> 19:07.960
+a lot of devices too.
+
+19:07.960 --> 19:10.280
+Ting is really simple mobile that just makes sense.
+
+19:10.280 --> 19:13.960
+It's a fair price for however much you talk, text, and however much data you use.
+
+19:13.960 --> 19:16.080
+If you use less, you pay less.
+
+19:16.080 --> 19:19.600
+I'm on Wi-Fi during the day, so Ting makes a lot of sense for me.
+
+19:19.600 --> 19:22.840
+And when you combine the nationwide coverage, it means there's a lot of options when I travel.
+
+19:22.840 --> 19:25.160
+And the brilliant thing about Ting is their dashboard.
+
+19:25.160 --> 19:27.920
+They have the best dashboard in the industry.
+
+19:27.920 --> 19:29.800
+You can take control of your entire account.
+
+19:29.800 --> 19:31.720
+You can see your usage at a glance.
+
+19:31.720 --> 19:35.200
+You can set usage alerts, which I think is pretty great.
+
+19:35.200 --> 19:36.800
+And let's talk devices.
+
+19:36.800 --> 19:40.360
+With Ting, the BYOD options are crazy with their three network support.
+
+19:40.360 --> 19:42.360
+So go to linux.ting.com.
+
+19:42.360 --> 19:46.880
+Support there, support the show, get that $25 credit, and then click on the Check Your
+
+19:46.880 --> 19:47.880
+Phone link.
+
+19:47.880 --> 19:52.720
+When you click on that, you'll plug in your phone's IM, EI number, put it all in there.
+
+19:52.720 --> 19:54.320
+They'll tell you if you can bring it over or not.
+
+19:54.320 --> 19:55.800
+It's really simple.
+
+19:55.800 --> 19:59.640
+And you can get that simply off your phone by doing star pound zero six pound.
+
+19:59.640 --> 20:02.880
+And then you get that number, you put it in the website, see what you can do.
+
+20:02.880 --> 20:06.600
+Of course, you can buy devices from Ting directly as well or get a SIM card.
+
+20:06.600 --> 20:08.520
+Ting has all of these really nice features.
+
+20:08.520 --> 20:11.440
+And you might wonder, what is it about Ting that makes it possible?
+
+20:11.440 --> 20:13.160
+Well, they're an MVNO.
+
+20:13.160 --> 20:14.840
+Are you familiar with that?
+
+20:14.840 --> 20:16.920
+It's a mobile virtual network operator.
+
+20:16.920 --> 20:19.320
+They ride on top of several networks.
+
+20:19.320 --> 20:21.420
+So they don't have to worry about building the towers.
+
+20:21.420 --> 20:22.980
+They can focus on customer support.
+
+20:22.980 --> 20:24.800
+They can focus on high value.
+
+20:24.800 --> 20:27.120
+They really have something special here.
+
+20:27.120 --> 20:32.760
+70% of MVNO customers that were surveyed recently said they were extremely happy with their
+
+20:32.760 --> 20:35.520
+service and pricing, satisfied or very satisfied.
+
+20:35.520 --> 20:38.520
+And Ting is at the very top of that stack.
+
+20:38.520 --> 20:40.000
+Nobody doesn't like Ting.
+
+20:40.000 --> 20:41.320
+MVNOs are pretty great.
+
+20:41.320 --> 20:42.840
+And Ting is the top.
+
+20:42.840 --> 20:44.500
+They're the one that they're the leader.
+
+20:44.500 --> 20:45.500
+Everybody follows Ting.
+
+20:45.500 --> 20:46.800
+So you should check them out.
+
+20:46.800 --> 20:48.080
+They really get the pricing right.
+
+20:48.080 --> 20:49.120
+They get the options right.
+
+20:49.120 --> 20:50.880
+And they nail the support.
+
+20:50.880 --> 20:52.760
+Linux.ting.com.
+
+20:52.760 --> 20:57.460
+Go there, try them out and see why people love using Ting and see if your phone's compatible.
+
+20:57.460 --> 20:58.920
+And then you have no contract.
+
+20:58.920 --> 21:00.480
+You just pay for what you use.
+
+21:00.480 --> 21:01.860
+Great price.
+
+21:01.860 --> 21:03.280
+Use less, pay less.
+
+21:03.280 --> 21:05.380
+That's the brilliant thing about Ting.
+
+21:05.380 --> 21:07.240
+That's Linux.ting.com.
+
+21:07.240 --> 21:09.840
+Thanks to Ting for sponsoring Linux Action News.
+
+21:09.840 --> 21:16.160
+And thanks to everyone who supports the show by going to linux.ting.com.
+
+21:16.160 --> 21:22.200
+KDE and Pine64 are announcing today the imminent availability of the new PinePhone KDE Community
+
+21:22.200 --> 21:23.200
+Edition.
+
+21:23.200 --> 21:24.200
+Hmm.
+
+21:24.200 --> 21:25.200
+Very interesting.
+
+21:25.200 --> 21:27.560
+And I think we're all pretty familiar with Plasma Mobile.
+
+21:27.560 --> 21:31.700
+As you know, it's a direct descendant from KDE's successful Plasma desktop.
+
+21:31.700 --> 21:36.560
+And there's some underlying technologies that drive both the desktop environment and the
+
+21:36.560 --> 21:37.560
+mobile environment.
+
+21:37.560 --> 21:40.520
+There are things in there like KDE Connect, which obviously lets you connect your phone
+
+21:40.520 --> 21:44.880
+to your desktop, Ocular for document reading, Wave for music playing, and a bunch of other
+
+21:44.880 --> 21:48.760
+apps that work both in phone mode and in desktop mode.
+
+21:48.760 --> 21:53.200
+Now of course, the idea of having mobile devices that can display a full workstation desktop
+
+21:53.200 --> 21:57.120
+when connected to a monitor, keyboard, and mouse has been around for years.
+
+21:57.120 --> 21:59.400
+Hey, don't call it convergence.
+
+21:59.400 --> 22:04.460
+And both the KDE Community and Pine64 have been working to make it a reality.
+
+22:04.460 --> 22:08.320
+The PinePhone handset itself is also ready for that convergence.
+
+22:08.320 --> 22:12.880
+You can use any USB-C dock to connect it to an extra USB device like mouse, keyboard,
+
+22:12.880 --> 22:13.880
+storage.
+
+22:13.880 --> 22:17.120
+You can also connect it to external monitors or even a wired network.
+
+22:17.120 --> 22:21.180
+And in fact, the three gigabyte version of the PinePhone already comes with a dock that
+
+22:21.180 --> 22:26.200
+provides two extra USB ports, a full size HD video port, and an RJ-45.
+
+22:26.200 --> 22:30.120
+Yeah, I love the idea of having Ethernet on my phone.
+
+22:30.120 --> 22:32.340
+On your phone.
+
+22:32.340 --> 22:35.760
+This also comes at a nice time for Plasma Mobile in general.
+
+22:35.760 --> 22:40.800
+Michael Larbrel over on Pharaonyx has a nice write-up about some of the niceties that are
+
+22:40.800 --> 22:47.840
+landing in Plasma Mobile here towards the end of 2020, kind of polishing things off.
+
+22:47.840 --> 22:49.280
+And they've worked hard on this.
+
+22:49.280 --> 22:53.520
+And they just put out a report, an October 2020 report, outlining all of the strides
+
+22:53.520 --> 22:55.520
+they've made in like the last month and change.
+
+22:55.520 --> 23:00.240
+Yeah, some of those nice accomplishments are stuff like support for task switcher thumbnails.
+
+23:00.240 --> 23:05.320
+That's always nice, tweaks to the task panel appearance, and a whole bunch of refactoring
+
+23:05.320 --> 23:08.400
+for their spacebar, SMS, and MMS handling application.
+
+23:08.400 --> 23:14.400
+Yeah, so the PinePhone is kind of becoming the go-to for community firmwares and different
+
+23:14.400 --> 23:17.360
+desktop, sorry, phone environments.
+
+23:17.360 --> 23:18.360
+That's a tricky one.
+
+23:18.360 --> 23:23.500
+But what's nice about the Plasma Mobile version is we haven't seen a lot of these environments
+
+23:23.500 --> 23:25.400
+that are Qt-based.
+
+23:25.400 --> 23:28.740
+And Plasma seems like they've really put a lot of work into this mobile version.
+
+23:28.740 --> 23:33.320
+So you finally get to see some hardware that's really going to showcase this desktop environment.
+
+23:33.320 --> 23:38.280
+And for those of you who aren't huge GTK fans, you've got something non-GTK to throw on a
+
+23:38.280 --> 23:39.400
+device now.
+
+23:39.400 --> 23:43.440
+But if it doesn't work for you, you've still got all of the other OSs that you can load
+
+23:43.440 --> 23:44.440
+on the Pine 64.
+
+23:44.440 --> 23:45.960
+It's just an SD card swap away.
+
+23:45.960 --> 23:47.840
+Hey, that's the power of Linux.
+
+23:47.840 --> 23:52.740
+Well, from the next billion dollar industry file, we have some more eBPF news.
+
+23:52.740 --> 23:58.200
+Some things are coming out because eBPF Summit just wrapped up a couple of weeks ago.
+
+23:58.200 --> 24:05.200
+And just a few days ago, Cillium announced a massive $29 million Series A financing round
+
+24:05.200 --> 24:08.720
+backed by Anderson Horowitz, Google, and Cisco.
+
+24:08.720 --> 24:13.320
+And what's kind of unique about Cillium and great about them is they're early adopters
+
+24:13.320 --> 24:15.880
+and heavy users of eBPF.
+
+24:15.880 --> 24:21.280
+Cillium is an open source project that's been designed on top of eBPF to address the networking,
+
+24:21.280 --> 24:26.840
+security, and visibility requirements of container workloads, especially our friend Kubernetes.
+
+24:26.840 --> 24:32.000
+It provides a high level abstraction on top of eBPF that basically lets Linux kernel better
+
+24:32.000 --> 24:33.640
+integrate with these Kubernetes workloads.
+
+24:33.640 --> 24:36.340
+That's probably getting more and more important.
+
+24:36.340 --> 24:42.820
+And during a Q&A session after Greg Cache's talk at the Linux application summit that
+
+24:42.820 --> 24:48.120
+just happened this last weekend as we're recording this, Greg Cache said something that caught
+
+24:48.120 --> 24:49.120
+our attention.
+
+24:49.120 --> 24:54.280
+He said, out of all of the technologies as the kernel's number two, as the commander
+
+24:54.280 --> 24:59.200
+Riker of the Linux kernel, out of all of the technologies he's excited about, eBPF has
+
+24:59.200 --> 25:00.200
+got to be one of the top.
+
+25:00.200 --> 25:01.200
+All right.
+
+25:01.200 --> 25:05.720
+eBPF, if you care about networking and networking control planes and stuff like that, and tracing
+
+25:05.720 --> 25:10.880
+and modifications of the kernel as it runs, eBPF is great.
+
+25:10.880 --> 25:12.840
+You don't have to write kernel modules anymore.
+
+25:12.840 --> 25:14.760
+You don't have to write drivers anymore.
+
+25:14.760 --> 25:16.200
+You can do some really cool stuff.
+
+25:16.200 --> 25:18.960
+eBPF just keeps getting better and better.
+
+25:18.960 --> 25:19.960
+There's more.
+
+25:19.960 --> 25:23.520
+There's an eBPF conference last week.
+
+25:23.520 --> 25:24.920
+So go look at the notes for that.
+
+25:24.920 --> 25:26.560
+There's a book now about it.
+
+25:26.560 --> 25:30.200
+It changes all the time in the kernel, but it's really, really, really good.
+
+25:30.200 --> 25:34.700
+If I was buying and selling kernel stocks in new technologies for the Linux kernel,
+
+25:34.700 --> 25:37.280
+this would be one I'd be, buy, buy, buy.
+
+25:37.280 --> 25:40.720
+I know where I'm investing my Bitcoin.
+
+25:40.720 --> 25:44.760
+There was one other technology that he was really super excited about, but I'm going
+
+25:44.760 --> 25:50.840
+to save that clip for this week's Linux Unplugged, where I also have an Epic Dell laptop review.
+
+25:50.840 --> 25:53.840
+So once you get done listening to Linux Action News, make sure you save a little bit of room
+
+25:53.840 --> 25:56.860
+for Linux Unplugged, because it's going to be a good one this week.
+
+25:56.860 --> 25:59.980
+But that does bring us to the end of this week's Linux Action News.
+
+25:59.980 --> 26:05.160
+Be sure you go to linuxactionnews.com slash subscribe for all the ways to get new episodes.
+
+26:05.160 --> 26:09.000
+And linuxactionnews.com slash contact for ways to get in touch.
+
+26:09.000 --> 26:12.520
+We'd love to hear from you, so do send us in your contact information.
+
+26:12.520 --> 26:17.000
+Links to everything we talked about today at linuxactionnews.com slash 163.
+
+26:17.000 --> 26:21.480
+We'll be back next Monday with our weekly take on the latest Linux and open source news.
+
+26:21.480 --> 26:47.560
+Thanks for joining us, and we'll see you next week.
+

@@ -1,0 +1,233 @@
+Hello, and welcome to Linux Action News, episode 239 recorded on May 5th, 2022.
+I'm Chris.
+And I'm Wes.
+Hello, Wes.
+Let's do the news.
+And let's start with Google's work to add encryption to Linux's hibernation support
+in an effort to improve security for Chromebooks.
+Yeah, really, I think their goal here is to prevent userspace applications from using
+hibernation as a stepping stone to some kind of kernel escalation.
+So along with some improved userspace protections, the team is looking at mandating certain types
+of encryption for hibernation.
+The team notes that, quote, the hibernate image must be encrypted with protection derived
+from both the platform, something like TPM, and user authentication data like your password.
+It does seem the Google reviewed userspace software options for this job, such as USWSUSP
+or userspace software suspend, but basically came to the conclusion that userspace software
+helpers alone could not really meet their security requirements.
+So yeah, in addition to adding some userspace tooling, Google is working on kernel based
+encryption with support for using TPM backed keys to encrypt the hibernate image file,
+sealing the encryption key with a PCR based policy, and a bunch of other work to ensure
+that that encrypted image can actually be trusted.
+And then Google engineers posted an update on the kernel mailing list.
+And they noted, quote, a couple of patches still need to be written on top of the series
+and then later stating, we also need a patch that disallows unencrypted forms of resume
+from hibernation to fully close the door to malicious userspace.
+However, I wanted to get this series out first and get reactions from upstream before continuing
+to add to it.
+I would expect that this is probably going to move along at a pretty decent pace.
+And we'll keep an eye out.
+I think we'll see it in a future kernel update not too far down the road.
+Sticking with kernel level improvements for just a moment, a new Apple M1 CPU frequency
+driver has been posted by Asahi Linux's Hector Martin.
+This work is important if we're ever going to see Linux achieve optimal performance and
+good power and thermal management on Apple's shiny new silicon.
+Right, you want that first class experience if you're going to spend all the money on
+that hardware.
+I suppose these new patches are a complete rewrite of the earlier driver.
+This newly rewritten driver now avoids the memory controller performance switching, which
+according to Hector is, quote, doesn't make a huge difference.
+So it just kind of makes sense to punt that feature to the future.
+This new driver is based on one that seems to have been originally created by ARM, or
+at least they seem to own the copyright.
+It's called the System Control and Power Interface CPU Frequency Driver, or SCPI for short.
+Some of the advantages of this now standalone driver include supporting fast switching,
+reporting of the current CPU frequency to user space accurately, and support for exposing
+the higher performance processor states as turbo states.
+Well, those turbo states will be useful.
+We have one more Apple M1 platform aside.
+It seems they've achieved their first vulnerability that's unique to just the Apple silicon chips.
+It's called Uggery, I believe, I'm not sure if I'm getting that right, it's A-U-G-U-R-Y,
+and it's the world's first data memory dependent prefetcher vulnerability.
+So if you're getting kind of like a Spectre or Meltdown vibe, you're not too far off the
+mark.
+So those are side channel vulnerabilities like Spectre, but they're only capable of
+leaking in use data.
+Apple's DMP vulnerability could potentially leak the entire memory contents, even if it's
+not actively being accessed.
+They're doing it better.
+The researchers further stated that it seems Apple is fully aware of their discoveries,
+but has not yet shared plans on whether or whether or not they will deploy mitigations.
+Linux 5.19 is looking like another exciting release of our beloved kernel.
+And it seems a very useful feature is in the works, one that enables initiating firmware
+updates via sysfs.
+Intel engineers worked on this one initially for their FPGA based PCIe cards.
+They were building an ability to trigger a firmware update from userspace after a boot.
+Now this firmware upload support is being added to the virtual sysfs kernel file system
+so that userspace software can initiate a firmware update.
+For supported devices, there will now be a data loading and timeout files in sysfs that
+trigger firmware updates on a particular device during boot.
+Here's the basic idea.
+You start things off by writing a one to that loading file.
+Then you can take the binary contents of whatever firmware blob you're trying to use for update,
+and then just write that to the data file, maybe using something like cat or DD.
+Once that's done, you go back to the loading file and you write a zero to tell the kernel,
+all done, it's your business now.
+After that, the kernel uses its existing functionality for firmware updates and does everything for
+you.
+It's really quite neat if you think about the days when we had to go reboot into free
+DOS to apply firmware updates or something.
+And now you can do kind of the same thing with little more than a bash script.
+And a quick heads up for you matrix admins out there, the matrix community has released
+a high severity fix for the matrix app service IRC bridge.
+The vulnerability could allow an attacker to manipulate a matrix user into executing
+IRC commands by having them reply to a maliciously crafted message.
+Yeah, it seems an incorrect handling of a carriage return character meant that the message
+could be sent to the IRC server verbatim, rather than as a message to a specific channel.
+The vulnerability has been patched in node IRC version 1.2.1.
+And of course, also in matrix app service IRC 0.34.0.
+Also in matrix related news this week, we got an update on the Gnome Foundation's complicated
+relationship with matrix and IRC.
+We'll have a link in the show notes if you want the full story.
+But it seems that after years of uncertainty in a polarized community split between matrix
+and IRC, the foundation is deciding to embrace matrix as their default and preferred platform.
+With IRC remaining bridged and available, but secondary in nature.
+The decision was reached partially based on a survey of the Gnome community itself.
+And from that data, it became clear that while both matrix and IRC were popular top contenders
+for a preferred chat platform within the community, matrix was preferred by newer members.
+And IRC, well, it had a far more mixed rating with some users really loving it, but other
+users kind of despising it.
+It was also noted in the post that the federated and open nature of matrix really was an extra
+point in its favor.
+Quote, people can join our conversations whether they have a matrix.org account, a KDE one,
+a Mozilla one, or whatever provider they want to use.
+It's the modern day mailing list, in effect.
+Now as to whether or not they take on the challenge of self hosting that instance, or
+paying element hosted services to do it for them, that will be answered separately.
+Linode.com slash LAN, go there to get $100 in 60 day credit on a new account, and you
+go there to support the show.
+And Linode has pricing that's 30 to 50% cheaper than the major hyperscalers out there that
+want to lock you into their esoteric platforms.
+It's how we've built everything we run in the cloud for the last few years.
+It's easy to use, and it's powerful.
+And Linode just recently announced that their managed database service is now generally
+available with support from MySQL in all of their global data centers.
+And I can tell you one thing that I have learned, if I can outsource something like database
+management to a company like Linode, that's a win-win for somebody like me.
+Not that we couldn't run it, or I couldn't at least talk West into running it, but honestly
+Linode does this stuff so well.
+They have super fast systems, crazy fast hard drives, 40 gigabit connections coming into
+the machines.
+They have 11 data centers around the world, but they're not just like chump data centers
+either.
+These are like pristine locations where Linode is their own ISP, and that inside those data
+centers, they have such a great combination of services.
+Instead of just like every possible thing they could ever conceive of and just take
+on tons of investing to do it, they focused on the stuff that you really need, and they
+made it work really well.
+And that's what they've been doing for 19 years.
+They have S3 compatible object storage that we use the crap out of, cloud firewalls, DDoS
+protection, VLAN support, and a powerful DNS manager.
+And one of the best things if you're in a large organization is they'll snap right into
+your infrastructure management, Terraform, Kubernetes, you're going to get it done over
+there.
+They don't have any problems, they have the best support.
+Number one feedback signal I get from our audience is I tried out Linode, it's amazing,
+but wow did the support blow me away.
+And I think people's first impressions is oh this is great, this UI is fantastic, these
+selections are good, performance is great, but then when you get in a bind at some point,
+Linode's support really comes through.
+So go try it out for yourself and get $100 in 60 day credit, and you can support the
+show.
+It's a great chance to learn and a great chance to support Linux Action News.
+So go to linode.com slash LAN.
+That's where you go to get $100 in 60 day credit, linode.com slash LAN.
+Linux.ting.com and a big thank you to Ting for sponsoring Linux Action News.
+Go see how much you could save and then take 25 bucks off of that by going to linux.ting.com.
+It's a smarter way to do mobile.
+You can start saving money right now and save money every single month.
+They're a mobile virtual network operator, so they work at a level above digging holes
+into the ground.
+That means Ting focuses on their customers, they focus on their value and their deals,
+and they really make a great competitive offering.
+They were recently named the number one carrier by Consumer Reports in 2021, and they have
+the same nationwide coverage, a great mix of plans, LTE and 5G data that you might expect
+from those duopolies, but you're interfacing with Ting and they're straightforward plans
+and they're no contracts.
+I've been a Ting customer since 2013 because it's a smarter way to do mobile.
+If somehow we could hit the reboot button on the mobile industry in the United States,
+they would have to be built like this just to be competitive.
+I'm so glad Ting's out there to just keep pressure on the industry to stay competitive
+and Ting is better than anybody else.
+So go try it by going to linux.ting.com and take 25 bucks off a phone.
+Or if you bring a phone, they'll give you $25 in service credit.
+Sometimes that pays for more than your first month.
+That's how great Ting is.
+So go get started today, linux.ting.com.
+A community project to bring Steam Deck's operating system into a generic installable
+format and replicate something close to the official SteamOS experience caught our eye
+this week.
+Stubbed Hollow ISO.
+You might ask, how is this possible considering we have yet to see the official release of
+SteamOS 3?
+Well, SteamOS is built on open source.
+So this is actually a community effort to sort of reverse engineer what folks are seeing
+and experiencing on the Steam Deck and since SteamOS 3.0 is based on Arch, build that back
+up themselves.
+The aim here, at least at first, is to offer three different installer types.
+You've got Bare Bones, which is just OS only, basically resembles pretty much a vanilla
+Arch install.
+There's also Game Only mode if, you know, you're a serious gamer, you don't need any
+Linux desktops, you just get the Steam Deck UI, which currently only works on AMD GPUs,
+it sounds like, and doesn't include a desktop environment, just for gaming.
+Or lastly, you can get the Deck Experience, which is the full SteamOS 3 experience with
+proper session switching, KDE Plasma, good to go, media apps, and yeah, even Chromium.
+I guess the people are tired of waiting for Valve to release SteamOS 3.
+If our GitHub sleuthing is correct, the creator of this ambitious project might still be in
+high school.
+But either way, it makes it even more impressive in my opinion.
+Like now the Holo ISO project has some major functionality working into boots, it gets
+to the Deck UI, you can even access the Plasma desktop, Wes, I'm pretty sure you gave this
+a go before the show.
+Yes, I did.
+You just need to go check their GitHub page, which of course we'll have in the show notes
+and in the usual releases spot, there's the ISO ready to download.
+Now you will need UEFI enabled.
+And they do recommend AMD hardware at the moment.
+Intel can work with some downgrading to get a Mesa version, not sure about Nvidia.
+I ultimately, not having a Deck or suitable AMD hardware just laying around unfortunately,
+I spun this up in a quick little QEMU virtual machine on my Intel laptop.
+That meant I couldn't really try out the game mode.
+Not sure I got the right out of box experience either because when I booted up, I was kind
+of just dropped to a login session, you know, normal KDE login session sort of defaulting
+to GameScope on Wayland, which I think would be the, you know, the Steam Deck UI experience.
+Did have to try, you know, I just had to try, I knew it wouldn't work, but I had to try,
+didn't work.
+Switching that over to Plasma on X11 though, that logs right in, you get the same theme
+that you're going to get on the Deck, otherwise, it kind of just feels like Plasma on Arch.
+And it comes of course with Steam pre-installed, so that's already good to go.
+Yeah, so it seems with Nvidia GPUs, it's pretty much not working, or if you're really savvy,
+there are some workarounds you might be able to pull off.
+And like with the Intel GPU, like you said, that isn't optimal, but if you downgrade Mesa,
+you can actually get everything working.
+Again, details are in the link in the show notes, but this is even just this idea that
+somebody did this out there.
+It's what I freaking love about the Linux community.
+You wanted to put SteamOS on your toaster, well now you can have SteamOS on your toaster,
+thanks to a developer who may not even be out of high school yet.
+And hopefully, this sends a message to Valve that the community is ready for SteamOS 3
+to be released.
+We're waiting any day, and of course, when they do, we'll tell you about it right here
+and give you our first take.
+So check out linuxactionnews.com slash subscribe for all the ways to get new episodes.
+And to linuxactionnews.com slash contact for ways to tell us all the fun you have with
+Hollow ISO.
+I would love to hear that.
+Also join us for office hours this week.
+It'll be live Tuesday at noon Pacific, 3pm Eastern at jblive.tv.
+We are discussing our new website plans, tons of podcasting news, and it's just a great
+community get together.
+And yeah, our mumble room will be open.
+As for us, well, we'll be back next week, of course, with our take on the latest Linux
+and open source news.
+Thanks for joining us.
+And that's all the news for this week.

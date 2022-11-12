@@ -1,0 +1,389 @@
+Hello, and welcome to Linux Action News, episode 194, recorded on June 20th, 2021.
+I'm Chris.
+And I'm Wes.
+Hello, Wes.
+Let's do the news.
+The recently announced proposal to make the Rust programming language one of two main
+languages for the Linux kernel is getting a significant boost thanks to Google and the
+Internet Security Research Group, or ISRG, better known as the group behind Let's Encrypt.
+The main goal of the push to bring Rust to Linux is to wipe out an entire class of memory-related
+security bugs in the kernel.
+Memory-related bugs are a big deal.
+They're a huge deal on the Windows platform, and they're likely a very significant deal
+on the Linux platform.
+You might recall we talked about Linus's warming to the idea of Rust in the kernel,
+especially starting with device drivers a few months ago.
+But rewriting the kernel is not even on the table here, and no one is suggesting such
+a thing should be done.
+But what it does seem like is happening is a consensus is forming that parts of the Linux
+kernel should be rewritten in Rust.
+And maybe some areas make a lot of sense to be rewritten in Rust.
+Yeah, you can start with things like device drivers.
+And once you've got all the tooling figured out, processes in place, then yeah, maybe
+you can make some more inroads into places where memory safety is key in the kernel,
+or it's just kind of confusing right now and needs a rewrite anyway.
+That might be a great time to shift things over.
+Or modernize, perhaps.
+Exactly.
+For their part, though, Google blogged about its plans to back Rust in the kernel back
+in April, actually.
+And so far, that initiative's been led by developer Miguel Oieda.
+He's been working on contract with ISRG's Prosimo project for memory safety right now,
+and Google has funded that early work.
+But now, my group has hired him to work full time on the project.
+Yeah, whenever you see a company do this and step up to bring a developer on full time
+to develop something for the kernel, you almost know it's like, okay, they've done some behind
+the scenes conversations.
+They know people are on board, so they're willing to take this step, and it's happening.
+Dan Lorenk, a software engineer at Google, who's been helping coordinate this Rust Linux
+project, noted, Google has found time after time that large efforts to eliminate entire
+classes of security issues are the best investment at scale.
+We understand that work in something is widely used and critical as a Linux kernel takes
+time, but we're thrilled to be able to help the ISRG support Miguel's work dedicated
+to improving the memory safety of the kernel for everyone.
+Now of course, this is still very early days for Rust in the kernel, but with the group
+behind Let's Encrypt leading the way, and now some of Google's money, it seems like
+a Rusty kernel is a sure bet.
+Open ZFS's founding developer, Matthew Ahrens, announced one of the most sought after features
+in ZFS history, RAID-Z Expansion, at the FreeBSD Developer Summit.
+I'm Matt Ahrens.
+I'm here to talk to you about ZFS RAID-Z Expansion.
+I work for Delphix, and this work is sponsored by the FreeBSD Foundation.
+This would allow a ZFS user to expand the size of a single RAID-Z VDEV, adding new fundamental
+features to ZFS that it has been missing since Go.
+We're big fans of ZFS here at Jupiter Broadcasting, and we recognize and want to convey that ZFS
+is beautiful because it's more than just a file system.
+It's a storage array and a volume manager.
+When you live in the world of ZFS, gone are the days of hardware RAID.
+We now manage everything with the Zettabyte file system.
+But with all the things that we do love about ZFS, and there's a lot of them, one of the
+major and kind of expensive pain points around ZFS has been the lack of support for expanding
+storage of an existing setup.
+The unofficial answer has always kind of been, well, ZFS tries to protect your data and not
+be cheap.
+And there is some truth to that.
+It was created by Sun Microsystems after all, and they wanted something robust for
+the enterprise.
+And it has been a challenge for those of us maybe running in simpler setups.
+And that fundamental trade-off with ZFS is now changing.
+Now open ZFS, or just ZFS as we call it, is complicated.
+So if you're new to all this stuff, we'll link you to Jim Salter's excellent ZFS 101
+article on Ars Technica, which has a great breakdown of pretty much everything you might
+need to know about ZFS.
+Including some of the terms we're about to drop down on you.
+Exactly.
+But let's see if we can give you just what you need for this story today.
+You've got to start at the heart of ZFS, the zpool.
+A zpool is made up of VDEVs, and it's those VDEVs that contain your real hard drives.
+In the standard hardware or software raid world outside of fancy file systems like ZFS,
+they don't really share the pool concept.
+But they do offer the ability to expand an array in place.
+For example, you might add a single disk to a four disk raid six array, thereby turning
+it into a five disk raid six array.
+That's an operation you're allowed to do.
+Now you might not want to because after you make that change, you'd sit around for a while,
+wait while your raid array was expanded, all while the performance of that array had tanked.
+That performance hit, I suspect, was the reason why the ZFS team just really didn't prioritize
+this particular expansion feature.
+It is true, ZFS was just developed for large business uses.
+And in those scenarios, often reshaping or expanding your array live in production is
+just kind of a non-starter.
+The performance hit degrades the entire enterprise's use of the file system.
+And often, just when you look at payroll costs and the downtime, it's cheaper for the business
+just to buy a new set of disks.
+But that is certainly not the case for all of us, including your humble podcasters right
+here who use ZFS.
+And that's what gets us to the new feature today, which is pull request 12,225, which
+allows disks to be added one at a time to a RAID-Z VDEV, expanding its capacity incrementally.
+And yeah, Chris, as you say, this feature isn't really that useful for folks who, you
+know, they have access to big arrays, SAS expanders, the ability to add more disks as
+they need to.
+But for those of us that are a little cheaper or just didn't really know what our data usage
+was when we built our array, this kind of flexibility is great.
+It's really nice to see it because it's going to change how we use ZFS.
+And I acknowledge and the ZFS developers acknowledge that it's always going to be the more performant
+way to add disks and not do an expansion like this.
+But small businesses like JB, we're in a position where, you know, if it takes three days to
+expand the array, that's not going to be the end of the world.
+And of course, a small business might not have cash on hand to be able to buy the number
+of disks that you might need.
+I mean, before this change, you couldn't just add a disk to a VDEV, right?
+You had to add a whole new VDEV to the pool.
+And with RAID configurations, that might mean doubling the number of disks that you have.
+And I don't know about you, but we don't have space or probably budget for the JB server
+right now.
+Yeah, especially if the price of these disks don't start coming down.
+So the way this works is a bit more clever than, say, trying to do an expansion with
+traditional RAID.
+That would shuffle things around, and then it would recalculate the parity data, and
+that would take forever.
+And don't get me wrong, ZFS is still reflowing your data, but ZFS' approach avoids having
+to recalculate the parity or adjust the parity to data ratio of the existing data.
+It just moves the data around so it's on that new disk.
+As a practical example, if you added a fourth disk to a three disk RAID Z1 pool, you'd
+start out with two blocks for data and one block for parity.
+For data written after the expansion, you'd have three blocks for data and one block for
+parity.
+The downside is you don't get better efficiency for your old data, but this approach is safer.
+It's much safer.
+You never lose the guarantees of the ZFS file system, which I think enterprises are all
+about.
+New data is stored with the more efficient ratio, and of course, you're now able to expand,
+which you could never do before.
+So overall, that's a pretty huge upside.
+Matthew Aaron suggested in his talk about this that you're going to see a conversion
+time around like six hours to a terabyte, but we'll wait and see how performance is
+impacted and we'll test this feature in-house when it does ship, which we expect will be
+sometime in 2022.
+If this sounds interesting to you at all, though, Matthew Aaron's did a presentation
+on this June 11th during the FreeBSD Developer Summit, and we will link right to his part
+in the talk, which includes nice visuals and everything that explains some of this.
+Well, speaking of the enterprise world's favorite pieces of software, it's time for a system
+D update.
+The first release candidate of system D 2.49 is now out for testing.
+You know, a new release comes out every four months with the last being system D 2.48 on
+March 30th.
+Lennart Potterine's post to the new section of the system D GitHub repository lists it's
+a ton of new features.
+We counted like 76 that they were drawing special attention to, but it's pretty great.
+Clearly, system D 2.49 is going to be another big summertime update to our favorite Linux
+in its system.
+Some of the items that jumped out at us from that list include summer blockbuster items
+like system D first boot now supports querying various parameters via the credential subsystem.
+Now at first it's like kind of boring sounding, but think about it.
+You're deploying systems, images, perhaps preset up in the past.
+You maybe had to sneak passwords and security credentials in those images.
+This will allow you to initialize important system parameters on that first boot on previously
+unprovisioned images, which means less passwords baked into these configurations.
+That's a good thing.
+I also like information.
+That's why I love the Etsy OS release file.
+And one of the things they're doing is extending some of the metadata things you can pop in
+there, like among other things, your image version, your image ID, and just another one
+of those really handy features for people who are deploying multiple images of Linux
+at scale.
+Sure sounds handy to me.
+You're SSHed into a server troubleshooting a fire.
+You want to know what image version and ID this is so you can go back to say GitLab and
+figure out what went wrong.
+Now of course, I wouldn't be super excited about this release if there wasn't a little
+eBPF in here.
+There is.
+BPF program.
+It's a new setting that's been added to service files.
+Once you provide a path to a loaded eBPF program.
+So you still have to manage loading these things yourself outside of system D. But once
+you've done that, this will make it really easy to hook them up into basically any old
+system D service.
+I hadn't thought about this feature, but it seems so clearly needed if you are dabbling
+in eBPF land.
+Well, here's another one you'll like.
+A new Udev hardware database has been added for Firewire.
+Finally, Wes, Firewire.
+When I looked into this, we're like, why now?
+Why now, Firewire?
+And it seems mostly it originated from someone who's trying to get support for audio devices.
+Yeah, this is stuff that's already supported by the kernel, but might need a few Udev tweaks
+to really operate optimally.
+When you go through these notes, some of these jump out as basic building blocks for an operating
+system.
+And you kind of go like, how did we do this before?
+Some of the some of the things that it's solving, yeah, we had an answer.
+But some of it we never had solved before in Linux and something that's that's really
+often missing from the system D discussion in our community, but is made painfully obvious
+in their release notes.
+System D is solving problems for enterprise Linux.
+There are goodies we get on the desktop to be sure.
+But whenever you hear that old system D debate fire up in our community again, try to keep
+that in perspective.
+Most of what system D is doing is solving problems in Linux at a large scale, like thousands
+of servers.
+Keeping our focus on the enterprise for one more story.
+Cloud Linux, now best known for its CentOS clone, Alma Linux, is releasing Uchecker,
+its Linux server security scanner.
+This newly open sourced program, part of the company's Tuxcare Security Services, scans
+Linux servers from out of date libraries, both on disk and in memory.
+But Linux claims that unlike other similar tools, Uchecker finds false negatives by reporting
+on vulnerable libraries running in memory that might be missed by other scanners.
+This story is important not just because it sounds like kind of a handy tool in their
+wheelhouse.
+But I think it sets a context, it gives us a great example of how some of the different
+CentOS clones are gonna stand out, right, cloud Linux is leveraging their already advanced
+position in the market, where they're already building these tools, and now they can pick
+and choose what they're gonna open source and make available now.
+And they can kind of create a very tempting suite of services that you can wrap around
+Alma Linux.
+Uchecker itself is an abbreviation for User Space Checker, and it works with most modern
+Linux distributions, not just the RHEL family and its license under GPL version two.
+What you could expect is a detailed actionable report on applications that are using vulnerable
+libraries.
+The program will also present you with the relevant process ID and the process name.
+As we touched on earlier, Uchecker is really part of a larger suite of live patching tooling
+over at kernelcare.com.
+How do you actually take advantage of those process IDs and names?
+Well, to update, there's the traditional way, of course, just head to your local package
+manager, run an app to get upgrade and restart the server.
+Now of course, if this is a production box, maybe that's making you a little uncomfortable.
+You could, of course, go by hand and try to restart all the processes which are affected.
+That's also error prone though, so there might be, at least to Cloud Linux's mind, a better
+way.
+You can use Tuck's care library care service for live patching and apply security patches
+to open SSL, GLib C, and the kernel without having to reboot.
+People love the live patching stuff.
+And so this whole Tuck's care suite of services, it's an umbrella security support offering.
+It's a lot of things.
+There's some support stuff in here that's just like test standard technical support
+and this live patching, it's a whole suite.
+And their whole idea here is, know us for our Alma Linux and our Cloud Linux offering,
+and once you like us for that, you can add this to the mix.
+Practically speaking here, you can really use it on just about anything, so you grab
+their Python script and run it on your box to see if it's compatible.
+They'll just do a little check to let you know if you can use this U-checker and then
+analyze your machine.
+Ironically though, their documentation suggests that you pipe curl into pseudo, a suggestion
+that will make a lot of security minded folks a little uncomfortable.
+But then again, I'm sure you'd check that Python script before you ran it anyways, right?
+Now we should note that this isn't the only Linux program that enables you to live patch.
+There's Oracle's ksplice, Red Hat and CentOS's kpatch, Canonical's livepatch, and of course,
+SUSE's kgraft.
+All of those however, well, they only work on whichever distro is making it, right?
+I mean, Canonical's not making a patching service for Red Hat.
+Cloud Linux's programs however, support CentOS, Red Hat, Oracle, Debian, Ubuntu, and a few
+others.
+That's kind of impressive.
+Beyond the technical merits, it's just interesting to watch Cloud Linux's strategy coming a
+little more into focus.
+It kind of seems like the CentOS changes happened at just the right time for some of their plans.
+Linode.com slash LAN.
+Go there to get $100 in 60 day credit on your new Linode account.
+And of course, you support the show.
+Linode is our cloud provider.
+They are the largest independent cloud computing provider, and this month they turned 18, 18
+years old.
+Congratulations to Linode.
+Much has changed in the industry in 18 years, but Linode has focused on making the absolute
+best cloud computing experience.
+This year alone, they've released custom images to general availability, making it easier
+for customers to create, store, and deploy one image across multiple machines.
+They added two free security solutions, including the Cloud Firewall and Private VLANs, and
+for developers, they've extended the tools to support Kubernetes, Terraform, and Ansible
+modules, all while having one of the cleanest and easiest to use UIs in the business.
+Linode lets you turn any idea into something you can actually bring to life on the web.
+And if you ever get in any trouble, well, they have the best support team.
+Their support team won five Stevie Awards, including the coveted People's Choice Award.
+There's nobody that doesn't like Linode.
+They have hundreds of guides and tutorials to help you get started as well, then once
+you're up and running, you can take advantage of those advanced features like S3-compatible
+object storage and their super fast SSDs.
+Linode was recently reviewed by Cloud Spectator as having the fastest CPUs in the industry.
+I mean, they compared all of the major cloud providers, and Linode beat them all.
+Their one-click Minecraft server lets you specify features like NPCs, game mode, and
+critical game specifications with a simple one-click deployment.
+So go to linode.com slash LAN and get that $100 60-day credit on your new account, and
+you support the show.
+It's a great way to learn, too.
+If you want to try something, you could do a nice side-by-side comparison, kick it off
+on Linode, and pick the winner, linode.com slash LAN.
+Linux dot ting dot com.
+Are you sick of overpaying for self-service?
+Because you should be.
+The duopoly out there has wrecked the market, so Ting's here to bring us all a breath of
+fresh air.
+In fact, for a limited time, you can sign up for Ting's unlimited plan.
+Just pay $25 a month for the first three months.
+That's $20 off the standard unlimited plan, and it's quite the offer.
+Of course, there's a plan for everybody.
+Ting's set 12 plan gives you 12 gigs of data with unlimited talk and text for just $35
+a month.
+No, I know a good family plan is hard to find, and Ting's got you covered there.
+If you use 2 gigs, or if you use 20 gigs, there's a perfect Ting plan for you, and every
+plan gets access to Ting's award-winning customer service with nationwide LTE and 5G coverage,
+plus the freedom of no contracts ever.
+That's awesome.
+And there's three great networks to choose from, so it's simple to switch to Ting.
+Pretty much any phone will work with Ting.
+You just start by going to linux.ting.com.
+You get $25 off, and you can check your current phone, see if it's compatible, create an account,
+pick the plan that's right for you, and then Ting will send you a SIM card that you pop
+in your phone, and you get activated in minutes.
+Their dashboard makes it simple, makes it straightforward.
+It sets the bar.
+And cutting your phone bill in half has never been easier with Ting's brand new plans.
+Go check out the new Shiny and save $25.
+It's the next generation of Ting Mobile.
+It's here, and it's awesome.
+Linux.ting.com Following up on a story we covered a couple
+months ago, it seems Steam on Chrome OS is getting rather close.
+According to Linux Steam watch site BoilingSteam.com, there are now QA testers being hired to work
+on the, quote, Chrome OS Steam Launch Team to triage games, find defects, and test the
+performance of games under specific configurations.
+Sure sounds like a tough job of playing video games to me.
+Yeah, I'd love to land that job, Wes.
+That's probably as close to any kind of confirmation we're going to get from Google or from Valve
+on this story.
+This seems like one of those kind of stories that you'd want to kind of sit and keep low
+until you're ready for the hardware-software combo announcement.
+Make some sort of big splash.
+Also Wes, I think it's kind of notable here that Google and Valve didn't focus on like
+a Steam Link style solution where you would just stream using the existing Steam streaming
+solutions.
+It seems like that's a big thing for Google too.
+But instead they went for fully native games, which does add more credence to those rumors
+that we're going to be seeing more powerful Chromebooks with faster processors, faster
+disks and faster GPUs in the works.
+I think I'm confused.
+Just what about a Chromebook isn't a regular computer at this point?
+I guess the GPU parts, they're going to make them even better.
+Wouldn't it be something if Google came along and introduced a couple of Chromebooks, one
+that's on the x86 line of things and one that's on the ARM line, like maybe this new Onyx
+processor that Samsung's working on that's supposed to be a screamer, and they come out
+with these Chromebooks that are running Linux under the hood and maybe offering a decent
+competitive solution to Apple's M1.
+In the case of these machines, they could say, hey, we can even play Steam games.
+It does seem like to compete you need deep pockets and some hardware expertise.
+So yeah, maybe that would work out.
+It does make me feel a little bit uncomfortable with all of the advantages Chrome OS is having
+compared to, say, our tried and true trusty Linux desktops.
+But if you do frame it in terms of the M1 or the Windows platform, I mean, Chrome OS
+is Linux, and it's only kind of gotten more Linux-y, right?
+Between Android apps and actual Linux apps, maybe this is OK.
+One platform that can run Linux applications, it can run those Android apps, like you said,
+it runs that Chrome browser, and now it can run these Steam games as well as it now has
+access to local storage.
+I mean, it really is becoming like a full-fledged desktop, and it kind of makes me worry a little
+bit that Chrome OS is just going to become the undisputed Linux desktop of the future.
+When you look at it, you've got all of these vendors behind it.
+Each one of my kids was provided a Chromebook from their school.
+You've got Google behind it.
+You've got, now, Valve working towards making a more viable desktop platform.
+And how many times have we heard gaming is a big key to being successful on the desktop?
+Yeah, up to this point, I think the Chromebook was sort of a secondary device, right?
+For education, part of the day, the thing you have on the couch while you're watching
+TV.
+And part of that is because there are limitations about what you can do with it, but as you
+keep knocking those down, well, if you already have a Chromebook, why do you need anything
+else?
+Yeah, you can just keep notching up the hardware capabilities, keep notching up the software
+capabilities.
+All this stuff with Steam on Chrome OS, I mean, it may not actually happen, remember.
+I mean, it's really only official until it's been announced.
+Until then, we're just going to keep an eye on it.
+Well, speaking of software for the people, the world's best command line text editor
+got even better this week, somehow.
+Oh yes, the small warrior-like editor for the terminal, heroically, already supports
+syntax highlights, spell checking, and paying respect to its elders.
+But now, the bar has risen yet again.
+Hero 5.8 was released this week, and now sports, setting the color of the mini bar, yes, really,
+and can't top this one, the color name for gray can now be used instead of the name light
+black.
+5.8, you're a beast, and it may just be the very best text editor in the whole wide world.
+And I'll leave it up as an exercise to the audience to figure out if I'm trolling them
+or not, but you can go to linuxactionnews.com slash subscribe.
+That I do know.
+That's where you can get all the new episodes every single week.
+And linuxactionnews.com slash contact for ways to get in touch.
+And if you're looking for your next thing to listen to, go to selfhosted.show slash
+47, where I have gone over and finally found, I think, my ultimate team viewer replacement.
+It's open source, and yeah, it runs on Linux, selfhosted.show slash 47.
+We'll be back next Monday with our weekly take on the latest Linux and open source news.
+Thanks for joining us, and we will see you next week.

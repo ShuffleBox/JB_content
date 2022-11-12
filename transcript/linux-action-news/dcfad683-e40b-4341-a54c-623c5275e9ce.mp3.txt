@@ -1,0 +1,284 @@
+Hello, and welcome to Linux Action News Episode 216, recorded on November 21st, 2021.
+I'm Chris.
+And I'm Wes.
+Hello, Wes.
+Let's do the news.
+This week, we wanted to start with a story you may have seen passed around online, with
+a headline stating that a serious security problem exists in Linux that enables DNS cache
+poisoning.
+It really all started back in 2008, when Dan Kamsky demonstrated a method to attack DNS
+infrastructure and change the results for a particular DNS lookup.
+So first, the attacker masquerades as an authoritative DNS server.
+That's the server that's responsible for a particular domain, the one that they want
+to attack, say, tuxes.party.
+They then flood a DNS resolver, like maybe Cloudflare's public 1.1.1.1 service.
+They give that service, they just flood it with fake lookup results that have a different
+destination IP than the actual legitimate destination.
+And any client using the server for their lookups in the future would receive this bogus
+result.
+Worse, they wouldn't get their vote in over a tuxes.party.
+The core of the issue here comes down to the fact that DNS uses a 16-bit transaction ID
+in an attempt to stop this kind of thing.
+But unfortunately, 16 bits, it's just not that big.
+It's easily brute forcible and predictable because there's only about 65,000 possible
+transaction IDs.
+Yeah, maybe that was a lot back in the day.
+But now here we are in 2021.
+That's pretty easy to calculate.
+Now it's not all that easy for it actually to work.
+The attacker has to slam the DNS server that's being attacked with these bogus lookup results
+with predicted transaction IDs in there and then the fake IP address.
+But they have to hope that their forged response arrives before the reply from the real authoritative
+DNS server.
+So it's basically like, hey, I'm the resolver, I'm Cloudflare, I go out and ask whoever's
+hosting tuxes.party, what's the IP address, and then the person attacking sends their
+fake response in with the guest transaction ID and hopes that I receive it first because
+this is UDP here.
+I have no other way of knowing besides that transaction ID if this is the real response
+or not.
+Yeah, okay.
+So this has all been figured out since 2008.
+What we're talking about here isn't necessarily new.
+And we came up with ways to solve this problem essentially, or so we thought.
+Essentially this was solved by reconfiguring DNS servers to send their responses back on
+ephemeral port instead of reusing port 53.
+So the attacker is not only then forced to guess the transaction ID, but now they also
+have to figure out the reply port being used and for a while that worked.
+But unfortunately, new research shows there are unexpected ways an attacker could determine
+that ephemeral reply port.
+A team at the University of California at Riverside, building on research conducted
+last year, found a new side channel attack that does just that.
+Writing, quote, we find that the handling of ICMP messages in the Linux kernel uses
+shared resources in a predictable manner such that it can be leveraged as a side channel.
+This allows an attacker to infer the ephemeral port number of a DNS query and ultimately
+lead to DNS cache poisoning attacks.
+Yeah, okay.
+So think of this side channel attack as a type of ICMP port scanning where the attackers
+are sending spoofed ICMP packets in attempt to determine the ephemeral UDP port that is
+being used for those DNS lookup replies.
+The problem is these ICMP packets are used for network diagnostics, at least most commonly.
+And by design, that means they don't necessarily receive a reply.
+However, that didn't stop these researchers because they observed that even though they
+don't get a reply, they're still changing some internal data structures in the kernel.
+Then they thought to themselves, well, if we can just expose that data structure some
+other way, we can still determine what that reply port is.
+They managed to do this and it starts with the attacker pinging the DNS server under
+attack while at the same time sending some spoofed ICMP requests that ask that DNS server
+to change its packet fragmentation size.
+In those spoofed ICMP requests, the attackers have to guess that ephemeral port number.
+And if they guess it right, they'll observe that the fragmentation on the replies to their
+pings has actually changed.
+That's the signal they've managed to guess the right port.
+And now with that port in hand, they just have to simply brute force that 16-bit transaction
+ID and they're back to the good old DNS cache poisoning attack from 2008.
+Yeah, really, they just had to solve for that ephemeral port problem.
+Once they had that figured out, the original attack works.
+Now this vulnerability affects DNS software running on Linux, including Bind, Unbound
+and DNS Mask.
+It does not seem to impact FreeBSD, Mac OS or Windows, and the researchers have proposed
+several defenses to fix the issue on Linux.
+One is just setting Linux to ignore ICMP messages that effectively closes the side channel,
+but obviously has downsides.
+Another proposed defense is randomizing the cache structure to make the side channel unusable.
+And then a third is reject ICMP redirects.
+And of course, DNSSEC can be a mitigation of this attack, but requires the size you're
+using it supported, which it appears about 1.8% of the top 10,000 Alexa websites actually
+support DNSSEC.
+So DNSSEC might not actually be an option for most of us.
+And really right now, this is in the research phase.
+As far as we know, we haven't seen much of this in the wild, but we'll keep an eye on
+that.
+And if mitigation ship, we'll keep an eye on that and let you know.
+Some distributions are known for their documentation, like Arch and their famous Wiki, but it seems
+now canonical.
+We'll be investing in a new comprehensive long term project to transform their documentation.
+Daniela Prachita, the recent director of engineering at the Ubuntu maker laid out plans to dramatically
+improve their documentation efforts moving forward, writing on their blog, quote, our
+aim is to create and maintain technical documentation and documentation practices that will represent
+a standard of excellence in the industry.
+He goes on to say, we want it to be the best it possibly can be.
+By best, we mean documentation that above all else understands, respects and reflects
+and serves its users needs.
+Canonical really is emphasizing that this is a company wide effort, not just limited
+to engineering, writing on their blog, quote, this is a permanent ongoing commitment.
+It's work that will never end, and it's already started and will become part of the fundamental
+canonical discipline of making software.
+We'll have their entire blog post linked in the notes.
+After a rather public failure during a recent YouTuber Linux switch challenge, a new version
+of the apt package manager version 2.312 has been released.
+This update includes a fix for that recent famous apt scenario.
+Yeah, this change changes the way apt handles a conflict resolution situation.
+Instead of warning the user and prompting them to proceed with apps suggested fix, which
+as we see, doesn't always work out so well.
+apt will now just error out, providing no suggestion and deferring the critical conflict
+resolutions to the user explicitly.
+Right, so the change here is going from asking the user if they're super sure they want
+to proceed with a risky change to now telling them there's a problem, and then leaving
+it to them to solve it manually.
+System 76 had actually started working to solve this in Pop OS directly, but has already
+prepared to bring these new upstream changes in.
+The Plasma software discover app is also being updated.
+Discover now has a new way to ensure you keep a working system with an updated mechanism
+to detect important packages getting removed and give you a friendly warning.
+That's a good change for discover to make.
+That's the kind of tool new users should be using to manage their software and something
+else discover is doing is they're hiding some of the technical jargon behind a button.
+So you're going to get that friendly warning, but then there will be a button with technical
+details you can press to actually tell you what's going on.
+That really feels like a sweet spot.
+And I have seen some complaints online that, you know, a power tool is being made less
+powerful for new users that probably shouldn't be using it.
+And it's a loss.
+I don't know.
+You know, when you take all of this in, this seems like a pretty balanced change.
+I mean, you can still manually resolve these issues if you're a power user and you know
+what you're doing.
+And while Linus Sebastian did ignore a warning in the GUI, and then he later ignored a warning
+in the terminal, he'd really have to go out of his way to break his system with this change.
+That might just be the right spot of user intervention versus automatically solving
+problems for users.
+I guess we better just hope Linus doesn't find out about the RM command during this
+challenge.
+Then we might have some serious patches landing.
+Linux 5.16 hit RC2 today and has some significant IO improvements.
+But this week, we also got a better picture of the performance patches landing in Linux
+5.17.
+Much of the work landing in both those kernels is the NVMe codepath optimizations we told
+you about in Linux Extra News 2.12, with four more patches landing today, bringing the total
+to 38.
+Yeah, and on the networking side, Wes, we're also seeing some improvements land in 5.17's
+network substack.
+One of the set of changes that was merged earlier this week was actually from Google,
+which provides a sizable gain in TCP performance in the data center.
+But not just that, the new patch also allows Linux's TCP code to defer SKB freeing after
+the socket lock is released.
+The existing kernel code was found to just introduce excessive latency there.
+And it seems after success in the TCP stack, the team's looking to fix this problem for
+protocols besides TCP as well.
+And looking at a few project updates this week, the Ubiport Foundation released Ubuntu
+Touch OTA 20.
+It's a maintenance update that introduces support for the notification LED and vibration
+indicator for incoming notifications on Helium 9 devices.
+And the installer has been updated for even more devices.
+And it also has your typical batch of features, tweaks, and bug fixes.
+The Ubuntu Touch OTA 20 update is rolling out right now to supported devices, and you
+can check on your device by going to the system settings and then navigating to the update
+screen.
+FWAP-D, the leading open source solution for handling firmware updates on Linux devices
+has a new release, version 1.7.2.
+1.7.2 adds support for handling exported MTD block devices, tweaking the compiler flags
+to reduce the install size by around 300 kilobits, speeding up the daemon startup by almost 40%,
+and a variety of other fixes.
+Yeah, that's nice to see.
+Project lead Richard Hughes also shared via Twitter that the project is still seeing pretty
+remarkable growth.
+And I hope that will encourage even more vendors to participate in the project because I know
+when I'm shopping for new hardware, I'm checking for LVFS compatibility.
+Yeah, hopefully an area we'll see improving as those numbers go up.
+And our last quick project update, Rocky Linux 8.5 released this week.
+And this latest release also catches up to Alma Linux by adding secure boot support.
+Both projects seem to be increasing the significance of their ARM builds with 8.5 as well.
+linode.com slash LAN.
+Linode is how we run everything we've built in the last few years in the cloud.
+And like us, they love Linux.
+They use it every day, their environment and their tools.
+So go to linode.com slash LAN to check it out.
+They use that base that love for Linux to build everything 18 years ago.
+That's what got them started.
+And now they are the largest independent cloud provider in the world.
+Linode has learned during that time that customer support is just absolutely critical.
+So that's why they've invested in having the best customer support in the business.
+I got a note from listener Kevin this week and he said, I only have a $5 Linode but their
+support was great and helpful.
+I've never seen such expert level customer support on any other cloud provider.
+This company really does what they say.
+No support tiers, no hands off, only highly trained technicians.
+It really is the best.
+And that's true.
+And on top of that, Kevin, they also have some of the best performance, 11 data centers
+for you to choose from, great features such as object storage, cloud firewall and backups
+and a lot more including one click deployments for lots of applications.
+So go build something, go learn something and try it out for yourself while supporting
+the show.
+linode.com slash LAN.
+Go there to get $100 in 60 day credit on a new account and you go there to kick the tires
+for yourself and support this here show.
+That's linode.com slash LAN.
+And thanks to Ting for making this episode possible, linux.ting.com.
+If you're sick of overpaying for your cell service, go see how much you could save and
+get $25 off when you go to linux.ting.com.
+Ting has great customer service, great flexible rates and nationwide coverage on multiple
+networks.
+The key is they're an MVNO.
+So instead of digging holes in the ground and figuring out local jurisdiction over building
+towers, they focus on the customer support, the flexible plans and they run on top of
+the nationwide networks that exist already.
+So you get access to a great mix of plans and super fast LTE and 5G data.
+And Ting's plans are always simple and straightforward.
+That's why I've been a Ting customer for eight years.
+Think about that eight years with Ting.
+It's just a smarter way to do mobile and I've appreciated that.
+They have plans that start around $10.
+My plan I think on average these days is about $45 a month.
+It really depends on your usage.
+You just tune it to what works for you.
+If you use a lot of data, they got a plan for you.
+If you use very little data, and that's actually pretty easy to do these days because you can
+sync before you head out when you're on Wi-Fi, you just sync your stuff down, you can save
+so much money it's kind of ridiculous.
+And every plan gets access to Ting's award-winning customer service and the LTE and 5G networks.
+And it's so simple to switch to Ting.
+Pretty much any phone works because of their broad network support.
+So get started by going to linux.ting.com.
+Check out your current phone, create an account and pick the plan that's right for you.
+Ting's going to send you a SIM card.
+You're going to pop that thing in your phone and you're going to get activated in minutes
+because their dashboard is great.
+So go there, check them out and see how much you could save while supporting the show.
+linux.ting.com.
+That's right, get $25 off at linux.ting.com.
+And we end this week with the release of Proxmox Virtual Environment 7.1.
+Based on Debian 11, but using a newer Linux kernel 5.13, QEMU 6.1 and OpenZFS 2.1, Proxmox
+VE brings several new functionalities and a range of improvements for management tasks
+in the web interface.
+This is also the first version with support for Windows 11 and TPM, plus an enhanced creation
+wizard for virtual machines and containers, as well as the ability to set backup retention
+policies per backup job right in the GUI.
+Yeah.
+And they have a new scheduler daemon in 7.1 too that supports a more flexible schedule
+setup.
+I mean, all around to me, this looks like a real humdinger of a release, Wes.
+It all just comes together in 7.1 because you get Linux 5.13, QEMU 6.1 and OpenZFS 2.1.
+Those are all great releases on their own with fantastic features, but they all are
+brought under the Proxmox hood.
+Plus on top of all of that, they have some nice updates to the GUI for two factor authentication
+settings as well as new container templates for Fedora, Ubuntu, AMA Linux and Rocky Linux.
+Proxmox sure seems great, but it's one of those projects we don't actually have a ton
+of experience with, a little bit, but not a great deal.
+That might change, though, as we build out the new local JB infrastructure.
+Tune into a future Linux Unplugged for more of that.
+Spoilers!
+Now, for those of you looking to upgrade Proxmox, well, they offer both a GUI upgrade or a command
+line based upgrade path.
+Yeah.
+And they've documented that process too.
+So that's kind of nice.
+I think overall, I'm just kind of looking forward to spending some more time with Proxmox
+soon.
+I also noticed when I was doing a little bit of research for this episode that they're
+really good about posting at least part of their feature roadmap.
+So you get a little hint, at least a pretty good idea of what's coming in future updates
+of Proxmox.
+And I always feel like when you're targeting the enterprise or anybody that might be in
+a data center type workload, whenever you can be transparent about that kind of stuff
+and let people plan, that always gets an A grade from me.
+Also, it seems like these most recent versions of Proxmox have just been getting really good
+packing in some really nice features and some nice fixes.
+So we'll be following all of that and the whole world of open source and Linux.
+So be sure you go to LinuxActionNews.com slash subscribe for all the ways to get new episodes.
+And LinuxActionNews.com slash contact for ways to get in touch.
+And take a couple of minutes and go visit Tuxies.party.
+Help vote for the open source project of the year and more.
+We'll be back next Monday with our weekly take on the latest Linux and open source news.
+Thanks for joining us.
+And that's all the news for this week.

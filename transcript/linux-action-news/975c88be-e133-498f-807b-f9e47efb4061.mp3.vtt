@@ -1,0 +1,1082 @@
+WEBVTT
+
+00:00.000 --> 00:08.540
+Hello, and welcome to Linux Action News, episode 200, recorded on August 1st, 2021.
+
+00:08.540 --> 00:09.540
+I'm Chris.
+
+00:09.540 --> 00:10.540
+And I'm Wes.
+
+00:10.540 --> 00:13.960
+Hello, Wes, and 200 episodes sure feels great.
+
+00:13.960 --> 00:14.960
+Indeed.
+
+00:14.960 --> 00:19.600
+And congratulations to you, to Joe, and to our wonderful audience out there.
+
+00:19.600 --> 00:23.380
+Really a big thank you to the audience and to everyone who maybe has been listening since
+
+00:23.380 --> 00:28.320
+Linux Action Show, to everybody who just tuned in recently, we're glad to have you aboard
+
+00:28.320 --> 00:34.140
+and to celebrate, we added a new Linux Action News sticker to the jupytergarage.com store.
+
+00:34.140 --> 00:37.780
+It was created using our MP3 album art as a template.
+
+00:37.780 --> 00:42.360
+So it just sort of feels like a really nice way to celebrate 200 releases of that album
+
+00:42.360 --> 00:43.360
+art.
+
+00:43.360 --> 00:47.520
+There are multiple sizes up and ready to go at jupytergarage.com.
+
+00:47.520 --> 00:50.400
+But with that, let's do the news.
+
+00:50.400 --> 00:55.300
+Over the years, managing the use of a Linux system's block devices has become more and
+
+00:55.300 --> 00:57.300
+more complicated.
+
+00:57.300 --> 01:02.200
+There's several disk tracking methods out there, but nothing really solves the complexity.
+
+01:02.200 --> 01:06.680
+The common issue here is users end up using the same device multiple times.
+
+01:06.680 --> 01:08.720
+I mean, I know I sure do.
+
+01:08.720 --> 01:14.380
+And as it stands now, a program watching for events from a new device can't really tell
+
+01:14.380 --> 01:18.840
+whether a particular event is related to the device it just set up.
+
+01:18.840 --> 01:23.560
+Or maybe it could just be an earlier instance with the same name.
+
+01:23.560 --> 01:27.220
+There isn't really a straightforward way for all the different components in a Linux system
+
+01:27.220 --> 01:32.840
+to track these devices in a consistent way, keep track of them and not step on each other.
+
+01:32.840 --> 01:36.380
+On slow and overloaded systems, it's even worse.
+
+01:36.380 --> 01:40.760
+It can lead to a race condition if you have a box with really high latency.
+
+01:40.760 --> 01:44.740
+And block devices don't have exclusive owners in user space.
+
+01:44.740 --> 01:46.420
+So any process can set one up.
+
+01:46.420 --> 01:47.460
+And that sometimes is great.
+
+01:47.460 --> 01:52.180
+That's why you can mount a snap as a regular user and don't have to run as root.
+
+01:52.180 --> 01:57.080
+But a system wide tracking system that kept track of which device is actually which device
+
+01:57.080 --> 01:59.060
+is clearly useful in many ways.
+
+01:59.060 --> 02:02.280
+And you could really see how it could be useful with something like system D, which could
+
+02:02.280 --> 02:06.540
+really benefit from a system wide numbering scheme to handle events to avoid issues around
+
+02:06.540 --> 02:11.200
+device reuse and confusion around that, or even just events arriving to user space out
+
+02:11.200 --> 02:12.420
+of order.
+
+02:12.420 --> 02:17.980
+And it looks like work to address this issue might be landing in Linux 5.15.
+
+02:17.980 --> 02:22.180
+Along with that support from the system D team that you kind of alluded to there, Chris,
+
+02:22.180 --> 02:27.420
+the set of patches that's actually fixing or well, attempting to fix this whole mess,
+
+02:27.420 --> 02:33.100
+it was submitted by Microsoft.
+
+02:33.100 --> 02:39.180
+Their patches would add a bit of order to this whole problem by associating a new, unique,
+
+02:39.180 --> 02:44.100
+always increasing sequential number to the lifetime of each block device.
+
+02:44.100 --> 02:49.660
+Yes, practically speaking, when you add a new block device, like you plug in a USB drive,
+
+02:49.660 --> 02:54.940
+or you add a new loopback device, this new disk sequence number is incremented.
+
+02:54.940 --> 02:55.940
+It isn't stored permanently.
+
+02:55.940 --> 03:01.380
+But while your system is up, this disk sequence number list is exported via uevents, sysfs,
+
+03:01.380 --> 03:05.280
+and there's even a new I octal interface, meaning it will just plug right in with the
+
+03:05.280 --> 03:06.280
+existing stack.
+
+03:06.280 --> 03:10.100
+Yeah, if you're a program trying to add a new device here, once you've done that, you
+
+03:10.100 --> 03:14.140
+can immediately then query the system and find out what this new disk sequence number
+
+03:14.140 --> 03:15.140
+is.
+
+03:15.140 --> 03:18.060
+And then when you're listening for new events happening, you can actually tell just immediately
+
+03:18.060 --> 03:20.620
+by looking, oh, does the ID match or not?
+
+03:20.620 --> 03:22.700
+You always have that ID to go by now.
+
+03:22.700 --> 03:23.700
+Exactly.
+
+03:23.700 --> 03:27.820
+And assuming there are no last minute design objections, this code is slated to make it
+
+03:27.820 --> 03:33.100
+in as part of a series of pending block subsystem updates queued for 5.15.
+
+03:33.100 --> 03:35.420
+There is a lot in the works there in general.
+
+03:35.420 --> 03:40.500
+And while we're chatting about 5.15, the new NTFS driver code we covered recently on the
+
+03:40.500 --> 03:43.800
+show looks like it is ready to ship in 5.15.
+
+03:43.800 --> 03:47.420
+And I know you all just can't wait to format your home partitions in NTFS.
+
+03:47.420 --> 03:49.380
+Wait, yours isn't already NTFS?
+
+03:49.380 --> 03:50.380
+No, it's not.
+
+03:50.380 --> 03:54.000
+Well, we'll have more coverage when it lands, of course.
+
+03:54.000 --> 03:58.060
+But if you want to know more right now, we'll have a link in the show notes.
+
+03:58.060 --> 04:02.320
+Speaking of Microsoft, we thought it was notable that a rich and well positioned company like
+
+04:02.320 --> 04:07.460
+the blokes out of Redmond were sounding the alarm this week about supply chain shortages
+
+04:07.460 --> 04:10.540
+that were not going away anytime soon.
+
+04:10.540 --> 04:16.800
+In reporting its Q4 2021 earnings, Microsoft disclosed that both its Surface and Windows
+
+04:16.800 --> 04:20.300
+revenues were affected negatively by those supply chain constraints.
+
+04:20.300 --> 04:27.740
+While they did note that remote work has continued to fuel PC demand, Microsoft and its OEM partners
+
+04:27.740 --> 04:32.100
+had problems getting enough components, things like chips, power cords, and all the other
+
+04:32.100 --> 04:35.140
+electronic parts that are required to make a new PC.
+
+04:35.140 --> 04:39.620
+And Microsoft said this week, they don't expect this problem to get much better.
+
+04:39.620 --> 04:45.100
+In their latest reporting, they said that Surface revenues had fallen 20%.
+
+04:45.100 --> 04:49.100
+And year ago comparisons, well, it's pretty bad because a year ago, that was really the
+
+04:49.100 --> 04:53.380
+height of people buying PCs for the remote work push.
+
+04:53.380 --> 04:57.140
+So it was never really going to be a rosy comparison between now and then.
+
+04:57.140 --> 05:00.700
+But Microsoft is warning Wall Street, they expect things to get worse, not just for them,
+
+05:00.700 --> 05:02.460
+but really for everyone.
+
+05:02.460 --> 05:08.000
+Chief Financial Officer Amy Hood told analysts on an earnings call that Microsoft anticipated
+
+05:08.000 --> 05:12.980
+Surface revenues would continue to fall next quarter due to those very same supply chain
+
+05:12.980 --> 05:13.980
+constraints.
+
+05:13.980 --> 05:16.740
+But it's not just going to hurt for Microsoft.
+
+05:16.740 --> 05:20.940
+Other vendors in the Windows ecosystem are expected to take a hit too.
+
+05:20.940 --> 05:28.620
+Hood told analysts to expect Windows OEM revenues in Q1 2022 to decline mid to high single digits.
+
+05:28.620 --> 05:32.500
+I guess it's just not a great time to be a Windows OEM.
+
+05:32.500 --> 05:35.940
+But speaking of revenue, let's talk about Mozilla.
+
+05:35.940 --> 05:40.220
+The story of Mozilla over the last few years has been a lot about their sources of revenue
+
+05:40.220 --> 05:41.900
+and how they're going to survive.
+
+05:41.900 --> 05:44.420
+And that story hasn't always been a positive one.
+
+05:44.420 --> 05:49.460
+It seems outside of fancy ad deals, services revenue might be the only hope for an independent
+
+05:49.460 --> 05:51.300
+Mozilla in the future.
+
+05:51.300 --> 05:55.420
+So it's with that context that we've all been watching the rollout of their VPN service
+
+05:55.420 --> 06:00.740
+with some genuine interest, even if they don't make a Linux client directly available.
+
+06:00.740 --> 06:05.100
+Well this week, Mozilla announced some additional improvements to that lifeline of theirs.
+
+06:05.100 --> 06:11.180
+Mozilla says as a result of user feedback, they've added split tunneling to their VPN.
+
+06:11.180 --> 06:14.520
+This feature allows users to divide their internet traffic by choosing which apps will
+
+06:14.520 --> 06:19.460
+connect through that VPN tunnel and which ones will just use your regular old open network.
+
+06:19.460 --> 06:23.980
+Yeah, or put another way, users can just easily choose with a little UI which apps go through
+
+06:23.980 --> 06:25.980
+the VPN and which ones don't.
+
+06:25.980 --> 06:29.940
+And along with that, Mozilla has been working on a system to suggest users turn the VPN
+
+06:29.940 --> 06:32.180
+on when they're in public Wi-Fi.
+
+06:32.180 --> 06:36.300
+A feature that maybe tech users might find nagging, but average users could really benefit
+
+06:36.300 --> 06:38.340
+from something like that.
+
+06:38.340 --> 06:42.620
+And I think this is where I see Mozilla's role here with this VPN service and why I'm
+
+06:42.620 --> 06:45.540
+not so upset they don't make a VPN client for Linux.
+
+06:45.540 --> 06:49.260
+They're creating a service techies can recommend to normies.
+
+06:49.260 --> 06:51.220
+They're not really creating a service for me.
+
+06:51.220 --> 06:56.140
+I mean, they don't even target my platform of choice, but they are creating a service
+
+06:56.140 --> 07:00.900
+I feel comfortable recommending to Android and iOS users who just want better privacy
+
+07:00.900 --> 07:01.900
+at the coffee shop.
+
+07:01.900 --> 07:04.040
+Yeah, they really do still have that reputation, right?
+
+07:04.040 --> 07:08.260
+We trust that they'll get things right technically and that they have the right motivations and
+
+07:08.260 --> 07:09.780
+philosophy behind them.
+
+07:09.780 --> 07:13.420
+Now, if enough people can use it, maybe this thing will work.
+
+07:13.420 --> 07:14.420
+I don't know.
+
+07:14.420 --> 07:20.820
+You're right that I don't want to help anyone with their open VPN config if they're a normie.
+
+07:20.820 --> 07:25.200
+After Valve announced the tech, some of us wondered if Linux's Steam client was really
+
+07:25.200 --> 07:27.360
+up to snuff for the general public.
+
+07:27.360 --> 07:29.820
+It seems Valve might have shared those very concerns.
+
+07:29.820 --> 07:34.960
+A few days ago, they released a significant Steam beta update and Linux absolutely gets
+
+07:34.960 --> 07:35.960
+in on the fun.
+
+07:35.960 --> 07:41.340
+Yeah, the Linux version of Steam got quite a few specific updates, including many quality
+
+07:41.340 --> 07:46.460
+of life improvements, along with some updates to the Linux container runtime, restored compatibility
+
+07:46.460 --> 07:53.380
+with NixOS, significant performance improvements in the library UI, and silencing some annoying
+
+07:53.380 --> 07:56.180
+preload messages you might have seen on the console.
+
+07:56.180 --> 07:57.380
+I did indeed.
+
+07:57.380 --> 08:01.900
+I am that guy that likes to run Steam from the console just to get all of the messages.
+
+08:01.900 --> 08:06.100
+But I think the improvements that you're really going to notice are the ones in the UI.
+
+08:06.100 --> 08:08.940
+And those are across Windows, Mac and Linux.
+
+08:08.940 --> 08:13.300
+And what I'm most excited about is the new downloads page, which really is more minimal
+
+08:13.300 --> 08:17.420
+and focused, and it has a variety of improvements over the old design.
+
+08:17.420 --> 08:20.860
+I think just overall, the UI looks a lot more streamlined and approachable.
+
+08:20.860 --> 08:26.860
+And I think it is really getting things more up to snuff for a new wave of users.
+
+08:26.860 --> 08:32.260
+Another story we've been following for a while is the slow transformation of Chrome OS to
+
+08:32.260 --> 08:37.740
+a workstation desktop is attempting to appeal to technical users.
+
+08:37.740 --> 08:42.500
+Part of this effort has materialized recently in the team's attempts to make virtual desktops
+
+08:42.500 --> 08:44.020
+more discoverable.
+
+08:44.020 --> 08:49.020
+This drive to seemingly appeal to the quote unquote developers out there has seen all
+
+08:49.020 --> 08:53.500
+kinds of engineering efforts recently invested into all desktop OSes in a way that doesn't
+
+08:53.500 --> 08:58.060
+seem like we've really seen since the hype wave for mobile kicked off so many years ago.
+
+08:58.060 --> 09:03.100
+I think in retrospect, Microsoft investing in things like WSL, that makes sense.
+
+09:03.100 --> 09:07.380
+But Google's investment in higher end features in Chrome OS continues to surprise me.
+
+09:07.380 --> 09:12.060
+It just it seems like it goes beyond the scope of Chrome OS, like what it was originally
+
+09:12.060 --> 09:13.580
+created for.
+
+09:13.580 --> 09:15.620
+But Google must clearly see otherwise.
+
+09:15.620 --> 09:20.900
+And this push to get everyone to use virtual desktops now seems like a really clear signal
+
+09:20.900 --> 09:22.340
+of just that.
+
+09:22.340 --> 09:26.900
+And the latest development releases of Chrome OS will now have a persistent desk bar along
+
+09:26.900 --> 09:30.820
+the top of the screen calling out your available virtual desktops.
+
+09:30.820 --> 09:32.840
+Google's calling it Bento.
+
+09:32.840 --> 09:37.420
+Now we're looking at development builds here, so things could always change.
+
+09:37.420 --> 09:42.740
+But really what's new is the balance between simple and complex, shifting further to the
+
+09:42.740 --> 09:43.740
+complex side.
+
+09:43.740 --> 09:49.780
+I mean, Chrome OS has gone from sort of subtle about this to persistently being in your face
+
+09:49.780 --> 09:51.660
+about a power user feature.
+
+09:51.660 --> 09:56.500
+It really is a bold statement saying Chrome OS is becoming a full fledged desktop environment
+
+09:56.500 --> 09:58.580
+where you can really get some work done.
+
+09:58.580 --> 10:00.420
+And we thought this was worth passing along.
+
+10:00.420 --> 10:04.940
+It's a milestone in the efforts to port Linux to Apple's M1 architecture.
+
+10:04.940 --> 10:09.260
+Those of you hoping to run Linux on your M1 Macs will be happy to hear things are looking
+
+10:09.260 --> 10:10.260
+up.
+
+10:10.260 --> 10:14.900
+With Asahi Linux developer Alyssa Rosenzweig successfully got Debian running on a bare
+
+10:14.900 --> 10:19.980
+metal Apple M1 with a mainline kernel, no less.
+
+10:19.980 --> 10:25.300
+She built that upstream kernel with fellow Asahi Linux developer Sven Peters IOMMU patches,
+
+10:25.300 --> 10:28.640
+which was required to get working USB support.
+
+10:28.640 --> 10:32.160
+But it seems like there's actually full frame buffer support as well.
+
+10:32.160 --> 10:36.180
+So you even got a basic X11 session available.
+
+10:36.180 --> 10:47.260
+I think you might just call that a nearly working computer.
+
+10:47.260 --> 10:48.740
+Linode.com slash LAN.
+
+10:48.740 --> 10:52.860
+Go there to get $100 in 60 day credit on a new account and you go there to support the
+
+10:52.860 --> 10:53.860
+show.
+
+10:53.860 --> 10:57.940
+This show is really made possible by you taking advantage of our sponsors offers and Linode
+
+10:57.940 --> 11:00.900
+is one that we enthusiastically endorse.
+
+11:00.900 --> 11:05.140
+You know, they started in 2003 as one of the very first companies in cloud computing.
+
+11:05.140 --> 11:11.480
+And now 18 years later, Linode is the largest independent open cloud provider in the world.
+
+11:11.480 --> 11:16.140
+With 11 data centers serving nearly a million customers and businesses around the globe.
+
+11:16.140 --> 11:18.780
+But their mission remains unchanged.
+
+11:18.780 --> 11:22.740
+Make cloud computing simple, affordable, and accessible to all.
+
+11:22.740 --> 11:28.620
+They do that with things like their S3 compatible object storage, VLAN support, powerful DNS
+
+11:28.620 --> 11:32.380
+manager, a simple, clean interface, and much more.
+
+11:32.380 --> 11:37.900
+Recently, Linode teamed up with the hackersploit team to release an ebook that helps you secure
+
+11:37.900 --> 11:39.440
+your Docker installation.
+
+11:39.440 --> 11:43.900
+This ebook focuses on the process from beginning to end, and we'll have a link to that in the
+
+11:43.900 --> 11:45.100
+show notes.
+
+11:45.100 --> 11:47.460
+It's free, not even your emails required.
+
+11:47.460 --> 11:48.860
+Just go grab it and learn.
+
+11:48.860 --> 11:51.860
+And once you get set up with Linode, if you ever run into any trouble, they've got the
+
+11:51.860 --> 11:56.940
+best customer support 24 seven by phone or ticket, along with hundreds of guides and
+
+11:56.940 --> 12:01.620
+tutorials to help you get started and one click application deployments that can just
+
+12:01.620 --> 12:05.180
+deploy the base of a Linux box or all the way up to the application stack.
+
+12:05.180 --> 12:06.180
+It's your choice.
+
+12:06.180 --> 12:10.980
+Linode is such a great way to learn too, and Linode is investing in our community by making
+
+12:10.980 --> 12:15.220
+the Jupiter colony reunion road trip possible with meetups in Salt Lake City and Denver
+
+12:15.220 --> 12:18.900
+and more all along the way powered by Linode.
+
+12:18.900 --> 12:23.700
+So go grab that $100, performance test your network, learn something, challenge something,
+
+12:23.700 --> 12:25.640
+and maybe deploy something in production.
+
+12:25.640 --> 12:29.300
+You just got to go check out Linode for yourself and take advantage of that offering because
+
+12:29.300 --> 12:30.300
+it's fantastic.
+
+12:30.300 --> 12:33.680
+Linode is dedicated to offering the best in virtualized cloud computing.
+
+12:33.680 --> 12:36.100
+If it runs on Linux, it runs on Linode.
+
+12:36.100 --> 12:41.340
+So sign up today at linode.com slash LAN, get $100 in 60 day credit, and you support
+
+12:41.340 --> 12:51.500
+the show, linode.com slash LAN.
+
+12:51.500 --> 12:53.420
+Linux.ting.com.
+
+12:53.420 --> 12:56.980
+If you're sick of overpaying for cell service, go see how much you could save and then take
+
+12:56.980 --> 13:00.420
+$25 off that, linux.ting.com.
+
+13:00.420 --> 13:03.220
+Ting is an MVNO or a mobile virtual network operator.
+
+13:03.220 --> 13:07.680
+What that means for you is they get access to the big carrier networks, but with way
+
+13:07.680 --> 13:11.260
+better customer support and a lower cost for you.
+
+13:11.260 --> 13:16.020
+Ting mobile gives you the same coast to coast coverage as you would with one of the big carriers.
+
+13:16.020 --> 13:17.380
+You just get to pay less.
+
+13:17.380 --> 13:21.140
+And that's why I've been a Ting customer since 2013.
+
+13:21.140 --> 13:25.420
+Ting stayed flexible, reliable, and trust me, I changed it up.
+
+13:25.420 --> 13:28.300
+And they've adapted like no other carrier could dream of.
+
+13:28.300 --> 13:30.820
+And Ting's plans are simple and straightforward.
+
+13:30.820 --> 13:35.780
+Like their new set 12 plan, which gives you 12 gigs of data with unlimited talk and unlimited
+
+13:35.780 --> 13:40.620
+text, 35 bucks a month period, boom, out the door, there you go.
+
+13:40.620 --> 13:42.500
+And be sure to check out Ting on Twitter.
+
+13:42.500 --> 13:45.200
+They've been doing some giveaways recently.
+
+13:45.200 --> 13:48.040
+They've got some great stuff they're featuring on their blog.
+
+13:48.040 --> 13:52.300
+They have some tips for great cell phone battery life and maybe you might want to send that
+
+13:52.300 --> 13:55.580
+to a friend or family to give them some gentle guidance on how to get the most out of their
+
+13:55.580 --> 13:58.460
+phone because Ting's a carrier that geeks out about this stuff.
+
+13:58.460 --> 14:02.940
+And if you use two gigs or 20 gigs, or maybe a lot more, there's a perfect Ting plan for
+
+14:02.940 --> 14:03.940
+you.
+
+14:03.940 --> 14:07.500
+Every plan comes with Ting's award winning customer service.
+
+14:07.500 --> 14:14.620
+You get nationwide LTE and 5G and fantastic customer service with no contracts ever.
+
+14:14.620 --> 14:15.620
+It's simple to switch to Ting.
+
+14:15.620 --> 14:19.220
+Pretty much any phone will work, so just head over to linux.ting.com.
+
+14:19.220 --> 14:22.060
+Check your current phone, sign up for a plan.
+
+14:22.060 --> 14:23.060
+Ting will send you a SIM card.
+
+14:23.060 --> 14:25.880
+You pop that in, you get activated in minutes.
+
+14:25.880 --> 14:27.420
+It's so straightforward.
+
+14:27.420 --> 14:31.540
+So cutting your phone bill in half has never been easier with Ting's brand new plans, but
+
+14:31.540 --> 14:34.720
+you got to go to linux.ting.com to see it.
+
+14:34.720 --> 14:37.180
+It truly is the next generation of Ting mobile.
+
+14:37.180 --> 14:38.180
+It's here.
+
+14:38.180 --> 14:40.220
+I can tell you I'm witnessing it and you could save.
+
+14:40.220 --> 14:48.460
+So go to linux.ting.com.
+
+14:48.460 --> 14:54.980
+After much secrecy, this week Google has turned on their latest undersea cable connecting
+
+14:54.980 --> 14:57.080
+Europe and Asia.
+
+14:57.080 --> 15:01.600
+The revelation of this development made us curious just how much of our intercontinental
+
+15:01.600 --> 15:05.980
+connectivity was owned by the big tech companies.
+
+15:05.980 --> 15:12.460
+The project's budget was estimated at $400 million and includes the laying of two subsea
+
+15:12.460 --> 15:13.460
+cables.
+
+15:13.460 --> 15:18.580
+The first, named Blue, will connect Italy, France, Greece, and Israel.
+
+15:18.580 --> 15:24.020
+The second, named Raman, will connect between Jordan, Saudi Arabia, and India.
+
+15:24.020 --> 15:27.380
+Reading through this, which we have linked in the notes, it was sort of revealing.
+
+15:27.380 --> 15:33.480
+I didn't fully appreciate how much of our undersea international cables running along
+
+15:33.480 --> 15:37.860
+the bottom of the ocean were owned by the big tech companies and the major hyperscalers
+
+15:37.860 --> 15:38.860
+out there.
+
+15:38.860 --> 15:40.860
+And it wasn't always this way.
+
+15:40.860 --> 15:45.760
+It definitely started with Google, but it's rapidly expanded from there.
+
+15:45.760 --> 15:50.380
+In an interview on the Data Center Knowledge podcast, Alan Molden from Telegeography shed
+
+15:50.380 --> 15:53.540
+some light on these semi-recent developments.
+
+15:53.540 --> 15:58.220
+Many of these hyperscale companies or content providers, whatever you want to call them,
+
+15:58.220 --> 16:01.500
+they have very large demands for international capacity.
+
+16:01.500 --> 16:07.660
+And so for years, they were buying capacity in the market from the traditional carriers.
+
+16:07.660 --> 16:12.240
+But at some point, they were growing so fast and becoming so large, it made sense to actually
+
+16:12.240 --> 16:20.020
+move to a different layer and opt to invest directly in submarine cable systems themselves.
+
+16:20.020 --> 16:23.460
+So Google was the first one, as you mentioned, with their investment in the Unity cable,
+
+16:23.460 --> 16:26.460
+which entered service in 2010.
+
+16:26.460 --> 16:32.200
+And since then, you've seen them invest in many other cables from the world.
+
+16:32.200 --> 16:38.380
+One was launched just this last week, the Do Not Cable from France to the United States.
+
+16:38.380 --> 16:41.340
+And they are involved in many other planned cables.
+
+16:41.340 --> 16:47.980
+So besides Google, Facebook also is a very heavy investor in new cables.
+
+16:47.980 --> 16:55.100
+Also Amazon and Microsoft, to a smaller extent, also are investing directly in owning submarine
+
+16:55.100 --> 16:56.100
+cables.
+
+16:56.100 --> 16:59.820
+So you might be wondering just how far the private sector has gotten involved with these
+
+16:59.820 --> 17:04.120
+international links compared to governments around the world.
+
+17:04.120 --> 17:05.800
+Alan addressed that as well.
+
+17:05.800 --> 17:11.060
+So governments do play a role really in helping more remote communities to build cables.
+
+17:11.060 --> 17:16.380
+So if it's an island in the South Pacific, or some remote communities in the Arctic right
+
+17:16.380 --> 17:18.660
+now, there is some government involvement there.
+
+17:18.660 --> 17:24.600
+But largely, it's private funding that is being used to build and fund submarine cables
+
+17:24.600 --> 17:25.660
+around the world.
+
+17:25.660 --> 17:27.420
+This is an extremely expensive endeavor.
+
+17:27.420 --> 17:32.340
+So it seems often what happens is the companies go in on a portion of the cable, and sometimes
+
+17:32.340 --> 17:37.140
+more or sometimes less, and along with other companies, they'll kind of buy up this cable
+
+17:37.140 --> 17:38.860
+and complete the deal.
+
+17:38.860 --> 17:41.460
+And in some cases, they'll just pay for the entire thing.
+
+17:41.460 --> 17:46.500
+How much bandwidth of the cables allocated to those companies is basically based on the
+
+17:46.500 --> 17:49.580
+level of investment they've made into that particular cable.
+
+17:49.580 --> 17:57.580
+So in the last decade, content providers have invested roughly about $20 billion in new
+
+17:57.580 --> 18:00.020
+cables really all over the world.
+
+18:00.020 --> 18:03.580
+And that's probably about 20, 30 cables that they've invested in.
+
+18:03.580 --> 18:08.220
+And there's many more planned for the coming years.
+
+18:08.220 --> 18:12.500
+I think looking at from what's planned to be deployed this year, in the next two years,
+
+18:12.500 --> 18:17.820
+we could see another $8 billion worth of investment from content providers coming in.
+
+18:17.820 --> 18:21.740
+Now, remember, they aren't the only ones investing in new cables.
+
+18:21.740 --> 18:26.640
+So overall, there's going to be an even larger amount of investment coming.
+
+18:26.640 --> 18:33.580
+The content provider share of investment, let's say, for the next couple of years, it's
+
+18:33.580 --> 18:38.140
+going to be about 30% to 50% of the overall total.
+
+18:38.140 --> 18:44.060
+But on certain routes, such as the Atlantic or the Pacific, there's a much higher concentration
+
+18:44.060 --> 18:46.620
+of content provider investment.
+
+18:46.620 --> 18:52.340
+That's really due to where they're trying to link, which is their largest data centers
+
+18:52.340 --> 18:55.420
+in Europe and Asia back to the United States.
+
+18:55.420 --> 19:01.060
+Just to give you an idea here, the capacity of these subsea cables is crazy.
+
+19:01.060 --> 19:05.380
+Earlier this year, Google broke some records with their Dunant cable, which has 12 fiber
+
+19:05.380 --> 19:13.260
+pairs providing 250 terabits per second of capacity, or as they put it in a blog post,
+
+19:13.260 --> 19:18.020
+enough to transmit the entire digitized Library of Congress three times every second.
+
+19:18.020 --> 19:19.020
+Okay.
+
+19:19.020 --> 19:20.020
+Wow.
+
+19:20.020 --> 19:23.140
+You know, of course, all this must be happening in the background, because things have gotten
+
+19:23.140 --> 19:24.140
+better, faster.
+
+19:24.140 --> 19:28.660
+You know, I often am on a video or voice call with somebody who's in a totally different
+
+19:28.660 --> 19:32.340
+part of the world, and you just take it all for granted now.
+
+19:32.340 --> 19:36.500
+You know that there was a lot of investments happening, but I didn't really connect all
+
+19:36.500 --> 19:41.940
+of the dots here, like Microsoft is another company that's been buying up a lot of cable.
+
+19:41.940 --> 19:46.340
+Amazon, of course, or really anybody in the game is buying up portions of cable.
+
+19:46.340 --> 19:47.340
+I don't know.
+
+19:47.340 --> 19:48.340
+How do you feel about that?
+
+19:48.340 --> 19:53.940
+It is a little strange to have the big hyperscalers sort of dictate where these cables lands,
+
+19:53.940 --> 19:56.660
+and you just know that they're going to build this around their infrastructure, so it's
+
+19:56.660 --> 20:00.180
+going to depend on which company and where they've already built their data centers.
+
+20:00.180 --> 20:04.460
+And where they have customers, and they're going to be disincentivized to invest in areas
+
+20:04.460 --> 20:08.980
+that don't have their customers or the appropriate topology for their data center.
+
+20:08.980 --> 20:16.400
+But I suppose, in a way, because these large hyperscalers are investing in cables themselves,
+
+20:16.400 --> 20:21.180
+it leaves governments with limited budgets available to invest in areas that the hyperscalers
+
+20:21.180 --> 20:22.340
+wouldn't be interested in.
+
+20:22.340 --> 20:27.420
+So it kind of helps a limited budget spread out a little more, I suppose.
+
+20:27.420 --> 20:28.420
+Silver lining.
+
+20:28.420 --> 20:32.220
+Part of me doesn't like the idea that we privatize the internet in any way, but then another
+
+20:32.220 --> 20:34.980
+part of me has to realize, I mean, this is a massive cost.
+
+20:34.980 --> 20:38.380
+I mean, they're literally doing this with submarines out there.
+
+20:38.380 --> 20:42.500
+Think about the coordination and engineering that must be happening in these big tech companies.
+
+20:42.500 --> 20:43.820
+It really is wild.
+
+20:43.820 --> 20:46.700
+All of the systems that these hyperscalers are bringing in-house.
+
+20:46.700 --> 20:50.860
+I mean, you think about the custom CPU development, you think about Microsoft making an operating
+
+20:50.860 --> 20:55.100
+system for their switches, and then you think, well, yeah, let's just build some undersea
+
+20:55.100 --> 20:56.100
+cables.
+
+20:56.100 --> 20:57.100
+Why not?
+
+20:57.100 --> 21:00.860
+They basically must have their own internal telco departments that interface with other
+
+21:00.860 --> 21:06.100
+telcos because what was revealed in this interview, which we have linked, is essentially the hyperscalers
+
+21:06.100 --> 21:10.220
+just decided, well, let's stop dealing with the telcos and let's just go build it ourselves
+
+21:10.220 --> 21:12.500
+and become telcos.
+
+21:12.500 --> 21:14.860
+And that is just like a transition that happens.
+
+21:14.860 --> 21:16.940
+So it's just a wild development.
+
+21:16.940 --> 21:21.940
+But I guess the upshot is we have faster connectivity, right?
+
+21:21.940 --> 21:23.860
+All the YouTube you could want.
+
+21:23.860 --> 21:28.980
+But really, it just makes me think, what's it like having these jobs, working with these
+
+21:28.980 --> 21:32.660
+cables under the water, actually laying them, connecting continents?
+
+21:32.660 --> 21:34.660
+And how do you get that job?
+
+21:34.660 --> 21:36.980
+Yeah, what's that job posting even look like?
+
+21:36.980 --> 21:39.020
+I can't even really picture it.
+
+21:39.020 --> 21:43.460
+But I think all Linux admins out there probably owe a debt of gratitude to those working on
+
+21:43.460 --> 21:45.700
+those submarines doing that hard work.
+
+21:45.700 --> 21:47.740
+It's probably not a fun job.
+
+21:47.740 --> 21:51.180
+But we'll keep an eye on it and everything else going on in the world of Linux and open
+
+21:51.180 --> 21:52.180
+source.
+
+21:52.180 --> 21:56.580
+So go to linuxactionnews.com slash subscribe for all the ways to get new episodes.
+
+21:56.580 --> 22:02.220
+And linuxactionnews.com slash contact if you've got any subsea openings to send us.
+
+22:02.220 --> 22:07.020
+And don't forget, we have those brand new linuxactionnews stickers at jupytergarage.com.
+
+22:07.020 --> 22:12.460
+And get your mimosas ready for Coder Radio's new live time at 10 a.m. Pacific, 1 p.m. Eastern
+
+22:12.460 --> 22:14.260
+at jblive.tv.
+
+22:14.260 --> 22:18.200
+As for us, well, we'll be back next Monday, of course, with our weekly take on the latest
+
+22:18.200 --> 22:20.980
+Linux and open source news.
+
+22:20.980 --> 22:22.040
+Thanks for joining us.
+
+22:22.040 --> 22:37.620
+And that's all the news for this week.
+

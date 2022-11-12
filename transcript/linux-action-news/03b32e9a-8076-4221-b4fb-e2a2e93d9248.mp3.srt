@@ -1,0 +1,932 @@
+1
+00:00:00,000 --> 00:00:09,000
+Hello, and welcome to Linux Action News, episode 239 recorded on May 5th, 2022.
+
+2
+00:00:09,000 --> 00:00:10,000
+I'm Chris.
+
+3
+00:00:10,000 --> 00:00:11,000
+And I'm Wes.
+
+4
+00:00:11,000 --> 00:00:12,000
+Hello, Wes.
+
+5
+00:00:12,000 --> 00:00:13,700
+Let's do the news.
+
+6
+00:00:13,700 --> 00:00:18,720
+And let's start with Google's work to add encryption to Linux's hibernation support
+
+7
+00:00:18,720 --> 00:00:21,560
+in an effort to improve security for Chromebooks.
+
+8
+00:00:21,560 --> 00:00:26,280
+Yeah, really, I think their goal here is to prevent userspace applications from using
+
+9
+00:00:26,280 --> 00:00:30,700
+hibernation as a stepping stone to some kind of kernel escalation.
+
+10
+00:00:30,700 --> 00:00:34,940
+So along with some improved userspace protections, the team is looking at mandating certain types
+
+11
+00:00:34,940 --> 00:00:37,320
+of encryption for hibernation.
+
+12
+00:00:37,320 --> 00:00:42,840
+The team notes that, quote, the hibernate image must be encrypted with protection derived
+
+13
+00:00:42,840 --> 00:00:48,380
+from both the platform, something like TPM, and user authentication data like your password.
+
+14
+00:00:48,380 --> 00:00:55,460
+It does seem the Google reviewed userspace software options for this job, such as USWSUSP
+
+15
+00:00:55,460 --> 00:01:01,760
+or userspace software suspend, but basically came to the conclusion that userspace software
+
+16
+00:01:01,760 --> 00:01:06,140
+helpers alone could not really meet their security requirements.
+
+17
+00:01:06,140 --> 00:01:11,120
+So yeah, in addition to adding some userspace tooling, Google is working on kernel based
+
+18
+00:01:11,120 --> 00:01:16,240
+encryption with support for using TPM backed keys to encrypt the hibernate image file,
+
+19
+00:01:16,240 --> 00:01:20,760
+sealing the encryption key with a PCR based policy, and a bunch of other work to ensure
+
+20
+00:01:20,760 --> 00:01:25,000
+that that encrypted image can actually be trusted.
+
+21
+00:01:25,000 --> 00:01:27,880
+And then Google engineers posted an update on the kernel mailing list.
+
+22
+00:01:27,880 --> 00:01:31,680
+And they noted, quote, a couple of patches still need to be written on top of the series
+
+23
+00:01:31,680 --> 00:01:36,840
+and then later stating, we also need a patch that disallows unencrypted forms of resume
+
+24
+00:01:36,840 --> 00:01:40,280
+from hibernation to fully close the door to malicious userspace.
+
+25
+00:01:40,280 --> 00:01:45,340
+However, I wanted to get this series out first and get reactions from upstream before continuing
+
+26
+00:01:45,340 --> 00:01:46,920
+to add to it.
+
+27
+00:01:46,920 --> 00:01:50,720
+I would expect that this is probably going to move along at a pretty decent pace.
+
+28
+00:01:50,720 --> 00:01:51,960
+And we'll keep an eye out.
+
+29
+00:01:51,960 --> 00:01:58,400
+I think we'll see it in a future kernel update not too far down the road.
+
+30
+00:01:58,400 --> 00:02:04,100
+Sticking with kernel level improvements for just a moment, a new Apple M1 CPU frequency
+
+31
+00:02:04,100 --> 00:02:09,060
+driver has been posted by Asahi Linux's Hector Martin.
+
+32
+00:02:09,060 --> 00:02:13,440
+This work is important if we're ever going to see Linux achieve optimal performance and
+
+33
+00:02:13,440 --> 00:02:17,760
+good power and thermal management on Apple's shiny new silicon.
+
+34
+00:02:17,760 --> 00:02:21,400
+Right, you want that first class experience if you're going to spend all the money on
+
+35
+00:02:21,400 --> 00:02:22,400
+that hardware.
+
+36
+00:02:22,400 --> 00:02:27,280
+I suppose these new patches are a complete rewrite of the earlier driver.
+
+37
+00:02:27,280 --> 00:02:31,560
+This newly rewritten driver now avoids the memory controller performance switching, which
+
+38
+00:02:31,560 --> 00:02:35,920
+according to Hector is, quote, doesn't make a huge difference.
+
+39
+00:02:35,920 --> 00:02:40,040
+So it just kind of makes sense to punt that feature to the future.
+
+40
+00:02:40,040 --> 00:02:43,360
+This new driver is based on one that seems to have been originally created by ARM, or
+
+41
+00:02:43,360 --> 00:02:46,000
+at least they seem to own the copyright.
+
+42
+00:02:46,000 --> 00:02:53,960
+It's called the System Control and Power Interface CPU Frequency Driver, or SCPI for short.
+
+43
+00:02:53,960 --> 00:02:59,320
+Some of the advantages of this now standalone driver include supporting fast switching,
+
+44
+00:02:59,320 --> 00:03:05,280
+reporting of the current CPU frequency to user space accurately, and support for exposing
+
+45
+00:03:05,280 --> 00:03:09,080
+the higher performance processor states as turbo states.
+
+46
+00:03:09,080 --> 00:03:11,660
+Well, those turbo states will be useful.
+
+47
+00:03:11,660 --> 00:03:14,440
+We have one more Apple M1 platform aside.
+
+48
+00:03:14,440 --> 00:03:20,440
+It seems they've achieved their first vulnerability that's unique to just the Apple silicon chips.
+
+49
+00:03:20,440 --> 00:03:26,840
+It's called Uggery, I believe, I'm not sure if I'm getting that right, it's A-U-G-U-R-Y,
+
+50
+00:03:26,840 --> 00:03:30,620
+and it's the world's first data memory dependent prefetcher vulnerability.
+
+51
+00:03:30,620 --> 00:03:34,040
+So if you're getting kind of like a Spectre or Meltdown vibe, you're not too far off the
+
+52
+00:03:34,040 --> 00:03:35,040
+mark.
+
+53
+00:03:35,040 --> 00:03:38,560
+So those are side channel vulnerabilities like Spectre, but they're only capable of
+
+54
+00:03:38,560 --> 00:03:40,960
+leaking in use data.
+
+55
+00:03:40,960 --> 00:03:45,880
+Apple's DMP vulnerability could potentially leak the entire memory contents, even if it's
+
+56
+00:03:45,880 --> 00:03:49,120
+not actively being accessed.
+
+57
+00:03:49,120 --> 00:03:51,080
+They're doing it better.
+
+58
+00:03:51,080 --> 00:03:55,680
+The researchers further stated that it seems Apple is fully aware of their discoveries,
+
+59
+00:03:55,680 --> 00:04:04,600
+but has not yet shared plans on whether or whether or not they will deploy mitigations.
+
+60
+00:04:04,600 --> 00:04:10,520
+Linux 5.19 is looking like another exciting release of our beloved kernel.
+
+61
+00:04:10,520 --> 00:04:15,960
+And it seems a very useful feature is in the works, one that enables initiating firmware
+
+62
+00:04:15,960 --> 00:04:19,000
+updates via sysfs.
+
+63
+00:04:19,000 --> 00:04:23,640
+Intel engineers worked on this one initially for their FPGA based PCIe cards.
+
+64
+00:04:23,640 --> 00:04:29,240
+They were building an ability to trigger a firmware update from userspace after a boot.
+
+65
+00:04:29,240 --> 00:04:33,900
+Now this firmware upload support is being added to the virtual sysfs kernel file system
+
+66
+00:04:33,900 --> 00:04:38,100
+so that userspace software can initiate a firmware update.
+
+67
+00:04:38,100 --> 00:04:43,720
+For supported devices, there will now be a data loading and timeout files in sysfs that
+
+68
+00:04:43,720 --> 00:04:48,000
+trigger firmware updates on a particular device during boot.
+
+69
+00:04:48,000 --> 00:04:49,000
+Here's the basic idea.
+
+70
+00:04:49,000 --> 00:04:53,120
+You start things off by writing a one to that loading file.
+
+71
+00:04:53,120 --> 00:04:57,800
+Then you can take the binary contents of whatever firmware blob you're trying to use for update,
+
+72
+00:04:57,800 --> 00:05:03,400
+and then just write that to the data file, maybe using something like cat or DD.
+
+73
+00:05:03,400 --> 00:05:08,240
+Once that's done, you go back to the loading file and you write a zero to tell the kernel,
+
+74
+00:05:08,240 --> 00:05:10,840
+all done, it's your business now.
+
+75
+00:05:10,840 --> 00:05:15,520
+After that, the kernel uses its existing functionality for firmware updates and does everything for
+
+76
+00:05:15,520 --> 00:05:16,520
+you.
+
+77
+00:05:16,520 --> 00:05:20,000
+It's really quite neat if you think about the days when we had to go reboot into free
+
+78
+00:05:20,000 --> 00:05:22,120
+DOS to apply firmware updates or something.
+
+79
+00:05:22,120 --> 00:05:30,600
+And now you can do kind of the same thing with little more than a bash script.
+
+80
+00:05:30,600 --> 00:05:34,880
+And a quick heads up for you matrix admins out there, the matrix community has released
+
+81
+00:05:34,880 --> 00:05:40,080
+a high severity fix for the matrix app service IRC bridge.
+
+82
+00:05:40,080 --> 00:05:43,760
+The vulnerability could allow an attacker to manipulate a matrix user into executing
+
+83
+00:05:43,760 --> 00:05:48,320
+IRC commands by having them reply to a maliciously crafted message.
+
+84
+00:05:48,320 --> 00:05:52,800
+Yeah, it seems an incorrect handling of a carriage return character meant that the message
+
+85
+00:05:52,800 --> 00:05:59,320
+could be sent to the IRC server verbatim, rather than as a message to a specific channel.
+
+86
+00:05:59,320 --> 00:06:03,600
+The vulnerability has been patched in node IRC version 1.2.1.
+
+87
+00:06:03,600 --> 00:06:09,140
+And of course, also in matrix app service IRC 0.34.0.
+
+88
+00:06:09,140 --> 00:06:14,000
+Also in matrix related news this week, we got an update on the Gnome Foundation's complicated
+
+89
+00:06:14,000 --> 00:06:16,760
+relationship with matrix and IRC.
+
+90
+00:06:16,760 --> 00:06:20,520
+We'll have a link in the show notes if you want the full story.
+
+91
+00:06:20,520 --> 00:06:25,600
+But it seems that after years of uncertainty in a polarized community split between matrix
+
+92
+00:06:25,600 --> 00:06:33,840
+and IRC, the foundation is deciding to embrace matrix as their default and preferred platform.
+
+93
+00:06:33,840 --> 00:06:39,320
+With IRC remaining bridged and available, but secondary in nature.
+
+94
+00:06:39,320 --> 00:06:44,080
+The decision was reached partially based on a survey of the Gnome community itself.
+
+95
+00:06:44,080 --> 00:06:50,060
+And from that data, it became clear that while both matrix and IRC were popular top contenders
+
+96
+00:06:50,060 --> 00:06:56,800
+for a preferred chat platform within the community, matrix was preferred by newer members.
+
+97
+00:06:56,800 --> 00:07:03,560
+And IRC, well, it had a far more mixed rating with some users really loving it, but other
+
+98
+00:07:03,560 --> 00:07:06,680
+users kind of despising it.
+
+99
+00:07:06,680 --> 00:07:12,600
+It was also noted in the post that the federated and open nature of matrix really was an extra
+
+100
+00:07:12,600 --> 00:07:14,680
+point in its favor.
+
+101
+00:07:14,680 --> 00:07:19,600
+Quote, people can join our conversations whether they have a matrix.org account, a KDE one,
+
+102
+00:07:19,600 --> 00:07:22,840
+a Mozilla one, or whatever provider they want to use.
+
+103
+00:07:22,840 --> 00:07:26,520
+It's the modern day mailing list, in effect.
+
+104
+00:07:26,520 --> 00:07:32,320
+Now as to whether or not they take on the challenge of self hosting that instance, or
+
+105
+00:07:32,320 --> 00:07:40,840
+paying element hosted services to do it for them, that will be answered separately.
+
+106
+00:07:40,840 --> 00:07:45,960
+Linode.com slash LAN, go there to get $100 in 60 day credit on a new account, and you
+
+107
+00:07:45,960 --> 00:07:47,500
+go there to support the show.
+
+108
+00:07:47,500 --> 00:07:51,640
+And Linode has pricing that's 30 to 50% cheaper than the major hyperscalers out there that
+
+109
+00:07:51,640 --> 00:07:54,100
+want to lock you into their esoteric platforms.
+
+110
+00:07:54,100 --> 00:07:58,140
+It's how we've built everything we run in the cloud for the last few years.
+
+111
+00:07:58,140 --> 00:08:00,780
+It's easy to use, and it's powerful.
+
+112
+00:08:00,780 --> 00:08:05,180
+And Linode just recently announced that their managed database service is now generally
+
+113
+00:08:05,180 --> 00:08:10,040
+available with support from MySQL in all of their global data centers.
+
+114
+00:08:10,040 --> 00:08:14,000
+And I can tell you one thing that I have learned, if I can outsource something like database
+
+115
+00:08:14,000 --> 00:08:18,360
+management to a company like Linode, that's a win-win for somebody like me.
+
+116
+00:08:18,360 --> 00:08:23,080
+Not that we couldn't run it, or I couldn't at least talk West into running it, but honestly
+
+117
+00:08:23,080 --> 00:08:25,380
+Linode does this stuff so well.
+
+118
+00:08:25,380 --> 00:08:29,360
+They have super fast systems, crazy fast hard drives, 40 gigabit connections coming into
+
+119
+00:08:29,360 --> 00:08:30,360
+the machines.
+
+120
+00:08:30,360 --> 00:08:34,400
+They have 11 data centers around the world, but they're not just like chump data centers
+
+121
+00:08:34,400 --> 00:08:35,400
+either.
+
+122
+00:08:35,400 --> 00:08:40,960
+These are like pristine locations where Linode is their own ISP, and that inside those data
+
+123
+00:08:40,960 --> 00:08:43,920
+centers, they have such a great combination of services.
+
+124
+00:08:43,920 --> 00:08:48,220
+Instead of just like every possible thing they could ever conceive of and just take
+
+125
+00:08:48,220 --> 00:08:52,600
+on tons of investing to do it, they focused on the stuff that you really need, and they
+
+126
+00:08:52,600 --> 00:08:54,000
+made it work really well.
+
+127
+00:08:54,000 --> 00:08:56,040
+And that's what they've been doing for 19 years.
+
+128
+00:08:56,040 --> 00:09:01,200
+They have S3 compatible object storage that we use the crap out of, cloud firewalls, DDoS
+
+129
+00:09:01,200 --> 00:09:04,880
+protection, VLAN support, and a powerful DNS manager.
+
+130
+00:09:04,880 --> 00:09:08,480
+And one of the best things if you're in a large organization is they'll snap right into
+
+131
+00:09:08,480 --> 00:09:12,080
+your infrastructure management, Terraform, Kubernetes, you're going to get it done over
+
+132
+00:09:12,080 --> 00:09:13,080
+there.
+
+133
+00:09:13,080 --> 00:09:17,520
+They don't have any problems, they have the best support.
+
+134
+00:09:17,520 --> 00:09:22,160
+Number one feedback signal I get from our audience is I tried out Linode, it's amazing,
+
+135
+00:09:22,160 --> 00:09:24,320
+but wow did the support blow me away.
+
+136
+00:09:24,320 --> 00:09:27,760
+And I think people's first impressions is oh this is great, this UI is fantastic, these
+
+137
+00:09:27,760 --> 00:09:33,840
+selections are good, performance is great, but then when you get in a bind at some point,
+
+138
+00:09:33,840 --> 00:09:35,440
+Linode's support really comes through.
+
+139
+00:09:35,440 --> 00:09:39,800
+So go try it out for yourself and get $100 in 60 day credit, and you can support the
+
+140
+00:09:39,800 --> 00:09:40,800
+show.
+
+141
+00:09:40,800 --> 00:09:44,000
+It's a great chance to learn and a great chance to support Linux Action News.
+
+142
+00:09:44,000 --> 00:09:47,720
+So go to linode.com slash LAN.
+
+143
+00:09:47,720 --> 00:09:57,280
+That's where you go to get $100 in 60 day credit, linode.com slash LAN.
+
+144
+00:09:57,280 --> 00:10:02,000
+Linux.ting.com and a big thank you to Ting for sponsoring Linux Action News.
+
+145
+00:10:02,000 --> 00:10:07,760
+Go see how much you could save and then take 25 bucks off of that by going to linux.ting.com.
+
+146
+00:10:07,760 --> 00:10:09,400
+It's a smarter way to do mobile.
+
+147
+00:10:09,400 --> 00:10:13,880
+You can start saving money right now and save money every single month.
+
+148
+00:10:13,880 --> 00:10:18,120
+They're a mobile virtual network operator, so they work at a level above digging holes
+
+149
+00:10:18,120 --> 00:10:19,120
+into the ground.
+
+150
+00:10:19,120 --> 00:10:23,840
+That means Ting focuses on their customers, they focus on their value and their deals,
+
+151
+00:10:23,840 --> 00:10:26,560
+and they really make a great competitive offering.
+
+152
+00:10:26,560 --> 00:10:30,840
+They were recently named the number one carrier by Consumer Reports in 2021, and they have
+
+153
+00:10:30,840 --> 00:10:35,440
+the same nationwide coverage, a great mix of plans, LTE and 5G data that you might expect
+
+154
+00:10:35,440 --> 00:10:39,600
+from those duopolies, but you're interfacing with Ting and they're straightforward plans
+
+155
+00:10:39,600 --> 00:10:41,160
+and they're no contracts.
+
+156
+00:10:41,160 --> 00:10:46,040
+I've been a Ting customer since 2013 because it's a smarter way to do mobile.
+
+157
+00:10:46,040 --> 00:10:50,680
+If somehow we could hit the reboot button on the mobile industry in the United States,
+
+158
+00:10:50,680 --> 00:10:53,760
+they would have to be built like this just to be competitive.
+
+159
+00:10:53,760 --> 00:10:58,160
+I'm so glad Ting's out there to just keep pressure on the industry to stay competitive
+
+160
+00:10:58,160 --> 00:11:00,440
+and Ting is better than anybody else.
+
+161
+00:11:00,440 --> 00:11:04,480
+So go try it by going to linux.ting.com and take 25 bucks off a phone.
+
+162
+00:11:04,480 --> 00:11:07,600
+Or if you bring a phone, they'll give you $25 in service credit.
+
+163
+00:11:07,600 --> 00:11:09,640
+Sometimes that pays for more than your first month.
+
+164
+00:11:09,640 --> 00:11:11,800
+That's how great Ting is.
+
+165
+00:11:11,800 --> 00:11:15,720
+So go get started today, linux.ting.com.
+
+166
+00:11:15,720 --> 00:11:24,700
+A community project to bring Steam Deck's operating system into a generic installable
+
+167
+00:11:24,700 --> 00:11:30,680
+format and replicate something close to the official SteamOS experience caught our eye
+
+168
+00:11:30,680 --> 00:11:32,200
+this week.
+
+169
+00:11:32,200 --> 00:11:35,280
+Stubbed Hollow ISO.
+
+170
+00:11:35,280 --> 00:11:40,120
+You might ask, how is this possible considering we have yet to see the official release of
+
+171
+00:11:40,120 --> 00:11:41,600
+SteamOS 3?
+
+172
+00:11:41,600 --> 00:11:46,960
+Well, SteamOS is built on open source.
+
+173
+00:11:46,960 --> 00:11:51,520
+So this is actually a community effort to sort of reverse engineer what folks are seeing
+
+174
+00:11:51,520 --> 00:11:58,260
+and experiencing on the Steam Deck and since SteamOS 3.0 is based on Arch, build that back
+
+175
+00:11:58,260 --> 00:12:01,240
+up themselves.
+
+176
+00:12:01,240 --> 00:12:05,480
+The aim here, at least at first, is to offer three different installer types.
+
+177
+00:12:05,480 --> 00:12:10,200
+You've got Bare Bones, which is just OS only, basically resembles pretty much a vanilla
+
+178
+00:12:10,200 --> 00:12:11,200
+Arch install.
+
+179
+00:12:11,200 --> 00:12:15,400
+There's also Game Only mode if, you know, you're a serious gamer, you don't need any
+
+180
+00:12:15,400 --> 00:12:21,120
+Linux desktops, you just get the Steam Deck UI, which currently only works on AMD GPUs,
+
+181
+00:12:21,120 --> 00:12:25,960
+it sounds like, and doesn't include a desktop environment, just for gaming.
+
+182
+00:12:25,960 --> 00:12:32,040
+Or lastly, you can get the Deck Experience, which is the full SteamOS 3 experience with
+
+183
+00:12:32,040 --> 00:12:38,960
+proper session switching, KDE Plasma, good to go, media apps, and yeah, even Chromium.
+
+184
+00:12:38,960 --> 00:12:44,480
+I guess the people are tired of waiting for Valve to release SteamOS 3.
+
+185
+00:12:44,480 --> 00:12:48,040
+If our GitHub sleuthing is correct, the creator of this ambitious project might still be in
+
+186
+00:12:48,040 --> 00:12:49,040
+high school.
+
+187
+00:12:49,040 --> 00:12:52,060
+But either way, it makes it even more impressive in my opinion.
+
+188
+00:12:52,060 --> 00:12:57,240
+Like now the Holo ISO project has some major functionality working into boots, it gets
+
+189
+00:12:57,240 --> 00:13:01,760
+to the Deck UI, you can even access the Plasma desktop, Wes, I'm pretty sure you gave this
+
+190
+00:13:01,760 --> 00:13:03,280
+a go before the show.
+
+191
+00:13:03,280 --> 00:13:05,640
+Yes, I did.
+
+192
+00:13:05,640 --> 00:13:09,000
+You just need to go check their GitHub page, which of course we'll have in the show notes
+
+193
+00:13:09,000 --> 00:13:14,160
+and in the usual releases spot, there's the ISO ready to download.
+
+194
+00:13:14,160 --> 00:13:18,080
+Now you will need UEFI enabled.
+
+195
+00:13:18,080 --> 00:13:20,960
+And they do recommend AMD hardware at the moment.
+
+196
+00:13:20,960 --> 00:13:25,680
+Intel can work with some downgrading to get a Mesa version, not sure about Nvidia.
+
+197
+00:13:25,680 --> 00:13:31,320
+I ultimately, not having a Deck or suitable AMD hardware just laying around unfortunately,
+
+198
+00:13:31,320 --> 00:13:36,560
+I spun this up in a quick little QEMU virtual machine on my Intel laptop.
+
+199
+00:13:36,560 --> 00:13:41,320
+That meant I couldn't really try out the game mode.
+
+200
+00:13:41,320 --> 00:13:45,480
+Not sure I got the right out of box experience either because when I booted up, I was kind
+
+201
+00:13:45,480 --> 00:13:50,680
+of just dropped to a login session, you know, normal KDE login session sort of defaulting
+
+202
+00:13:50,680 --> 00:13:56,040
+to GameScope on Wayland, which I think would be the, you know, the Steam Deck UI experience.
+
+203
+00:13:56,040 --> 00:13:59,520
+Did have to try, you know, I just had to try, I knew it wouldn't work, but I had to try,
+
+204
+00:13:59,520 --> 00:14:00,520
+didn't work.
+
+205
+00:14:00,520 --> 00:14:05,720
+Switching that over to Plasma on X11 though, that logs right in, you get the same theme
+
+206
+00:14:05,720 --> 00:14:11,760
+that you're going to get on the Deck, otherwise, it kind of just feels like Plasma on Arch.
+
+207
+00:14:11,760 --> 00:14:15,080
+And it comes of course with Steam pre-installed, so that's already good to go.
+
+208
+00:14:15,080 --> 00:14:22,280
+Yeah, so it seems with Nvidia GPUs, it's pretty much not working, or if you're really savvy,
+
+209
+00:14:22,280 --> 00:14:24,860
+there are some workarounds you might be able to pull off.
+
+210
+00:14:24,860 --> 00:14:30,840
+And like with the Intel GPU, like you said, that isn't optimal, but if you downgrade Mesa,
+
+211
+00:14:30,840 --> 00:14:32,520
+you can actually get everything working.
+
+212
+00:14:32,520 --> 00:14:38,880
+Again, details are in the link in the show notes, but this is even just this idea that
+
+213
+00:14:38,880 --> 00:14:40,640
+somebody did this out there.
+
+214
+00:14:40,640 --> 00:14:43,980
+It's what I freaking love about the Linux community.
+
+215
+00:14:43,980 --> 00:14:48,800
+You wanted to put SteamOS on your toaster, well now you can have SteamOS on your toaster,
+
+216
+00:14:48,800 --> 00:14:52,800
+thanks to a developer who may not even be out of high school yet.
+
+217
+00:14:52,800 --> 00:14:57,960
+And hopefully, this sends a message to Valve that the community is ready for SteamOS 3
+
+218
+00:14:57,960 --> 00:14:58,960
+to be released.
+
+219
+00:14:58,960 --> 00:15:02,840
+We're waiting any day, and of course, when they do, we'll tell you about it right here
+
+220
+00:15:02,840 --> 00:15:04,000
+and give you our first take.
+
+221
+00:15:04,000 --> 00:15:09,860
+So check out linuxactionnews.com slash subscribe for all the ways to get new episodes.
+
+222
+00:15:09,860 --> 00:15:15,300
+And to linuxactionnews.com slash contact for ways to tell us all the fun you have with
+
+223
+00:15:15,300 --> 00:15:17,040
+Hollow ISO.
+
+224
+00:15:17,040 --> 00:15:18,560
+I would love to hear that.
+
+225
+00:15:18,560 --> 00:15:20,720
+Also join us for office hours this week.
+
+226
+00:15:20,720 --> 00:15:25,860
+It'll be live Tuesday at noon Pacific, 3pm Eastern at jblive.tv.
+
+227
+00:15:25,860 --> 00:15:30,300
+We are discussing our new website plans, tons of podcasting news, and it's just a great
+
+228
+00:15:30,300 --> 00:15:31,720
+community get together.
+
+229
+00:15:31,720 --> 00:15:34,520
+And yeah, our mumble room will be open.
+
+230
+00:15:34,520 --> 00:15:39,080
+As for us, well, we'll be back next week, of course, with our take on the latest Linux
+
+231
+00:15:39,080 --> 00:15:40,840
+and open source news.
+
+232
+00:15:40,840 --> 00:15:42,040
+Thanks for joining us.
+
+233
+00:15:42,040 --> 00:16:09,320
+And that's all the news for this week.
+

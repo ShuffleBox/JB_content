@@ -1,0 +1,1128 @@
+1
+00:00:00,000 --> 00:00:09,520
+Hello, and welcome to Linux Action News, episode 246, recorded on June 22, 2022.
+
+2
+00:00:09,520 --> 00:00:10,680
+I'm Chris.
+
+3
+00:00:10,680 --> 00:00:11,680
+And I'm Wes.
+
+4
+00:00:11,680 --> 00:00:12,680
+Hello, Wes.
+
+5
+00:00:12,680 --> 00:00:18,740
+I'm on location in Bozeman, Montana, so apologies for any odd sounds, but let's do the news.
+
+6
+00:00:18,740 --> 00:00:24,720
+This week, Akamai Security Research lifted the public embargo on Ponchon, a new peer-to-peer
+
+7
+00:00:24,720 --> 00:00:29,360
+botnet they're warning customers about, and that's been breaching Linux servers since
+
+8
+00:00:29,360 --> 00:00:30,840
+March.
+
+9
+00:00:30,840 --> 00:00:36,000
+Written in Go and fully taking advantage of Golang's excellent concurrency to maximize
+
+10
+00:00:36,000 --> 00:00:41,100
+its effectiveness at spreading and executing malware, Ponchon relies on memory-mapped files
+
+11
+00:00:41,100 --> 00:00:46,760
+to avoid detection via its on-disk presence, while also reportedly stopping any of its
+
+12
+00:00:46,760 --> 00:00:51,640
+crypto mining processes when it detects someone looking for it.
+
+13
+00:00:51,640 --> 00:00:52,640
+Sneaky.
+
+14
+00:00:52,640 --> 00:00:59,320
+While the botnet performs crypto mining, there is also this god mode built in.
+
+15
+00:00:59,320 --> 00:01:03,240
+It's a control panel of sorts, it lets you make it do all kinds of things.
+
+16
+00:01:03,240 --> 00:01:06,740
+It's built right into the binary, but you can't just access it.
+
+17
+00:01:06,740 --> 00:01:09,760
+You have to have a private key.
+
+18
+00:01:09,760 --> 00:01:15,240
+And only after the malware requests that private key, and you provide it, then the validation
+
+19
+00:01:15,240 --> 00:01:19,280
+occurs and you get access to its quote unquote, god mode.
+
+20
+00:01:19,280 --> 00:01:21,320
+You know, this is a little bit amusing.
+
+21
+00:01:21,320 --> 00:01:24,800
+You hear a lot of folks raving about Golang because it's easy to distribute as a small
+
+22
+00:01:24,800 --> 00:01:25,800
+binary.
+
+23
+00:01:25,800 --> 00:01:26,800
+It has excellent concurrency.
+
+24
+00:01:26,800 --> 00:01:30,320
+It's got a great web server built right into the standard library.
+
+25
+00:01:30,320 --> 00:01:33,440
+Turns out that also makes great malware.
+
+26
+00:01:33,440 --> 00:01:38,320
+Now when you go to try to find this malware, turns out it's continuously looking for both
+
+27
+00:01:38,320 --> 00:01:40,320
+top and htop.
+
+28
+00:01:40,320 --> 00:01:44,920
+So pro tip, use one of the more obscure picks for top programs we've had on Linux Unplugged
+
+29
+00:01:44,920 --> 00:01:47,240
+and maybe you won't get caught.
+
+30
+00:01:47,240 --> 00:01:51,960
+Anyway, if it does find you snooping, the malware terminates the mining processes so
+
+31
+00:01:51,960 --> 00:01:55,720
+that you just don't see anything wrong on your system.
+
+32
+00:01:55,720 --> 00:01:59,760
+Goes a little bit further though, it does need to remain persistent, so Panchan copies
+
+33
+00:01:59,760 --> 00:02:06,360
+itself into a file named slash bin slash systemd-worker and even goes so far as to create a systemd
+
+34
+00:02:06,360 --> 00:02:11,240
+service to try to appear as a legitimate part of systemd.
+
+35
+00:02:11,240 --> 00:02:15,620
+So looking for a systemd-worker process is one of the few ways you might actually be
+
+36
+00:02:15,620 --> 00:02:17,560
+able to detect this thing.
+
+37
+00:02:17,560 --> 00:02:21,280
+I think that's essentially like the authors of this malware figured, hey, you know, systemd
+
+38
+00:02:21,280 --> 00:02:22,280
+is complicated.
+
+39
+00:02:22,280 --> 00:02:25,440
+If people see a systemd-worker process, they'll think it's legit.
+
+40
+00:02:25,440 --> 00:02:26,440
+Put it over there.
+
+41
+00:02:26,440 --> 00:02:27,440
+I guess so.
+
+42
+00:02:27,440 --> 00:02:33,040
+According to the researchers, the malware actually also performs SSH dictionary attacks
+
+43
+00:02:33,040 --> 00:02:34,100
+as well.
+
+44
+00:02:34,100 --> 00:02:38,520
+So when it gets onto a Linux box, instead of just trying to brute force onto other systems
+
+45
+00:02:38,520 --> 00:02:45,340
+on the LAN, like most botnets do, this malware reads the ID RSA file and your known host
+
+46
+00:02:45,340 --> 00:02:50,800
+files to harvest existing credentials and existing known good hosts and then move laterally
+
+47
+00:02:50,800 --> 00:02:54,580
+across the network onto those boxes.
+
+48
+00:02:54,580 --> 00:02:58,800
+But if that doesn't work, well, this thing can also do good old fashioned password brute
+
+49
+00:02:58,800 --> 00:02:59,800
+forcing.
+
+50
+00:02:59,800 --> 00:03:04,400
+Malware can also randomize IP addresses and attempt a dictionary attack using a predetermined
+
+51
+00:03:04,400 --> 00:03:07,360
+user and password list.
+
+52
+00:03:07,360 --> 00:03:12,280
+Now we definitely don't cover most of these and there are many, but when we do see one
+
+53
+00:03:12,280 --> 00:03:15,640
+with some legs, we want to bring it to your attention.
+
+54
+00:03:15,640 --> 00:03:20,480
+Right now, most of the victims are located in Asia, followed by a good set in Europe
+
+55
+00:03:20,480 --> 00:03:25,200
+with particular exploitation of university and educational networks.
+
+56
+00:03:25,200 --> 00:03:30,720
+However, concerning for some of us out there, and most notably myself, Akamai has noted
+
+57
+00:03:30,720 --> 00:03:34,840
+that VPSs tend to be a target as well.
+
+58
+00:03:34,840 --> 00:03:39,300
+As we mentioned before, a quick way to check is to look out for that systemd-worker process,
+
+59
+00:03:39,300 --> 00:03:45,360
+but you can also look out for processes listening on TCP port 1919 or sending outgoing traffic
+
+60
+00:03:45,360 --> 00:03:53,240
+on 3380 or 3387.
+
+61
+00:03:53,240 --> 00:03:56,860
+Firefox's slow startup times on the latest Ubuntu release continue to be a source of
+
+62
+00:03:56,860 --> 00:04:00,520
+frustration for users weeks after the latest release.
+
+63
+00:04:00,520 --> 00:04:06,240
+In fact, OMG Ubuntu recently tweeted that it takes 19 seconds on their system for Firefox
+
+64
+00:04:06,240 --> 00:04:07,240
+to start.
+
+65
+00:04:07,240 --> 00:04:13,080
+And it seems the root of the issue is Ubuntu now ships Firefox as a SNAP package, which
+
+66
+00:04:13,080 --> 00:04:16,320
+as of now introduces quite a bit of launch overhead.
+
+67
+00:04:16,320 --> 00:04:21,600
+Well, this week we did get an update from Canonical's Oliver Smith about their latest
+
+68
+00:04:21,600 --> 00:04:26,680
+efforts to improve Firefox's SNAP performance and some other outstanding issues with the
+
+69
+00:04:26,680 --> 00:04:30,520
+sandboxed version of one of our favorite web browsers.
+
+70
+00:04:30,520 --> 00:04:35,200
+Their focus it seems is wider though than just launch times, with a lot of work going
+
+71
+00:04:35,200 --> 00:04:40,000
+into ensuring GPU-based rendering will work in more situations, and making sure that when
+
+72
+00:04:40,000 --> 00:04:43,280
+it can't, it'll fall back to CPU-based rendering.
+
+73
+00:04:43,280 --> 00:04:47,400
+Chris, you may also like this little tidbit, there's some work going into solving rendering
+
+74
+00:04:47,400 --> 00:04:50,480
+issues on the Raspberry Pi as well.
+
+75
+00:04:50,480 --> 00:04:51,480
+That is really nice to see.
+
+76
+00:04:51,480 --> 00:04:55,000
+It's nice to see all of that, especially the GPU rendering stuff and fixing it when it
+
+77
+00:04:55,000 --> 00:04:56,360
+doesn't quite work right.
+
+78
+00:04:56,360 --> 00:04:58,560
+That's absolutely a win.
+
+79
+00:04:58,560 --> 00:05:03,680
+But what I read from this is, sorry guys, there's not a lot we can do about the startup
+
+80
+00:05:03,680 --> 00:05:04,680
+times.
+
+81
+00:05:04,680 --> 00:05:10,440
+It seems like they are addressing one of the big factors in the first launch time, which
+
+82
+00:05:10,440 --> 00:05:13,160
+is really a killer on Firefox.
+
+83
+00:05:13,160 --> 00:05:18,760
+The Ubuntu developers are working with Mozilla to change Firefox so it behaves like it does
+
+84
+00:05:18,760 --> 00:05:24,880
+on Windows, where only one locale would be loaded at the launch time based on the system's
+
+85
+00:05:24,880 --> 00:05:25,880
+local settings.
+
+86
+00:05:25,880 --> 00:05:27,800
+I think that just makes sense.
+
+87
+00:05:27,800 --> 00:05:30,440
+But that's a one-time launch issue.
+
+88
+00:05:30,440 --> 00:05:34,640
+That's not like a daily cold boot launch problem that I think is really frustrating for Ubuntu
+
+89
+00:05:34,640 --> 00:05:35,640
+users long term.
+
+90
+00:05:35,640 --> 00:05:40,720
+And in my opinion, that's really the one that seems to be like the most public and giving
+
+91
+00:05:40,720 --> 00:05:42,760
+Snap a bad reputation.
+
+92
+00:05:42,760 --> 00:05:46,600
+But I suspect it's just kind of inherently the way Snaps are built.
+
+93
+00:05:46,600 --> 00:05:48,760
+And there's only so much the developers can do.
+
+94
+00:05:48,760 --> 00:05:53,800
+So they're looking at optimizing all of the other layers of this Firefox Snap to try to
+
+95
+00:05:53,800 --> 00:05:57,960
+eek as much performance from there, because there's not a ton they can do about the initial
+
+96
+00:05:57,960 --> 00:05:59,220
+launch time.
+
+97
+00:05:59,220 --> 00:06:04,360
+This just might not be a completely solvable problem, but they're gonna give it their best.
+
+98
+00:06:04,360 --> 00:06:13,600
+So my advice would be, set your expectations accordingly.
+
+99
+00:06:13,600 --> 00:06:18,840
+Last month, in a surprise announcement, we learned that long-time Qt developer Lars Knoll
+
+100
+00:06:18,840 --> 00:06:21,580
+would be leaving the Qt company.
+
+101
+00:06:21,580 --> 00:06:27,580
+But not only is he leaving the CTO position, he's also leaving the post of long-time Qt
+
+102
+00:06:27,580 --> 00:06:31,480
+chief maintainer for the open source project.
+
+103
+00:06:31,480 --> 00:06:36,460
+Long-time is right, Lars has been heavily involved with the Qt toolkit for 25 years.
+
+104
+00:06:36,460 --> 00:06:40,700
+He started with KDE and Qt in the late 90s, and then became a prominent troll tech employee
+
+105
+00:06:40,700 --> 00:06:42,760
+in 2000.
+
+106
+00:06:42,760 --> 00:06:46,920
+After a round of voting by the Qt developers, Volker Hillsmeyer has been selected as the
+
+107
+00:06:46,920 --> 00:06:48,680
+new Qt chief maintainer.
+
+108
+00:06:48,680 --> 00:06:53,400
+In fact, Lars himself announced the new maintainer just a few days ago, writing, quote, Volker,
+
+109
+00:06:53,400 --> 00:06:56,160
+I would like to wish you good luck with leading the project.
+
+110
+00:06:56,160 --> 00:06:59,920
+I know that the Qt project is going to be in very good hands with you.
+
+111
+00:06:59,920 --> 00:07:05,380
+Volker serves as the director of R&D for graphics and UI at the Qt company, and has been with
+
+112
+00:07:05,380 --> 00:07:08,080
+the Qt company for the past three and a half years.
+
+113
+00:07:08,080 --> 00:07:13,860
+Well back from 2000 to 2011, he worked for troll tech and Nokia in various roles working
+
+114
+00:07:13,860 --> 00:07:18,880
+on the Qt toolkit.
+
+115
+00:07:18,880 --> 00:07:27,360
+This week marked 38 years since the inaugural release of the X Window system at MIT.
+
+116
+00:07:27,360 --> 00:07:34,480
+It was way back when, on June 19th, 1984, that Bob Scheifler first announced the X Window
+
+117
+00:07:34,480 --> 00:07:38,400
+system, X1.
+
+118
+00:07:38,400 --> 00:07:43,680
+When X was introduced, for a little context, its performance was, quote, about twice that
+
+119
+00:07:43,680 --> 00:07:48,040
+of W, which was the prior Windows system made at Stanford.
+
+120
+00:07:48,040 --> 00:07:54,920
+Crucially, X also marked the first Windows system that was both vendor and hardware independent,
+
+121
+00:07:54,920 --> 00:07:58,240
+something we kind of take for granted these days.
+
+122
+00:07:58,240 --> 00:08:02,500
+If like us, you want to get your deep, nerdy nostalgia on, we'll have the original release
+
+123
+00:08:02,500 --> 00:08:07,920
+announcement in the show notes.
+
+124
+00:08:07,920 --> 00:08:09,620
+Linode.com slash LAN.
+
+125
+00:08:09,620 --> 00:08:13,320
+Go there to get $100 in 60 day credit on a new account, and you go there to show some
+
+126
+00:08:13,320 --> 00:08:14,440
+support for this here show.
+
+127
+00:08:14,440 --> 00:08:16,540
+Let Linode know you heard about it here.
+
+128
+00:08:16,540 --> 00:08:22,200
+They've been hard at work for over 18 years, nearly 19 years, creating the best experience
+
+129
+00:08:22,200 --> 00:08:24,280
+to run applications on Linux.
+
+130
+00:08:24,280 --> 00:08:26,800
+I've tried a lot of hosting platforms out there.
+
+131
+00:08:26,800 --> 00:08:30,300
+Nobody gets the mix and the ratios right like Linode does.
+
+132
+00:08:30,300 --> 00:08:34,420
+If you'd like to build yourself something from the ground up or click a one deploy type
+
+133
+00:08:34,420 --> 00:08:39,120
+button and get an application up on a server, Linode will span that whole range for newbies
+
+134
+00:08:39,120 --> 00:08:40,120
+or pros.
+
+135
+00:08:40,120 --> 00:08:44,340
+In fact, I don't know if I've ever mentioned it in a read, but they offer a one click deployment
+
+136
+00:08:44,340 --> 00:08:45,800
+of PyHole.
+
+137
+00:08:45,800 --> 00:08:50,420
+And when you start thinking about maybe like a tail scale mesh network or a VPN setup or
+
+138
+00:08:50,420 --> 00:08:55,480
+something like a trustable DNS that you could use on your mobile device, PyHole up on a
+
+139
+00:08:55,480 --> 00:08:57,120
+Linode makes a lot of sense.
+
+140
+00:08:57,120 --> 00:09:00,480
+And of course, you could do things like we do where you build something up from the ground
+
+141
+00:09:00,480 --> 00:09:03,860
+up using Nix OS and basically take that Linode down to the metal.
+
+142
+00:09:03,860 --> 00:09:07,960
+So that whole range, they manage to strike a balance and make it accessible to you.
+
+143
+00:09:07,960 --> 00:09:11,720
+And of course, I appreciate while I'm on the road, I'm not worried about my Linodes.
+
+144
+00:09:11,720 --> 00:09:15,080
+They have some really sane monitoring just set up by default.
+
+145
+00:09:15,080 --> 00:09:19,080
+I got an alert about our Jupiter tube box that runs on Linode.
+
+146
+00:09:19,080 --> 00:09:22,240
+It's like your bandwidth usage is way up and that's fine.
+
+147
+00:09:22,240 --> 00:09:25,100
+But it was nice to get that threshold and just check on everything and make sure there
+
+148
+00:09:25,100 --> 00:09:26,760
+wasn't anything odd happening.
+
+149
+00:09:26,760 --> 00:09:31,760
+I love those same defaults and the real easy way I can back things up and take snapshots
+
+150
+00:09:31,760 --> 00:09:34,120
+before we make any major changes.
+
+151
+00:09:34,120 --> 00:09:37,600
+And of course, they have a bunch of back end services that make Linode great too.
+
+152
+00:09:37,600 --> 00:09:43,200
+Like S3 compatible object storage, VLAN support, a powerful DNS manager, Kubernetes and Terraform
+
+153
+00:09:43,200 --> 00:09:45,440
+and Ansible support as well.
+
+154
+00:09:45,440 --> 00:09:48,920
+After you've been using Linode for a minute, you're going to really appreciate that all
+
+155
+00:09:48,920 --> 00:09:53,280
+these things come together in a really nice kind of, I almost hate to say it, but low
+
+156
+00:09:53,280 --> 00:09:54,280
+key way.
+
+157
+00:09:54,280 --> 00:09:59,880
+Like if you never want to interact with their slick suite API, you don't have to.
+
+158
+00:09:59,880 --> 00:10:02,760
+But if you start using the service and you want to take things to the next level, you
+
+159
+00:10:02,760 --> 00:10:04,080
+totally can.
+
+160
+00:10:04,080 --> 00:10:08,160
+And the pricing is fantastic, 30% to 50% cheaper than those hyperscalers that want to lock
+
+161
+00:10:08,160 --> 00:10:10,040
+into their crazy platforms.
+
+162
+00:10:10,040 --> 00:10:15,240
+So go try it for the best customer support, super fast networking, crazy fast rigs, 11
+
+163
+00:10:15,240 --> 00:10:19,080
+data centers around the world, and a Linux culture that runs deep.
+
+164
+00:10:19,080 --> 00:10:21,760
+The only thing that could make it better is that $100.
+
+165
+00:10:21,760 --> 00:10:23,320
+So go to linode.com slash lan.
+
+166
+00:10:23,320 --> 00:10:27,720
+Get that $100 credit, try it out, kick the tires, build something, learn something, and
+
+167
+00:10:27,720 --> 00:10:34,920
+support the show, linode.com slash lan.
+
+168
+00:10:34,920 --> 00:10:40,080
+At the Open Source Summit North America event this week, Linus Torvalds sat down with Dirk
+
+169
+00:10:40,080 --> 00:10:44,120
+Hondl for one of their famous fireside chats.
+
+170
+00:10:44,120 --> 00:10:45,760
+So my name is Dirk Hondl.
+
+171
+00:10:45,760 --> 00:10:49,920
+I'm the Chief Open Source Officer for the Cardano Foundation, which I joined a couple
+
+172
+00:10:49,920 --> 00:10:50,920
+of months ago.
+
+173
+00:10:50,920 --> 00:10:57,080
+I'm focused on building stronger open source communities and ecosystems around our blockchain
+
+174
+00:10:57,080 --> 00:10:58,080
+technologies.
+
+175
+00:10:58,080 --> 00:10:59,080
+This guy does...
+
+176
+00:10:59,080 --> 00:11:07,000
+Yeah, I'm Linus, and the reason we do these fireside chats is I do software.
+
+177
+00:11:07,000 --> 00:11:13,120
+I don't do public talking, and this makes it much easier for me.
+
+178
+00:11:13,120 --> 00:11:18,000
+This conversation ranges from a few new topics to some classics, but maybe Linus' best take
+
+179
+00:11:18,000 --> 00:11:20,080
+on those classics yet.
+
+180
+00:11:20,080 --> 00:11:25,080
+One of those is a refresh on his never-break-userspace stance.
+
+181
+00:11:25,080 --> 00:11:32,360
+So I don't like the notion that people talk about APIs because, let's face it, some people
+
+182
+00:11:32,360 --> 00:11:37,500
+then look at documentation and say, this is the API.
+
+183
+00:11:37,500 --> 00:11:39,260
+This is what we documented.
+
+184
+00:11:39,260 --> 00:11:43,360
+If you don't do what we documented, it's on you, right?
+
+185
+00:11:43,360 --> 00:11:49,440
+And I feel that's a complete cop-out, and it's just bad policy.
+
+186
+00:11:49,440 --> 00:11:56,240
+Documentation is worthless compared to reality, and I say that as a software engineer who
+
+187
+00:11:56,240 --> 00:12:00,880
+never writes documentation.
+
+188
+00:12:00,880 --> 00:12:07,680
+Part of this is my own personal biases, obviously, but my rule has always been it's not that
+
+189
+00:12:07,680 --> 00:12:11,480
+we can't break the API.
+
+190
+00:12:11,480 --> 00:12:20,440
+I tell my sub-maintainers and developers all the time that you can change anything, but
+
+191
+00:12:20,440 --> 00:12:23,520
+you can't break people's loads.
+
+192
+00:12:23,520 --> 00:12:27,160
+You can't break what people do.
+
+193
+00:12:27,160 --> 00:12:34,160
+And if they take advantage of a bug in the kernel, that bug is not a bug, it's a feature.
+
+194
+00:12:34,160 --> 00:12:40,480
+And we will maintain that feature forever unless there are, like, really pressing concerns
+
+195
+00:12:40,480 --> 00:12:49,360
+and usually the only really pressing concern is security, where we will go to insane lengths
+
+196
+00:12:49,360 --> 00:12:57,680
+to actually keep bug-for-bug compatibility, because as a user, which I also am, the most
+
+197
+00:12:57,680 --> 00:13:04,480
+annoying thing I can imagine is doing a software upgrade and things stop working, right?
+
+198
+00:13:04,480 --> 00:13:10,960
+And I can't affect the fact that every single package around me may have different policies,
+
+199
+00:13:10,960 --> 00:13:17,160
+but when it comes to the kernel, I've been very hard-nosed about the policy that kernel
+
+200
+00:13:17,160 --> 00:13:18,440
+does not do that.
+
+201
+00:13:18,440 --> 00:13:23,960
+If you upgrade the kernel, you should feel safe in knowing that whatever you used to
+
+202
+00:13:23,960 --> 00:13:26,480
+do will still continue to work.
+
+203
+00:13:26,480 --> 00:13:30,280
+And if it doesn't, you're supposed to scream at us, right?
+
+204
+00:13:30,280 --> 00:13:35,640
+You're not supposed to say, oh, I upgraded the kernel and now I need to change what I
+
+205
+00:13:35,640 --> 00:13:36,640
+used to do.
+
+206
+00:13:36,640 --> 00:13:37,640
+No.
+
+207
+00:13:37,640 --> 00:13:43,400
+You should feel like it's a bug report if something breaks, and we've been pretty successful
+
+208
+00:13:43,400 --> 00:13:45,440
+with that and I feel very strongly about it.
+
+209
+00:13:45,440 --> 00:13:52,520
+I wish, since most of you are not kernel developers, I wish that you would push for this kind of
+
+210
+00:13:52,520 --> 00:13:57,880
+policy on your project, because it makes it so much better for all your users.
+
+211
+00:13:57,880 --> 00:14:03,080
+And in the end, we're all in this for the technology, and we are in this because we
+
+212
+00:14:03,080 --> 00:14:05,680
+enjoy programming, hopefully.
+
+213
+00:14:05,680 --> 00:14:09,160
+But in the end, it's really the users that matter.
+
+214
+00:14:09,160 --> 00:14:12,600
+A project with no users is not a project.
+
+215
+00:14:12,600 --> 00:14:16,840
+It's just you playing with your own code.
+
+216
+00:14:16,840 --> 00:14:19,520
+But then we get down to business.
+
+217
+00:14:19,520 --> 00:14:25,240
+And Dirk asks, where is Rust for the kernel, and why is it taking so long?
+
+218
+00:14:25,240 --> 00:14:30,800
+The kernel has gotten a bit more careful over the years, let's put it that way.
+
+219
+00:14:30,800 --> 00:14:35,160
+We were more freewheeling 30 years ago.
+
+220
+00:14:35,160 --> 00:14:41,240
+It was more of a Wild West where somebody came up with a great idea and sent a patch
+
+221
+00:14:41,240 --> 00:14:45,040
+and it would just get merged because, hey, why not?
+
+222
+00:14:45,040 --> 00:14:47,360
+And we can't really afford to do that.
+
+223
+00:14:47,360 --> 00:14:50,920
+And a lot of people actually think we're somewhat too risk averse.
+
+224
+00:14:50,920 --> 00:14:56,060
+So when it comes to Rust, it's been discussed for multiple years by now.
+
+225
+00:14:56,060 --> 00:15:01,960
+It's getting to the point where real soon now, we will actually have it merged in the
+
+226
+00:15:01,960 --> 00:15:02,960
+kernel.
+
+227
+00:15:02,960 --> 00:15:08,800
+Maybe next release.
+
+228
+00:15:08,800 --> 00:15:11,680
+Before the Rust people get all excited.
+
+229
+00:15:11,680 --> 00:15:14,320
+You know who you are.
+
+230
+00:15:14,320 --> 00:15:19,180
+To me, it's a trial run.
+
+231
+00:15:19,180 --> 00:15:24,160
+It's a way of making, A, we want to have the memory safety.
+
+232
+00:15:24,160 --> 00:15:28,960
+So there are real technical reasons why Rust is a good idea in the kernel.
+
+233
+00:15:28,960 --> 00:15:31,960
+But at the same time, it's one of those things.
+
+234
+00:15:31,960 --> 00:15:38,960
+We tried C++ 25 plus years ago, and we tried it for two weeks, and then we stopped trying
+
+235
+00:15:38,960 --> 00:15:40,280
+it.
+
+236
+00:15:40,280 --> 00:15:44,520
+And it seems a fear that's been building in the community gets some voice on stage.
+
+237
+00:15:44,520 --> 00:15:49,360
+Sure, Rust is neat and all, but is it really that great of an idea to introduce a language
+
+238
+00:15:49,360 --> 00:15:52,720
+into the kernel that most developers don't understand?
+
+239
+00:15:52,720 --> 00:15:58,720
+I think that introducing Rust, I have seen the worries about it meaning that people don't
+
+240
+00:15:58,720 --> 00:16:01,440
+understand Rust, and that's okay.
+
+241
+00:16:01,440 --> 00:16:08,920
+People don't understand the VM subsystem, even when it's written in C. So the language
+
+242
+00:16:08,920 --> 00:16:12,600
+is usually not the biggest hindrance to understanding.
+
+243
+00:16:12,600 --> 00:16:17,000
+We will have maintainers for the Rust parts exactly the same way we have maintainers for
+
+244
+00:16:17,000 --> 00:16:18,480
+the VM parts.
+
+245
+00:16:18,480 --> 00:16:23,840
+And that's not really, it's a small technical change, not a fundamental one.
+
+246
+00:16:23,840 --> 00:16:28,520
+Security and trust were also clearly on Dirk's mind during the chat, and he asked Linus how
+
+247
+00:16:28,520 --> 00:16:32,600
+the kernel team can reasonably keep the entire stack secure.
+
+248
+00:16:32,600 --> 00:16:35,840
+The only way to make security work, because bugs will happen.
+
+249
+00:16:35,840 --> 00:16:39,520
+If they don't happen in hardware, they will happen in software, and if they don't happen
+
+250
+00:16:39,520 --> 00:16:43,560
+in your software, they will happen in somebody else's software.
+
+251
+00:16:43,560 --> 00:16:51,960
+So just accept bugs, including the security ones, and the only way to try to do security
+
+252
+00:16:51,960 --> 00:16:55,480
+right is by having layers of security.
+
+253
+00:16:55,480 --> 00:17:00,000
+I like Linus's point there that you kind of have to plan on bugs, either in your software
+
+254
+00:17:00,000 --> 00:17:01,920
+or someone else's code.
+
+255
+00:17:01,920 --> 00:17:05,800
+But he also does a little bit of a reality check and admits we're probably never going
+
+256
+00:17:05,800 --> 00:17:08,760
+to be 100% secure.
+
+257
+00:17:08,760 --> 00:17:11,100
+You'll never get there.
+
+258
+00:17:11,100 --> 00:17:17,360
+Anybody who thinks you can get 100% secure is living in some dream world that is just
+
+259
+00:17:17,360 --> 00:17:20,400
+not this reality.
+
+260
+00:17:20,400 --> 00:17:26,000
+Serious security talk aside, one of our favorite moments was Linus just having a bit of a laugh
+
+261
+00:17:26,000 --> 00:17:31,480
+for being better known as the creator of Git, at least in some circles.
+
+262
+00:17:31,480 --> 00:17:38,480
+Linux is kind of my baby, and I've been doing it for 30 years plus, and it's what I do.
+
+263
+00:17:38,480 --> 00:17:47,880
+My oldest daughter, when she went off to college and did computer science, I didn't push her.
+
+264
+00:17:47,880 --> 00:17:57,400
+She emailed me back a few weeks later and was laughing at the fact that I was known
+
+265
+00:17:57,400 --> 00:18:06,000
+for Git at the computer science department, even though I only did Git for six months.
+
+266
+00:18:06,000 --> 00:18:12,920
+I mean, I'll take credit for it, but Git, it's not my baby.
+
+267
+00:18:12,920 --> 00:18:19,560
+It was a side project that I just had to start to actually do Linux development.
+
+268
+00:18:19,560 --> 00:18:23,000
+Linux will always be all of our babies, but it is true.
+
+269
+00:18:23,000 --> 00:18:26,680
+I have heard him introduced as the creator of Git before I've heard him introduced as
+
+270
+00:18:26,680 --> 00:18:28,000
+the creator of Linux before.
+
+271
+00:18:28,000 --> 00:18:31,600
+We'll have the link to the complete talk in the show notes.
+
+272
+00:18:31,600 --> 00:18:36,280
+I should say though, right now it's not publicly available, but I imagine that will change
+
+273
+00:18:36,280 --> 00:18:37,400
+in time.
+
+274
+00:18:37,400 --> 00:18:42,320
+And of course, I recommend you go to linuxactionnews.com subscribe for all the ways to get new episodes
+
+275
+00:18:42,320 --> 00:18:44,000
+as we release them.
+
+276
+00:18:44,000 --> 00:18:48,720
+And linuxactionnews.com contact for ways to keep in touch.
+
+277
+00:18:48,720 --> 00:18:52,840
+Help us stay independent and support all of the shows plus get them ad free including
+
+278
+00:18:52,840 --> 00:18:56,040
+Linux action news by going to Jupiter.party.
+
+279
+00:18:56,040 --> 00:18:58,680
+It is the Jupiter party membership.
+
+280
+00:18:58,680 --> 00:19:03,760
+We'll be back next week with our take on the latest Linux and open source news.
+
+281
+00:19:03,760 --> 00:19:04,760
+Thanks for joining us.
+
+282
+00:19:04,760 --> 00:19:29,160
+And that's all the news for this week.
+
