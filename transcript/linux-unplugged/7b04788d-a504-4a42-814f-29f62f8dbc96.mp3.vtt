@@ -1,0 +1,2717 @@
+WEBVTT
+
+00:00.000 --> 00:02.840
+Did you ride the school bus as a kid, Wes?
+
+00:02.840 --> 00:03.840
+Yeah, I did.
+
+00:03.840 --> 00:07.000
+I mean, well, until I got kicked off, anyway.
+
+00:07.000 --> 00:08.360
+You got kicked off the school bus?
+
+00:08.360 --> 00:09.360
+What'd you do?
+
+00:09.360 --> 00:13.520
+Alright, well, let's say you're a young'un in high school, you're getting excited, learning
+
+00:13.520 --> 00:20.480
+about technology and electronics, and someone tells you you can make a taser out of a disposable
+
+00:20.480 --> 00:21.480
+camera.
+
+00:21.480 --> 00:23.880
+Wait a minute, you brought a taser on the bus, Wes?
+
+00:23.880 --> 00:31.160
+Yeah, turns out the school district wasn't so keen on that.
+
+00:31.160 --> 00:37.840
+Hello, friends, and welcome back to your weekly Linux talk show.
+
+00:37.840 --> 00:38.840
+My name is Chris.
+
+00:38.840 --> 00:39.840
+My name is Wes.
+
+00:39.840 --> 00:42.560
+Wes, is that a giant plate of scrambled eggs?
+
+00:42.560 --> 00:43.760
+Extra maple syrup.
+
+00:43.760 --> 00:44.760
+Nice!
+
+00:44.760 --> 00:48.360
+This episode's brought to you by a cloud guru, the leader in hands-on learning.
+
+00:48.360 --> 00:50.600
+The only way to learn a new skill is by doing.
+
+00:50.600 --> 00:54.580
+That's why ACG provides hands-on labs for cloud Linux servers and much more.
+
+00:54.580 --> 00:58.200
+Go get your hands cloudy at a cloud guru dot com.
+
+00:58.200 --> 01:03.320
+Coming up on the show today, I'm going to chat with Aaron Bakley, who built a home out
+
+01:03.320 --> 01:10.000
+of a school bus, and then he took it to the next level and automated all kinds of things
+
+01:10.000 --> 01:14.360
+on this bus using Linux and Home Assistant.
+
+01:14.360 --> 01:19.920
+It's an incredible journey of learning things from scratch and taking one challenge after
+
+01:19.920 --> 01:25.160
+another and building something incredible that the whole family gets to enjoy.
+
+01:25.160 --> 01:27.440
+And it gets really, really geeky.
+
+01:27.440 --> 01:33.040
+And you guys know I'm a big fan of road trips, and I have a lot of automation in my RV, Lady
+
+01:33.040 --> 01:34.040
+Joops.
+
+01:34.040 --> 01:37.400
+So this is a great chat, and it's amazing to hear how somebody can kind of come into
+
+01:37.400 --> 01:42.480
+Linux and discover these things through the avenue of building a project like this for
+
+01:42.480 --> 01:44.800
+their home, for their family, and all of that.
+
+01:44.800 --> 01:48.300
+So there's just some really kind of geeky stuff we get into.
+
+01:48.300 --> 01:50.200
+So we thought maybe we should define some terms.
+
+01:50.200 --> 01:51.200
+All right.
+
+01:51.200 --> 01:54.160
+First up, hardware, Victron.
+
+01:54.160 --> 01:59.680
+That's a power inverter, charge controller, basically the unit that's the brains of the
+
+01:59.680 --> 02:02.520
+electrical system and keeping everything going.
+
+02:02.520 --> 02:07.000
+Yeah, in fact, the same exact gear I have in Lady Jupiter.
+
+02:07.000 --> 02:10.840
+So it was really neat to listen to Aaron talk about how he's using the Linux system that
+
+02:10.840 --> 02:13.080
+runs inside there to get extra information.
+
+02:13.080 --> 02:14.080
+But we'll get to that.
+
+02:14.080 --> 02:16.040
+And that's called the Victron Venus, right?
+
+02:16.040 --> 02:19.640
+That's the tiny little Linux box that takes data from the Victron itself.
+
+02:19.640 --> 02:20.640
+Yep.
+
+02:20.640 --> 02:21.640
+Very cool.
+
+02:21.640 --> 02:27.000
+There's also Shelly or Shelly.cloud, which is a maker of a range of small IoT products
+
+02:27.000 --> 02:31.520
+that you can use to turn non-smart devices into smart devices.
+
+02:31.520 --> 02:35.840
+Think things like physical controls that reflect in software and a whole lot more.
+
+02:35.840 --> 02:39.840
+Yeah, you'll hear us talk about how he can use some of those in his build.
+
+02:39.840 --> 02:43.840
+And then there's the whole like software aspect of it, some services that we talk about that
+
+02:43.840 --> 02:44.840
+run on Linux.
+
+02:44.840 --> 02:50.960
+Yeah, there's MQTT, which is the Message Queuing Telemetry Transport.
+
+02:50.960 --> 02:57.160
+And it's a lightweight pub-sub network protocol that transports messages between devices,
+
+02:57.160 --> 03:01.080
+sort of like the underpinning of the whole network that lets your various IoT gadgets
+
+03:01.080 --> 03:03.880
+and systems that monitor them all talk together.
+
+03:03.880 --> 03:10.600
+And the last bit of jargon you need here is Node-RED, which is a web-based visual development
+
+03:10.600 --> 03:15.760
+tool that you can use to create JavaScript functions and tie complex automations together
+
+03:15.760 --> 03:20.080
+between hardware, software, and basically everything on your network.
+
+03:20.080 --> 03:25.600
+Recently, Aaron joined Chris to tell him about his Linux and home automation journey.
+
+03:25.600 --> 03:29.640
+And they start with how Home Assistant changed everything.
+
+03:29.640 --> 03:35.640
+Let's get into Home Assistant because I was googling around trying to figure out ways
+
+03:35.640 --> 03:42.640
+I could bring in power information into Home Assistant and just even for display purposes,
+
+03:42.640 --> 03:45.160
+but maybe even for automation triggering.
+
+03:45.160 --> 03:48.280
+And you can see how this can be applicable to somebody who lives in a house that has
+
+03:48.280 --> 03:53.720
+solar or maybe has a battery wall or something like that, or just wants to have a smaller
+
+03:53.720 --> 03:55.200
+environmental impact.
+
+03:55.200 --> 03:58.440
+I've always dreamed about pulling all that information and getting the state of charge
+
+03:58.440 --> 03:59.440
+of my batteries.
+
+03:59.440 --> 04:00.440
+How much solar is coming in?
+
+04:00.440 --> 04:02.560
+How much power are we using right now?
+
+04:02.560 --> 04:06.280
+And this seems like a real journey you went down, and you must have had to familiarize
+
+04:06.280 --> 04:08.880
+yourself with Home Assistant.
+
+04:08.880 --> 04:12.360
+You had to familiarize yourself with how all the Victron equipment communicates and then
+
+04:12.360 --> 04:16.280
+how they bring that over the network, and I'm guessing you probably also had to teach
+
+04:16.280 --> 04:18.440
+yourself MQTT in this process.
+
+04:18.440 --> 04:19.440
+Yes.
+
+04:19.440 --> 04:21.200
+Can you tell me a little bit about this journey?
+
+04:21.200 --> 04:22.200
+This is...
+
+04:22.200 --> 04:25.440
+Don't forget RS-485 and CAN bus as well.
+
+04:25.440 --> 04:27.080
+So yeah, they've got a couple things.
+
+04:27.080 --> 04:31.560
+So Device Bus over RS-485 and CAN bus also came into play.
+
+04:31.560 --> 04:33.600
+Okay, so how did you get started with Home Assistant?
+
+04:33.600 --> 04:38.400
+Was it to solve a particular problem that involved the electrical system or was it something
+
+04:38.400 --> 04:39.480
+else entirely?
+
+04:39.480 --> 04:42.620
+So in the Victron world, they have a thing called VRM.
+
+04:42.620 --> 04:45.760
+If you Google VRM world, it's kind of a really interesting thing.
+
+04:45.760 --> 04:48.840
+My bus, I won't tell you where it's at, but you can find it.
+
+04:48.840 --> 04:53.120
+It's this graphical 3D map of the world, and you can zoom in on people that have decided
+
+04:53.120 --> 04:56.920
+to share the information about their Victron installations on the world.
+
+04:56.920 --> 04:58.040
+It's pretty cool.
+
+04:58.040 --> 05:02.340
+And so Victron internally, they have a thing called the Venus OS.
+
+05:02.340 --> 05:08.120
+It's like an open source version of Linux kind of distro that goes with it.
+
+05:08.120 --> 05:10.200
+This is the reason I went with Victron equipment.
+
+05:10.200 --> 05:11.200
+It's actually...
+
+05:11.200 --> 05:16.980
+I looked at a lot of different vendors for power infrastructure, for solar controllers
+
+05:16.980 --> 05:18.960
+and inverters and things like that.
+
+05:18.960 --> 05:25.320
+But many of them had semi-documented API interfaces or not really at all, or just closed loop
+
+05:25.320 --> 05:27.760
+like plug it in and trust us, it'll work.
+
+05:27.760 --> 05:30.760
+There's your firmware upgrade that is a black box that might add more features.
+
+05:30.760 --> 05:32.280
+I don't know.
+
+05:32.280 --> 05:35.080
+Versus I'm looking at the Victron stuff and it's kind of all over the place.
+
+05:35.080 --> 05:38.280
+But as I'm digging through it, I'm like, oh my God, there's a reason it's all over the
+
+05:38.280 --> 05:42.720
+place is because they're actually allowing their software to be not installed or anything.
+
+05:42.720 --> 05:47.800
+So they're like, go ahead and install Venus OS on a Raspberry Pi, not their own embedded
+
+05:47.800 --> 05:48.800
+thing.
+
+05:48.800 --> 05:49.800
+Oh, I had no idea.
+
+05:49.800 --> 05:53.440
+So at the time I bought the Venus GX, which was the product that they were using, and
+
+05:53.440 --> 05:54.440
+it's the system integrator.
+
+05:54.440 --> 06:00.280
+They've got CAN bus interfaces and their proprietary serial bus interface, ethernet, Wi-Fi, things
+
+06:00.280 --> 06:02.360
+like that, and their software.
+
+06:02.360 --> 06:06.520
+So the idea is you buy a Victron inverter or a solar controller and you plug their cables,
+
+06:06.520 --> 06:11.280
+the appropriate cable into this box, and it just renders a little display that shows the
+
+06:11.280 --> 06:12.280
+status on it.
+
+06:12.280 --> 06:16.620
+So it shows like the battery and the inverter state and the charge and battery percentage
+
+06:16.620 --> 06:17.620
+and stuff like that.
+
+06:17.620 --> 06:20.760
+It's all kind of a plug and play kind of deal.
+
+06:20.760 --> 06:25.420
+And I was like, man, you know, $350 is a lot of money for that thing.
+
+06:25.420 --> 06:29.320
+So I'm like, well, I can get a Raspberry Pi for 40 bucks and their software's right there.
+
+06:29.320 --> 06:33.080
+And they're even releasing an image that you can just install on an SD card and it works.
+
+06:33.080 --> 06:36.440
+And lo and behold, I put it on there and it booted up and I'm like, wow, this is pretty
+
+06:36.440 --> 06:37.440
+cool.
+
+06:37.440 --> 06:41.240
+I ended up putting a GitHub gist on my travels through that.
+
+06:41.240 --> 06:47.600
+And this is at the time I was discovering this, I hadn't even finished the installation
+
+06:47.600 --> 06:49.800
+of the Victron equipment in the bus.
+
+06:49.800 --> 06:51.360
+I had just finished the battery.
+
+06:51.360 --> 06:53.860
+I knew this was the direction I was going.
+
+06:53.860 --> 06:54.860
+So I was just kind of researching.
+
+06:54.860 --> 06:59.400
+There was stuff that was taking forever to ship and real life was going by and things
+
+06:59.400 --> 07:00.400
+like that.
+
+07:00.400 --> 07:01.800
+And I couldn't work on it all the time.
+
+07:01.800 --> 07:05.580
+So I kind of spent some research time looking that up.
+
+07:05.580 --> 07:12.280
+After a while, I ended up buying Cantact, it's called Cantact Cannibal is the name of
+
+07:12.280 --> 07:13.280
+it.
+
+07:13.280 --> 07:14.960
+It's a little CAN bus interface.
+
+07:14.960 --> 07:19.640
+It's just like open source hardware kind of deal, USB plugged it into that.
+
+07:19.640 --> 07:21.360
+You say it was the Cantact Cannibal.
+
+07:21.360 --> 07:22.360
+Is that what it was?
+
+07:22.360 --> 07:23.360
+Yeah.
+
+07:23.360 --> 07:24.360
+Cannibal.
+
+07:24.360 --> 07:28.440
+Not cannibal like you eat things, but Cannibal, C-A-N-A-B-L-E.
+
+07:28.440 --> 07:32.560
+Just a neat little dingus of a USB CAN bus interface.
+
+07:32.560 --> 07:33.560
+Okay.
+
+07:33.560 --> 07:38.080
+Started loading up the software and digging through because Victron uses D-Bus for messaging
+
+07:38.080 --> 07:40.040
+on everything inside of their devices.
+
+07:40.040 --> 07:45.160
+And so there's just all this stuff hanging off of device trees and started kind of putting
+
+07:45.160 --> 07:46.600
+in my equivalent stack.
+
+07:46.600 --> 07:56.720
+I got a RTC real time clock hat that had digital analog converters and some optocouple decoupled
+
+07:56.720 --> 07:59.760
+contactor controls for like relays and stuff.
+
+07:59.760 --> 08:07.120
+And then I got just one diagnostic style USB Victron, proprietary Victron interface to
+
+08:07.120 --> 08:09.480
+plug into it that normally plug in in your laptop.
+
+08:09.480 --> 08:14.120
+But it just, if you plug it into the Raspberry Pi, their OS detected the device and kind
+
+08:14.120 --> 08:15.120
+of worked.
+
+08:15.120 --> 08:19.120
+So when I started adding up the cost of all these individual components, what I realized
+
+08:19.120 --> 08:23.840
+is that I'm now about the same price as just buying a Venus GX.
+
+08:23.840 --> 08:28.180
+And now I've got sort of a Frankenstein comp side with 201 project sitting in here that's
+
+08:28.180 --> 08:32.600
+controlling thousands of dollars of equipment and we're depending on it to work all the
+
+08:32.600 --> 08:33.600
+time.
+
+08:33.600 --> 08:36.100
+And I'm like, I just, I couldn't get behind that.
+
+08:36.100 --> 08:39.960
+So I just went and bought their actual device, which has been a fantastic little box ever
+
+08:39.960 --> 08:40.960
+since.
+
+08:40.960 --> 08:43.680
+It's nice to be able to play around with the Raspberry Pi though.
+
+08:43.680 --> 08:46.160
+You know, it gave you the confidence to make that purchase.
+
+08:46.160 --> 08:47.160
+Exactly.
+
+08:47.160 --> 08:51.320
+And I think that was a very shrewd marketing thing on their side because I can still just
+
+08:51.320 --> 08:54.120
+open up on their production device.
+
+08:54.120 --> 08:57.360
+I can get a root console and I can make changes to the operating system.
+
+08:57.360 --> 09:01.160
+I can make a thermal changes that get wiped during a firmware update.
+
+09:01.160 --> 09:05.200
+Firmware update actually is, if I'm using air quotes, there is actually just a reload
+
+09:05.200 --> 09:09.920
+of the disk partition on the, on the little device, or there's a persistent partition
+
+09:09.920 --> 09:14.060
+that you can load modifications to that persists across updates of it.
+
+09:14.060 --> 09:19.960
+So you can write custom code and modifications to this thing in Python or whatever you can
+
+09:19.960 --> 09:22.040
+fit on the thing and it stays there.
+
+09:22.040 --> 09:27.240
+So you can write permanent upgrade and changes to these things and change them how you want.
+
+09:27.240 --> 09:30.820
+And if it can talk over ethernet or USB, there you go.
+
+09:30.820 --> 09:32.680
+You got your extension to this device.
+
+09:32.680 --> 09:34.840
+So it's very extendable.
+
+09:34.840 --> 09:39.560
+So anyway, after kind of going through that process, I started using that device.
+
+09:39.560 --> 09:42.440
+I just got it installed with the rest of the Victron equipment and I just kind of left
+
+09:42.440 --> 09:43.580
+it at that.
+
+09:43.580 --> 09:47.580
+So we drove and traveled and things like that.
+
+09:47.580 --> 09:51.740
+And about a year in, I was a little dissatisfied over the fact that I had to stay connected
+
+09:51.740 --> 09:54.600
+to the internet to publish internet to VRM.
+
+09:54.600 --> 09:57.560
+I knew this conceptually at the time, but I didn't know the details, but there's an
+
+09:57.560 --> 10:03.120
+MQTT mosquito broker sitting on the Venus that's running that collects all this information
+
+10:03.120 --> 10:06.000
+from D-Bus that's published onto it from their software.
+
+10:06.000 --> 10:12.680
+Victron is shipping essentially that thing that you installed as a Linux box with MQTT
+
+10:12.680 --> 10:13.680
+running on it?
+
+10:13.680 --> 10:14.680
+Yeah.
+
+10:14.680 --> 10:15.680
+Wow.
+
+10:15.680 --> 10:16.680
+It's got mosquito on it.
+
+10:16.680 --> 10:19.200
+And what it's doing is it's a broker that's connecting to VRM and VRM is just a giant
+
+10:19.200 --> 10:22.040
+cloud mosquito broker.
+
+10:22.040 --> 10:27.200
+And they do some magic on the back end to put your data in one spot.
+
+10:27.200 --> 10:31.120
+And if you have a device, it doesn't matter if it's a Raspberry Pi or whatever, if it's
+
+10:31.120 --> 10:35.400
+running the Victron stuff and can authenticate against VRM, you get a free account and you
+
+10:35.400 --> 10:38.640
+get like six months of data storage for that.
+
+10:38.640 --> 10:43.600
+Since the data is sparsely populated up there, when the VRM, the local device pushes the
+
+10:43.600 --> 10:47.320
+data up through mosquito, you get the resolution of whatever it's publishing.
+
+10:47.320 --> 10:49.320
+So you get some pretty great detail on that.
+
+10:49.320 --> 10:55.640
+So you get every sensor and every aspect that it's collecting is pushed up to VRM and stored
+
+10:55.640 --> 10:56.640
+there.
+
+10:56.640 --> 10:57.640
+I thought that was super neat.
+
+10:57.640 --> 11:00.920
+And that's what I had been using the whole time, like from when we pushed off and sold
+
+11:00.920 --> 11:02.400
+the house and started doing things.
+
+11:02.400 --> 11:06.120
+If I wanted to see the status of solar or power or whatever, batteries, that's how I
+
+11:06.120 --> 11:07.800
+just went to VRM and looked at it.
+
+11:07.800 --> 11:12.440
+So for the benefit of the audience at a really high level, what kind of information is in
+
+11:12.440 --> 11:14.200
+these stats?
+
+11:14.200 --> 11:19.160
+Every temperature sensor, the amperage and voltage of your system on both the AC side,
+
+11:19.160 --> 11:23.920
+the inverter side, the input side, like what's the voltage coming in?
+
+11:23.920 --> 11:25.240
+What's the battery voltage?
+
+11:25.240 --> 11:26.680
+What's the watts computed?
+
+11:26.680 --> 11:28.120
+What's your actual location?
+
+11:28.120 --> 11:33.120
+If you have a GPS plugged into this thing, it'll save that any type of alarms or failures
+
+11:33.120 --> 11:34.120
+that are going on.
+
+11:34.120 --> 11:39.480
+So if you set some boundaries about what is going on or the status is degraded, example
+
+11:39.480 --> 11:43.400
+is I have a smart battery controller, it's made by REC BMS.
+
+11:43.400 --> 11:47.260
+It talks to the Victron and its protocol and format over CAN bus.
+
+11:47.260 --> 11:52.720
+If there is a failure or something going on, a cell imbalance or whatever, the REC BMS
+
+11:52.720 --> 11:58.360
+system will publish that on the line and then the Victron unit picks up that alarm and forwards
+
+11:58.360 --> 11:59.960
+it on to VRM.
+
+11:59.960 --> 12:04.760
+And so then I would get an email that the battery is bad or is having a problem, something
+
+12:04.760 --> 12:05.760
+like that.
+
+12:05.760 --> 12:10.360
+I find it fascinating because it's like this hidden functionality exists in my rig that
+
+12:10.360 --> 12:13.200
+I have yet to really tap into.
+
+12:13.200 --> 12:18.020
+Really in small ways, I've glanced it, but what kind of things can you do once you start
+
+12:18.020 --> 12:19.760
+collecting this information?
+
+12:19.760 --> 12:21.000
+It's fairly limited.
+
+12:21.000 --> 12:24.600
+I would say that it's in many ways is geared towards an installer that manages several
+
+12:24.600 --> 12:28.220
+installations because you can track and monitor lots of installations.
+
+12:28.220 --> 12:32.560
+That was my impression is that maybe you go to a specialist and they set up a high end
+
+12:32.560 --> 12:34.520
+customer and then that customer has a problem.
+
+12:34.520 --> 12:39.560
+They can pull up this portal on their end and get their client's information like draw
+
+12:39.560 --> 12:41.440
+battery issues, temperature stuff.
+
+12:41.440 --> 12:42.440
+Yeah.
+
+12:42.440 --> 12:44.520
+And not only that, you can reverse HTTP.
+
+12:44.520 --> 12:49.320
+It basically holds a connection so I can get to the user interface, the little buttons
+
+12:49.320 --> 12:52.340
+that you can push to control and configure things through VRM.
+
+12:52.340 --> 12:57.000
+So anywhere in the world, if I load their client either on a web page or the software
+
+12:57.000 --> 13:02.280
+goes on a phone, I can then remote control that GX if it has an internet connection,
+
+13:02.280 --> 13:06.680
+the Venus or the C-SERBO or they got a couple of different lines now.
+
+13:06.680 --> 13:08.620
+So you can configure and control it.
+
+13:08.620 --> 13:12.680
+The warning is, is you'd never hook up your device to something that you can accidentally
+
+13:12.680 --> 13:16.340
+push the power to turn it off because if you do that now it doesn't come back on because
+
+13:16.340 --> 13:17.680
+you just turned it off remotely.
+
+13:17.680 --> 13:19.200
+So don't do that.
+
+13:19.200 --> 13:20.200
+Yeah.
+
+13:20.200 --> 13:22.640
+So a lot of monitoring history, things like that.
+
+13:22.640 --> 13:27.920
+You can set like thresholds for alarms on any of the sensors if you want that kind of
+
+13:27.920 --> 13:28.920
+stuff.
+
+13:28.920 --> 13:29.920
+It's pretty good for that.
+
+13:29.920 --> 13:34.480
+But it requires an internet connection and that's where getting this data into home assistant
+
+13:34.480 --> 13:36.700
+seems extremely appealing.
+
+13:36.700 --> 13:41.320
+That's actually the exact conclusion I came to as I want to have this remotely.
+
+13:41.320 --> 13:44.720
+I like the fact that it ships it up and it wasn't an ever a problem with the amount of
+
+13:44.720 --> 13:45.720
+data going out.
+
+13:45.720 --> 13:48.800
+It was more like sometimes it is the net reception.
+
+13:48.800 --> 13:51.960
+I'd be parked in somewhere and I guess it's terrible reception.
+
+13:51.960 --> 13:56.440
+And I didn't want to lose the data because I'm kind of a data nerd and I didn't want
+
+13:56.440 --> 13:59.020
+to see big gaps of zero.
+
+13:59.020 --> 14:01.200
+The Venus devices can only cache it for so long.
+
+14:01.200 --> 14:05.080
+I think it's like 12 or so hours before it starts discarding old data.
+
+14:05.080 --> 14:06.600
+And you have those graphs on a dashboard.
+
+14:06.600 --> 14:07.600
+You don't want them to look bad.
+
+14:07.600 --> 14:10.720
+No, they can't look bad otherwise it's like, what are you?
+
+14:10.720 --> 14:17.120
+So what I ended up doing was Victron has a published page help doc on how to get the
+
+14:17.120 --> 14:20.320
+MQTT data out of there.
+
+14:20.320 --> 14:21.320
+You have to do this.
+
+14:21.320 --> 14:22.560
+It's not just a pub sub thing.
+
+14:22.560 --> 14:26.840
+It's actually have to send a keep alive to a specific branch of device off of it based
+
+14:26.840 --> 14:29.360
+on the serial number of your machine.
+
+14:29.360 --> 14:31.080
+Easy to do relatively.
+
+14:31.080 --> 14:34.320
+I ended up making a keep alive that ran inside of node red.
+
+14:34.320 --> 14:36.200
+It was like a two node node.
+
+14:36.200 --> 14:40.720
+It was pretty simple to build and that way it just pinged it every 15 or 20 seconds and
+
+14:40.720 --> 14:41.920
+then it would, it's funny.
+
+14:41.920 --> 14:46.700
+So if you had like MQTT Explorer, it was the tool I use and you pointed it at the end point
+
+14:46.700 --> 14:52.160
+for this thing after you enabled the ability to see it in the UI, it shows nothing.
+
+14:52.160 --> 14:55.680
+And then you ping it once and then suddenly there's like hundreds of, if you just subscribe
+
+14:55.680 --> 14:59.680
+to all to star everything on it, there's like hundreds of parameters that show up on this
+
+14:59.680 --> 15:04.640
+thing and MQTT Explorer is like, holy crap, is it like this giant list that's like thousands
+
+15:04.640 --> 15:07.360
+of items inside of it, literally thousands.
+
+15:07.360 --> 15:11.880
+And then if you stop the keep alive, it all just evaporates because it all disappears
+
+15:11.880 --> 15:20.320
+because of the way MQTT is telling it to discard its last will and testament messages, it says
+
+15:20.320 --> 15:21.840
+go away.
+
+15:21.840 --> 15:26.420
+And so yeah, once I published that, I'm like, well, okay, what am I going to keep?
+
+15:26.420 --> 15:29.640
+And then, so what I noticed is that it didn't matter if I subscribed to the whole thing.
+
+15:29.640 --> 15:34.220
+It's kind of this giant warehouse of parameters I could dig through.
+
+15:34.220 --> 15:39.520
+Many of them I didn't care about, but as I started setting up sensors in home, so I'm
+
+15:39.520 --> 15:40.520
+getting ahead of myself.
+
+15:40.520 --> 15:44.800
+So home assistant, I was like, okay, so this is the platform I'm going to play with and
+
+15:44.800 --> 15:50.280
+quickly realized like the learning curve for home assistant was don't run it on an SD card.
+
+15:50.280 --> 15:51.280
+Yes, right.
+
+15:51.280 --> 15:53.920
+That was step number one because you'll burn a hole right through it.
+
+15:53.920 --> 15:54.920
+Are you on a pie?
+
+15:54.920 --> 15:55.920
+Yeah.
+
+15:55.920 --> 15:56.920
+So I'm on a pie.
+
+15:56.920 --> 16:01.160
+And then the production one, I'll just, I know we don't have video on the final thing,
+
+16:01.160 --> 16:03.920
+but I have it out of the bus right now because I'm kind of redoing it.
+
+16:03.920 --> 16:04.920
+I alluded to that.
+
+16:04.920 --> 16:05.920
+So this is the whole deal.
+
+16:05.920 --> 16:09.920
+You can see there's a, this is a metal housing for a pie with a space for an SD card or I'm
+
+16:09.920 --> 16:10.920
+sorry, an SSD in there.
+
+16:10.920 --> 16:11.920
+Yeah.
+
+16:11.920 --> 16:12.920
+So there's an SSD drive in this.
+
+16:12.920 --> 16:17.520
+So you can see the little bridge SSD bridge right there going through it.
+
+16:17.520 --> 16:20.120
+So this thing is a 12 volt, the 12 volt box.
+
+16:20.120 --> 16:22.800
+So it just runs off of the 12 volt subsystem on the vehicle.
+
+16:22.800 --> 16:23.800
+What is that called?
+
+16:23.800 --> 16:24.800
+I want that.
+
+16:24.800 --> 16:25.800
+That one's like the old crappy one.
+
+16:25.800 --> 16:26.800
+Oh really?
+
+16:26.800 --> 16:29.400
+Here's the cooler better one, which I'm actually building for my house.
+
+16:29.400 --> 16:31.480
+So since then, that's a whole other story.
+
+16:31.480 --> 16:33.620
+We've, we've got a home base now.
+
+16:33.620 --> 16:38.420
+This is the desk pie pro and it's far, far better desk than the other box.
+
+16:38.420 --> 16:40.240
+The first one is like an Amazon special.
+
+16:40.240 --> 16:43.180
+This one is like you buy it from desk pie pro store.
+
+16:43.180 --> 16:47.180
+If you see this cover on the front, this is actually a plexiglass cover on the front.
+
+16:47.180 --> 16:49.880
+So it allows RF to come out of the box.
+
+16:49.880 --> 16:51.960
+The metal box RF is killed from it.
+
+16:51.960 --> 16:54.800
+Like Bluetooth and wifi are extremely attenuated.
+
+16:54.800 --> 16:56.900
+Whereas this one works totally fine.
+
+16:56.900 --> 17:00.720
+There's a sidecar inside of this that redirects the position.
+
+17:00.720 --> 17:03.520
+If you note, it's got full sized ports along the back.
+
+17:03.520 --> 17:04.520
+Yeah.
+
+17:04.520 --> 17:07.380
+This is, this is a PI four cause that's usually it's the micro HDMI, right?
+
+17:07.380 --> 17:11.080
+And it has the GPIO pins in the back like, like a port.
+
+17:11.080 --> 17:12.080
+Yeah, it's great.
+
+17:12.080 --> 17:15.440
+So if you want it to, you could just get a big old header cable, ribbon cable and just
+
+17:15.440 --> 17:16.600
+kind of shove it on there.
+
+17:16.600 --> 17:20.320
+And so that is called the desk PI pro I'll have to look that up.
+
+17:20.320 --> 17:21.320
+It's a good little kit.
+
+17:21.320 --> 17:22.320
+Yeah.
+
+17:22.320 --> 17:25.920
+All of my home assistant stuff in my, in my bus is it's, which is, it's just a class ARV.
+
+17:25.920 --> 17:31.720
+It's not actually a bus, uh, is all on PI fours and they're just in a, um, the flick
+
+17:31.720 --> 17:36.560
+case, which is great, but you know, that is, that's a step above right there.
+
+17:36.560 --> 17:37.560
+It's cool.
+
+17:37.560 --> 17:38.800
+It's a nice little desktop unit.
+
+17:38.800 --> 17:41.400
+There's also some other units that are, um, din rail components.
+
+17:41.400 --> 17:45.280
+So if you looked in the build on the bus, I heavily invested in din rail for, for all
+
+17:45.280 --> 17:50.640
+of the electrical components and I just didn't have the space to stick, stick it in there
+
+17:50.640 --> 17:52.920
+without getting another enclosure.
+
+17:52.920 --> 17:56.120
+And so I ended up with just a, you know, the metal box I did.
+
+17:56.120 --> 18:00.160
+If I were to rebuild this whole thing again, I might integrate it even tighter.
+
+18:00.160 --> 18:01.160
+Yeah.
+
+18:01.160 --> 18:02.320
+That's kind of what I've been wondering too.
+
+18:02.320 --> 18:04.360
+I've been, I've been thinking a lot about that recently.
+
+18:04.360 --> 18:05.360
+Okay.
+
+18:05.360 --> 18:09.160
+So you have a PI four with home assistant running on it and you've decided this is your
+
+18:09.160 --> 18:10.280
+platform.
+
+18:10.280 --> 18:14.520
+Did you start to integrate other aspects of the bus into home assistant to give us an
+
+18:14.520 --> 18:18.400
+idea of what's, what's in there, what home assistance is aware of and what it's doing.
+
+18:18.400 --> 18:23.360
+So the first thing that happened was, um, after connecting Victron, uh, I hooked up
+
+18:23.360 --> 18:24.640
+my air conditioning to it.
+
+18:24.640 --> 18:27.880
+So you have the mini split heads.
+
+18:27.880 --> 18:34.640
+They're made by, um, gree, G R E E and, uh, they have a little wifi module.
+
+18:34.640 --> 18:39.480
+And I think the wifi module that they sell is made to connect to call back to some home
+
+18:39.480 --> 18:43.580
+base in China and then serve up a phone app on your thing.
+
+18:43.580 --> 18:48.480
+Somebody figured out by using wire shark and some other tools, they figured out the line
+
+18:48.480 --> 18:52.920
+protocol for it based on the size and shape of the little dingus that plugs into the head.
+
+18:52.920 --> 18:57.600
+I guarantee it's an ESP 32 on a little board that has some proprietary connector for their
+
+18:57.600 --> 18:58.600
+stuff.
+
+18:58.600 --> 18:59.600
+Right.
+
+18:59.600 --> 19:02.760
+So these people took it apart, figured out the off protocol, figured out how to provision
+
+19:02.760 --> 19:07.480
+it so you can just set, you use curl to send a special magic, uh, Jason string to the thing
+
+19:07.480 --> 19:09.360
+to configure it for your wifi network.
+
+19:09.360 --> 19:10.360
+And then it's connected.
+
+19:10.360 --> 19:17.240
+And so home assistant has a, um, add on for that to directly control it as a climate module.
+
+19:17.240 --> 19:21.080
+And I'll tell you what, when I got that thing going and it presented a thermostat with heating,
+
+19:21.080 --> 19:27.080
+cooling, dehumidify fan speeds, all this stuff, I was like, man, that's, that was pretty great.
+
+19:27.080 --> 19:28.800
+That was a cool day that I did that.
+
+19:28.800 --> 19:29.800
+Yeah, no kidding.
+
+19:29.800 --> 19:30.800
+Gosh, that's so great.
+
+19:30.800 --> 19:33.800
+And then it's right there in home assistant available for automation.
+
+19:33.800 --> 19:34.800
+Yeah.
+
+19:34.800 --> 19:36.520
+And cause before we were just using the remotes.
+
+19:36.520 --> 19:41.680
+And so sometimes it was like, where'd the remote go, you know, like a caveman.
+
+19:41.680 --> 19:43.480
+So no longer chasing the remotes down.
+
+19:43.480 --> 19:45.960
+We could do it from the phone, like on our phones and stuff.
+
+19:45.960 --> 19:50.080
+And that was kind of the beginning of the iteration of the user interface for home assistant,
+
+19:50.080 --> 19:53.760
+because you know, you gotta, you'd be real careful about what type of tabs to present
+
+19:53.760 --> 19:56.080
+what and things from there.
+
+19:56.080 --> 20:02.000
+I started adding like more information from the Victron, like tank levels.
+
+20:02.000 --> 20:07.000
+So at, for a while Victron didn't support anything really good on the sensors.
+
+20:07.000 --> 20:14.640
+They only supported like a US style resistance and a European style resistance sender in
+
+20:14.640 --> 20:15.640
+there.
+
+20:15.640 --> 20:18.220
+Neither of them worked for the propane system.
+
+20:18.220 --> 20:22.400
+And I had like this capacitive reading sensor system that was like, okay, but it wouldn't
+
+20:22.400 --> 20:23.400
+really compatible.
+
+20:23.400 --> 20:25.420
+It didn't give a good information.
+
+20:25.420 --> 20:30.280
+So they finally went through a feature update on the Venus that allowed you to do abstract
+
+20:30.280 --> 20:32.440
+resistance values for your tank senders.
+
+20:32.440 --> 20:35.760
+So then it was, I knew it was going to happen eventually.
+
+20:35.760 --> 20:39.500
+I just assumed at some point somebody would get tired of it and push an update that actually
+
+20:39.500 --> 20:40.500
+worked.
+
+20:40.500 --> 20:44.500
+I started crying and posting requests for features and stuff as well.
+
+20:44.500 --> 20:46.600
+So maybe I helped push that over a little bit.
+
+20:46.600 --> 20:47.840
+I'd like to think it worked.
+
+20:47.840 --> 20:48.840
+Yeah.
+
+20:48.840 --> 20:54.040
+And so I got water levels for freshen and gray and, and then propane levels came later.
+
+20:54.040 --> 20:56.520
+I know pretty crazy stuff.
+
+20:56.520 --> 20:59.760
+One of the things I started building in was like a waste tank.
+
+20:59.760 --> 21:03.640
+So if the waste tank's too high and there's still fresh water, it turns off the pump now.
+
+21:03.640 --> 21:08.040
+So the pump will cut out so you don't overflow your waste and back into the floor of the
+
+21:08.040 --> 21:10.200
+shower drain, for example.
+
+21:10.200 --> 21:12.000
+That's so sweet.
+
+21:12.000 --> 21:14.680
+As a father, I totally understand why you did that.
+
+21:14.680 --> 21:15.680
+Yeah.
+
+21:15.680 --> 21:17.560
+Same goes for like the washing machine stuff.
+
+21:17.560 --> 21:20.200
+Sometimes the washing machine would suck the water dry and you're sitting there.
+
+21:20.200 --> 21:22.080
+Why is the water, why is the wash not going?
+
+21:22.080 --> 21:23.640
+Well, it's because we ran out of water.
+
+21:23.640 --> 21:24.640
+Right.
+
+21:24.640 --> 21:26.320
+And the pump's sitting there pulling up from an empty tank.
+
+21:26.320 --> 21:27.320
+Yeah.
+
+21:27.320 --> 21:28.320
+And it's like sucking an empty tank.
+
+21:28.320 --> 21:29.320
+Oh yeah.
+
+21:29.320 --> 21:30.320
+Yeah.
+
+21:30.320 --> 21:31.320
+So like, why did it do that?
+
+21:31.320 --> 21:32.320
+Oh, that's why.
+
+21:32.320 --> 21:37.880
+That got to a point to where I realized the value in this and I got an old Amazon tablet,
+
+21:37.880 --> 21:41.120
+reflashed it with a lineage OS.
+
+21:41.120 --> 21:44.920
+There's a couple of different like, um, apps that you can install that help you enable
+
+21:44.920 --> 21:47.640
+you to make a kiosk mode sort of deal on it.
+
+21:47.640 --> 21:51.720
+And so just open the webpage for home assistant and kiosk mode.
+
+21:51.720 --> 21:55.680
+And suddenly the kids were able to see that when one of my daughters, she was really excited
+
+21:55.680 --> 22:00.840
+because she could see the power because if you have maybe not perfect awesome son coming
+
+22:00.840 --> 22:05.360
+in and it's kind of so, so you kind of have to judge the number of laundry loads you can
+
+22:05.360 --> 22:06.360
+do.
+
+22:06.360 --> 22:07.360
+Not just that.
+
+22:07.360 --> 22:09.320
+You really kind of have to have the whole family on the same page.
+
+22:09.320 --> 22:13.280
+Can, is this a day you can leave the TV on or do we need to make sure if we're done,
+
+22:13.280 --> 22:14.840
+we turn the TV off right away.
+
+22:14.840 --> 22:19.000
+Like getting everybody understanding that is tricky when you're off grid.
+
+22:19.000 --> 22:23.160
+Surprisingly, if we're not running the air conditioning, everything else, you have infinite
+
+22:23.160 --> 22:24.160
+power.
+
+22:24.160 --> 22:25.160
+Yeah.
+
+22:25.160 --> 22:26.160
+It's like a rounding error at that point.
+
+22:26.160 --> 22:30.000
+The TV could run 24 seven, 600 amp hours over here.
+
+22:30.000 --> 22:31.000
+Yeah.
+
+22:31.000 --> 22:35.520
+But I have to imagine a display at least helps the family understand this is where we're
+
+22:35.520 --> 22:36.520
+at.
+
+22:36.520 --> 22:37.520
+This is what we can do today.
+
+22:37.520 --> 22:38.520
+Yeah.
+
+22:38.520 --> 22:40.320
+And it was really cool cause they got excited about it and they're like, can I do wash?
+
+22:40.320 --> 22:42.000
+And I'm like, well, what's it say over there?
+
+22:42.000 --> 22:45.320
+And they do the thing and then like looking at the, I was like, Oh, I can do it.
+
+22:45.320 --> 22:46.320
+And I was like, yeah.
+
+22:46.320 --> 22:50.920
+And it was just, it was cool to watch them get involved with something that I had basically
+
+22:50.920 --> 22:56.600
+been my own, the dad project for a long time to sort of let me know where things are at
+
+22:56.600 --> 23:00.080
+because I have to then make the announcement, the grievous announcement, okay, we've got
+
+23:00.080 --> 23:03.200
+to pack up cause you gotta go get water cause it's a surprise.
+
+23:03.200 --> 23:06.240
+And instead it's no longer a surprise and we can plan.
+
+23:06.240 --> 23:07.800
+And that made a big difference.
+
+23:07.800 --> 23:08.800
+Absolutely.
+
+23:08.800 --> 23:11.040
+And I imagine, you know, cause I've done the same thing.
+
+23:11.040 --> 23:14.840
+I have a fire tablet actually just upgraded it last week.
+
+23:14.840 --> 23:21.680
+Fire tablet mounted about midway in our rig and the family really took to the automation
+
+23:21.680 --> 23:25.760
+a lot more and all of the other smart devices when there was a dashboard they could use
+
+23:25.760 --> 23:30.840
+and you know, they, they had feedback and I, I made a lot of tweaks to the dashboard
+
+23:30.840 --> 23:31.840
+based on their feedback.
+
+23:31.840 --> 23:33.280
+I imagine you probably did something similar.
+
+23:33.280 --> 23:34.280
+Oh yeah.
+
+23:34.280 --> 23:35.280
+Yeah.
+
+23:35.280 --> 23:37.880
+And I would kind of just watch, I'd be like watching them poke at it and I'm like, you
+
+23:37.880 --> 23:42.800
+see them sort of clicking around and I was like, well, I probably should remove that
+
+23:42.800 --> 23:45.160
+because it's a little too much information about stuff.
+
+23:45.160 --> 23:48.360
+Or maybe they wanted to see this cause they'd ask, how do I know what X is?
+
+23:48.360 --> 23:52.040
+I'm like, oh, here, let me show that kind of thing.
+
+23:52.040 --> 23:53.440
+That was sort of a learning curve.
+
+23:53.440 --> 23:58.160
+It kind of, it got static enough to where it really served our purposes.
+
+23:58.160 --> 24:03.620
+The next level after that was honestly, I started digging into note, well actually sort
+
+24:03.620 --> 24:08.800
+of simultaneously with like getting Grafana in there and a real SQL database to serve
+
+24:08.800 --> 24:15.320
+the, the, the history and Influx DB for tracking the metrics locally.
+
+24:15.320 --> 24:20.600
+Influx DB was the, was really the big turning point for collecting the Victron stuff locally.
+
+24:20.600 --> 24:24.480
+I was only still collecting stuff I'd configured sensors for in home assistant.
+
+24:24.480 --> 24:28.840
+I wasn't picking up every single crazy turn of events that happened through the Victron.
+
+24:28.840 --> 24:31.640
+I didn't need it, but it's still quite a bit of data.
+
+24:31.640 --> 24:33.000
+It gives you a lot of more information.
+
+24:33.000 --> 24:36.440
+Are you, are you running that and home assistant on the PI?
+
+24:36.440 --> 24:37.440
+Yeah.
+
+24:37.440 --> 24:41.920
+I went with not just the home assistant version that is just installed standalone.
+
+24:41.920 --> 24:46.360
+It's actually this Docker style container where if you just do the add-ons for those,
+
+24:46.360 --> 24:50.920
+cause there's add-ons in the store for those things with the has IO implementation, it
+
+24:50.920 --> 24:53.320
+just sets itself up and becomes a Docker container.
+
+24:53.320 --> 24:57.080
+And so you can just run the thing as long as you have persistent config, you're good.
+
+24:57.080 --> 25:00.980
+Same with node red and some of these other tools.
+
+25:00.980 --> 25:06.240
+There were some slight tweaks to some of the Docker config files to be able to allow egressive
+
+25:06.240 --> 25:10.640
+traffic out of some of them, but nothing major that I had to change.
+
+25:10.640 --> 25:15.260
+What happened though, is that I started collecting interesting trends.
+
+25:15.260 --> 25:19.800
+So I would start competing, I would make fake sensors based on other sensors, based on historical
+
+25:19.800 --> 25:22.640
+running averages and things like that.
+
+25:22.640 --> 25:27.680
+And those then became the sensor feeds for doing things inside of a node red, which were
+
+25:27.680 --> 25:30.400
+things like power is trending this way.
+
+25:30.400 --> 25:35.840
+The prediction is that we will reach the zero more power available for things at this date
+
+25:35.840 --> 25:37.080
+and time.
+
+25:37.080 --> 25:41.240
+So try scaling back the temperature of the air conditioning by one degree every five
+
+25:41.240 --> 25:43.460
+minutes until you don't get that.
+
+25:43.460 --> 25:48.360
+So basically want to see that trend flatten out to just a balanced average.
+
+25:48.360 --> 25:54.000
+So there were some soft end points to configuring air conditioning and power and stuff like
+
+25:54.000 --> 25:59.920
+the air conditioning, cause the biggest deal that would scale back AC if there was limited
+
+25:59.920 --> 26:01.320
+power sort of thing.
+
+26:01.320 --> 26:05.060
+So that meant a little discomfort, but it also meant our power didn't go out.
+
+26:05.060 --> 26:08.800
+That really seems like things, again, manufacturers should be actually just building into the
+
+26:08.800 --> 26:11.320
+rigs at this point, but that's a great example.
+
+26:11.320 --> 26:15.080
+I was thinking about doing the reverse for heating up here in the Pacific Northwest.
+
+26:15.080 --> 26:16.560
+They should.
+
+26:16.560 --> 26:18.740
+That wasn't actually a thing that I got later.
+
+26:18.740 --> 26:23.440
+If you're in a mobile vehicle heating with propane directly in your, in your vehicle,
+
+26:23.440 --> 26:25.560
+like some of these schoolies and stuff I've seen, they do that.
+
+26:25.560 --> 26:26.560
+It's terrible.
+
+26:26.560 --> 26:27.560
+It introduces lots of moisture.
+
+26:27.560 --> 26:30.600
+A propane furnace is typical RV fare.
+
+26:30.600 --> 26:31.600
+Great.
+
+26:31.600 --> 26:34.640
+It gives dry heat, but you've got to have a lot of propane to do that.
+
+26:34.640 --> 26:39.640
+I had a lot of propane, but I dedicated it specifically to the stove oven and the hot
+
+26:39.640 --> 26:40.640
+water heater.
+
+26:40.640 --> 26:43.100
+So I went with diesel heaters instead.
+
+26:43.100 --> 26:45.400
+So there's this cheap Chinese aftermarket diesel heaters.
+
+26:45.400 --> 26:48.080
+You can get Amazon places like that.
+
+26:48.080 --> 26:52.780
+They're about $250 or so, and a five kilowatt heater is $250.
+
+26:52.780 --> 26:56.920
+So that's like what, 18,000 BTU or something like that.
+
+26:56.920 --> 27:00.200
+They consume like a gallon of fuel every 24 hours at that output.
+
+27:00.200 --> 27:03.200
+And if you're really running five kilowatts of output, you'll cook yourself right out
+
+27:03.200 --> 27:04.200
+of a 40 foot vehicle.
+
+27:04.200 --> 27:05.200
+Yeah.
+
+27:05.200 --> 27:06.200
+Did you say multiples?
+
+27:06.200 --> 27:07.200
+Did you buy multiples?
+
+27:07.200 --> 27:09.280
+So I got two, one up in the front, one in the back.
+
+27:09.280 --> 27:10.280
+Yeah.
+
+27:10.280 --> 27:11.280
+I bet it cooks.
+
+27:11.280 --> 27:12.280
+The one was good enough.
+
+27:12.280 --> 27:15.760
+But what I found was that to control the moisture on the single pane glass of the windshield
+
+27:15.760 --> 27:18.480
+and things, I really needed to heat up the front too.
+
+27:18.480 --> 27:20.720
+Those have a little Chinese controller in there.
+
+27:20.720 --> 27:21.720
+That's good enough.
+
+27:21.720 --> 27:22.720
+It's got a timer.
+
+27:22.720 --> 27:27.320
+You can push the on and off button, set your set temp, but there's no integration with
+
+27:27.320 --> 27:28.320
+that.
+
+27:28.320 --> 27:32.860
+So there's this guy named Ray, Ray something, Ray, I can't remember his last name.
+
+27:32.860 --> 27:37.000
+It's a product called Afterburner and he's this Australian chap who has been building
+
+27:37.000 --> 27:38.880
+these boxes and they're super cool.
+
+27:38.880 --> 27:44.480
+They have a little, they're built, they're kind of based around ESP 32.
+
+27:44.480 --> 27:45.960
+He supports the firmware update.
+
+27:45.960 --> 27:49.580
+They got a web interface, MQTT, all that good stuff.
+
+27:49.580 --> 27:53.960
+And so configure that to just publish their status into the device tree as well.
+
+27:53.960 --> 27:59.640
+So this MQTT tree that's being held on the mosquito broker on the home assistant is collecting
+
+27:59.640 --> 28:01.120
+a whole crapload of stuff.
+
+28:01.120 --> 28:03.080
+We got all the Victron stuff.
+
+28:03.080 --> 28:05.200
+We got the air conditioning.
+
+28:05.200 --> 28:09.880
+We got status about all the pumps and switches and valves and things for the plumbing and
+
+28:09.880 --> 28:10.880
+stuff in the vehicle.
+
+28:10.880 --> 28:12.160
+We got the heater controls.
+
+28:12.160 --> 28:16.640
+We have just position, date, time, all that good stuff that's sitting there.
+
+28:16.640 --> 28:20.640
+So there's just this wealth of data to start building a bunch of logic into things.
+
+28:20.640 --> 28:28.160
+So one of the modes I had set up was a collaborative agreement between the air conditioning and
+
+28:28.160 --> 28:29.160
+the heaters.
+
+28:29.160 --> 28:31.080
+If the humidity, oh, that was the other thing.
+
+28:31.080 --> 28:33.160
+So Shelly got into play on the mix on this.
+
+28:33.160 --> 28:38.360
+So the Shelly HTs, the little spherical deals, you can get a 12-volt adapter for those.
+
+28:38.360 --> 28:39.360
+So those are screwed in.
+
+28:39.360 --> 28:41.900
+So they're persistently powered instead of off a battery.
+
+28:41.900 --> 28:46.200
+And then I also got some Shelly RGBW controllers for lighting so we could control lights and
+
+28:46.200 --> 28:47.920
+stuff from the same deal.
+
+28:47.920 --> 28:52.360
+So your typical home assistant kind of stuff, lighting and environmental monitoring.
+
+28:52.360 --> 28:55.760
+So the Shellys, when they would pick up that the humidity was climbing to the moon, when
+
+28:55.760 --> 29:01.040
+you're winter in somewhere that's cold and wet and raining, very easy to pick up lots
+
+29:01.040 --> 29:02.040
+of humidity.
+
+29:02.040 --> 29:06.400
+It sounds crazy to run your air conditioner, but in a car, one of the most effective ways
+
+29:06.400 --> 29:10.120
+to reduce your humidity in the vehicle to keep it from fogging up is to run the heat
+
+29:10.120 --> 29:12.020
+and the air conditioning simultaneously.
+
+29:12.020 --> 29:16.480
+You mobilize the moisture with the heat, and then you condense it and extract it with the
+
+29:16.480 --> 29:17.940
+cold coils of the AC.
+
+29:17.940 --> 29:25.800
+So Node-RED would then coordinate the Chinese heaters with the GREE air conditioning system
+
+29:25.800 --> 29:30.140
+because if you use the dehumidify mode in the GREE system, it wasn't really effective
+
+29:30.140 --> 29:32.520
+on its own because it was just pumping out cold.
+
+29:32.520 --> 29:33.860
+You need to heat it too.
+
+29:33.860 --> 29:40.440
+And so between those two, you'd set the GREE to dehumidify and it was below a certain temperature
+
+29:40.440 --> 29:41.440
+outside and inside.
+
+29:41.440 --> 29:42.680
+There's some settings there.
+
+29:42.680 --> 29:45.060
+It would kick on the heaters to help it out.
+
+29:45.060 --> 29:46.600
+That was a huge comfort thing.
+
+29:46.600 --> 29:47.600
+Yeah.
+
+29:47.600 --> 29:50.460
+Did you ever have a situation where you were in a low power scenario and some of these
+
+29:50.460 --> 29:55.160
+systems are kicking in and draining you even faster and you look at the percentage of power
+
+29:55.160 --> 29:56.160
+left, you're like, oh, what?
+
+29:56.160 --> 29:57.160
+What happened here?
+
+29:57.160 --> 29:59.960
+No, I don't think I've really encountered that.
+
+29:59.960 --> 30:00.960
+No.
+
+30:00.960 --> 30:01.960
+You and your infinite power.
+
+30:01.960 --> 30:02.960
+Yeah.
+
+30:02.960 --> 30:08.880
+The funny thing is that some of the best power situations can honestly be if it's sunny in
+
+30:08.880 --> 30:13.360
+winter time because you don't have to heat or you don't have to cool, I mean.
+
+30:13.360 --> 30:14.360
+Yeah.
+
+30:14.360 --> 30:15.960
+And really, if the sun's out, a bus heats up.
+
+30:15.960 --> 30:16.960
+Well, kind of.
+
+30:16.960 --> 30:19.000
+I mean, we don't mind.
+
+30:19.000 --> 30:20.000
+We have quite a bit of insulation.
+
+30:20.000 --> 30:25.240
+We have like three inches of insulation all the way around, so it stays fairly consistent.
+
+30:25.240 --> 30:29.040
+If it's air temperature, it definitely heats up though eventually.
+
+30:29.040 --> 30:30.880
+The air exchange will happen.
+
+30:30.880 --> 30:34.720
+And you have six, I don't think we've actually said, you have six people living in this.
+
+30:34.720 --> 30:35.720
+Right.
+
+30:35.720 --> 30:40.880
+So it makes a big difference in a lot of ways with humidity and with temperature.
+
+30:40.880 --> 30:41.880
+Yeah.
+
+30:41.880 --> 30:46.360
+Four kids, two dogs, a cat, my wife and I, and then I'm sitting up in the front in my
+
+30:46.360 --> 30:50.460
+office which is one of the chairs with a fold-out monitor and computer and everything.
+
+30:50.460 --> 30:56.380
+So I'm running a real desktop PC, not just like a laptop usually, and talking on the
+
+30:56.380 --> 31:01.600
+internet with work calls and doing all the stuff that people do on a mobile remote thing
+
+31:01.600 --> 31:02.600
+there.
+
+31:02.600 --> 31:03.600
+Right.
+
+31:03.600 --> 31:05.400
+So now you're rebuilding, it sounds like.
+
+31:05.400 --> 31:10.800
+You've had the opportunity to set up a home base and can kind of redo some of this stuff.
+
+31:10.800 --> 31:12.080
+What are you going to change?
+
+31:12.080 --> 31:14.440
+What are you tweaking in the next build?
+
+31:14.440 --> 31:20.600
+I've been always sort of light on understanding how Docker works and Kubernetes and deploying
+
+31:20.600 --> 31:25.240
+things and reliably redeploying configurations and stuff.
+
+31:25.240 --> 31:30.840
+So I have been experimenting a lot with virtual machines and running Home Assistant just on
+
+31:30.840 --> 31:36.080
+a machine because it's frankly kind of a pain in the butt to cycle back and forth between
+
+31:36.080 --> 31:39.700
+keyboards and monitors on an actual physical Raspberry Pi.
+
+31:39.700 --> 31:41.080
+The fundamentals are the same.
+
+31:41.080 --> 31:45.740
+So for me, it's been learning about how to control my Docker environments, how to revision
+
+31:45.740 --> 31:52.680
+control them, how to keep all my configs in play and working and hopefully with Home Assistant
+
+31:52.680 --> 31:56.160
+finally getting to version one, I don't know if you've seen their version numbering has
+
+31:56.160 --> 31:57.240
+changed in the last.
+
+31:57.240 --> 31:58.240
+Now it's date based.
+
+31:58.240 --> 31:59.240
+Yeah, it's date based.
+
+31:59.240 --> 32:04.400
+And so it's like, I feel like they're, they've turned a corner in like maturity on things
+
+32:04.400 --> 32:08.960
+and the API isn't changing, not retiring so much stuff.
+
+32:08.960 --> 32:12.720
+Stuff seems to be consistent for longer periods of time and I feel like I can kind of trust
+
+32:12.720 --> 32:13.720
+that more now.
+
+32:13.720 --> 32:16.000
+Are you doing any Home Assistant in your home base?
+
+32:16.000 --> 32:17.000
+I am.
+
+32:17.000 --> 32:23.680
+I have a little extra buck, the DeskPi Pro, I can turn my sprinkler system on from that.
+
+32:23.680 --> 32:24.680
+It's pretty great.
+
+32:24.680 --> 32:25.680
+That is.
+
+32:25.680 --> 32:28.320
+I picked up some furnace controls for the house.
+
+32:28.320 --> 32:31.160
+So I have my heat HVAC is now controlled through it.
+
+32:31.160 --> 32:32.160
+Very straightforward.
+
+32:32.160 --> 32:36.600
+Now I picked up Shelly, the AC clamp meters that they have.
+
+32:36.600 --> 32:39.240
+So you got split phase clamp meter powering.
+
+32:39.240 --> 32:43.060
+So that's showing up actually in the mail, I'm just going to hook it up and wire that
+
+32:43.060 --> 32:44.060
+to main.
+
+32:44.060 --> 32:47.360
+And you clamp it around the mains on it, so it's not, you have some power, but that's
+
+32:47.360 --> 32:48.680
+about it.
+
+32:48.680 --> 32:52.560
+And then that way I can get some status on that and just sort of see what's going on.
+
+32:52.560 --> 32:53.560
+Yeah.
+
+32:53.560 --> 32:56.080
+And that'll be nice if you do hit the road or when you do hit the road again, you can
+
+32:56.080 --> 32:57.480
+keep an eye on home too.
+
+32:57.480 --> 32:58.480
+Yeah.
+
+32:58.480 --> 32:59.480
+Yeah.
+
+32:59.480 --> 33:01.900
+Actually my wife just snuck it around the corner here.
+
+33:01.900 --> 33:03.120
+You can see what it looks like.
+
+33:03.120 --> 33:06.760
+This is the, here's the clamp meter, one of the clamp meters for it.
+
+33:06.760 --> 33:10.060
+So it's, you can see kind of the size of it going on here.
+
+33:10.060 --> 33:16.680
+So this will clamp around a 120 amp leg of your power panel.
+
+33:16.680 --> 33:21.520
+That's kind of like what the Victron stuff is sort of giving me in those spaces.
+
+33:21.520 --> 33:26.400
+You can derive a lot of the other information from just knowing the amps going through something
+
+33:26.400 --> 33:27.920
+if you know the voltages.
+
+33:27.920 --> 33:30.360
+Does a house feel like a bigger problem domain?
+
+33:30.360 --> 33:36.040
+Because that's, that's how I felt is I was sort of motivated because a rig I could wrap
+
+33:36.040 --> 33:38.520
+my head around the entire thing from the ground up.
+
+33:38.520 --> 33:41.400
+Without a house, it felt like I don't know where to start.
+
+33:41.400 --> 33:42.400
+I don't know why I had it.
+
+33:42.400 --> 33:43.520
+I just had a different approach.
+
+33:43.520 --> 33:47.360
+I think after going through the process of going on the bus and having to make things
+
+33:47.360 --> 33:51.440
+small, effective and efficient, the house is easy.
+
+33:51.440 --> 33:53.560
+It's like cake because you know, there's lots of space.
+
+33:53.560 --> 33:54.560
+It doesn't go down the road.
+
+33:54.560 --> 33:55.920
+It doesn't drive down the road.
+
+33:55.920 --> 33:57.200
+It stays in one place.
+
+33:57.200 --> 33:58.960
+When you come back to it, it's still there.
+
+33:58.960 --> 34:01.840
+It's very stable in a weird way compared to a bus.
+
+34:01.840 --> 34:02.840
+Yes.
+
+34:02.840 --> 34:06.440
+So it's in a lot of ways, it's almost like reverse now I can use the house as an incubator
+
+34:06.440 --> 34:09.520
+for ideas and practice this and fine tune this better.
+
+34:09.520 --> 34:13.440
+We're really looking forward to getting back out on the road and, and doing some trips.
+
+34:13.440 --> 34:16.900
+You know, it's not like we're going to go for just a week, we'll probably go for longer
+
+34:16.900 --> 34:17.900
+than that.
+
+34:17.900 --> 34:22.720
+Hopefully my work being full remote allows me to do that and then I'll be able to run
+
+34:22.720 --> 34:28.600
+out with another iteration of this whole home assistant process again and hopefully then
+
+34:28.600 --> 34:33.000
+take what I've learned from pushing it on the bus to make it easy to recycle that concept
+
+34:33.000 --> 34:37.280
+back to the house and make the house re rebuildable, right?
+
+34:37.280 --> 34:42.840
+I love your idea of, of trying things at home, experimenting with things and then road testing
+
+34:42.840 --> 34:43.840
+them.
+
+34:43.840 --> 34:44.840
+Yeah.
+
+34:44.840 --> 34:48.800
+One of the most important lessons I've learned with all of this is that it's really easy
+
+34:48.800 --> 34:53.160
+to start acquiring a whole lot of nerd knobs to play with.
+
+34:53.160 --> 34:58.760
+It's like you plug in a few things and suddenly you have data galore everywhere and it's really
+
+34:58.760 --> 35:03.480
+easy to lose sight of the, of the goal here is to make your life easier.
+
+35:03.480 --> 35:07.920
+Sure it can be your hobby to, to just swim like Scrooge McDuck does in the money bin
+
+35:07.920 --> 35:13.200
+full of coins of data everywhere and doing every in all of the possibilities.
+
+35:13.200 --> 35:18.000
+But I find I, I will get lost in the possibilities when the reality is I don't really need to
+
+35:18.000 --> 35:19.080
+do that.
+
+35:19.080 --> 35:24.160
+And everything you add, every feature you add, this is a, the classic software development
+
+35:24.160 --> 35:27.520
+corundum everywhere is that too many features.
+
+35:27.520 --> 35:30.240
+Some of just for self hosting, the more you build, the more you have to maintain.
+
+35:30.240 --> 35:31.240
+Yeah.
+
+35:31.240 --> 35:33.720
+And, and I think that's been my, um, balance right now.
+
+35:33.720 --> 35:38.440
+So I left the hardest thing for last, which is to make it easier to scale and rebuild
+
+35:38.440 --> 35:39.680
+and redeploy.
+
+35:39.680 --> 35:41.440
+And so that's what I'm really working on right now.
+
+35:41.440 --> 35:45.800
+Well, Aaron, I, uh, I look forward to following your adventures in the future.
+
+35:45.800 --> 35:48.240
+And if you're ever in the Pacific Northwest, let me know.
+
+35:48.240 --> 35:49.240
+Absolutely.
+
+35:49.240 --> 35:50.240
+Yeah.
+
+35:50.240 --> 35:51.240
+Keep track of us on our Instagram.
+
+35:51.240 --> 35:52.800
+You'll probably see things here and there.
+
+35:52.800 --> 35:56.920
+And uh, it was really fun kind of getting a chance to dive into this a bit more details
+
+35:56.920 --> 36:01.340
+Linode.com slash unplugged.
+
+36:01.340 --> 36:05.480
+Go there to get $100 in credit for a 60 days on your new account.
+
+36:05.480 --> 36:06.980
+And you support the show.
+
+36:06.980 --> 36:11.840
+Linode is our hosting provider for everything we've built for JB 3.0 and everything I've
+
+36:11.840 --> 36:14.600
+personally built for the last couple of years.
+
+36:14.600 --> 36:17.400
+Linode's infrastructure is solid and flexible.
+
+36:17.400 --> 36:21.880
+And the nice thing is you can focus on your work, not on infrastructure problems.
+
+36:21.880 --> 36:24.560
+You get 11 data centers around the world to choose from.
+
+36:24.560 --> 36:27.440
+Every machine has super fast SSDs.
+
+36:27.440 --> 36:31.680
+Every system is backed by their awesome customer support, the best in the business.
+
+36:31.680 --> 36:37.320
+I often talk about Linode in terms of hosting like a server, but they also have object storage,
+
+36:37.320 --> 36:40.920
+which we use the crab out of here at Jupiter broadcasting.
+
+36:40.920 --> 36:45.400
+A really handy tool is when you combine the Linode command line tool that just uses their
+
+36:45.400 --> 36:48.580
+fantastic API with the object storage.
+
+36:48.580 --> 36:52.360
+So I'll have like a JPEG on my hard drive that I want to link to somebody.
+
+36:52.360 --> 36:55.540
+I have this link command, like all set up already in fish.
+
+36:55.540 --> 37:00.920
+So where I can create a file or I can delete a file or I can upload a file and market as
+
+37:00.920 --> 37:05.180
+public and then generate a URL for it and then bring it back to my clipboard.
+
+37:05.180 --> 37:08.960
+And then I can just paste that URL into a chat.
+
+37:08.960 --> 37:10.840
+It feels like magic.
+
+37:10.840 --> 37:15.120
+And then just recently I was experimenting with static websites to do like a single purpose,
+
+37:15.120 --> 37:18.900
+like a status page that gives you just information if a service is down.
+
+37:18.900 --> 37:25.200
+And I'm experimenting with just running those directly out of object storage.
+
+37:25.200 --> 37:26.520
+It's so awesome.
+
+37:26.520 --> 37:30.400
+It feels like I figured out some kind of hack to host web pages without a web server in
+
+37:30.400 --> 37:33.160
+front of it that are just super fast and static.
+
+37:33.160 --> 37:36.180
+Like why is this just not a thing more people are doing?
+
+37:36.180 --> 37:38.400
+You know, there's really a lot you can play with.
+
+37:38.400 --> 37:42.980
+They have an impressive set of applications you can just one click deploy from entire
+
+37:42.980 --> 37:47.000
+stacks of web servers to game servers and everything.
+
+37:47.000 --> 37:49.880
+And the pricing is ridiculously great.
+
+37:49.880 --> 37:54.760
+They've really been able to hone in and do this right so they can charge a really reasonable
+
+37:54.760 --> 37:55.760
+price.
+
+37:55.760 --> 37:59.800
+I mean, 30 to 50 percent less than big cloud there over at AWS or Google.
+
+37:59.800 --> 38:04.760
+And you get a real nice balance of technology and price for that sweet price to performance
+
+38:04.760 --> 38:08.440
+ratio that really nobody else gets right.
+
+38:08.440 --> 38:09.840
+Linode's really special that way.
+
+38:09.840 --> 38:13.680
+So go check them out, support the show and see what I've been saying.
+
+38:13.680 --> 38:26.400
+Well, before we go today, we've got one extra little surprise AMA question to throw in here.
+
+38:26.400 --> 38:31.440
+DeckBot from Indiana writes, what can you and your host tell us about being Internet
+
+38:31.440 --> 38:32.640
+famous?
+
+38:32.640 --> 38:35.120
+The pros and the cons.
+
+38:35.120 --> 38:41.620
+If you could send an earlier version of yourself one markdown document of advice about podcasting
+
+38:41.620 --> 38:46.960
+and Internet fame, what would be on that doc and to what date would you send it?
+
+38:46.960 --> 38:48.240
+He flatters us, Wes.
+
+38:48.240 --> 38:49.560
+You know, he flatters us.
+
+38:49.560 --> 38:50.980
+No kidding.
+
+38:50.980 --> 38:55.440
+The only time Wes and I would be considered Internet famous is when we are at an open
+
+38:55.440 --> 38:58.880
+source event and then everybody kind of knows who we are generally.
+
+38:58.880 --> 39:00.400
+Not everybody, but a lot of people.
+
+39:00.400 --> 39:03.760
+It helps if there's like a big Jupiter broadcasting logo somewhere.
+
+39:03.760 --> 39:08.120
+The funniest thing actually is a lot of people have to hear us talk first before they realize
+
+39:08.120 --> 39:09.460
+it's us.
+
+39:09.460 --> 39:12.920
+And that's kind of, man, if that's not a sweet spot, it really is.
+
+39:12.920 --> 39:13.920
+It's adorable.
+
+39:13.920 --> 39:14.920
+Yeah.
+
+39:14.920 --> 39:18.520
+And outside of that, we don't really have to worry about it.
+
+39:18.520 --> 39:21.840
+And when I'm at a community event, I'm there to see people.
+
+39:21.840 --> 39:26.240
+So it's great that people want to come up and say hi is one of the things I love about
+
+39:26.240 --> 39:28.040
+this niche.
+
+39:28.040 --> 39:33.760
+You know, if we were if we were doing, I don't know, the expanse podcast and it was huge
+
+39:33.760 --> 39:38.960
+because that's my secret dream, an expanse podcast, then it would be kind of it would
+
+39:38.960 --> 39:42.600
+suck to go out because I'm kind of I'm kind of an introvert when I'm on.
+
+39:42.600 --> 39:43.600
+I'm on.
+
+39:43.600 --> 39:48.440
+But when I'm off, you better not make me be on and then I don't like it.
+
+39:48.440 --> 39:52.840
+But I like this question about sending ourselves a markdown document with advice about podcasting
+
+39:52.840 --> 39:54.200
+and Internet fame.
+
+39:54.200 --> 39:58.360
+I think I know I think I know two answers for myself.
+
+39:58.360 --> 40:00.880
+Do you have anything that you would tell past West?
+
+40:00.880 --> 40:02.760
+Yeah, I think I think two things.
+
+40:02.760 --> 40:07.640
+It would be I would send it maybe like 2010 era, I think.
+
+40:07.640 --> 40:13.320
+And one would just be I mean, I always liked podcasts, I was a podcast listener, but I
+
+40:13.320 --> 40:16.680
+don't know up and up until I you know, got involved with Jupiter broadcasting.
+
+40:16.680 --> 40:22.440
+I don't think I ever really considered that I would be making podcasts, I would want to
+
+40:22.440 --> 40:26.800
+put that little, you know, that little worm in past West's ear to think that might be
+
+40:26.800 --> 40:29.760
+a creative outlet that you would really enjoy.
+
+40:29.760 --> 40:34.160
+I mean, between the actual content itself and learning all about audio and the hardware
+
+40:34.160 --> 40:38.720
+we get to play with, it's been fantastic and clearly it's on my list of things I nerd out
+
+40:38.720 --> 40:39.720
+about now.
+
+40:39.720 --> 40:44.540
+But the other one, the other one would be prepare yourself for the work because there's
+
+40:44.540 --> 40:48.360
+a lot more that goes into it than I would have ever considered.
+
+40:48.360 --> 40:52.160
+Yeah, but then would you just scare past West off with that second part?
+
+40:52.160 --> 40:54.080
+Well, that's why I thought they might be a nice combo.
+
+40:54.080 --> 40:57.760
+You know, you're going to really like this, but it's going to be a lot of work.
+
+40:57.760 --> 40:58.760
+Yeah.
+
+40:58.760 --> 40:59.960
+So that way, when it's those times, it is a lot of work.
+
+40:59.960 --> 41:03.160
+You're like, no, no, I remember future me said this is going to be worth it.
+
+41:03.160 --> 41:04.160
+Exactly.
+
+41:04.160 --> 41:06.440
+Yeah, it'd be like that little motivator.
+
+41:06.440 --> 41:07.440
+That's that's interesting.
+
+41:07.440 --> 41:12.720
+I think if I could send myself a letter, it would be pretty generic, other than it would
+
+41:12.720 --> 41:17.040
+say, come up with one way that really works for you, for everyone to get a hold of you
+
+41:17.040 --> 41:20.040
+and only ever talk about that one way.
+
+41:20.040 --> 41:24.600
+Remain extremely consistent about that one way, because it kills me when I get notes.
+
+41:24.600 --> 41:28.400
+I just get notes on all these any platform that has a messaging aspect.
+
+41:28.400 --> 41:33.880
+So every social media platform, Reddit, YouTube, everything.
+
+41:33.880 --> 41:34.880
+There's messages in there.
+
+41:34.880 --> 41:37.960
+And I go in there and I get messages from people are like, how come you're not responding
+
+41:37.960 --> 41:38.960
+to me?
+
+41:38.960 --> 41:41.600
+And or I'll get I'll get an email from somebody says, I've been trying to get a hold of you
+
+41:41.600 --> 41:42.600
+for three weeks.
+
+41:42.600 --> 41:46.120
+I just feel so bad about that, because I just can't keep up with the platforms.
+
+41:46.120 --> 41:48.480
+You're like, I legitimately had no idea.
+
+41:48.480 --> 41:49.480
+Yeah.
+
+41:49.480 --> 41:52.580
+And it comes up, it comes up, you know, a couple times a week, at least.
+
+41:52.580 --> 41:57.440
+So I would love to be able to send past Chris a note that just says be super consistent
+
+41:57.440 --> 41:59.480
+about how people should get a hold of you.
+
+41:59.480 --> 42:01.240
+And I don't really know what that way would be.
+
+42:01.240 --> 42:02.840
+It's definitely not email, though.
+
+42:02.840 --> 42:06.000
+Yeah, I mean, it is for the shows, like if you want to get something into the show, the
+
+42:06.000 --> 42:09.820
+contact forms are the best way those come in via email.
+
+42:09.820 --> 42:12.400
+So like for show content, that's really good.
+
+42:12.400 --> 42:17.440
+I mean, email, you know, Wes, actually, as I get to be an old man who's grumpy with social
+
+42:17.440 --> 42:20.280
+media, I kind of think, you know, emails great.
+
+42:20.280 --> 42:23.280
+So you've evolved on this because I was just thinking of you, you know, sort of talking
+
+42:23.280 --> 42:28.000
+about the the horrendous size of your inbox and how hopeless of a situation it was.
+
+42:28.000 --> 42:30.280
+Oh, I do absolutely hate email.
+
+42:30.280 --> 42:35.280
+I have to schedule time on Monday for a project that I don't even know what it's going to
+
+42:35.280 --> 42:36.280
+be.
+
+42:36.280 --> 42:41.840
+But every Monday, I get something in my inbox that action that morning I have to take action
+
+42:41.840 --> 42:42.840
+on.
+
+42:42.840 --> 42:43.840
+And I have to spend a couple of hours that morning.
+
+42:43.840 --> 42:46.960
+Sort of your blocked out Monday morning surprise time.
+
+42:46.960 --> 42:53.440
+I have to because there is no social, like clear expectations on email.
+
+42:53.440 --> 42:57.680
+And so people wake up Monday morning, and they got an agenda, and they want to get some
+
+42:57.680 --> 42:58.680
+stuff done.
+
+42:58.680 --> 43:03.040
+And they either need something from me or information from me or an answer from me.
+
+43:03.040 --> 43:05.180
+And that ends up in my inbox.
+
+43:05.180 --> 43:06.180
+They need it now.
+
+43:06.180 --> 43:07.180
+Yeah.
+
+43:07.180 --> 43:09.020
+And they because they otherwise they can't go on with their thing.
+
+43:09.020 --> 43:11.000
+So I would I would be very clear about communication.
+
+43:11.000 --> 43:14.780
+And then the other thing I think I'd say to my past self is don't do the RMS interview
+
+43:14.780 --> 43:16.320
+that I did years ago.
+
+43:16.320 --> 43:20.000
+The whole thing was just kind of a wild last minute thing that just sort of came up.
+
+43:20.000 --> 43:23.480
+It was a crazy opportunity just two things lined up.
+
+43:23.480 --> 43:27.480
+But I just had rolled out of bed.
+
+43:27.480 --> 43:31.200
+And it was like my third night with a CPAP machine.
+
+43:31.200 --> 43:32.840
+I just got in a CPAP.
+
+43:32.840 --> 43:36.320
+And I had not slept because it wasn't working well for me at the time.
+
+43:36.320 --> 43:41.960
+And you can see in the video if you look maybe you'll see like marks on my face, red spots
+
+43:41.960 --> 43:42.960
+on my face.
+
+43:42.960 --> 43:44.660
+Those are my CPAP straps.
+
+43:44.660 --> 43:49.680
+The interview was like at 5am because of where RMS was in the world at the time.
+
+43:49.680 --> 43:51.760
+And so it was a lot.
+
+43:51.760 --> 43:54.800
+And I don't think I had time to even think about what we were doing or what I wanted
+
+43:54.800 --> 43:55.800
+to ask RMS about.
+
+43:55.800 --> 43:57.660
+And I don't like the way it went.
+
+43:57.660 --> 44:03.200
+But I suppose that's for you know, the the history of the internet because there's a
+
+44:03.200 --> 44:07.400
+lot of interviews that I think really do hold up and that still are good to listen to.
+
+44:07.400 --> 44:11.760
+So I think I have out I've outnumbered the bad but I would have just said just don't
+
+44:11.760 --> 44:12.760
+do it.
+
+44:12.760 --> 44:16.520
+It's interesting and maybe unexpected at first sort of tip that it's easy to get caught up
+
+44:16.520 --> 44:20.200
+with, you know, the excitement of like, oh, I have the potential of this interview.
+
+44:20.200 --> 44:21.480
+This is an opportunity.
+
+44:21.480 --> 44:25.480
+And it feels like why would you say no, but it's it's worth trying to carefully think
+
+44:25.480 --> 44:26.480
+about when you can.
+
+44:26.480 --> 44:30.280
+Yeah, I'd have to you know, I could do a few markdown bullet points, you know, just
+
+44:30.280 --> 44:31.280
+boop, boop, boop.
+
+44:31.280 --> 44:32.280
+Don't do it for these reasons.
+
+44:32.280 --> 44:34.280
+You'll thank me later.
+
+44:34.280 --> 44:40.360
+Yeah, and, you know, maybe warn myself about a few co-hosts here and there.
+
+44:40.360 --> 44:41.720
+But I think that would have been it really.
+
+44:41.720 --> 44:42.840
+It's just a communication thing.
+
+44:42.840 --> 44:44.160
+And then maybe don't do the RMS thing.
+
+44:44.160 --> 44:48.640
+And part of me, though, doesn't want to change anything because it's pretty great that we
+
+44:48.640 --> 44:50.240
+get to do this.
+
+44:50.240 --> 44:53.700
+And it's pretty the community we've built and that has stuck with us over the years
+
+44:53.700 --> 44:55.920
+is really, I think, the best of the best out there.
+
+44:55.920 --> 44:58.800
+And we're just we're incredibly humbled by that.
+
+44:58.800 --> 45:03.440
+And so if like if I tweak any of that stuff, it's like maybe you warning yourself off accidentally
+
+45:03.440 --> 45:05.240
+like things just might not have turned out the same.
+
+45:05.240 --> 45:06.240
+Right.
+
+45:06.240 --> 45:09.080
+Whatever pain you have suffered, it was worth it since you're here.
+
+45:09.080 --> 45:10.080
+That's right.
+
+45:10.080 --> 45:11.080
+All right.
+
+45:11.080 --> 45:14.640
+If you want to watch those back live, we're back on June 8th on Tuesdays.
+
+45:14.640 --> 45:17.960
+Go over to JBLav.TV at noon Pacific, 3 p.m.
+
+45:17.960 --> 45:22.880
+Eastern, or get it converted to your time at Jupiter Broadcasting dot com slash calendar.
+
+45:22.880 --> 45:27.800
+Hey, don't forget to we have the Linux flies on Mars sticker that I made myself over at
+
+45:27.800 --> 45:31.120
+Jupiter Garage dot com for just a little bit longer.
+
+45:31.120 --> 45:32.400
+And you can pick it up.
+
+45:32.400 --> 45:36.960
+And every time you look at it, you'll think to yourself, Linux made history.
+
+45:36.960 --> 45:38.360
+Linux is flying on Mars.
+
+45:38.360 --> 45:43.100
+I also the other thing I like about the stickers, I think Linux runs on more planets than Windows.
+
+45:43.100 --> 45:44.520
+And I like that, too.
+
+45:44.520 --> 45:48.720
+You can follow the show on Twitter at Linux Unplugged for like announcements and stuff.
+
+45:48.720 --> 45:51.640
+The whole podcast network is at Jupiter Syctal.
+
+45:51.640 --> 45:56.680
+And we have a whole range of great shows, a lot more self hosted topics and Linux action
+
+45:56.680 --> 45:57.680
+news as well.
+
+45:57.680 --> 46:00.000
+All of that at Jupiter Broadcasting dot com.
+
+46:00.000 --> 46:01.000
+So don't miss those shows.
+
+46:01.000 --> 46:03.840
+They're a great companion to this here show.
+
+46:03.840 --> 46:05.000
+Hope to see you live next week.
+
+46:05.000 --> 46:09.480
+But otherwise, thanks for downloading and we'll see you right back here next Tuesday.
+

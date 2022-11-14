@@ -1,0 +1,1110 @@
+So far, I think I hate Shinobi.
+Oh, no.
+I thought I was going to love it.
+Yeah.
+No.
+I think I hate it.
+You're supposed to love it.
+I know.
+And I went and I bought all the cameras before I even tried it.
+So I got five Wwisecams.
+I reflashed all of the Wwisecams to the RTSP firmware,
+so that way I could just stream directly from them over my LAN.
+I got a Raspberry Pi 4 dedicated to the Shinobi installation,
+set up the Shinobi DVR software.
+Or I guess it's not technically DVR.
+It's whatever the term is for a closed circuit recording system.
+Got it all loaded up.
+And I'm just not thrilled.
+First of all, by default, it doesn't support motion detection.
+That's a plug-in, which is broken right now on ARM.
+And it, just three cameras, is slamming the Pi,
+maxed out all the cores on the Pi.
+That's a real shame.
+I mean, I've used Shinobi a little bit.
+I'm not an expert.
+I've got three Wwisecams feeding into it here,
+and it's running on my big Xeon downstairs.
+But the interface is a little bit confusing,
+I've found at times, right?
+So when you're trying to pull in the feeds,
+you have to set all sorts of parameters.
+Yeah, and I think I may have some finessing to do there.
+And I probably should also mention the big caveat
+that I did.
+I broke my own rule with using the Raspberry Pi 4
+in production, and I did not put Raspbian on it.
+Because I'm not super comfortable with Raspbian,
+and when it does big updates and stuff,
+I don't have experience with it to trust it.
+I'd rather use, like, an LTS Ubuntu or a CentOS,
+something that I just have more faith in.
+And I let that doubt get to me.
+And I loaded it with a community build of Ubuntu 18.04 LTS
+that swaps out Ubuntu's kernel and puts the Raspbian kernel
+in.
+And I thought, maybe this will work pretty well.
+Maybe it'll support all the drivers, but maybe it's not.
+And so today, I brought the Raspberry Pi in with me,
+into the studio.
+I'm going to reflash it over to Raspbian,
+reset up Shinobi on that, and then
+see if maybe I have better GPU acceleration,
+because I need to pull in more cameras than three.
+And so if it can only do three cameras,
+I don't think I'm going to do a Pi for every three cameras.
+I think I'd have to go to x86.
+Yeah, that's a bit expensive.
+Are you running into issues when you load up
+the UI, the web interface, or is it just constantly slammed?
+It's definitely worse when the web UI is up,
+but it's still very slammed, even when I don't have the web
+UI running.
+The other thing is, is in Shinobi,
+I'm seeing more frame loss, like chunks of the video
+go missing, like with encoding errors.
+I do not have that same problem when I open up the same video
+stream and just pass the URL to MPV or VLC.
+Opens right up, no problem.
+Yeah.
+If I had a tiling window manager,
+and I could just put eight versions of VLC,
+that might work well.
+So you know what I've done in the meantime,
+and it's not great, but I've pulled the RTSP
+feeds into Home Assistant.
+Oh, how's that working?
+Pretty good.
+I get real time.
+I don't get recording.
+But I now just have a tab in my Home Assistant dashboard
+called Security, where I've put my motion sensors,
+my outside cameras, and my inside cameras all on one tab.
+I tap that, and it pulls them all up.
+So it's really nice just to get a look
+at the state of things, that it works really well for that.
+We haven't really touched on your camera setup much yet,
+and I think we'll probably get to it
+in a future episode of the perfect IP camera,
+the perfect POE camera, if such a thing even exists, right?
+Oh, totally.
+Yeah, we can totally do a dedicated episode.
+I'm holding on to this why stuff just for a little bit longer,
+because I'd really like to figure out
+how to make it work for people, because these
+are $25 cameras that you can put RTSP support on.
+And they make for such a great addition to your home security.
+And they support person detection, motion detection.
+They have two-way speakers and a microphone, obviously,
+for $25.
+And you can completely run them offline
+on your own local LAN.
+So I'm going to stick with it for a bit,
+see if I can't tweak my Shinobi config, because I'd
+love to come on the show and tell people
+how to get it all rocking on a Pi with Wyze cams.
+Because for $100, you could have a full camera security system.
+For the price of one, not even one Nest Cam.
+Yeah.
+The other thing is I was not able to get
+Shinobi running in a container.
+I've had, like, that's the first application
+where I bailed on the container approach
+and built it on the host.
+Bro, you should hook up your container expert over here.
+No, I thought about bugging you, actually.
+But I thought you were dealing with your own container
+issues at the time, so I didn't want to bother you.
+Oh, probably, yeah.
+Actually, interestingly enough, so I
+mentioned stat ping in an episode recently.
+And Joe Ressington pinged me a few hours after it aired
+and went, Alex, your stat ping is down.
+And I'm like, no.
+I thought I'd been DDoSed by the show audience or something.
+But it turned out I'd actually just been a bit honey badger
+with the updates.
+The ironic badger goes honey badger.
+Right.
+So I have this.
+I use Docker Compose to do all of my container management.
+I just log in randomly and just do Docker Compose pull,
+Docker Compose up.
+And that's my update process for updating my apps.
+It's as simple as that.
+I probably should script it, right?
+I should probably have DigitalOcean do a backup,
+or what's it called, a snapshot via the API,
+and then do the updates, and then have some kind of sanity
+checks afterwards.
+But I'm not doing this for business.
+I'm doing this for my own personal pleasure.
+You do know better.
+You're just choosing not to do it.
+I just couldn't be bothered, yeah.
+All the config is in Ansible.
+So at least I have it all stored in Git somewhere.
+So I'm not going to lose it overnight.
+But anyway, the interesting issue with this one
+was I logged into the droplet.
+I was actually in a hotel room in Florida at the time,
+connected via my slate, WireGuard VPN,
+the little travel router, connected back
+to my house in Raleigh.
+I'm ordering another one of those slates.
+We talked about it recently, like two episodes ago.
+But this is a little OpenWRT powered box
+that has WireGuard support and CAPTCHA support.
+So you can throw it on a hotel Wi-Fi,
+VPN up all your traffic, and that
+becomes the access point for every device in your room.
+I'm traveling mid-November, and I'm picking one of those up
+for the trip.
+Good shout.
+I swear I should be on commission.
+I think I've sold about 15 of those devices since then.
+Really?
+Too bad they don't have an affiliate deal or something.
+Yeah, right.
+So anyway, I logged into the droplet via SSH,
+and I looked at the logs for the container,
+and it said, schema error.
+You're now running Postgres 12 instead of 11.
+Statping was running against Postgres 11.
+So it was just a case of going into the Docker compose file,
+adding a tag, because currently I didn't actually
+have any tags specified, so it was just pulling latest.
+And so it rolled back from version 12 to version 11
+in about eight seconds.
+When it pulled the old image down again,
+I pressed Docker compose up, and lo and behold,
+Statping came straight back up.
+Isn't that amazing?
+Oh, it's so good.
+Are you able to fully appreciate how much better that
+is than the old way of doing things,
+where if you installed everything via package,
+it would have spewed libraries all over your system,
+and it would have been a massive uncoupling to walk back,
+especially if other components or applications on the system
+were dependent on that package?
+Less than five minutes from diagnosing the issue
+to having it resolved.
+I mean, luckily for me, the database
+hadn't updated its schema itself automatically
+or anything like that, but just rolling back
+the image of the database was super duper easy.
+So if you want a sales pitch for why containers
+are great, that's definitely up there.
+Containers today on the self-hosted podcast.
+That's the container corner segment for today.
+I have another thing I need to admit
+is my current storage setup is already
+starting to fail me because I'm starting
+to do multiple disks attached directly
+to the Pi, each Pi, which is now three of them.
+Via USB?
+Yeah, USB 3.
+I don't have super high performance requirements
+because I'm accessing these mostly over Wi-Fi, so.
+It's just a reliability thing.
+I've just seen USB devices drop off the bus for no reason.
+That never happens with SATA.
+If you run a machine for 100 days,
+I would way more bet on a USB disk disappearing than a SATA
+just wouldn't disappear unless the disk fails.
+The other thing is I don't have enough storage for the cameras.
+I don't need a lot of disk, but I'd
+like probably at least three solid days worth of storage
+so I can go back if something happens.
+A week would be ideal.
+But also, I need to accommodate things like Plex, which
+holds my books, my audio books, my music, my videos,
+about a terabyte of local media, and some pictures I
+need to accommodate, some notes.
+I've also got things like Docker configs
+and the containers-related data that I all need to store.
+And I don't know if I should.
+What I've done so far is I've got,
+when on sale, these Samsung MV and E
+drives that are bus-powered over USB 3.0 and they're tiny.
+I'm holding one up to you now on Telegram.
+I've just sent you a picture.
+That's the SanDisk one you have there, right?
+It's not even half the size of a credit card.
+No.
+And it's ruggedized.
+It sort of has a rubber coating.
+And it's also very well-rated in terms of performance
+with the Raspberry Pi.
+I just recently went through some disk benchmarks.
+Here's the other thing that really, really
+is a tricky thing for me in the RV.
+Is whatever disk solution I implement
+needs to be able to withstand a level four
+earthquake on the Richter scale.
+Because when I drive, that's essentially
+what the conditions inside the RV is, is a level four
+earthquake.
+And so the disks, ideally, could stay online while we drive,
+because I might have the children on board
+and they'd like to watch television or use the services
+while we're going down the road.
+Man, that would have made road trips so great as a kid.
+Can you even imagine just having, not just,
+you know, I mean, when I was a kid,
+we used to play games in the car like,
+count the number plates that start with the letter L,
+you know?
+Right.
+Meanwhile, they've got Wi-Fi with internet.
+And they've got a Plex library of their favorite shows.
+And they have a total blank check to marathon them,
+because what else can they do?
+Kids these days don't even know they're born, Chris.
+I know.
+And so I need to accommodate all these different factors.
+So it kind of seems like I need to go solid state.
+Yeah, you probably do, right?
+And solid state's getting there, you know?
+Linus Tech Tips did a video not that long ago
+about a new 3.84 terabyte.
+I mean, it's four terabytes to all intents and purposes.
+SSD released by, I think it was either Samsung or SanDisk,
+probably Samsung.
+But they're still $500 a pop.
+Whereas these one terabyte ones that you're talking about,
+the ruggedized ones, they're about $100 a pop or something.
+I mean, it's not cheap, but it's enough now that I can move.
+So my use case for the little SSD that I have
+is my photo library lives on here for each year.
+So every year, I'll rotate my photo library.
+When I'm traveling, I just have everything
+that I've shot this year with me physically,
+and everything else is at home.
+And generally speaking, that works pretty well.
+So at the end of each year, I'll rotate my photos.
+And drone footage is an exception,
+because it's so much bigger, but just images
+fit just fine on here.
+Do you only keep the year's images on that disk,
+or do you also store them somewhere else?
+Oh, so yeah, I mean, I'd be a loser
+if I only had one copy of my photos from this year, right?
+This wasn't clear.
+I was getting upset for a second.
+Yeah, no, so generally, whilst I'm traveling,
+my use case is quite straightforward.
+And I actually did a post about this on my blog
+very recently about my photography workflow.
+And I talk a little bit in there about how my backup situation
+works, and how by the time it's all said and done,
+I've probably got about six or seven copies of this data,
+all automatic once it hits my server back in Raleigh.
+It just then all sort of spiders webs out across the internet.
+We should put a link to that in the show notes
+to that blog post, because that could also
+help answer the ask SSH we're going
+to get to in a little bit.
+Yeah, OK, I mean, so the way I look at it is,
+I have a couple of options here, is
+I could just hang a terabyte disk off of each Pi,
+so about $300 worth of disk.
+That's not the end of the world when you're
+talking about a network storage solution in terms of price,
+but it's not very elegant.
+Then I'm wondering if it's just ridiculous and crazy to buy
+yet another Raspberry Pi.
+Probably.
+And then make that thing an iSCSI host for the biggest
+disk or the most amount of disk I can attach to it.
+Can't you just get a 512 gig SD card these days?
+Yeah, so the way I tend to use the SD card and the Raspberry
+Pis is just the root file system is on the SD card.
+Because I'm just so paranoid they're
+going to just die on me.
+Yeah, I've had a few do that, especially
+in power loss situations.
+That can be a real issue.
+So I kind of feel like, just like a lot of times in a server,
+I'll have a small internal SSD.
+Yeah, I'd do the same.
+Yeah, the array is on a pool of disks.
+So I had thought about taking a Raspberry Pi 4,
+attaching like three or four disks to it,
+and then sharing that out over Samba NFS
+and making an iSCSI target as well.
+And you know, we talk with the developer of MergerFS
+in an upcoming Jupyter Extra that will probably
+be released the week this episode comes out.
+And MergerFS could potentially be a solution here.
+There's a lot of ways I could go with this.
+So I'm kind of hoping you can give me
+some of your thoughts on just disks in general.
+If MergerFS maybe would be a good use case for me,
+especially since I'm dealing with more limited amounts
+of RAM and hardware.
+And I know that you and I have been talking offline a lot
+about your storage setup.
+So give me an advice here, Doctor.
+What's your prescription?
+Well, over the years, I mean, I've
+talked about on my brunch with Brent,
+I talked about how there was a 1.5 terabyte hard drive that
+failed.
+And that's kind of what led me down this rabbit
+hole of self-hosting.
+And I've bought a lot of hard drives over the years.
+I was trying to calculate it.
+But I think I probably bought somewhere
+in the region of 30 to 40 three and a half inch drives.
+Just this is my personal purchase history.
+Yeah, I hate to think how much disk
+I've bought over the years for the JB Productions.
+Oh, so I've got a few rituals that I follow.
+I've got a few thoughts.
+I've read a lot of posts on Reddit, on different forums.
+And this is just my personal experience
+over the last five, six, seven years of doing this stuff.
+I appreciate some people have different opinions,
+but these are mine.
+And I think a lot of it boils down to several key things.
+And I cover a lot of this stuff in the perfect media service
+series that's on the linuxserver.io blog.
+There's a few things you need to take into consideration.
+First of all, what are your requirements?
+Are you running high performance databases?
+Probably not if you're self-hosting.
+But things like Plex take a surprising amount of I.O.
+So if you're going to put your Plex metadata directory
+onto a spinning Rust drive, you'll
+notice a significant speed bump if you then
+put that onto an SSD later on.
+So there are just different use cases,
+even within a home setup, that you might want to consider.
+Also, I think it's worth mentioning
+there are ways you could even set up spinning Rust
+to get pretty good throughput.
+You may miss out on data integrity or protection.
+For example, forever, for editing,
+I will use a bunch of as fast as I can get spinning Rust.
+Usually 10,000 RPM is what I go for.
+I know I can get slightly faster,
+but I go for 10,000 usually.
+So not as fast, I should say.
+The exact opposite of what I just said.
+And I'll put those suckers in a RAID 0.
+Fantastic performance.
+Then I make sure that the disk pool is labeled scary RAID.
+I call it scary RAID.
+Good.
+Oh, I like it.
+So for those that aren't familiar,
+RAID 0 is striped across both disks.
+So if either of those disks fail,
+or any of the disks in the RAID 0 array fail, you're boned.
+Yeah.
+And so that scary RAID label always
+reminds me, don't trust anything on that array,
+because you could lose it any time.
+Now, when you're working on a video project, in theory,
+you have your source materials still either on the camera
+or on the OBS machine or however you were doing it.
+And so if my array were to go away during a project,
+I would just have to redo that project.
+But I think a lot of this stuff is a little old school
+in terms of thinking nowadays.
+SSDs, terabyte SSDs are in that $100 sweet spot.
+And we're not talking that long ago.
+We're talking two, three years where a terabyte
+was $300 or $400.
+And that's just not realistic.
+I'm not going to spend that much on that price per gigabyte.
+Which leads me nicely on to my other consideration.
+You need to decide what the capacity requirements are.
+So if you're working on video, like Chris,
+you're going to be needing hundreds of gigabytes
+for a single project, potentially.
+It is funny, because when we switched to primarily doing
+audio, all of a sudden, I had to do this huge shift on it.
+We had so much additional storage,
+because we had projected for the next couple of years
+using video.
+And then we made a transition to audio.
+And then all of a sudden, I win a year
+without having to buy disks.
+It was beautiful.
+And now, in the RV with my limited options,
+I think about storage in a different way.
+I think, what do I need immediately available,
+versus what can I store in a colder storage that's
+remote and slower to get to?
+So I kind of even break it up to,
+what do I need as hot files versus cold files?
+And so the hot files, I'll put on the SSDs.
+And the cold files, I'll store on spinning rest somewhere.
+Like here in the studio, we have plenty of spinning rest
+storage.
+So the other thing to consider is
+that there's an article by a chap called,
+and I'm going to butcher this name, Laurentius.
+And this is from January 2016.
+And it's actually been something which
+has influenced my strategy in how I've purchased hard drives
+pretty much since then.
+It's like a thought model, huh?
+Yeah.
+And this post is entitled, The Hidden Cost
+of Using ZFS for Your Home NAS.
+Now, I want to underscore the last two words,
+for your home NAS.
+I'm not talking about small business.
+I'm not talking about your use case here, Chris.
+I'm talking about people like me that
+have a media server which has five, six, seven, eight, nine
+disks in it that stores media that is written once
+and read a few times.
+Things like drone footage, ripped media, music,
+that kind of stuff, right?
+The performance is not critical.
+So a lot of the benefits that you get with ZFS
+kind of pale into insignificance.
+But the thrust of his blog post here,
+and I totally agree with this, is
+that when I'm expanding my NAS over the last few years,
+I tend not to buy more than one or two drives at the same time.
+I tend to buy one drive every, if I know I'm expanding,
+I'll buy a drive every month or two.
+Generally speaking, over the last couple of years,
+I've bought a drive every six to seven months or so.
+Now, with ZFS, that's just not going to work,
+because you need to preallocate your VDevs and your pools
+and all that kind of stuff up front.
+So you need to have drives that are the same size.
+You need to ideally have drives that
+are the same brand and firmware model
+so that there's not some kind of random problem
+occurs at the hardware level there.
+And so for me, it really makes the ZFS kind of sell
+a lot more difficult, because purchasing multiple drives
+at once is not realistic.
+Now, then I moved to America, and I had access to Best Buy.
+And they have this wonderful thing
+called the Western Digital Easy Store.
+And this has really changed the game for me.
+So I now have access to 10 terabyte hard drives,
+10 terabyte drives.
+Just one drive is 10 terabytes.
+My entire array used to be 10 terabytes.
+But anyway, for $160 or $170.
+The caveat is it comes in like a USB enclosure.
+So it's like an external hard drive.
+But you can pop those bad boys out
+of those cases in 10 minutes flat.
+And then you have, to all intents and purposes,
+a white label Western Digital 10 terabyte hard drive.
+They're generally of decent quality disk, too,
+because they don't want them popping and then having
+a consumer RMA.
+There is also like a slight electrical bit of work
+that has to be done to the disk once you deshuck it.
+Well, that's an interesting one.
+So I think you're referring to the 3.3 volt mod
+that you might have to do.
+That's what it was, yeah.
+And this is actually in the SATA spec, the SATA power spec.
+I read a post on this a few months ago,
+so I might get the details a little bit wrong.
+But the gist is this.
+Enterprise Gear uses the 3.3 volt rail
+to reset failing hardware.
+So if you're a hard drive in a data center,
+you don't necessarily want to have to be power cycled
+physically by a human coming in and pushing a button
+and all that kind of stuff.
+Data centers need a way to reset hardware
+without physically being present.
+And the way in which hard drives do that
+is on the 3.3 volt rail.
+So in a server situation, if that disk
+receives a signal on the 3.3 volt rail,
+it will reboot just that disk.
+Now, most consumer power supplies over the last decade
+have either omitted that rail
+or just not followed the SATA spec
+for trying to save money
+because nobody really uses it for power.
+They just use it for that use case.
+But some power supplies do respect the SATA spec.
+And if yours is one of those,
+you need to do one of two things.
+The first option is you can either just cut
+the 3.3 volt wire, which is what I did.
+I actually made some custom SATA power connectors,
+which omitted that wire altogether.
+You can buy, I think it's a one to five SATA power splitter
+thing on Amazon.
+And then you can use the DIY SATA power connectors
+and just sort of pull the cable down inside it
+and slice and cut the connectors for you.
+It takes about half an hour to do five the first time
+and then you get quicker after that.
+Just be careful you get the wires in the right order
+because if you put the 12 volt rail on the five volt thing,
+you're gonna let the magic smoke out.
+Not that you would know.
+No, I actually don't, but yeah, thankfully.
+I was very careful when I checked with a multimeter
+that I got it all correct.
+The other thing you can do,
+and there are plenty of videos on YouTube on this,
+is you can actually get a piece of Kapton tape
+or something like electrical tape or something
+and cover a couple of the power pins on the drive itself.
+So that's a very, very non-destructive mod.
+And that will just prevent the drive
+from being able to receive that 3.3 volt signal
+and it will just work as you would expect.
+That's not so bad.
+I do agree with your overall assessment
+that if you're going to implement ZFS,
+you need to go into it knowing
+that when you wanna add capacity,
+you'll be buying multiple disks at a time.
+And this for me is the beauty of merger FS.
+So we spoke to Antonio during the JB sprint.
+Drew and Brent and I had a chance to sit down with him
+and ask him some questions.
+I've worked quite closely with him on a few things
+like some of my blog posts, for example,
+like I've submitted them to him for review
+and made sure that it's all technically accurate
+and that kind of thing.
+But where merger FS comes in and the magic of it really
+is you can have any number of mismatched drives,
+any file system, it could be a USB drive,
+it can be a SATA drive, it could be a CD-ROM drive,
+it could be an R-Clone mount point,
+and you can combine all of those different things
+under a single mount point.
+So I use slash mount slash storage as my pool mount point.
+And under there, I have 12 different disks
+combined and an R-Clone mount point
+and the ZFS stuff that I have on my system
+all in one place.
+And does merger FS manage the parity as well?
+Does it keep things, like if a disk fails?
+No, merger FS is just a fuse layer user space file system
+that combines all of those mount points underneath it.
+If you want parity, which is the thing
+that lets you rebuild from drive failures,
+I use SnapRaid for that for my media
+and then ZFS for the really important stuff.
+We'll cut a SnapRaid later, I think,
+but in short, it takes a snapshot of the state
+of the drives at a moment in time
+and calculates the parity data for those drives.
+I think in terms of the other options that you've got
+that do have similar functionality,
+UnRAID will support multiple mismatched drive sizes as well.
+The advantage of UnRAID is it has real-time parity
+calculation instead of snapshot.
+Downside is it's not open source.
+So, you know, and you have to buy a license.
+So it depends on what floats your boat there.
+Open Media Vault will support merger FS
+and SnapRaid out of the box,
+but you'll have to go through the GUI
+and configure it yourself.
+I like that for you, that's a downside.
+For some people listening, they're like,
+oh God, it's got a GUI, thank goodness.
+Yeah, well, I'm the sort of guy
+that puts everything in Ansible.
+Yeah, and if you just take the time
+to learn the configuration syntax,
+it will last with you forever.
+And it is simpler and quicker and easier to back up.
+Somebody was asking me in the JB Telegram the other day
+about how to configure Samba.
+And I just dropped them in my Samba config file.
+I was like, there you go, done.
+You know, it's 30 lines worth of text and it's done.
+Right, it's worth recapping for a moment.
+There's a lot to consider.
+How fast you need the disk to be,
+how much storage you need,
+what other kind of usage requirements you have.
+Then you have how much storage you plan to add to it,
+how much it will change and what your budget is.
+You have how critical the data is.
+Is it okay to put it on one disk?
+Maybe if you got a really good backup,
+but you need to consider what your options are
+if you need to go with a RAID.
+One is non-CRS.
+Right, one is none.
+And then you have other things to consider as well,
+like ZFS versus a different file system,
+if you have enough RAM, I mean, there's a lot to it, Alex.
+So how do you really get to any of these answers
+without being really intimately familiar
+with what your setup requirements are?
+Like for me, I'm sitting here parsing this thinking,
+well, what should I do for my storage solution?
+Because I have all these weird use cases.
+One use case is camera recording, which is fairly high IO.
+The other is notes, like I have this huge spectrum
+of like super low IO and super intense IO.
+I want everything redundant
+and I don't have a lot of backup options either.
+So other than offsite,
+which I won't always have connectivity.
+And I also have that whole problem of a level four earthquake.
+Yeah, I'm a massive MergerFS fan boy.
+I tried dozens and dozens of other things
+over the three or four years,
+previous to settling on it in 2016.
+And I've just, it's just been absolutely rock solid, right?
+And I actually hate it when people use that phrase,
+rock solid, but it's never missed a beat.
+I haven't ever had to go in and tweak it.
+There's not been any random hidden files created
+like with MHDDFS, for example, is another one I tried.
+It's just been flexible, right?
+So anything I've needed to bend it to do,
+I've been able to get MergerFS to do it with no data loss,
+no having to copy files and have,
+you know that slide puzzle you get
+where you've got to move the little cubes around.
+Yeah.
+If you're migrating from one ZFS pool to another,
+you actually have to play that game
+with your data sometimes, right?
+Where you're trying to re-architect a VDEV
+that you built knowing what you knew at the time
+when you built it,
+but it turns out three years later,
+oh, oops, that's not the most optimal thing to do.
+It's not the most optimal way to do it.
+True.
+That is a bit of an issue I'm having now
+with the storage here at the studio.
+I feel like it's less of a problem
+in a more static environment
+where things don't change as much.
+Like for example, ours is architected
+for these huge, huge like storage requirements
+around production video.
+And we just don't have that anymore.
+And now I'm looking at it going,
+oh man, I think I need to redo this.
+Flexibility, man.
+That's where MergerFS really wins out.
+Yeah.
+I really don't want to have to deal with that.
+I really don't.
+But at the same time,
+I feel like if it's super important and critical,
+I'm still going to end up dealing
+with these limitations of ZFS, if you will.
+But the thing is, right,
+so MergerFS, the reason it wins out so heavily for me
+is it supports any file system underneath it.
+So if you want to have ZFS on a pair of drives
+and then pool it with a bunch of other EXT4 drives
+or XFS drives, MergerFS will just handle that
+absolutely fine.
+And then using the policies that MergerFS has,
+you can say only write this data to a drive
+that already has that existing directory.
+So the way that I do it
+for all of my Docker app data, for example,
+is I tell it through the file system table, the FFSTAB,
+only create that directory on that drive.
+So it's existing path, most free space.
+But you're not allowed to create that directory
+on a drive where it doesn't already exist.
+The operation should just fail and you'll alert me to that.
+So I'm not going to end up with files
+scattered around multiple different disks.
+Here's the other thing that really, really wins
+on MergerFS for me.
+I can pull that drive from one system
+and I go and stick it into any other Linux box
+and it will just be able to be read.
+It's just a disk with files.
+Yeah, right.
+Unlike a ZFS array,
+which I have to bring the whole pool over
+and then import it
+and it now belongs to that operating system.
+And you have to hope that you've got the correct ZFS version
+and blah, blah, blah.
+You're kind of winning me over,
+especially for my home setup use case.
+It's just flexible
+and it will support hot plug of USB devices.
+You know, this, like whatever I come up with
+may not work out
+because it may be a bit of a roll of the dice.
+I'm not even sure if I'm going to stick
+with Raspberry Pis long-term.
+I mean, I really hope it works for my use case.
+It's very low commitment, right?
+And for those of you with commitment issues,
+you know, it's a really easy,
+really easy thing to get started with.
+Yeah, I think step one will be listening to your interview
+with the MergerFS dev when that comes out on extras.
+And then step two would be for me to get you
+to send your config over.
+So I can just read what that looks like.
+It's one line in your FS tab.
+I'll try and see if I can get it in the show notes.
+No, your merger,
+there must be a merger FS config file somewhere.
+Nope, it's in my FS tab.
+I'm literally SSHing in now.
+I'm going to put it to you on telegram
+and send it to you.
+Oh my gosh.
+One line.
+All right, I got to check this out.
+So do you think this would be ridiculous?
+Raspberry Pi four with two, two terabyte SSDs
+hanging off of it on the USB three bus.
+And then on the USB two bus,
+a parody disc, like a one terabyte.
+Can I do that with SnapRaid?
+Can you have a separate parody disc?
+That's what you need to do, yeah.
+So, okay, we're going to get into SnapRaid now.
+Okay, you made me do it.
+Well, let's do a brief lick
+because we should do a whole episode once I try it too.
+Yeah, yeah, yeah.
+So SnapRaid, the parody disc has to be as big
+or larger than your largest data disc.
+Okay, okay.
+That's a lot of discs everybody.
+That's the requirement.
+Okay, all right.
+But SnapRaid will support up to six parody drives
+if you are really paranoid.
+I think people should let me know at Chris LAS,
+am I crazy to set up a Raspberry Pi storage server
+with disc running off the USB bus?
+Is there a SATA hat for the Raspberry Pi four?
+Because I'd love to get a Raspberry Pi SATA hat.
+So I think to me at this point,
+you're pushing what the Pi is really suitable for.
+Damn it, I know, I know.
+I'm wondering if you shouldn't just build
+a hundred dollar used X86 system.
+I built for my PF sense a little while ago,
+an i5, I think third gen system for a hundred bucks.
+I mean, maybe for the storage, I could see it.
+I just, if I think if I did the storage over iSCSI,
+all the Pis are ethernet gigabit wired in.
+And on the Pi four, it's on its own bus now.
+So, and it seems fully capable.
+Here is the reason why I'm being resistant
+to the idea of going somewhere else.
+They're disposable at 25, $35.
+They're inside a seat, they're inside my dinette seat
+and it gets hot in the summer in there.
+I mean, they might just burn up over time,
+but all I have to do is pull out the SD card,
+pop in the SD card into a new replacement Pi
+and I'm out 35 bucks.
+If I have to replace them once every year or two,
+that's pretty reasonable.
+Plus the way I've done it is I've Velcroed them
+because they're so little.
+I Velcroed them to the wall of the seat inside.
+It's a wood, how would you explain this?
+It's a dinette seat, but people don't know what a dinette is.
+It's a booth, it's a booth.
+It's a booth seat with a hollow inside
+that you can take the cushion off
+and take the board off the top of the booth
+and it's all empty inside.
+And praise be to Thor, this is where they decided
+to install my subwoofer for the sound system,
+which is on an inverter.
+And to power this one small subwoofer,
+they ran an entire AC outlet
+into the inside of this booth seat.
+So there is an AC plug on the inverter
+that runs off of my house batteries.
+Wait, wait, wait, wait, wait, wait.
+Doesn't the Pi run on DC power?
+Yes, that's for a future episode, Alex.
+Okay.
+Once I go solar, I've got to get everything on DC.
+Okay.
+But right now I just have, I have a surplus,
+well not a surplus,
+but I have 200 amp hour lithium ion batteries.
+So I can get about 12 to 18 hours
+of using the RV off battery power.
+I wonder how long you could run
+just a Pi four off that battery for.
+Years probably.
+Very, very long time
+because a 3800 milliamp battery
+supposedly will run it for like 16 hours.
+So there's a plug inside this booth seat
+and I have every,
+so I have installed all of my equipment
+inside this booth seat.
+I have my switch Velcroed to the wall of it,
+my router, all three Raspberry Pis,
+the discs that are attached to them,
+their USB hubs, everything's Velcroed in
+really nice and secure and snug,
+but don't call it Velcro, it's loop and hook.
+And so I'd hate to go away from that.
+Yeah.
+You know, you have a very unique set of requirements.
+I don't think most people need to drive their data
+down the road every week, but you know, if you do.
+I think you'd be surprised.
+Digital nomads are a bigger and bigger,
+bigger work demo.
+People who, because really what I'm doing
+is I'm trying to build a system for anybody
+who needs to work and travel at the same time.
+Mine's gonna be at a larger scale,
+but the concepts are applicable to anybody
+who works and travels.
+And so I am trying to solve these in a way
+that is low power, works off of maybe solar
+and is as best as possible noiseless.
+I don't know, you might be right though.
+I'd like to hear what the audience thinks
+I should do for my storage setup.
+Yeah, you can use the hashtag ask SSH.
+Now, speaking of the hashtag,
+Matty McGraw wrote in through JB Telegram,
+for data security, I want to do mirroring
+of my data does, directories.
+Is ZFS the best choice?
+I don't have tons of RAM.
+You know, I recently did some testing
+that shows that if you have even like 16 gigs of RAM,
+you'd probably be all right
+with certain storage mounts in reason.
+It really kind of scales to how much storage
+you have with CFS.
+I think in the old days, the recommendation
+that I certainly recall,
+and maybe we should hit Alan up
+for an up-to-date recommendation,
+was one gig per terabyte.
+I don't know if that still holds true now or what.
+Ish, I think is the old recommendation.
+But I think the other question
+that is embedded within the question is,
+if you want data integrity, do you have to go with CFS?
+Let's say it's like pictures of the family
+and you know, they're just irreplaceable.
+Does that, is your only option using ZFS?
+I don't know, I think after our conversation today,
+it might not be.
+Let's take the MergerFS SnapRaid situation, right?
+SnapRaid does checksumming.
+So every time it calculates parity,
+it is checking the integrity of those files
+at the file level, not the block level,
+which is where ZFS wins out.
+But what's interesting is that
+you can do your SnapRaid scrub,
+which has much the same kind of connotations
+as a ZFS scrub, which again, just checks the checksums
+and makes sure that the file integrity is there.
+You do get things like compression with CFS,
+you get encryption, and obviously you get bit rob protection,
+which is one of their favorite things.
+But really that just means it's checking the data.
+And you get other things that are more advanced
+that can be really great for backup,
+like ZFS send and receive.
+And data sets, I'm falling in love with data sets.
+Yeah.
+However, if this is not, if everything,
+if the words we just used do not excite you,
+it may not be the file system for you.
+That could just be the measure you use.
+And I am such a big believer in using systems
+that you are comfortable administering
+and keeping up to date and secure
+if you choose to self host.
+This is why I took FreeNAS off of our storage server
+here at the studio.
+FreeNAS is a great product.
+I am not the right type of user for FreeNAS.
+When I have a problem with my system,
+my troubleshooting technique is to get a command line
+and look at the logs, look at the output of the system
+and start troubleshooting and start fixing.
+That breaks FreeNAS.
+You need to use FreeNAS through the GUI.
+It's not my use case.
+I also, I'm not as familiar with FreeBSD as I am with Linux.
+And if it's my super valuable data,
+I want it to be on a system that I know how,
+like Alex said, I know how to rip the hard drive out,
+put it in another system and get to that data.
+I gotta know how to do that.
+And what ended up happening is once we flipped that thing
+over to Linux, I used it a hundred times more.
+We've now got so many applications on there.
+We've got backups, we've taken care of things
+like getting properly signed SSL certificates.
+Like it just went, it went much further than I was expecting.
+And once I switched to a system I was comfortable with.
+So Maddy, that's my number one advice.
+I know you've got some experience with Linux.
+So I would recommend maybe not doing FreeNAS.
+I would also recommend maybe looking
+at something like SnapRaid.
+You don't need mergerFS to use SnapRaid
+if you just want the snapshotting
+and backup capabilities of SnapRaid.
+And then look into getting that data offsite.
+So this is an important thing to focus on,
+which you're looking at right now.
+But like we mentioned earlier in the show, one is none.
+And two is not enough really.
+No, no, it really isn't.
+But the other thing to consider, right?
+Let's say that he went really simple
+and used something like rsync just to copy data
+from one place to another, one server to another,
+one directory to another.
+It doesn't really matter, rsync doesn't care.
+What you've got to think about is let's say
+that you have some kind of, what's that?
+Is it crypto malware or something?
+Oh yeah, sure enough you mean, yeah.
+Crypto ransomware, ransomware, thank you.
+Thank you, Brain.
+So let's say you have some ransomware situation, right?
+Where the files on your source of truth,
+your main system get encrypted
+and you don't know how to unencrypt them
+or you delete something or you just generally screw up, right?
+If you have a script
+which is automatically overwriting data
+at the other end every time, like rsync would,
+you're also going to sync the encrypted copy
+potentially over the top of your quote unquote backup.
+Or a damaged file or deleted files potentially,
+depending on how you have it set up.
+There's a lot of ways that it could break.
+So this is one of the things where ZFS send
+would come into play
+because you'd have data sets to play with.
+And you could just roll back to the old data set
+before the ransomware happened.
+But is that a common problem?
+I mean, the deletion thing is probably quite common
+for people, but there are tools like our snapshot
+that will do similar sorts of things on a non ZFS system.
+There's a lot of options to be honest.
+Alex and I both like to use duplicati
+as a way to back up some of our server stuff.
+Yes, how did I forget duplicati?
+Yeah, I use that every day and it just works.
+But it suffers from the same situation, right?
+If my source of truth here gets encrypted
+or I delete something,
+it's going to also delete it on the other end.
+The nice thing about applications like duplicati,
+another one that's super great for local backups
+is backup PC, been using it,
+I think since like 2008, 2005, I love it.
+Backup PC and duplicati will support revisions,
+which is really nice.
+So you can revert back.
+You can also have it configured not to do that.
+So that's why it's important to go through it.
+When you decide to self host,
+this is going to be like my soapbox
+for like the first 10 episodes.
+When you decide to self host,
+you're taking on a little additional responsibility.
+You got to check these things.
+Do I have revisions and stuff like that?
+But here's the thing, when it breaks, it's on you,
+not some massive data breach like Equifax
+or something like that, right?
+Like it's your fault.
+And I actually kind of appreciate the honesty of that.
+There's also the reality that you're not nearly the target
+that Equifax is or Amazon, right?
+You're almost in some ways enjoying the obscurity,
+I would say.
+And I kind of like it to be on me,
+because it is my stuff.
+It's just a digital version of my stuff,
+just like the security of my home is on me.
+So I prefer it that way.
+I'd rather not outsource the security of my house
+or my RV or the studio.
+So yeah, I think it's a little more stress,
+but it's also very gratifying.
+Like when my setup,
+when this stuff I'm doing in the RV works,
+like with Home Assistant, it genuinely gives me joy.
+Like it just gives me so much joy.
+And I feel like I know I've done a good job,
+like with the wire running for the cameras,
+I'm proud of that.
+Where I mounted things,
+how I've done the pies are mounted
+and run the wires for that, I'm proud of that.
+Like I've put craftsmanship into it.
+It's given me an opportunity at the end of the day
+to come home and work on something for an hour or two
+that gives me genuine satisfaction.
+And it also improves our digital wellbeing.
+So there you are, Matty.
+I'm sure we've just completely made that
+even more complicated for you
+by giving you 15 more different options.
+You see, why wouldn't everyone want to hashtag ask SSH
+and get their question on the show?
+Exactly.
+So you can get more of the show at selfhosted.show.
+I'm on Twitter at ironicbadger.
+I'm at Chris LAS.
+The network is at Jupiter signal.
+And don't forget extras, extras.show
+with our merger FS interview coming up,
+probably already out by the time you're hearing this episode.
+And also a plug for another brunch
+that was excellent recently
+was the Alan Jude Brunch with Brent.
+So, you know, he talks more about ZFS of course,
+cause it's Alan.
+Yes, and his free BSD stuff.
+And yeah, that'd probably be a fun episode
+for people that are into self hosting.
+Great, great point.
+Yeah, check out Brunch with Brent and Alan.
+That was a good one.
+And then one final JB plug is techsnap.systems.
+Yes, talk about getting simple explanations
+of how these complicated ZFS things work.
+Jim Salter is a master at explaining ZFS.
+He's really good.
+And particularly techsnap414 is all about ZFS.
+And I really enjoyed the snapshot discussion.
+And 415 is gonna be about benchmarking,
+which should be really interesting.
+Absolutely.
+So thanks everybody for listening.
+That was selfhosted.show slash five.

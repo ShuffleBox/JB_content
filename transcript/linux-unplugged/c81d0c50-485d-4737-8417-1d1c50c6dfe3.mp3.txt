@@ -1,0 +1,1262 @@
+Did you see the Telegram was bragging about 500 million active users?
+Oh boy.
+Yeah, and they said 25 million new users in the last 72 hours.
+It kind of seems like a great way to get a target right on their back.
+Somebody's going to take notice.
+Apparently it was a big wave from the riot on Capitol Hill.
+A bunch of people were like, oh no, we need to communicate in top security.
+Uh oh.
+Oh yeah, Telegram, the maximum security chat program.
+Nobody tell them about Matrix.
+Hello friends and welcome into your weekly Linux talk show.
+My name is Chris.
+My name is Wes.
+Hello Wes.
+Looking very dapper today.
+I like the all silver outfit.
+Well, I thought you'd like the bow tie especially.
+Well, you know what really impresses me is those socks.
+That is really going the extra mile.
+This episode is brought to you by a cloud guru, the leader in hands on learning.
+The only way to learn a new skill, you know it, is by doing it.
+That's why ACG provides hands on labs, cloud Linux servers, and much more.
+Get your hands cloudy at a cloud guru dot com.
+So here we are gathered together for episode 388 and we're doing things a little differently.
+So I want to first I want to say just to keep some tradition, some form, I want to say time
+appropriate greetings to the mumble room.
+Hello, virtual lug.
+Hello.
+Good evening.
+Hey guys.
+Hey guys.
+We're all kind of fired up today because we've been playing around with PeerTube 3.0, which
+introduced live streaming support and it's peer to peer live streaming and it really
+is now a full YouTube killer in a box.
+You get everything you get with YouTube like from the good old days where a clean feed
+of what people have recently posted, subscriptions, but unlike YouTube where it's spying on you
+constantly to feed an ad algorithm, it's free open source software and it's peer to peer
+and it can federate with other PeerTube instances.
+You guys have heard us talk about it before.
+We've had different experiments with it and recently we've been experimenting with a real
+small instance over at Jupiter dot tube and playing around with its peer to peer live
+streaming support.
+So this episode and the last three days worth of live stream or tests that we've done have
+all been on PeerTube and it's kind of crazy exciting because it is working and it has
+allowed us with one Linode and some object storage to essentially create a worldwide
+CDN where people are watching it and it still seems like it has a couple of kinks so we're
+still testing it.
+It's not like a production thing, but Wes, I mean, how long do you think the setup was
+in total?
+Well, I don't know, an hour or two maybe at most.
+We built a test, a real test one, then we spun up our actual test instance.
+So you know, there's some things getting everything configured, getting installed, but I mean,
+it's all powered by Docker anyway.
+And they've also got a very robust and nice guide if you just want to set things up traditionally,
+use the stuff like Postgres and Redis and TypeScript.
+So nothing weird or out of the box or hard to find anything like that.
+So I mean, an afternoon, really an afternoon to get it set up, start playing with it.
+And since then, it's been the same configuration.
+They've got a lot of nice admin facilities.
+They've got like a guide for, hey, you're the backend admin and you want to set everything
+up by hand.
+And they've also just got like a guide aimed at once you've got an instance, how do you
+administer this?
+How do you set it up?
+How do you make it useful?
+How do you set all the transcode options?
+Honestly, I've been pretty impressed by the docs and all the configurability so far.
+Yeah, and the options are really getting there.
+I think customization, but not in an overwhelming way is a big part of what they're trying to
+go with this.
+As a content creator, I like a lot of the options they give me.
+I can set system themes, I can install plugins fairly easily.
+It's easy to create live streams and choose if the live stream is persistent and remains
+available for playback afterwards.
+But the other thing that's nice because of the architecture is we have 30 people or so
+watching it right now and the load on the server itself still remains pretty low.
+Yeah, early on we were looking at it and it was bouncing between 6% on the CPU and this
+is a four core box to about 40% and at one point, just looking at the history, it looks
+like it spiked up to around 60% CPU usage.
+But this is, it's a YouTube instance in a box with 30 people watching a live stream
+and you can configure how many are allowed to live stream and then the viewers themselves
+become the CDN.
+It's just so neat and I love where the project's going with it.
+So we're all kind of fired up today because we've been talking about that.
+But we're gathered here really to geek out on GPUs.
+I think even if you're not a graphics head, you're going to get some valuable information
+out of this episode.
+I've been testing this new XPS 13 from Dell, the latest developer edition with the 11th
+gen Intel processor.
+I recently reviewed it in Coder 395.
+I've been honestly trying to just wrap my noodle around the performance of this XE GPU
+and the 11th gen CPU and I knew I needed to better understand it for the audience because
+I could tell I was reaching the limits of my understanding and so I wanted to reach
+out to somebody who had a deep understanding of this stuff and could communicate it really
+well.
+So I called up Wendell from Level One Techs and of course, Level One Linux.
+He's a great resource for this kind of stuff and he's been covering a little bit of the
+future of these XE GPUs and what it could mean for virtualization on his Level One Linux
+channel.
+I'll have a link to that in the show notes.
+So he came on and he and I just started geeking out.
+We started talking about the XE GPU.
+We talked about Intel's new OneAPI initiative, which I won't spoil, it's a massive endeavor
+that Intel's trying to leverage their position that they have right now.
+And then later on in the interview, we also get into his current daily driver Linux setup,
+which I think you might be surprised about his answer.
+Ooh.
+Yeah, I gotta ask, you know, I gotta ask.
+Of course.
+Of course, there's a few terms that get used in this episode that I wanted to define if
+you're not a graphics head.
+GVTG is virtualizing the GPU for multiple guest machines.
+So it effectively gives you near native GPU performance in a virtual machine while still
+also allowing the host to use that GPU.
+So that's GVTG.
+VFIO comes up that allows virtual machines direct access to PCI hardware resources like
+the GPU or a network card or another PCI device.
+I've actually passed through like a USB card to it and even a dock, a Thunderbolt dock.
+That's using VFIO.
+And then also another term that gets mentioned that you may or may not be familiar with in
+this interview is IGPU.
+In the context of our chat, it's the graphics card that comes built into Intel CPUs.
+But don't worry, stick with it.
+Even if you're not a graphics person, I think there's something that'll interest you that's
+worth listening to in this chat with Wendell.
+So the reason I wanted to chat with you today was I got my hands on a Dell XPS Developer
+Edition that has an i5 11th Gen Intel CPU and the XELP graphics in it.
+And this little laptop is blowing my X1 Carbon 10th Gen with an i7 CPU and GPU away.
+I mean, it just is shredding it in machine learning benchmarks.
+And I can play actual video games on it.
+I can play Tomb Raider.
+I can play Hotshot Racing.
+I can play CSGO and nothing that's super demanding, but games I'm currently playing that I actually
+enjoy playing, I can play them on this laptop with an integrated GPU.
+And I thought to myself, something must be going on here more than I can appreciate.
+And I thought, this is something I need to ask Wendell is like, what's going on with
+these XE or Z graphics?
+And I hear about a dedicated GPU and the whole thing.
+So can you kind of just fill me in?
+So Intel had their one API thing and a lot of details, I guess, about the Intel graphics
+stuff came to light.
+And they've got XE graphics now in their 11th Gen.
+And to me, that's not quite, I mean, it's like, OK, it's impressive, but it's also not
+super impressive because the integrated graphics sort of stagnated there for, I don't know,
+like four generations.
+And then so the XE graphics that's in the 11th Gen, yeah, it's OK.
+But what Apple is able to do with their integrated graphics arguably is more impressive because
+that would be something more on the level of what I would expect from Intel when they're
+going to release XE graphics to begin with.
+But maybe the second generation of that will be good.
+And at Intel in their one API, they sort of revealed some of the DG1 dedicated graphics
+stuff and like DG2 and what they have in mind for XE graphics, especially in the data center.
+And packing 1,000 Dota sessions or whatever on a single card, which had four GPs on it.
+But it's a single PCIe card.
+And so that's kind of exciting because they're hitting power targets, not just throwing raw
+watts at it to get the performance.
+But also like maybe that will be good for laptop users having those kind of things integrated.
+But in the bigger picture, how everything stacks up, it's like the Apple M1 and then
+like Radeon integrated graphics.
+And then way on down the list is the old iGPU.
+And somewhere between the M1 and the really old iGPU is XE graphics.
+It wins some against Radeon.
+It loses some against Radeon.
+It's a different architecture, and it is really interesting.
+I suppose your point's well taken, though.
+Ideally, we would have been where we're at right now about three generations ago.
+So it's good, but not as good as it should be by now.
+Yes.
+Yeah.
+I mean, if you want to take the anti-Apple spin on it, you can say, well, Apple was able
+to do this with failed toaster parts and used rubber bands.
+So the big people should have been able to at least be that good.
+But the reality is that ARM and some other things are doing some magic for us.
+But Apple did some genuinely good engineering with their processors and worked with some
+smart and talented people to sort of bring it together.
+And XE graphics is still sort of bolted on a legacy architecture, but I don't have a
+feel for how different or how similar XE graphics is to things that have been tried in the past,
+like Larbi.
+And early on with Larbi, it looked like Larbi was going to be amazing because they're engineers
+that are a deep dive on, I think, Quake, one of the id Software engines.
+And there's 1,000 or 2,000 lightweight x86 cores on this GPU because, yeah, you can use
+x86 for everything.
+I mean, what could possibly be wrong with that idea?
+And then you look at a game like Quake, and it turns out that that kind of a game, the
+engine was basically from the mind of a genius or mind of several geniuses.
+And nobody else built game engines that way.
+But that wasn't really discovered until they went to port other game engines later.
+And so it was like, oh, Larbi, maybe this isn't good for anything other than Quake.
+But in terms of running hardware really quickly, it ran Quake really, really amazingly well.
+And that's what Apple has done with M1 and M1 graphics is they've looked really closely.
+They've done a lot of analysis on the software that they run and the instructions and also
+the emulation layer, like the stuff that they added to make ARM better able to deal with
+x86 instructions, which are variable length.
+That's some really clever stuff, but it's from a deep dive at just looking at the sequence
+of instructions that are run and looking at the insanity and saying, OK, what do we have
+to do here?
+Let's make this work.
+It stands to reason they did the same thing with graphics.
+And that's the difference here.
+That's the difference for the IGPU.
+They really looked at a whole ecosystem of games because Tomb Raider is fairly well optimized
+and runs really good on the mobile embedded platform.
+With Xe graphics for one API, what I'm starting to see from one API is Intel saying, OK, in
+order for us to squeeze more performance out of Silicon, we're going to have to change
+our software.
+And so I think this is kind of long winded, but this is just a long winded way to preface
+this by saying, I think Apple is taking a hardware assisted software optimization route.
+And I think Intel is taking a software assisted hardware optimization path.
+So on the one hand, you've got Apple, which is doing a pre pass on your software to make
+it better fit the hardware.
+And the hardware has stuff in it to run the instructions that are not necessarily ARM
+instructions a little better.
+Intel, on the other hand, is saying, we need to make adjustments in software and recompile.
+And so this is happening at compile time.
+And the other one's not happening at compile time, but it's not happening at runtime either.
+It's sort of in the mix.
+And I think there's pros and cons for both approaches.
+Sure.
+It seems to me, though, the advantage long term of Intel's approach is that that stuff
+is baked into Linux.
+And as longtime Linux users, I think you probably agree.
+We can be patient with this kind of stuff.
+And if it means in years down the road, we will have really reasonable laptop and desktop
+graphics that are totally supported out of the box when I install Linux, I'm along for
+the ride.
+And it doesn't have to be absolutely, that's what I think excited me about the Xe graphics
+is it doesn't have to be competitive with the latest Nvidia and AMD graphics.
+That's not my work case.
+My work case is mostly I want an accelerated desktop.
+I want accelerated video encoding and decoding.
+And I want to be able to play some games really well, but doesn't have to be like on absolutely
+high settings.
+And I think Intel could get us there and no driver fiddling required.
+I just recently, in two different scenarios with two totally different distributions,
+went down the rabbit hole of having to fix a system after a failed Nvidia driver install.
+And it felt like I was back in the early 2000s all of a sudden.
+And so for me, I just can't wait for this stuff to work out of the box.
+And I think the other thing that you touched on in a video of yours that I'll link in the
+show notes is it seems like Intel's baking in more shared GPU features for virtual machines.
+And that could be really awesome for a lot of users.
+Yeah, I think one API, their vision of one API is comprehensive from what I can tell.
+And so imagine like, yes, it's all of those things, but it also reaches into other operating
+systems even than just Linux like Android.
+So their vision of it is to make it super easy for developers to not have to worry about
+anything.
+So I did the interview with Jeff McVeigh that'll probably be out maybe Monday or Tuesday.
+And obviously, a lot of it is not there yet, but the vision is to make everybody not have
+to worry about it.
+And if you look at the language, like the problem that I have with it, if you look at
+the language, it's a lot of really crazy stuff in terms of really high level abstraction.
+And it's like, OK, but tell me how that's going to make my life easier.
+And one thing that I have a personal experience with is just the linear algebra libraries.
+And the linear algebra libraries, like you think it's like how many ways are there to
+just let's compute the eigenvalues of this.
+Let's do some matrix multiplication.
+Turns out on a modern x86 processors, there's like a dozen ways to do that.
+And some ways are faster than others.
+Some ways are faster with a sparse data set.
+Some ways are faster with a full data set.
+Some ways are, you know, it's just it's crazy.
+And so a lot with this open source like we do in the research thing, you actually need
+to run some tests, not only in your data set, but also on the machines that you have available
+to do the testing.
+I can't just dive into the calculations and say to the library, here, go calculate this
+for me.
+Because you're not necessarily going to get the most efficient path to do the calculations
+based on your hardware and the available data.
+And so one API is supposed to take all of that away, but also supposed to make things
+a little easier cross platform, like, you know, the new the new iPhone 12 has like this
+lidar thing that's completely crazy.
+And I was watching I think it was an Unreal Engine demo the other day or something.
+No, it was it was a it was some third party company has trained a model that will produce
+blender models from lidar and a camera.
+And it is unbelievable.
+Like, you just hold the camera up and slowly move it around as it as it indicates.
+And it uses the lidar and the camera in the iPhone to produce a realistic blender model
+of whatever it is that you were doing with your phone.
+And it is truly incredible.
+It's just it's just insane.
+And so from the descriptions of one API, what's happening in my brain is saying, okay, if you're
+going to build that, there's a phone component, there's a cloud component, there's a training
+component, there's all these different software stacks, you think about developing an Android,
+it's like, okay, I'm going to get out Eclipse or Android Studio, the JetBrains tools, whatever,
+and start, you know, there's that whole tech stack and ODB and getting all that stuff ready.
+And then in the cloud side of it, it's like, am I using Amazon lambda, and it's got all
+the stuff that goes with that, or if I'm not using Amazon lambda, maybe I have to do my
+own cloud infrastructure, maybe I'm going to need, you know, a whole tech stack there.
+And then there's probably gonna be some middleware applications where I'm going to do, you know,
+some special sauce or whatever, and it's gonna be a whole other product stack there.
+And Intel is saying, look, this is too much to ask of developers and research scientists
+and stuff like that.
+We need to come up with a really high-level interface to all of this stuff and open it
+as much as possible so that everybody will build it, because we're spending a lot of
+our time, you know, figuring out which instruction set will do basic linear algebra the quickest,
+and we don't need to do that.
+And that is kind of, you know, to your point, that is kind of what Intel has in mind is
+to take those optimizations away so that you don't have to do those optimizations yourself.
+The library sort of knows that and figures that out.
+How long do you think we'll be waiting around to see one API take off?
+And what do you suppose the chances are of vendor adoption, like, say, AWS, for example,
+or other vendors?
+Are they on board?
+Or is this gonna be something that Intel comes up with that's a really great idea that doesn't
+really see much vendor adoption?
+I don't know.
+I mean, it's so large and so ambitious, it's probably gonna be both.
+We're probably gonna see some vendors adopt it and for it to make sense in some places.
+I would love nothing more than, like, you know, again, like, for one API and all of
+its lofty goals, it's hard to talk about because it is so large and abstract, but, like, concrete
+goals for me personally is I hope Intel's GVTG takes off.
+This is kind of like Intel's answer to SRIOV, and it's been here a while.
+It's not really new.
+Actually, Intel's moving a lot of things that they've already had under one API.
+So in some ways, yes, it's ambitious and we talked about it in lofty goals, but the reality
+here is a lot of this stuff already existed somewhere else in some way, and they're just
+kind of bringing it together.
+But GVTG is an extension to the graphics subsystem, the iGPUs, like in Xeon E3s.
+So I think Intel's had this discrete GPU plan for a while.
+Now, you know, the iGPU and the Xeon E3, that is, like, when you say anemic GPU, like, there's
+a picture there.
+That's what it is.
+So it's like, okay, I've taken, you know, an unsustainable amount of food and I've divided
+it among four people or I've divided it, you know, I've divided this infinitesimal amount
+of GPU horsepower among four virtual machines.
+You can do that with GVTG.
+You can slice and dice it where two virtual machines or three virtual machines, unlike
+SRIOV, which tends to be more of a hard partition when we're talking about it in the graphics
+space in terms of VRAM and some of the other components, GVTG is a little bit more flexible.
+You get, you know, GPUs weren't designed for things like context switching, but you have
+a little bit more of an ability to do context switching-like behavior with GVTG.
+And so in the demonstrations that Jeff McVeigh did in the one API presentation and, you know,
+in some of the stuff that Roger Koduri was talking about, it looked like their GPUs were
+set up to do that.
+So it's like, I want to run a thousand Dota clients across four GPUs.
+Okay, you know, we can do that.
+Now we've got a really, you know, a really heavy demanding simulation workload that we
+need to run in this other virtual machine.
+And it's like, okay, well, we can move the Dota clients over to these three GPUs and
+give the heavy simulation, you know, one dedicated piece of silicon or whatever it takes to actually
+run it.
+And so those functions are the things that I'm looking out for.
+I'm looking for that.
+I want to be able to take the changes that they make to the Linux kernel and be able
+to roll with that because one of the things they specifically talked about in the presentation
+is being able to take the frame buffer from that GPU and shove it into another GPU directly
+over the PCI bus without hitting main memory.
+And for our Looking Glass project, that would be the Holy Grail.
+Like if the plumbing is there in the Linux kernel to do that for the Intel GPUs, we know
+Radeon GPUs are quasi capable of it.
+What we need to do to move, we as a community, need to do to move the needle forward to be
+able to do direct GPU frame buffer, frame buffer copies.
+At that point, we're no longer constrained by main memory bandwidth.
+We can literally copy that frame buffer directly into another GPU from a guest GPU to a host
+GPU.
+That's really the next step for speed and optimization in VFIO.
+Not only for enterprise workloads where they're doing simulations or tons of streaming clients,
+but I would love to see this land in consumer machines because it would make VM super fast,
+obviously, but it also means we'd be a step closer to fully isolated applications where
+the entire stack is completely isolated, but you're not taking a big performance penalty
+for that.
+Yeah.
+I mean, having a hardware assist, I mean, that level of containerization, I don't really
+call it containerization because I'd apply something else, but that level of containerization,
+that can only be the future.
+Or isolation.
+Yeah.
+I mean, we have to have this level of secure compute.
+Like there's no, like the security threats and the stuff that we see with things like
+solar wind, there is no reason today that we shouldn't be running all of our applications
+in individual application sandboxes.
+I mean, it's almost to the point where each individual application should have its own
+encrypted memory space.
+The thing that's preventing us from getting there is market segmentation.
+We have the hardware, we have the technology, come on guys, let's dot the I's and cross
+the T's.
+Right.
+Yes.
+That sounds like another rant I heard recently from a well-known individual.
+I want to take a moment and welcome a brand new sponsor to the network and to the show.
+It's oh dear.
+And the timing is perfect because I think a lot of us are looking for a better take
+on how to do monitoring and looking for something that was designed to work with automation.
+And that's where oh dear comes in.
+Go to oh dear dot app and use the promo code Linux for a $10 discount on any plan.
+Oh dear was co-founded by the author of cron dot weekly and a listener of the show.
+So they're also from the community.
+And I think that's really great.
+But you know, as somebody who does run a lot of services, I know what it's like to be informed
+by my listeners that something's out before I know it's out.
+So be the first to know when your site is unavailable.
+Oh dear has global uptime checking with servers that are worldwide that will report a problem
+as soon as it happens from multiple different angles and they can go deep into your site.
+They can crawl and index your entire website and detect a broken link and notify you about
+that.
+There's also the ability, of course, to monitor all kinds of aspects of the backend infrastructure.
+So perhaps you have scheduled tasks or cron jobs and you want to find out if they've run
+or not and look and get alerts if something doesn't execute.
+Oh dear completely accommodates that.
+Oh dear is always monitoring the performance and speed of your website over time so they
+can detect if something happens immediately.
+If you have a sudden performance impact, something gets really slow or get a historical snapshot.
+See if performance is changing over time.
+But the thing that really makes oh dear really special is the API.
+It lets you configure everything about the application.
+Everything you see in your dashboard can be controlled with an easy to use restful API.
+And of course, any changes you make via the API are visible in the dashboard in real time.
+It's the monitoring solution that embraces automation and gives you the tools to make
+it possible.
+And it's comprehensive API means there's tons of third party integrations already available.
+There's of course a command line client, but there's other neat ways to interface with
+like the notifications in the system to over the API like a telegram chat bot.
+There's a JavaScript SDK, a terraform provider and a lot more.
+So right now head over to oh dear dot app.
+Oh dear dot app and start a 10 day no strings attached trial, no credit card required.
+You can get set up in less than a minute.
+And when you do sign up for any of the plans, use the promo code Linux for a $10 discount.
+And if they ask, tell them the Linux unplug program sent you.
+It's pretty neat.
+And I think you probably agree.
+It's time to relook at how we're doing monitoring, go with a fresher take on something that is
+designed for automation with a comprehensive API and great documentation too.
+So check them out.
+It's oh dear, oh dear dot app promo code Linux for a $10 discount.
+And thanks to oh dear for sponsoring the unplugged program.
+So my conversation with Wendell continues and I asked him about his daily driver Linux
+setup.
+So before we go, I want to ask you one last question and that's just a snapshot of what
+Wendell's daily Linux drivers look like today.
+Are you still mostly a fedora guy?
+What kind of hardware, et cetera?
+My main machine is a threader for machine.
+It's a 3970X.
+It's got 128 gigabytes of memory in it right now.
+It has a Tesla V100, a 2080Ti and a, I think it's a, no, no, it's the 6800, it's a 6800
+non XT.
+Whew.
+And I'm about out of PCI-E.
+Oh, wow.
+Do you just run the whole OS at a RAM or what?
+Well, I mean, that's the, that's the goal right now.
+The V100 can, you can use the V100 as a Titan kind of sorta in a VFIO like type pass-through
+type situation.
+Oh, that's nice.
+That works pretty well.
+Yeah.
+So you can, you run it as a V100 as pure compute or you can run it as, as whatever.
+It's still, it's still a little sketchy sometimes binding and unbinding GPUs.
+So that can, that can be a little, a little weird and it's not, it's definitely not an
+ideal situation.
+I'm not running Fedora right now.
+I do have, I'm running 20.10 because I've been helping a lot of people on our forum
+use 20.10.
+I still have another machine that I do work on, which is still running Fedora, but the
+Threadripper machine is running Ubuntu and it's, it doesn't have the same optimizations
+for performance for virtual machines out of the box.
+And so people on our forum and some, and some other people will have trouble with things
+like, you know, sometimes it's crackling audio or sometimes like the virtual machine performance
+is fine until you go to write to disk.
+And I've found that I've had to do a lot more sort of hand tuning to get those things to
+work well on the Ubuntu 20.10 kernel versus Fedora.
+And I was going to try the low latency kernel, but then I ran into another problem, which
+is you don't get ZFS out of the box necessarily.
+And so like the newer kernel, it's like, okay, I'll download the, the, the devs for Ubuntu
+from kernel.org.
+I was like, oh yeah, ZFS is not a thing with those kernels.
+Crap.
+I did not realize that.
+Yeah.
+It's a, and then it's like, okay, let me get the DKMS thing and it's like, oh, this doesn't
+work either.
+Like, have I, have I painted myself into a corner here?
+So I've been, I've been forcing myself to use this setup so that I can sort of learn
+what those pitfalls are.
+Cause I didn't expect that either.
+Like I expected that when I download the Ubuntu kernel from kernel.org, you know, for 20, cause
+it's like, okay, let's try 5.10 on 20.10.
+But yeah, ZFS, the ZFS DKMS thing wouldn't, doesn't build and it's not in the kernel because
+the canonical hasn't got a hold of it yet.
+So you have to get the kernel that canonical got a hold of in order to get ZFS.
+Oh, okay.
+When you lay it out like that, I guess that makes sense.
+I see it.
+But that was a nice gotcha.
+And it's interesting that there's enough people that are using 20.10 that you felt motivated
+to switch over to it.
+And do you think people are doing that instead of using the LTSs for graphics driver and
+Mesa stack updates or?
+Yeah, that's what led to all of that.
+There was, there was a bit of a, a bit of a kerfuffle when the 6,000 series GPUs launched
+and it was like, crap.
+I'm going to have to figure this out.
+And it really, for me, it wasn't really too bad, but you know, I might be a little bit
+snow blind to it because I have so much experience with it, but it really wasn't a huge deal
+to get it working on 20.10.
+And so like, you know, AMD did a lot of work to get it working on 20.04, but 20.10 launched
+like the week before the GPUs launched.
+And so you could install the driver from AMD.com and there's, you can get the open driver or
+the proprietary driver, but the open driver was basically Abhari with the, with the closed
+driver.
+And you could get Mesa, newer Mesa and Radvi and, and some other stuff.
+I don't know if I'm saying that right, but the, all the accoutrement that goes like with
+the stuff that's not in the kernel, but it's a little bit of a, you know, I could, I can
+kind of relate because it's a little bit of a trap for newbies because it's like, oh,
+I'm running the newest kernel.
+And it's like, well, there's all this other stuff that's not in the kernel that you also
+need in order to be able to run your games and do your stuff, or you need somebody to
+backport those things into something that will run in your environment.
+And so, and then, or some poor soul somewhere has to spend a ton of time backporting the
+cool stuff in 5.10, which there's a ton of cool stuff in 5.10 and newer to like kernel
+5.8 or 5.4 in the case of 20.04.
+And so it's kind of an impossible situation because you want the people doing the development,
+doing the development on branch master, I guess, for lack of a better way to describe
+it, like on head, like you want them doing the work there because that's where it is,
+or they know where the bodies are buried, you know, wherever it was.
+And so they were doing their work all along when head was 5.4 and they know what's broken
+in 5.4.
+And so it seems like a crazy situation where, you know, somebody inside of AMD and somebody
+inside of Valve or somebody on Valve's indirect payroll, because Valve is greasing the wheels
+here very quietly with a lot of money and that is appreciated, but you know, it sort
+of gets spoiled.
+Like if it's like, oh, Valve is paying $3 million to, you know, developers all over
+the world to advance this thing forward, then, you know, as the people tend to want to want
+to want to pee in the Cheerios as it were, it's better to just keep it quiet and just
+get the work done and, you know, not not do anything for the fanfare.
+They're not necessarily in it for the glory anyways.
+Yeah, yeah.
+They just like, I just I just want a reasonable computing experience.
+That's where I am with VFIO.
+It's like the whole reason I do the VFIO stuff rather than trying to run a native is like,
+I don't, you know, I don't have time for this.
+I just want it to work.
+And it's like, yes, I would love it if everything worked perfectly on Linux, but I don't have
+time for that.
+So I want Linux to do what Linux does well, because I can count on Linux to do that.
+I don't want to bring the horrible ugliness into Linux because it's my nice, clean, pristine,
+you know, thing.
+But like the whole understanding in the community of like the whole driver thing with the 6000
+series GPUs and all that, it's just it's like when the fabs were spinning up making those
+GPUs, there were developers developing on what was then the head of development for
+the Linux kernel, which is probably like five point four or five point six or something
+in that, not five point ten or, you know, five point ten, you know, beta one or whatever.
+And Ubuntu 2004 would have been sort of the big release.
+It's what, you know, Canonical says the majority of their users are using the LTS releases.
+Of course, the enthusiasts are using the latest releases and the enthusiasts are likely the
+ones to buy new GPUs when they first come out.
+But yeah, OK, we're using an LTS support, but long term support doesn't imply that it's
+going to have the scaffolding and infrastructure to be able to support all of this stuff that
+you get with graphics.
+So like LTS support, it's like, OK, we're going to spin up our network driver.
+We're going to spin up our mouse driver because our mouse has 37 buttons and the built in
+driver doesn't handle that well or whatever.
+That's going to be fine because that device isn't changing very often.
+It's on the market.
+It's set.
+It's fixed, right?
+Yeah, the interface in the kernel is not really changing.
+But with GPUs, that's not really the case.
+The interface within the kernel is changing dramatically.
+And because of the work bringing the newer GPUs to the kernel, we see in what ways the
+old interface is deficient.
+So then it becomes a huge amount of work to backport those changes to the kernel to the
+old kernel.
+Effectively, you are, you know, just dressing up, cherry picking bits of kernel 5.10 and
+shoving it into kernel 5.4.
+And at that point, we're just deluding ourselves.
+It's like, you might as well go to kernel 5.10.
+I mean, you're probably going to introduce more bugs than you solve because you've, you
+know, packaged and backported so much functionality in kernel 5.10 that you're running more kernel
+5.10 than 5.4 at this point.
+I mean, come on.
+So what you're really saying, Wendell, is it would just be easier if the entire world
+ran Arch and was rolling all the time.
+Yeah, yeah, exactly.
+But you know, this is, I get like Linus saying, it's like, don't break user space.
+I interpret to say, Linus is saying, you can trust to update your kernel and we probably
+will not screw you.
+And so the idea of, you know, okay, we're going to have an LTS distro, but I also need
+to keep my kernel on whatever version of the kernel existed then.
+I think I could see historically like how that was a thing because yeah, I mean, I was
+guilty of that.
+You know, kernel 2. something on Debian for like way longer than I should have.
+Like guilty as charged.
+But where we are now with the Linux kernel, it's so good.
+And they are usually, not always, but usually so quick about being on top of problems that
+for workstations, long-term support means something entirely different than servers,
+I think.
+And so I think my philosophy is like, let's just roll with the newest kernel that's reasonably
+stable and we'll probably have a better experience for it, even on an LTS kernel.
+And you can totally install a newer kernel on an LTS kernel and most of the time not
+run into problems.
+All right.
+Well, thank you, Wendell.
+All right.
+It was great having Wendell on and check out Level One Tech and the link we have in the
+show notes.
+He knows so much about it.
+I just like, I like to absorb the knowledge, but I do want to do a spot of housekeeping
+before we go on.
+Do join the Luplug if you get a chance on Sundays at noon Pacific, 3 p.m. Eastern.
+It's on our mumble server, just in the lobby.
+You can get info at linuxunplug.com.
+And also a special reminder about the accessibility tools on Linux on the January 4th edition
+of the Luplug.
+And I've updated the calendar to reflect that.
+We're going to try to do that in the future.
+And also I want to mention that you might have noticed we don't have a lot of time for
+news this week.
+Linux Action News continues on and we did get to a lot of stories in episode 171, which
+came out yesterday.
+And you can get that at linuxactionnews.com.
+And a special plug for Self-Hosted 36 later this week, I review the new dedicated Home
+Assistant hardware.
+I think if you've been listening for the last few weeks, you know how much I love Home Assistant.
+Well, I got one.
+You got one?
+What?
+Oh, I'm excited already.
+Well, it's here.
+It's running.
+You know, I'll show you.
+I'll show it to you.
+It's super cool.
+And so there's just a couple of things you need to know about.
+And I talk about all that in Self-Hosted episode 36 at selfhosted.show slash 36, which will
+be out later this week.
+Not out yet as we record this here episode.
+So there you go.
+That's the housekeeping.
+I think that's all the housekeeping we got for this week, just nice and tidy right there.
+I was listening to the PeerTube instance as we went along and I didn't have any drops
+during the Wendell interview at all, nothing, no drops at all.
+It was running super solid and I was getting it from 10 other peers, which was I think
+there was something like 20 people watching it.
+And then we had as we're going to hear something like 10 people that are seating in.
+And it seems to be that when you have that many people, it really kind of smooths out
+any of the hiccups.
+Oh, that is so neat.
+You know, we were playing around in the IRC room, too, and it looks like there is just
+a regular HLS feed that you can find the playlist for and pop it in MPV or VLC or whatever client
+you like.
+I know I'll be trying it with a Chromecast later.
+So that should work with anything.
+Yeah, that's nice because if you do that, not only could you watch the video stream
+in a native Linux client like MPV or VLC, but you're not seating.
+Yeah, you wouldn't help us out with, you know, sharing with everyone else watching.
+But sometimes that's what you need or you're on and you know, mobile connection or just
+use what works.
+Yeah, well, you know, if I was if I was on vacation, but I was watching the shows just
+to make sure you guys didn't screw it up.
+I mean, so I could still watch.
+Quality control.
+Mm hmm.
+Yeah, yeah, yeah.
+I'd totally do it that way.
+So that way I wasn't burning through my LTE connection.
+So and it seems like we maybe we figured out a way we could see it without having to watch
+as well.
+So you can watch it without having to see it and you can see it without having to watch.
+This is the stuff I love about free software in this stack.
+We can poke around with this and come up with solutions that we could never put together
+with something like YouTube or even something like library, which for all effective intents
+and purposes is a crypto scheme with a centralized control that can still be had pressure applied
+to it by a federal government.
+Where PeerTube, that's decentralized, it's peer to peer and it's federated.
+You could take down Jupiter broadcasting, but who wouldn't take down the Federation
+of PeerTube instances and their videos?
+And it means that in the future, a project like Debian could have DebianTube where they
+have their how tos, tutorials, and they have their community events and conferences all
+hosted on PeerTube available for download.
+And you know, if you hear, oh, there's a Debian event and it's live, you don't have to figure
+out where or what platform or if it's on YouTube, you just know it's on DebianTube.
+All of their video stuff is on DebianTube.
+And now live streams are too.
+And it's so cool because it's a lot like YouTube.
+It's that simple as far as the user experience goes.
+It's part of the publish process.
+You publish and if your account's unable to go live, you have an option to just live stream.
+And it gives you the URL and the key.
+You plug that into OBS and you're live like if it was Twitch, it's just as easy to stream
+to as Twitch or YouTube.
+And it's incredible.
+It's incredible because we're running it all on one instance.
+And we experimented over the weekend with a Linode two core instance that was just two
+cores and four gigs of RAM.
+And we were hosting 20 people in that live stream.
+And it was about 60 percent utilization.
+We did totally max it out when we started two streams.
+Well, I had to make trouble and stream myself.
+I mean, you couldn't have all the streaming glory.
+You were even sending some pretty high res stuff and it looked good and you were able
+to play it back on the studio TV even.
+Yeah, it plays the the peer to player even plays in Safari on the iPhone.
+I mean, it passes that low bar.
+So it's like really it works anywhere.
+There's no flash required like it used to require back in the day when we first started
+streaming.
+I'm I'm pretty stoked about it.
+I think it still has a few hiccups here and there, but some of that could be implementation.
+So we're still testing it.
+But I think it's pretty exciting not only because it could act as a canonical archive
+for all of the past and current J.B. shows, but it could mean that if for whatever reason,
+you know, maybe J.B. like I was I was speculating on the pre show, maybe J.B. one day defends
+a an encryption activist who somebody who's who is publicly known for being anti backdoor
+encryption and that becomes disallowed speech on YouTube will have a peer to platform.
+Maybe it never happens.
+Maybe it's just nice to just have multiple options.
+But what's so great about it is we can just plug it into our existing infrastructure.
+We can send an RTMP feed to it and we can stream to it just like every other endpoint
+we streamed to.
+And now it's just part of that mix.
+And that's how we're starting to work with it.
+And I think it has a lot of potential for open source projects, much like I think Matrix
+does.
+There's a lot of the same shared potential there.
+Matrix for the chat and real time communication and then PeerTube for project archives and
+live stream events.
+I think the two things complement each other a lot.
+Leno dot com slash unplugged Leno dot com slash unplugged.
+That's where you go to get a one hundred dollar 60 day credit.
+I was just checking.
+There's just no way.
+Right.
+They're still giving us that deal.
+Is this possible?
+Don't tell them it's too good.
+Did you did you check with Janice in the back office because it's just too good of a deal.
+There's no way they're letting us still do this.
+She was having a sandwich.
+She gave me the thumbs up, though.
+Got the thumbs up.
+Leno dot com slash unplugged.
+You go there to get a one hundred dollar 60 day credit towards your new account.
+And of course, you support the show.
+Leno is our cloud provider of this PeerTube instance that I can't stop going on about.
+Yeah, you know it's hosted on Leno.
+It's really neat, actually, because first we set up a test instance just like a proof
+of concept in minutes.
+And you know, we chose an Ubuntu LTS base 2004, then installed Docker on top of that
+and then deployed the image.
+And we're up and going and in just minutes, really.
+And then once we validated it, we thought, how could we build it a little bit better?
+Like we could carve off large chunks of block storage because it's super easy to just add
+a bunch of block storage to a Leno host.
+That's no problem at all.
+And Leno's prices are really competitive, in fact, 30 to 50 percent less than major
+cloud providers like AWS or Google Cloud or Azure.
+So the pricing is great, but we thought we could probably do it better than that.
+We were looking at the PeerTube documentation and they have a they have a deployment approach
+where you use S3 compatible object storage.
+Well guess what Leno has?
+They have S3 compatible object storage, which means we can just use as little or as much
+space as we need.
+We don't have to carve off terabytes at a time so that way we can accommodate months
+and months of growth.
+We can just use as much or little.
+And it also means that these files that PeerTube creates, like the different derivatives for
+lower quality streaming, they're available to us via object storage for other automation
+purposes.
+Like perhaps we write some scripts that now publish those to archive.org.
+It's so great.
+Object storage is a lot of fun to play with.
+And combining it with PeerTube, I think what we maybe have built here is a super easy reproducible
+model for other open source projects out there.
+Right now we have a four core VPS because we want to play around with live streaming,
+but you could really get away with a two core VPS.
+Right now we have 16 gigs of RAM because again we're experimenting, but initially we started
+with four gigs of RAM.
+This could be like somewhere in the $5 to $10 a month territory over at Linode.
+You see what I'm saying?
+Wow, this could be really accessible for projects.
+You can one click deploy a system with Docker ready to go.
+It's really simple for them to get going.
+The entire stack is open source.
+Linode is a participating member of the Linux community.
+They've been contributing to projects and events forever.
+They've been around forever.
+They started in 2000 and I think it was actually, no, I think it was 1800s.
+Yeah, I think they've been around for 200.
+Oh no, I'm sorry.
+No, that's not quite right.
+But they've been around forever.
+They're an independently owned company.
+They started because they have a love for Linux and you just as a project now have access
+to this.
+It's like just, it became available, YouTube in a box, but it's YouTube of the good old
+days under your control and it's not stealing your information and it's on the Linode stack.
+It's with a company that's been around since 2003, so you know they're in it for the long
+haul.
+Also Linode makes it really easy to host game servers.
+I was playing around with this for my kid.
+They have multiple different types of game servers on there.
+Of course they have things like Team Fortress and CSGO and Minecraft.
+The Minecraft one, you should check that out.
+They let you set all of the options you really are going to care about, like the in-game
+server options in the Linode setup screen.
+They've automated all of that for you too.
+It's so cool.
+So if you want a safe place for your friends, your kids, your community to play Minecraft
+or one of the other many popular games like Arcs on there as well.
+It's such a nice balance point though, right?
+I mean, you get the one click, you get the easy configurability because you know how
+to do it all.
+You don't have to fuss with it this time, but if you ever need to go back in and actually
+make more changes, I mean, you've got SSH access, you've got full control, it's all
+right there.
+Yep.
+They give you the whole range, which of course appeals to Wes and I quite a bit.
+They're just dedicated to offering the best virtualized cloud computing.
+If it runs on Linux, it'll run on Linode and then however much you want, automation or
+just build it from the ground up, you choose and they make it all really accessible with
+a great dashboard.
+So get that $100 credit and play around, linode.com slash unplugged.
+You go there, you support the show, make it possible for us to give content away for free
+and you help out a great company like Linode and become a customer.
+It's a great ecosystem.
+I love it, linode.com slash unplugged.
+Let's get into some feedback, Mr. Payne.
+Yes, let's.
+We have a few emails.
+Let's start with the openSUSE feedback because as you would expect, we got a lot of it.
+We got a lot of it.
+So last week on the show, we secretly ran openSUSE Tumbleweed for a week and then gave
+you our thoughts, which in a super short summary version where there's parts of it we liked
+a lot.
+There were parts of it we were not big fans of, especially me.
+I wasn't a big fan of the Yast experience.
+I've never been a particularly big fan of Zipper.
+I was using SUSE as an enterprise user when Zipper came along.
+I wasn't a big fan of it then and I'm still not really a huge fan of it.
+I think it's one of the slower package managers out there.
+And I also think Yast is kind of slow and clunky.
+But outside of that, I think SUSE and openSUSE have really stumbled on a nice relationship
+between their enterprise products and their community products.
+And in the community space specifically, I think one of the things that SUSE is doing
+extremely well, I should say openSUSE to be clear here, is doing extremely well is they
+have Leap for your server and Tumbleweed for your desktop or your laptop.
+And they even have Micro for like a real minimal viable server install.
+So they have this really nice suite where it's all very familiar.
+If you learn one, it's totally transferable to the other.
+And that really appealed.
+And we were wondering, could it replace Arch for us?
+But at the end of the day, it just felt like there was too much that was old school Linux
+for us, specifically when it came to proprietary video card driver management and Yast.
+But Caleb wrote in and said, I love the show, but I was disheartened with your experience
+with openSUSE.
+Obviously, you'd make a valid point.
+The documentation is terrible, but they are working on it.
+And they point us to t.me slash openSUSE underscore docs if anybody wants to help.
+But Caleb suggests we try out OPI, I think OPI, you think that's OPI or OPUS?
+I like OPI because it's just a cute name, but it stands for OBS Package Installer.
+Search and install almost all packages available for openSUSE and SLE.
+Hey, yeah, that sounds pretty handy.
+I think that's interesting, and it's kind of like it's answering that AUR question and
+tying in OBS, which seems like it really should be just more integrated in because it's such
+a great service.
+But they wrap up with, lastly, I'd like to make an argument about Yast.
+OpenSUSE definitely should be clear about who it's intended for.
+Although Linux-y ways of doing things are still there for experienced users, as a sysadmin,
+I can tell you it really isn't for me.
+Nowadays, even small companies like the one I work for have dozens of servers, bare metal,
+containers, VMs, etc.
+No one in their right mind manages those with Yast over SSH or whatever.
+That's a great point.
+Who I think Yast is great for is a power user or a sysadmin who is not familiar with Linux.
+Yast does a great job of showing you what is possible in the OS and making it easy.
+Yast, building a software RAID array, and Yast doesn't directly equate to the knowledge
+of how to do that in RHEL.
+The user does know that it's possible, though, and maybe what it should look like.
+Interesting defense.
+After we wrapped up the show last week, Neil pointed out that it's actually possible to
+run OpenSUSE and remove Yast, which I figured would be like a package dependency bomb that
+would just destroy your system.
+Right.
+It feels so integrated into everything.
+I do like that defense, though, honestly.
+I think there is a class of user where, especially maybe you're just trying out Linux, you're
+an admin in your day job doing Windows or something, where you're used to this very
+structured environment, lots of GUIs to click for, lots of that kind of deep system integration.
+Maybe Yast is just what you're looking for.
+And if Neil's right here, and he usually is, we can just rip that out for folks that are
+more experienced or just want to do it on your own.
+Okay, maybe I need to give that a try.
+And then perpetuating the cycle that always puts us off from ever talking about OpenSUSE
+and probably also makes it hard for us to enjoy it.
+Of course, I had people that were berating me on Twitter, number one troll, of course,
+being Richard Brown, who said that I've had people like him provide extensive, quote,
+feedback on my, quote, misunderstandings and, quote, false assumptions, end quote, about
+OpenSUSE over the years, yet I, quote, stubbornly beat the same false drum.
+He is just bored of my rhetoric at this point, which I thought that was really, if that isn't
+quintessentially just a perfect example.
+You know, Richard Brown also publicly said I was in the pocket of big ZFS years ago when
+I criticized ButterFS when it wasn't that great.
+Do you remember that?
+That was a cute one.
+And of course, as he, even though he publicly said I was in the pocket of big ZFS, whatever
+the hell that might be, he hasn't given me any credit for my Evolve stance on ButterFS
+as the file system has improved.
+Hmm, that's interesting.
+And it's this kind of language, like when he says that me saying that I don't like to use
+Yast or that I find Zipper slow, that that's rhetoric and false assumptions about Suse.
+You know, he's saying he's using this language like rhetoric at a time when things are really
+not great in the States.
+And the words like rhetoric have a lot of meaning and a lot of power right now.
+And it feels like it's a missed place kind of energy and anger that's coming at me.
+And it's always kind of been this kind of arrogant stubbornness that has kind of radiated
+out from the project by folks like Richard Brown, and even though he's less involved
+now, he still seems to be kind of still creating that same persona around the project because,
+you know, these words I'm speaking now are going to be heard by tens and tens and tens
+of thousands of people.
+His tweet is going to be seen by a couple of people.
+So what does he think he's accomplishing with this kind of rhetoric and attack?
+And using this kind of language, it only escalates the situation.
+And it doesn't welcome anybody in to say your experiences are wrong.
+He's denying me my own personal experiences in this tweet.
+That's what stuck out to me, right?
+Because I think we were legitimately trying, whether or not you liked our take or not,
+to come at this with an open mind and sort of as a new people who had not used open Suse
+for quite some time and just get the experience.
+And many people have pointed out the things that we missed or, you know, as some people
+have said, like, no one really uses yes, like, what are you talking about?
+But that was our experience just getting into it.
+And we don't have the inside community perspective.
+I don't think we were trying to say, like, this is the truth.
+This was just our experience.
+Yeah.
+And, and I think to say my experience is a misunderstanding or a false assumption is
+unfair to me.
+My experience is that zipper is slow.
+And my experience is that Yas kind of adds a complicated layer to managing Linux that
+makes it unique experience to Suse only, which presents non transferable skills to other
+distributions.
+And, I mean, maybe that's a false assumption, but it's, it's my experience.
+It's the way I see the world.
+And I don't like that he's shutting it down like that.
+But Neil, I don't know if you want to wait in the middle of this before we wrap this
+up.
+And I don't really want to turn this into a big Suse bashing thing because I think it's
+actually a pretty great project and they got a little, a lot of great tech and engineers
+there.
+Well, I don't want to bash open Suse either.
+I mean, I'm heavily involved in the project, so it would be pretty bad if I did.
+I think there is plenty of fair criticisms about how people have generally approached
+open Suse over the years.
+I mean, and I think it's, it's somewhat fair to say that Chris, a lot of your approach
+to open Suse over the past five or so years has been influenced or colored by previous
+experiences using it professionally, which I think is fine and fair.
+But at the same time, it's also important to acknowledge that people who are longstanding
+in the open Suse project who have been using open Suse for a very long time.
+Like if you saw the end of the year survey, the majority of people who have been using
+open Suse have been using it for a decade or longer and are like twice my age, which
+is pretty insane when you think about it.
+And that means that maybe the other part that's missing is just a lack of fresh perspective
+on the project as a whole.
+And that kind of dovetails into what you said about Zipper being, it felt slower to you.
+This morning we actually, there was a mailing list post that empirically said on open Suse
+itself in a CI environment for a specific test case, mind you, like it's not proven
+across the board or whatever, but like for this specific test case, we found that Zipper
+was twice as slow as DNF for the same workload, for the same installation transaction.
+And I understand why that is.
+Like I don't want to get into the details cause it's kind of mind numbing and boring
+for most people, but it's important to recognize that you have to continue to figure out how
+to evolve and to support a growing community over time.
+And perhaps some of the issue here is that a lot of the folks in the open Suse community
+feel super defensive about their choice in the same way that, you know, 10 years ago,
+people used to be the same way about Arch and Suse and Mandriva and Magia users.
+They're all in that boat now where people often criticize them for their choice rather
+than embracing them and helping them turn into people that can help make their choice
+of distributions better.
+Yep.
+I can totally, I could totally kind of see that.
+I think that's a really fair point.
+I hope that they are able to attract new blood cause it sounds like that may be an issue
+for the project if that many people haven't have been using it for that long.
+But we, uh, you know, I, we keep an eye on it.
+It just, it seems like too, we, I think there has to be room for different distros for different
+folks.
+Yes, definitely.
+And I think that's where Suse falls down for us.
+It's like, it's not that it doesn't work.
+It's not that it's some pile of garbage.
+It's just not the distro for us and the way we've learned to work in the Linux ecosystem
+over a long time because we, we, we now we've been doing this for a while.
+Somebody coming in new and fresh, uh, like Kayla pointed out in the email that maybe
+doesn't know how to do something in Linux, but just wants to know it can be done or maybe
+needs to learn it's possible.
+Yes.
+Provides that functionality.
+I mean, there was a period of time when I was using Yast to connect my, uh, Sles storage
+servers to a, to a windows domain.
+And I knew how to do it on the command line using all the tools.
+But over time it just became a lot nicer and quicker to just go into Yast and if I install
+that module, if I hadn't, if I didn't have it installed, put the credentials in and let
+it just do its thing.
+And I use the hell out of that.
+And I told, so I can totally relate to somebody who maybe isn't particularly familiar with
+the process, being able to rely on Yast and knowing it's getting done right.
+That's just not where I'm at anymore.
+And that's just my experience.
+But anyways, let's move on because we had somebody write in that suggested that we try
+out Alpine.
+Jordan says, uh, I know you guys never really had a personal use case for it, but one that
+I found for Alpine that nothing else can do is custom install media.
+Just for fun.
+Here's what I did.
+I built a chroot on arch.
+I use it to make a custom ISO.
+Then I boot the ISO in a VM, configure the network, save the changes with Alpine LBU.
+And then I boot that ISO with the LBU changes on real hardware.
+Boom.
+I have my own install image factory.
+The biggest drawback is that it uses M U S L. Oh, instead of G lib C. Mm hmm.
+He goes on to say the area where this is an issue is proprietary applications.
+There is a compatibility layer for G lib C libraries, but I haven't tried steam yet.
+Oh wow.
+Alpine on the desktop.
+All right.
+What I like about this feedback was that Jordan clearly got some of our perspective, you know,
+just that Alpine is conceptually similar to arch.
+They write and that I like to think of it as a smaller, simpler arch.
+What stuck with me there is that clearly they picked up on what we wanted from arch was
+this sort of simple base, very lean and mean, and that we could actually just have an understanding
+of everything that was going on, especially for the arch server.
+He, I think, I think he's right though that, Hey, maybe we should try Alpine in a few more
+places.
+See where it fits.
+Yeah.
+That minimum viable server really is what appeals to us.
+And you can kind of see why maybe SUSE doesn't necessarily appeal to us because what we want
+is just the bare bare minimum where Wes and I can actually articulate to you the applications
+that are installed because it's Samba and net data and everything else is in a container.
+We can articulate to you the file system layout, everything because we built it with our own
+hands and we only installed the packages we absolutely had to have.
+And that's one of the ways we think maybe we've been a little more successful now with
+arch on the server is switching to the LTS kernel and really keeping that base install
+super, super minimal.
+I also like it as a way for, you know, there's lots of stuff that arch or Alpine are similar.
+They don't set up for you or maybe they give you documentation about how to set up.
+And I, I like us having to either figure out how to do that or not do that and skip it
+and live with the results because it also gives you a nice window into some of the stuff
+you might get for free on a more fully featured distro like Fedora or Ubuntu.
+Yeah.
+And I think there's a, probably a future episode out there.
+If we remember to wear our flame retardant pants, where we try out something like a micro
+or some of the just enough OS stuff, maybe if it's possible to run on the raspberry PI
+cause it seems like that'd be a great candidate for that kind of SUSE distro.
+So I could see future content depending on what we get in feedback and the people are
+interested in that kind of stuff.
+I'm kind of thinking, Wes, we do a kind of a pick feedback special next week cause we've
+got a lot of really good feedback that we haven't been able to get to, including some
+follow up on mail spring, which I am now back again using since we heard the developer pop
+his head up.
+Yeah.
+I'm using mail spring again for my email, but I want to follow up more on that later
+cause we got some email to that.
+We also got some people that got predictions in.
+So I want to get those in while we can while we're still within January and a lot more.
+So Wes, let's just jump to the pics and promise to do more feedback next week.
+Now you may have noticed I've been thinking a lot about GPUs this week.
+I don't know if that came across and while I was looking at what the hell's going on
+between my X1 and the XPS 13 and of course my desktop, I wanted something that's like
+that that utility that tells you everything about your processor that I forget what it's
+called like X CPU or whatever.
+Now there's GPU viewer and it's a front end to GLX info, Vulcan info, CLI info and ES2
+info and it puts it all in a fairly decent way.
+It's not beautiful.
+I won't call it pretty.
+Yeah.
+That was my main takeaway here, but it's a lot simpler to navigate than having to know
+all the commands and then figure out like paging in your terminal, especially if you're
+new to this stuff and just want to figure out what's on your system and get to playing
+games.
+Yeah.
+Is my Vulcan support working?
+Am I using the accelerated GPU or am I using the open source driver?
+These questions are immediately obvious to you with this tool and there's lots of ways
+to get that info, but the nice thing about GPU viewer is you also get the nitty gritty
+details like the specific driver version information and the exact video card that's detected and
+the amount of hardware information that the thing can extract for your video card and
+then all of the other kind of like supported 3D features in Vulcan and OpenGL and it's
+just a nice tool for troubleshooting graphics in general and so it's called GPU-Viewer.
+We'll have a link in the show notes at linuxunplugged.com.388 or you can probably find it on GitHub because
+that's where it is.
+It's on GitHub.
+It's on GitHub.
+It's packaged in Ubuntu 2010 and a few other places or you can install it since it's just
+a simple Python app.
+So easy to get a shout out to our core contributors, unpluggedcore.com.
+They really are the hawks of this show.
+They really they held in there.
+I announced last week that we had this bug where people who used the founder promo were
+not getting renewed and so we had this renewal failure rate that was like 52% or it was getting
+pretty bad.
+It was getting worse by the day.
+Well I'm happy to say that the bug's been fixed and like 97% of anyone who ever used
+the founder code has got the discount reapplied.
+You don't have to do a dang thing.
+So if you sat back and didn't do anything, well your procrastinating paid off because
+they fixed it for you.
+But I am still, for anybody who may have slipped through the cracks because 97% is not 100%
+and anybody else who wants to lock in a membership for this show and get access to the benefit
+goodies, I'm keeping that promo code 2021 going for a bit and that will take two bucks
+off.
+Just doing that for a little while, kind of like a happy new year's deal.
+Then you get access to our feeds, either the limited ad version of the show, the same full
+production, the version that really sounds good in the car or the one that had the Joe
+touch.
+And then there's also the bootleg feed.
+The full live version, all our screw ups, the stuff that never makes it into the show.
+If you can't join live, that's the one you want.
+Yeah, it has that live experience, man.
+You can put it up on the TV and like, you know, be working in the kitchen and you would
+feel like you're listening to a live show.
+You get the full pre and post show.
+It's basically like a whole other show.
+It really is.
+And we got a couple of shout outs from diehards that make it through the entire file because
+it's much, much longer than the main show.
+And that's all available to anybody who wants to support us at unpluggedcore.com.
+Mr. Payne, also, I want to mention that our friends over at a Cloud Guru have a Red Hat
+certified administrator exam prep course that you can take.
+Oh, ho, ho.
+Nice.
+Yes.
+And in this course, they cover like the concepts necessary to pass the Red Hat exam using a
+mix of lessons and hands on labs.
+And then at the end, you put it all together with a challenge lab.
+And I know people have emailed into the show asking about certifications and which ones
+on a Cloud Guru we recommend.
+This is the one.
+And so we'll put a link to that in the show notes because I guess a lot of people have
+New Year's resolutions out there.
+So check out the Red Hat certified system administrator exam prep.
+That's the one we recommend for that particular path if that's where you're going.
+And we'll have a link to that specific one in the show notes so you can get it at a cloudguru.com.
+And then we'll hold, I think, the rest of the feedback, Wes, for next show because I
+think we'll just do a feedback special.
+So we got to some of it.
+But I think that's what the plan is.
+So do join us next week.
+See you next week.
+Same bad time, same bad station.
+And now is a great time to get any feedback you might have Linux Unplugged dot com slash
+contact and hey, maybe we'll include it in next week's show.
+Good point.
+Look at you.
+That's the hack, right?
+You got something you've been wanting to get in and now you know we're looking at the feedback
+in particular.
+Now's the time.
+You can just get it in.
+You can join us live at jblive.tv.
+We do the show at noon Pacific, 3 p.m. Eastern or get it on a download.
+You can find the feeds for that at Linux Unplugged dot com slash subscribe.
+And like I said, links to everything we talked about today at Linux Unplugged dot com slash
+three eight eight.
+Thanks for joining us and we'll see you right back here next Tuesday.
+All right, JB titles dot com.
+Let's go.
+And I know we don't have a lot of time.
+I wanted to kind of make this a slightly shorter episode because we've been going long.
+But I did want to actually get this on air because it's something I've been meaning to
+talk about and haven't had a place to like talk about it or troubleshoot with you guys.
+So JB titles dot com.
+Go boat.
+Chris has some technical troubles.
+Yeah, I'm having some fedora woes and it's nothing that's like it's not going to like
+it's not a deal breaker.
+But I have this weird problem where all of my flat pack apps have vanished from Plasma's
+purview.
+My launcher, my menu, K runner, what it cannot find them.
+They don't exist.
+I can still execute them on the command line.
+And if I search for them and discover and then go to their entry, I can launch them.
+So they still register.
+They're there.
+They're just not there.
+But they're otherwise unknown.
+And while they are running, I cannot right click and say pin to taskbar.
+I cannot add them to the menu.
+I cannot do it just the I can.
+The option is it just you check it and nothing happens.
+They just and then I close them and they are they are completely unfindable unless I do
+the flat pack execute command or I launch discover again.
+And here's and so I don't know what that's about, but and I don't know if this problem
+is related.
+I don't think so.
+There's a separate kind of software discover issue where I will do a DNF upgrade, you know,
+update whatever, and I'll update all my packages.
+I'll get tons and tons and tons and tons of stuff installed because Fedora's always got
+lots of goodies.
+And then I'll reboot and I'll log in and I'll get the plasma notification that I have 14
+updates available.
+So I'll do a DNF update.
+It'll say no packages available.
+So then I do a I'll do a flat pack update.
+It'll say no updates available.
+I open up discover and there's like 14 packages in there, including like what looked like
+to be just system packages.
+And then I do the update.
+So then so that happened one time.
+Now the flip side has happened where I go and discover it says there's no updates.
+I launched DNF.
+It says there's updates and that they just don't agree like in none of them agree, but
+they seem to be installing some of the same stuff.
+And it's really strange.
+So I'll do a DNF update on the command line, reboot and then get a notification.
+Hey, you got more packages.
+I go and discover.
+I do an update.
+And it's not just flat packs.
+I know what you're talking about.
+I know what's happening.
+Different cache.
+Yeah, there's two separate caches right now.
+So one of the problems that we have right now and this is something I've been on the
+on my spare time trying to figure out how to fix because I'm one of the by virtue of
+happenstance.
+I'm now one of the maintainers of package kit upstream.
+I have been trying to figure out how to synchronize.
+Basically the problem is because package kit and DNF don't expose APIs between each other
+to lock the database while it is refreshing and pulling in stuff.
+It can only do a lock when it's applying a transaction.
+The fix quote unquote was to make it so that they fetch caches independently to avoid races
+and all kinds of stupid stuff.
+Like back in the days when we were using yum, everything was piped through the yum tool.
+And what would happen occasionally is that when you ran the yum command, it would be
+like waiting for package kit to quit waiting for package.
+So can I ask you something?
+So what happens when?
+So I do a DNF update and I install all the upgrades and then I go and discover and I
+install all the updates there.
+Is it just reinstalling some of the same packages I just installed with DNF?
+Yeah, what's going on actually happens on the file system?
+Yeah, that's a good question.
+I think what actually happens is that it silently does nothing.
+Just chugs right along.
+What are you supposed to going on with the flat pack thing?
+Like all my flat pack desktop launchers are gone.
+I'm guessing you updated the plasma 525.
+Yeah, I always update like daily.
+Can't keep plasma away from him.
+I'm basically making that guess because like I've heard all kinds of random bonkers stuff
+from different people about the plasma 525 update just today.
+Like three different people have told me three different things that have gone wrong in 525
+and now I'm scared.
+It may be a little bit further back because I think this may have been going on.
+This has probably been going on for three weeks, two weeks, two weeks.
+Okay, so I wish I'd known this before because like I know I meant to bring it up to you
+last week, but I forgot.
+Okay, I think I know what's happening here.
+So what goes on for the flat pack stuff is that flat pack in order for the desktop files
+to show up in the desktop, what it does is it has a profile dot D snippet or environment
+D helper or something.
+I forget exactly what it is that tries to export a variable that adds the flat pack
+desktop file path to the search path so that when plasma starts up or gnome starts up or
+whatever, it'll read those additional desktop files because they're not installed in the
+same place as everything else is.
+I'm just saying if I wasn't using a flat pack, if I just installed a package from the AUR,
+this would not have happened.
+That's all I'm saying.
+That's all I'm saying.
+That's all I'm saying.

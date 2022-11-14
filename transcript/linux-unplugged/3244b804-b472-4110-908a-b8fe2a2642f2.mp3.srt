@@ -1,0 +1,4432 @@
+1
+00:00:00,000 --> 00:00:01,800
+So Wes and I have been kind of geeking out and
+
+2
+00:00:01,800 --> 00:00:05,560
+following the development of getting Linux support for
+
+3
+00:00:05,560 --> 00:00:09,240
+the M1 platform, like completely upstream support.
+
+4
+00:00:09,240 --> 00:00:12,840
+And Hector Martin and the Linux team, they're working on that.
+
+5
+00:00:12,840 --> 00:00:15,360
+And as part of this interest and just kind of documenting it so
+
+6
+00:00:15,360 --> 00:00:18,800
+we can report on the shows, Wes was watching one of the live streams last
+
+7
+00:00:18,800 --> 00:00:23,040
+night that Hector Martin does of development, fascinating insights.
+
+8
+00:00:23,040 --> 00:00:26,120
+And listen to how they're actually developing the GPU driver,
+
+9
+00:00:26,120 --> 00:00:31,120
+which they've just upstreamed some of the M1 GPU driver
+
+10
+00:00:31,120 --> 00:00:37,920
+support to Mesa with 75% OpenGL ES compliance, which is wild at this stage.
+
+11
+00:00:37,920 --> 00:00:38,880
+But how are they doing this?
+
+12
+00:00:38,880 --> 00:00:41,560
+Since they don't have a complete Linux operating system to run and
+
+13
+00:00:41,560 --> 00:00:44,240
+develop on, they have an amazing hack.
+
+14
+00:00:44,240 --> 00:00:48,000
+Yeah, the M1 GPU driver, that's the user space part, by the way.
+
+15
+00:00:48,000 --> 00:00:50,280
+So it's running on Mac OS at this point, but
+
+16
+00:00:50,280 --> 00:00:53,040
+it's really awesome that it's passing a ton of the tests already.
+
+17
+00:00:53,040 --> 00:00:55,680
+So that's why I really wanna work on this hypervisor,
+
+18
+00:00:55,680 --> 00:01:00,520
+because once this works, it will give me the information I need to write
+
+19
+00:01:00,520 --> 00:01:01,760
+the kernel side of this.
+
+20
+00:01:01,760 --> 00:01:05,440
+And since the user space side is going so well, basically,
+
+21
+00:01:05,440 --> 00:01:11,440
+once the kernel side has basic GPU context and memory management,
+
+22
+00:01:11,440 --> 00:01:14,320
+we can plug that in and then suddenly everything works on Linux too.
+
+23
+00:01:14,320 --> 00:01:18,560
+So it's really cool that we're getting so much progress.
+
+24
+00:01:18,560 --> 00:01:22,280
+I had a private conversation with Hector and he told me that he was optimistic
+
+25
+00:01:22,280 --> 00:01:25,440
+that we may have a usable desktop by December.
+
+26
+00:01:25,440 --> 00:01:30,040
+And I thought he was crazy when he said that, I thought, no way, no way.
+
+27
+00:01:30,040 --> 00:01:33,120
+But now that I hear that, he might be onto something.
+
+28
+00:01:33,120 --> 00:01:35,360
+Sounds like you better start budgeting, buddy.
+
+29
+00:01:35,360 --> 00:01:36,560
+I don't think so.
+
+30
+00:01:36,560 --> 00:01:39,920
+I mean, if you think about it, Wes, if you're gonna spend that kind of money,
+
+31
+00:01:39,920 --> 00:01:42,280
+it's gotta be, if you're gonna do it for a brand new computer,
+
+32
+00:01:42,280 --> 00:01:44,040
+it has to be really operational.
+
+33
+00:01:44,040 --> 00:01:48,160
+I think at this stage, it's gonna be, you can do data recovery,
+
+34
+00:01:48,160 --> 00:01:52,000
+you can do forensics, you could do some sort of rescue and
+
+35
+00:01:52,000 --> 00:01:53,360
+get basic Linux functionality.
+
+36
+00:01:53,360 --> 00:01:55,840
+I think that's gonna be where we get to in 2021.
+
+37
+00:01:55,840 --> 00:01:57,240
+But that's gonna be really valuable.
+
+38
+00:01:57,240 --> 00:02:08,480
+Hello, good looking and welcome back to your weekly Linux talk show.
+
+39
+00:02:08,480 --> 00:02:09,440
+My name is Chris.
+
+40
+00:02:09,440 --> 00:02:10,440
+My name is Wes.
+
+41
+00:02:10,440 --> 00:02:11,960
+Hello, Wes.
+
+42
+00:02:11,960 --> 00:02:14,760
+You know, you didn't have to wear the postal outfit for today's episode.
+
+43
+00:02:14,760 --> 00:02:15,840
+That wasn't required.
+
+44
+00:02:15,840 --> 00:02:17,960
+You turned the studio into a post office.
+
+45
+00:02:17,960 --> 00:02:20,680
+I just thought I'd dress to fit.
+
+46
+00:02:20,680 --> 00:02:22,800
+This episode is brought to you by the all new at Cloud Guru,
+
+47
+00:02:22,800 --> 00:02:26,640
+the leader in learning for Linux, the cloud, and other modern tech skills.
+
+48
+00:02:26,640 --> 00:02:28,520
+Hundreds of courses, thousands of hands-on labs.
+
+49
+00:02:28,520 --> 00:02:32,320
+Get certified, get hired, get learning at acloudguru.com.
+
+50
+00:02:32,320 --> 00:02:36,560
+Well, coming up on episode 404, it's webmail has been found.
+
+51
+00:02:36,560 --> 00:02:40,080
+It's the finale of the email server series this week.
+
+52
+00:02:40,080 --> 00:02:45,840
+It's a three-part series, and we have one last important task we must finish.
+
+53
+00:02:45,840 --> 00:02:48,600
+We must get webmail up and running after a back and forth.
+
+54
+00:02:48,600 --> 00:02:51,800
+If we were gonna do it, we decided, yes, it's a feature we need.
+
+55
+00:02:51,800 --> 00:02:54,880
+And really, to make it complete,
+
+56
+00:02:54,880 --> 00:02:57,200
+we know we gotta have a little bit of a production test.
+
+57
+00:02:57,200 --> 00:03:02,520
+So we're gonna give out credentials live on the show to, I won't say who,
+
+58
+00:03:02,520 --> 00:03:04,680
+I'm gonna reveal, but to a test user.
+
+59
+00:03:04,680 --> 00:03:06,400
+Hint, hint, he's in the mumble room.
+
+60
+00:03:06,400 --> 00:03:09,440
+And he's gonna try logging in for the first time and send an email and
+
+61
+00:03:09,440 --> 00:03:11,840
+let us know if it works right here live.
+
+62
+00:03:11,840 --> 00:03:15,520
+Then after all this is done, we're gonna kind of, just from time to time,
+
+63
+00:03:15,520 --> 00:03:17,840
+follow up and do check-ins on the email server.
+
+64
+00:03:17,840 --> 00:03:19,400
+It's not gonna be like a regular thing anymore,
+
+65
+00:03:19,400 --> 00:03:22,000
+kind of like how we do the Arch server from time to time.
+
+66
+00:03:22,000 --> 00:03:25,920
+But of course, we've got community news, we've got pics, we've got some feedback.
+
+67
+00:03:25,920 --> 00:03:27,440
+So before I get into any of that,
+
+68
+00:03:27,440 --> 00:03:30,120
+I'd like to say time appropriate greetings to that mumble room.
+
+69
+00:03:30,120 --> 00:03:31,760
+Hello, virtual lug, lup-lup.
+
+70
+00:03:31,760 --> 00:03:32,440
+Hello.
+
+71
+00:03:32,440 --> 00:03:32,960
+Hello.
+
+72
+00:03:32,960 --> 00:03:33,480
+Hello.
+
+73
+00:03:33,480 --> 00:03:34,000
+Hello.
+
+74
+00:03:34,000 --> 00:03:34,520
+Hello.
+
+75
+00:03:34,520 --> 00:03:35,520
+Namaskaram.
+
+76
+00:03:35,520 --> 00:03:37,560
+Hello, everybody.
+
+77
+00:03:37,560 --> 00:03:40,080
+Boy, it's nice to have, look at that, 25 of you in there.
+
+78
+00:03:40,080 --> 00:03:41,720
+Good to have you here today.
+
+79
+00:03:41,720 --> 00:03:45,480
+So let's start with a little community news because one of those members in that
+
+80
+00:03:45,480 --> 00:03:50,400
+virtual lug is Mr. Daniel Fore from the elementary OS project.
+
+81
+00:03:50,400 --> 00:03:54,200
+And we have news of a beta for elementary OS 6.
+
+82
+00:03:54,200 --> 00:03:55,880
+Dan's joining us to tell us a little bit about it.
+
+83
+00:03:55,880 --> 00:03:57,160
+Hello, Dan, welcome back.
+
+84
+00:03:57,160 --> 00:03:58,520
+Hey, how's it going?
+
+85
+00:03:58,520 --> 00:03:59,760
+Oh, pretty good.
+
+86
+00:03:59,760 --> 00:04:01,160
+Good to see a beta land.
+
+87
+00:04:01,160 --> 00:04:06,240
+This is kind of an exciting milestone in the road towards elementary OS 6.
+
+88
+00:04:06,240 --> 00:04:08,240
+So what are we expecting here?
+
+89
+00:04:08,240 --> 00:04:10,320
+This doesn't look like it's a final product at this stage, but
+
+90
+00:04:10,320 --> 00:04:14,320
+it's looking like it's getting pretty close to something you could use day to day.
+
+91
+00:04:14,320 --> 00:04:18,120
+Yeah, I tell you what, it's been a rough year for obvious reasons, but
+
+92
+00:04:18,120 --> 00:04:20,360
+I'm really excited to get this beta out.
+
+93
+00:04:20,360 --> 00:04:24,920
+So what we're really looking at here is we're making this big transition over to
+
+94
+00:04:24,920 --> 00:04:27,600
+a flat pack based app center, right?
+
+95
+00:04:27,600 --> 00:04:31,440
+And we have all these great new APIs, both from upstream and
+
+96
+00:04:31,440 --> 00:04:33,160
+from things we've been working on.
+
+97
+00:04:33,160 --> 00:04:36,320
+And we're in a place right now where we want to really stabilize that developer
+
+98
+00:04:36,320 --> 00:04:40,520
+experience and get people in and building their apps as flat packs with these new
+
+99
+00:04:40,520 --> 00:04:43,240
+APIs and getting feedback about their experience so
+
+100
+00:04:43,240 --> 00:04:44,920
+we can get ready to do the real thing.
+
+101
+00:04:44,920 --> 00:04:46,840
+All right, so you mentioned the year.
+
+102
+00:04:46,840 --> 00:04:53,520
+It's been 370-ish days since 2004 came out, which will be the base.
+
+103
+00:04:53,520 --> 00:04:56,560
+And I'm wondering, what are your thoughts reflecting on that amount of time?
+
+104
+00:04:56,560 --> 00:05:00,280
+Is it the project's goal to generally ship sooner than that?
+
+105
+00:05:00,280 --> 00:05:04,360
+Or is it really just a matter of you ship when it's ready, and
+
+106
+00:05:04,360 --> 00:05:08,920
+if it takes 370-ish days to get to a beta, that's acceptable and
+
+107
+00:05:08,920 --> 00:05:10,240
+what the user should expect?
+
+108
+00:05:10,240 --> 00:05:12,240
+Yeah, I mean, it's a little bit of this, a little bit of that.
+
+109
+00:05:12,240 --> 00:05:15,360
+Like, obviously, it would have been nice to ship a lot sooner.
+
+110
+00:05:15,360 --> 00:05:22,200
+We had planned a sprint early last year that we were supposed to be able to go and
+
+111
+00:05:22,200 --> 00:05:25,760
+get all this flat pack app center stuff done at that time.
+
+112
+00:05:25,760 --> 00:05:27,360
+And then the world blew up.
+
+113
+00:05:27,360 --> 00:05:32,680
+So this is definitely a lot more delayed than we really wanted.
+
+114
+00:05:32,680 --> 00:05:39,240
+But that is kind of the beauty of deciding to release when we're ready is we've
+
+115
+00:05:39,240 --> 00:05:42,400
+never really had these big commitments to dates.
+
+116
+00:05:42,400 --> 00:05:44,840
+And it was more like, this is the work that needs to get done.
+
+117
+00:05:44,840 --> 00:05:48,680
+And as long as it takes to get the work done, that's the experience we want to ship.
+
+118
+00:05:48,680 --> 00:05:51,840
+And you know what, I think the users appreciate that.
+
+119
+00:05:51,840 --> 00:05:55,040
+So there is now ways, though, for people to get involved and
+
+120
+00:05:55,040 --> 00:05:58,480
+help accelerate development and help make elementary OS 6 great.
+
+121
+00:05:58,480 --> 00:06:02,200
+I saw you have information posted where you go through the beta,
+
+122
+00:06:02,200 --> 00:06:03,440
+you show some of the new features.
+
+123
+00:06:03,440 --> 00:06:07,960
+By the way, I really like that new, I think you guys call it accent colors
+
+124
+00:06:07,960 --> 00:06:10,560
+feature that kind of just lets you spice up the UI a little bit.
+
+125
+00:06:10,560 --> 00:06:13,400
+That looks really slick.
+
+126
+00:06:13,400 --> 00:06:14,200
+How does that work, Dan?
+
+127
+00:06:14,200 --> 00:06:17,760
+Does it highlight the default buttons in different colors that you choose?
+
+128
+00:06:17,760 --> 00:06:19,200
+Is that essentially what it's doing?
+
+129
+00:06:19,200 --> 00:06:23,880
+Yeah, so under the hood, what it actually is, is we're now shipping
+
+130
+00:06:23,880 --> 00:06:27,920
+eight different variations of our style sheet that are kind of built at compile
+
+131
+00:06:27,920 --> 00:06:32,680
+time, and they all use a different base accent color.
+
+132
+00:06:32,680 --> 00:06:36,440
+So when you're getting things like the suggested action buttons, or
+
+133
+00:06:36,440 --> 00:06:40,400
+selections in radios, or in menus, or lists, or things like that,
+
+134
+00:06:40,400 --> 00:06:44,840
+anytime that you see, normally you just see a blue accent by default.
+
+135
+00:06:44,840 --> 00:06:47,680
+But now you can kind of choose what your favorite color is, or
+
+136
+00:06:47,680 --> 00:06:51,800
+we actually even just merged the ability to have it automatically select a color
+
+137
+00:06:51,800 --> 00:06:53,120
+based on your wallpaper.
+
+138
+00:06:53,120 --> 00:06:56,680
+There must be a performance benefit to you guys building those themes ahead of
+
+139
+00:06:56,680 --> 00:06:57,320
+time.
+
+140
+00:06:57,320 --> 00:06:59,720
+And then as a user, I select them, they're built and ready to go.
+
+141
+00:06:59,720 --> 00:07:02,160
+That just seems great.
+
+142
+00:07:02,160 --> 00:07:03,600
+Is that something that's normal, or
+
+143
+00:07:03,600 --> 00:07:06,320
+is that something that elementary OS does differently?
+
+144
+00:07:06,320 --> 00:07:10,240
+You know, I'm really not sure how other platforms are handling it.
+
+145
+00:07:10,240 --> 00:07:14,920
+I think Deepin maybe has a color selection, and
+
+146
+00:07:14,920 --> 00:07:17,280
+I think maybe another desktop environment.
+
+147
+00:07:17,280 --> 00:07:19,960
+I'm really not sure about how other ones are working.
+
+148
+00:07:19,960 --> 00:07:23,720
+But this is like the one we felt that would be the easiest to maintain and
+
+149
+00:07:23,720 --> 00:07:26,520
+allow us to add as many colors as we want and
+
+150
+00:07:26,520 --> 00:07:30,760
+make sure that when people go to switch them, they're switched and they're done.
+
+151
+00:07:30,760 --> 00:07:34,080
+I just like to know these kinds of things because I think honestly one of the great
+
+152
+00:07:34,080 --> 00:07:39,400
+things about the elementary OS experience is I love a lot of GTK applications.
+
+153
+00:07:39,400 --> 00:07:43,360
+But in the past, I've run into issues with Gnome Shell itself.
+
+154
+00:07:43,360 --> 00:07:46,400
+A lot of that's been fixed up, but elementary OS has always been there as
+
+155
+00:07:46,400 --> 00:07:49,840
+an alternative that lets you play in that user space, kind of like Budgie does, but
+
+156
+00:07:49,840 --> 00:07:52,080
+with some real nice choices you guys have made.
+
+157
+00:07:52,080 --> 00:07:57,240
+So to that end, I'm curious just to get your high level thoughts on
+
+158
+00:07:57,240 --> 00:08:02,320
+Gnome 40 adopting a horizontal layout that reminds me a lot of
+
+159
+00:08:02,320 --> 00:08:04,120
+the way Pantheon does things.
+
+160
+00:08:04,120 --> 00:08:06,320
+Yeah, I think it's really interesting.
+
+161
+00:08:06,320 --> 00:08:11,560
+I think that a lot of people have this perception that developers from different
+
+162
+00:08:11,560 --> 00:08:15,320
+desktop environments are in fierce competition and don't ever talk to each
+
+163
+00:08:15,320 --> 00:08:18,440
+other or anything like that, but it's really not true at all.
+
+164
+00:08:18,440 --> 00:08:22,200
+We were at the design sprint where they were working on the design for
+
+165
+00:08:22,200 --> 00:08:23,440
+the new login and lock screen.
+
+166
+00:08:23,440 --> 00:08:27,880
+And a lot of the discussions that we had with the Gnome design team actually
+
+167
+00:08:27,880 --> 00:08:29,920
+informed the design for our stuff.
+
+168
+00:08:29,920 --> 00:08:34,520
+So we're in contact with designers at Gnome and we go to Guadac and things like that.
+
+169
+00:08:34,520 --> 00:08:36,720
+And so there's a lot of cross-pollination of ideas, and
+
+170
+00:08:36,720 --> 00:08:42,120
+it doesn't totally surprise me that we would decide to do a lot of things very similarly.
+
+171
+00:08:42,120 --> 00:08:44,880
+Right, and I gotta say, as an end user, the experience for
+
+172
+00:08:44,880 --> 00:08:48,360
+me just means it's more consistent when I'm switching between desktop environments.
+
+173
+00:08:48,360 --> 00:08:51,360
+It's just like one less thing for me to have to do a translation in my head.
+
+174
+00:08:51,360 --> 00:08:54,480
+So it kind of works out for an end user, so I like it.
+
+175
+00:08:54,480 --> 00:08:58,000
+Well, there's a lot in here, like stuff with App Center and flat packs, but
+
+176
+00:08:58,000 --> 00:09:00,800
+I'm curious if there's any other areas that you'd just like to particularly touch on
+
+177
+00:09:00,800 --> 00:09:04,040
+before we give people any more info on how to get involved.
+
+178
+00:09:04,040 --> 00:09:08,880
+Yeah, I think the biggest ones here are just that we were trying to roll out that
+
+179
+00:09:08,880 --> 00:09:11,800
+whole new look and feel with the new style sheet, and
+
+180
+00:09:11,800 --> 00:09:16,520
+we really need feedback from app developers to make sure we didn't break our styles.
+
+181
+00:09:16,520 --> 00:09:19,600
+So any kind of weird idiosyncrasies, we'd love to have reported there.
+
+182
+00:09:19,600 --> 00:09:24,040
+I mean, we're really just in this stage of here's all the big stuff and
+
+183
+00:09:24,040 --> 00:09:25,160
+tell us what we broke.
+
+184
+00:09:25,160 --> 00:09:27,360
+Yeah, that new installer needs some hands on.
+
+185
+00:09:27,360 --> 00:09:31,160
+That's probably a really easy way for people to give it a test.
+
+186
+00:09:31,160 --> 00:09:32,480
+I like that you have this page, so
+
+187
+00:09:32,480 --> 00:09:34,760
+I'm gonna recommend everybody that wants to help out, check it out.
+
+188
+00:09:34,760 --> 00:09:37,440
+Elementary.io slash git dash involved.
+
+189
+00:09:37,440 --> 00:09:39,000
+Every project should do this.
+
+190
+00:09:39,000 --> 00:09:43,800
+The team just outlays a lot of ways you can just get involved,
+
+191
+00:09:43,800 --> 00:09:47,080
+be it from funding to design to desktop and support.
+
+192
+00:09:47,080 --> 00:09:49,960
+It's super clever, and it's really well done.
+
+193
+00:09:49,960 --> 00:09:50,880
+Thanks a lot.
+
+194
+00:09:50,880 --> 00:09:52,240
+Well, Dan, thank you.
+
+195
+00:09:52,240 --> 00:09:55,480
+Thank you, and thank you guys for putting out all the good stuff.
+
+196
+00:09:55,480 --> 00:09:57,800
+And I look forward to giving it a try.
+
+197
+00:09:57,800 --> 00:09:59,200
+And then, of course, the release.
+
+198
+00:09:59,200 --> 00:10:02,960
+When that does happen, you come back and chat with us about it.
+
+199
+00:10:02,960 --> 00:10:04,200
+Yeah, absolutely.
+
+200
+00:10:04,200 --> 00:10:09,480
+I think we're probably gonna kick off another beta, hopefully relatively shortly.
+
+201
+00:10:09,480 --> 00:10:11,920
+We're getting a lot of great feedback and a lot of bug fixes in, so
+
+202
+00:10:11,920 --> 00:10:14,400
+we really wanna keep that feedback loop churning.
+
+203
+00:10:14,400 --> 00:10:15,120
+Thank you, sir.
+
+204
+00:10:15,120 --> 00:10:15,800
+Thanks for updating us.
+
+205
+00:10:15,800 --> 00:10:16,440
+Good to have you here.
+
+206
+00:10:16,440 --> 00:10:17,240
+Thank you.
+
+207
+00:10:17,240 --> 00:10:19,560
+Mr. Daniel Fore, everybody, from Elementary OS.
+
+208
+00:10:19,560 --> 00:10:22,360
+We will have links to everything we just chatted about in the show notes,
+
+209
+00:10:22,360 --> 00:10:25,460
+of course, so you can go right there.
+
+210
+00:10:25,460 --> 00:10:28,040
+Now, a project that we just love on this show,
+
+211
+00:10:28,040 --> 00:10:31,680
+we use it to help produce this here podcast, is Audacity.
+
+212
+00:10:31,680 --> 00:10:36,960
+And you may have heard this week that Audacity has joined the Muse Group,
+
+213
+00:10:36,960 --> 00:10:40,520
+which is a collection of brands that includes another popular open source
+
+214
+00:10:40,520 --> 00:10:44,520
+music app called MuseScore, a lot of people are familiar with that.
+
+215
+00:10:44,520 --> 00:10:49,840
+And I think that the Muse Group is, I don't know a lot about it yet, but
+
+216
+00:10:49,840 --> 00:10:53,320
+we've invited several people involved onto the show to come tell us about it.
+
+217
+00:10:53,320 --> 00:10:56,280
+And I did reach out to the Audacity development team,
+
+218
+00:10:56,280 --> 00:10:58,960
+well, at least a couple of the developers.
+
+219
+00:10:58,960 --> 00:11:02,720
+And they don't have a lot to add to this story at this moment.
+
+220
+00:11:02,720 --> 00:11:07,360
+But the way it seems to be coming through is that MuseScore will be involved with
+
+221
+00:11:07,360 --> 00:11:10,400
+the management and day-to-day operation of Audacity,
+
+222
+00:11:10,400 --> 00:11:12,840
+much like how sometimes a foundation will.
+
+223
+00:11:12,840 --> 00:11:15,960
+And then there will be a team of developers that will remain that have been
+
+224
+00:11:15,960 --> 00:11:19,160
+there for a while that will continue to develop under that umbrella now.
+
+225
+00:11:19,160 --> 00:11:23,280
+I essentially believe what's happened here is the equivalent of copyrights and
+
+226
+00:11:23,280 --> 00:11:27,520
+trademarks have been purchased and acquired and transferred to Muse Group.
+
+227
+00:11:27,520 --> 00:11:32,520
+And one of the key goals, it sounds like from the outset here,
+
+228
+00:11:32,520 --> 00:11:37,160
+is to improve the UI of Audacity, it's kind of job number one right now.
+
+229
+00:11:37,160 --> 00:11:42,600
+Which, Wes, it's like the developer that I spoke with literally said to me,
+
+230
+00:11:42,600 --> 00:11:45,160
+I'm also both scared and excited.
+
+231
+00:11:45,160 --> 00:11:46,360
+Yeah, I think that's right.
+
+232
+00:11:46,360 --> 00:11:50,160
+I mean, it's really been a long journey for Audacity.
+
+233
+00:11:50,160 --> 00:11:53,960
+It began development way back in 1999, yeah, that's right,
+
+234
+00:11:53,960 --> 00:11:59,240
+last millennium at Carnegie Mellon University and has come a long way since there.
+
+235
+00:11:59,240 --> 00:12:04,920
+I mean, they just recently shipped version 3.0, which added a lot of stuff already.
+
+236
+00:12:04,920 --> 00:12:08,520
+It's not really clear exactly all what's going on here.
+
+237
+00:12:08,520 --> 00:12:11,360
+Muse Group itself was formed, just like the company,
+
+238
+00:12:11,360 --> 00:12:15,320
+was formed a few days prior to the Audacity announcement.
+
+239
+00:12:15,320 --> 00:12:16,640
+Although obviously MuseScore and
+
+240
+00:12:16,640 --> 00:12:20,960
+some of the other stuff involved had been going on a lot longer than that.
+
+241
+00:12:20,960 --> 00:12:24,360
+We don't know a lot about the financials or the exact structure, but
+
+242
+00:12:24,360 --> 00:12:28,960
+if how this works out is they've got a new steward who wants to help support
+
+243
+00:12:28,960 --> 00:12:33,800
+the development of this free and open source audio tool, I think I support that.
+
+244
+00:12:33,800 --> 00:12:37,920
+And because it is open source, I mean, if they ruin it, at least we can fork it.
+
+245
+00:12:37,920 --> 00:12:41,040
+That's true, and I'm not particularly familiar with MuseScore, but
+
+246
+00:12:41,040 --> 00:12:44,440
+from just kind of doing some research for this story, it seems to be really well
+
+247
+00:12:44,440 --> 00:12:48,360
+liked, it seems like people are very much a fan of that software and
+
+248
+00:12:48,360 --> 00:12:51,920
+have a lot of goodwill towards this acquisition because of how they have
+
+249
+00:12:51,920 --> 00:12:56,760
+managed MuseScore, hopefully that's a good sign.
+
+250
+00:12:56,760 --> 00:13:01,240
+This is one of those stories that does actually kind of terrify me just a little
+
+251
+00:13:01,240 --> 00:13:03,480
+bit because it is a tool that is so precious to so
+
+252
+00:13:03,480 --> 00:13:07,400
+many of us in any kind of media production on Linux.
+
+253
+00:13:07,400 --> 00:13:11,000
+Media production, I mean, it's used a bunch in academic research.
+
+254
+00:13:11,000 --> 00:13:14,600
+It's just sort of, like it happens with the best open source tools,
+
+255
+00:13:14,600 --> 00:13:17,560
+it just becomes sort of part of the landscape because it doesn't cost anything.
+
+256
+00:13:17,560 --> 00:13:20,040
+You can always count on it, it's always there for you, and
+
+257
+00:13:20,040 --> 00:13:21,640
+it would be a shame for that to change.
+
+258
+00:13:21,640 --> 00:13:27,800
+Yeah, I will continue to leave our doors open to anyone
+
+259
+00:13:27,800 --> 00:13:31,120
+involved that would like to come chat with us, I've sent out a couple invitations.
+
+260
+00:13:31,120 --> 00:13:35,320
+And maybe we'll do a follow up next week, kind of a head scratcher.
+
+261
+00:13:35,320 --> 00:13:39,800
+And one thing that was a little strange to me is that the announcement
+
+262
+00:13:39,800 --> 00:13:47,800
+started on YouTube in a YouTube video by the design lead from the Muse group.
+
+263
+00:13:47,800 --> 00:13:51,200
+Who's a well known individual, and so maybe that makes sense.
+
+264
+00:13:51,200 --> 00:13:54,520
+But it wasn't like a press release from the Audacity project or
+
+265
+00:13:54,520 --> 00:13:56,720
+like the Muse group website, if there is one.
+
+266
+00:13:56,720 --> 00:14:00,520
+And that video, I mean, it had a lot to like in the video, definitely, but
+
+267
+00:14:00,520 --> 00:14:04,360
+it was aimed at the existing audience, his audience on YouTube.
+
+268
+00:14:04,360 --> 00:14:07,520
+And so it's sort of like, hey, I'm in charge of Audacity now, isn't that?
+
+269
+00:14:07,520 --> 00:14:09,480
+Here's what I'm thinking, which is great.
+
+270
+00:14:09,480 --> 00:14:12,800
+But yeah, there hasn't been a lot of communication geared to the wider
+
+271
+00:14:12,800 --> 00:14:15,720
+open source community or users who aren't familiar with Muse group but
+
+272
+00:14:15,720 --> 00:14:17,240
+are familiar with Audacity.
+
+273
+00:14:17,240 --> 00:14:19,920
+Put very well, and we will have a link in the show notes.
+
+274
+00:14:19,920 --> 00:14:22,360
+There is now a post on the Audacity website,
+
+275
+00:14:22,360 --> 00:14:24,200
+which we will also link in the show notes.
+
+276
+00:14:24,200 --> 00:14:29,760
+But quite literally, all it does is it quotes the YouTube video.
+
+277
+00:14:29,760 --> 00:14:34,560
+They just put a block quote of essentially a transcript from the YouTube video.
+
+278
+00:14:34,560 --> 00:14:40,120
+And then the only thing they add to it is that we're scared and excited, and
+
+279
+00:14:40,120 --> 00:14:40,920
+they hope we are too.
+
+280
+00:14:41,960 --> 00:14:46,600
+That's the entirety of the statement from the Audacity project.
+
+281
+00:14:46,600 --> 00:14:50,920
+And I think it's one of those situations where things are still getting dialed in.
+
+282
+00:14:50,920 --> 00:14:55,360
+And whenever you have a deal like this, it involves copyright and
+
+283
+00:14:55,360 --> 00:14:57,560
+intellectual property and money.
+
+284
+00:14:57,560 --> 00:15:00,680
+That there's just certain things that people can't say right now.
+
+285
+00:15:00,680 --> 00:15:05,720
+And so this news has kind of come out before maybe everything is fully formed
+
+286
+00:15:05,720 --> 00:15:09,120
+based on my read of my conversation and this post.
+
+287
+00:15:09,120 --> 00:15:12,360
+It's like they just can't say everything fully yet.
+
+288
+00:15:12,360 --> 00:15:14,600
+But the headlines are getting written fast, so
+
+289
+00:15:14,600 --> 00:15:15,760
+that's why I wanted to contact them.
+
+290
+00:15:15,760 --> 00:15:19,960
+Because the headlines clearly say the Muse group now owns Audacity and
+
+291
+00:15:19,960 --> 00:15:24,560
+is in control of it and will be quote unquote partnering with the open source
+
+292
+00:15:24,560 --> 00:15:26,840
+developers, which is just not very clear.
+
+293
+00:15:26,840 --> 00:15:29,680
+It doesn't really say who is quite in charge then.
+
+294
+00:15:29,680 --> 00:15:32,960
+Because you can't make an open source community do anything.
+
+295
+00:15:32,960 --> 00:15:35,840
+It's like you can't, you can't herd cats.
+
+296
+00:15:35,840 --> 00:15:38,440
+It's like you can have goals and you can have outlines.
+
+297
+00:15:38,440 --> 00:15:41,320
+If you get everybody on board, they'll go for it.
+
+298
+00:15:41,320 --> 00:15:45,120
+But if you just come at them from on high with a mandate,
+
+299
+00:15:45,120 --> 00:15:46,160
+not all of them are gonna do anything.
+
+300
+00:15:46,160 --> 00:15:47,920
+They're not gonna jump necessarily.
+
+301
+00:15:47,920 --> 00:15:48,840
+Right.
+
+302
+00:15:48,840 --> 00:15:52,520
+How many resources will be expended by the project in terms of development time?
+
+303
+00:15:52,520 --> 00:15:54,360
+How much of that will be sort of shepherding and
+
+304
+00:15:54,360 --> 00:16:00,200
+helping out existing development, volunteer resources, or paid resources?
+
+305
+00:16:00,200 --> 00:16:00,800
+We don't know.
+
+306
+00:16:00,800 --> 00:16:03,760
+I guess we'll just have to pay some close attention to the repo and
+
+307
+00:16:03,760 --> 00:16:04,360
+see what happens.
+
+308
+00:16:04,360 --> 00:16:08,520
+Linode.com slash unplugged.
+
+309
+00:16:08,520 --> 00:16:13,640
+Go there to get a $100 60 day credit, yep, $100 towards a new account.
+
+310
+00:16:13,640 --> 00:16:15,320
+And go there to really support the show too.
+
+311
+00:16:15,320 --> 00:16:16,920
+Let us know you heard about it here.
+
+312
+00:16:16,920 --> 00:16:19,400
+Linode is our cloud hosting provider.
+
+313
+00:16:19,400 --> 00:16:21,560
+It's what we've built our new email server on.
+
+314
+00:16:21,560 --> 00:16:22,600
+It's Linode, of course.
+
+315
+00:16:22,600 --> 00:16:26,360
+It's what we do our back end processing, and hosting, and our automation system,
+
+316
+00:16:26,360 --> 00:16:30,000
+and next cloud, and object storage for config backups.
+
+317
+00:16:30,000 --> 00:16:33,600
+It's how we do a lot of the things that make it possible for
+
+318
+00:16:33,600 --> 00:16:38,200
+a small team to operate at the scale that we operate at.
+
+319
+00:16:38,200 --> 00:16:41,000
+That's why Linode is essentially like part of our team.
+
+320
+00:16:41,000 --> 00:16:44,240
+Because they're a fundamental aspect of how we get production done.
+
+321
+00:16:44,240 --> 00:16:50,120
+And unlike the big clouds, unlike big cloud, like AWS and
+
+322
+00:16:50,120 --> 00:16:56,480
+the Googs and Azure, Linode gives you access to tools they would never dream of.
+
+323
+00:16:56,480 --> 00:17:01,240
+And man, oh man, is Linode's UI infinitely simpler and
+
+324
+00:17:01,240 --> 00:17:02,720
+much more straightforward.
+
+325
+00:17:02,720 --> 00:17:07,400
+And yet somehow, you'll be amazed at the speed, performance, and
+
+326
+00:17:07,400 --> 00:17:10,120
+complexity of things you could actually build if you wanted to.
+
+327
+00:17:10,120 --> 00:17:12,200
+And you get 11 data centers to choose from.
+
+328
+00:17:12,200 --> 00:17:16,240
+Every service level is backed by the best customer support in the business.
+
+329
+00:17:16,240 --> 00:17:19,280
+And that matters, that really matters.
+
+330
+00:17:19,280 --> 00:17:20,440
+Instead of just being a number,
+
+331
+00:17:20,440 --> 00:17:22,680
+you're gonna talk to an individual by phone or ticket.
+
+332
+00:17:22,680 --> 00:17:26,200
+And it's gonna make all the difference when you're in a tough spot.
+
+333
+00:17:26,200 --> 00:17:29,480
+And it's not just like that one great thing about Linode.
+
+334
+00:17:29,480 --> 00:17:33,280
+It's like all the things about Linode that make them our go-to choice for
+
+335
+00:17:33,280 --> 00:17:34,920
+anything we're building.
+
+336
+00:17:34,920 --> 00:17:41,120
+It's not even really a debate, because when you become kind of a Linode connoisseur,
+
+337
+00:17:41,120 --> 00:17:43,480
+there's just things you can't do on the other providers.
+
+338
+00:17:43,480 --> 00:17:45,240
+And they really, truly love Linux.
+
+339
+00:17:45,240 --> 00:17:47,080
+I mean, you can see it in the projects they support and
+
+340
+00:17:47,080 --> 00:17:49,040
+the conferences that they've supported.
+
+341
+00:17:49,040 --> 00:17:51,080
+But when they are building anything,
+
+342
+00:17:51,080 --> 00:17:54,720
+they start from a perspective of how can we make Linux do this for us?
+
+343
+00:17:54,720 --> 00:17:56,720
+Even if it doesn't fully do it yet.
+
+344
+00:17:56,720 --> 00:17:59,800
+I've shared the story before about when they became their own ISP.
+
+345
+00:17:59,800 --> 00:18:04,240
+And back then when they did that, it was ridiculous to be using Linux
+
+346
+00:18:04,240 --> 00:18:07,800
+at the layer that they were planning to use, at the networking layer.
+
+347
+00:18:07,800 --> 00:18:10,160
+And now it's become an entire industry.
+
+348
+00:18:10,160 --> 00:18:13,040
+Because they see this stuff like we do.
+
+349
+00:18:13,040 --> 00:18:16,760
+Like we're sitting here shucking and jiving about pipe wire.
+
+350
+00:18:16,760 --> 00:18:20,080
+Back in 2018, well, it's shipping in 2021.
+
+351
+00:18:20,080 --> 00:18:21,600
+Because we're passionate about this stuff.
+
+352
+00:18:21,600 --> 00:18:24,560
+We follow it for a long time, just like Linode does.
+
+353
+00:18:24,560 --> 00:18:25,760
+And that's what I love about them.
+
+354
+00:18:25,760 --> 00:18:29,600
+Because if you're a long time Linux user, that stuff shines through the product.
+
+355
+00:18:29,600 --> 00:18:31,160
+I think it's really great.
+
+356
+00:18:31,160 --> 00:18:33,040
+So go see what you can do with Linode.
+
+357
+00:18:33,040 --> 00:18:36,040
+Go put that $100 to work for you and see what I've been talking about it.
+
+358
+00:18:36,040 --> 00:18:38,400
+linode.com slash unplugged.
+
+359
+00:18:38,400 --> 00:18:41,040
+Build something or maybe even learn something.
+
+360
+00:18:41,040 --> 00:18:44,760
+There's a lot of great places to host, I'll admit.
+
+361
+00:18:44,760 --> 00:18:47,040
+But nobody does it like Linode.
+
+362
+00:18:47,040 --> 00:18:49,800
+Go see why we choose Linode every single time.
+
+363
+00:18:49,800 --> 00:18:51,840
+linode.com slash unplugged.
+
+364
+00:18:51,840 --> 00:18:59,280
+You know, Mr. Payne, we have a really major, major housekeeping today.
+
+365
+00:18:59,280 --> 00:19:01,760
+I normally say we just have a spot of housekeeping.
+
+366
+00:19:01,760 --> 00:19:04,920
+But I enthusiastically embraced the housekeeping this week.
+
+367
+00:19:07,240 --> 00:19:10,120
+Well, we woke up and it was a mess in here.
+
+368
+00:19:10,120 --> 00:19:12,800
+Clearly, we didn't clean up after ourselves last week.
+
+369
+00:19:12,800 --> 00:19:14,440
+Oh, it wasn't you and me.
+
+370
+00:19:14,440 --> 00:19:16,800
+It was Minimac and that rowdy Luplug.
+
+371
+00:19:16,800 --> 00:19:18,960
+They had a hell of a get together this Sunday.
+
+372
+00:19:18,960 --> 00:19:22,760
+Minimac, do you want to give us a little update on how the Mycroft get together went?
+
+373
+00:19:22,760 --> 00:19:24,120
+Well, it went really well.
+
+374
+00:19:24,120 --> 00:19:27,040
+We had an excellent pre-talk.
+
+375
+00:19:27,040 --> 00:19:32,920
+And I want to thank all the members of the Mycroft community that found the time for
+
+376
+00:19:32,920 --> 00:19:34,960
+a really Luplug session.
+
+377
+00:19:34,960 --> 00:19:37,200
+And most of them will be present next week, too.
+
+378
+00:19:37,200 --> 00:19:38,560
+Yeah, that's the main show, right?
+
+379
+00:19:38,560 --> 00:19:39,880
+That's the big event.
+
+380
+00:19:39,880 --> 00:19:40,880
+Indeed.
+
+381
+00:19:40,880 --> 00:19:45,320
+So in the pre-talk, we tried to nail down the structure of the talk that actually takes
+
+382
+00:19:45,320 --> 00:19:46,680
+place next week.
+
+383
+00:19:46,680 --> 00:19:51,360
+But we already had some inside information and everything was really cool.
+
+384
+00:19:51,360 --> 00:19:55,560
+And we played around with our Mycroft bot we have now in the Mumble channel.
+
+385
+00:19:55,560 --> 00:19:58,960
+And that one will be available, I guess, for the whole week.
+
+386
+00:19:58,960 --> 00:20:02,880
+So if you want to test that one, you can whenever you want.
+
+387
+00:20:02,880 --> 00:20:08,840
+Please be aware that it can be a little bit tricky with the wake word, with the HeyMycroft
+
+388
+00:20:08,840 --> 00:20:09,840
+word.
+
+389
+00:20:09,840 --> 00:20:13,600
+And maybe you have to adjust your microphone settings a little bit.
+
+390
+00:20:13,600 --> 00:20:15,880
+I have some excellent news.
+
+391
+00:20:15,880 --> 00:20:20,320
+Chris Gessling, you know, the guy from Down Under, the community manager.
+
+392
+00:20:20,320 --> 00:20:23,120
+He has announced his presence, too, for the talk.
+
+393
+00:20:23,120 --> 00:20:26,360
+So I guess we're going to have to beam him some coffee.
+
+394
+00:20:26,360 --> 00:20:27,960
+That is great.
+
+395
+00:20:27,960 --> 00:20:31,040
+So it will be an excellent talk.
+
+396
+00:20:31,040 --> 00:20:34,240
+And I really hope that you find the time to join us.
+
+397
+00:20:34,240 --> 00:20:38,240
+I will put a reminder on all the JB social media channels.
+
+398
+00:20:38,240 --> 00:20:40,760
+All I can say is see you next Sunday.
+
+399
+00:20:40,760 --> 00:20:43,720
+It's really neat to see the Mycroft team engaging.
+
+400
+00:20:43,720 --> 00:20:45,880
+There's people that showed up just for the pre-talk this Sunday.
+
+401
+00:20:45,880 --> 00:20:48,680
+So you know it's going to be a great turnout this Sunday.
+
+402
+00:20:48,680 --> 00:20:50,200
+And yeah, you heard him right.
+
+403
+00:20:50,200 --> 00:20:54,280
+They now have a Mycroft bot in the Mumble room that you can speak to via Mumble.
+
+404
+00:20:54,280 --> 00:20:55,280
+It's so cool.
+
+405
+00:20:55,280 --> 00:20:56,280
+It's so cool.
+
+406
+00:20:56,280 --> 00:20:57,280
+Yeah.
+
+407
+00:20:57,280 --> 00:20:58,760
+So check it out this Sunday.
+
+408
+00:20:58,760 --> 00:21:01,820
+Also, I want to put a call out there for your questions.
+
+409
+00:21:01,820 --> 00:21:05,640
+We want to do a Q&A episode coming up later this month because I'm going to be doing some
+
+410
+00:21:05,640 --> 00:21:06,640
+traveling.
+
+411
+00:21:06,640 --> 00:21:09,760
+I'm going to just take that opportunity to just answer questions.
+
+412
+00:21:09,760 --> 00:21:11,560
+We haven't done that ever on the show.
+
+413
+00:21:11,560 --> 00:21:12,560
+So ask us anything.
+
+414
+00:21:12,560 --> 00:21:14,440
+We'll answer as many as we can.
+
+415
+00:21:14,440 --> 00:21:20,640
+Go to linuxunplug.com contact for the Q&A episode coming up real soon.
+
+416
+00:21:20,640 --> 00:21:27,560
+And also I'll mention we have a couple very limited retro last items in the garage right
+
+417
+00:21:27,560 --> 00:21:30,400
+now, including the very last few coins.
+
+418
+00:21:30,400 --> 00:21:35,480
+We still have some swag bags that honestly the swag bags are super popular.
+
+419
+00:21:35,480 --> 00:21:38,120
+Those are up right now at Jupiter garage.com.
+
+420
+00:21:38,120 --> 00:21:40,760
+It's the very last of the last coins.
+
+421
+00:21:40,760 --> 00:21:42,880
+So grab one if you would like them.
+
+422
+00:21:42,880 --> 00:21:45,400
+What's this tech talk today portable speaker?
+
+423
+00:21:45,400 --> 00:21:46,400
+I see.
+
+424
+00:21:46,400 --> 00:21:49,160
+That seems like the perfect way to listen to a Linux unplugged.
+
+425
+00:21:49,160 --> 00:21:52,900
+If you happen to have a device that still has a headphone jack, it's just a little,
+
+426
+00:21:52,900 --> 00:21:54,520
+it just runs right off the headphone jack.
+
+427
+00:21:54,520 --> 00:21:55,520
+I might have a battery in there.
+
+428
+00:21:55,520 --> 00:21:56,520
+I can't remember.
+
+429
+00:21:56,520 --> 00:21:57,520
+It works though.
+
+430
+00:21:57,520 --> 00:21:58,520
+I just plugged it in.
+
+431
+00:21:58,520 --> 00:21:59,520
+Yeah.
+
+432
+00:21:59,520 --> 00:22:01,960
+If you were a tech talk today fan, I looked at that little speaker and I thought, you
+
+433
+00:22:01,960 --> 00:22:03,480
+know, I kind of miss doing that show.
+
+434
+00:22:03,480 --> 00:22:05,340
+I don't need to do any more shows.
+
+435
+00:22:05,340 --> 00:22:08,300
+I really don't need to do any more shows, but I kind of miss it.
+
+436
+00:22:08,300 --> 00:22:13,080
+So that's all at Jupiter garage.com.
+
+437
+00:22:13,080 --> 00:22:16,460
+So this is the finale of our email series.
+
+438
+00:22:16,460 --> 00:22:19,400
+We today finally we'll finish it all up.
+
+439
+00:22:19,400 --> 00:22:23,720
+We've been building our own self hosted email server in 2021.
+
+440
+00:22:23,720 --> 00:22:24,920
+Yeah, I know.
+
+441
+00:22:24,920 --> 00:22:29,040
+I know we're doing it because everybody says you should never host your own email server.
+
+442
+00:22:29,040 --> 00:22:32,240
+So we're going to do it so you don't have to spite email server.
+
+443
+00:22:32,240 --> 00:22:34,800
+It's definitely the best possible reason.
+
+444
+00:22:34,800 --> 00:22:39,800
+It is totally a spied email, you know, and we have two important tasks to complete today.
+
+445
+00:22:39,800 --> 00:22:41,360
+We must deploy the web mail.
+
+446
+00:22:41,360 --> 00:22:44,920
+And of course, we must get our first production user online.
+
+447
+00:22:44,920 --> 00:22:50,680
+But I have to first acknowledge that we have gotten a lot of feedback about this topic.
+
+448
+00:22:50,680 --> 00:22:51,940
+Wow.
+
+449
+00:22:51,940 --> 00:22:53,880
+We weren't even sure if you guys would love this idea or not.
+
+450
+00:22:53,880 --> 00:22:59,960
+But it turns out a lot of you crazy bastards out there are also hosting your own email.
+
+451
+00:22:59,960 --> 00:23:04,260
+But additionally, a lot of people are thinking about it for some reason.
+
+452
+00:23:04,260 --> 00:23:07,740
+Maybe it's Google fatigue, or it's probably a dozen reasons.
+
+453
+00:23:07,740 --> 00:23:10,520
+But this is this has been remarkable.
+
+454
+00:23:10,520 --> 00:23:13,480
+I spent oh, I don't know.
+
+455
+00:23:13,480 --> 00:23:20,020
+Three hours yesterday, just reading email about self hosted email hosting.
+
+456
+00:23:20,020 --> 00:23:26,120
+So I kept sending West messages like I'm I've made it back to this date.
+
+457
+00:23:26,120 --> 00:23:27,400
+I've made it this far.
+
+458
+00:23:27,400 --> 00:23:29,880
+I was given like real time messages.
+
+459
+00:23:29,880 --> 00:23:31,560
+It was a mountain of feedback.
+
+460
+00:23:31,560 --> 00:23:32,560
+Yeah, wow.
+
+461
+00:23:32,560 --> 00:23:33,560
+I did not expect that.
+
+462
+00:23:33,560 --> 00:23:34,640
+I mean, a few sure.
+
+463
+00:23:34,640 --> 00:23:37,840
+But apparently email is a spicy topic.
+
+464
+00:23:37,840 --> 00:23:38,840
+Yeah.
+
+465
+00:23:38,840 --> 00:23:41,360
+And Hank wrote in with a with a pretty good question that I think we should cover on the
+
+466
+00:23:41,360 --> 00:23:42,360
+show.
+
+467
+00:23:42,360 --> 00:23:43,360
+So I wanted to respond to this one on air.
+
+468
+00:23:43,360 --> 00:23:47,000
+He says, What's your plan to keep your email servers secure?
+
+469
+00:23:47,000 --> 00:23:49,920
+You tout the fact that your update woes are minimized.
+
+470
+00:23:49,920 --> 00:23:54,760
+I think you've just shifted the need to update the OS though to needing to update the containers.
+
+471
+00:23:54,760 --> 00:23:59,000
+In this regard, I just prefer to keep things within the packaging system on Debian and
+
+472
+00:23:59,000 --> 00:24:00,000
+its derivatives.
+
+473
+00:24:00,000 --> 00:24:04,440
+I install unattended upgrades package which defaults to install security updates daily.
+
+474
+00:24:04,440 --> 00:24:07,720
+Security updates are tested and very unlikely to break anything.
+
+475
+00:24:07,720 --> 00:24:10,960
+I suppose the same is true for a containerized email server.
+
+476
+00:24:10,960 --> 00:24:14,560
+But I'm unaware of any automated security updates.
+
+477
+00:24:14,560 --> 00:24:18,960
+By the way, unattended upgrades is a good little pro tip on you Debian users out there
+
+478
+00:24:18,960 --> 00:24:20,660
+and derivatives.
+
+479
+00:24:20,660 --> 00:24:23,360
+If that's something you might be able to get away with on your box.
+
+480
+00:24:23,360 --> 00:24:27,680
+But he makes a good point West because I think we kind of maybe tried to connect security
+
+481
+00:24:27,680 --> 00:24:29,880
+with containerized application.
+
+482
+00:24:29,880 --> 00:24:32,200
+And that is something we should never do on this show.
+
+483
+00:24:32,200 --> 00:24:33,200
+Yeah, right.
+
+484
+00:24:33,200 --> 00:24:37,760
+I mean, of course, you still need to do updates if there's a vulnerability or a bug that needs
+
+485
+00:24:37,760 --> 00:24:38,760
+attention.
+
+486
+00:24:38,760 --> 00:24:41,680
+Well, you got to get those somehow.
+
+487
+00:24:41,680 --> 00:24:45,440
+Containers do give us some nice tools for sort of separating those concerns.
+
+488
+00:24:45,440 --> 00:24:49,280
+It allows us to sort of choose when we want our updates in our containers versus on our
+
+489
+00:24:49,280 --> 00:24:50,280
+host system.
+
+490
+00:24:50,280 --> 00:24:54,840
+And so if we did want, you know, automated updates on the host system, we certainly could,
+
+491
+00:24:54,840 --> 00:24:58,840
+although we still need to attend to what's going on in the container.
+
+492
+00:24:58,840 --> 00:25:03,920
+What's nice about having this all in Docker and open source is we have access to everything.
+
+493
+00:25:03,920 --> 00:25:08,260
+So if we want to rebuild things, if we want to make tweaks, we have that functionality.
+
+494
+00:25:08,260 --> 00:25:12,520
+And we try to choose projects that have regular updates to the end releases to their images
+
+495
+00:25:12,520 --> 00:25:13,520
+anyway.
+
+496
+00:25:13,520 --> 00:25:16,200
+Beyond that, there are some nice tools around there as well.
+
+497
+00:25:16,200 --> 00:25:20,200
+If you do want to set up something like an automatic update, but you will have to do
+
+498
+00:25:20,200 --> 00:25:21,200
+that yourself.
+
+499
+00:25:21,200 --> 00:25:22,200
+True.
+
+500
+00:25:22,200 --> 00:25:23,880
+Real time update from Neil in the chat room.
+
+501
+00:25:23,880 --> 00:25:31,240
+He says that if you're on Fedora, a DNF-Automatic will achieve the same result as unattended
+
+502
+00:25:31,240 --> 00:25:32,240
+dash upgrades.
+
+503
+00:25:32,240 --> 00:25:33,240
+Nice tip.
+
+504
+00:25:33,240 --> 00:25:34,240
+Yeah.
+
+505
+00:25:34,240 --> 00:25:35,240
+Thanks, Neil.
+
+506
+00:25:35,240 --> 00:25:40,000
+Yeah, I think the message I was trying to make last episode is that when I looked at
+
+507
+00:25:40,000 --> 00:25:43,000
+say Mail-in-a-Box, which I still think is an awesome project, and if you're good with
+
+508
+00:25:43,000 --> 00:25:46,600
+the traditional way of deploying software where it just uses packages and it just kind
+
+509
+00:25:46,600 --> 00:25:49,840
+of goes all over your system, that's a great option.
+
+510
+00:25:49,840 --> 00:25:52,040
+I was surprised by my reaction, guys.
+
+511
+00:25:52,040 --> 00:25:55,800
+And I think the thing I want you to take away is when I used Mail-in-a-Box and I watched
+
+512
+00:25:55,800 --> 00:26:00,480
+that install script run, instead of having this sensation of, oh, man, it's so great,
+
+513
+00:26:00,480 --> 00:26:06,800
+this is just taking care of everything for me, I had this sinking concern that I had
+
+514
+00:26:06,800 --> 00:26:09,980
+no idea what was really happening to my system.
+
+515
+00:26:09,980 --> 00:26:17,000
+And I just watched package after package after config file after config file get written
+
+516
+00:26:17,000 --> 00:26:18,000
+to the hard drive.
+
+517
+00:26:18,000 --> 00:26:21,800
+And I started thinking, this is fundamentally altering this box in a way that I don't know
+
+518
+00:26:21,800 --> 00:26:26,740
+if I'm going to feel confident in just upgrading when there's a new update that comes out.
+
+519
+00:26:26,740 --> 00:26:30,940
+It also gets more complicated when, you know, like we were doing for today's show, start
+
+520
+00:26:30,940 --> 00:26:35,040
+hacking in things like web mail, and suddenly you've got multiple conflicting things installed.
+
+521
+00:26:35,040 --> 00:26:36,040
+And maybe you don't do that.
+
+522
+00:26:36,040 --> 00:26:38,180
+Maybe you've got, you know, a VPS or a VM for everything.
+
+523
+00:26:38,180 --> 00:26:41,840
+But I think it's pretty common to just sort of add those things on when it's convenient.
+
+524
+00:26:41,840 --> 00:26:45,800
+And then you've got mixed requirements that maybe one update needs an update, but that
+
+525
+00:26:45,800 --> 00:26:47,440
+might break another part of the system.
+
+526
+00:26:47,440 --> 00:26:49,560
+I mean, there's several advantages, right, Byte?
+
+527
+00:26:49,560 --> 00:26:55,000
+Yeah, so when you restart a system because of an update, usually you get a message like
+
+528
+00:26:55,000 --> 00:27:00,800
+a restart is necessary, then your entire system is down for a long time.
+
+529
+00:27:00,800 --> 00:27:05,760
+But if you use containers, a container is usually really fastly rebooted.
+
+530
+00:27:05,760 --> 00:27:09,880
+And if it's only by the service itself, yeah, it's really fast.
+
+531
+00:27:09,880 --> 00:27:14,280
+Yeah, I think that when you look at running your core applications that you want to run
+
+532
+00:27:14,280 --> 00:27:21,260
+for, you know, five years minimum, and you want to maybe even survive an entire OS upgrade,
+
+533
+00:27:21,260 --> 00:27:25,500
+having that isolation is such a killer feature for me.
+
+534
+00:27:25,500 --> 00:27:32,000
+Other things like snapshots, or easily quickly rebooting, or switching to a different image
+
+535
+00:27:32,000 --> 00:27:34,760
+or something like those, there's a lot of nice advantages.
+
+536
+00:27:34,760 --> 00:27:35,760
+Migrating to a new host server.
+
+537
+00:27:35,760 --> 00:27:36,760
+Right, oh my gosh, yes.
+
+538
+00:27:36,760 --> 00:27:38,640
+That's been very handy for us.
+
+539
+00:27:38,640 --> 00:27:45,160
+We did a migration from DigitalOcean to Linode, and it was absolutely much simpler by having
+
+540
+00:27:45,160 --> 00:27:48,680
+a lot of our applications, nearly all of our applications containerized.
+
+541
+00:27:48,680 --> 00:27:50,680
+It made it just significantly simpler.
+
+542
+00:27:50,680 --> 00:27:55,840
+And so mobility and maintainability of the host OS are paramount for me.
+
+543
+00:27:55,840 --> 00:28:00,440
+And then there was other benefits, like instead of going with Ubuntu 18.04, I could now deploy
+
+544
+00:28:00,440 --> 00:28:04,720
+CentOS Stream 8, which is something I've wanted to test in production so I could just talk
+
+545
+00:28:04,720 --> 00:28:05,720
+about on the show anyways.
+
+546
+00:28:05,720 --> 00:28:10,120
+I mean, Hank does have a good point though, right, that you don't get the security for
+
+547
+00:28:10,120 --> 00:28:14,320
+free, and it's still definitely something you have to manage, and that may influence
+
+548
+00:28:14,320 --> 00:28:15,920
+how you want to run your software.
+
+549
+00:28:15,920 --> 00:28:19,440
+So Neil, I'm curious what your thoughts are, because I know one of the things that's
+
+550
+00:28:19,440 --> 00:28:23,360
+drive you crazy in the past is when people equate running applications in a container
+
+551
+00:28:23,360 --> 00:28:27,520
+to being secure, but there's probably still some use cases here that you probably agree
+
+552
+00:28:27,520 --> 00:28:28,520
+with.
+
+553
+00:28:28,520 --> 00:28:32,560
+Yeah, so like for me, it isn't necessarily about security to choose to use containers
+
+554
+00:28:32,560 --> 00:28:37,080
+over something else, although security can be beneficial.
+
+555
+00:28:37,080 --> 00:28:41,360
+The main aspects I wind up using it for is I actually kind of use it a little differently
+
+556
+00:28:41,360 --> 00:28:42,360
+than most people.
+
+557
+00:28:42,360 --> 00:28:46,200
+I use it mainly to replace virtual machines.
+
+558
+00:28:46,200 --> 00:28:50,680
+So unlike a lot of folks, I actually have an init.
+
+559
+00:28:50,680 --> 00:28:53,880
+I have systemd init running in my containers.
+
+560
+00:28:53,880 --> 00:28:59,080
+I'm using systemd nspawn instead of Podman for some of my stuff, because a lot of my
+
+561
+00:28:59,080 --> 00:29:04,380
+stuff are multi-service stuff, and it's just not worth it for me to do the extreme splitting
+
+562
+00:29:04,380 --> 00:29:07,380
+required to do it in something like Podman or whatnot.
+
+563
+00:29:07,380 --> 00:29:12,080
+So I run them as nspawn containers, which means they boot up like they would VMs.
+
+564
+00:29:12,080 --> 00:29:15,200
+And because I'm using Butterfests in my file system, they're snapshot and I can actually
+
+565
+00:29:15,200 --> 00:29:18,320
+do Butterfests and receive to transfer them everywhere.
+
+566
+00:29:18,320 --> 00:29:23,520
+And I also, because of Butterfest's coolness, I actually just layer them on top of the host
+
+567
+00:29:23,520 --> 00:29:25,760
+operating system root file system.
+
+568
+00:29:25,760 --> 00:29:32,120
+So I take the host operating system, make a snapshot, use that as the base to instantiate
+
+569
+00:29:32,120 --> 00:29:35,020
+a container and do clever rebase things.
+
+570
+00:29:35,020 --> 00:29:39,180
+So for me, what the advantage of containers is, these different things are still running
+
+571
+00:29:39,180 --> 00:29:43,580
+on the same system I would normally run it on, like if they were all in one box, but
+
+572
+00:29:43,580 --> 00:29:47,700
+I have the ability to orchestrate them independently.
+
+573
+00:29:47,700 --> 00:29:51,320
+If they need to have conflicting requirements, they're easily handled.
+
+574
+00:29:51,320 --> 00:29:58,460
+Like if I have to have CentOS for an environment and use different module streams, like being
+
+575
+00:29:58,460 --> 00:30:03,160
+able to use the different application stream from RHEL or modules from CentOS and activate
+
+576
+00:30:03,160 --> 00:30:06,400
+them for the language stacks and whatnot, I can still use packaging.
+
+577
+00:30:06,400 --> 00:30:08,720
+I can still use all the tools that I'm familiar with.
+
+578
+00:30:08,720 --> 00:30:13,460
+I can still manage it with config management or Ansible or whatever I'd like.
+
+579
+00:30:13,460 --> 00:30:17,460
+But because most of my applications don't need a different kernel and don't need emulated
+
+580
+00:30:17,460 --> 00:30:22,860
+hardware for all of them, I can drastically simplify the maintenance and management of
+
+581
+00:30:22,860 --> 00:30:23,860
+my systems.
+
+582
+00:30:23,860 --> 00:30:29,160
+And the big win for me there is when I sometimes get trapped into running an application that
+
+583
+00:30:29,160 --> 00:30:34,240
+can't necessarily upgrade right away, the operating system can move forward and most
+
+584
+00:30:34,240 --> 00:30:38,520
+of my things can move forward and that one thing can stay back a little bit until either
+
+585
+00:30:38,520 --> 00:30:42,760
+I figure out a way to upgrade it or I replace it with something else.
+
+586
+00:30:42,760 --> 00:30:44,500
+I don't use it as a way to hold back.
+
+587
+00:30:44,500 --> 00:30:51,160
+I use it as a way to be more strategic about how I spend my time managing my infrastructure.
+
+588
+00:30:51,160 --> 00:30:52,160
+Well put.
+
+589
+00:30:52,160 --> 00:30:53,160
+And two thoughts.
+
+590
+00:30:53,160 --> 00:30:57,200
+First thought is, and this is why, why we covered all this is a huge part of security
+
+591
+00:30:57,200 --> 00:31:01,580
+is staying current, especially with software that has open ports to the internet.
+
+592
+00:31:01,580 --> 00:31:05,720
+We've locked ours down and can because we have mail route in front of it, but we could
+
+593
+00:31:05,720 --> 00:31:06,720
+lock it down further, obviously.
+
+594
+00:31:06,720 --> 00:31:12,320
+I mean, there's all options we have there, but some software like SSH and web servers,
+
+595
+00:31:12,320 --> 00:31:14,440
+they're always going to be exposed directly to the internet.
+
+596
+00:31:14,440 --> 00:31:17,480
+So keeping them current is a huge, huge part of security.
+
+597
+00:31:17,480 --> 00:31:20,780
+But if you, if you listen to what Neil said in there too, is you'll also essentially hear
+
+598
+00:31:20,780 --> 00:31:27,000
+the reason why developers that want a modern workstation need a more modern file system
+
+599
+00:31:27,000 --> 00:31:28,540
+than extended for.
+
+600
+00:31:28,540 --> 00:31:35,060
+He just clearly laid out how he can use ButterFS as part of his development workflow to give
+
+601
+00:31:35,060 --> 00:31:39,640
+him different environments that are safe and disposable and do it in a very clever way.
+
+602
+00:31:39,640 --> 00:31:43,120
+And that's why you need something beyond what just extended for can do.
+
+603
+00:31:43,120 --> 00:31:48,260
+Even if you or I maybe only use it for compression or something like that, he or other developers
+
+604
+00:31:48,260 --> 00:31:53,600
+like him can use it for a lot of crazy features, including just making their day to day job
+
+605
+00:31:53,600 --> 00:31:54,600
+simpler.
+
+606
+00:31:54,600 --> 00:31:59,140
+And that's why it's important that we ship really competitive file systems with desktop
+
+607
+00:31:59,140 --> 00:32:01,960
+Linux distributions that want to be used as a workstation.
+
+608
+00:32:01,960 --> 00:32:05,620
+Just my little side note, and thankfully most Linux distributions will let you format any
+
+609
+00:32:05,620 --> 00:32:08,000
+disk and just about any file system you want.
+
+610
+00:32:08,000 --> 00:32:13,720
+All right, so we had to decide essentially between two webmail packages as we saw it.
+
+611
+00:32:13,720 --> 00:32:14,980
+There's a lot out there.
+
+612
+00:32:14,980 --> 00:32:20,500
+And one of the kind of nice things about doing it in these three part stages that we've done
+
+613
+00:32:20,500 --> 00:32:25,160
+here on the show is in between the audience has had time to give us a lot of good ideas.
+
+614
+00:32:25,160 --> 00:32:29,260
+And we definitely got two suggestions the most via all the different mechanisms people
+
+615
+00:32:29,260 --> 00:32:30,260
+get a hold of us.
+
+616
+00:32:30,260 --> 00:32:32,660
+And that was RainLoop and RoundCube.
+
+617
+00:32:32,660 --> 00:32:36,160
+And I was a little hesitant to RoundCube just because I had used it before and kind of wanted
+
+618
+00:32:36,160 --> 00:32:38,840
+to try something new.
+
+619
+00:32:38,840 --> 00:32:40,280
+So we first took a look at RainLoop.
+
+620
+00:32:40,280 --> 00:32:45,340
+Yeah, you know, we heard a lot of good stuff about RainLoop and I'd never used it either.
+
+621
+00:32:45,340 --> 00:32:47,740
+So I was pretty curious where I think I'd used RoundCube.
+
+622
+00:32:47,740 --> 00:32:51,480
+I didn't run it myself, but it was used by someone else that was hosting email for me
+
+623
+00:32:51,480 --> 00:32:53,740
+and that had been fine.
+
+624
+00:32:53,740 --> 00:32:57,520
+But it's funny, we were just talking about, you know, how containers are kind of an integral
+
+625
+00:32:57,520 --> 00:32:59,660
+part of this setup.
+
+626
+00:32:59,660 --> 00:33:04,320
+And that's where things, at first we were hopeful, but kind of fell down in our trials
+
+627
+00:33:04,320 --> 00:33:06,560
+with RainLoop.
+
+628
+00:33:06,560 --> 00:33:10,340
+There is a Docker Compose and some Docker setup in their repository, but they don't
+
+629
+00:33:10,340 --> 00:33:15,220
+have a lot of docs around it, at least that I could find in my cursory survey.
+
+630
+00:33:15,220 --> 00:33:17,800
+And it just didn't seem as set up for that.
+
+631
+00:33:17,800 --> 00:33:22,280
+The docs on their main site really were geared around more of a legacy installation setup
+
+632
+00:33:22,280 --> 00:33:26,640
+where you've already got like web server infrastructure running and you kind of just bootstrap this
+
+633
+00:33:26,640 --> 00:33:29,680
+PHP app onto there.
+
+634
+00:33:29,680 --> 00:33:35,320
+By comparison, RoundCube has a lot of nice docs there, their site seems really well developed.
+
+635
+00:33:35,320 --> 00:33:39,180
+Seems like they've got a community around them and they've got this whole plethora of
+
+636
+00:33:39,180 --> 00:33:44,740
+Docker Compose support, multiple Docker Compose files and very explicit examples of sort of
+
+637
+00:33:44,740 --> 00:33:45,740
+like, well, here's three different options.
+
+638
+00:33:45,740 --> 00:33:49,820
+If you want to go the Apache route or the NGINX FPM route and here's an option with
+
+639
+00:33:49,820 --> 00:33:52,200
+Postgres or here's an option with MySQL.
+
+640
+00:33:52,200 --> 00:33:56,860
+So it just felt like here's a project that's embracing this as an option for running the
+
+641
+00:33:56,860 --> 00:33:58,120
+software that they make.
+
+642
+00:33:58,120 --> 00:34:00,420
+And that was a pretty big signal.
+
+643
+00:34:00,420 --> 00:34:05,240
+And simplicity in setup is also appealing here because it's not going to be our primary
+
+644
+00:34:05,240 --> 00:34:07,000
+job to admin this.
+
+645
+00:34:07,000 --> 00:34:12,320
+And it's kind of a jackass move even to put a mail server in production and then give
+
+646
+00:34:12,320 --> 00:34:13,840
+it the amount of attention that we're going to give it.
+
+647
+00:34:13,840 --> 00:34:18,800
+So we want to build it in a way that when future Wes and Chris come back to this thing,
+
+648
+00:34:18,800 --> 00:34:22,880
+we know how to fix it or how we built it or how we could even rebuild it.
+
+649
+00:34:22,880 --> 00:34:27,720
+And when we looked at RainLoop versus RoundCube, it honestly kind of just came down to RoundCube
+
+650
+00:34:27,720 --> 00:34:32,400
+was a little simpler, had a little bit clearer documentation and just was a little bit easier
+
+651
+00:34:32,400 --> 00:34:35,240
+for us to snap into the old configuration and setup that we had.
+
+652
+00:34:35,240 --> 00:34:39,680
+Now, I still would like to do some some playing with RainLoop and there might be some things
+
+653
+00:34:39,680 --> 00:34:43,440
+I've missed or if the audience has a as a compose file handy that they want to share
+
+654
+00:34:43,440 --> 00:34:44,440
+with us, that'd be great, too.
+
+655
+00:34:44,440 --> 00:34:45,440
+I would totally try it.
+
+656
+00:34:45,440 --> 00:34:47,280
+And I think it's still something I want to try.
+
+657
+00:34:47,280 --> 00:34:51,500
+It was just to get this, you know, accomplish our tasks, start playing with web mail, see
+
+658
+00:34:51,500 --> 00:34:56,720
+how to integrate RoundCube was really the simpler and easier option.
+
+659
+00:34:56,720 --> 00:34:59,720
+And I mean, it is pretty neat, like it's not a bad experience.
+
+660
+00:34:59,720 --> 00:35:00,860
+We'll get more into that.
+
+661
+00:35:00,860 --> 00:35:04,560
+And they've been around for 13 years, like since 2008.
+
+662
+00:35:04,560 --> 00:35:05,640
+That's also pretty impressive.
+
+663
+00:35:05,640 --> 00:35:07,840
+And it seems actively developed today.
+
+664
+00:35:07,840 --> 00:35:13,480
+A former past version of Chris definitely deployed RoundCube and liked it back then.
+
+665
+00:35:13,480 --> 00:35:15,360
+But you know, we could sit here and tell you about it.
+
+666
+00:35:15,360 --> 00:35:19,240
+But maybe we should put it to the test.
+
+667
+00:35:19,240 --> 00:35:22,440
+All right, Mini Mac, get your telegram ready.
+
+668
+00:35:22,440 --> 00:35:23,440
+This is it.
+
+669
+00:35:23,440 --> 00:35:24,560
+I am ready.
+
+670
+00:35:24,560 --> 00:35:27,040
+So Mini Mac will be our first production user.
+
+671
+00:35:27,040 --> 00:35:29,920
+We want this to be a tool for members of our community.
+
+672
+00:35:29,920 --> 00:35:31,760
+And we thought let's put it to the test right here.
+
+673
+00:35:31,760 --> 00:35:37,840
+So I just sent you on telegram the URL for the web mail, your credentials.
+
+674
+00:35:37,840 --> 00:35:42,280
+If you could log in, first of all, tell us if it works, if it loads for you and if you
+
+675
+00:35:42,280 --> 00:35:43,280
+can send off an email.
+
+676
+00:35:43,280 --> 00:35:47,560
+Now, you should use your full email as the sort of username.
+
+677
+00:35:47,560 --> 00:35:48,560
+Login.
+
+678
+00:35:48,560 --> 00:35:49,560
+Yeah.
+
+679
+00:35:49,560 --> 00:35:50,560
+What do you think, Wes?
+
+680
+00:35:50,560 --> 00:35:51,560
+Are you nervous?
+
+681
+00:35:51,560 --> 00:35:52,560
+Fingers crossed.
+
+682
+00:35:52,560 --> 00:35:53,560
+I should be looking at the logs, shouldn't I?
+
+683
+00:35:53,560 --> 00:35:57,240
+I'm a little nervous, actually, because, you know, we really did not test this beforehand.
+
+684
+00:35:57,240 --> 00:35:59,920
+I mean, we tested it, but it's a whole different ballgame.
+
+685
+00:35:59,920 --> 00:36:00,920
+Okay.
+
+686
+00:36:00,920 --> 00:36:01,920
+First success.
+
+687
+00:36:01,920 --> 00:36:02,920
+I mean.
+
+688
+00:36:02,920 --> 00:36:03,920
+Good.
+
+689
+00:36:03,920 --> 00:36:04,920
+Good.
+
+690
+00:36:04,920 --> 00:36:05,920
+Good.
+
+691
+00:36:05,920 --> 00:36:06,920
+That's a good sign.
+
+692
+00:36:06,920 --> 00:36:07,920
+Okay.
+
+693
+00:36:07,920 --> 00:36:11,720
+Now, do you want to send me an address where I should my first famous first words sent
+
+694
+00:36:11,720 --> 00:36:12,720
+to?
+
+695
+00:36:12,720 --> 00:36:13,720
+Oh, yeah.
+
+696
+00:36:13,720 --> 00:36:14,720
+Email me.
+
+697
+00:36:14,720 --> 00:36:15,720
+Chris at JupiterBroadcasting.com.
+
+698
+00:36:15,720 --> 00:36:16,720
+He gets a lot of email.
+
+699
+00:36:16,720 --> 00:36:17,720
+He probably won't reply.
+
+700
+00:36:17,720 --> 00:36:18,720
+Don't be offended.
+
+701
+00:36:18,720 --> 00:36:22,960
+Wes suggested that I should send you a welcome email, but I wanted you to send the first
+
+702
+00:36:22,960 --> 00:36:24,160
+email.
+
+703
+00:36:24,160 --> 00:36:28,400
+I think this is a good test because Gmail is really picky about who it actually accepts
+
+704
+00:36:28,400 --> 00:36:29,800
+email from.
+
+705
+00:36:29,800 --> 00:36:34,440
+So if it's going to reject your email, it's going to be Gmail.
+
+706
+00:36:34,440 --> 00:36:35,560
+My heart rate is pounding, actually.
+
+707
+00:36:35,560 --> 00:36:36,560
+My heart is going.
+
+708
+00:36:36,560 --> 00:36:41,760
+I suppose the question is, does Minimax sound like a scammer in his event?
+
+709
+00:36:41,760 --> 00:36:46,160
+He does have some products to sell you, but that's just, you know, that's that's a coincidence.
+
+710
+00:36:46,160 --> 00:36:47,160
+Okay.
+
+711
+00:36:47,160 --> 00:36:48,160
+Email is out.
+
+712
+00:36:48,160 --> 00:36:49,160
+Oh, boy.
+
+713
+00:36:49,160 --> 00:36:51,160
+Let's verify and sent.
+
+714
+00:36:51,160 --> 00:36:52,160
+Yeah.
+
+715
+00:36:52,160 --> 00:36:54,880
+Okay, I don't see it yet.
+
+716
+00:36:54,880 --> 00:36:55,880
+Come on.
+
+717
+00:36:55,880 --> 00:36:56,880
+Wes, you see?
+
+718
+00:36:56,880 --> 00:36:57,880
+Dad, you have the logs up?
+
+719
+00:36:57,880 --> 00:36:58,880
+Oh, no.
+
+720
+00:36:58,880 --> 00:36:59,880
+Here, let me check.
+
+721
+00:36:59,880 --> 00:37:00,880
+Wait.
+
+722
+00:37:00,880 --> 00:37:01,880
+Hold on a second.
+
+723
+00:37:01,880 --> 00:37:02,880
+Hold on a second.
+
+724
+00:37:02,880 --> 00:37:03,880
+Oh, there it is.
+
+725
+00:37:03,880 --> 00:37:04,880
+What?
+
+726
+00:37:04,880 --> 00:37:05,880
+Yeah, you got it.
+
+727
+00:37:05,880 --> 00:37:06,880
+It works.
+
+728
+00:37:06,880 --> 00:37:07,880
+Congratulations, Wes.
+
+729
+00:37:07,880 --> 00:37:08,880
+Yeah.
+
+730
+00:37:08,880 --> 00:37:09,880
+We got it.
+
+731
+00:37:09,880 --> 00:37:10,880
+See titles, famous first words.
+
+732
+00:37:10,880 --> 00:37:11,880
+All right.
+
+733
+00:37:11,880 --> 00:37:12,880
+I'm going to write back.
+
+734
+00:37:12,880 --> 00:37:13,880
+Yeah, I'm going to write back.
+
+735
+00:37:13,880 --> 00:37:14,880
+Just very simply.
+
+736
+00:37:14,880 --> 00:37:15,880
+It worked.
+
+737
+00:37:15,880 --> 00:37:16,880
+And I'm going to tell me if you got that.
+
+738
+00:37:16,880 --> 00:37:17,880
+I mean, I'm very happy.
+
+739
+00:37:17,880 --> 00:37:19,680
+I suppose we should check it round round trip.
+
+740
+00:37:19,680 --> 00:37:21,840
+But did you get the reply?
+
+741
+00:37:21,840 --> 00:37:22,840
+Not yet.
+
+742
+00:37:22,840 --> 00:37:23,840
+Oh, my God.
+
+743
+00:37:23,840 --> 00:37:26,240
+I hate email.
+
+744
+00:37:26,240 --> 00:37:30,080
+Just the other week, you were talking about how it's a cool federated system.
+
+745
+00:37:30,080 --> 00:37:31,560
+And now, here you are.
+
+746
+00:37:31,560 --> 00:37:32,560
+I know.
+
+747
+00:37:32,560 --> 00:37:33,560
+It should see it.
+
+748
+00:37:33,560 --> 00:37:34,560
+It should come right in.
+
+749
+00:37:34,560 --> 00:37:35,560
+Success.
+
+750
+00:37:35,560 --> 00:37:39,160
+Re from Chris Fisher, famous first words.
+
+751
+00:37:39,160 --> 00:37:40,920
+Excellent.
+
+752
+00:37:40,920 --> 00:37:50,440
+And the content is, in fact, it worked.
+
+753
+00:37:50,440 --> 00:37:51,440
+Nicely done, Wes.
+
+754
+00:37:51,440 --> 00:37:52,440
+Nicely done, Minimac.
+
+755
+00:37:52,440 --> 00:37:57,720
+I mean, I'm honestly, I'm still surprised, but it just doesn't seem like we did it so
+
+756
+00:37:57,720 --> 00:38:01,160
+hastily and we really didn't know what we were doing.
+
+757
+00:38:01,160 --> 00:38:05,600
+But thankfully, the tools that we have access to right now are good enough that it kind
+
+758
+00:38:05,600 --> 00:38:07,520
+of takes care of that for us.
+
+759
+00:38:07,520 --> 00:38:10,760
+I mean, not to do a shameless plug, but it is legitimately why Alex and I started the
+
+760
+00:38:10,760 --> 00:38:15,800
+self-hosted podcast, because these tools, the stuff that you can run yourself now, it's
+
+761
+00:38:15,800 --> 00:38:20,280
+at a level way beyond anything we dreamed when we first started doing these shows.
+
+762
+00:38:20,280 --> 00:38:25,200
+And I am so grateful for the open source projects that make all of that possible.
+
+763
+00:38:25,200 --> 00:38:30,160
+And so our plan there is we're just going to slowly roll that out a little bit to certain
+
+764
+00:38:30,160 --> 00:38:32,480
+people just over time as we just kind of expand it.
+
+765
+00:38:32,480 --> 00:38:35,760
+And then maybe eventually, I don't know, we might go further from there.
+
+766
+00:38:35,760 --> 00:38:37,120
+I don't know what we're going to do exactly.
+
+767
+00:38:37,120 --> 00:38:40,640
+We just want to try to get a few people on there to make sure everything's working.
+
+768
+00:38:40,640 --> 00:38:43,520
+Because you know, even though we're crazy, we want to be cautious.
+
+769
+00:38:43,520 --> 00:38:45,360
+And then we'll probably just kind of ramp it up over time.
+
+770
+00:38:45,360 --> 00:38:48,160
+So I guess more on that when we do a future email server update.
+
+771
+00:38:48,160 --> 00:38:53,000
+And that essentially right there completes the email server series.
+
+772
+00:38:53,000 --> 00:38:58,680
+And Wes Payne was a hero and a legend in this one, because we put a lot of work, specifically
+
+773
+00:38:58,680 --> 00:39:01,560
+Wes did, into Rain Loop.
+
+774
+00:39:01,560 --> 00:39:05,400
+And we thought we were going to go with that all the way until just really last night,
+
+775
+00:39:05,400 --> 00:39:06,520
+maybe this morning.
+
+776
+00:39:06,520 --> 00:39:10,520
+And then at the last minute, we said, now let's do round cube instead.
+
+777
+00:39:10,520 --> 00:39:14,840
+And Wes got it all set up and running just a little bit before the show, like a real
+
+778
+00:39:14,840 --> 00:39:15,840
+legend.
+
+779
+00:39:15,840 --> 00:39:18,240
+So let's pause everybody to Wes Payne for getting that done.
+
+780
+00:39:18,240 --> 00:39:19,640
+Good job, Wes.
+
+781
+00:39:19,640 --> 00:39:23,560
+Now you'll just have to wait and see how it lasts, right?
+
+782
+00:39:23,560 --> 00:39:24,560
+Can we maintain it?
+
+783
+00:39:24,560 --> 00:39:25,560
+How does it do?
+
+784
+00:39:25,560 --> 00:39:26,720
+Do we keep using it?
+
+785
+00:39:26,720 --> 00:39:31,360
+Stay tuned to Linux Unplugged for more.
+
+786
+00:39:31,360 --> 00:39:33,160
+Mailroute.net slash Linux.
+
+787
+00:39:33,160 --> 00:39:37,240
+Try out Mailroute today and get 10% off the lifetime of your account and get a 30 day
+
+788
+00:39:37,240 --> 00:39:40,320
+free trial, no credit card required.
+
+789
+00:39:40,320 --> 00:39:43,840
+Mailroute is how we are routing mail through to our mail server.
+
+790
+00:39:43,840 --> 00:39:46,960
+So yeah, during the live show, we went through Mailroute.
+
+791
+00:39:46,960 --> 00:39:48,680
+It happened so dang fast.
+
+792
+00:39:48,680 --> 00:39:55,000
+And if you have a business where even just a handful of people, you know how critical
+
+793
+00:39:55,000 --> 00:39:56,000
+email is.
+
+794
+00:39:56,000 --> 00:39:59,880
+And you know how bad threats like ransomware are getting more and more.
+
+795
+00:39:59,880 --> 00:40:02,880
+And admins are looking for ways to manage that risk.
+
+796
+00:40:02,880 --> 00:40:04,980
+And Mailroute is a fantastic way to do that.
+
+797
+00:40:04,980 --> 00:40:10,480
+For 24 years, they have focused on that core competency, just providing cutting edge email
+
+798
+00:40:10,480 --> 00:40:11,480
+security.
+
+799
+00:40:11,480 --> 00:40:15,320
+And I absolutely loved the tools as an admin while we were setting up our email server
+
+800
+00:40:15,320 --> 00:40:16,840
+the first time around.
+
+801
+00:40:16,840 --> 00:40:21,800
+I logged in and looked at their real time logs and saw the emails coming and going and
+
+802
+00:40:21,800 --> 00:40:23,680
+knew that, hey, we'd gotten some stuff set up.
+
+803
+00:40:23,680 --> 00:40:25,960
+So I was pretty confident it was going to work.
+
+804
+00:40:25,960 --> 00:40:29,960
+You know, it gave me a pretty good snapshot and I really liked that tool, especially when
+
+805
+00:40:29,960 --> 00:40:30,960
+I'm setting things up.
+
+806
+00:40:30,960 --> 00:40:34,800
+But another thing that I know I'm going to take advantage of at some point, and I would
+
+807
+00:40:34,800 --> 00:40:39,480
+really, I would really recommend you consider this as well, is you can use Mailroute to
+
+808
+00:40:39,480 --> 00:40:44,240
+queue up messages for up to like 15 days or like whatever you set it to.
+
+809
+00:40:44,240 --> 00:40:48,800
+So that way you have time for maintenance or if you have an outage or an internet outage
+
+810
+00:40:48,800 --> 00:40:52,680
+of some kind, Mailroute will make sure you don't lose your email.
+
+811
+00:40:52,680 --> 00:40:55,480
+And then when your system comes back online, it just forwards it right to your mail server
+
+812
+00:40:55,480 --> 00:40:57,420
+like it was never down really.
+
+813
+00:40:57,420 --> 00:40:59,120
+That's just such a nice piece of mind.
+
+814
+00:40:59,120 --> 00:41:04,440
+Additionally, if you work in government and compliance is an issue for you, Mailroute
+
+815
+00:41:04,440 --> 00:41:07,760
+has some of the most important compliances that you could have in that business.
+
+816
+00:41:07,760 --> 00:41:09,320
+So you can feel safe using Mailroute.
+
+817
+00:41:09,320 --> 00:41:11,840
+Of course, they have a lot of information on their website.
+
+818
+00:41:11,840 --> 00:41:17,540
+So go try Mailroute out today and get 10% off the lifetime, lifetime of your account.
+
+819
+00:41:17,540 --> 00:41:19,960
+How great is that that they're doing that for us and for you guys too?
+
+820
+00:41:19,960 --> 00:41:22,800
+So go get a 30 day free trial, no credit card required.
+
+821
+00:41:22,800 --> 00:41:25,600
+Visit mailroute.net slash Linux.
+
+822
+00:41:25,600 --> 00:41:30,220
+This is an example of one of those great partnerships where we contacted Mailroute because we were
+
+823
+00:41:30,220 --> 00:41:33,640
+absolutely going to be using Mailroute and we just said, we think you'd be a great fit.
+
+824
+00:41:33,640 --> 00:41:36,400
+We're doing this mail series where we'd love to have you on board.
+
+825
+00:41:36,400 --> 00:41:41,000
+Mailroute said, all right, let's do it and they did it for two episodes and now they're
+
+826
+00:41:41,000 --> 00:41:44,780
+back because they got a lot of great feedback from you guys.
+
+827
+00:41:44,780 --> 00:41:50,220
+We had a bunch of you try it out and really like it and so they thought, let's stick around
+
+828
+00:41:50,220 --> 00:41:51,220
+for a little bit longer.
+
+829
+00:41:51,220 --> 00:41:54,040
+So they're here for a little bit longer and I'd love for you to go try them out because
+
+830
+00:41:54,040 --> 00:41:57,740
+I think they could provide a real service regardless of the scale of your institution.
+
+831
+00:41:57,740 --> 00:42:02,560
+But this could offer a lot of benefit if you're a large institution or a small business.
+
+832
+00:42:02,560 --> 00:42:05,640
+But if you're just a self-hoster and you want the peace of mind, you don't want to worry
+
+833
+00:42:05,640 --> 00:42:09,000
+about the crap and you don't want to worry about the downtime, Mailroute's going to solve
+
+834
+00:42:09,000 --> 00:42:10,000
+that for you.
+
+835
+00:42:10,000 --> 00:42:11,640
+And they've been solving it for 24 years.
+
+836
+00:42:11,640 --> 00:42:16,400
+So go to mailroute.net slash Linux, get 10% off the lifetime of your account, support
+
+837
+00:42:16,400 --> 00:42:21,040
+the show and start a free 30-day trial with no credit card required.
+
+838
+00:42:21,040 --> 00:42:25,840
+Mailroute.net slash Linux.
+
+839
+00:42:25,840 --> 00:42:32,960
+Well speaking of email, it's time to check our mailbag and we've got an email from Murray
+
+840
+00:42:32,960 --> 00:42:35,920
+wanting to know more about Pipewire.
+
+841
+00:42:35,920 --> 00:42:42,120
+Hi, you guys asked what specific things from Fedora 34 listeners would like you to cover.
+
+842
+00:42:42,120 --> 00:42:48,320
+I know you choked about Pipewire being too niche, but as a musician and podcaster transitioning
+
+843
+00:42:48,320 --> 00:42:55,560
+off macOS and onto Linux full time, I would love to hear more about it.
+
+844
+00:42:55,560 --> 00:43:02,440
+Audio has been the single biggest pain point in my move since it works dramatically differently
+
+845
+00:43:02,440 --> 00:43:03,440
+than in macOS.
+
+846
+00:43:03,440 --> 00:43:08,160
+I only learned about Pipewire shortly before listening to the episode and it sounds super
+
+847
+00:43:08,160 --> 00:43:09,440
+cool.
+
+848
+00:43:09,440 --> 00:43:12,320
+Please do share more of your thoughts on it.
+
+849
+00:43:12,320 --> 00:43:13,880
+Best, Murray.
+
+850
+00:43:13,880 --> 00:43:19,280
+Murray, you are coming in at such a great time into Linux media production.
+
+851
+00:43:19,280 --> 00:43:26,680
+Oh, how do, how I could just picture that the future for you is going to be so bright
+
+852
+00:43:26,680 --> 00:43:30,360
+because Linux has really gotten to a good point.
+
+853
+00:43:30,360 --> 00:43:33,800
+I kind of seem to kind of get the impression that you're focused more on the audio end
+
+854
+00:43:33,800 --> 00:43:34,800
+of stuff.
+
+855
+00:43:34,800 --> 00:43:36,800
+Pipewire does manage video.
+
+856
+00:43:36,800 --> 00:43:43,000
+In fact, it started to manage video, but it has really, really gotten to the point where
+
+857
+00:43:43,000 --> 00:43:47,800
+you can produce media on Linux all day long and it's fantastic.
+
+858
+00:43:47,800 --> 00:43:52,560
+We do things that I simply could never leave Linux.
+
+859
+00:43:52,560 --> 00:43:57,200
+We just had a hypothetical like back and forth this other Sunday when we were recording land,
+
+860
+00:43:57,200 --> 00:44:00,520
+like how would we even recreate what we do now on other platforms?
+
+861
+00:44:00,520 --> 00:44:05,240
+It's just, it's remarkable what we get out of one computer running Linux because of jack
+
+862
+00:44:05,240 --> 00:44:11,620
+audio and Pipewire takes everything I love about the current state of Linux audio and
+
+863
+00:44:11,620 --> 00:44:14,680
+makes it easier and remains compatible with it.
+
+864
+00:44:14,680 --> 00:44:18,640
+And that's why it's going to be kind of a big deal as it rolls out.
+
+865
+00:44:18,640 --> 00:44:25,200
+It started as really a way to just focus on getting video in and out of the Linux desktop,
+
+866
+00:44:25,200 --> 00:44:26,760
+particularly like in a Wayland future.
+
+867
+00:44:26,760 --> 00:44:31,360
+But it's really grown into a low latency audio and video system for playback and capture.
+
+868
+00:44:31,360 --> 00:44:35,440
+Yeah, you know, we did some chatting with the developers and they kind of emphasize
+
+869
+00:44:35,440 --> 00:44:40,240
+that that once you've got this sort of graph node processing to handle, you know, little
+
+870
+00:44:40,240 --> 00:44:46,680
+bits of either video or audio, it's kind of the same and why not unify that in one tool?
+
+871
+00:44:46,680 --> 00:44:51,200
+You can think about this too, in terms of development, you can think of Pipewire as
+
+872
+00:44:51,200 --> 00:44:55,880
+a server and a user space API to deal with multimedia pipelines on the desktop like mixing
+
+873
+00:44:55,880 --> 00:45:02,160
+available sources of video and accessing sources of audio and bringing those all together.
+
+874
+00:45:02,160 --> 00:45:07,480
+And there is an API the developers can write to as well as they can just continue to use
+
+875
+00:45:07,480 --> 00:45:10,760
+pulse audio or jack audio, if that's what their application is designed for, because
+
+876
+00:45:10,760 --> 00:45:13,120
+Pipewire speaks that as well.
+
+877
+00:45:13,120 --> 00:45:14,120
+That's huge.
+
+878
+00:45:14,120 --> 00:45:15,120
+Right.
+
+879
+00:45:15,120 --> 00:45:18,760
+So you get the like legacy support, but you also have a new Pipewire native API if you
+
+880
+00:45:18,760 --> 00:45:24,160
+want to be future forward, right with that more efficient lower latency Pipewire backend
+
+881
+00:45:24,160 --> 00:45:26,600
+server managing it all now.
+
+882
+00:45:26,600 --> 00:45:29,760
+So really, depending on your distribution, things are going to pretty much work just
+
+883
+00:45:29,760 --> 00:45:34,000
+as normal, you won't even really know anything has changed.
+
+884
+00:45:34,000 --> 00:45:37,040
+And it really has been, for me, at least a very smooth transition.
+
+885
+00:45:37,040 --> 00:45:40,720
+It's been a very positive transition, unlike maybe a decade ago where it would have been
+
+886
+00:45:40,720 --> 00:45:43,120
+a little or decade plus would have been a little bump here.
+
+887
+00:45:43,120 --> 00:45:45,160
+Yeah, it should all just work.
+
+888
+00:45:45,160 --> 00:45:49,420
+But one of the neat things about Pipewire supporting all of these options at the same
+
+889
+00:45:49,420 --> 00:45:53,400
+time is in the audio world, it unifies them.
+
+890
+00:45:53,400 --> 00:45:55,980
+Before you had a lot of neat stuff you could do with jack.
+
+891
+00:45:55,980 --> 00:45:59,040
+And then of course, there was the pulse world, which is growing more and more functionality
+
+892
+00:45:59,040 --> 00:46:01,080
+with things like pulse effects.
+
+893
+00:46:01,080 --> 00:46:04,120
+And you can do a lot of clever stuff with pulse, but it was never really designed for
+
+894
+00:46:04,120 --> 00:46:08,000
+that pro audio, low latency sort of workload.
+
+895
+00:46:08,000 --> 00:46:12,840
+And that just meant you had two or three different Linux audio worlds that didn't always play
+
+896
+00:46:12,840 --> 00:46:16,560
+nicely together, or you had to, you know, really know what you're doing to link them
+
+897
+00:46:16,560 --> 00:46:17,560
+up correctly.
+
+898
+00:46:17,560 --> 00:46:19,480
+But in Pipewire, that just works.
+
+899
+00:46:19,480 --> 00:46:22,160
+Or maybe another way to put it is stack them on top of each other, right?
+
+900
+00:46:22,160 --> 00:46:25,480
+You would have you would have sound system stacked on top of sound systems.
+
+901
+00:46:25,480 --> 00:46:29,340
+Yeah, really, as much fun as that sounds like.
+
+902
+00:46:29,340 --> 00:46:32,920
+And so I think, you know, for Murray's case, things should just work, you can just get
+
+903
+00:46:32,920 --> 00:46:33,920
+started.
+
+904
+00:46:33,920 --> 00:46:36,640
+But when you're ready, you can start playing with some of these tools that are designed
+
+905
+00:46:36,640 --> 00:46:40,880
+around jack workflows, things like like Katia or Carla.
+
+906
+00:46:40,880 --> 00:46:44,780
+And then you can start doing some of that fancy orchestrating of moving inputs wherever
+
+907
+00:46:44,780 --> 00:46:49,680
+you need doing loop backs, monitoring input on the system, all that fun kind of pro audio
+
+908
+00:46:49,680 --> 00:46:52,000
+stuff that you might have been using a special Mac app for.
+
+909
+00:46:52,000 --> 00:46:57,100
+Yeah, put really simply, if you're recording a podcast, and you want to record a guest,
+
+910
+00:46:57,100 --> 00:47:02,620
+and you want to do it all on maybe one laptop, or one computer, how do you capture that application
+
+911
+00:47:02,620 --> 00:47:08,480
+audio and bring it into your recorder to record it, you need tools that can link that all
+
+912
+00:47:08,480 --> 00:47:09,480
+together.
+
+913
+00:47:09,480 --> 00:47:13,760
+And that's what Pipewire will enable in a way that we've had before, but was not in
+
+914
+00:47:13,760 --> 00:47:17,200
+a unified framework for exchanging all of this.
+
+915
+00:47:17,200 --> 00:47:21,800
+And none of the previous solutions that we've talked about were really built with our way
+
+916
+00:47:21,800 --> 00:47:27,160
+land future in mind and the security requirements that come with that, like having applications
+
+917
+00:47:27,160 --> 00:47:32,200
+sandboxed in flat packs that need ways that are standardized and API's to communicate
+
+918
+00:47:32,200 --> 00:47:33,200
+with each other.
+
+919
+00:47:33,200 --> 00:47:38,120
+And Pipewire aims to solve all of those problems to outside of just the multimedia improvements
+
+920
+00:47:38,120 --> 00:47:43,200
+we've talked about, it's really going to be a unified framework for both consumers that
+
+921
+00:47:43,200 --> 00:47:46,960
+won't even know they're using Pipewire quite legitimately won't even know.
+
+922
+00:47:46,960 --> 00:47:52,280
+And pros like us who are going to rant and rave about it for years now because this is
+
+923
+00:47:52,280 --> 00:47:57,560
+over time and even already beginning to solve pain points that we have struggled with for
+
+924
+00:47:57,560 --> 00:48:04,520
+13 years, legitimately, legitimately, probably maybe even longer, maybe 15 years.
+
+925
+00:48:04,520 --> 00:48:09,000
+And so it's really exciting for us as content creators who've been using this platform for
+
+926
+00:48:09,000 --> 00:48:14,900
+a very long time to see something that really truly feels competitive with what you see
+
+927
+00:48:14,900 --> 00:48:15,900
+on the Mac side.
+
+928
+00:48:15,900 --> 00:48:20,120
+Well, we're clearly very excited about Pipewire the future, especially now that it's deployed
+
+929
+00:48:20,120 --> 00:48:21,120
+in Fedora 34.
+
+930
+00:48:21,120 --> 00:48:25,180
+But it's also a project we've been following for a long time here on the show.
+
+931
+00:48:25,180 --> 00:48:29,180
+So if you want some background and to get an idea of how far things have come, maybe
+
+932
+00:48:29,180 --> 00:48:35,920
+check out Linux Unplugged 272 way back when October 2018 when we sat down with lead Pipewire
+
+933
+00:48:35,920 --> 00:48:41,840
+developer Wim Taymans who told us what he was aiming to do.
+
+934
+00:48:41,840 --> 00:48:44,320
+And just a couple of picks before we get out of here.
+
+935
+00:48:44,320 --> 00:48:47,920
+This week, we wanted to share a Pastebin alternative.
+
+936
+00:48:47,920 --> 00:48:48,920
+There's a lot out there.
+
+937
+00:48:48,920 --> 00:48:52,560
+So we'd love your feedback too for ones that you love that are simple and self-hostable.
+
+938
+00:48:52,560 --> 00:48:59,160
+But our beloved Slexi.org, which we have used as a J.B. team for years to past Pastebins
+
+939
+00:48:59,160 --> 00:49:02,720
+back and forth or when you hear us read an email on the show that we've linked in our
+
+940
+00:49:02,720 --> 00:49:08,280
+show notes, we put it in Slexi.org and they are shutting down as all hosted services that
+
+941
+00:49:08,280 --> 00:49:11,040
+Giveth eventually Taketh.
+
+942
+00:49:11,040 --> 00:49:13,560
+Just when you really depend on them and don't think they'll go anywhere.
+
+943
+00:49:13,560 --> 00:49:14,560
+I really hadn't.
+
+944
+00:49:14,560 --> 00:49:17,200
+I just started thinking, huh, I guess they are sticking around.
+
+945
+00:49:17,200 --> 00:49:22,680
+So this week, Wes found us a markdown loving Pastebin service.
+
+946
+00:49:22,680 --> 00:49:27,560
+Although really, I should give credit to Gamma over in our matrix chat, the J.B. matrix who
+
+947
+00:49:27,560 --> 00:49:28,560
+posted this.
+
+948
+00:49:28,560 --> 00:49:31,900
+And I just thought, boy, that seems perfect for our needs.
+
+949
+00:49:31,900 --> 00:49:32,900
+Thank you, Gamma.
+
+950
+00:49:32,900 --> 00:49:33,900
+I didn't know that.
+
+951
+00:49:33,900 --> 00:49:34,900
+Look at you.
+
+952
+00:49:34,900 --> 00:49:35,900
+Good guy, Wes.
+
+953
+00:49:35,900 --> 00:49:36,900
+Giving him credit.
+
+954
+00:49:36,900 --> 00:49:37,900
+All right.
+
+955
+00:49:37,900 --> 00:49:38,900
+Now, I'm trying to get you to say the name, though, because I'm avoiding the name.
+
+956
+00:49:38,900 --> 00:49:41,960
+I'm going to say rentree, rentree.org.
+
+957
+00:49:41,960 --> 00:49:44,520
+For our entry, I don't know if that's better.
+
+958
+00:49:44,520 --> 00:49:45,520
+Yeah.
+
+959
+00:49:45,520 --> 00:49:47,720
+And rentree.co, too, works maybe?
+
+960
+00:49:47,720 --> 00:49:48,720
+I'm not sure.
+
+961
+00:49:48,720 --> 00:49:49,720
+But it's called rentree.
+
+962
+00:49:49,720 --> 00:49:53,480
+And it's a markdown lightweight Pastebin that is really clean.
+
+963
+00:49:53,480 --> 00:49:58,240
+And you can combine images, inline links, code snippets, all the markdown stuff.
+
+964
+00:49:58,240 --> 00:49:59,800
+And we put a link to that in the show notes.
+
+965
+00:49:59,800 --> 00:50:04,860
+And then this is also, at the same time, the show saying to you, hey, we know of a handful
+
+966
+00:50:04,860 --> 00:50:05,860
+of these.
+
+967
+00:50:05,860 --> 00:50:10,360
+And we've debated which one we want to use, which one we want to self-host.
+
+968
+00:50:10,360 --> 00:50:13,600
+But we'd like to point to this link and say, hey, do you know of anything that's kind of
+
+969
+00:50:13,600 --> 00:50:14,600
+clean like this?
+
+970
+00:50:14,600 --> 00:50:20,320
+Because what we need is just a nice, clear reading experience with not a lot of junk
+
+971
+00:50:20,320 --> 00:50:21,960
+because we're reading it live on air.
+
+972
+00:50:21,960 --> 00:50:26,820
+And we don't want like sidebar stuff or big, huge, fat header bars and stuff like that.
+
+973
+00:50:26,820 --> 00:50:28,040
+We just want something nice and clean.
+
+974
+00:50:28,040 --> 00:50:32,840
+And if you know of a Pastebin alternative that's open source and self-hostable, please
+
+975
+00:50:32,840 --> 00:50:35,960
+let us know at linuxunplug.com slash contact.
+
+976
+00:50:35,960 --> 00:50:40,040
+Because we'd like to try one out and then standardize one for the network.
+
+977
+00:50:40,040 --> 00:50:42,400
+Like we kind of have with HedgeDock.
+
+978
+00:50:42,400 --> 00:50:45,400
+And then we have one last extra pick for you this week.
+
+979
+00:50:45,400 --> 00:50:48,840
+And it's a special one, Wes, do you happen to know why?
+
+980
+00:50:48,840 --> 00:50:55,080
+Something tells me it must be written in Rust.
+
+981
+00:50:55,080 --> 00:51:00,720
+That's right.
+
+982
+00:51:00,720 --> 00:51:01,720
+Feels good.
+
+983
+00:51:01,720 --> 00:51:03,320
+It's been too long since we've had a Rust pick.
+
+984
+00:51:03,320 --> 00:51:08,740
+And this one is the kind of pick you were never asking for, a replacement for PS written
+
+985
+00:51:08,740 --> 00:51:10,520
+in Rust called Prox.
+
+986
+00:51:10,520 --> 00:51:15,840
+But hear me out, it actually has a pretty great output.
+
+987
+00:51:15,840 --> 00:51:19,640
+They call it a human readable format that is colored with automatic theme detection
+
+988
+00:51:19,640 --> 00:51:26,120
+based on your terminal background, keyword search over a multi-column UI, and then additional
+
+989
+00:51:26,120 --> 00:51:32,920
+information that your boy PS doesn't have like TCP UDP port usage, read write throughput,
+
+990
+00:51:32,920 --> 00:51:37,240
+the Docker container name that that process might be running under, and more memory information
+
+991
+00:51:37,240 --> 00:51:40,480
+which is nice in the era of system DOOMD.
+
+992
+00:51:40,480 --> 00:51:43,880
+Oh, you know, this tree view is pretty sweet too.
+
+993
+00:51:43,880 --> 00:51:48,880
+Yeah, it really does actually look good enough that I'm I think I'm legitimately switching
+
+994
+00:51:48,880 --> 00:51:49,880
+to this.
+
+995
+00:51:49,880 --> 00:51:54,340
+I initially picked this as an ironic pick because who needs another PS?
+
+996
+00:51:54,340 --> 00:51:55,700
+That's ridiculous.
+
+997
+00:51:55,700 --> 00:51:58,200
+And then I installed it and I absolutely love it.
+
+998
+00:51:58,200 --> 00:51:59,240
+It's even great on our server.
+
+999
+00:51:59,240 --> 00:52:02,320
+I love the Docker support and that is really handy.
+
+1000
+00:52:02,320 --> 00:52:06,880
+Whoa, and there's experimental support on both Mac and Windows.
+
+1001
+00:52:06,880 --> 00:52:07,880
+Look at them.
+
+1002
+00:52:07,880 --> 00:52:08,880
+Everybody gets to play.
+
+1003
+00:52:08,880 --> 00:52:12,560
+Oh, I didn't even I didn't even really think about the fact that there's Rust apps on the
+
+1004
+00:52:12,560 --> 00:52:13,560
+Mac.
+
+1005
+00:52:13,560 --> 00:52:14,560
+Of course there are.
+
+1006
+00:52:14,560 --> 00:52:18,500
+I knew Microsoft was hot to trot with Rust, but I'm sure Apple's been super helpful getting
+
+1007
+00:52:18,500 --> 00:52:21,280
+Rust working on Mac OS.
+
+1008
+00:52:21,280 --> 00:52:24,560
+And Chris, you'll never guess, it's already packaged in Arch.
+
+1009
+00:52:24,560 --> 00:52:25,560
+Oh, of course.
+
+1010
+00:52:25,560 --> 00:52:26,560
+Yeah, absolutely.
+
+1011
+00:52:26,560 --> 00:52:27,560
+I knew that.
+
+1012
+00:52:27,560 --> 00:52:28,560
+You know, I knew that.
+
+1013
+00:52:28,560 --> 00:52:29,560
+Anyways, go check it out.
+
+1014
+00:52:29,560 --> 00:52:34,600
+It's a really nice, really clean, really elegant way to list all of the processes and the resources
+
+1015
+00:52:34,600 --> 00:52:35,820
+they're using and all of that.
+
+1016
+00:52:35,820 --> 00:52:40,840
+It's called Prox, P-R-O-C-S, and yeah, it's up on GitHub, so it's probably just easier
+
+1017
+00:52:40,840 --> 00:52:46,120
+to get the link in the show notes, if I'm being honest with you.
+
+1018
+00:52:46,120 --> 00:52:50,840
+Thank you very much to our Unplugged Core contributors at unpluggedcore.com for like
+
+1019
+00:52:50,840 --> 00:52:52,280
+a few more hours.
+
+1020
+00:52:52,280 --> 00:52:57,640
+The secret promo that I gave out will be valid and then I'm going to remove that product
+
+1021
+00:52:57,640 --> 00:52:58,640
+from the garage.
+
+1022
+00:52:58,640 --> 00:53:04,160
+So if you haven't taken advantage of it yet, you got hours, you got hours left.
+
+1023
+00:53:04,160 --> 00:53:06,280
+But you know, there's other things we do to thank our members.
+
+1024
+00:53:06,280 --> 00:53:09,760
+We also make a couple of feeds available to them, a completely unedited raw version where
+
+1025
+00:53:09,760 --> 00:53:15,900
+you hear us screw up and lots of probably, I would say, two solid pre-shows easily, maybe
+
+1026
+00:53:15,900 --> 00:53:20,600
+three pre-shows that we just totally blew and did not record except for our members.
+
+1027
+00:53:20,600 --> 00:53:21,760
+That's in the feed this week too.
+
+1028
+00:53:21,760 --> 00:53:24,280
+And then also you can get just a limited ad feed if you prefer.
+
+1029
+00:53:24,280 --> 00:53:28,680
+It's a little tighter version of the show, same full production, all of that stuff.
+
+1030
+00:53:28,680 --> 00:53:32,740
+Those are two different feeds we make available to those of you who help make the show sustainable
+
+1031
+00:53:32,740 --> 00:53:36,340
+at unpluggedcore.com.
+
+1032
+00:53:36,340 --> 00:53:39,240
+And thank you everybody who does support the show there.
+
+1033
+00:53:39,240 --> 00:53:44,200
+Be sure to go check out jupytergarage.com too for some of that limited time last merch.
+
+1034
+00:53:44,200 --> 00:53:48,680
+And those coins are almost gone at jupytergarage.com.
+
+1035
+00:53:48,680 --> 00:53:51,720
+If you do the Twitter thing, you can follow the show at linuxunplugged.
+
+1036
+00:53:51,720 --> 00:53:57,480
+The website's linuxunplugged.com, but we do have a Twitter handle, which, you know, you
+
+1037
+00:53:57,480 --> 00:53:58,760
+can follow.
+
+1038
+00:53:58,760 --> 00:53:59,760
+You can follow.
+
+1039
+00:53:59,760 --> 00:54:01,120
+I follow the network.
+
+1040
+00:54:01,120 --> 00:54:02,920
+I'll just follow the whole network at Jupiter Signal.
+
+1041
+00:54:02,920 --> 00:54:04,200
+I'd probably follow Wes.
+
+1042
+00:54:04,200 --> 00:54:07,080
+Wes, tweet a picture of some dogs sometime.
+
+1043
+00:54:07,080 --> 00:54:12,120
+Maybe you have, but you know like that epic superhero like A-Team shot you took of the
+
+1044
+00:54:12,120 --> 00:54:13,320
+pups the other morning?
+
+1045
+00:54:13,320 --> 00:54:16,200
+That would make, that's some serious Twitter material right there.
+
+1046
+00:54:16,200 --> 00:54:17,200
+Cute dogs.
+
+1047
+00:54:17,200 --> 00:54:18,200
+Who can say no?
+
+1048
+00:54:18,200 --> 00:54:19,200
+All right, I'm on it.
+
+1049
+00:54:19,200 --> 00:54:20,200
+I can't say no.
+
+1050
+00:54:20,200 --> 00:54:21,200
+I can't say no.
+
+1051
+00:54:21,200 --> 00:54:22,200
+So go find him.
+
+1052
+00:54:22,200 --> 00:54:23,200
+He's at Wes Payne on the Twitter.
+
+1053
+00:54:23,200 --> 00:54:24,200
+I'm at Chris LAS.
+
+1054
+00:54:24,200 --> 00:54:27,640
+The entire network and all of our fantastic podcasts, like the self-hosted podcast and
+
+1055
+00:54:27,640 --> 00:54:33,440
+Linux Action News, and the Coda Radio program, are all over at JupiterBroadcasting.com.
+
+1056
+00:54:33,440 --> 00:54:34,880
+And we'd love to have you join the show live.
+
+1057
+00:54:34,880 --> 00:54:36,880
+See you next week.
+
+1058
+00:54:36,880 --> 00:54:39,320
+Same bad time, same bad station.
+
+1059
+00:54:39,320 --> 00:54:41,820
+Just get your Linux on every Tuesday.
+
+1060
+00:54:41,820 --> 00:54:42,820
+Get all Linux-y.
+
+1061
+00:54:42,820 --> 00:54:47,800
+And join us live at 12 p.m. Pacific, 3 p.m. Eastern.
+
+1062
+00:54:47,800 --> 00:54:51,160
+I'm not exactly sure what it means to get all Linux-y.
+
+1063
+00:54:51,160 --> 00:54:54,140
+Probably means like boot up a Linux box and join the live stream.
+
+1064
+00:54:54,140 --> 00:54:55,140
+That's probably what it means.
+
+1065
+00:54:55,140 --> 00:54:59,160
+The only way to find out is join us live next week while we get Linux-y, right?
+
+1066
+00:54:59,160 --> 00:55:00,160
+Yeah.
+
+1067
+00:55:00,160 --> 00:55:01,160
+Maybe bring a towel, though.
+
+1068
+00:55:01,160 --> 00:55:02,160
+Yeah.
+
+1069
+00:55:02,160 --> 00:55:03,160
+That's not a bad idea and a beverage.
+
+1070
+00:55:03,160 --> 00:55:05,120
+And you can absolutely join us in our mumble room.
+
+1071
+00:55:05,120 --> 00:55:07,480
+Info for that is at LinuxUnplugged.com slash mumble.
+
+1072
+00:55:07,480 --> 00:55:08,480
+That's the way.
+
+1073
+00:55:08,480 --> 00:55:09,480
+You get the idea.
+
+1074
+00:55:09,480 --> 00:55:10,480
+You get the idea.
+
+1075
+00:55:10,480 --> 00:55:11,480
+We have a website.
+
+1076
+00:55:11,480 --> 00:55:12,480
+Aren't you proud of us?
+
+1077
+00:55:12,480 --> 00:55:15,480
+And we put links of relevant information on there that you're probably wondering.
+
+1078
+00:55:15,480 --> 00:55:17,120
+It's a good idea.
+
+1079
+00:55:17,120 --> 00:55:31,360
+See you next Tuesday.
+
+1080
+00:55:47,120 --> 00:55:55,160
+Alright, JBtitles.com.
+
+1081
+00:55:55,160 --> 00:55:57,600
+Let's go name this thing.
+
+1082
+00:55:57,600 --> 00:56:01,560
+Do we miss anybody or anything in the show that we wanted to catch up on the post show
+
+1083
+00:56:01,560 --> 00:56:03,040
+before we head out of here?
+
+1084
+00:56:03,040 --> 00:56:06,960
+Well, Neil let us know that our pick is also packaged in Fedora.
+
+1085
+00:56:06,960 --> 00:56:11,160
+So you know, all those folks we convinced to try Fedora 34 don't have to miss out.
+
+1086
+00:56:11,160 --> 00:56:12,160
+Nope.
+
+1087
+00:56:12,160 --> 00:56:13,160
+Absolutely.
+
+1088
+00:56:13,160 --> 00:56:14,160
+Absolutely.
+
+1089
+00:56:14,160 --> 00:56:15,160
+I don't know.
+
+1090
+00:56:15,160 --> 00:56:18,720
+I've kind of played with the whole episode 404 thing with KOTORadio.
+
+1091
+00:56:18,720 --> 00:56:21,600
+So I feel like it's kind of silly if we go all in.
+
+1092
+00:56:21,600 --> 00:56:26,100
+But also I feel silly if we don't acknowledge that today is May 4th, which all of the Star
+
+1093
+00:56:26,100 --> 00:56:29,180
+Wars fans are excited about because the fourth is with them.
+
+1094
+00:56:29,180 --> 00:56:31,640
+And it is episode 404 on May 4th.
+
+1095
+00:56:31,640 --> 00:56:33,320
+There's a lot of fun to be had there.
+
+1096
+00:56:33,320 --> 00:56:35,460
+But this show is not a Star Wars show.
+
+1097
+00:56:35,460 --> 00:56:40,960
+And we just did the 404 gag with KOTORadio like 11 weeks ago.
+
+1098
+00:56:40,960 --> 00:56:45,280
+So I'm I'm perplexed as to how to title this monster.
+
+1099
+00:56:45,280 --> 00:56:48,080
+Well, you could always reference the 504 code.
+
+1100
+00:56:48,080 --> 00:56:49,080
+Which is?
+
+1101
+00:56:49,080 --> 00:56:54,840
+I don't actually know what it is because I've never seen it before.
+
+1102
+00:56:54,840 --> 00:56:58,720
+That is the least helpful ever.
+
+1103
+00:56:58,720 --> 00:57:03,360
+Like I'm sure Wes as a as a web dev like actually knows it off the top of his head.
+
+1104
+00:57:03,360 --> 00:57:04,360
+Method not allowed.
+
+1105
+00:57:04,360 --> 00:57:05,360
+Oh, my gosh.
+
+1106
+00:57:05,360 --> 00:57:06,360
+Listen to you.
+
+1107
+00:57:06,360 --> 00:57:07,360
+Nicely done.
+
+1108
+00:57:07,360 --> 00:57:12,360
+Thank you.
+

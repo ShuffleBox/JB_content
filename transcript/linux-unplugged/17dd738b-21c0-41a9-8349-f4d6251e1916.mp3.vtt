@@ -1,0 +1,1652 @@
+WEBVTT
+
+00:00.000 --> 00:12.960
+a robot yes what are we going to do with a robot well astro follow me yeah who doesn't want an
+
+00:12.960 --> 00:18.240
+amazon dog following you around your house for just over a thousand dollars their new
+
+00:18.240 --> 00:24.080
+alexa on wheels has been announced today it probably runs linux but i don't know if it
+
+00:24.080 --> 00:28.640
+even matters i don't care at this point if it runs linux or not i don't want a robot that
+
+00:28.640 --> 00:34.080
+follows me in my home i have too many dogs as it is you do have a lot of dogs that's a good point
+
+00:34.080 --> 00:38.800
+i would like them to just actually have a program that connects us to dogs how about that let's
+
+00:38.800 --> 00:43.280
+just skip the whole robot thing save everybody money yeah quick short term you know prime delivery
+
+00:43.280 --> 00:58.080
+dogs hello friends and welcome back to your weekly linux talk show my name is chris my name is wes
+
+00:58.080 --> 01:04.320
+hello wes you're coming in looking great today i love that all purple outfit this episode is
+
+01:04.320 --> 01:09.040
+brought to you by a cloud guru the leader in learning for the linux cloud and modern tech
+
+01:09.040 --> 01:14.720
+skills hundreds of courses thousands of hands-on labs go get certified go get hired get learning
+
+01:14.720 --> 01:21.760
+at a cloud guru.com well coming up on the show today it is time for our server crash post-mortem
+
+01:21.760 --> 01:28.400
+it struck at the worst time possible and then it crashed again it's been quite the journey we have
+
+01:28.400 --> 01:36.400
+talked about our server on the show a lot and this week the chapter is coming to an end i'm a
+
+01:36.400 --> 01:42.080
+bit sad but also excited about where we're going we have a major update for you this week but we
+
+01:42.080 --> 01:48.080
+will start out by telling you why our arch server crashed recently and then why it crashed again
+
+01:48.080 --> 01:54.000
+even more recently that we haven't told you about and then what we're going to do to get things
+
+01:54.000 --> 01:59.200
+right to do the right thing here and get going and what we had to do just for now we're going
+
+01:59.200 --> 02:03.280
+to tell you all of it it's a full post-mortem today on the show and then we have at the end
+
+02:03.280 --> 02:09.200
+a really kind of a fantastic surprise twist we'll tell you about some really big future plans and
+
+02:09.200 --> 02:13.360
+on top of all that in case the server stuff isn't quite your bag we've got some nice thought
+
+02:13.360 --> 02:20.080
+provoking community news some old friends stopping by the show and a lot more so there is as they say
+
+02:20.720 --> 02:25.200
+a big show today so before we go any further let's say time-appropriate greetings to our
+
+02:25.200 --> 02:35.200
+virtual lug hello mumble room hello hello hello that is a good-looking mumble room we got 18 of
+
+02:35.200 --> 02:39.680
+you in there nice to see you mostly everybody in the on-air room rocking out with us today
+
+02:39.680 --> 02:45.120
+so i want to start by asking the mumble room how they feel about a news story that i came across
+
+02:45.120 --> 02:50.960
+just before the show started ferronics has noted that the first sign of linux support for what
+
+02:50.960 --> 02:59.040
+intel is calling quote software defined silicon are now landing for linux michael writes there's
+
+02:59.040 --> 03:05.360
+been talk of intel moving to offer more license able opt-in features for hardware capabilities
+
+03:05.360 --> 03:11.040
+found within a given processor and so we are now seeing the linux signs of support coming with a
+
+03:11.040 --> 03:16.560
+driver for the intel software to find silicon to allow for secure activation of such features
+
+03:16.560 --> 03:24.240
+baked into a processor silicon but only available as an upcharge option yeah michael larable did
+
+03:24.240 --> 03:29.440
+some digging on this and kind of makes it clear the basic idea is that without having to purchase
+
+03:29.440 --> 03:36.400
+a new processor intel software defined silicon allow for activating additional hardware capabilities
+
+03:36.400 --> 03:41.920
+just by purchasing a license or upgrade unfortunately right now the exact details
+
+03:41.920 --> 03:48.320
+don't appear to be public for what these upgrades might actually have in them but intel is currently
+
+03:48.320 --> 03:56.160
+preparing the linux kernel driver support known as sdsi this driver exposes a per socket interface
+
+03:56.160 --> 04:01.360
+so that intel's user space application can provision an authentication key certificate
+
+04:01.360 --> 04:06.720
+which is then written to internal nv ram but it also allows provisioning what they call a
+
+04:06.720 --> 04:12.000
+capability activation payload and it also handles the boring stuff of just reading out what
+
+04:12.000 --> 04:19.760
+configuration the cpu state is right now oh okay so what we have here is this software defined cpu
+
+04:19.760 --> 04:25.600
+that allows these hooks for authentication of various add-on packages initially targeting the
+
+04:25.600 --> 04:30.960
+xeon line of intel cpus which i think you could probably understand why i'm curious how people in
+
+04:30.960 --> 04:37.760
+the mumble room though feel about software defined cpu essentially a piece of hardware that ships you
+
+04:37.760 --> 04:44.000
+buy it and there is features and capabilities in that chip that you just don't get access to until
+
+04:44.000 --> 04:49.680
+you pay this is not a new concept we have seen this before but this seems like a whole new level
+
+04:49.680 --> 04:55.280
+and you could almost kind of see this taking off in a way you know maybe an lte modem that has
+
+04:55.280 --> 05:00.160
+extra 5g capabilities if you license those capabilities as an end user you know in that
+
+05:00.160 --> 05:06.480
+purchase just 29.99 a month to activate these in cpu or in chip features i mean i think we've
+
+05:06.480 --> 05:09.520
+already seen this to some extent with some of those arm boards right where you gotta get a
+
+05:09.520 --> 05:13.840
+license to do some of the video encoding or decoding mini mac we're probably seeing this
+
+05:13.840 --> 05:18.560
+because intel is going to target businesses initially definitely i see this as a business
+
+05:18.560 --> 05:25.120
+feature so probably it's it's just a must that that thing has linux support i don't think this
+
+05:25.120 --> 05:31.280
+is really for private users bite didn't they try something like this with itanium yeah so uh hp had
+
+05:31.280 --> 05:39.600
+a system where they want to give the cpu a sort of offload of the processor so moving those kind of
+
+05:39.600 --> 05:46.080
+functions to the software the software defining what instructions had to be executed and then the
+
+05:46.080 --> 05:53.520
+software could just run through all the instruction needed and so thereby creating a more efficient
+
+05:53.520 --> 05:59.360
+processor but yeah and you know what happened with the itanium right i mean this whole thing
+
+05:59.360 --> 06:04.160
+i'm sort of sitting here going is this what intel is spending their time on right now this is what
+
+06:04.160 --> 06:08.080
+they're worried about is licensing additional features instead of just making the absolutely
+
+06:08.080 --> 06:15.120
+most kick-ass processors possible and shipping them as fast as possible but the reality is i
+
+06:15.120 --> 06:21.120
+think there's like a cold business calculation here because making these cpus they're producing
+
+06:21.120 --> 06:25.760
+these things in these massive quantities and it is cheaper and easier to produce if they're all
+
+06:25.760 --> 06:31.440
+exactly the same and then they just turn things on and off via software which is not much further
+
+06:31.440 --> 06:35.920
+than we are today where they're all manufacturing like say the cpu they're manufacturing tens of
+
+06:35.920 --> 06:42.080
+thousands of them and a few of them a core doesn't light up properly or maybe a couple things just
+
+06:42.080 --> 06:49.040
+don't pass a specific set of tests and so they will re-bin that as a lower brand cpu oh this is
+
+06:49.040 --> 06:53.760
+the this is the four core version instead of the eight core because maybe one core doesn't test out
+
+06:53.760 --> 06:58.000
+successfully so they'll disable them several of them and ship it as a four core instead of an eight
+
+06:58.000 --> 07:01.760
+core processor when it's essentially the same silicon i mean that is something that already
+
+07:01.760 --> 07:08.000
+happens today this feels like an extension of that but there is something i think initially when i
+
+07:08.000 --> 07:14.240
+read these kinds of stories as a long time free software user i have this really like screw
+
+07:14.240 --> 07:19.280
+licensing you know what like licensing can get the hell out of here i am so sick and tired of
+
+07:19.280 --> 07:25.040
+software licensing i would like just no licenses and everybody just essentially operates as if the
+
+07:25.040 --> 07:29.120
+gpl were just cultural practice but that's never going to happen but anyways that's but at the
+
+07:29.120 --> 07:34.800
+core of me i just don't like licensing and i don't like it in software and i really don't like it in
+
+07:34.800 --> 07:38.800
+hardware well it's a reminder that at the root of these computers that we try to fill with free and
+
+07:38.800 --> 07:44.640
+open source software is this black box that we you know we don't really have full control over
+
+07:44.640 --> 07:49.360
+and it just feels like a little bit kind of you know we've done this huge shift to services and
+
+07:49.360 --> 07:53.040
+this isn't quite the same but it feels like it's kind of in that direction of changing the
+
+07:53.040 --> 07:58.400
+relationship of i bought this thing it's static and i know what i've got and that's how i calculated
+
+07:58.400 --> 08:02.400
+the cost whereas now that's a little more complicated yeah that's totally it that's
+
+08:02.400 --> 08:07.040
+totally it we put all this energy and time and thought into the software stack that we run and
+
+08:07.040 --> 08:12.400
+try to get it as free as possible and then we have dozens of black boxes baked into our
+
+08:12.400 --> 08:20.400
+dozens of black boxes baked into our motherboard that's absolutely part of it oh there was an
+
+08:20.400 --> 08:26.080
+interesting steam deck update this last week we talked a little bit about this on linux action
+
+08:26.080 --> 08:31.200
+news you probably heard that epic and battle i have updated their anti-cheat software to support
+
+08:31.760 --> 08:38.080
+games under proton on linux actually functioning now there's been so many top tier games that linux
+
+08:38.080 --> 08:44.640
+users could theoretically technically play because proton was capable of making that game run but it
+
+08:44.640 --> 08:49.840
+would fail to run because of anti-cheat software and as we noted on linux action news this week
+
+08:50.640 --> 08:56.480
+that has been addressed by both battle eye and epic however game developers still need to patch
+
+08:56.480 --> 09:02.320
+their games but no matter how you look at this this is huge news for linux gaming in this last
+
+09:02.320 --> 09:09.280
+week this is ginormous news and it immediately means that some of the most popular games on steam
+
+09:09.280 --> 09:16.320
+are now theoretically within reach of linux users yeah personally i'm hoping dead by daylight season
+
+09:16.320 --> 09:22.240
+updates soon i suppose maybe now is time to reach out and voice our linux user opinions about games
+
+09:22.240 --> 09:27.040
+we like and would like to see these updates although hopefully we do it politely yeah i'd
+
+09:27.040 --> 09:30.960
+love to see destiny to get support that's what i would love to see and i think that's battle i
+
+09:30.960 --> 09:36.480
+but all that aside for the moment we'll just have to wait and see there was one small update from
+
+09:36.480 --> 09:41.680
+valve that seemed to have gotten missed in all the anti-cheat coverage but it's one that we're
+
+09:41.680 --> 09:49.200
+kind of excited about in the recently updated steam deck faq there are two new questions and
+
+09:49.200 --> 09:55.360
+answers that really did stand out the first asks if the steam deck will support booting from the
+
+09:55.360 --> 10:04.480
+sd card which valve answers really quite simply yes steam deck supports boot from micro sd that's
+
+10:04.480 --> 10:10.240
+great you're going to be able to boot different distros off of the sd card and there was a second
+
+10:10.240 --> 10:15.680
+part of the faq that that backs us up the specific question was and this is a quote from the faq
+
+10:15.680 --> 10:21.360
+which we have linked what can you tell us about the bios and does it allow dual boot and valve
+
+10:21.360 --> 10:26.880
+answered multi boot is supported you can have multiple os's installed and choose which one you
+
+10:26.880 --> 10:33.920
+want to put into users will have access to the bios menu what do i even say to this this is
+
+10:33.920 --> 10:41.040
+suspiciously open i mean wow huge this means we're going to be able to see community takes on that
+
+10:41.040 --> 10:46.720
+that steam deck experience that will have essentially zero barrier to entry i'm very
+
+10:46.720 --> 10:52.000
+excited about this like i just i can't overstate it because it's going to allow a lot of people to
+
+10:52.000 --> 10:57.440
+participate in creating a software experience for this hardware what if it's too easy though
+
+10:57.440 --> 11:01.760
+you know there's no it's not like hacking linux onto a we or something they're almost begging us
+
+11:01.760 --> 11:07.040
+to do yeah so i mean really what we have to see here happen is a couple of things we have to see
+
+11:07.040 --> 11:13.680
+game developers update their game to support these new anti-cheat updates it looks like it's crazy
+
+11:13.680 --> 11:20.480
+easy epic seems to indicate it's very simple they say quote starting with the latest sdk release
+
+11:20.480 --> 11:25.360
+developers can activate anti-cheat support for linux via wine or proton with just a few clicks
+
+11:25.360 --> 11:30.960
+in their epic online services developer portal that's from epic battle eye says well we already
+
+11:30.960 --> 11:36.640
+had linux support but now we've specifically done an update to support proton that's number one is
+
+11:36.640 --> 11:41.840
+game developers are going to have to update the game to support this anti-cheat stuff number two
+
+11:41.840 --> 11:47.840
+and i'm not 100 but this looks pretty solid from what we can tell you're going to need linux 5.11
+
+11:47.840 --> 11:51.360
+so you're going to need a linux kernel or you're going to be able to upgrade your kernel to 511 or
+
+11:51.360 --> 11:56.400
+newer because you need a kernel that supports syscall user dispatch which is some work that
+
+11:56.400 --> 12:01.200
+was done to make these these anti-cheat other things that are running in wine communicate
+
+12:01.200 --> 12:06.240
+better on linux and if you don't have that support it looks like some of this anti-cheat stuff might
+
+12:06.240 --> 12:10.880
+not work i haven't able to test that obviously so i can't tell you for sure but from our digging
+
+12:10.880 --> 12:15.920
+around that looks to be the case and from what you can tell that seems like that's probably likely
+
+12:15.920 --> 12:24.000
+right neil with linux 5.11 collabora on contract with valve made some changes that were upstream
+
+12:24.000 --> 12:31.520
+that called syscall user dispatch which provides a way for user space to to register hooks to the
+
+12:31.520 --> 12:38.080
+linux kernel for syscall interfaces and apis and things like that this is particularly necessary
+
+12:38.080 --> 12:46.400
+for games because a lot of anti-cheat software work by directly calling windows nt syscalls
+
+12:46.960 --> 12:51.040
+instead of using like the standard c library and going through user space the normal way
+
+12:51.040 --> 12:57.600
+and they would fail in wine because linux doesn't know what that syscall is and they would just
+
+12:57.600 --> 13:04.480
+break so what this does is it allows wine to register a handler in linux for syscalls just
+
+13:04.480 --> 13:09.280
+like it does for binary format so like when you load in an executive a windows exe file
+
+13:09.280 --> 13:14.240
+linux knows that this actually needs to be run by the wine bin loader rather than the
+
+13:14.240 --> 13:23.280
+glibc bin loader and so that same process then allows you to run applications that would normally
+
+13:23.280 --> 13:31.360
+talk to windows nt directly to then successfully be redirected back to wine for wine server to
+
+13:31.360 --> 13:37.280
+handle and the wine fake nt kernel to give it what it expects so that the applications will
+
+13:37.280 --> 13:42.080
+run properly that's what's so impressive about all of this right is like the the long-term work
+
+13:42.080 --> 13:47.440
+where we got changes actually upstreamed in the kernel to a better enable playing proprietary
+
+13:47.440 --> 13:53.360
+games on linux and that valve at the same time negotiated behind the scenes with these anti-cheat
+
+13:53.360 --> 13:58.480
+vendors to you know actually get that working yeah and i think it's it's just nice to remember
+
+13:58.480 --> 14:02.320
+that collabra is behind the scenes in some of this doing some of the work making some of this
+
+14:02.320 --> 14:07.840
+possible at some of the lower levels and you've had valve clearly pulling the strings now for
+
+14:07.840 --> 14:14.080
+about a couple of years laying the groundwork this particular groundwork for the deck and
+
+14:14.080 --> 14:18.640
+you couldn't look at it necessarily from the outside and see that's where it's going but
+
+14:18.640 --> 14:24.000
+now with hindsight it's obvious they were building towards a device now it's just obvious it just
+
+14:24.000 --> 14:27.520
+stands out um so that's probably what you need to know is you're probably going to end up needing
+
+14:27.520 --> 14:33.440
+a kernel 5 11 or newer um and uh that's you know by the time the deck shipping and all that that's
+
+14:33.440 --> 14:37.280
+that's probably not going to be too hard to achieve so that we'll have links to information
+
+14:37.280 --> 14:44.000
+about that in the show notes at linuxunplug.com 4 25 but we need to talk about a little community
+
+14:44.000 --> 14:49.840
+news in fact something coming up very soon daniel foray joins us from the elementary os project
+
+14:49.840 --> 14:54.880
+welcome back hey how's it going it's going really good i'm curious you know i want to talk about the
+
+14:54.880 --> 14:58.960
+hackathon that's coming up because it's just in a couple of days but before we get to that
+
+14:59.840 --> 15:04.880
+tell us how version 6 is going because i think it's been about a month since elementary os 6 came
+
+15:04.880 --> 15:11.120
+out there's been an update how are things shaking out yeah it's been about a month and a half now
+
+15:11.120 --> 15:18.160
+since release so we had um we do updates every single month so at the end of uh last month we
+
+15:18.160 --> 15:24.320
+did a smaller updates post and we're packaging up all our updates uh to go out now with tons of new
+
+15:24.320 --> 15:30.400
+features for online accounts tasks mail app center like everything's getting lots of goodies and i
+
+15:30.400 --> 15:34.160
+being dense because i'm sure it was probably it was probably communicated pretty clearly
+
+15:34.160 --> 15:38.560
+but i completely missed that there is like a monthly update cadence thing now yeah actually
+
+15:38.560 --> 15:44.480
+we started that um last cycle uh and so we're kind of continuing that over but we wanted to
+
+15:44.480 --> 15:49.040
+make sure that we're not just pushing out bug fixes and feature updates like every couple years
+
+15:49.040 --> 15:53.920
+because it's not a super great experience we want to push them out monthly because then we can get
+
+15:53.920 --> 15:58.080
+that feedback loop really tight where you know people are reporting an issue or they're requesting
+
+15:58.080 --> 16:01.760
+a feature and we want to get that out to them as soon as possible so they feel more involved
+
+16:01.760 --> 16:05.360
+okay well let me ask you this is there anything that stands out in your mind
+
+16:06.400 --> 16:14.320
+today that is kind of different or changed since elementary os 6 0 you know version 0.0 shipped
+
+16:14.320 --> 16:18.560
+i guess there been anything behind the scenes that has changed in the last 30 days anything
+
+16:18.560 --> 16:23.280
+that stands out i mean i think um some of the biggest things are that we're making a lot of
+
+16:23.280 --> 16:29.440
+progress with app center with flat pack we've been working with the wider community on some of the
+
+16:29.440 --> 16:34.640
+free desktop stuff like with the dark style support across you know all the apps and and so we're
+
+16:34.640 --> 16:41.840
+going to be working more on portals and that kind of stuff we kind of redid our ci and cd system
+
+16:41.840 --> 16:46.960
+recently so we're now building our flat packs for arm so we're going to have app center
+
+16:46.960 --> 16:52.000
+apps building for arm and they're all flat packs now so we're like we're going to have this really
+
+16:52.000 --> 16:58.480
+great collection of apps that you can go run on any distro now if you go to appcenter.elementary.io
+
+16:58.480 --> 17:02.240
+you can go download those flat packs for whatever distro and we're just going to keep growing that
+
+17:02.240 --> 17:06.480
+and make it super awesome wow that sounds rad yeah very impressive that's some serious work
+
+17:06.480 --> 17:11.920
+you're putting in that's really cool okay so let's talk about this hacktoberfest live stream
+
+17:11.920 --> 17:17.200
+that's coming up isn't it this thursday yeah so uh what's going on with that is that uh it's a
+
+17:17.200 --> 17:22.240
+really great time in the cycle right now because you know we just released so it's not really like
+
+17:22.240 --> 17:26.800
+the end of the cycle it's like the beginning of our development cycle and so we have a great
+
+17:26.800 --> 17:32.640
+opportunity to get people involved and you know try to talk about like what projects we want to
+
+17:32.640 --> 17:39.200
+pursue during this cycle and we have hacktoberfest coming up which is the event put on by digital
+
+17:39.200 --> 17:44.160
+ocean and github so we're going to do a stream on thursday and we're going to talk about how to get
+
+17:44.160 --> 17:50.560
+involved with hacking on elementary os and working on new features and cool stuff like that and we're
+
+17:50.560 --> 17:54.800
+going to try to you know tie that into hacktoberfest so if you've never heard of that and you want to
+
+17:54.800 --> 17:58.960
+try to get involved you can come find out how you can get some free swag for contributing to open
+
+17:58.960 --> 18:04.640
+source projects on github right on but you know it's fall when hacktoberfest rolls around it's
+
+18:04.640 --> 18:09.280
+like a milestone of the year so what is an easy place for people to go to get involved if they're
+
+18:09.280 --> 18:14.960
+interested and they have some time on thursday if you want to go to our get involved page actually
+
+18:14.960 --> 18:20.560
+elementary.io forward slash git dash involved we have links there for all kinds of stuff but
+
+18:20.560 --> 18:25.040
+if you want to watch out for our youtube page we have a link to our youtube page on our website
+
+18:25.040 --> 18:29.280
+that's where we do our live streams on the last thursday of every month so you're saying if i'm
+
+18:29.280 --> 18:33.520
+already subscribed to the elementary youtube channel i'm good to go because of course why
+
+18:33.520 --> 18:38.080
+wouldn't i be subscribed yeah exactly and then you can come hang out and do some little q a with us
+
+18:38.080 --> 18:42.960
+we got the whole live chat live stream thing going on great well danny thank you for coming on the
+
+18:42.960 --> 18:47.760
+show it is always great to catch up with you and it's great to hear things are moving right along
+
+18:47.760 --> 18:52.400
+with elementary os6 and it sounds like the hacktoberfest thing is going to be a lot of fun
+
+18:52.400 --> 19:00.320
+thanks for joining us thank you and i'll see all you guys on thursday lino dot com slash unplugged
+
+19:00.320 --> 19:05.440
+go there to get 100 in 60 day credit on your new account and you go there to support the show
+
+19:05.440 --> 19:12.000
+linode keeps getting better i have been a customer for about two and a half years and i can absolutely
+
+19:12.000 --> 19:16.800
+testify to this i'll admit though i was watching them for a while you know when these new like
+
+19:16.800 --> 19:22.400
+vc supercharged fly by night vps providers came along and were offering all these different things
+
+19:22.960 --> 19:26.320
+i sat back and wanted to see what linode would do because you know they're kind of like the old
+
+19:26.320 --> 19:30.880
+timer in the linux community they've been around for 18 years i was like are they gonna fumble this
+
+19:30.880 --> 19:34.080
+are they gonna get passed up by the new kids or are they gonna stay competitive
+
+19:34.080 --> 19:39.920
+and sure enough they they really really have in fact now they're lapping those kids linode just
+
+19:39.920 --> 19:47.840
+upgraded their block storage with super fast mvme pcie storage and it screams you can get
+
+19:47.840 --> 19:53.520
+systems with amd epic processors that benchmark faster than any other major cloud provider and
+
+19:53.520 --> 20:01.120
+pair it with mvme block storage okay it's amazing and then they have 11 data centers you can choose
+
+20:01.120 --> 20:06.480
+from and they have become their own isp so they have secured super fast links between their data
+
+20:06.480 --> 20:11.840
+centers 40 gigabit connections coming into the hypervisors and then they wrap it all up with a
+
+20:11.840 --> 20:18.320
+beautiful easy to use dashboard that lets you get under the hood when you need and i mean i actually
+
+20:18.320 --> 20:25.440
+have a linode that i completely replaced the image that they ship with it like i wiped the box and i
+
+20:25.440 --> 20:33.120
+put a custom linux distro from a router vendor to create an lte mesh vpn endpoint and they actually
+
+20:33.120 --> 20:39.200
+linode actually let me like wipe it off and set up my own custom box there and now the crazy cats
+
+20:39.200 --> 20:44.560
+are launching bare metal servers if you really need like just the ultimate performance and it
+
+20:44.560 --> 20:48.800
+doesn't matter if you've never set up a box before because they've got easy one-click deployments so
+
+20:48.800 --> 20:53.040
+say maybe you're ready to switch to next cloud they got a one-click deployment for that or maybe
+
+20:53.040 --> 20:57.920
+something just like a little more like in between like are you done using zoom and you'd like to
+
+20:57.920 --> 21:02.080
+use something you can trust and open source they've got a one-click deployment for jitsi
+
+21:02.080 --> 21:08.240
+and there's really no excuse and they're 30 to 50 cheaper than the big duopoly hyperscalers you
+
+21:08.240 --> 21:13.520
+can get like a five dollar a month box that runs jitsi that's a pretty justifiable business expense
+
+21:13.520 --> 21:19.440
+in my opinion but i i really encourage you to go play turn it up to 11 because you can get a hundred
+
+21:19.440 --> 21:24.800
+dollars that and when you look at their pricing that's that's incredible that really is great so
+
+21:24.800 --> 21:28.960
+go try it out i can tell you all about it all day long but you need to go see it for yourself and
+
+21:28.960 --> 21:33.360
+you can support the show it's an opportunity to go play learn and support the show you can call it
+
+21:33.360 --> 21:38.080
+like the trifecta of awesome so just head over to linode.com slash unplugged get a hundred dollars
+
+21:38.080 --> 21:43.600
+for your new account and try all this stuff out build something learn something test something
+
+21:43.600 --> 21:48.640
+there are a lot of ways you can host i admit it there's a lot of them out there and there is some
+
+21:48.640 --> 21:55.040
+big big hyperscalers that they'd love you to just put everything you own into their systems but
+
+21:55.040 --> 22:00.800
+nobody does it like linode that's why they've been around 18 years and that's why i completely
+
+22:00.800 --> 22:07.280
+recommend them go see why we choose linode every single time by going to linode.com slash unplugged
+
+22:09.520 --> 22:13.200
+there's a few things i'd like to mention in the housekeeping section first of all thank you to our
+
+22:13.200 --> 22:20.160
+members over at unpluggedcore.com the live stream feed has just been delivering mr roach joined us
+
+22:20.160 --> 22:24.080
+in the mumble room and told us about his time interning at pixar and about the linux boxes
+
+22:24.080 --> 22:29.120
+there that was awesome we had so many great conversations that's available to our members
+
+22:29.120 --> 22:35.120
+in the totally uncut bootleg feed we also create a limited ad version that's the same type production
+
+22:35.120 --> 22:40.000
+just a little bit shorter and you support the show at unpluggedcore.com i also wanted to let
+
+22:40.000 --> 22:44.960
+you know that our buddy joe has a new show a new member of the late night linux family it's called
+
+22:44.960 --> 22:50.880
+linux after dark go check it out it's in your favorite podcast catcher already episode one
+
+22:50.880 --> 22:56.640
+is already out i'd also like to encourage you to join our luck plug it happens every single
+
+22:56.640 --> 23:01.520
+sunday at noon pacific in our mumble room right there in the lobby you can figure it out at your
+
+23:01.520 --> 23:07.280
+time zone at jupiter broadcasting dot com slash calendar and all of our mumble info is at linux
+
+23:07.280 --> 23:13.200
+unplug.com slash mumble and the nice thing is you get it set up if you're ever around on a tuesday
+
+23:13.200 --> 23:18.480
+you can come join us and hang out in the show and get your word in on uh your weekly linux talk
+
+23:18.480 --> 23:25.760
+show that's linux unplug.com slash mumble for that okay wes i i know we've talked a lot about
+
+23:25.760 --> 23:30.080
+the server recently but this is kind of you know it's what's happening right now and there's some
+
+23:30.080 --> 23:34.960
+big stuff in the works you think it's okay if we just maybe one more time touch on this subject
+
+23:34.960 --> 23:39.440
+well we have to right it's clearly becoming an issue and the audience needs a resolution
+
+23:40.400 --> 23:45.600
+we need a resolution too well yeah that too so just in case you haven't caught previous coverage
+
+23:45.600 --> 23:50.000
+just super briefly our goal with this arch server that we have here in our studio has been a bit of
+
+23:50.000 --> 23:55.360
+a long-term experiment i think you know too often you'll see online reviewers who spend 30 or
+
+23:55.920 --> 24:01.760
+40 minutes with something if that and then they go make their video or their blog or whatever
+
+24:01.760 --> 24:05.840
+maybe it's just a forum post somebody you know talking smart in a forum giving you their opinion
+
+24:05.840 --> 24:10.000
+people speak with authority after they try something for a little bit they kind of they
+
+24:10.000 --> 24:14.400
+because they speak with authority to it it kind of gets accepted as maybe expert opinion
+
+24:14.400 --> 24:16.880
+and then before you know it it's all over the entire internet as fact
+
+24:18.160 --> 24:24.480
+and so we love pushing back against that kind of stuff and we also know that how something holds
+
+24:24.480 --> 24:31.040
+up long term is a totally different story than how something is during your first impressions
+
+24:31.040 --> 24:36.800
+right i've been like i'm i'm already preparing myself for our fedora 35 review because i've
+
+24:36.800 --> 24:42.720
+been running fedora 35 for the last two weeks so that by the time it ships in a month i'm gonna
+
+24:42.720 --> 24:47.520
+have a pretty rounded opinion of that distribution and some of it will be you know it's during it's
+
+24:47.520 --> 24:52.240
+a beta cycle but some of it's like i'm a forming opinion now about gnome 41 and i i truly believe
+
+24:52.240 --> 24:56.880
+whenever we can we try to really experience something as long as possible and when we can't
+
+24:56.880 --> 25:00.240
+we come right off and we'll tell you hey man this is a first this is a first
+
+25:00.240 --> 25:05.040
+opinion you know first impressions kind of thing with this server we wanted to try actually running
+
+25:05.040 --> 25:10.000
+arch in production for an extended period of time and see if we could make a few tweaks to make it
+
+25:10.000 --> 25:16.800
+keep running like you know using the lts kernel file system snapshots utilizing butter fs on the
+
+25:16.800 --> 25:22.240
+root file system and then using zfs on the large external data pool not that we necessarily
+
+25:22.240 --> 25:27.120
+recommend you do any of this but we wanted to test it to see how it would hold up we wanted
+
+25:27.120 --> 25:31.680
+to find out so you didn't have to run a rolling arch server in production well and we both had
+
+25:31.680 --> 25:36.400
+such good experience with arch you know on the workstation on various machines in our life and
+
+25:36.960 --> 25:41.280
+we both knew that it had all the software and kind of got out of our way in terms of managing
+
+25:41.280 --> 25:45.520
+it was like a pleasant environment that we were both familiar with to admin so it was tempting
+
+25:45.520 --> 25:49.200
+to just see like yeah can we make it work here too and i should have looked it up before the
+
+25:49.200 --> 25:52.640
+show but i'm pretty sure we've crossed the year mark running this thing in production in fact we
+
+25:52.640 --> 25:57.840
+might even be rounding the second year possibly and it's it's all out there we've tried to put
+
+25:57.840 --> 26:02.320
+all of it out there as much as publicly possible so if this thing blows up on her face you know
+
+26:02.320 --> 26:05.920
+and you know because that's our our singular motivation is really just to prove if it's
+
+26:05.920 --> 26:11.360
+possible and if it's not we're gonna find out for you and the reality is this is a production
+
+26:11.360 --> 26:15.120
+server we really do use it so when it breaks it breaks in front of everyone and it hurts
+
+26:16.720 --> 26:22.000
+and you know it's out in a garage it's not particularly well thermally protected in fact
+
+26:22.000 --> 26:28.240
+it's not at all and there has even been some power outages recently and that's what's led us to some
+
+26:28.240 --> 26:33.280
+of the more recent issues initially we had some lockups that we traced back to net data but we
+
+26:33.280 --> 26:36.880
+weren't sure right before the road trip about a week before the road trip the server started
+
+26:36.880 --> 26:42.880
+locking up the worst timing impossible yeah we got it up and running again suspecting it was net
+
+26:42.880 --> 26:49.280
+data we turned off net data and the system remained running for you know a month maybe
+
+26:49.280 --> 26:55.440
+then about three weeks into my road trip the server went down i checked in i couldn't wire guard
+
+26:55.440 --> 27:00.320
+i couldn't talk to the server at all but i was able to use rust desk to get to a couple of the
+
+27:00.320 --> 27:07.440
+studio desktops and using that approach i determined oh power went out for a while and
+
+27:07.440 --> 27:12.000
+the funky way we have this thing wired up is one power supplies into the wall and one power supplies
+
+27:12.000 --> 27:16.880
+into ups for stupid technical debt reasons and i think when that happened the server got into
+
+27:16.880 --> 27:24.560
+a funky state and it eventually lost power then when it rebooted it came up in a bad way and never
+
+27:24.560 --> 27:31.440
+finished booting and i couldn't tell why because i was i was gone i was on a road trip and the old
+
+27:31.440 --> 27:39.600
+server admin in me was dying i had to know why my server was down plus i wanted my server back up
+
+27:39.600 --> 27:43.200
+right i mean here was this situation that we hadn't actually encountered right i mean we've
+
+27:43.200 --> 27:47.840
+we've seen it power cycled we've come back into the studio after the power went out and it's
+
+27:47.840 --> 27:52.560
+always been fun i mean it takes forever to do so but but it gets there yeah and of course it happens
+
+27:52.560 --> 27:58.320
+while wes is camping so i'm i'm gone wes is camping and then moving the whole thing was just
+
+27:58.320 --> 28:04.400
+like the worst time possible so we didn't know why it was back up and so like the last day of the
+
+28:04.400 --> 28:11.280
+road trip i legitimately just made a beeline for the studio i was just i got lady jupes to her spot
+
+28:11.280 --> 28:17.680
+i got lady jupes secured and parked and then i jumped in the car and i ran down to the studio
+
+28:17.680 --> 28:23.280
+to figure out what was wrong and i mean i literally i maybe was back in town from the road
+
+28:23.280 --> 28:42.080
+from the road trip for a grand total of an hour before i was in the car and headed directly to the studio
+
+28:45.600 --> 28:47.840
+uh-oh that's not a good sound
+
+28:47.840 --> 28:57.200
+well i've been in town for about an hour and i've already made it to the studio to try to figure out
+
+28:57.920 --> 29:00.240
+what's going on with the server
+
+29:03.840 --> 29:04.560
+getting a beep
+
+29:04.560 --> 29:15.920
+that seems bad
+
+29:18.320 --> 29:19.200
+i'm gonna shut her down
+
+29:24.640 --> 29:26.480
+seems that the console is locked right now
+
+29:28.640 --> 29:33.680
+take it down take it down we did have a power outage here seems like i didn't expect it to be
+
+29:33.680 --> 29:35.680
+on i thought it was going to be off
+
+29:40.960 --> 29:44.880
+i'm going to pull the power completely it's got a dual power supply
+
+29:49.600 --> 29:50.560
+go hug them back up
+
+29:56.400 --> 29:57.920
+both power supply fans are working
+
+29:57.920 --> 30:01.920
+oh immediately getting the beep
+
+30:06.720 --> 30:12.400
+hold on the beep just stopped the red light on the front of the chassis just cleared
+
+30:17.520 --> 30:20.080
+still waiting for console it hasn't posted yet
+
+30:20.080 --> 30:30.080
+there we go we've got post yes okay keep booting you bastard keep booting and it did and i i was
+
+30:30.080 --> 30:36.400
+sitting there thinking man i i expected some sort of catastrophic hardware issue and the entire time
+
+30:36.400 --> 30:41.040
+i kept thinking how could i have done this differently let's do a ping check
+
+30:41.040 --> 30:49.280
+let's do a ping check yes i am getting ping all right let's check if containers are up
+
+30:55.840 --> 30:59.680
+uh yes i think yes yes containers are up
+
+31:03.200 --> 31:09.360
+yeah they're definitely up there's a lot going on look at all that okay great
+
+31:09.360 --> 31:16.000
+okay i'm gonna go uh applications plunking see if everything's working and it was i mean for the
+
+31:16.000 --> 31:21.200
+next 24 hours or so the server ran great we were able to connect in over wire guard it was chewing
+
+31:21.200 --> 31:25.440
+away on a backlog of work just like it was supposed to it started sinking out results to
+
+31:25.440 --> 31:30.640
+lady jupes it was glorious everything and i was just like god i appreciate this i don't know why
+
+31:30.640 --> 31:36.640
+it crashed but i appreciate it so that was you know thursday or so friday things seemed fine
+
+31:36.640 --> 31:41.440
+saturday i kind of i got wrapped up in stuff we were doing with the kids and i didn't really keep
+
+31:41.440 --> 31:48.240
+an eye on things but wes and i arrived at the studio on sunday to record linux action news
+
+31:48.880 --> 31:54.080
+just as we sat down to get started we noticed something wasn't quite right and it didn't take
+
+31:54.080 --> 31:59.360
+us long to figure out the server had crashed again let's go check on it server's down we're
+
+31:59.360 --> 32:05.280
+going to go check on it we're recording land but we got to stop i got i got fish sticks air frying
+
+32:05.280 --> 32:09.280
+we got to see what's wrong with the server oh it's dark out here too
+
+32:11.840 --> 32:18.720
+none of the discs are flashing it's not beeping but this is like the state it was in the previously
+
+32:18.720 --> 32:23.440
+before my road trip where it would just kind of lock up and then you i could tell immediately
+
+32:23.440 --> 32:27.760
+because the fans are low and none of the hard drives are flat it's not working at all and when
+
+32:27.760 --> 32:32.800
+you got that many hard drives there's always at least one flashing let's turn the console on here
+
+32:32.800 --> 32:34.800
+what will we see i bet you it's just totally locked
+
+32:36.960 --> 32:42.560
+just locked it's hard it's just hard i wonder i wonder if net data started back up maybe it did
+
+32:43.760 --> 32:49.920
+and what is it probing so we gotta we gotta power it off and we'll start it back up and make sure
+
+32:49.920 --> 32:55.360
+net data isn't running hello over the face yeah there's nothing that feels better than physically
+
+32:55.360 --> 32:59.840
+powering off your server over and over again like that's not going to lead to problems i recommend
+
+32:59.840 --> 33:05.920
+you do it all the time i think it's off i think that's it this is as low as the fans ever go
+
+33:07.920 --> 33:16.880
+yeah here we go also i like how all of them light up red that's great really reassuring don't freak
+
+33:16.880 --> 33:22.000
+me out at all all right well i think we'll just watch this boot up it's gonna boot up fine i would
+
+33:22.000 --> 33:31.600
+imagine and uh we'll make sure net data isn't auto starting maybe i only stopped it and didn't
+
+33:31.600 --> 33:37.360
+disable it sounds like you i can't believe it was freaking net data again wes so i had not disabled
+
+33:37.360 --> 33:43.760
+it i had only stopped it previously before the road trip i mean you say net data i i surmise
+
+33:43.760 --> 33:48.720
+that you know anything poking those might do the same thing right really we have to figure out do
+
+33:48.720 --> 33:52.320
+net data as a monitoring agent we want to use something else to scrape the metrics do we want
+
+33:52.320 --> 33:57.040
+to just try to disable some of that you know poking the hardware monitor functionality for
+
+33:57.040 --> 34:01.520
+the time being i don't know we have bigger fish to fry first but we'll have to solve that down
+
+34:01.520 --> 34:07.120
+the road yeah i think you and i both kind of suspect there's some sort of hardware issue
+
+34:07.120 --> 34:12.320
+and net data is poking whatever that issue is and causing the lockup because when you get hard
+
+34:12.320 --> 34:19.120
+locks like this it almost always ends up being hardware and i remember now i hadn't disabled
+
+34:19.120 --> 34:24.880
+it because my intention was after the road trip to come back and fire net data back up and see if
+
+34:24.880 --> 34:30.880
+it locked up again and so accidentally we ended up testing that theory and it did seem to hold
+
+34:30.880 --> 34:36.080
+so as long as we leave net data disabled the system continues to run and assuming the power
+
+34:36.080 --> 34:40.400
+doesn't go out and i don't really know why it was in an air state other than i think one power
+
+34:40.400 --> 34:44.000
+supply is plugged into the wall one's plugged into the ups they've lost power at different times and
+
+34:44.000 --> 34:48.720
+it just sort of went into this failed hardware state and had that beep you could hear but you
+
+34:48.720 --> 34:55.680
+know what we have got some major stuff in the works very excited about this uh it's clear we
+
+34:55.680 --> 35:01.120
+need to replace the server we knew that before this latest round uh we bought it used it has
+
+35:01.120 --> 35:06.880
+served its term it started life as a free nasbox and then i think it lived life as a fedora box
+
+35:06.880 --> 35:14.480
+for a while it has seen some stuff yeah and we have figured out that we really need like a
+
+35:15.280 --> 35:22.800
+three-phase approach to replacing this thing so phase one is going to be replacing the server
+
+35:22.800 --> 35:27.920
+it's well actually i'm going to flip this west phase one is going to be breaking out wire guard
+
+35:27.920 --> 35:32.640
+onto its own dedicated box so that way in the future if our server crashes we can still get
+
+35:32.640 --> 35:38.240
+access to the network now we solve that with nebula and rust desk but we'd like to have the
+
+35:38.240 --> 35:44.880
+vpn capabilities removed from the server itself and on a different machine the debate there is
+
+35:44.880 --> 35:49.360
+and i'm curious where you fall down west we could do it on a raspberry pi like we could have a wire
+
+35:49.360 --> 35:56.960
+guard pie or we could replace that comcast router with like an open sense box and do open sense and
+
+35:56.960 --> 36:02.240
+wire guard on one box what do you think hmm yeah there are a lot of options i mean i think we have
+
+36:02.240 --> 36:07.840
+to decide yeah how many different things we want to administer and and how much i am kind of curious
+
+36:07.840 --> 36:12.480
+to see how well a pie would perform and that does have some nice options in terms of you know you
+
+36:12.480 --> 36:16.880
+have a whole bunch of pies laying around i do too so it'd be easy to drop in and test and we could
+
+36:16.880 --> 36:22.640
+do that real quick do you think a pie would be fast enough to be the firewall like i'm picturing
+
+36:22.640 --> 36:28.320
+a linux box with some basic firewall and routing we might just have to try right i don't i don't
+
+36:28.320 --> 36:33.200
+know i mean maybe put pie hole in a container for the dns and dhcp and then you know if it wasn't we
+
+36:33.200 --> 36:38.400
+could always migrate it to another rig later neil says the pie won't be fast enough for performance
+
+36:38.400 --> 36:43.760
+network stuff like almost always you need hardware acceleration for packet handling but we're just on
+
+36:43.760 --> 36:48.640
+a comcast connection it's like 300 megabits it's not just that it's about how fast you can push it
+
+36:48.640 --> 36:55.440
+not how wide you can go so yes sure like you can blow out the bandwidth of it any day of the week
+
+36:55.440 --> 37:00.320
+and that'll also be a problem but like the problem you're going to have more often is that you need
+
+37:00.320 --> 37:05.840
+it to be low latency and you need those packets to go out as fast as they can as close to line
+
+37:05.840 --> 37:10.720
+rate as possible especially when you're live yeah so raspberry pi would not work this is just why i
+
+37:10.720 --> 37:14.800
+kind of want to test it though yeah i i wonder and if the other thing i was thinking and maybe
+
+37:14.800 --> 37:21.360
+people could write in at linux unpluged dot com slash contact but like a really low power x86 box
+
+37:21.360 --> 37:28.480
+that has ipmi it's like a micro atx itx kind of like tiny box there are a few mini pcs that do
+
+37:28.480 --> 37:33.280
+actually have a bmc built in that you can use that might be something to look at as well but so i
+
+37:33.280 --> 37:37.840
+think phase one is going to be figuring out our vpn stuff and you can see there's some some stuff
+
+37:37.840 --> 37:44.640
+we got to sort out then phase two is replacing the server itself and the biggest challenge here has
+
+37:44.640 --> 37:49.920
+become the disc we need about 40 terabyte of new disc to come in that's clearly going to be the
+
+37:49.920 --> 37:56.080
+largest cost then the second challenge with a new server is what distro should we use obviously
+
+37:56.080 --> 38:00.720
+we've been using arch for a while it's been great and there's certainly a part of me that would like
+
+38:00.720 --> 38:05.840
+to just continue to use arch to see like how far can we take this thing before it breaks you know
+
+38:05.840 --> 38:12.000
+we already have some more updates on the server i just checked oh man but also i recognize this
+
+38:12.000 --> 38:17.600
+is an opportunity for us to try something else as well so in the show notes we'll have a link
+
+38:17.600 --> 38:24.160
+to a straw poll and i would like the audience to vote on which server distro we go with next
+
+38:24.160 --> 38:29.360
+there are only a few options because we've limited it to genuinely rolling distributions
+
+38:30.080 --> 38:34.640
+rawhide's on the list right now but neil brings up a good point that we could have significant
+
+38:34.640 --> 38:40.720
+issues with cfs if we went rawhide but not necessarily impossible to solve for so we have
+
+38:40.720 --> 38:48.480
+arch nix tumbleweed and rawhide all as an option for you to vote on right now the live audience
+
+38:48.480 --> 38:56.160
+has gotten 42 votes in so far these often will indicate the trend and right now tumbleweed is
+
+38:56.160 --> 39:03.280
+in the lead with 45.24 percent of the votes rawhide's in second place nix is in third and
+
+39:03.280 --> 39:07.680
+arch is in fourth if you have an opinion about this we're going to leave the poll going for the
+
+39:07.680 --> 39:12.400
+next week so go to the show notes we'll have a straw poll in there it's a crazy url so i just
+
+39:12.400 --> 39:20.080
+tell you what it is and go vote and uh we're very likely i mean like 99 likely unless some weird
+
+39:20.080 --> 39:25.200
+reason comes up gonna go with the distro that you guys choose rawhide gives me the most pause
+
+39:25.200 --> 39:30.000
+so not saying we're not gonna pick it but it's gonna require wes and i having a strong discussion
+
+39:30.000 --> 39:34.480
+if it does if it wins i like that this is the option you're the least sure of what a funny
+
+39:34.480 --> 39:38.160
+world but you're right i mean there will be some complications we might have to learn a fair bit
+
+39:38.160 --> 39:45.120
+about the internals of rawhide or tumbleweed if the if the trend line continues my friend which
+
+39:45.120 --> 39:51.360
+that's a whole new world what have we done using snapper so i guess like in that sense you know
+
+39:51.360 --> 39:59.520
+maybe it makes sense but true true there's also the hardware component of the server and i cannot
+
+39:59.520 --> 40:06.560
+believe this but the ups tracking numbers don't lie a listener has reached out mr real zombie geek
+
+40:06.560 --> 40:14.160
+is sending us some new server gear new to us he's actually decommissioning it but he has in route
+
+40:14.160 --> 40:21.920
+right now should be delivered tomorrow at the studio a dell poweredge r820 with and i i just
+
+40:21.920 --> 40:32.000
+can't even believe this four intel e5 4657 cpus each with 12 cores four of them with 12 cores
+
+40:32.800 --> 40:40.640
+and 384 gigabytes of ecc ram hey yo right i mean this i mean even if like it's maybe it's only two
+
+40:40.640 --> 40:45.840
+intel i can't imagine it's four maybe it's only two xeons that's gonna be an amazing amazing amount
+
+40:45.840 --> 40:50.800
+of compute for us uh he's shipping it with no caddies or drives so we're gonna have to figure
+
+40:50.800 --> 40:55.040
+out what kind of caddies that r820 takes and i'm gonna i'll go on ebay probably and buy like a
+
+40:55.040 --> 40:58.880
+whole batch of them so i've got some prep work to do here yeah and then jb's got to buy some
+
+40:58.880 --> 41:04.880
+discs right but i mean he's saving us a huge cost and i was considering going with another pre-owned
+
+41:04.880 --> 41:10.080
+server anyways and he's had this in production it's been a solid box he's just replacing it and
+
+41:10.080 --> 41:15.440
+he offered it to us and i just i can't believe it that's wonderful best audience in the universe
+
+41:15.440 --> 41:19.360
+there's just no doubt about it so that'll be the hardware whatever distro you all vote on will be
+
+41:19.360 --> 41:23.680
+what we put on there and then there'll be the third phase the third phase is going to be to
+
+41:23.680 --> 41:28.960
+set up some kind of remote console we were initially trending towards pi kvm and i think we
+
+41:28.960 --> 41:34.720
+still may try try that because i ordered a little pi kvm kit oh look at you but this power edge has
+
+41:34.720 --> 41:40.320
+a built-in idrac enterprise which may be just fine with we'll see yeah i'm kind of it'd be interesting
+
+41:40.320 --> 41:44.800
+to compare and contrast so with idrac there might be even some fun automation potential that you
+
+41:44.800 --> 41:50.640
+could you could work with because like i know that in in rail and centos and i think also in fedora
+
+41:50.640 --> 41:55.920
+and it would be in tumbleweed as well there's a lot of tools around integrating with various bmcs
+
+41:55.920 --> 42:04.720
+ilo from hpe generic ipmi redfish extended ipmi and idrac as well from dell so there's all kinds
+
+42:04.720 --> 42:12.080
+of fun opportunities there if you have like built-in management interfaces like that i love
+
+42:12.080 --> 42:18.480
+that yeah i can't believe it i mean what a what a gift to us right now because you know we just
+
+42:18.480 --> 42:22.720
+caught back from that road trip so expenses are tight right now so that's a great thing to have
+
+42:22.720 --> 42:27.520
+come along and uh should be great to play with and i don't know what i'll i may put the old server on
+
+42:27.520 --> 42:31.520
+a test bench and see if i can't narrow down what the issues are or it may just sit there for a bit
+
+42:31.520 --> 42:37.280
+we shall see but either way that's the that's the plan we have a three-phase plan to get this server
+
+42:37.280 --> 42:42.400
+going and uh wes and i are already beginning to play around with vpn options there's some really
+
+42:42.400 --> 42:46.960
+fun stuff out there we often talk about the desktop stuff because it's fun and we love the
+
+42:46.960 --> 42:53.120
+desktop but there's so much awesome stuff going on at these layers too so it'll be fun to deep
+
+42:53.120 --> 42:58.320
+dive into that and i'd love to get your opinion on which distro we should go with next so go find
+
+42:58.320 --> 43:05.600
+the straw poll link at linux unplug.com 425 oh it's time for feedback and hey maybe if you've
+
+43:05.600 --> 43:10.240
+got some ideas on what we should do in any of those phases well yeah right into the show but
+
+43:10.240 --> 43:16.480
+in the meantime aaron's already done that with a self-hosted location tracker he really likes
+
+43:16.480 --> 43:20.640
+now of course we had that set up at colony tracker.live a different piece of software
+
+43:20.640 --> 43:26.960
+that we've been testing out for the road trip but aaron has been using a nextcloud app called phone
+
+43:26.960 --> 43:31.200
+track this is an app for nextcloud i think i've seen this before yeah i think we just need to
+
+43:31.200 --> 43:36.320
+install it on the jupyter nextcloud instance that we've already got running as aaron suggests
+
+43:36.320 --> 43:42.160
+although i haven't actually tried it yet i like this as an overall approach to like taking something
+
+43:42.160 --> 43:47.680
+that i think a lot of us think is is taboo like user tracking and cameras right having cameras in
+
+43:47.680 --> 43:53.920
+your home oh i like taking that and putting it on its damn nose and saying well what if i do the
+
+43:53.920 --> 43:59.360
+tracking and i control the data well what if i run cameras but they only work on my lan and they go
+
+43:59.360 --> 44:04.560
+into something like shinobi and i record the cameras and can technology that we often consider
+
+44:04.560 --> 44:11.760
+invasive be used by me under my control and that aspect of phone track really appeals here because
+
+44:11.760 --> 44:16.160
+it's part of just hosting something yourself and if you've already gone to the trouble of setting
+
+44:16.160 --> 44:21.200
+up nextcloud you install this app and i think it has an android companion app too yeah you know
+
+44:21.200 --> 44:25.840
+aaron hits on that that he'd been on a journey to google fly and that location tracking was
+
+44:25.840 --> 44:29.680
+one piece of that and i think it kind of makes sense in some sense to have it integrated with
+
+44:29.680 --> 44:34.800
+nextcloud because yeah nextcloud can be a big part in getting off a lot of those popular google
+
+44:34.800 --> 44:39.440
+services and for his part he does notice that the phone app has worked pretty well and that
+
+44:39.440 --> 44:45.200
+he hasn't seen a hit to the battery life hmm yeah you can have it set so it sort of gets a the
+
+44:45.200 --> 44:50.320
+background location update from the android operating system we opted not to go with this
+
+44:50.320 --> 44:56.800
+just because we didn't really want to put our nextcloud instance public and own tracks was sort
+
+44:56.800 --> 45:02.880
+of perfect for our use case but by ben if i recall you gave this a go for a bit right yeah so i use
+
+45:02.880 --> 45:11.360
+it to track my phone and for when i lose it then i can find it again and it works really well it
+
+45:11.360 --> 45:16.560
+also says when it's collecting its gps points how many it's already sent how many there are in the
+
+45:16.560 --> 45:23.840
+session and it's also a really good platform for example if you've got drivers or delivery guys
+
+45:24.400 --> 45:31.360
+driving around you can see it really easily on a map and a nice overview and you see they have
+
+45:31.360 --> 45:39.440
+put some thought in multiple use cases but what i also noticed is you really need to get a good use
+
+45:39.440 --> 45:45.120
+of these sessions because i have for example one session of my phone tracking and once i pull that
+
+45:45.120 --> 45:51.840
+up my living area is just one big red dot about yeah you've been there there are all the lines
+
+45:52.480 --> 46:00.960
+and i don't know if it's my amount of data or my setup but the filtering isn't that really great
+
+46:00.960 --> 46:09.520
+for me at the moment but i assume they will be fixing that in later versions but yeah you can
+
+46:09.520 --> 46:16.080
+select specific sessions you want to record to and you can put devices in there but you have to look
+
+46:16.080 --> 46:23.840
+at if you need to select the session from your device itself so that is for me at least question
+
+46:23.840 --> 46:30.400
+mark if you can put devices in there from the server side okay that's good to know for people
+
+46:30.400 --> 46:34.240
+that might be interested in using it and we'll have a link to that in the show notes if you
+
+46:34.240 --> 46:38.080
+want to try it or actually no you know what no you just go in your next cloud you look in the
+
+46:38.080 --> 46:42.400
+apps and you just install it right there no link for you no link no link for you i will put a link
+
+46:42.400 --> 46:48.080
+to this though because i am on the search for i'd love something that's a server side web app
+
+46:48.640 --> 46:53.840
+that i hit up on my land and i paste a youtube url in and it downloads in the background and
+
+46:53.840 --> 46:58.560
+puts it somewhere on my file system and then i open up my media player of choice and it's
+
+46:58.560 --> 47:02.000
+connected to my nas and bam there's the youtube video and i've been looking for a web app to do
+
+47:02.000 --> 47:06.800
+this for a while and i don't know if i found the perfect one but i think i found a real contender
+
+47:06.800 --> 47:14.240
+it's called tube archivist it is a self-hosted youtube media server you give it the urls and
+
+47:14.240 --> 47:19.920
+then it will archive them and then present you a front end to review all of your downloads kind of
+
+47:19.920 --> 47:25.680
+give you like your own youtube um subscription feed but on your own box where it's pulled down
+
+47:25.680 --> 47:30.880
+the videos locally oh this looks nice yeah man and it keeps track of like which ones you've
+
+47:30.880 --> 47:36.880
+viewed and which ones you haven't viewed and uh it's using that new uh youtube dlp that we've
+
+47:36.880 --> 47:41.760
+talked about yt dlp instead of youtube dl oh we made that a pic a couple weeks back right yep yep
+
+47:41.760 --> 47:47.200
+so uh this is kind of like taking and putting it all together and then i like this because i thought
+
+47:47.200 --> 47:51.520
+i've got a couple of youtubers i've followed that have like put up videos and then pulled them
+
+47:51.520 --> 47:57.760
+but i also have a ton of videos i watch on youtube for like rv maintenance stuff and sometimes i'm in
+
+47:57.760 --> 48:01.920
+an area where i want to do some work and i'm offline this is what i was hoping for is something
+
+48:01.920 --> 48:06.240
+i could throw on my my box and just throw these links in there and then build a little offline
+
+48:06.240 --> 48:11.120
+youtube collection the only spot where i kind of got hung up and why i haven't pursued it and
+
+48:11.120 --> 48:15.360
+west you're gonna laugh at me but you know you gotta set up like elastic search and do some of
+
+48:15.360 --> 48:20.720
+that stuff and i just i didn't want to go that far but i wanted to give it a link so you're saying
+
+48:20.720 --> 48:27.280
+you need someone to write you a already composed docker compose file absolutely west that's exactly
+
+48:27.280 --> 48:33.040
+what i'm saying and and also if anybody has another tool to accomplish this same thing
+
+48:33.040 --> 48:38.080
+do let me know about it however you want to tell me because uh i'm always looking for uh for a way
+
+48:38.080 --> 48:42.720
+to do this yeah you know i want something like this but just if it also had some like chromecast
+
+48:42.720 --> 48:47.600
+support on the flip side you know it could kind of be the one-stop shop for all the videos uh
+
+48:47.600 --> 48:54.320
+that would be nice yeah yeah and for me personally i don't really need a front end that tracks the
+
+48:54.320 --> 49:01.200
+watch status because i just would like them on the file system and then i'll throw cody or jellyfin
+
+49:01.200 --> 49:07.280
+or plex or whatever at that directory and manage it with my existing media application so you just
+
+49:07.280 --> 49:12.240
+want the ingest side ingest and maybe a little bit of sorting you know maybe a folder per youtube
+
+49:12.240 --> 49:17.600
+channel and so you know if you download from this youtuber you put it in their folder automatically
+
+49:17.600 --> 49:21.520
+i don't know i guess i'm asking for the moon here but it seems like there must be something out
+
+49:21.520 --> 49:26.480
+there because i mean hell there's so many there were back in the day when we all watched our
+
+49:26.480 --> 49:32.880
+television via a cable there was like a dozen different pvr dvr solutions and there was myth tv
+
+49:32.880 --> 49:37.520
+and we just need something for the youtube age so if you know of one let me know and if you'd
+
+49:37.520 --> 49:42.480
+like to find our friends a cloud guru on social media they're just slash a cloud guru at pretty
+
+49:42.480 --> 49:47.680
+much any social media website the youtubes instagram slash a cloud guru go find them over
+
+49:47.680 --> 49:51.520
+there and see what they're up to if you do the twitter thing you can also follow the show at
+
+49:51.520 --> 49:58.160
+linux unplugged west you're probably over there i'm at west pane remarkable remarkable the show's
+
+49:58.160 --> 50:03.120
+over there uh the network's over there too yep that's true we have a show and a twitter for both
+
+50:03.120 --> 50:09.040
+of them and myself it's a lot of twitter accounts really who would have known i'd be managing so
+
+50:09.040 --> 50:14.800
+many different logins in 2021 and then don't even get me started on the show mailboxes holy smokes
+
+50:14.800 --> 50:20.960
+whoo just bypass all of that come join us live we do this show every tuesday at noon pacific 3 pm
+
+50:20.960 --> 50:28.000
+eastern see you next week same bad time same bad station and if you work in the tech industry
+
+50:28.000 --> 50:34.960
+or you consider yourself a linux fan don't miss linux action news every monday morning really
+
+50:34.960 --> 50:39.200
+sunday nights wes and i break down everything that matters in the world of linux and try to
+
+50:39.200 --> 50:44.880
+get you the information in a concise accurate manner that's at linuxactionnews.com keep linux
+
+50:44.880 --> 50:49.920
+rolling after that by joining us on tuesday or go subscribe at linuxunplugged.com subscribe
+
+50:49.920 --> 50:54.880
+we absolutely love them subscribers and our members at unpluggedcore.com thanks so much for
+
+50:54.880 --> 51:00.560
+joining us on this week's episode of the unplugged program it's not a monday it's not a wednesday
+
+51:00.560 --> 51:09.120
+no no my friends we will see you right back here next tuesday
+
+51:30.560 --> 51:49.040
+so along with their robot amazon has opened an invite only program for their previously announced
+
+51:49.040 --> 51:54.880
+home surveillance drone the always home cam that flies around and surveys your home for you
+
+51:54.880 --> 52:01.920
+oh man wes oh i think i'm about ready to go move out into the woods it's really just such a shame
+
+52:01.920 --> 52:06.800
+because it's like in some sense if i felt like i was actually in control of it yeah maybe i would
+
+52:06.800 --> 52:10.960
+want that you know it was open i could i knew where the data was going but of course that's
+
+52:10.960 --> 52:14.720
+not what we get that's very much like the philosophy i was just trying to articulate
+
+52:14.720 --> 52:18.960
+in the show it's like if if it's cameras that i have complete control over and i can replace the
+
+52:18.960 --> 52:23.840
+firmware and it's something i can check and monitor then yeah i'm okay with it but if it's
+
+52:23.840 --> 52:29.200
+something that i have no control over that could be easily perverted i find that gets dystopian
+
+52:29.200 --> 52:34.000
+really quick and it feels like there's a lot more of the ladder these days well with the dog you
+
+52:34.000 --> 52:38.080
+know i was just imagining here you are you needed to sit and then suddenly the connectivity goes out
+
+52:38.080 --> 52:55.040
+of just the worst time you
+

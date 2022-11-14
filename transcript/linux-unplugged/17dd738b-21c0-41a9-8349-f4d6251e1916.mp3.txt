@@ -1,0 +1,550 @@
+a robot yes what are we going to do with a robot well astro follow me yeah who doesn't want an
+amazon dog following you around your house for just over a thousand dollars their new
+alexa on wheels has been announced today it probably runs linux but i don't know if it
+even matters i don't care at this point if it runs linux or not i don't want a robot that
+follows me in my home i have too many dogs as it is you do have a lot of dogs that's a good point
+i would like them to just actually have a program that connects us to dogs how about that let's
+just skip the whole robot thing save everybody money yeah quick short term you know prime delivery
+dogs hello friends and welcome back to your weekly linux talk show my name is chris my name is wes
+hello wes you're coming in looking great today i love that all purple outfit this episode is
+brought to you by a cloud guru the leader in learning for the linux cloud and modern tech
+skills hundreds of courses thousands of hands-on labs go get certified go get hired get learning
+at a cloud guru.com well coming up on the show today it is time for our server crash post-mortem
+it struck at the worst time possible and then it crashed again it's been quite the journey we have
+talked about our server on the show a lot and this week the chapter is coming to an end i'm a
+bit sad but also excited about where we're going we have a major update for you this week but we
+will start out by telling you why our arch server crashed recently and then why it crashed again
+even more recently that we haven't told you about and then what we're going to do to get things
+right to do the right thing here and get going and what we had to do just for now we're going
+to tell you all of it it's a full post-mortem today on the show and then we have at the end
+a really kind of a fantastic surprise twist we'll tell you about some really big future plans and
+on top of all that in case the server stuff isn't quite your bag we've got some nice thought
+provoking community news some old friends stopping by the show and a lot more so there is as they say
+a big show today so before we go any further let's say time-appropriate greetings to our
+virtual lug hello mumble room hello hello hello that is a good-looking mumble room we got 18 of
+you in there nice to see you mostly everybody in the on-air room rocking out with us today
+so i want to start by asking the mumble room how they feel about a news story that i came across
+just before the show started ferronics has noted that the first sign of linux support for what
+intel is calling quote software defined silicon are now landing for linux michael writes there's
+been talk of intel moving to offer more license able opt-in features for hardware capabilities
+found within a given processor and so we are now seeing the linux signs of support coming with a
+driver for the intel software to find silicon to allow for secure activation of such features
+baked into a processor silicon but only available as an upcharge option yeah michael larable did
+some digging on this and kind of makes it clear the basic idea is that without having to purchase
+a new processor intel software defined silicon allow for activating additional hardware capabilities
+just by purchasing a license or upgrade unfortunately right now the exact details
+don't appear to be public for what these upgrades might actually have in them but intel is currently
+preparing the linux kernel driver support known as sdsi this driver exposes a per socket interface
+so that intel's user space application can provision an authentication key certificate
+which is then written to internal nv ram but it also allows provisioning what they call a
+capability activation payload and it also handles the boring stuff of just reading out what
+configuration the cpu state is right now oh okay so what we have here is this software defined cpu
+that allows these hooks for authentication of various add-on packages initially targeting the
+xeon line of intel cpus which i think you could probably understand why i'm curious how people in
+the mumble room though feel about software defined cpu essentially a piece of hardware that ships you
+buy it and there is features and capabilities in that chip that you just don't get access to until
+you pay this is not a new concept we have seen this before but this seems like a whole new level
+and you could almost kind of see this taking off in a way you know maybe an lte modem that has
+extra 5g capabilities if you license those capabilities as an end user you know in that
+purchase just 29.99 a month to activate these in cpu or in chip features i mean i think we've
+already seen this to some extent with some of those arm boards right where you gotta get a
+license to do some of the video encoding or decoding mini mac we're probably seeing this
+because intel is going to target businesses initially definitely i see this as a business
+feature so probably it's it's just a must that that thing has linux support i don't think this
+is really for private users bite didn't they try something like this with itanium yeah so uh hp had
+a system where they want to give the cpu a sort of offload of the processor so moving those kind of
+functions to the software the software defining what instructions had to be executed and then the
+software could just run through all the instruction needed and so thereby creating a more efficient
+processor but yeah and you know what happened with the itanium right i mean this whole thing
+i'm sort of sitting here going is this what intel is spending their time on right now this is what
+they're worried about is licensing additional features instead of just making the absolutely
+most kick-ass processors possible and shipping them as fast as possible but the reality is i
+think there's like a cold business calculation here because making these cpus they're producing
+these things in these massive quantities and it is cheaper and easier to produce if they're all
+exactly the same and then they just turn things on and off via software which is not much further
+than we are today where they're all manufacturing like say the cpu they're manufacturing tens of
+thousands of them and a few of them a core doesn't light up properly or maybe a couple things just
+don't pass a specific set of tests and so they will re-bin that as a lower brand cpu oh this is
+the this is the four core version instead of the eight core because maybe one core doesn't test out
+successfully so they'll disable them several of them and ship it as a four core instead of an eight
+core processor when it's essentially the same silicon i mean that is something that already
+happens today this feels like an extension of that but there is something i think initially when i
+read these kinds of stories as a long time free software user i have this really like screw
+licensing you know what like licensing can get the hell out of here i am so sick and tired of
+software licensing i would like just no licenses and everybody just essentially operates as if the
+gpl were just cultural practice but that's never going to happen but anyways that's but at the
+core of me i just don't like licensing and i don't like it in software and i really don't like it in
+hardware well it's a reminder that at the root of these computers that we try to fill with free and
+open source software is this black box that we you know we don't really have full control over
+and it just feels like a little bit kind of you know we've done this huge shift to services and
+this isn't quite the same but it feels like it's kind of in that direction of changing the
+relationship of i bought this thing it's static and i know what i've got and that's how i calculated
+the cost whereas now that's a little more complicated yeah that's totally it that's
+totally it we put all this energy and time and thought into the software stack that we run and
+try to get it as free as possible and then we have dozens of black boxes baked into our
+dozens of black boxes baked into our motherboard that's absolutely part of it oh there was an
+interesting steam deck update this last week we talked a little bit about this on linux action
+news you probably heard that epic and battle i have updated their anti-cheat software to support
+games under proton on linux actually functioning now there's been so many top tier games that linux
+users could theoretically technically play because proton was capable of making that game run but it
+would fail to run because of anti-cheat software and as we noted on linux action news this week
+that has been addressed by both battle eye and epic however game developers still need to patch
+their games but no matter how you look at this this is huge news for linux gaming in this last
+week this is ginormous news and it immediately means that some of the most popular games on steam
+are now theoretically within reach of linux users yeah personally i'm hoping dead by daylight season
+updates soon i suppose maybe now is time to reach out and voice our linux user opinions about games
+we like and would like to see these updates although hopefully we do it politely yeah i'd
+love to see destiny to get support that's what i would love to see and i think that's battle i
+but all that aside for the moment we'll just have to wait and see there was one small update from
+valve that seemed to have gotten missed in all the anti-cheat coverage but it's one that we're
+kind of excited about in the recently updated steam deck faq there are two new questions and
+answers that really did stand out the first asks if the steam deck will support booting from the
+sd card which valve answers really quite simply yes steam deck supports boot from micro sd that's
+great you're going to be able to boot different distros off of the sd card and there was a second
+part of the faq that that backs us up the specific question was and this is a quote from the faq
+which we have linked what can you tell us about the bios and does it allow dual boot and valve
+answered multi boot is supported you can have multiple os's installed and choose which one you
+want to put into users will have access to the bios menu what do i even say to this this is
+suspiciously open i mean wow huge this means we're going to be able to see community takes on that
+that steam deck experience that will have essentially zero barrier to entry i'm very
+excited about this like i just i can't overstate it because it's going to allow a lot of people to
+participate in creating a software experience for this hardware what if it's too easy though
+you know there's no it's not like hacking linux onto a we or something they're almost begging us
+to do yeah so i mean really what we have to see here happen is a couple of things we have to see
+game developers update their game to support these new anti-cheat updates it looks like it's crazy
+easy epic seems to indicate it's very simple they say quote starting with the latest sdk release
+developers can activate anti-cheat support for linux via wine or proton with just a few clicks
+in their epic online services developer portal that's from epic battle eye says well we already
+had linux support but now we've specifically done an update to support proton that's number one is
+game developers are going to have to update the game to support this anti-cheat stuff number two
+and i'm not 100 but this looks pretty solid from what we can tell you're going to need linux 5.11
+so you're going to need a linux kernel or you're going to be able to upgrade your kernel to 511 or
+newer because you need a kernel that supports syscall user dispatch which is some work that
+was done to make these these anti-cheat other things that are running in wine communicate
+better on linux and if you don't have that support it looks like some of this anti-cheat stuff might
+not work i haven't able to test that obviously so i can't tell you for sure but from our digging
+around that looks to be the case and from what you can tell that seems like that's probably likely
+right neil with linux 5.11 collabora on contract with valve made some changes that were upstream
+that called syscall user dispatch which provides a way for user space to to register hooks to the
+linux kernel for syscall interfaces and apis and things like that this is particularly necessary
+for games because a lot of anti-cheat software work by directly calling windows nt syscalls
+instead of using like the standard c library and going through user space the normal way
+and they would fail in wine because linux doesn't know what that syscall is and they would just
+break so what this does is it allows wine to register a handler in linux for syscalls just
+like it does for binary format so like when you load in an executive a windows exe file
+linux knows that this actually needs to be run by the wine bin loader rather than the
+glibc bin loader and so that same process then allows you to run applications that would normally
+talk to windows nt directly to then successfully be redirected back to wine for wine server to
+handle and the wine fake nt kernel to give it what it expects so that the applications will
+run properly that's what's so impressive about all of this right is like the the long-term work
+where we got changes actually upstreamed in the kernel to a better enable playing proprietary
+games on linux and that valve at the same time negotiated behind the scenes with these anti-cheat
+vendors to you know actually get that working yeah and i think it's it's just nice to remember
+that collabra is behind the scenes in some of this doing some of the work making some of this
+possible at some of the lower levels and you've had valve clearly pulling the strings now for
+about a couple of years laying the groundwork this particular groundwork for the deck and
+you couldn't look at it necessarily from the outside and see that's where it's going but
+now with hindsight it's obvious they were building towards a device now it's just obvious it just
+stands out um so that's probably what you need to know is you're probably going to end up needing
+a kernel 5 11 or newer um and uh that's you know by the time the deck shipping and all that that's
+that's probably not going to be too hard to achieve so that we'll have links to information
+about that in the show notes at linuxunplug.com 4 25 but we need to talk about a little community
+news in fact something coming up very soon daniel foray joins us from the elementary os project
+welcome back hey how's it going it's going really good i'm curious you know i want to talk about the
+hackathon that's coming up because it's just in a couple of days but before we get to that
+tell us how version 6 is going because i think it's been about a month since elementary os 6 came
+out there's been an update how are things shaking out yeah it's been about a month and a half now
+since release so we had um we do updates every single month so at the end of uh last month we
+did a smaller updates post and we're packaging up all our updates uh to go out now with tons of new
+features for online accounts tasks mail app center like everything's getting lots of goodies and i
+being dense because i'm sure it was probably it was probably communicated pretty clearly
+but i completely missed that there is like a monthly update cadence thing now yeah actually
+we started that um last cycle uh and so we're kind of continuing that over but we wanted to
+make sure that we're not just pushing out bug fixes and feature updates like every couple years
+because it's not a super great experience we want to push them out monthly because then we can get
+that feedback loop really tight where you know people are reporting an issue or they're requesting
+a feature and we want to get that out to them as soon as possible so they feel more involved
+okay well let me ask you this is there anything that stands out in your mind
+today that is kind of different or changed since elementary os 6 0 you know version 0.0 shipped
+i guess there been anything behind the scenes that has changed in the last 30 days anything
+that stands out i mean i think um some of the biggest things are that we're making a lot of
+progress with app center with flat pack we've been working with the wider community on some of the
+free desktop stuff like with the dark style support across you know all the apps and and so we're
+going to be working more on portals and that kind of stuff we kind of redid our ci and cd system
+recently so we're now building our flat packs for arm so we're going to have app center
+apps building for arm and they're all flat packs now so we're like we're going to have this really
+great collection of apps that you can go run on any distro now if you go to appcenter.elementary.io
+you can go download those flat packs for whatever distro and we're just going to keep growing that
+and make it super awesome wow that sounds rad yeah very impressive that's some serious work
+you're putting in that's really cool okay so let's talk about this hacktoberfest live stream
+that's coming up isn't it this thursday yeah so uh what's going on with that is that uh it's a
+really great time in the cycle right now because you know we just released so it's not really like
+the end of the cycle it's like the beginning of our development cycle and so we have a great
+opportunity to get people involved and you know try to talk about like what projects we want to
+pursue during this cycle and we have hacktoberfest coming up which is the event put on by digital
+ocean and github so we're going to do a stream on thursday and we're going to talk about how to get
+involved with hacking on elementary os and working on new features and cool stuff like that and we're
+going to try to you know tie that into hacktoberfest so if you've never heard of that and you want to
+try to get involved you can come find out how you can get some free swag for contributing to open
+source projects on github right on but you know it's fall when hacktoberfest rolls around it's
+like a milestone of the year so what is an easy place for people to go to get involved if they're
+interested and they have some time on thursday if you want to go to our get involved page actually
+elementary.io forward slash git dash involved we have links there for all kinds of stuff but
+if you want to watch out for our youtube page we have a link to our youtube page on our website
+that's where we do our live streams on the last thursday of every month so you're saying if i'm
+already subscribed to the elementary youtube channel i'm good to go because of course why
+wouldn't i be subscribed yeah exactly and then you can come hang out and do some little q a with us
+we got the whole live chat live stream thing going on great well danny thank you for coming on the
+show it is always great to catch up with you and it's great to hear things are moving right along
+with elementary os6 and it sounds like the hacktoberfest thing is going to be a lot of fun
+thanks for joining us thank you and i'll see all you guys on thursday lino dot com slash unplugged
+go there to get 100 in 60 day credit on your new account and you go there to support the show
+linode keeps getting better i have been a customer for about two and a half years and i can absolutely
+testify to this i'll admit though i was watching them for a while you know when these new like
+vc supercharged fly by night vps providers came along and were offering all these different things
+i sat back and wanted to see what linode would do because you know they're kind of like the old
+timer in the linux community they've been around for 18 years i was like are they gonna fumble this
+are they gonna get passed up by the new kids or are they gonna stay competitive
+and sure enough they they really really have in fact now they're lapping those kids linode just
+upgraded their block storage with super fast mvme pcie storage and it screams you can get
+systems with amd epic processors that benchmark faster than any other major cloud provider and
+pair it with mvme block storage okay it's amazing and then they have 11 data centers you can choose
+from and they have become their own isp so they have secured super fast links between their data
+centers 40 gigabit connections coming into the hypervisors and then they wrap it all up with a
+beautiful easy to use dashboard that lets you get under the hood when you need and i mean i actually
+have a linode that i completely replaced the image that they ship with it like i wiped the box and i
+put a custom linux distro from a router vendor to create an lte mesh vpn endpoint and they actually
+linode actually let me like wipe it off and set up my own custom box there and now the crazy cats
+are launching bare metal servers if you really need like just the ultimate performance and it
+doesn't matter if you've never set up a box before because they've got easy one-click deployments so
+say maybe you're ready to switch to next cloud they got a one-click deployment for that or maybe
+something just like a little more like in between like are you done using zoom and you'd like to
+use something you can trust and open source they've got a one-click deployment for jitsi
+and there's really no excuse and they're 30 to 50 cheaper than the big duopoly hyperscalers you
+can get like a five dollar a month box that runs jitsi that's a pretty justifiable business expense
+in my opinion but i i really encourage you to go play turn it up to 11 because you can get a hundred
+dollars that and when you look at their pricing that's that's incredible that really is great so
+go try it out i can tell you all about it all day long but you need to go see it for yourself and
+you can support the show it's an opportunity to go play learn and support the show you can call it
+like the trifecta of awesome so just head over to linode.com slash unplugged get a hundred dollars
+for your new account and try all this stuff out build something learn something test something
+there are a lot of ways you can host i admit it there's a lot of them out there and there is some
+big big hyperscalers that they'd love you to just put everything you own into their systems but
+nobody does it like linode that's why they've been around 18 years and that's why i completely
+recommend them go see why we choose linode every single time by going to linode.com slash unplugged
+there's a few things i'd like to mention in the housekeeping section first of all thank you to our
+members over at unpluggedcore.com the live stream feed has just been delivering mr roach joined us
+in the mumble room and told us about his time interning at pixar and about the linux boxes
+there that was awesome we had so many great conversations that's available to our members
+in the totally uncut bootleg feed we also create a limited ad version that's the same type production
+just a little bit shorter and you support the show at unpluggedcore.com i also wanted to let
+you know that our buddy joe has a new show a new member of the late night linux family it's called
+linux after dark go check it out it's in your favorite podcast catcher already episode one
+is already out i'd also like to encourage you to join our luck plug it happens every single
+sunday at noon pacific in our mumble room right there in the lobby you can figure it out at your
+time zone at jupiter broadcasting dot com slash calendar and all of our mumble info is at linux
+unplug.com slash mumble and the nice thing is you get it set up if you're ever around on a tuesday
+you can come join us and hang out in the show and get your word in on uh your weekly linux talk
+show that's linux unplug.com slash mumble for that okay wes i i know we've talked a lot about
+the server recently but this is kind of you know it's what's happening right now and there's some
+big stuff in the works you think it's okay if we just maybe one more time touch on this subject
+well we have to right it's clearly becoming an issue and the audience needs a resolution
+we need a resolution too well yeah that too so just in case you haven't caught previous coverage
+just super briefly our goal with this arch server that we have here in our studio has been a bit of
+a long-term experiment i think you know too often you'll see online reviewers who spend 30 or
+40 minutes with something if that and then they go make their video or their blog or whatever
+maybe it's just a forum post somebody you know talking smart in a forum giving you their opinion
+people speak with authority after they try something for a little bit they kind of they
+because they speak with authority to it it kind of gets accepted as maybe expert opinion
+and then before you know it it's all over the entire internet as fact
+and so we love pushing back against that kind of stuff and we also know that how something holds
+up long term is a totally different story than how something is during your first impressions
+right i've been like i'm i'm already preparing myself for our fedora 35 review because i've
+been running fedora 35 for the last two weeks so that by the time it ships in a month i'm gonna
+have a pretty rounded opinion of that distribution and some of it will be you know it's during it's
+a beta cycle but some of it's like i'm a forming opinion now about gnome 41 and i i truly believe
+whenever we can we try to really experience something as long as possible and when we can't
+we come right off and we'll tell you hey man this is a first this is a first
+opinion you know first impressions kind of thing with this server we wanted to try actually running
+arch in production for an extended period of time and see if we could make a few tweaks to make it
+keep running like you know using the lts kernel file system snapshots utilizing butter fs on the
+root file system and then using zfs on the large external data pool not that we necessarily
+recommend you do any of this but we wanted to test it to see how it would hold up we wanted
+to find out so you didn't have to run a rolling arch server in production well and we both had
+such good experience with arch you know on the workstation on various machines in our life and
+we both knew that it had all the software and kind of got out of our way in terms of managing
+it was like a pleasant environment that we were both familiar with to admin so it was tempting
+to just see like yeah can we make it work here too and i should have looked it up before the
+show but i'm pretty sure we've crossed the year mark running this thing in production in fact we
+might even be rounding the second year possibly and it's it's all out there we've tried to put
+all of it out there as much as publicly possible so if this thing blows up on her face you know
+and you know because that's our our singular motivation is really just to prove if it's
+possible and if it's not we're gonna find out for you and the reality is this is a production
+server we really do use it so when it breaks it breaks in front of everyone and it hurts
+and you know it's out in a garage it's not particularly well thermally protected in fact
+it's not at all and there has even been some power outages recently and that's what's led us to some
+of the more recent issues initially we had some lockups that we traced back to net data but we
+weren't sure right before the road trip about a week before the road trip the server started
+locking up the worst timing impossible yeah we got it up and running again suspecting it was net
+data we turned off net data and the system remained running for you know a month maybe
+then about three weeks into my road trip the server went down i checked in i couldn't wire guard
+i couldn't talk to the server at all but i was able to use rust desk to get to a couple of the
+studio desktops and using that approach i determined oh power went out for a while and
+the funky way we have this thing wired up is one power supplies into the wall and one power supplies
+into ups for stupid technical debt reasons and i think when that happened the server got into
+a funky state and it eventually lost power then when it rebooted it came up in a bad way and never
+finished booting and i couldn't tell why because i was i was gone i was on a road trip and the old
+server admin in me was dying i had to know why my server was down plus i wanted my server back up
+right i mean here was this situation that we hadn't actually encountered right i mean we've
+we've seen it power cycled we've come back into the studio after the power went out and it's
+always been fun i mean it takes forever to do so but but it gets there yeah and of course it happens
+while wes is camping so i'm i'm gone wes is camping and then moving the whole thing was just
+like the worst time possible so we didn't know why it was back up and so like the last day of the
+road trip i legitimately just made a beeline for the studio i was just i got lady jupes to her spot
+i got lady jupes secured and parked and then i jumped in the car and i ran down to the studio
+to figure out what was wrong and i mean i literally i maybe was back in town from the road
+from the road trip for a grand total of an hour before i was in the car and headed directly to the studio
+uh-oh that's not a good sound
+well i've been in town for about an hour and i've already made it to the studio to try to figure out
+what's going on with the server
+getting a beep
+that seems bad
+i'm gonna shut her down
+seems that the console is locked right now
+take it down take it down we did have a power outage here seems like i didn't expect it to be
+on i thought it was going to be off
+i'm going to pull the power completely it's got a dual power supply
+go hug them back up
+both power supply fans are working
+oh immediately getting the beep
+hold on the beep just stopped the red light on the front of the chassis just cleared
+still waiting for console it hasn't posted yet
+there we go we've got post yes okay keep booting you bastard keep booting and it did and i i was
+sitting there thinking man i i expected some sort of catastrophic hardware issue and the entire time
+i kept thinking how could i have done this differently let's do a ping check
+let's do a ping check yes i am getting ping all right let's check if containers are up
+uh yes i think yes yes containers are up
+yeah they're definitely up there's a lot going on look at all that okay great
+okay i'm gonna go uh applications plunking see if everything's working and it was i mean for the
+next 24 hours or so the server ran great we were able to connect in over wire guard it was chewing
+away on a backlog of work just like it was supposed to it started sinking out results to
+lady jupes it was glorious everything and i was just like god i appreciate this i don't know why
+it crashed but i appreciate it so that was you know thursday or so friday things seemed fine
+saturday i kind of i got wrapped up in stuff we were doing with the kids and i didn't really keep
+an eye on things but wes and i arrived at the studio on sunday to record linux action news
+just as we sat down to get started we noticed something wasn't quite right and it didn't take
+us long to figure out the server had crashed again let's go check on it server's down we're
+going to go check on it we're recording land but we got to stop i got i got fish sticks air frying
+we got to see what's wrong with the server oh it's dark out here too
+none of the discs are flashing it's not beeping but this is like the state it was in the previously
+before my road trip where it would just kind of lock up and then you i could tell immediately
+because the fans are low and none of the hard drives are flat it's not working at all and when
+you got that many hard drives there's always at least one flashing let's turn the console on here
+what will we see i bet you it's just totally locked
+just locked it's hard it's just hard i wonder i wonder if net data started back up maybe it did
+and what is it probing so we gotta we gotta power it off and we'll start it back up and make sure
+net data isn't running hello over the face yeah there's nothing that feels better than physically
+powering off your server over and over again like that's not going to lead to problems i recommend
+you do it all the time i think it's off i think that's it this is as low as the fans ever go
+yeah here we go also i like how all of them light up red that's great really reassuring don't freak
+me out at all all right well i think we'll just watch this boot up it's gonna boot up fine i would
+imagine and uh we'll make sure net data isn't auto starting maybe i only stopped it and didn't
+disable it sounds like you i can't believe it was freaking net data again wes so i had not disabled
+it i had only stopped it previously before the road trip i mean you say net data i i surmise
+that you know anything poking those might do the same thing right really we have to figure out do
+net data as a monitoring agent we want to use something else to scrape the metrics do we want
+to just try to disable some of that you know poking the hardware monitor functionality for
+the time being i don't know we have bigger fish to fry first but we'll have to solve that down
+the road yeah i think you and i both kind of suspect there's some sort of hardware issue
+and net data is poking whatever that issue is and causing the lockup because when you get hard
+locks like this it almost always ends up being hardware and i remember now i hadn't disabled
+it because my intention was after the road trip to come back and fire net data back up and see if
+it locked up again and so accidentally we ended up testing that theory and it did seem to hold
+so as long as we leave net data disabled the system continues to run and assuming the power
+doesn't go out and i don't really know why it was in an air state other than i think one power
+supply is plugged into the wall one's plugged into the ups they've lost power at different times and
+it just sort of went into this failed hardware state and had that beep you could hear but you
+know what we have got some major stuff in the works very excited about this uh it's clear we
+need to replace the server we knew that before this latest round uh we bought it used it has
+served its term it started life as a free nasbox and then i think it lived life as a fedora box
+for a while it has seen some stuff yeah and we have figured out that we really need like a
+three-phase approach to replacing this thing so phase one is going to be replacing the server
+it's well actually i'm going to flip this west phase one is going to be breaking out wire guard
+onto its own dedicated box so that way in the future if our server crashes we can still get
+access to the network now we solve that with nebula and rust desk but we'd like to have the
+vpn capabilities removed from the server itself and on a different machine the debate there is
+and i'm curious where you fall down west we could do it on a raspberry pi like we could have a wire
+guard pie or we could replace that comcast router with like an open sense box and do open sense and
+wire guard on one box what do you think hmm yeah there are a lot of options i mean i think we have
+to decide yeah how many different things we want to administer and and how much i am kind of curious
+to see how well a pie would perform and that does have some nice options in terms of you know you
+have a whole bunch of pies laying around i do too so it'd be easy to drop in and test and we could
+do that real quick do you think a pie would be fast enough to be the firewall like i'm picturing
+a linux box with some basic firewall and routing we might just have to try right i don't i don't
+know i mean maybe put pie hole in a container for the dns and dhcp and then you know if it wasn't we
+could always migrate it to another rig later neil says the pie won't be fast enough for performance
+network stuff like almost always you need hardware acceleration for packet handling but we're just on
+a comcast connection it's like 300 megabits it's not just that it's about how fast you can push it
+not how wide you can go so yes sure like you can blow out the bandwidth of it any day of the week
+and that'll also be a problem but like the problem you're going to have more often is that you need
+it to be low latency and you need those packets to go out as fast as they can as close to line
+rate as possible especially when you're live yeah so raspberry pi would not work this is just why i
+kind of want to test it though yeah i i wonder and if the other thing i was thinking and maybe
+people could write in at linux unpluged dot com slash contact but like a really low power x86 box
+that has ipmi it's like a micro atx itx kind of like tiny box there are a few mini pcs that do
+actually have a bmc built in that you can use that might be something to look at as well but so i
+think phase one is going to be figuring out our vpn stuff and you can see there's some some stuff
+we got to sort out then phase two is replacing the server itself and the biggest challenge here has
+become the disc we need about 40 terabyte of new disc to come in that's clearly going to be the
+largest cost then the second challenge with a new server is what distro should we use obviously
+we've been using arch for a while it's been great and there's certainly a part of me that would like
+to just continue to use arch to see like how far can we take this thing before it breaks you know
+we already have some more updates on the server i just checked oh man but also i recognize this
+is an opportunity for us to try something else as well so in the show notes we'll have a link
+to a straw poll and i would like the audience to vote on which server distro we go with next
+there are only a few options because we've limited it to genuinely rolling distributions
+rawhide's on the list right now but neil brings up a good point that we could have significant
+issues with cfs if we went rawhide but not necessarily impossible to solve for so we have
+arch nix tumbleweed and rawhide all as an option for you to vote on right now the live audience
+has gotten 42 votes in so far these often will indicate the trend and right now tumbleweed is
+in the lead with 45.24 percent of the votes rawhide's in second place nix is in third and
+arch is in fourth if you have an opinion about this we're going to leave the poll going for the
+next week so go to the show notes we'll have a straw poll in there it's a crazy url so i just
+tell you what it is and go vote and uh we're very likely i mean like 99 likely unless some weird
+reason comes up gonna go with the distro that you guys choose rawhide gives me the most pause
+so not saying we're not gonna pick it but it's gonna require wes and i having a strong discussion
+if it does if it wins i like that this is the option you're the least sure of what a funny
+world but you're right i mean there will be some complications we might have to learn a fair bit
+about the internals of rawhide or tumbleweed if the if the trend line continues my friend which
+that's a whole new world what have we done using snapper so i guess like in that sense you know
+maybe it makes sense but true true there's also the hardware component of the server and i cannot
+believe this but the ups tracking numbers don't lie a listener has reached out mr real zombie geek
+is sending us some new server gear new to us he's actually decommissioning it but he has in route
+right now should be delivered tomorrow at the studio a dell poweredge r820 with and i i just
+can't even believe this four intel e5 4657 cpus each with 12 cores four of them with 12 cores
+and 384 gigabytes of ecc ram hey yo right i mean this i mean even if like it's maybe it's only two
+intel i can't imagine it's four maybe it's only two xeons that's gonna be an amazing amazing amount
+of compute for us uh he's shipping it with no caddies or drives so we're gonna have to figure
+out what kind of caddies that r820 takes and i'm gonna i'll go on ebay probably and buy like a
+whole batch of them so i've got some prep work to do here yeah and then jb's got to buy some
+discs right but i mean he's saving us a huge cost and i was considering going with another pre-owned
+server anyways and he's had this in production it's been a solid box he's just replacing it and
+he offered it to us and i just i can't believe it that's wonderful best audience in the universe
+there's just no doubt about it so that'll be the hardware whatever distro you all vote on will be
+what we put on there and then there'll be the third phase the third phase is going to be to
+set up some kind of remote console we were initially trending towards pi kvm and i think we
+still may try try that because i ordered a little pi kvm kit oh look at you but this power edge has
+a built-in idrac enterprise which may be just fine with we'll see yeah i'm kind of it'd be interesting
+to compare and contrast so with idrac there might be even some fun automation potential that you
+could you could work with because like i know that in in rail and centos and i think also in fedora
+and it would be in tumbleweed as well there's a lot of tools around integrating with various bmcs
+ilo from hpe generic ipmi redfish extended ipmi and idrac as well from dell so there's all kinds
+of fun opportunities there if you have like built-in management interfaces like that i love
+that yeah i can't believe it i mean what a what a gift to us right now because you know we just
+caught back from that road trip so expenses are tight right now so that's a great thing to have
+come along and uh should be great to play with and i don't know what i'll i may put the old server on
+a test bench and see if i can't narrow down what the issues are or it may just sit there for a bit
+we shall see but either way that's the that's the plan we have a three-phase plan to get this server
+going and uh wes and i are already beginning to play around with vpn options there's some really
+fun stuff out there we often talk about the desktop stuff because it's fun and we love the
+desktop but there's so much awesome stuff going on at these layers too so it'll be fun to deep
+dive into that and i'd love to get your opinion on which distro we should go with next so go find
+the straw poll link at linux unplug.com 425 oh it's time for feedback and hey maybe if you've
+got some ideas on what we should do in any of those phases well yeah right into the show but
+in the meantime aaron's already done that with a self-hosted location tracker he really likes
+now of course we had that set up at colony tracker.live a different piece of software
+that we've been testing out for the road trip but aaron has been using a nextcloud app called phone
+track this is an app for nextcloud i think i've seen this before yeah i think we just need to
+install it on the jupyter nextcloud instance that we've already got running as aaron suggests
+although i haven't actually tried it yet i like this as an overall approach to like taking something
+that i think a lot of us think is is taboo like user tracking and cameras right having cameras in
+your home oh i like taking that and putting it on its damn nose and saying well what if i do the
+tracking and i control the data well what if i run cameras but they only work on my lan and they go
+into something like shinobi and i record the cameras and can technology that we often consider
+invasive be used by me under my control and that aspect of phone track really appeals here because
+it's part of just hosting something yourself and if you've already gone to the trouble of setting
+up nextcloud you install this app and i think it has an android companion app too yeah you know
+aaron hits on that that he'd been on a journey to google fly and that location tracking was
+one piece of that and i think it kind of makes sense in some sense to have it integrated with
+nextcloud because yeah nextcloud can be a big part in getting off a lot of those popular google
+services and for his part he does notice that the phone app has worked pretty well and that
+he hasn't seen a hit to the battery life hmm yeah you can have it set so it sort of gets a the
+background location update from the android operating system we opted not to go with this
+just because we didn't really want to put our nextcloud instance public and own tracks was sort
+of perfect for our use case but by ben if i recall you gave this a go for a bit right yeah so i use
+it to track my phone and for when i lose it then i can find it again and it works really well it
+also says when it's collecting its gps points how many it's already sent how many there are in the
+session and it's also a really good platform for example if you've got drivers or delivery guys
+driving around you can see it really easily on a map and a nice overview and you see they have
+put some thought in multiple use cases but what i also noticed is you really need to get a good use
+of these sessions because i have for example one session of my phone tracking and once i pull that
+up my living area is just one big red dot about yeah you've been there there are all the lines
+and i don't know if it's my amount of data or my setup but the filtering isn't that really great
+for me at the moment but i assume they will be fixing that in later versions but yeah you can
+select specific sessions you want to record to and you can put devices in there but you have to look
+at if you need to select the session from your device itself so that is for me at least question
+mark if you can put devices in there from the server side okay that's good to know for people
+that might be interested in using it and we'll have a link to that in the show notes if you
+want to try it or actually no you know what no you just go in your next cloud you look in the
+apps and you just install it right there no link for you no link no link for you i will put a link
+to this though because i am on the search for i'd love something that's a server side web app
+that i hit up on my land and i paste a youtube url in and it downloads in the background and
+puts it somewhere on my file system and then i open up my media player of choice and it's
+connected to my nas and bam there's the youtube video and i've been looking for a web app to do
+this for a while and i don't know if i found the perfect one but i think i found a real contender
+it's called tube archivist it is a self-hosted youtube media server you give it the urls and
+then it will archive them and then present you a front end to review all of your downloads kind of
+give you like your own youtube um subscription feed but on your own box where it's pulled down
+the videos locally oh this looks nice yeah man and it keeps track of like which ones you've
+viewed and which ones you haven't viewed and uh it's using that new uh youtube dlp that we've
+talked about yt dlp instead of youtube dl oh we made that a pic a couple weeks back right yep yep
+so uh this is kind of like taking and putting it all together and then i like this because i thought
+i've got a couple of youtubers i've followed that have like put up videos and then pulled them
+but i also have a ton of videos i watch on youtube for like rv maintenance stuff and sometimes i'm in
+an area where i want to do some work and i'm offline this is what i was hoping for is something
+i could throw on my my box and just throw these links in there and then build a little offline
+youtube collection the only spot where i kind of got hung up and why i haven't pursued it and
+west you're gonna laugh at me but you know you gotta set up like elastic search and do some of
+that stuff and i just i didn't want to go that far but i wanted to give it a link so you're saying
+you need someone to write you a already composed docker compose file absolutely west that's exactly
+what i'm saying and and also if anybody has another tool to accomplish this same thing
+do let me know about it however you want to tell me because uh i'm always looking for uh for a way
+to do this yeah you know i want something like this but just if it also had some like chromecast
+support on the flip side you know it could kind of be the one-stop shop for all the videos uh
+that would be nice yeah yeah and for me personally i don't really need a front end that tracks the
+watch status because i just would like them on the file system and then i'll throw cody or jellyfin
+or plex or whatever at that directory and manage it with my existing media application so you just
+want the ingest side ingest and maybe a little bit of sorting you know maybe a folder per youtube
+channel and so you know if you download from this youtuber you put it in their folder automatically
+i don't know i guess i'm asking for the moon here but it seems like there must be something out
+there because i mean hell there's so many there were back in the day when we all watched our
+television via a cable there was like a dozen different pvr dvr solutions and there was myth tv
+and we just need something for the youtube age so if you know of one let me know and if you'd
+like to find our friends a cloud guru on social media they're just slash a cloud guru at pretty
+much any social media website the youtubes instagram slash a cloud guru go find them over
+there and see what they're up to if you do the twitter thing you can also follow the show at
+linux unplugged west you're probably over there i'm at west pane remarkable remarkable the show's
+over there uh the network's over there too yep that's true we have a show and a twitter for both
+of them and myself it's a lot of twitter accounts really who would have known i'd be managing so
+many different logins in 2021 and then don't even get me started on the show mailboxes holy smokes
+whoo just bypass all of that come join us live we do this show every tuesday at noon pacific 3 pm
+eastern see you next week same bad time same bad station and if you work in the tech industry
+or you consider yourself a linux fan don't miss linux action news every monday morning really
+sunday nights wes and i break down everything that matters in the world of linux and try to
+get you the information in a concise accurate manner that's at linuxactionnews.com keep linux
+rolling after that by joining us on tuesday or go subscribe at linuxunplugged.com subscribe
+we absolutely love them subscribers and our members at unpluggedcore.com thanks so much for
+joining us on this week's episode of the unplugged program it's not a monday it's not a wednesday
+no no my friends we will see you right back here next tuesday
+so along with their robot amazon has opened an invite only program for their previously announced
+home surveillance drone the always home cam that flies around and surveys your home for you
+oh man wes oh i think i'm about ready to go move out into the woods it's really just such a shame
+because it's like in some sense if i felt like i was actually in control of it yeah maybe i would
+want that you know it was open i could i knew where the data was going but of course that's
+not what we get that's very much like the philosophy i was just trying to articulate
+in the show it's like if if it's cameras that i have complete control over and i can replace the
+firmware and it's something i can check and monitor then yeah i'm okay with it but if it's
+something that i have no control over that could be easily perverted i find that gets dystopian
+really quick and it feels like there's a lot more of the ladder these days well with the dog you
+know i was just imagining here you are you needed to sit and then suddenly the connectivity goes out
+of just the worst time you

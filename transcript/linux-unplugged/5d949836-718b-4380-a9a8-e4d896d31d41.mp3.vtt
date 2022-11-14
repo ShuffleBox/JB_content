@@ -1,0 +1,4892 @@
+WEBVTT
+
+00:00.000 --> 00:03.000
+So I wasn't even going to share this with you guys.
+
+00:03.000 --> 00:05.240
+I'd seen this on the web, and we were
+
+00:05.240 --> 00:08.320
+talking about pre-show material.
+
+00:08.320 --> 00:12.600
+But the most interesting part about this new TCP bug
+
+00:12.600 --> 00:16.240
+is the fact that Netflix discovered it.
+
+00:16.240 --> 00:19.280
+Yeah, I wasn't really too into it, except for that part.
+
+00:19.280 --> 00:21.640
+That is kind of, I guess I'm just sort of getting exhausted
+
+00:21.640 --> 00:22.400
+on these.
+
+00:22.400 --> 00:26.180
+But it's sort of like a new version of The Ping of Death.
+
+00:26.180 --> 00:26.760
+Yeah, kind of.
+
+00:26.760 --> 00:30.240
+I mean, you get some misconfigured TCP packets sent
+
+00:30.240 --> 00:34.840
+your way, and in just the right case on an unpatched kernel,
+
+00:34.840 --> 00:37.240
+well, you might actually have a full blown kernel panic.
+
+00:37.240 --> 00:39.120
+So those are always unfortunate.
+
+00:39.120 --> 00:41.200
+Obviously, that can lead to a denial of service attack
+
+00:41.200 --> 00:43.000
+when all your boxes are crashed.
+
+00:43.000 --> 00:45.240
+Yeah, and that's not great.
+
+00:45.240 --> 00:47.000
+I think the impact has been a bit lessened
+
+00:47.000 --> 00:49.760
+because most serious boxes in production out there
+
+00:49.760 --> 00:52.160
+are behind various types of load balancers or other gateways.
+
+00:52.160 --> 00:55.000
+And many of those, typically this is not a protocol flaw.
+
+00:55.000 --> 00:58.760
+This is a flaw in Linux's implementation of the TCP stack.
+
+00:58.760 --> 01:00.520
+And FreeBSD is also affected.
+
+01:00.520 --> 01:03.160
+There's several other variants that aren't panics.
+
+01:03.160 --> 01:04.080
+They're just slowdowns.
+
+01:04.080 --> 01:05.280
+Did you guys catch its name?
+
+01:05.280 --> 01:06.000
+Sack Panic.
+
+01:06.000 --> 01:08.240
+Sack Panic.
+
+01:08.240 --> 01:10.640
+I like it.
+
+01:10.640 --> 01:15.440
+This is Linux Unplugged, episode 306 for June 18, 2019.
+
+01:15.440 --> 01:28.520
+Hello there, and welcome to Linux Unplugged,
+
+01:28.520 --> 01:32.000
+your weekly Linux talk show that's getting its way
+
+01:32.000 --> 01:33.320
+into the 300s.
+
+01:33.320 --> 01:34.520
+Feels weird, Wes.
+
+01:34.520 --> 01:35.440
+It sure does.
+
+01:35.440 --> 01:36.240
+Feels weird.
+
+01:36.240 --> 01:38.280
+Like, this show can't be 300 episodes long.
+
+01:38.280 --> 01:39.240
+We're just hanging out.
+
+01:39.240 --> 01:41.720
+We must be doing something right.
+
+01:41.720 --> 01:42.760
+I don't know about that.
+
+01:42.760 --> 01:44.040
+Or very, very wrong.
+
+01:44.040 --> 01:45.240
+We're just very persistent.
+
+01:45.240 --> 01:46.480
+We're just very persistent.
+
+01:46.480 --> 01:48.160
+Well, coming up on this week's episode,
+
+01:48.160 --> 01:50.440
+we have some community news.
+
+01:50.440 --> 01:54.160
+But we decided to do something you should never do this week.
+
+01:54.160 --> 01:56.680
+We decided to live swap out a FreeNAS
+
+01:56.680 --> 01:59.400
+system to Fedora, which we're calling
+
+01:59.400 --> 02:03.080
+from FreeNAS to Fedora our journey of live swapping
+
+02:03.080 --> 02:05.720
+a production system with a failed disk.
+
+02:05.720 --> 02:08.400
+We went out into the Jupyter broadcasting server room,
+
+02:08.400 --> 02:11.240
+brought our recording equipment, and documented our journey.
+
+02:11.240 --> 02:13.440
+Not only that, we changed the whole darn network
+
+02:13.440 --> 02:14.240
+here at the studio.
+
+02:14.240 --> 02:16.000
+It's amazing we're here at all.
+
+02:16.000 --> 02:17.120
+Yeah, we really did.
+
+02:17.120 --> 02:21.080
+We ripped out the whole network, re-IPed everything,
+
+02:21.080 --> 02:23.320
+and still managed to put a show together.
+
+02:23.320 --> 02:24.760
+We actually had a lot of fun doing it.
+
+02:24.760 --> 02:26.520
+We'll tell you about that in a little bit.
+
+02:26.520 --> 02:28.680
+But before we go any further, got to say hello to Cheesy.
+
+02:28.680 --> 02:29.320
+Hey, Chees.
+
+02:29.320 --> 02:30.440
+Hey, what's going on?
+
+02:30.440 --> 02:32.320
+Oh, you know, doing a podcast, hanging out.
+
+02:32.320 --> 02:33.680
+Yeah, you guys have been hard at work
+
+02:33.680 --> 02:35.960
+with that stuff for the last couple of days, too.
+
+02:35.960 --> 02:38.080
+Yep, we got everything back up and on just in time
+
+02:38.080 --> 02:41.120
+to say time-appropriate greetings, virtual lug.
+
+02:41.120 --> 02:41.840
+Hello, Mumble Room.
+
+02:41.840 --> 02:42.400
+Good morning.
+
+02:42.400 --> 02:42.900
+Hello.
+
+02:42.900 --> 02:43.400
+Hello.
+
+02:43.400 --> 02:44.440
+Good morning.
+
+02:44.440 --> 02:44.940
+Hello.
+
+02:44.940 --> 02:45.440
+Hello.
+
+02:45.440 --> 02:48.200
+Hello, Brent, and Bruce, and Byte, and Neil, and MiniMech,
+
+02:48.200 --> 02:49.240
+and Sean, and TechMav.
+
+02:49.240 --> 02:52.120
+It's nice to have you all there as we go along.
+
+02:52.120 --> 02:56.120
+And we start out with some community news.
+
+02:56.120 --> 02:58.040
+And the big item that caught my attention,
+
+02:58.040 --> 02:59.320
+there's many things we could talk about.
+
+02:59.320 --> 03:00.600
+This has been another one of those weeks
+
+03:00.600 --> 03:02.800
+where it's sort of like what we didn't put in the show
+
+03:02.800 --> 03:05.040
+is almost as important as what we put in the show.
+
+03:05.040 --> 03:06.880
+And I just thought, let's start with talking
+
+03:06.880 --> 03:10.360
+about initial benchmarks of Microsoft's new WSL 2.
+
+03:10.360 --> 03:11.960
+We're already starting to see it shipped
+
+03:11.960 --> 03:13.960
+for the people that are subscribed to the Insiders
+
+03:13.960 --> 03:16.040
+build if you really want to play with it.
+
+03:16.040 --> 03:16.720
+Yeah.
+
+03:16.720 --> 03:19.600
+And under some benchmarks, this is, of course,
+
+03:19.600 --> 03:22.560
+according to Michael Eberle over at Ferronix,
+
+03:22.560 --> 03:24.000
+he's been testing the subsystem.
+
+03:24.000 --> 03:27.160
+And in not all instances is it actually faster.
+
+03:27.160 --> 03:28.760
+It is in some, like with I-O.
+
+03:28.760 --> 03:29.240
+Yeah, right.
+
+03:29.240 --> 03:30.840
+So it has improved I-O. And that was
+
+03:30.840 --> 03:33.960
+one of the big justifications for this whole re-architecture
+
+03:33.960 --> 03:35.280
+of the subsystem.
+
+03:35.280 --> 03:36.900
+It just wasn't cutting it before.
+
+03:36.900 --> 03:40.920
+But unfortunately, in some other areas, we're not so lucky.
+
+03:40.920 --> 03:42.720
+Yeah, looking at the benchmarks here,
+
+03:42.720 --> 03:45.920
+there is certain kinds of workloads
+
+03:45.920 --> 03:49.840
+where it's significantly even slower than WSL 1
+
+03:49.840 --> 03:52.480
+and obviously slower than bare metal.
+
+03:52.480 --> 03:55.700
+He compared it to 1804 bare metal and clear Linux bare metal.
+
+03:55.700 --> 03:57.580
+And all of the benchmarks, as he always has,
+
+03:57.580 --> 04:00.640
+are linked over on his site if you want to check them out.
+
+04:00.640 --> 04:03.360
+I think it just means it's not the Linux killer
+
+04:03.360 --> 04:04.520
+that everybody worries about.
+
+04:04.520 --> 04:06.880
+It's just a practical tool to get your work done.
+
+04:06.880 --> 04:10.680
+And there are already some interesting use cases for it,
+
+04:10.680 --> 04:13.960
+Docker just posted a massive write-up
+
+04:13.960 --> 04:15.440
+that we read so you don't have to.
+
+04:15.440 --> 04:18.980
+And they write, Microsoft gave us an early build of the WSL 2
+
+04:18.980 --> 04:21.220
+so that we could evaluate the technology
+
+04:21.220 --> 04:22.820
+and see how it fit with our product.
+
+04:22.820 --> 04:25.400
+And then we could give them our feedback about what's missing
+
+04:25.400 --> 04:26.360
+or even broken.
+
+04:26.360 --> 04:28.360
+We started prototyping different approaches.
+
+04:28.360 --> 04:30.080
+And we're now ready to share a little bit
+
+04:30.080 --> 04:32.320
+about what's coming in the next few months.
+
+04:32.320 --> 04:35.400
+Docker Desktop Future.
+
+04:35.400 --> 04:37.240
+Yeah, that's the title of this section.
+
+04:37.240 --> 04:40.260
+OK, so before they had a Hyper-V based VM,
+
+04:40.260 --> 04:42.560
+and that's going to be replaced by what they're calling
+
+04:42.560 --> 04:45.520
+a WSL 2 integration package.
+
+04:45.520 --> 04:47.560
+Which is still based on Hyper-V VM,
+
+04:47.560 --> 04:50.720
+but it's like a different, more optimized new version.
+
+04:50.720 --> 04:51.360
+Yeah, exactly.
+
+04:51.360 --> 04:52.860
+So it provides all the same features
+
+04:52.860 --> 04:54.720
+as the current Docker desktop VM.
+
+04:54.720 --> 04:57.420
+So you can do Kubernetes, you can do proxy configuration,
+
+04:57.420 --> 04:59.640
+you can access the Docker daemon from Windows,
+
+04:59.640 --> 05:02.120
+and all sorts of bind mounts, all the usual Docker
+
+05:02.120 --> 05:04.020
+sort of stuff.
+
+05:04.020 --> 05:05.280
+In the past, that was it.
+
+05:05.280 --> 05:07.800
+You couldn't really mess with the underlying VM.
+
+05:07.800 --> 05:10.000
+You couldn't run additional stuff in the Linux OS
+
+05:10.000 --> 05:12.080
+that was running inside of it.
+
+05:12.080 --> 05:14.320
+With the WSL 2 integration, you'll
+
+05:14.320 --> 05:16.800
+still experience all the niceties you have from Windows.
+
+05:16.800 --> 05:19.680
+But you can run additional Linux programs inside,
+
+05:19.680 --> 05:21.740
+and they can also talk to Docker.
+
+05:21.740 --> 05:25.160
+So you can have the same Docker API running from a daemon,
+
+05:25.160 --> 05:30.240
+running on a Hyper-V VM, using WSL 2, all unified together.
+
+05:30.240 --> 05:32.600
+And they write, and a good example, a use case for this
+
+05:32.600 --> 05:35.000
+is, a lot of your scripts that you've written on the Linux
+
+05:35.000 --> 05:38.400
+side can just now be used, or on the Windows side
+
+05:38.400 --> 05:40.560
+can be used to manage the Linux boxes, vice versa.
+
+05:40.560 --> 05:43.600
+They also have a nice example of using Visual Studio Code
+
+05:43.600 --> 05:45.480
+with that remote connector setup.
+
+05:45.480 --> 05:49.480
+So you can go remote into WSL 2, and then use the Docker daemon
+
+05:49.480 --> 05:51.600
+inside, build Docker containers, run them,
+
+05:51.600 --> 05:53.560
+and then still manage it all from Windows.
+
+05:53.560 --> 05:56.600
+That's nice and tidy for those Windows developers that never
+
+05:56.600 --> 05:58.780
+want to be bothered with dirtying themselves,
+
+05:58.780 --> 06:00.040
+actually installing real Linux.
+
+06:00.040 --> 06:03.200
+Now they can use the days of having to manually configure
+
+06:03.200 --> 06:07.080
+VirtualBox with NFS shares over the net.
+
+06:07.080 --> 06:11.320
+Now they'll just use a Visual Studio Code remote to WSL.
+
+06:11.320 --> 06:13.960
+Then package all up in a Docker container.
+
+06:13.960 --> 06:14.480
+Good to go.
+
+06:14.480 --> 06:16.320
+Microsoft loves Linux, don't you, though?
+
+06:16.320 --> 06:17.040
+Good to go.
+
+06:17.040 --> 06:17.560
+Good to go.
+
+06:17.560 --> 06:20.080
+Never had to actually touch real Linux at all.
+
+06:20.080 --> 06:21.200
+That's crazy.
+
+06:21.200 --> 06:24.840
+It hurts so much.
+
+06:24.840 --> 06:25.880
+I don't know.
+
+06:25.880 --> 06:26.480
+I don't know.
+
+06:26.480 --> 06:28.920
+It's all about making Linux a bit of a runtime.
+
+06:28.920 --> 06:29.920
+I'm all for it.
+
+06:29.920 --> 06:31.720
+So while we're talking about Docker containers
+
+06:31.720 --> 06:33.220
+and universally running applications,
+
+06:33.220 --> 06:36.040
+just a quick update from our friends at Canonical
+
+06:36.040 --> 06:37.480
+that work on snaps.
+
+06:37.480 --> 06:41.000
+First of all, they have new distro-branded landing pages.
+
+06:41.000 --> 06:43.480
+So that way, if you're on Mint, or you're on Arch, or Fedora,
+
+06:43.480 --> 06:44.740
+whatever it might be, they'll now
+
+06:44.740 --> 06:46.120
+have specific instructions on how
+
+06:46.120 --> 06:48.720
+to get up and going with some copy pasta
+
+06:48.720 --> 06:51.720
+if you choose, which looks pretty nice, pretty simple.
+
+06:51.720 --> 06:54.200
+I thought it was a little strange to me
+
+06:54.200 --> 06:57.200
+the way they sort of branched it out per package, you know?
+
+06:57.200 --> 06:57.700
+Yeah.
+
+06:57.700 --> 06:59.040
+Because most of the time, there's
+
+06:59.040 --> 07:00.000
+not that much different, right?
+
+07:00.000 --> 07:01.920
+You kind of, once you've got everything bootstrapped.
+
+07:01.920 --> 07:03.000
+Now I get it when you want to land,
+
+07:03.000 --> 07:04.680
+like maybe you're trying to install your first snap,
+
+07:04.680 --> 07:06.800
+and so everything's there, right there on that page
+
+07:06.800 --> 07:08.080
+for the application that brought you there.
+
+07:08.080 --> 07:08.560
+True.
+
+07:08.560 --> 07:09.920
+But it just kind of felt weird.
+
+07:09.920 --> 07:10.880
+It's like, well, how do you install that?
+
+07:10.880 --> 07:13.440
+Like, don't I just use the snap command line wherever I am?
+
+07:13.440 --> 07:13.940
+Yeah.
+
+07:13.940 --> 07:16.320
+Yeah, once you've got that part done, yeah, you're right.
+
+07:16.320 --> 07:17.280
+We'll have to ask.
+
+07:17.280 --> 07:18.760
+Maybe there's somebody who might know.
+
+07:18.760 --> 07:20.160
+Maybe we'll have to ask him.
+
+07:20.160 --> 07:22.080
+Now, while we're talking about snaps,
+
+07:22.080 --> 07:23.600
+there's another part to the story
+
+07:23.600 --> 07:26.320
+that I think is a good heads up for those of you that
+
+07:26.320 --> 07:28.200
+are Ubuntu desktop users.
+
+07:28.200 --> 07:30.880
+In 1910 right now, in testing, they're
+
+07:30.880 --> 07:34.660
+calling for some feedback on shipping the Chromium browser
+
+07:34.660 --> 07:35.420
+as a snap.
+
+07:35.420 --> 07:39.440
+They're transitioning from a deb to a snap for the browser.
+
+07:39.440 --> 07:43.320
+And they're working on migrating your profile,
+
+07:43.320 --> 07:45.100
+the Chrome driver stuff, so that way
+
+07:45.100 --> 07:46.480
+they can have video acceleration.
+
+07:46.480 --> 07:48.040
+There's several elements to this that
+
+07:48.040 --> 07:50.040
+need to be banged on by end users,
+
+07:50.040 --> 07:52.840
+including just general desktop browser integration.
+
+07:52.840 --> 07:53.640
+Sounds great, though.
+
+07:53.640 --> 07:55.240
+I mean, I think it's a good fit.
+
+07:55.240 --> 07:55.960
+You think so?
+
+07:55.960 --> 07:58.200
+I mean, I already run, like when I run Firefox,
+
+07:58.200 --> 08:01.320
+I install it manually under my home directory.
+
+08:01.320 --> 08:02.520
+Browsers move fast.
+
+08:02.520 --> 08:03.040
+Yeah.
+
+08:03.040 --> 08:04.600
+Plus, sandboxing is not a bad idea.
+
+08:04.600 --> 08:06.000
+The browser is a dangerous environment.
+
+08:06.000 --> 08:07.800
+Chrome already has its own sandboxing.
+
+08:07.800 --> 08:08.560
+It does.
+
+08:08.560 --> 08:09.280
+But you're right.
+
+08:09.280 --> 08:11.760
+I do agree that the browser is a good candidate for software
+
+08:11.760 --> 08:13.800
+that you can update sort of independently
+
+08:13.800 --> 08:15.080
+from the operating system.
+
+08:15.080 --> 08:16.780
+And when you look at like an LTS,
+
+08:16.780 --> 08:18.360
+it makes even more sense potentially.
+
+08:18.360 --> 08:20.240
+And they don't have that many capabilities, right?
+
+08:20.240 --> 08:22.920
+Like they don't need to reach super far into your file system
+
+08:22.920 --> 08:23.880
+and go crazy places.
+
+08:23.880 --> 08:25.840
+So I think it would mesh well with the abilities
+
+08:25.840 --> 08:28.360
+that SnapD already has to give access when needed.
+
+08:28.360 --> 08:29.520
+Here's what we've got to do.
+
+08:29.520 --> 08:29.920
+You know what we've got to do?
+
+08:29.920 --> 08:32.720
+We've got to phone a friend, like millionaire style
+
+08:32.720 --> 08:33.560
+right now.
+
+08:33.560 --> 08:36.640
+We'll call up a friend who might know about Snap packages,
+
+08:36.640 --> 08:38.640
+and we'll ask Wes's question.
+
+08:38.640 --> 08:41.120
+So, Popey, are you there?
+
+08:41.120 --> 08:41.960
+Oh, hello.
+
+08:41.960 --> 08:42.760
+Hi.
+
+08:42.760 --> 08:43.400
+Go ahead, Wes.
+
+08:43.400 --> 08:45.400
+You have 20 seconds.
+
+08:45.400 --> 08:48.240
+What was the motivation between the structure
+
+08:48.240 --> 08:51.480
+of the distro-specific pages on the Snap,
+
+08:51.480 --> 08:55.720
+not one per OS at the top level, but for every package?
+
+08:55.720 --> 08:56.240
+Very good.
+
+08:56.240 --> 08:59.200
+You got it.
+
+08:59.200 --> 09:02.280
+Because the goal is that a normal person who's
+
+09:02.280 --> 09:04.680
+looking to install Spotify doesn't
+
+09:04.680 --> 09:06.000
+want to know lots of stuff.
+
+09:06.000 --> 09:08.520
+They want to know, how do I get Spotify on the distro
+
+09:08.520 --> 09:09.360
+that I'm on?
+
+09:09.360 --> 09:12.360
+And the focus for those pages is tell them
+
+09:12.360 --> 09:14.280
+exactly what they need to know to get
+
+09:14.280 --> 09:16.840
+that application on the distro that they've chosen,
+
+09:16.840 --> 09:17.920
+and nothing more.
+
+09:17.920 --> 09:20.240
+Maybe a little bit extra if they scroll down the bottom.
+
+09:20.240 --> 09:22.440
+But the distro-specific stuff is really
+
+09:22.440 --> 09:24.720
+catering to those people who like
+
+09:24.720 --> 09:29.320
+to follow blog posts that say, how to do this one thing?
+
+09:29.320 --> 09:31.200
+And it tells them how to do that one thing,
+
+09:31.200 --> 09:32.200
+and then they get out of there.
+
+09:32.200 --> 09:33.360
+That's all self-contained.
+
+09:33.360 --> 09:36.120
+So the first experience they land on, they got everything.
+
+09:36.120 --> 09:37.320
+That makes sense.
+
+09:37.320 --> 09:39.080
+Mr. Wimper, it's nice to see you here this evening.
+
+09:39.080 --> 09:39.600
+Hello, sir.
+
+09:39.600 --> 09:40.120
+Good evening.
+
+09:40.120 --> 09:40.680
+Hi, Wimpy.
+
+09:40.680 --> 09:41.640
+How are you?
+
+09:41.640 --> 09:42.480
+Very well.
+
+09:42.480 --> 09:44.080
+Surprisingly, still jet lagged.
+
+09:44.080 --> 09:45.360
+But other than that, fine.
+
+09:45.360 --> 09:46.120
+I'm not surprised.
+
+09:46.120 --> 09:47.480
+With as much traveling as you've done,
+
+09:47.480 --> 09:48.800
+it's got to catch up.
+
+09:48.800 --> 09:50.400
+Eventually, it's going to catch up to you, right?
+
+09:50.400 --> 09:50.920
+Yeah.
+
+09:50.920 --> 09:53.760
+This is the week it catches up, apparently.
+
+09:53.760 --> 09:57.720
+So the Atari VCS is going on sale for pre-order right now
+
+09:57.720 --> 09:59.680
+for $250.
+
+09:59.680 --> 10:04.800
+It's going to be a AMD Ryzen R1000 SoC design.
+
+10:04.800 --> 10:08.000
+And this is coming out of details at E3 this week.
+
+10:08.000 --> 10:09.640
+What do we think, Wimpy?
+
+10:09.640 --> 10:12.160
+Are you skeptical of this box?
+
+10:12.160 --> 10:17.320
+Or is it not a waste of my IndieGoGo money?
+
+10:17.320 --> 10:18.600
+I'm very skeptical.
+
+10:18.600 --> 10:20.040
+I'm sorry you've wasted your money.
+
+10:20.040 --> 10:20.920
+You think so?
+
+10:20.920 --> 10:23.560
+I'm kind of excited it's going to be a Ryzen box, because I'm
+
+10:23.560 --> 10:24.680
+such a fanboy these days.
+
+10:24.680 --> 10:26.600
+Yeah.
+
+10:26.600 --> 10:27.760
+Is this past due yet?
+
+10:27.760 --> 10:29.960
+Is it on time, or is it delayed?
+
+10:29.960 --> 10:31.120
+It is delayed, yes.
+
+10:31.120 --> 10:32.120
+It was delayed.
+
+10:32.120 --> 10:34.440
+They delayed it a little bit ago because they
+
+10:34.440 --> 10:37.200
+said they're going to move to the AMD A1 CPU and a Ryzen
+
+10:37.200 --> 10:38.760
+processor.
+
+10:38.760 --> 10:41.880
+And so that added delay to the process.
+
+10:41.880 --> 10:43.520
+But that seems like it might be worth it.
+
+10:43.520 --> 10:44.520
+Yeah, I don't know.
+
+10:44.520 --> 10:46.440
+It seems like a lot of money for what it is.
+
+10:46.440 --> 10:47.280
+Yeah, yeah.
+
+10:47.280 --> 10:48.980
+Well, $250 isn't bad for the base price.
+
+10:48.980 --> 10:50.800
+But to get something good that'll do 4K or something
+
+10:50.800 --> 10:52.800
+like that, you start getting close to $800.
+
+10:52.800 --> 10:54.360
+Plus, you get the look of the thing.
+
+10:54.360 --> 10:55.280
+Ooh, black walnut.
+
+10:55.280 --> 10:56.040
+Yeah, that's true.
+
+10:56.040 --> 10:58.080
+It's got that nice retro look.
+
+10:58.080 --> 10:59.240
+I do kind of like it.
+
+10:59.240 --> 11:00.920
+Well, I just wanted to give everybody
+
+11:00.920 --> 11:02.980
+an update that they are now taking pre-orders,
+
+11:02.980 --> 11:05.020
+and they're talking about it at E3.
+
+11:05.020 --> 11:08.520
+And they're saying, well, they're not really
+
+11:08.520 --> 11:10.280
+saying specifically when it's going to ship,
+
+11:10.280 --> 11:12.340
+but it looks like it will be this year.
+
+11:12.340 --> 11:14.000
+If they're taking pre-orders, does that
+
+11:14.000 --> 11:18.520
+mean they're fulfilling backers' pledges at the moment?
+
+11:18.520 --> 11:20.240
+That's a great question, Wimpy.
+
+11:20.240 --> 11:21.240
+That's a great question.
+
+11:21.240 --> 11:22.400
+Ponzi.
+
+11:22.400 --> 11:23.440
+Wow.
+
+11:23.440 --> 11:24.160
+Wow.
+
+11:24.160 --> 11:27.600
+Have they shown any footage of any of the games
+
+11:27.600 --> 11:29.560
+on the console yet?
+
+11:29.560 --> 11:30.720
+There may be some from E3.
+
+11:30.720 --> 11:32.760
+I haven't really gone spelunking.
+
+11:32.760 --> 11:34.280
+Poby, I'm curious.
+
+11:34.280 --> 11:39.320
+If you were going to bet on one, the Librem 5 or the Atari VCS,
+
+11:39.320 --> 11:40.240
+you had to pick one.
+
+11:40.240 --> 11:42.240
+Which one would you put your money on right now?
+
+11:42.240 --> 11:42.760
+Oh, man.
+
+11:42.760 --> 11:44.280
+Atari VCS.
+
+11:44.280 --> 11:45.720
+Why would you do that to me?
+
+11:48.440 --> 11:51.320
+Well, so the price point of the Atari VCS
+
+11:51.320 --> 11:53.360
+is not remotely attractive to me.
+
+11:53.360 --> 11:55.640
+I think I could probably go and dig
+
+11:55.640 --> 11:58.440
+in the deserts of California and find
+
+11:58.440 --> 12:00.680
+all the necessary Atari VCS cartridges
+
+12:00.680 --> 12:04.080
+I want to for less than $250.
+
+12:04.080 --> 12:06.600
+But I'd say the Atari VCS.
+
+12:06.600 --> 12:08.160
+All right.
+
+12:08.160 --> 12:09.360
+What about you, Wes?
+
+12:09.360 --> 12:10.040
+I got to agree.
+
+12:10.040 --> 12:10.720
+I mean.
+
+12:10.720 --> 12:11.680
+OK.
+
+12:11.680 --> 12:13.960
+All right, well, obviously I've put my money on the VCS.
+
+12:13.960 --> 12:15.760
+It just seems like an easier target to hit.
+
+12:15.760 --> 12:16.280
+Yeah.
+
+12:16.280 --> 12:16.800
+Yeah.
+
+12:16.800 --> 12:18.480
+Plus, you can load other OSes on there,
+
+12:18.480 --> 12:20.200
+including they even say Windows now.
+
+12:20.200 --> 12:24.000
+And if I could put Kodi on there,
+
+12:24.000 --> 12:26.560
+it's only a little bit more than I paid for the Nvidia Shield.
+
+12:26.560 --> 12:28.480
+So it's not great.
+
+12:28.480 --> 12:29.480
+We'll see.
+
+12:29.480 --> 12:31.160
+Do you still use your Nvidia Shield?
+
+12:31.160 --> 12:31.880
+The heck out of it.
+
+12:31.880 --> 12:32.880
+Yeah, I have two of them.
+
+12:32.880 --> 12:34.840
+Still use them every day.
+
+12:34.840 --> 12:35.920
+Oh, I have three of them.
+
+12:35.920 --> 12:37.340
+Have you hooked up Steam?
+
+12:37.340 --> 12:40.480
+I have done the GeForce streaming,
+
+12:40.480 --> 12:43.680
+but I have not done any Steam streaming.
+
+12:43.680 --> 12:44.520
+What's that like?
+
+12:44.520 --> 12:49.400
+So this weekend, because I've only ever played the Android
+
+12:49.400 --> 12:52.040
+games, because that's all my daughter's been interested in.
+
+12:52.040 --> 12:56.080
+But I was going to go back and relook at GeForce now.
+
+12:56.080 --> 12:58.760
+And then I noticed that a bunch of the games you see in there
+
+12:58.760 --> 13:01.640
+all have Steam written underneath.
+
+13:01.640 --> 13:03.520
+And the very first time you click on that,
+
+13:03.520 --> 13:08.960
+it stands up a Steam on Windows install on their grid
+
+13:08.960 --> 13:10.560
+computing platform.
+
+13:10.560 --> 13:13.240
+And you sign in with your Steam credentials,
+
+13:13.240 --> 13:16.120
+and it then installs the game that you've just selected.
+
+13:16.120 --> 13:19.360
+And you run that over the Shield.
+
+13:19.360 --> 13:22.280
+So that has become my new most favorite thing.
+
+13:22.280 --> 13:23.080
+That's incredible.
+
+13:23.080 --> 13:25.040
+And how would you say the performance and latency
+
+13:25.040 --> 13:26.960
+and responsiveness and all that is?
+
+13:26.960 --> 13:28.560
+Well, I'm fortunate in that I've got
+
+13:28.560 --> 13:30.280
+a reasonable amount of bandwidth.
+
+13:30.280 --> 13:35.680
+And I've always been impressed by the lack of apparent latency
+
+13:35.680 --> 13:39.360
+that exists on the Shield over that whole GeForce
+
+13:39.360 --> 13:40.600
+now streaming solution.
+
+13:40.600 --> 13:43.920
+So for me, it's great.
+
+13:43.920 --> 13:47.640
+I mean, the screen I have in the front room is very old.
+
+13:47.640 --> 13:51.120
+So it's a 720p screen.
+
+13:51.120 --> 13:54.240
+So it's not very high resolution.
+
+13:54.240 --> 13:57.680
+And for that resolution, it's fantastic.
+
+13:57.680 --> 13:59.200
+It's a lot of fun.
+
+13:59.200 --> 14:01.000
+I'll have to look into that.
+
+14:01.000 --> 14:02.040
+That sounds really neat.
+
+14:02.040 --> 14:05.920
+Are you streaming that over wired or wireless connection?
+
+14:05.920 --> 14:06.560
+Wired.
+
+14:06.560 --> 14:09.880
+So in the front room, that's got a direct line
+
+14:09.880 --> 14:11.640
+to the router, which is in the same room.
+
+14:11.640 --> 14:14.480
+And then that goes out over the fiber.
+
+14:14.480 --> 14:15.440
+Good setup.
+
+14:15.440 --> 14:18.200
+Yeah, I have the one in the studio living room wired too
+
+14:18.200 --> 14:19.160
+for that very reason.
+
+14:19.160 --> 14:20.960
+Who needs a stadium when you've already got that set up?
+
+14:20.960 --> 14:21.800
+No kidding.
+
+14:21.800 --> 14:22.320
+No kidding.
+
+14:22.320 --> 14:24.040
+I've pre-ordered Stadia as well though.
+
+14:24.040 --> 14:24.880
+Yeah, did you?
+
+14:24.880 --> 14:25.920
+Did you do the founders?
+
+14:25.920 --> 14:26.420
+Yep.
+
+14:26.420 --> 14:27.040
+Yeah.
+
+14:27.040 --> 14:29.120
+I did it as well because first, I
+
+14:29.120 --> 14:31.600
+want to be able to talk about it here on the show, number one.
+
+14:31.600 --> 14:34.000
+But number two is it could give me
+
+14:34.000 --> 14:38.320
+the ability to run a fully open source stack and have gaming.
+
+14:38.320 --> 14:40.920
+All Intel graphics, for example, but still have gaming.
+
+14:40.920 --> 14:41.640
+Yeah, absolutely.
+
+14:41.640 --> 14:43.440
+And if that makes my workstation more stable,
+
+14:43.440 --> 14:45.160
+I'd actually pay a monthly fee for that.
+
+14:45.160 --> 14:48.000
+Yeah, I've been impressed with what
+
+14:48.000 --> 14:49.960
+the Shield has been able to offer me.
+
+14:49.960 --> 14:53.160
+And I was interested to see, well,
+
+14:53.160 --> 14:56.080
+what can Google do in this space?
+
+14:56.080 --> 14:58.200
+I'm not buying into the platform necessarily,
+
+14:58.200 --> 15:01.400
+but the only way I'll know for sure is by finding out.
+
+15:01.400 --> 15:04.560
+And so I've pre-ordered, and I should
+
+15:04.560 --> 15:06.800
+be looking forward to trying it out later in the year.
+
+15:06.800 --> 15:08.000
+Yeah, if it sucks, I'll say it.
+
+15:08.000 --> 15:09.400
+So I don't have any reason to.
+
+15:09.400 --> 15:09.900
+Absolutely.
+
+15:09.900 --> 15:10.840
+I don't have any reason to.
+
+15:10.840 --> 15:11.040
+Nope.
+
+15:11.040 --> 15:11.440
+Yeah.
+
+15:11.440 --> 15:12.520
+No, I'm just going to try it out.
+
+15:12.520 --> 15:14.020
+And it does seem like if anybody would
+
+15:14.020 --> 15:16.240
+need the technological background
+
+15:16.240 --> 15:18.640
+and infrastructure to pull this off,
+
+15:18.640 --> 15:20.200
+it would probably be Google.
+
+15:20.200 --> 15:21.720
+They've got the scale.
+
+15:21.720 --> 15:24.480
+And they've got motivation too.
+
+15:24.480 --> 15:28.080
+So let's talk about something that I'd say
+
+15:28.080 --> 15:31.080
+was probably the number one submitted, quote, unquote,
+
+15:31.080 --> 15:32.280
+story to the show this week.
+
+15:32.280 --> 15:34.360
+People are like, hey, did you see this Chris Christie?
+
+15:34.360 --> 15:35.560
+And I appreciate that.
+
+15:35.560 --> 15:38.320
+I actually kind of like to know what people are tracking.
+
+15:38.320 --> 15:42.880
+And this was Linus Tech Tips' video on the System76 Thalia,
+
+15:42.880 --> 15:45.520
+which they titled, A Really Weird PC,
+
+15:45.520 --> 15:48.640
+The System76 Thalia Review.
+
+15:48.640 --> 15:50.720
+It is currently, as we record this episode,
+
+15:50.720 --> 15:54.960
+trending at number 44 on all of YouTube.
+
+15:54.960 --> 15:58.200
+It has over a million views.
+
+15:58.200 --> 15:59.840
+That's a big deal.
+
+15:59.840 --> 16:03.080
+That sort of makes Emma's weight in customs
+
+16:03.080 --> 16:04.400
+when she was hand delivering this.
+
+16:04.400 --> 16:05.520
+That was quite a journey for her.
+
+16:05.520 --> 16:07.480
+Yeah, she told that story on the show if you've missed it.
+
+16:07.480 --> 16:08.840
+She's been out.
+
+16:08.840 --> 16:10.760
+Rumor has it she got hurt.
+
+16:10.760 --> 16:12.120
+We'll have to talk to her about that when she comes back.
+
+16:12.120 --> 16:13.880
+We miss you Emma, we miss you.
+
+16:13.880 --> 16:15.640
+Now let's talk about their review.
+
+16:15.640 --> 16:18.040
+So Linus Tech Tips, we'll link to the entire video.
+
+16:18.040 --> 16:18.980
+It's an 11 minute video.
+
+16:18.980 --> 16:21.040
+We're just gonna play a couple of clips for you.
+
+16:21.040 --> 16:24.600
+And it starts with the unboxing as many YouTube videos do.
+
+16:24.600 --> 16:26.960
+So let's take a closer look at the box.
+
+16:26.960 --> 16:29.660
+Once you get it out of the shockingly nerdy packaging,
+
+16:29.660 --> 16:31.920
+the most striking features of the Thalia
+
+16:31.920 --> 16:33.560
+are its wood green finish
+
+16:33.560 --> 16:36.300
+and it's tantalizing silver power button
+
+16:36.300 --> 16:38.320
+and accompanying white LED ring.
+
+16:38.320 --> 16:40.360
+There's no sign of any front IO
+
+16:40.360 --> 16:43.240
+to disrupt the clean design language they've gone with,
+
+16:43.240 --> 16:45.320
+which means it's beautiful,
+
+16:45.320 --> 16:47.900
+but also means unfortunately that we're stuck
+
+16:47.900 --> 16:49.680
+with what we've got on the rear.
+
+16:49.680 --> 16:52.720
+And back here is interesting.
+
+16:52.720 --> 16:56.120
+So more of that clean at any cost approach.
+
+16:56.120 --> 16:59.760
+The IO is cut directly out of the chassis.
+
+16:59.760 --> 17:02.780
+That means no simple motherboard upgrade.
+
+17:02.780 --> 17:05.520
+Although again, it does make for an uninterrupted
+
+17:05.520 --> 17:08.640
+premium look that really screams Apple.
+
+17:08.640 --> 17:11.000
+Even though when we pop the hood with these thumb screws,
+
+17:11.000 --> 17:12.600
+we can see that this is clearly
+
+17:12.600 --> 17:15.480
+a standard PC motherboard on the inside.
+
+17:15.480 --> 17:17.480
+That power button is very legit.
+
+17:17.480 --> 17:18.300
+It's just great.
+
+17:18.300 --> 17:19.800
+Yeah, I want to push it right now.
+
+17:19.800 --> 17:20.640
+I have a fun story.
+
+17:20.640 --> 17:22.680
+So when we went and toured the factory,
+
+17:22.680 --> 17:26.160
+I didn't say anything and nobody prompted me.
+
+17:26.160 --> 17:28.560
+I just walked up and I started pushing the power button
+
+17:28.560 --> 17:29.800
+of the demo unit that was unplugged.
+
+17:29.800 --> 17:31.760
+So it was, you know, it wasn't hurting it.
+
+17:31.760 --> 17:34.960
+And I just had this, I made this very satisfying, like nice.
+
+17:34.960 --> 17:37.560
+And Carl, you know, the CEO, he was listening.
+
+17:37.560 --> 17:40.720
+He was perched, wanted to see my reaction
+
+17:40.720 --> 17:43.040
+because that power button is a particular point of pride
+
+17:43.040 --> 17:43.880
+for them.
+
+17:43.880 --> 17:45.400
+And so I liked that they honed in on that.
+
+17:45.400 --> 17:47.560
+They do mention that the back plate is fixed,
+
+17:47.560 --> 17:48.960
+although I think a motivated person
+
+17:48.960 --> 17:52.520
+probably cut it open, but that's, you know, overall,
+
+17:52.520 --> 17:54.240
+like it starts like kind of positive.
+
+17:54.240 --> 17:57.520
+You're like, wow, this is pretty balanced so far.
+
+17:57.520 --> 17:59.000
+As a non Linux user,
+
+17:59.000 --> 18:02.080
+I want to poke around Pop OS a little bit.
+
+18:02.080 --> 18:04.880
+Oh, now here we go to Pop OS.
+
+18:06.000 --> 18:07.320
+How are they going to do this?
+
+18:07.320 --> 18:10.520
+You first boot, it is super easy to encrypt your data.
+
+18:10.520 --> 18:12.860
+Just enter a password and reboot.
+
+18:12.860 --> 18:14.440
+That is pretty neat.
+
+18:14.440 --> 18:15.640
+Then when you come back,
+
+18:15.640 --> 18:18.160
+you're given the opportunity to set up your online accounts
+
+18:18.160 --> 18:19.880
+for integration into the OS,
+
+18:19.880 --> 18:22.560
+including access to your Google Drive cloud storage
+
+18:22.560 --> 18:23.800
+right in the file manager.
+
+18:23.800 --> 18:25.960
+Now we've actually seen Pop OS before
+
+18:25.960 --> 18:28.240
+in our gaming on Linux update video.
+
+18:28.240 --> 18:29.280
+And they continue,
+
+18:29.280 --> 18:30.600
+and then we're gonna talk a little more about Pop OS,
+
+18:30.600 --> 18:31.680
+but they continue.
+
+18:31.680 --> 18:34.920
+One of its major departures from its parent Ubuntu
+
+18:34.920 --> 18:39.440
+is Pop Shop, a ridiculously easy to use app store.
+
+18:39.440 --> 18:42.280
+So it's actually ported over from elementary OS,
+
+18:42.280 --> 18:44.760
+but with one key value add.
+
+18:44.760 --> 18:48.260
+System 76 curates their own packages.
+
+18:48.260 --> 18:50.680
+So if you ever need something basic,
+
+18:50.680 --> 18:54.480
+like Steam for gaming or the latest Nvidia drivers,
+
+18:54.480 --> 18:56.040
+it's just a click away.
+
+18:56.040 --> 18:58.080
+Actually, for your graphics drivers,
+
+18:58.080 --> 19:00.840
+it's easier than updating them on Windows.
+
+19:00.840 --> 19:04.920
+Now, a couple of things strike me about this video,
+
+19:04.920 --> 19:07.200
+because there's even more talking about Pop OS,
+
+19:07.200 --> 19:10.920
+is Pop OS isn't going anywhere.
+
+19:10.920 --> 19:12.440
+It's not going away.
+
+19:12.440 --> 19:13.920
+It's here now for the long haul.
+
+19:13.920 --> 19:16.760
+And I'm curious to hear what your reaction, Poby,
+
+19:16.760 --> 19:19.680
+that is to that comparison of the parent operating system,
+
+19:19.680 --> 19:20.520
+I believe as they put it, right?
+
+19:20.520 --> 19:22.400
+The parent project or something like that.
+
+19:22.400 --> 19:23.740
+What's your reaction?
+
+19:23.740 --> 19:25.060
+I don't know what to say.
+
+19:25.060 --> 19:28.880
+I mean, every derivative of Ubuntu,
+
+19:28.880 --> 19:32.880
+which Pop OS is, has something that stands themselves apart
+
+19:32.880 --> 19:34.120
+from Ubuntu.
+
+19:34.120 --> 19:36.360
+Otherwise, there will be no point installing it, right?
+
+19:36.360 --> 19:41.240
+And so their USP for Pop OS is the design language
+
+19:41.240 --> 19:42.600
+they've used on the desktop
+
+19:42.600 --> 19:44.840
+and simplicity of installing applications.
+
+19:44.840 --> 19:46.120
+And we can learn from that.
+
+19:46.120 --> 19:48.920
+And certainly you'll have noticed very recently,
+
+19:48.920 --> 19:52.140
+we've talked about how it will be integrating
+
+19:52.140 --> 19:56.860
+the Nvidia driver installer directly during the install.
+
+19:56.860 --> 19:58.840
+So we've certainly learned
+
+19:58.840 --> 20:01.360
+that that's a thing people really, really want,
+
+20:01.360 --> 20:02.640
+and we should probably do that.
+
+20:02.640 --> 20:04.840
+So, you know, we've learned something there.
+
+20:04.840 --> 20:06.000
+That's great.
+
+20:06.000 --> 20:07.680
+Wimby, when I heard that,
+
+20:07.680 --> 20:09.780
+when they were talking specifically about the Pop Shop,
+
+20:09.780 --> 20:11.680
+the thing that crossed my mind is,
+
+20:11.680 --> 20:13.000
+I wonder what their reaction would be
+
+20:13.000 --> 20:14.280
+to something like the software boutique
+
+20:14.280 --> 20:16.160
+that Ubuntu MATE has that comes up
+
+20:16.160 --> 20:19.060
+and has an extensive list of curated software.
+
+20:20.000 --> 20:21.400
+What are your thoughts when you hear that?
+
+20:21.400 --> 20:23.880
+It seems like you guys really hit on something
+
+20:23.880 --> 20:27.120
+pretty important to users a while ago now.
+
+20:27.120 --> 20:30.200
+Yeah, I'm really proud of what we did
+
+20:30.200 --> 20:32.520
+with the software boutique.
+
+20:32.520 --> 20:35.640
+I think we switched things up a little bit,
+
+20:35.640 --> 20:40.140
+but I'm not sure what someone like Linux Tech Tips
+
+20:40.140 --> 20:41.840
+would make of that,
+
+20:41.840 --> 20:44.400
+because they're kind of accustomed to it, right?
+
+20:44.400 --> 20:48.660
+If you go into any of the stores,
+
+20:48.660 --> 20:52.400
+you have a full catalog of software in front of you.
+
+20:52.400 --> 20:54.160
+You know, that's not been a problem.
+
+20:54.160 --> 20:55.880
+In recent years, you know, you've got the Windows Store,
+
+20:55.880 --> 20:56.800
+you've got the Mac OS Store,
+
+20:56.800 --> 21:00.240
+you've got the equivalents on mobile.
+
+21:00.240 --> 21:02.360
+It's novel to us on Linux
+
+21:02.360 --> 21:05.200
+because we didn't used to have that ease of installation,
+
+21:05.200 --> 21:06.280
+and we do now.
+
+21:07.160 --> 21:10.640
+So I don't know how much that would resonate really.
+
+21:10.640 --> 21:12.740
+Okay, fair enough actually, good point.
+
+21:12.740 --> 21:15.960
+I suppose it is sort of become just expected.
+
+21:15.960 --> 21:17.560
+You'd notice it more if it wasn't there.
+
+21:17.560 --> 21:18.640
+Yeah, maybe.
+
+21:18.640 --> 21:20.080
+I still really appreciate it.
+
+21:20.080 --> 21:23.560
+They did touch on the open nature of the hardware as well.
+
+21:23.560 --> 21:26.560
+The case and all of its accompanying bits and pieces,
+
+21:26.560 --> 21:29.400
+open source, just like the operating system.
+
+21:29.400 --> 21:32.240
+So there's literally a GitHub page
+
+21:32.240 --> 21:35.000
+with the CAD files for everything that you see here,
+
+21:35.000 --> 21:36.720
+and for its bigger brothers,
+
+21:36.720 --> 21:39.300
+the Thelio Major and Thelio Massive.
+
+21:39.300 --> 21:41.560
+But what impresses me overall about their entire coverage
+
+21:41.560 --> 21:44.040
+is, again, it's really well shot,
+
+21:44.040 --> 21:44.960
+it's really well written,
+
+21:44.960 --> 21:46.560
+you should watch the entire video,
+
+21:46.560 --> 21:48.880
+but they seem fairly balanced.
+
+21:48.880 --> 21:50.160
+They also point out, you know,
+
+21:50.160 --> 21:51.700
+the entire thing is an open source.
+
+21:51.700 --> 21:53.560
+Now, that's not to say that every component
+
+21:53.560 --> 21:55.340
+in the system is open source.
+
+21:55.340 --> 21:58.980
+The motherboard, CPU, RAM, video card, storage devices,
+
+21:58.980 --> 22:02.180
+and power supply are all proprietary in design
+
+22:02.180 --> 22:04.600
+with the IP owned by the individual companies
+
+22:04.600 --> 22:05.440
+that made them.
+
+22:05.440 --> 22:07.680
+As it is, I mean, that's just how it works.
+
+22:07.680 --> 22:10.140
+System76 will open a source as much as they can.
+
+22:11.500 --> 22:13.920
+And they touched on something
+
+22:13.920 --> 22:17.480
+that we've been trying to figure out internally,
+
+22:17.480 --> 22:20.240
+because Wes is co-host on Coda Radio,
+
+22:20.240 --> 22:23.320
+Michael Dominic picked up a Thelio station,
+
+22:23.320 --> 22:26.400
+and was unable to use it for podcasting
+
+22:26.400 --> 22:27.240
+because of fan noise.
+
+22:27.240 --> 22:28.060
+And it's something-
+
+22:28.060 --> 22:28.900
+We noticed it right away.
+
+22:28.900 --> 22:30.220
+He's been experimenting with,
+
+22:30.220 --> 22:34.080
+and they may have come onto something that Linus Tech Tips.
+
+22:34.080 --> 22:35.320
+What we can also see in here
+
+22:35.320 --> 22:36.680
+is they've done a pretty bang up job
+
+22:36.680 --> 22:37.920
+with the cable management,
+
+22:37.920 --> 22:40.400
+helped significantly by the generous real estate
+
+22:40.400 --> 22:42.480
+provided under the main fascia,
+
+22:42.480 --> 22:44.940
+which doesn't attempt to seal the computer
+
+22:44.940 --> 22:47.340
+so much as it conceals.
+
+22:47.340 --> 22:49.400
+There is a bit of concern from our end
+
+22:49.400 --> 22:52.080
+about dust accumulation through the side panels
+
+22:52.080 --> 22:54.920
+and the potential for noise to sneak out
+
+22:54.920 --> 22:58.760
+from under the chassis using the air gap as an echo chamber.
+
+22:58.760 --> 23:00.640
+Unfortunately, sure enough,
+
+23:00.640 --> 23:02.220
+it does get a little loud
+
+23:02.220 --> 23:04.040
+when the fans are running full tilt,
+
+23:04.040 --> 23:07.280
+and it's not just whooshing air noise,
+
+23:07.280 --> 23:09.520
+something that we generally don't complain about.
+
+23:09.520 --> 23:12.400
+Rather, it's a kind of droning whine
+
+23:12.400 --> 23:15.160
+that's a little bit harder to tune out.
+
+23:15.160 --> 23:18.560
+Honestly, I think a Noctua or a Be Quiet fan swap
+
+23:18.560 --> 23:19.960
+would help tremendously here.
+
+23:19.960 --> 23:22.360
+That's a particularly challenging problem, though,
+
+23:22.360 --> 23:24.280
+if that is just down to the case design,
+
+23:24.280 --> 23:26.640
+if it's kind of making sound channels on the side,
+
+23:26.640 --> 23:27.880
+because it's such a gorgeous case.
+
+23:27.880 --> 23:30.200
+It's gonna take them a while to iterate on that.
+
+23:30.200 --> 23:31.560
+So that could be why they've struggled
+
+23:31.560 --> 23:33.880
+to have a super great response to the fan noise issue,
+
+23:33.880 --> 23:35.800
+in my opinion, that's of course just my opinion.
+
+23:35.800 --> 23:37.040
+Yeah, it is so pretty, it'd be such a shame
+
+23:37.040 --> 23:38.840
+to have to go stick it in the closet somewhere
+
+23:38.840 --> 23:40.280
+and not get to admire it on your desk.
+
+23:40.280 --> 23:43.020
+Yeah, and so they also get to the price,
+
+23:43.020 --> 23:46.120
+because you could build yourself a cheaper system,
+
+23:46.120 --> 23:48.640
+or you could go buy a mass produced system that's cheaper,
+
+23:48.640 --> 23:51.840
+and I think they did a decent job on honing in
+
+23:51.840 --> 23:54.400
+on what kind of makes them special.
+
+23:54.400 --> 23:57.040
+While the operating system itself may be free,
+
+23:57.040 --> 23:59.640
+System76 does have paid staff
+
+23:59.640 --> 24:01.840
+that actively develop their OS,
+
+24:01.840 --> 24:04.520
+and that's to say nothing of the user support commitments
+
+24:04.520 --> 24:06.120
+that come along with that.
+
+24:06.120 --> 24:07.640
+Perhaps most crucially, though,
+
+24:07.640 --> 24:10.920
+the Thelio chassis manufacturer and final assembly
+
+24:10.920 --> 24:14.640
+are both done in Colorado by a team that's about our size,
+
+24:14.640 --> 24:16.800
+so no mass production.
+
+24:16.800 --> 24:18.840
+System76 says they want to improve
+
+24:18.840 --> 24:20.460
+the situation in the future,
+
+24:20.460 --> 24:23.760
+but for now, it means that the costs add up really quickly.
+
+24:23.760 --> 24:26.000
+The team that's about our size,
+
+24:26.000 --> 24:27.800
+which is kind of, that's poignant.
+
+24:27.800 --> 24:29.600
+And then last but not least, they wrap it up.
+
+24:29.600 --> 24:32.480
+You're paying for the case, US manufacturer,
+
+24:32.480 --> 24:33.960
+operating system development,
+
+24:33.960 --> 24:36.920
+and support from a small team of enthusiasts.
+
+24:36.920 --> 24:39.400
+Now, whether the design and concept
+
+24:39.400 --> 24:41.240
+of a well-integrated Linux desktop
+
+24:41.240 --> 24:43.120
+is enough to make you pay the extra,
+
+24:43.120 --> 24:44.940
+that's a choice I'll leave to you.
+
+24:44.940 --> 24:47.700
+But overall, we think it's really cool
+
+24:47.700 --> 24:49.760
+and a huge step in the right direction.
+
+24:49.760 --> 24:52.760
+It's pretty good coverage for System76,
+
+24:52.760 --> 24:55.440
+and it's good coverage for Pop!OS, too.
+
+24:55.440 --> 24:59.600
+So we have ourselves another major desktop container.
+
+24:59.600 --> 25:00.440
+I mean, they'll get there.
+
+25:00.440 --> 25:01.860
+They're not there yet, but they're gonna get there.
+
+25:01.860 --> 25:03.100
+It does make me feel a little bit better
+
+25:03.100 --> 25:04.440
+about Mike's situation,
+
+25:04.440 --> 25:07.280
+because he was having a heck of a time trying to fix it.
+
+25:07.280 --> 25:08.480
+It's nice to know, you know,
+
+25:08.480 --> 25:10.080
+it's unfortunately a common problem.
+
+25:10.080 --> 25:11.200
+Maybe run it with the case off.
+
+25:11.200 --> 25:12.200
+I don't know.
+
+25:12.200 --> 25:14.240
+But good for them.
+
+25:14.240 --> 25:17.320
+But weren't they also raving about Pop!OS
+
+25:17.320 --> 25:19.320
+in one of their videos just recently,
+
+25:19.320 --> 25:21.520
+where they were talking about gaming and stuff?
+
+25:21.520 --> 25:23.800
+Yeah, it's a lot of coverage for Pop!OS.
+
+25:25.080 --> 25:27.760
+And I appreciate it.
+
+25:27.760 --> 25:31.700
+I think I initially was very, very critical of Pop!OS.
+
+25:33.600 --> 25:36.100
+I still, I would love, what I would love,
+
+25:36.100 --> 25:41.100
+is if Pop!OS was just a series of scripts or repositories
+
+25:41.100 --> 25:44.000
+that you would add to a vanilla install of Ubuntu
+
+25:44.000 --> 25:45.040
+that would make it pop,
+
+25:45.040 --> 25:47.600
+and that would add a couple of things or whatever.
+
+25:47.600 --> 25:49.440
+I feel like we already have too many distros,
+
+25:49.440 --> 25:51.080
+but of course, you know what, I'm an old fart.
+
+25:51.080 --> 25:52.260
+So of course I feel like that,
+
+25:52.260 --> 25:53.920
+because I've seen, in my time,
+
+25:53.920 --> 25:56.160
+I've seen so many distros come and go.
+
+25:56.160 --> 25:59.520
+However, there is apparently
+
+25:59.520 --> 26:02.000
+a pretty, an interested market in this distribution,
+
+26:02.000 --> 26:04.720
+and I give them credit for cultivating that
+
+26:04.720 --> 26:06.680
+and for adding some value to the OS,
+
+26:06.680 --> 26:08.700
+like you hear people constantly talk about the install
+
+26:08.700 --> 26:10.680
+or the encryption, the pop store,
+
+26:10.680 --> 26:13.240
+the theme, these are all things that matter.
+
+26:13.240 --> 26:16.720
+And credit to System76 for nailing those things.
+
+26:16.720 --> 26:19.800
+And truth be told, they're just getting started, really.
+
+26:19.800 --> 26:22.340
+So I feel, even though I started
+
+26:22.340 --> 26:23.520
+fairly critical of the distribution,
+
+26:23.520 --> 26:26.360
+and I still don't really see myself running anytime soon,
+
+26:26.360 --> 26:28.440
+but I could, I could see myself in the future
+
+26:28.440 --> 26:29.280
+if I went back to GNOME.
+
+26:29.280 --> 26:30.200
+I'd probably give it a try.
+
+26:30.200 --> 26:31.640
+It is interesting to see them actually,
+
+26:31.640 --> 26:33.240
+I think there was some wonder
+
+26:33.240 --> 26:34.880
+about how far they were gonna take this.
+
+26:34.880 --> 26:36.360
+Was it gonna just be sort of glorified,
+
+26:36.360 --> 26:39.440
+a few scripts on top, a custom theme?
+
+26:39.440 --> 26:41.420
+But it seems like as they've had time
+
+26:41.420 --> 26:44.560
+to develop it more out, they're actively working on it.
+
+26:44.560 --> 26:47.440
+So it will be a long time project.
+
+26:47.440 --> 26:48.640
+We're gonna see more updates,
+
+26:48.640 --> 26:50.320
+and they're gonna continue to ship it.
+
+26:50.320 --> 26:53.200
+She was stuck all day, Emma, in customs,
+
+26:53.200 --> 26:55.160
+trying to get that machine to them.
+
+26:55.160 --> 26:57.880
+She hand delivered that machine,
+
+26:58.760 --> 27:01.040
+and then just had to walk away
+
+27:01.040 --> 27:04.120
+and hope that the review went well.
+
+27:05.720 --> 27:08.320
+And that was weeks ago, that was back during Linux Fest
+
+27:08.320 --> 27:09.160
+that she did that.
+
+27:09.160 --> 27:11.040
+She did that during Linux Fest and did that.
+
+27:11.040 --> 27:13.840
+And now here we are quite a while later,
+
+27:13.840 --> 27:15.040
+and that just got posted.
+
+27:15.040 --> 27:16.940
+That kind of shows you their time window there,
+
+27:16.940 --> 27:19.960
+but that's a lot of weeks of her sitting around wondering,
+
+27:19.960 --> 27:20.880
+was it worth it?
+
+27:20.880 --> 27:24.280
+Or did I just screw up?
+
+27:24.280 --> 27:25.120
+And I think it was.
+
+27:25.120 --> 27:25.960
+I think it was, yeah.
+
+27:25.960 --> 27:28.400
+It's number 44 on all of YouTube right now.
+
+27:28.400 --> 27:29.880
+That's a significant thing.
+
+27:29.880 --> 27:31.480
+A tiny little Linux shop.
+
+27:31.480 --> 27:33.560
+Yeah, I hope they get some sales out of it.
+
+27:33.560 --> 27:34.400
+Absolutely.
+
+27:34.400 --> 27:35.640
+All right, you know what we need to do?
+
+27:35.640 --> 27:38.680
+We gotta do that housekeeping.
+
+27:38.680 --> 27:39.640
+We gotta clean it up in here.
+
+27:39.640 --> 27:40.800
+Yeah, we gotta clean up a little bit.
+
+27:40.800 --> 27:42.960
+There's a few things to touch on this week.
+
+27:42.960 --> 27:45.960
+First of all, first of all, I should mention,
+
+27:45.960 --> 27:47.500
+we don't say this often enough,
+
+27:47.500 --> 27:50.880
+but Linux Academy is hiring for remote positions right now,
+
+27:50.880 --> 27:53.360
+including a Linux training architect,
+
+27:53.360 --> 27:55.000
+a machine learning training architect,
+
+27:55.000 --> 27:57.160
+a Python development training architect,
+
+27:57.160 --> 27:58.920
+but also an Angular developer,
+
+27:58.920 --> 28:01.640
+a full stack Node.js developer,
+
+28:01.640 --> 28:03.520
+and Ruby on Rails developers,
+
+28:03.520 --> 28:05.680
+multiple Ruby on Rails developers.
+
+28:05.680 --> 28:07.140
+Those are full-time remote positions,
+
+28:07.140 --> 28:09.440
+full benefits, everything.
+
+28:09.440 --> 28:12.960
+There's also a position open in the lab platform.
+
+28:12.960 --> 28:14.040
+There's a few things happening there
+
+28:14.040 --> 28:15.580
+that are pretty interesting.
+
+28:15.580 --> 28:17.120
+So if you haven't gone to linuxacademy.com
+
+28:17.120 --> 28:18.320
+slash careers in a while,
+
+28:18.320 --> 28:19.480
+I really suggest you do it
+
+28:19.480 --> 28:22.200
+because there is some great positions open right now.
+
+28:22.200 --> 28:23.240
+And I want to pass that along to you
+
+28:23.240 --> 28:26.120
+because if you're in our audience,
+
+28:26.120 --> 28:28.080
+you kind of have like a leg up in the process.
+
+28:28.080 --> 28:31.240
+If you tell them I heard about it on Linux Unplugged,
+
+28:31.240 --> 28:32.920
+that's gonna probably move you to the top of the stack.
+
+28:32.920 --> 28:33.740
+Oh!
+
+28:33.740 --> 28:34.580
+Yeah, that's a big deal
+
+28:34.580 --> 28:36.840
+because that means you're actually interested in this stuff.
+
+28:36.840 --> 28:39.760
+I want to also mention the Friday stream this week.
+
+28:39.760 --> 28:41.440
+We played Who Wants to be a Millionaire?
+
+28:41.440 --> 28:43.800
+It was Wes versus Ange.
+
+28:43.800 --> 28:46.640
+I don't want to give it away, but it was tense.
+
+28:46.640 --> 28:48.840
+She's a tough competition right there.
+
+28:48.840 --> 28:49.680
+Tough competition.
+
+28:49.680 --> 28:52.240
+Fridaystream.com slash seven.
+
+28:52.240 --> 28:53.080
+It's a really good one.
+
+28:53.080 --> 28:54.280
+That was a really fun one.
+
+28:54.280 --> 28:57.900
+And then last but not least here in the old housekeeping,
+
+28:57.900 --> 29:02.360
+we have a big batch of study group videos
+
+29:02.360 --> 29:04.020
+that just got posted.
+
+29:04.020 --> 29:04.860
+In the show notes,
+
+29:04.860 --> 29:07.720
+I have a link to the playlist on YouTube.
+
+29:07.720 --> 29:10.020
+This is Linux Permissions 101.
+
+29:10.020 --> 29:14.480
+I think it is seven videos, I think, or six videos.
+
+29:14.480 --> 29:15.320
+Yeah, we've got it down
+
+29:15.320 --> 29:17.460
+to just sort of bite-sized components you can handle.
+
+29:17.460 --> 29:19.720
+And it's really everything you've ever wanted to know
+
+29:19.720 --> 29:20.640
+about Linux Permissions.
+
+29:20.640 --> 29:21.480
+So nice.
+
+29:21.480 --> 29:24.040
+It starts at the very basics and then works its way up.
+
+29:24.040 --> 29:26.700
+And then by the end, you're doing really cool stuff
+
+29:26.700 --> 29:30.760
+with ACLs and with UMass and set UIDs.
+
+29:30.760 --> 29:33.920
+It's a good series of videos, six parts.
+
+29:33.920 --> 29:35.200
+Each is consumable.
+
+29:35.200 --> 29:37.080
+And we'll have a link to that in the show notes.
+
+29:37.080 --> 29:38.160
+Just something we do to give back.
+
+29:38.160 --> 29:40.360
+We have a lot of great opportunities.
+
+29:40.360 --> 29:42.460
+We talk not only with training architects at Linux Academy,
+
+29:42.460 --> 29:45.280
+but Elle is a networking machine.
+
+29:45.280 --> 29:47.400
+And she goes out to events all the time.
+
+29:47.400 --> 29:49.400
+And she meets people who are great presenters
+
+29:49.400 --> 29:51.200
+who want to share their knowledge with our community,
+
+29:51.200 --> 29:52.700
+their listeners often.
+
+29:52.700 --> 29:54.500
+And so that's where a lot of this has come from,
+
+29:54.500 --> 29:56.140
+is people that Elle has met.
+
+29:56.140 --> 29:57.080
+She's our ambassador.
+
+29:57.080 --> 29:58.860
+Yeah, she goes down, connects with these people,
+
+29:58.860 --> 30:01.800
+and then brings them on to do a seminar or a webinar really.
+
+30:01.800 --> 30:03.480
+And then we release it for free.
+
+30:03.480 --> 30:04.680
+Because we're all about it.
+
+30:04.680 --> 30:05.600
+We're all about it.
+
+30:05.600 --> 30:06.320
+So check that out.
+
+30:06.320 --> 30:09.680
+We'll have a link, linuxunplug.com slash, what is this, 306?
+
+30:09.680 --> 30:10.600
+306.
+
+30:10.600 --> 30:13.160
+linuxunplug.com slash 306.
+
+30:13.160 --> 30:18.360
+All right, Mr. Payne, that abbreviated housekeeping
+
+30:18.360 --> 30:20.200
+this week.
+
+30:20.200 --> 30:23.120
+So we're going to talk about something you should never do.
+
+30:23.120 --> 30:23.800
+Don't do it.
+
+30:23.800 --> 30:24.800
+We just wanted to have something that
+
+30:24.800 --> 30:25.840
+was more familiar to us.
+
+30:25.840 --> 30:27.280
+We had a problem to solve.
+
+30:27.280 --> 30:33.200
+And truthfully, we felt a little inadequate with the BSD.
+
+30:33.200 --> 30:34.840
+And we had work to get done.
+
+30:34.840 --> 30:38.520
+So Wes and I headed out to the Jupyter broadcasting server
+
+30:38.520 --> 30:39.080
+room.
+
+30:39.080 --> 30:41.960
+We're out here in the studio server room, AKA the garage,
+
+30:41.960 --> 30:44.120
+to do something that you should never do.
+
+30:44.120 --> 30:46.000
+Don't do what we're about to do.
+
+30:46.000 --> 30:49.920
+We're going to take our perfectly functional, totally
+
+30:49.920 --> 30:52.520
+fine, FreeNAS server, and we're going
+
+30:52.520 --> 30:55.520
+to rip out the FreeNAS part and put Fedora 30 server in.
+
+30:55.520 --> 30:58.160
+Yeah, you heard that right, Fedora 30.
+
+30:58.160 --> 31:01.280
+Then we're going to try to import ZFS pools that Alan
+
+31:01.280 --> 31:04.680
+created under FreeNAS into Fedora
+
+31:04.680 --> 31:07.680
+after we get the ZFS support installed.
+
+31:07.680 --> 31:08.920
+I know this sounds ridiculous.
+
+31:08.920 --> 31:10.480
+Non-standard, maybe?
+
+31:10.480 --> 31:13.120
+There's a couple of motivating factors, if you will.
+
+31:13.120 --> 31:17.160
+Number one, this is a killer super micro server
+
+31:17.160 --> 31:21.760
+with two six-core Xeon processors and 64 gigs of RAM.
+
+31:21.760 --> 31:23.920
+And it's just sitting here doing nothing but FreeNAS.
+
+31:23.920 --> 31:24.400
+Right.
+
+31:24.400 --> 31:25.800
+Right now, it's just storage.
+
+31:25.800 --> 31:27.800
+And I mean, that's great and arguably probably
+
+31:27.800 --> 31:29.680
+the way you should do it.
+
+31:29.680 --> 31:31.800
+But why are we going to let this server go to waste?
+
+31:31.800 --> 31:33.440
+It's just if you're using that much power
+
+31:33.440 --> 31:36.240
+and you've got to make all this noise, let's put it to work.
+
+31:36.240 --> 31:40.920
+So there is one other consideration.
+
+31:40.920 --> 31:43.920
+We've also run into an issue where a couple of times
+
+31:43.920 --> 31:45.960
+we need to do some repairs.
+
+31:45.960 --> 31:48.080
+And Wes and I are just not FreeBSD guys.
+
+31:48.080 --> 31:49.000
+Surprise, surprise.
+
+31:49.000 --> 31:50.280
+We're Linux guys.
+
+31:50.280 --> 31:52.640
+And so we have a disk issue.
+
+31:52.640 --> 31:56.040
+We need to swap out a disk and get a new disk online.
+
+31:56.040 --> 31:58.400
+And quite frankly, we're just more comfortable
+
+31:58.400 --> 31:59.760
+with the Linux command line.
+
+31:59.760 --> 32:01.720
+And I think this is actually kind of an important thing.
+
+32:01.720 --> 32:03.360
+When you put something in production,
+
+32:03.360 --> 32:06.440
+you need to know how to use it, not maybe be so dependent
+
+32:06.440 --> 32:09.320
+on, say, Alan Jude.
+
+32:09.320 --> 32:10.320
+All right, we're rebooting.
+
+32:10.320 --> 32:13.000
+We've just maybe completed installation.
+
+32:13.000 --> 32:14.960
+Yeah, you're going to pop out the thumb drive.
+
+32:14.960 --> 32:19.200
+So we use the Fedora server image, which is pretty nice.
+
+32:19.200 --> 32:20.240
+Network install.
+
+32:20.240 --> 32:22.120
+Yeah, the net install server image.
+
+32:22.120 --> 32:24.480
+So it pulls down the packages from the repository
+
+32:24.480 --> 32:26.080
+and gives you some options.
+
+32:26.080 --> 32:27.840
+In fact, it might be the way I install Fedora from now on.
+
+32:27.840 --> 32:28.480
+I mean, honestly, what?
+
+32:28.480 --> 32:30.920
+That took all of 15 minutes once we got it set up and going?
+
+32:30.920 --> 32:33.120
+It was a tiny image, well, 600 megabytes.
+
+32:33.120 --> 32:35.480
+And then you could choose all of the desktops
+
+32:35.480 --> 32:38.400
+if you want, from Zubuntu to Cinnamon,
+
+32:38.400 --> 32:39.680
+or just the minimal installs.
+
+32:39.680 --> 32:41.120
+It gives you an option.
+
+32:41.120 --> 32:42.560
+And then it's off to the races.
+
+32:42.560 --> 32:43.340
+So we'll boot up.
+
+32:43.340 --> 32:48.000
+And then I think mission one is make sure our Fedora install
+
+32:48.000 --> 32:50.520
+is sane and then get ZFS support installed.
+
+32:50.520 --> 32:53.080
+And then we've got to go see about importing this pool.
+
+32:53.080 --> 32:55.520
+All right, well, it's our first boot.
+
+32:55.520 --> 32:56.840
+We'll be back in a moment.
+
+32:56.840 --> 32:58.800
+I don't know why, but I just haven't
+
+32:58.800 --> 33:04.560
+used a net install version of a distro ISO in, like, 10 years.
+
+33:04.560 --> 33:06.760
+I mean, it just feels like it's been forever.
+
+33:06.760 --> 33:08.640
+That's the only way I'm doing it from now on.
+
+33:08.640 --> 33:10.400
+Seriously, it was so great.
+
+33:10.400 --> 33:11.900
+First of all, way quicker to download.
+
+33:11.900 --> 33:12.840
+Oh, yeah, very nice.
+
+33:12.840 --> 33:16.000
+And Anaconda has this screen that you don't normally
+
+33:16.000 --> 33:18.080
+see when you get the live desktop version
+
+33:18.080 --> 33:19.480
+or when you get a specific spin.
+
+33:19.480 --> 33:21.080
+You don't see this screen that comes up.
+
+33:21.080 --> 33:22.920
+And the screen that comes up is the choice
+
+33:22.920 --> 33:25.440
+you can install any of the spins of the desktops
+
+33:25.440 --> 33:27.640
+right there from Anaconda.
+
+33:27.640 --> 33:30.880
+So you can use this as a base ISO for a Fedora server,
+
+33:30.880 --> 33:32.120
+for a Fedora desktop.
+
+33:32.120 --> 33:33.360
+Yeah, I think we were both pretty impressed.
+
+33:33.360 --> 33:35.240
+It was a surprisingly smooth installation.
+
+33:35.240 --> 33:36.760
+I was.
+
+33:36.760 --> 33:38.520
+I'm not normally an Anaconda fan.
+
+33:38.520 --> 33:42.520
+No, and I'm normally not impressed by Grub.
+
+33:42.520 --> 33:44.040
+I was impressed at Grub.
+
+33:44.040 --> 33:45.920
+So Grub just came up on the first boot.
+
+33:45.920 --> 33:47.660
+And one of the things I immediately noticed
+
+33:47.660 --> 33:49.520
+is we're already on kernel 5.1, which
+
+33:49.520 --> 33:51.240
+does confirm that the net install pulls down
+
+33:51.240 --> 33:52.680
+the latest packages.
+
+33:52.680 --> 33:53.600
+That's also nice.
+
+33:53.600 --> 33:55.840
+Fresh Linux.
+
+33:55.840 --> 33:59.360
+And one of the sort of interesting little side
+
+33:59.360 --> 34:02.280
+anecdotes about this setup is we're connected to.
+
+34:02.280 --> 34:03.840
+It's kind of a rickety setup.
+
+34:03.840 --> 34:07.560
+The keyboard is a old Mac mechanical keyboard
+
+34:07.560 --> 34:09.640
+because it's just the only one I had laying around
+
+34:09.640 --> 34:10.160
+that I'm not using.
+
+34:10.160 --> 34:10.960
+It's actually not that bad.
+
+34:10.960 --> 34:11.400
+No, it's not.
+
+34:11.400 --> 34:12.880
+Certainly better than modern Mac keyboards.
+
+34:12.880 --> 34:14.840
+It's just the control and alt and stuff
+
+34:14.840 --> 34:16.280
+is a little different.
+
+34:16.280 --> 34:19.480
+And then it's connected to the very first LCD screen
+
+34:19.480 --> 34:22.160
+I ever bought back in like 2000, 2001,
+
+34:22.160 --> 34:23.760
+which I've just held onto all this time.
+
+34:23.760 --> 34:24.740
+But there we are.
+
+34:24.740 --> 34:25.440
+And look at that.
+
+34:25.440 --> 34:26.440
+It does say web console.
+
+34:26.440 --> 34:27.000
+So this does.
+
+34:27.000 --> 34:29.040
+Cockpit is already up and running.
+
+34:29.040 --> 34:29.920
+All right, I'm going to give it a log in.
+
+34:29.920 --> 34:32.240
+You ready?
+
+34:32.240 --> 34:34.040
+All right.
+
+34:34.040 --> 34:34.720
+Yeah, there we go.
+
+34:34.720 --> 34:35.360
+We're in.
+
+34:35.360 --> 34:37.680
+All right, well, let's root around.
+
+34:37.680 --> 34:39.360
+Oh, look at all them disks.
+
+34:39.360 --> 34:40.440
+So it does see the disk.
+
+34:40.440 --> 34:40.920
+Yep, OK.
+
+34:40.920 --> 34:42.000
+Yeah, we're off to the races.
+
+34:42.000 --> 34:42.240
+Good.
+
+34:42.240 --> 34:43.320
+So now what we need to do is we need
+
+34:43.320 --> 34:45.240
+to get kernel development packages installed.
+
+34:45.240 --> 34:48.760
+And then we have to get the ZFS on Linux official GPG
+
+34:48.760 --> 34:51.720
+key installed and the repository installed.
+
+34:51.720 --> 34:53.160
+And then we can get this going.
+
+34:53.160 --> 34:54.440
+So why don't we take a few minutes?
+
+34:54.440 --> 34:55.680
+We'll do that, and then we'll come back.
+
+34:55.680 --> 34:59.600
+I wasn't sure, like, would it be in this weird, funky state
+
+34:59.600 --> 35:01.120
+because we had a bad disk.
+
+35:01.120 --> 35:03.960
+I was sort of like, OK, great.
+
+35:03.960 --> 35:05.200
+Yeah, we got Fedora installed.
+
+35:05.200 --> 35:05.480
+Great.
+
+35:05.480 --> 35:07.620
+Yeah, it can physically see the hard drives.
+
+35:07.620 --> 35:08.120
+Who cares?
+
+35:08.120 --> 35:09.720
+We've got to get ZFS working.
+
+35:09.720 --> 35:12.200
+Well, it turns out we'll have links in the show notes.
+
+35:12.200 --> 35:13.640
+That's pretty easy to do.
+
+35:13.640 --> 35:16.280
+The ZFS on Linux upstream project
+
+35:16.280 --> 35:18.960
+makes it all possible by putting a repo up,
+
+35:18.960 --> 35:21.280
+by putting keys up, and then by putting documentation up
+
+35:21.280 --> 35:21.840
+on how to do it.
+
+35:21.840 --> 35:22.440
+No time at all.
+
+35:22.440 --> 35:24.920
+Yeah, it was really, it was one of the fastest
+
+35:24.920 --> 35:26.380
+parts of the whole setup was actually
+
+35:26.380 --> 35:27.760
+getting ZFS working on Fedora.
+
+35:27.760 --> 35:29.400
+It was completely painless.
+
+35:29.400 --> 35:31.360
+But I wanted to know if we were going to actually
+
+35:31.360 --> 35:34.200
+be able to import that pool since it was created
+
+35:34.200 --> 35:36.240
+with an entirely different operating system using
+
+35:36.240 --> 35:39.480
+a entirely different fork, or at least much older fork,
+
+35:39.480 --> 35:40.960
+of ZFS.
+
+35:40.960 --> 35:43.640
+And of course, we had that degraded disk as well,
+
+35:43.640 --> 35:44.840
+or that dead disk.
+
+35:44.840 --> 35:46.360
+We had a degraded pool as well.
+
+35:46.360 --> 35:48.920
+We just got done installing all of the ZFS packages
+
+35:48.920 --> 35:51.880
+from the ZFS on Linux project.
+
+35:51.880 --> 35:54.680
+You've done the import command.
+
+35:54.680 --> 35:55.280
+How has it gone?
+
+35:55.280 --> 35:56.220
+What's happened?
+
+35:56.220 --> 35:57.440
+We've got our data.
+
+35:57.440 --> 35:59.240
+Now, there is one issue we're going
+
+35:59.240 --> 36:01.200
+to have to solve right off the bat, and that's
+
+36:01.200 --> 36:03.760
+setting the mount point because it's
+
+36:03.760 --> 36:06.320
+defaulting to just the name of the pool
+
+36:06.320 --> 36:07.760
+right under the root directory.
+
+36:07.760 --> 36:09.880
+Previously, it had been under mount.
+
+36:09.880 --> 36:11.800
+So we're going to have to tweak that a little bit
+
+36:11.800 --> 36:13.300
+as we set up the rest of the stuff,
+
+36:13.300 --> 36:15.280
+get things like NFS or SMB set up.
+
+36:15.280 --> 36:18.040
+But otherwise, I mean, it imported with no errors.
+
+36:18.040 --> 36:18.600
+That's pretty great.
+
+36:18.600 --> 36:23.000
+So we went from a up-to-date FreeNAS install
+
+36:23.000 --> 36:26.800
+and replaced that with Fedora 30 server, installed the ZFS
+
+36:26.800 --> 36:29.480
+modules, and we're just picking right up where we left off.
+
+36:29.480 --> 36:31.120
+One command in, and here we are.
+
+36:31.120 --> 36:33.120
+And I would imagine that, I don't know for sure,
+
+36:33.120 --> 36:35.760
+but I would figure that Fedora 30 could likely
+
+36:35.760 --> 36:38.920
+be using a newer version of ZFS since we just
+
+36:38.920 --> 36:41.360
+got the repository from the project directly.
+
+36:41.360 --> 36:42.760
+I bet you're right.
+
+36:42.760 --> 36:43.640
+And it's still fine.
+
+36:43.640 --> 36:44.360
+It still worked.
+
+36:44.360 --> 36:46.040
+Well, we'll solve that mount issue,
+
+36:46.040 --> 36:48.640
+and then it's just a matter of standing up all the services
+
+36:48.640 --> 36:49.360
+again.
+
+36:49.360 --> 36:52.080
+So there was, I guess, a polite way
+
+36:52.080 --> 36:55.760
+to say this is a unique heritage of this FreeNAS box.
+
+36:55.760 --> 36:57.560
+You have to appreciate some background
+
+36:57.560 --> 36:59.280
+before we continue here.
+
+36:59.280 --> 37:02.040
+Blessed soul Alan Jude was out for Linux Fest Northwest
+
+37:02.040 --> 37:04.400
+and, like a Canadian gentleman, went out there
+
+37:04.400 --> 37:07.480
+and completely set up this killer box.
+
+37:07.480 --> 37:12.200
+It's got two Intel Xeons that are six cores each that
+
+37:12.200 --> 37:14.440
+supports all of the virtualization stuff
+
+37:14.440 --> 37:15.560
+that you'd want.
+
+37:15.560 --> 37:18.800
+And then it's got, what, 13 disks in it maybe?
+
+37:18.800 --> 37:19.600
+Yeah, I think so.
+
+37:19.600 --> 37:22.440
+Something like that, a mix of different sizes,
+
+37:22.440 --> 37:24.540
+probably the smallest being six terabytes.
+
+37:24.540 --> 37:28.080
+And then it has 64 gigabytes of RAM, some contributed by Alan,
+
+37:28.080 --> 37:30.480
+some contributed by a TechSnap listener.
+
+37:30.480 --> 37:32.280
+And it's just this monster of a system
+
+37:32.280 --> 37:33.920
+we're not doing anything with.
+
+37:33.920 --> 37:36.920
+And I looked at this and I thought, gosh,
+
+37:36.920 --> 37:39.120
+if this was running Linux, I would be more comfortable
+
+37:39.120 --> 37:42.040
+with actually deploying containers on this thing
+
+37:42.040 --> 37:44.920
+and running other pieces of software on this.
+
+37:44.920 --> 37:47.680
+But when Alan set it up, he had set it up really
+
+37:47.680 --> 37:49.880
+to only ever be a back-end storage
+
+37:49.880 --> 37:53.720
+box with a fairly complicated ZFS layout.
+
+37:53.720 --> 37:57.000
+As you would imagine, he sub-volumed everything.
+
+37:57.000 --> 38:01.080
+And there's also kind of a funky, like, swap partition
+
+38:01.080 --> 38:03.280
+that went across all the disks for the FreeNAS itself.
+
+38:03.280 --> 38:05.920
+So there's, like, some weird space allocated to that.
+
+38:05.920 --> 38:07.320
+And then we had this mount issue.
+
+38:07.320 --> 38:09.320
+Yeah, I mean, we just had to get it configured.
+
+38:09.320 --> 38:11.380
+And FreeNAS had a sort of non-standard setup.
+
+38:11.380 --> 38:13.680
+And it had been a mix of Alan administering things
+
+38:13.680 --> 38:16.480
+on the FreeBSD command line and some of the FreeNAS defaults,
+
+38:16.480 --> 38:18.120
+especially because this had actually
+
+38:18.120 --> 38:20.820
+been a regular FreeNAS from IX Systems
+
+38:20.820 --> 38:23.000
+that we then ported over to this new box.
+
+38:23.000 --> 38:25.520
+So it was something of a hybrid monster.
+
+38:25.520 --> 38:28.060
+Yeah, it had gone from a FreeNAS mini
+
+38:28.060 --> 38:31.920
+into a super microchassis, which then Alan reconfigured it
+
+38:31.920 --> 38:32.720
+from there.
+
+38:32.720 --> 38:36.640
+And then we, from there, have converted it into a Fedora box.
+
+38:36.640 --> 38:39.080
+But in the process, we sort of redid some things
+
+38:39.080 --> 38:42.480
+to sort of align to how we kind of do things now,
+
+38:42.480 --> 38:45.560
+including how we sort of set up the way the disk is set up
+
+38:45.560 --> 38:46.800
+for the OS and whatnot.
+
+38:46.800 --> 38:48.960
+So we had to do some stuff, tweak some of the mount point
+
+38:48.960 --> 38:50.480
+settings and play with that.
+
+38:50.480 --> 38:53.940
+There was also one other gotcha that we ran into that took us
+
+38:53.940 --> 38:55.720
+a little bit to figure out.
+
+38:55.720 --> 38:57.680
+I'll tell you about that after this part, though.
+
+38:57.680 --> 38:59.320
+Fast forward a few more hours.
+
+38:59.320 --> 39:01.800
+We have a pretty happy Fedora server right now.
+
+39:01.800 --> 39:05.200
+And it's come down to the task of replacing that failed disk.
+
+39:05.200 --> 39:07.480
+This is actually what started the entire process.
+
+39:07.480 --> 39:08.600
+Yeah, this was the whole point.
+
+39:08.600 --> 39:10.440
+This is the reason we started mucking around
+
+39:10.440 --> 39:12.000
+with the FreeNAS system at all.
+
+39:12.000 --> 39:14.400
+I mean, formerly FreeNAS system, of course.
+
+39:14.400 --> 39:15.080
+Yeah, yeah.
+
+39:15.080 --> 39:15.960
+Now it's FakeNAS.
+
+39:15.960 --> 39:17.720
+That's what we're calling it.
+
+39:17.720 --> 39:19.880
+So what step are you about to take right now?
+
+39:19.880 --> 39:22.960
+All right, we've already removed and replaced physically
+
+39:22.960 --> 39:25.600
+the failed disk with our new replacement desk.
+
+39:25.600 --> 39:28.200
+And we've applied the same partitioning structure
+
+39:28.200 --> 39:30.480
+that was on the previous desk.
+
+39:30.480 --> 39:33.240
+Now we actually just need to replace it in the pool.
+
+39:33.240 --> 39:35.360
+Right now, it's configured in a mirror setup.
+
+39:35.360 --> 39:37.040
+So really, we're just going to put it in.
+
+39:37.040 --> 39:40.720
+And CFS gets to copy all the data from the one existing
+
+39:40.720 --> 39:45.000
+drive, and we will have two back in parity.
+
+39:45.000 --> 39:46.600
+All right, let's fire it off.
+
+39:46.600 --> 39:49.840
+This is the moment.
+
+39:49.840 --> 39:51.840
+Oh, I love watching all the disk light up.
+
+39:51.840 --> 39:53.400
+That's my favorite part.
+
+39:53.400 --> 39:55.920
+It's like a Christmas tree.
+
+39:55.920 --> 39:57.600
+It's done.
+
+39:57.600 --> 40:01.160
+Well, at least it's returned us the command line.
+
+40:01.160 --> 40:02.680
+Resilver in progress.
+
+40:02.680 --> 40:04.200
+Ah.
+
+40:04.200 --> 40:04.880
+Isn't that great?
+
+40:04.880 --> 40:07.560
+I just love the ZFS management commands.
+
+40:07.560 --> 40:09.840
+ZPool status just shows you always
+
+40:09.840 --> 40:11.320
+exactly what you want to know.
+
+40:11.320 --> 40:13.520
+Yeah, you can see the state is currently unavailable,
+
+40:13.520 --> 40:15.000
+but it's working.
+
+40:15.000 --> 40:16.200
+It tells you what it was.
+
+40:16.200 --> 40:17.520
+And then I guess we'll have to go in
+
+40:17.520 --> 40:19.440
+and we'll have to pull that one that's labeled as degraded
+
+40:19.440 --> 40:20.760
+once we have this finished.
+
+40:20.760 --> 40:21.400
+No, this will do it.
+
+40:21.400 --> 40:23.280
+So that's going to replace it, and then it
+
+40:23.280 --> 40:25.840
+should be healthfully online as soon
+
+40:25.840 --> 40:27.280
+as that replacement's finished.
+
+40:27.280 --> 40:30.220
+Well, let's toss to future us and see what happened.
+
+40:30.220 --> 40:33.940
+Of course, this bad disk was the reason we even started.
+
+40:33.940 --> 40:35.280
+So where is it at now?
+
+40:35.280 --> 40:36.280
+Is it still resilvering?
+
+40:36.280 --> 40:37.120
+It takes forever.
+
+40:37.120 --> 40:38.040
+Yes, it is.
+
+40:38.040 --> 40:41.680
+We're getting there 98% done, so it'll be done hopefully today.
+
+40:41.680 --> 40:44.680
+Yeah, that particular disk is a Western Digital Red,
+
+40:44.680 --> 40:46.200
+so it's not super fast.
+
+40:46.200 --> 40:47.560
+And it's 6 terabytes, so it's going
+
+40:47.560 --> 40:49.320
+to take a while to resilver.
+
+40:49.320 --> 40:55.640
+There was two curveballs we hit that I was not expecting.
+
+40:55.640 --> 40:58.000
+The first one is not too surprising, really,
+
+40:58.000 --> 40:59.320
+in retrospect.
+
+40:59.320 --> 41:04.920
+That is, we were installing to a USB device that sits on a USB
+
+41:04.920 --> 41:06.000
+header inside the case.
+
+41:06.000 --> 41:07.360
+This is something IX Systems does,
+
+41:07.360 --> 41:10.080
+your OS is on a solid state.
+
+41:10.080 --> 41:12.160
+I think it was, what, 16 gigabytes?
+
+41:12.160 --> 41:14.400
+No, that one was four.
+
+41:14.400 --> 41:17.520
+That was one of the difficulties of our initial replacement
+
+41:17.520 --> 41:18.020
+technique.
+
+41:18.020 --> 41:19.360
+I didn't realize we were, oh, jeez, yeah.
+
+41:19.360 --> 41:21.400
+So we tried to get Fedora Server, which we actually
+
+41:21.400 --> 41:21.600
+still got.
+
+41:21.600 --> 41:22.640
+Totally worked just fine.
+
+41:22.640 --> 41:25.880
+We got it within the four gigs on this little solid state USB
+
+41:25.880 --> 41:26.680
+device.
+
+41:26.680 --> 41:30.800
+The problem was, A, we were really low on space
+
+41:30.800 --> 41:32.580
+after we started installing a few packages,
+
+41:32.580 --> 41:38.520
+and B, it got like two megs a second write performance.
+
+41:38.520 --> 41:39.240
+Ouch.
+
+41:39.240 --> 41:40.380
+It was really bad.
+
+41:40.380 --> 41:43.760
+So checking the key signatures on packages
+
+41:43.760 --> 41:46.000
+would just take forever.
+
+41:46.000 --> 41:48.280
+So we started just digging around the studio.
+
+41:48.280 --> 41:49.500
+Because we have some equipment around here,
+
+41:49.500 --> 41:52.040
+we thought, we must have an SSD somewhere.
+
+41:52.040 --> 41:53.520
+So we dig around here and actually
+
+41:53.520 --> 41:55.760
+could not find a spare SSD anywhere in the studio.
+
+41:55.760 --> 41:56.880
+I guess that's good.
+
+41:56.880 --> 41:57.880
+Means we're not wasting it.
+
+41:57.880 --> 41:59.640
+Yeah, we don't have utilization here.
+
+41:59.640 --> 42:01.680
+But I remembered we had an old Hackintosh
+
+42:01.680 --> 42:04.080
+that towards the very end of its production line,
+
+42:04.080 --> 42:08.680
+we put a 10,000 RPM, 320 gigabyte drive in it.
+
+42:08.680 --> 42:10.880
+And then it only ran for like a couple of months,
+
+42:10.880 --> 42:12.520
+and then we shut the system down.
+
+42:12.520 --> 42:14.520
+And we converted off of it.
+
+42:14.520 --> 42:16.240
+So I went in, I tore that machine open,
+
+42:16.240 --> 42:19.080
+grabbed that disk out of the old Hackintosh,
+
+42:19.080 --> 42:22.160
+and we kind of MacGyvered it into the FreeNAS box.
+
+42:22.160 --> 42:27.000
+And so now we gave Fedora a 320 gigabyte, 10,000 RPM spinning
+
+42:27.000 --> 42:28.120
+disk to work with.
+
+42:28.120 --> 42:31.120
+But the system's really set up, and the data's
+
+42:31.120 --> 42:33.160
+all across the RAID or the array.
+
+42:33.160 --> 42:36.200
+So if the OS drive were to pop at some point in the future,
+
+42:36.200 --> 42:39.000
+we'd have to reload it, but we wouldn't lose any data.
+
+42:39.000 --> 42:41.520
+So we had that problem, took a little bit of MacGyvering
+
+42:41.520 --> 42:44.100
+to solve that, because we needed some Molex power adapters
+
+42:44.100 --> 42:45.040
+to convert to SATA.
+
+42:45.040 --> 42:46.800
+And that wasn't so bad.
+
+42:46.800 --> 42:49.120
+The one that really threw me for a twist
+
+42:49.120 --> 42:51.400
+was we ran into essentially this issue.
+
+42:51.400 --> 42:54.720
+And this is, again, I don't fully understand it.
+
+42:54.720 --> 42:56.440
+So if you do, please feel free to write in
+
+42:56.440 --> 42:59.080
+at linuxunplug.com slash contact and correct me.
+
+42:59.080 --> 43:01.840
+But I couldn't use traditional NFS
+
+43:01.840 --> 43:05.480
+to share out the ZFS volumes.
+
+43:05.480 --> 43:08.520
+It would essentially stop at a mount point.
+
+43:08.520 --> 43:10.400
+If you had sub-volumes that were mounted,
+
+43:10.400 --> 43:12.600
+it would essentially stop at that mount point.
+
+43:12.600 --> 43:14.840
+And it took us a little while to kind of root around.
+
+43:14.840 --> 43:17.360
+And it even turns out that ZFS itself
+
+43:17.360 --> 43:20.240
+has some NFS provisions built in.
+
+43:20.240 --> 43:23.360
+And I was completely lost when it came to this aspect.
+
+43:23.360 --> 43:25.600
+Yeah, so we ended up using the ZFS stuff.
+
+43:25.600 --> 43:28.960
+You can just sort of set a property on your data set,
+
+43:28.960 --> 43:31.120
+and then you may have to remount it.
+
+43:31.120 --> 43:33.600
+I'm not clear on that exact particular.
+
+43:33.600 --> 43:36.760
+But after that's done, it just shows up as an export list,
+
+43:36.760 --> 43:37.560
+and you can mount it.
+
+43:37.560 --> 43:39.840
+So we've got not everything's restored yet.
+
+43:39.840 --> 43:41.960
+But I mean, we just need a few more commands,
+
+43:41.960 --> 43:43.240
+and we'll have all your shares back.
+
+43:43.240 --> 43:43.840
+Yeah, yeah.
+
+43:43.840 --> 43:48.040
+So that was kind of funny, because the way it works
+
+43:48.040 --> 43:51.720
+is I would mount the NFS share, and the directory structure
+
+43:51.720 --> 43:52.520
+would be there.
+
+43:52.520 --> 43:54.240
+But then I would get to the bottom level
+
+43:54.240 --> 43:56.340
+where it was actually going into a sub-volume,
+
+43:56.340 --> 43:57.680
+and it would just be empty, which
+
+43:57.680 --> 44:00.200
+is where all the shows would be, or all the pictures would be.
+
+44:00.200 --> 44:01.280
+So I'd have the directory structure,
+
+44:01.280 --> 44:02.080
+but none of the data.
+
+44:02.080 --> 44:02.880
+It's like, what happened?
+
+44:02.880 --> 44:03.600
+Such a tease.
+
+44:03.600 --> 44:04.800
+Did we lose it?
+
+44:04.800 --> 44:06.080
+But we got it going.
+
+44:06.080 --> 44:08.400
+We got it going, and it seems to be working pretty well.
+
+44:08.400 --> 44:12.640
+And now, what we're going to do with this rig
+
+44:12.640 --> 44:15.520
+is just have it run some local services.
+
+44:15.520 --> 44:19.080
+We're in the process of finally replacing Dropbox,
+
+44:19.080 --> 44:22.640
+and we're going to run some virtual machines on this.
+
+44:22.640 --> 44:25.880
+And all of the main applications will run inside a container.
+
+44:25.880 --> 44:30.360
+So the host operating system will be fairly unhinged
+
+44:30.360 --> 44:31.880
+from future upgrades and stuff.
+
+44:31.880 --> 44:33.920
+It'll be unimpeded, or whatever I'm trying to say.
+
+44:33.920 --> 44:34.560
+What am I trying to say?
+
+44:34.560 --> 44:35.760
+We just wanted to worry about it.
+
+44:35.760 --> 44:36.160
+Yeah, we're not.
+
+44:36.160 --> 44:37.720
+Most of our stuff will be running in containers.
+
+44:37.720 --> 44:39.120
+This is not a bunch of apps and packages
+
+44:39.120 --> 44:39.640
+we're going to have to worry about.
+
+44:39.640 --> 44:40.440
+It's going to be a pretty clean base.
+
+44:40.440 --> 44:41.480
+It's not that much data.
+
+44:41.480 --> 44:42.000
+Yeah.
+
+44:42.000 --> 44:43.240
+Not impaired.
+
+44:43.240 --> 44:44.960
+Yeah, not impaired, whatever.
+
+44:44.960 --> 44:46.600
+Not entangled, I don't know.
+
+44:46.600 --> 44:50.600
+Not in long-term software commitments.
+
+44:50.600 --> 44:53.040
+And then we're also going to set up WireGuard on that sucker,
+
+44:53.040 --> 44:56.000
+so the host can get remote WireGuard services in
+
+44:56.000 --> 44:58.680
+if they want to remotely control the mixer, things like that.
+
+44:58.680 --> 45:00.320
+So that'll be on there.
+
+45:00.320 --> 45:02.120
+It's already pretty nice.
+
+45:02.120 --> 45:04.040
+Just got NetData installed before the show,
+
+45:04.040 --> 45:06.200
+so I can watch as all the data is shuffling around
+
+45:06.200 --> 45:08.440
+as it's resilvering, which is great.
+
+45:08.440 --> 45:10.800
+It's pretty nice to have.
+
+45:10.800 --> 45:15.440
+It feels like what I was, I'm such a nerd.
+
+45:15.440 --> 45:19.080
+God, I was laying in bed talking to Hadea about the server.
+
+45:19.080 --> 45:20.240
+I can't even believe I just.
+
+45:20.240 --> 45:21.400
+Something tells me she's used to this.
+
+45:21.400 --> 45:23.800
+And I was like, babe, you know, it's like I went out there
+
+45:23.800 --> 45:25.760
+and found out we had a sports car in the garage.
+
+45:25.760 --> 45:28.360
+And I thought it was like this little four-cylinder commuter.
+
+45:28.360 --> 45:30.640
+Because we kind of forgot about the only, like, I mean,
+
+45:30.640 --> 45:32.400
+I think you logged in for some reason
+
+45:32.400 --> 45:34.520
+and happened to see the little blinking red light
+
+45:34.520 --> 45:36.040
+on the Freenaz console, right?
+
+45:36.040 --> 45:37.200
+Telling us like there might have been.
+
+45:37.200 --> 45:38.520
+Otherwise, we just didn't think about it.
+
+45:38.520 --> 45:39.400
+Sat there and ran.
+
+45:39.400 --> 45:41.640
+It did its purpose really well.
+
+45:41.640 --> 45:43.920
+I am kind of a believer in overbuilding your storage,
+
+45:43.920 --> 45:45.120
+so that's what I did there.
+
+45:45.120 --> 45:48.120
+But looking back at it, 64 gigs of RAM,
+
+45:48.120 --> 45:50.680
+two six-core Xeon processors.
+
+45:50.680 --> 45:53.080
+The thing's just begging to do more.
+
+45:53.080 --> 45:56.920
+And not that I couldn't do it with FreeBSD or Freenaz.
+
+45:56.920 --> 45:58.000
+Absolutely, we could have.
+
+45:58.000 --> 45:59.560
+But I know how to do it with Linux.
+
+45:59.560 --> 46:00.600
+It's just faster.
+
+46:00.600 --> 46:03.120
+And we don't, I mean, we're not touching the system every day.
+
+46:03.120 --> 46:04.960
+So it's nice to have something that's easy
+
+46:04.960 --> 46:07.640
+and we don't have to relook up a bunch of man pages every time.
+
+46:07.640 --> 46:08.160
+Yeah.
+
+46:08.160 --> 46:09.800
+So we'll probably, well, eventually, I
+
+46:09.800 --> 46:12.920
+imagine we'll spin up whatever our sync solution is
+
+46:12.920 --> 46:13.760
+in a container.
+
+46:13.760 --> 46:15.960
+We'll spin up a couple of other items
+
+46:15.960 --> 46:18.280
+that I use internally for like processing news
+
+46:18.280 --> 46:19.640
+and whatnot in containers.
+
+46:19.640 --> 46:21.360
+And I'll move some of the things that I
+
+46:21.360 --> 46:24.200
+have on the workstations in the studio now onto that server.
+
+46:24.200 --> 46:25.920
+So that's what sort of the, and I'll just
+
+46:25.920 --> 46:27.960
+do that gradually over time, probably
+
+46:27.960 --> 46:29.380
+with some of the more urgent stuff.
+
+46:29.380 --> 46:31.320
+And then I'll, like the syncing thing.
+
+46:31.320 --> 46:32.920
+Because this new Dropbox has got to go.
+
+46:32.920 --> 46:34.400
+This is just the final straw.
+
+46:34.400 --> 46:37.540
+Dropbox has just crossed the line with this Electron stuff.
+
+46:37.540 --> 46:42.840
+I will say it really did cement just why CFS is a great choice.
+
+46:42.840 --> 46:45.160
+We could just port operating systems
+
+46:45.160 --> 46:47.800
+and hardly had to think about it.
+
+46:47.800 --> 46:49.760
+It's not that many other ways that we could have done this
+
+46:49.760 --> 46:51.320
+and get all the other benefits.
+
+46:51.320 --> 46:54.520
+It's a pretty dramatic switch.
+
+46:54.520 --> 46:59.160
+We went from FreeBSD base with an old version of ZFS
+
+46:59.160 --> 47:02.560
+to Fedora 30 with the absolute most recent version
+
+47:02.560 --> 47:04.920
+on the most absolute recent Linux kernel.
+
+47:04.920 --> 47:07.320
+Some would call us crazy.
+
+47:07.320 --> 47:09.880
+Yeah, I've just really been enjoying Fedora 30.
+
+47:09.880 --> 47:10.840
+You know, it's.
+
+47:10.840 --> 47:13.640
+I would say, I mean, it honestly did feel vindicated.
+
+47:13.640 --> 47:15.920
+It's hard to explain, but I feel like the whole process
+
+47:15.920 --> 47:19.400
+was surprisingly pleasant because we run into several other issues.
+
+47:19.400 --> 47:22.800
+All the stuff relating to Fedora and Fedora 30 server was great.
+
+47:22.800 --> 47:23.800
+And that cockpit was up.
+
+47:23.800 --> 47:25.320
+We've already done a bunch through that,
+
+47:25.320 --> 47:28.000
+which was lovely as we were still trying to get everything set up
+
+47:28.000 --> 47:29.880
+and only had console access.
+
+47:29.880 --> 47:31.200
+It's just been a dream.
+
+47:31.200 --> 47:33.480
+Really, I couldn't really ask for any more.
+
+47:33.480 --> 47:36.560
+And it's funny because I've been running Fedora on the base
+
+47:36.560 --> 47:39.280
+and then like Ubuntu in the containers and in the VMs.
+
+47:39.280 --> 47:40.720
+That's just been my setup recently.
+
+47:40.720 --> 47:42.640
+It's just been working really well for me.
+
+47:42.640 --> 47:44.600
+And other people, different setups work.
+
+47:44.600 --> 47:46.640
+But it reminded me of, I think it was right
+
+47:46.640 --> 47:49.040
+when I first started listening to Jupiter broadcasting.
+
+47:49.040 --> 47:51.560
+And it was before I'd ever used Fedora on the desktop.
+
+47:51.560 --> 47:56.280
+I had, I think it was a Fedora 14, 15 on the server.
+
+47:56.280 --> 47:58.800
+And it was one of my first and favorite Linux servers.
+
+47:58.800 --> 47:59.960
+So it's nice to come home.
+
+47:59.960 --> 48:00.640
+Yeah.
+
+48:00.640 --> 48:01.960
+All right, Neil, I'm curious what you think.
+
+48:01.960 --> 48:05.320
+I know you work a lot in the Red Hat space with ZFS.
+
+48:05.320 --> 48:06.480
+Are we crazy?
+
+48:06.480 --> 48:09.080
+Well, first of all, I thought that was really cool what you just said.
+
+48:09.080 --> 48:11.600
+You were slightly crazy, but it was the good kind of crazy.
+
+48:11.600 --> 48:13.040
+So I was OK with it.
+
+48:13.040 --> 48:15.880
+I told Wes, I said, Wes, you know, I think we're officially
+
+48:15.880 --> 48:19.200
+top gearing this thing right now.
+
+48:19.200 --> 48:21.880
+I don't know, that other one was a pretty top gear event, too.
+
+48:21.880 --> 48:26.280
+But with ZFS on Linux specifically, I think,
+
+48:26.280 --> 48:29.640
+I'm not completely certain on this, that the kernel can't
+
+48:29.640 --> 48:30.680
+see all the subvolumes.
+
+48:30.680 --> 48:33.560
+So when it tries to evaluate all the things
+
+48:33.560 --> 48:37.440
+that it exports through NFS, they won't work properly.
+
+48:37.440 --> 48:41.760
+So that's why you need to use the ZFS built-in.
+
+48:41.760 --> 48:45.880
+NFS share NFS feature on Linux.
+
+48:45.880 --> 48:48.360
+In FreeBSD and other places, I think
+
+48:48.360 --> 48:52.000
+it's all more tightly integrated so they can just do it normally.
+
+48:52.000 --> 48:53.720
+And that makes sense, because when we switched over to that,
+
+48:53.720 --> 48:54.560
+it did start working.
+
+48:54.560 --> 48:55.480
+It just worked, yeah.
+
+48:55.480 --> 49:00.120
+So now, it's not like ZFS has like their own implementation of NFS.
+
+49:00.120 --> 49:03.120
+They're working with the kernel, right?
+
+49:03.120 --> 49:05.360
+I can't answer that question confidently,
+
+49:05.360 --> 49:07.520
+because it's been a long time since I've looked at that code.
+
+49:07.520 --> 49:08.560
+That's just crazy to me.
+
+49:08.560 --> 49:10.400
+That ZFS is huge.
+
+49:10.400 --> 49:11.400
+That's massive.
+
+49:11.400 --> 49:13.800
+And the fact that ZFS works the same way everywhere
+
+49:13.800 --> 49:17.320
+is more of a testament to how much of an outsider file system
+
+49:17.320 --> 49:19.440
+it is in most operating systems.
+
+49:19.440 --> 49:22.560
+So it's developed very independently.
+
+49:22.560 --> 49:23.080
+Right.
+
+49:23.080 --> 49:24.480
+It comes with a bunch of extra stuff
+
+49:24.480 --> 49:27.180
+so that it doesn't have to rely on what may or may not be there.
+
+49:27.180 --> 49:27.680
+Right.
+
+49:27.680 --> 49:30.840
+So a lot of these kinds of things have also
+
+49:30.840 --> 49:32.720
+been relevant in macOS, for example,
+
+49:32.720 --> 49:36.640
+because you can't really poke all the things the same way
+
+49:36.640 --> 49:38.680
+that you can in FreeBSD and whatnot.
+
+49:38.680 --> 49:40.000
+Yeah, it gave me a confidence.
+
+49:40.000 --> 49:41.480
+It made me feel like, well, in the future,
+
+49:41.480 --> 49:44.480
+if Fedora doesn't work out and we want to go to Ubuntu LTS,
+
+49:44.480 --> 49:46.480
+I'm not going to have any problem getting my data.
+
+49:46.480 --> 49:48.880
+It's just going to connect and import just fine.
+
+49:48.880 --> 49:51.800
+It gave me a good sense of my data is safe.
+
+49:51.800 --> 49:52.360
+Yeah.
+
+49:52.360 --> 49:56.320
+And in respect to ZOL and all of these things,
+
+49:56.320 --> 49:59.400
+Fedora and, of course, CentOS and RHEL
+
+49:59.400 --> 50:04.120
+are first class test targets for ZFS on Linux.
+
+50:04.120 --> 50:09.080
+So if it doesn't work in Fedora, it is pretty much a blocker,
+
+50:09.080 --> 50:10.240
+because that is a problem.
+
+50:10.240 --> 50:11.920
+Yeah, it was dead easy to set up, too.
+
+50:11.920 --> 50:13.200
+It really couldn't have been easier.
+
+50:13.200 --> 50:16.520
+Yeah, so making sure it works in CentOS and RHEL,
+
+50:16.520 --> 50:19.600
+because, of course, enterprise people who want to use ZFS,
+
+50:19.600 --> 50:20.240
+that matters.
+
+50:20.240 --> 50:23.200
+But also using it in Fedora, that matters quite a fair bit,
+
+50:23.200 --> 50:25.280
+especially since Fedora is very close to upstream
+
+50:25.280 --> 50:27.160
+and the upstream kernels and stuff like that.
+
+50:27.160 --> 50:29.680
+So it's a very big important point for that.
+
+50:29.680 --> 50:31.920
+And to be clear, we went with Extended 4
+
+50:31.920 --> 50:33.520
+on the root partition for the OS.
+
+50:33.520 --> 50:36.240
+So the Fedora install is running on Extended 4,
+
+50:36.240 --> 50:40.080
+and it is using a DKMS module to get ZFS working.
+
+50:40.080 --> 50:42.160
+Yeah, well, I would have called you actually insane
+
+50:42.160 --> 50:44.200
+if you had put ZFS on a root file system.
+
+50:44.200 --> 50:46.360
+Yeah, we had some limit, some limit.
+
+50:46.360 --> 50:47.840
+Don't think we didn't think about it.
+
+50:47.840 --> 50:49.160
+I mean, it was a listed option.
+
+50:49.160 --> 50:50.320
+We just didn't choose it.
+
+50:50.320 --> 50:51.200
+Don't do it.
+
+50:51.200 --> 50:52.320
+Don't do it.
+
+50:52.320 --> 50:54.280
+I'm just going to say this right now.
+
+50:54.280 --> 50:56.200
+I have done it enough times.
+
+50:56.200 --> 50:56.880
+Don't do it.
+
+50:56.880 --> 50:59.200
+Unless you are running on CentOS where
+
+50:59.200 --> 51:02.520
+you can use a precompiled kernel module that
+
+51:02.520 --> 51:06.040
+works against the kernel API, it gets really unsafe very
+
+51:06.040 --> 51:06.760
+easily.
+
+51:06.760 --> 51:07.280
+Yeah.
+
+51:07.280 --> 51:10.560
+Well, I'm just thrilled myself because I just
+
+51:10.560 --> 51:12.800
+feel like I got a new tool to get work done.
+
+51:12.800 --> 51:14.640
+Not that it wasn't always there, and I couldn't have done it,
+
+51:14.640 --> 51:16.080
+but now I'm actually going to use it.
+
+51:16.080 --> 51:16.440
+Yes, right.
+
+51:16.440 --> 51:19.040
+And we were running some stuff on a personal workstation
+
+51:19.040 --> 51:20.240
+of yours or other random machines,
+
+51:20.240 --> 51:21.960
+so it's nice to have a proper place for it.
+
+51:21.960 --> 51:22.800
+Yes, exactly.
+
+51:22.800 --> 51:25.080
+So let me know if you think I'm crazy,
+
+51:25.080 --> 51:26.720
+linuxunplug.com slash contact.
+
+51:26.720 --> 51:28.160
+But before we get out of here, I want
+
+51:28.160 --> 51:30.040
+to do just a couple of picks.
+
+51:30.040 --> 51:32.840
+Right off the top, I got a couple command line
+
+51:32.840 --> 51:34.240
+applications I love this week.
+
+51:34.240 --> 51:36.280
+Speaking of command line love, speaking
+
+51:36.280 --> 51:38.840
+of command line love, you should check out the Ubuntu podcast.
+
+51:38.840 --> 51:39.320
+Do it.
+
+51:39.320 --> 51:41.640
+And send them your ideas for command line applications.
+
+51:41.640 --> 51:44.600
+Add Ubuntu podcast on the Twitters.
+
+51:44.600 --> 51:45.640
+Here's a couple, guys.
+
+51:45.640 --> 51:46.280
+You know what?
+
+51:46.280 --> 51:48.160
+You are welcome to share these.
+
+51:48.160 --> 51:50.520
+I share these with the Ubuntu podcast if you want them.
+
+51:50.520 --> 51:52.000
+Because these are so good, everybody's
+
+51:52.000 --> 51:53.360
+going to want these ones.
+
+51:53.360 --> 51:55.560
+RGA is our first one.
+
+51:55.560 --> 52:01.080
+It's like grep, but for PDFs, e-books, office documents,
+
+52:01.080 --> 52:04.000
+zip files, tar.gz, et cetera.
+
+52:04.000 --> 52:09.320
+You can grep even docx files, SQLite files, MKV files,
+
+52:09.320 --> 52:11.080
+MP4 files.
+
+52:11.080 --> 52:12.480
+Oh, yeah, all the things.
+
+52:12.480 --> 52:15.680
+It's rip grep for everything or anything, something like that.
+
+52:15.680 --> 52:18.080
+It's based off rip grep, which if you haven't used,
+
+52:18.080 --> 52:18.880
+you really should.
+
+52:18.880 --> 52:20.280
+Ah, OK, rip grep for everything.
+
+52:20.280 --> 52:22.720
+Yeah, it's like a Rust implemented alternative grep
+
+52:22.720 --> 52:24.120
+that's just super fast.
+
+52:24.120 --> 52:25.120
+They've wrapped this here.
+
+52:25.120 --> 52:26.120
+Wait, wait, wait, did you say rust?
+
+52:26.120 --> 52:27.520
+Oh, yeah, of course, of course it is.
+
+52:27.520 --> 52:28.040
+Of course.
+
+52:28.040 --> 52:30.920
+Actually, I mean, the burnt sushi, the author
+
+52:30.920 --> 52:33.600
+is a fascinating human with some really interesting stuff,
+
+52:33.600 --> 52:35.680
+particularly about the implementation of how
+
+52:35.680 --> 52:38.800
+the search engine algorithms work in something like grep.
+
+52:38.800 --> 52:40.480
+So if you want to learn more, it's
+
+52:40.480 --> 52:43.080
+not only a great implementation, it's a good learning
+
+52:43.080 --> 52:44.200
+opportunity as well.
+
+52:44.200 --> 52:48.080
+So this wraps that and lets it search in stuff like PDFs,
+
+52:48.080 --> 52:50.680
+SQLite, all the things that you've been missing.
+
+52:50.680 --> 52:52.880
+That could be really nice, to tell you the truth.
+
+52:52.880 --> 52:56.320
+All right, so maybe searching things isn't your thing.
+
+52:56.320 --> 52:58.480
+And since they're Rust, they're just each a little binary
+
+52:58.480 --> 53:00.200
+you have to download, so no worries
+
+53:00.200 --> 53:01.920
+about a complicated text.
+
+53:01.920 --> 53:04.600
+Is there a way we could put that in a snap?
+
+53:04.600 --> 53:07.040
+Yep.
+
+53:07.040 --> 53:07.720
+All right.
+
+53:07.720 --> 53:10.400
+Now, I love the fish shell, talk about it all the time.
+
+53:10.400 --> 53:12.360
+I always encourage people to check it out.
+
+53:12.360 --> 53:13.800
+The thing I love about the fish shell
+
+53:13.800 --> 53:17.240
+is it does autocompletion for frequent commands.
+
+53:17.240 --> 53:18.960
+But it's not perfect, because sometimes you
+
+53:18.960 --> 53:20.720
+have different variations on commands,
+
+53:20.720 --> 53:22.120
+or sometimes you have just commands
+
+53:22.120 --> 53:24.160
+you only use very infrequently.
+
+53:24.160 --> 53:26.840
+Wouldn't it be nice if you could bookmark commands
+
+53:26.840 --> 53:28.320
+like you do URLs?
+
+53:28.320 --> 53:31.720
+Well, friends, that's where Marker comes in.
+
+53:31.720 --> 53:35.360
+It is a nice little application for your terminal
+
+53:35.360 --> 53:39.320
+that lets you bookmark commands or entire command templates.
+
+53:39.320 --> 53:40.960
+And here's the best part.
+
+53:40.960 --> 53:46.040
+It lets you easily retrieve them with a real-time fuzzy language
+
+53:46.040 --> 53:46.520
+matcher.
+
+53:46.520 --> 53:48.120
+So you kind of just get in the ballpark
+
+53:48.120 --> 53:49.440
+of what you're looking for.
+
+53:49.440 --> 53:52.640
+It has a nice UI on the command line, again.
+
+53:52.640 --> 53:56.000
+But it gives you a UI to select easily which command you wanted,
+
+53:56.000 --> 53:57.520
+and then it'll execute it for you.
+
+53:57.520 --> 53:59.200
+I could see this being really nice, too.
+
+53:59.200 --> 54:01.280
+Maybe you have a team of sys admins,
+
+54:01.280 --> 54:03.960
+and you have a shared toolkit for working with applications.
+
+54:03.960 --> 54:05.480
+Oh, totally.
+
+54:05.480 --> 54:06.880
+That's a great.
+
+54:06.880 --> 54:08.120
+That would be a great use.
+
+54:08.120 --> 54:09.320
+This is something I'm going to have to play with.
+
+54:09.320 --> 54:11.620
+Yeah, you just need Python, like a semi-recent version
+
+54:11.620 --> 54:14.600
+of Python, and Bash or Zshell.
+
+54:14.600 --> 54:17.520
+And it'll work on Linux or Mac OS.
+
+54:17.520 --> 54:18.280
+So there you go.
+
+54:18.280 --> 54:19.000
+It's called Marker.
+
+54:19.000 --> 54:21.160
+We'll have a link in the show notes for that, too,
+
+54:21.160 --> 54:24.840
+which I feel like that'd be pretty handy for somebody
+
+54:24.840 --> 54:26.920
+like me to have something like that on the server
+
+54:26.920 --> 54:27.640
+that we just set up.
+
+54:27.640 --> 54:28.360
+That's actually what I was saying.
+
+54:28.360 --> 54:30.360
+I was like, oh, man, I could make you some defaults
+
+54:30.360 --> 54:32.320
+for maybe a complicated little command or Python.
+
+54:32.320 --> 54:33.960
+Something I do like once every six months.
+
+54:33.960 --> 54:34.480
+Yeah, exactly.
+
+54:34.480 --> 54:37.320
+You know, when the server has to have something done to it
+
+54:37.320 --> 54:38.400
+or whatnot.
+
+54:38.400 --> 54:40.080
+So anyways, check those out.
+
+54:40.080 --> 54:41.560
+When we say the show notes, of course,
+
+54:41.560 --> 54:44.720
+we mean in your podcast player or over at linuxunplug.com
+
+54:44.720 --> 54:46.240
+slash 306.
+
+54:46.240 --> 54:48.160
+Each episode is just slash right there.
+
+54:48.160 --> 54:50.600
+Easy to find, easy to get to.
+
+54:50.600 --> 54:52.460
+Mr. Payne, is there anything else
+
+54:52.460 --> 54:54.000
+we need to mention before we get out of here?
+
+54:54.000 --> 54:54.920
+No, I don't think so.
+
+54:54.920 --> 54:55.400
+All right.
+
+54:55.400 --> 54:55.880
+OK.
+
+54:55.880 --> 54:56.520
+Easy peasy.
+
+54:56.520 --> 54:56.760
+All right.
+
+54:56.760 --> 54:59.160
+Cheesy, is there anything we need to cover before we leave?
+
+54:59.160 --> 55:00.280
+You got anything for us?
+
+55:00.280 --> 55:01.840
+Check out the new Telegram sticker pack.
+
+55:01.840 --> 55:02.360
+Yeah.
+
+55:02.360 --> 55:03.520
+Oh, it's so good.
+
+55:03.520 --> 55:04.000
+Yep.
+
+55:04.000 --> 55:05.960
+Or if you're not in the Telegram group, why not?
+
+55:05.960 --> 55:07.920
+You go to broadcasting.com slash telegram.
+
+55:07.920 --> 55:08.280
+That's right.
+
+55:08.280 --> 55:08.960
+You should be.
+
+55:08.960 --> 55:09.520
+You should be.
+
+55:09.520 --> 55:09.720
+All right.
+
+55:09.720 --> 55:10.560
+Very good.
+
+55:10.560 --> 55:11.680
+Thank you, Mr. Bacon.
+
+55:11.680 --> 55:13.720
+Now, I also want to thank all of you for listening.
+
+55:13.720 --> 55:15.520
+I appreciate every single one of you.
+
+55:15.520 --> 55:16.520
+You're the most important.
+
+55:16.520 --> 55:17.800
+No offense, Jase, but they are.
+
+55:17.800 --> 55:18.480
+They are.
+
+55:18.480 --> 55:19.760
+All of you.
+
+55:19.760 --> 55:21.840
+This show has done so well over the years.
+
+55:21.840 --> 55:24.360
+We really just are so thankful for every single one of you
+
+55:24.360 --> 55:24.960
+for listening.
+
+55:24.960 --> 55:26.200
+So thank you so much.
+
+55:26.200 --> 55:28.320
+Thank you for subscribing.
+
+55:28.320 --> 55:29.840
+Appreciate that.
+
+55:29.840 --> 55:30.600
+That's really great.
+
+55:30.600 --> 55:32.200
+We have a great community out there.
+
+55:32.200 --> 55:33.520
+Thank you so much for tuning this week's episode
+
+55:33.520 --> 55:34.960
+of the Unplugged program.
+
+55:34.960 --> 55:37.560
+You are welcome, invited, and encouraged
+
+55:37.560 --> 55:41.080
+to join us live next Tuesday over at jvlive.tv.
+
+55:41.080 --> 55:42.720
+Get that time at jupiterbroadcasting.com
+
+55:42.720 --> 55:43.800
+slash calendar.
+
+55:43.800 --> 55:45.840
+And of course, linuxunplugged.com slash subscribe
+
+55:45.840 --> 55:49.160
+for the cleaned up, released version every Tuesday.
+
+55:49.160 --> 56:06.440
+Thank you guys for listening.
+
+56:06.440 --> 56:07.680
+Bye.
+
+56:07.680 --> 56:09.320
+Bye.
+
+56:09.320 --> 56:09.960
+Bye.
+
+56:09.960 --> 56:10.280
+Bye.
+
+56:10.280 --> 56:10.840
+Bye.
+
+56:10.840 --> 56:11.160
+Bye.
+
+56:11.160 --> 56:12.560
+Bye.
+
+56:12.560 --> 56:14.040
+Bye.
+
+56:14.040 --> 56:14.880
+Bye.
+
+56:14.880 --> 56:15.520
+Bye.
+
+56:17.520 --> 56:18.760
+Yay!
+
+56:18.760 --> 56:22.920
+I know I'm biased and I'm probably supposed to say this but we really have
+
+56:22.920 --> 56:28.000
+the best audience it's incredible it really is and that's what's been so like
+
+56:28.000 --> 56:31.400
+this has been the season of events where we've been traveling a lot in fact we're
+
+56:31.400 --> 56:36.540
+about to travel again and just really the best freaking audience ever like
+
+56:36.540 --> 56:40.800
+friends for life a number of incredible people at me and just continue to me
+
+56:40.800 --> 56:44.200
+yeah it is wild it's great it's the best part of the job so thank you everybody
+
+56:44.200 --> 56:47.680
+JBtoddles, JBtoddles, thank you to that Mumble Room for making it too really good to
+
+56:47.680 --> 56:50.920
+have all you guys here jeez what are you talking about what's the matter no I'm
+
+56:50.920 --> 56:53.520
+just saying I'm just saying after we get off the show I think I might hang
+
+56:53.520 --> 56:59.960
+around on the jump on the old mums oh yeah oh yeah oh I got you so I got you
+
+56:59.960 --> 57:07.600
+doing posts a little post hang up look plug mmm I like it yeah right you're
+
+57:07.600 --> 57:11.200
+already suited up you got your microphone on yeah oh yeah you know it
+
+57:11.200 --> 57:18.360
+all right JBtoddles.com let's go grab our title otherwise we'll all take your
+
+57:18.360 --> 57:23.400
+voting rights away mmm so poppy how's the old feedback been on the distro
+
+57:23.400 --> 57:29.800
+specific snap pages yeah other than getting for incorrectly using the
+
+57:29.800 --> 57:35.680
+fedora go oh oh I noticed I was trying not to be mean about it or anything I
+
+57:35.680 --> 57:39.760
+just said hey can you fix it please you know what I think it's a good idea I
+
+57:39.760 --> 57:43.840
+like it I like it too you know but jeez you know you can't please the entire
+
+57:43.840 --> 57:47.680
+in a poppy if you did it'd be a miracle worker hey I thought it was good I
+
+57:47.680 --> 57:57.680
+didn't say anything awful about it that sentence is it's pretty solid I like
+
+57:57.680 --> 58:01.800
+that has my audio gone funny again every now and then I think it's just packet
+
+58:01.800 --> 58:07.120
+loss weird I mean from my side it's been everyone's been kind of cutting out a
+
+58:07.120 --> 58:10.400
+little bit which has been odd because that doesn't normally happen
+
+58:10.400 --> 58:16.120
+Leonard oh man that poor guy dude I'm not even talking to you from my Linux
+
+58:16.120 --> 58:19.240
+machine right now because I'm hiding in a conference room are you are you
+
+58:19.240 --> 58:23.000
+permitted to say that I think I think you have to like get clearance or
+
+58:23.000 --> 58:28.800
+something poppy already knows this from the times that I've met him at various
+
+58:28.800 --> 58:35.000
+events mainly snap sprints but I was in one OS I was gonna say I've never
+
+58:35.000 --> 58:47.480
+actually seen him run Linux oh no no no at the the rally two years ago I think
+
+58:47.480 --> 58:54.480
+the one in New York the whole time I brought my Linux laptop with me Noah
+
+58:54.480 --> 58:58.560
+saw it and so did a couple of other people I have witnesses now hold on now
+
+58:58.560 --> 59:03.440
+we're not we're not we're not come on we don't we don't we don't know a shame we
+
+59:03.440 --> 59:06.800
+got a call for an end of this the tribalism you know like I feel like I
+
+59:06.800 --> 59:09.920
+should walk around be like my name is Chris I'm a Linux user and I also have
+
+59:09.920 --> 59:13.880
+an iPad you know like I have to just come I have to come holding your iPad so
+
+59:13.880 --> 59:17.520
+they'll see I have to come clean about it I don't know no more down with the
+
+59:17.520 --> 59:23.840
+tribal you see at home I have a MacBook I have I have numerous Linux machines
+
+59:23.840 --> 59:27.080
+running all many different distros here's where I think it has validity
+
+59:27.080 --> 59:31.880
+though like I think if you work in free software and open source or in that
+
+59:31.880 --> 59:35.680
+space like then that should be your primary stack that should be your main
+
+59:35.680 --> 59:38.960
+stack because that's your area but it would be ignorant not to ever try a
+
+59:38.960 --> 59:43.400
+Windows or Mac because then you would have zero insights into how very popular
+
+59:43.400 --> 59:47.880
+very commercial very successful commercial operating systems yeah you
+
+59:47.880 --> 01:00:02.120
+have to what you have to do that
+

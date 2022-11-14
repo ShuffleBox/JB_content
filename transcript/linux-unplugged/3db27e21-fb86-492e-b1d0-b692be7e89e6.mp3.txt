@@ -1,0 +1,1143 @@
+Wes's buddy, Leonard Pottering, the creator of Pulse Audio
+and SystemD, says that we should popularize image-based OSes
+with modern security properties built around immutability,
+secure boot, TPM2, adaptability, auto-updating, factory reset,
+and uniformity deployed via images.
+And they've updated SystemD to help start this.
+It's kind of like creating a Chrome OS-like update
+or a Silverblue-like update process.
+SystemD sysupdate automatically and atomically updates
+the host OS, container images, portable service images,
+or other sources.
+And of course, you get a new config file, sysupdate.d.
+I think you might be a fan of this.
+You're pro images.
+I am pro images.
+I know it's funny because I'm going
+to be like the devil's advocate guy, I think,
+this week on the show.
+And so I guess I'm starting early.
+I think this is a great idea.
+I know it's probably not going to get adopted
+by maybe anybody but Fedora and a few enterprise distros.
+But the idea is you always have a known good OS partition
+available that you can boot into.
+And you could have a scenario where perhaps SystemD is taking
+care of the A-B image stuff and making sure you've always
+got a working base image.
+And then your favorite distributions package manager
+is taking care of applications and stuff like that.
+You could have a world where these two things coexist.
+It does seem especially nice.
+It's probably going to do a better job than the sort
+of sketchy bash script I might write
+if I was trying to do this myself,
+say, with Arch or something.
+So in that sense, I'm for it too.
+I could see it.
+I mean, look it.
+Other OSes are getting these features.
+It's about time, right?
+It's about time, Linux.
+Come on.
+Let's not patch this one out.
+Let's try it.
+Give it a go.
+Hello, friends, and welcome back to your weekly Linux talk show.
+My name is Chris.
+My name is Wes.
+And my name is Brent.
+Hello, gentlemen.
+Hello.
+Nice to see you.
+Well, guess what?
+Linux just landed support for something
+called software-defined silicon, kernel-level support
+to enable or disable a built-in CPU feature.
+As in, the CPU ships with all the features,
+but only certain ones get turned on,
+depending on what the user has or hasn't paid for.
+Intel can issue a license.
+It's coming in the next generation of systems.
+And Linux is already getting support for it as of this week.
+And as you can imagine, we've got a whole range of thoughts
+on this.
+So we'll dig into that.
+And then we'll round out the show with some boosts, some picks,
+and more.
+So before we get any further, let's
+say time-appropriate greetings to our virtual lug.
+Hello, Mumble Room.
+Hello, Chris.
+Hello, Wes.
+And hello, Brent.
+Hello.
+More and more folks showing up in the quiet listening
+and just getting a free software version encoded in Opus
+straight from our mixer.
+We can't hear you, but we see you.
+We see you.
+And I'm going to give that another mention this week,
+because we have a project that I think we're going
+to work on after the show.
+And I think Mumble could be an option that's
+more viable for people who like low-latency versions
+of the stream, because we may be changing things up and going
+to a peer-to-peer system in the future.
+More on that.
+So our Mumble is the best way to get absolutely low-latency,
+high-quality audio, and you can get in that quiet listening.
+And if you want to move into the lobby and chat with us,
+or the on-air area, I should say, you totally can.
+So you can get the details at linuxunplug.com slash Mumble.
+And then we do the show live on Sundays at noon Pacific,
+3 PM Eastern over at jblive.tv.
+And we'll have more details to share on that kind of stuff
+coming up in the future.
+This week, though, we wanted to talk
+about this software-defined silicon that
+is landing the support that's coming in Linux in 5.18
+and is probably something that's going
+to be a huge topic in tech circles,
+I would imagine, within a generation or so of Intel
+processors.
+We touched on a lot of the details in Linux Action News
+this week.
+And we got some feedback in our matrix room
+that it was probably worth bumping this
+to a wider discussion because it seemed that people were not
+aware that this was a thing that was even coming.
+And we haven't talked a lot about it
+because we didn't want to sound like the sky was falling.
+We didn't want to sound to the alarm
+that the next generation of Intel CPUs
+are going to have essentially feature DRM,
+and Linux is totally supporting it
+because it's the capability to do it.
+It's all free software.
+It's all GPL.
+That's right.
+This is a tricky spot.
+And so we thought, let's talk about what it is so you guys
+have the right context.
+We're not going to hype it up or anything like that.
+We're just going to talk about what software-defined silicon
+is.
+And LWN has a good write-up, too, that we'll link to.
+But can you give us, I don't know,
+the highlights that you think we should probably know, Wes?
+Yeah, so software-defined silicon, or SDSI,
+if you want to be hip and abbreviate it,
+is kind of, as you say, it's a quote unquote feature that
+lets Intel ship some hardware capabilities that have to then
+later be enabled.
+A little more technical, it appears
+as a device on your system that offers
+a couple of new operations.
+One is to install an authentication key certificate
+or a capability activation payload.
+But basically, you have a certificate
+that is then used to verify the requests that
+are contained in the payload.
+And the idea being here that you've
+bought this chip or some piece of hardware,
+it has a base set of features.
+And then if you want to enable those additional features that
+are kind of hidden behind this new SDSI capability,
+you have to go talk to Intel in some capacity to pay them
+a fee.
+Maybe it's a recurring monthly fee.
+We don't really have details yet on what exact features this
+is going to be used to gate or how you're going to get access
+to them process might be.
+Yeah, is it going to be like they issue you
+a package that writes the files to these places
+now that these devices are on your system?
+Or is it some service that's calling home
+to their cloud service?
+I don't know.
+The stuff in the kernel is really just the bare bones
+stuff so that user space can make it work at all.
+That's how the nuts and bolts of it work.
+From an implementation standpoint,
+it's sort of almost perfectly Linux.
+It's you drop a file in a directory
+that the file says yes, no, properly licensed,
+and then another one that is the actual license.
+And then there's code in the CPU that verifies those files,
+verifies the functionality request,
+and then either turns it on or turns it off.
+It's really at this point kind of up in the air
+how all of that's going to work.
+But of course, the kernel team isn't necessarily
+looking to block this kind of stuff.
+There's not a whole lot of arguments
+that can be made against denying this.
+It's GPL software.
+It's just adding a couple of devices.
+It simply enables another piece of functionality
+in the upcoming CPUs.
+And the kernel community hasn't made a practice
+of rejecting this kind of stuff for other devices
+out there that do this that are maybe not CPUs.
+Right.
+Yeah, I mean, there's all kinds of weird gadgets
+or proprietary things that end up running Linux,
+even if it's in a data center that I'm never
+going to have access to or hardware I'm never going
+to be able to purchase outright.
+So this is what's coming.
+It landed in 5.18.
+It's going to be probably a little while
+before you get it trickled down to your distribution
+for most of you.
+I am using it right now, though.
+Actually, let me double check.
+But I think, yeah, I have 5.18.0 installed on this machine.
+You hipster, you.
+I love it.
+And this is an Ubuntu box.
+I'll tell you how I did that later in the show.
+So my system hasn't broken.
+In fact, when Linus announced this release,
+he was pretty low key about it.
+And he's like, yeah, pretty minor update.
+Nothing really too big in here.
+I think his words were, nothing's too surprising.
+Maybe not too surprising for you,
+but I don't think most of the community realizes that we're
+just kind of laying down and letting this stuff land
+in the Linux kernel.
+Yeah, right.
+I suppose his commentary is more on the like,
+oh, there's no crazy new subsystem or radical change,
+or we didn't suddenly enable Rust everywhere.
+Yeah, no wild bug.
+Yeah.
+Right, yeah.
+That kind of stuff.
+So it's just sort of unceremoniously went out.
+And there was really no red flags,
+like because Linus didn't say, hey,
+this is the one that includes the Intel.
+You may not want to upgrade.
+Yeah.
+So it was just sort of a low key release.
+We'll link to LWN, which has thoughts on this
+before it came out.
+And we'll also link to the actual original patch
+conversation.
+I'm also not quite clear on the parties involved here,
+because it seems to be that the parties introducing the idea
+is a developer from Red Hat working on behalf of Intel,
+even though Intel has plenty of kernel engineers on their own.
+But so there is some relationship with this
+there as well.
+Linode.com slash unplugged.
+That's where you go to get $100 in 60-day credit
+on a new account, and that's where
+you go to support the show.
+I love getting to talk about Linode.
+This is my moment every single week,
+and I really appreciate it, because there's always
+something to talk about.
+How great is that?
+And Linode really has been our secret sauce.
+I was just thinking about this morning.
+There's a project I'm working on.
+Of course, I'm going to Linode to deploy this thing, right?
+And I realized sometimes it's like I just pop off a server
+super quick, and I get up and working,
+and I probably have the thing done in two minutes.
+And then sometimes, sometimes I sit here,
+and I really think, how am I going to build this?
+What do I want to do?
+What should we use on the back end to deploy it?
+Because Linode works with all of that stuff too.
+So if you like to just do a one-click deploying, get up,
+and running really easy, you can.
+But if you want to tie it in with some infrastructure
+management, maybe do a little Terraform and some bulk,
+yeah, Linode supports all of that.
+You see, they've been around for nearly 19 years,
+and in that time, they figured out
+what features are worth spending energy and effort on,
+and which features are just silly platform features
+that are checking a box.
+And their mission has remained unchanged in that 19 years.
+Make cloud computing simple, affordable, and accessible
+to all.
+And that really has led to the best-in-class experience.
+Support, performance, flexibility, 11 data centers
+around the world.
+In that time, they became their own ISP.
+You know what I'm saying?
+It really pays off over time.
+And now, we just get a great experience
+as customers with the best support in the business
+backing it all up.
+And of course, I'm taking advantage of their object
+like a maniac these days, powerful DNS manager.
+And the bottom line matters, right?
+Pricing 30% to 50% cheaper than all the major cloud providers
+out there.
+And you get Linode's great support, great performance,
+and you get a member that's friendly to our community.
+Somebody who plays nice, who buys local.
+So go try them out, support this show,
+and get $100 to really kick the tires.
+Go to linode.com slash unplugged.
+So let's talk about the moralities of this software
+defined silicon.
+And really, if the free software community
+should be taking a stand here.
+Because you could make the argument, perhaps,
+that Linux is big enough and relevant enough
+for enough market segments, not just the server,
+that if we put up a hard stand and said,
+no, this is a free software platform.
+It's not just the license that's free.
+It's about making something for people that is forever, right?
+It's about creating something that's
+for the general good, for humanity.
+It's not a tool for corporations to have successful platforms,
+although it can be.
+It's free software.
+It's GPL software.
+It's code for the people.
+And it should be commons.
+And so when we add things that restrict functionality,
+it's sort of inherent to the spirit of what
+we're trying to do here.
+Maybe it's not against the law of the GPL.
+It's definitely against the spirit of the GPL.
+That's, I think, the big argument being made.
+I think I'll play devil's advocate on this one.
+And I'm going to take Intel's side.
+Because I think I actually could make an argument for why
+it could be a good thing, too.
+But I'm curious, Brent, because Wes and I
+have dug into this a lot for Linux Action News.
+I know you caught that coverage.
+And you're coming at this with some information.
+But it's newest to you right now.
+So I'm curious what your impressions are
+on just the moralities around software-defined silicon
+being able to turn CPU features on and off through Linux.
+I'm looking forward to hearing your perspective
+as the Intel spokesperson in this hour.
+My initial sort of internal gut reaction
+is that it feels like a really slippery slope, or it could be.
+Is it going to lead to subscriptions
+for all your hardware, you know, like five years down the road
+where you're very, very hampered with what
+you can do with the stuff you, quote unquote, own?
+And thus, you are limited because you're not paying them
+on a monthly basis or whatnot.
+That is the first thing that comes to mind for me
+and is a bit of a scary perspective.
+Locking features up behind a monthly subscription.
+Well, that's it.
+I mean, we're subscriptionifying everything these days, it seems.
+And the last sort of thing that we have that's our own
+is the hardware that we've purchased or come by.
+And it seems to me like it would be a darn shame
+to see that go away and to have it
+be sort of like the Peloton model,
+and they can take it away from you anytime.
+That's my initial sort of reaction when I hear this.
+I could definitely accept that from a business point of view,
+it probably makes a lot of sense.
+They're creating the same chips for a whole bunch
+of different sort of, as you might say, models of their CPU.
+But for them, it's much, much easier
+to do the manufacturing and stuff.
+So I could see that point of view.
+I love that we're talking about this
+because it's not an easy answer, is it?
+Not as black and white as it might be on Windows
+or on the Mac platform.
+This might just be par for the course.
+But here, we kind of are the beacon of freedom
+in the software world, Linux is.
+And where does that freedom, where
+do we draw the line on that freedom?
+And what role does Linux have on protecting that freedom?
+Because we've pushed this until the breaking point with Nvidia.
+We just kept dogmatic at the issue.
+The kernel team is currently pushing this
+to the breaking point with ZFS.
+They will just not relent on that.
+There are some hills they are just willing to die on.
+Why not this hill, Wes?
+And should they be dying on this hill?
+Well, you're the devil's advocate, huh?
+I don't think we've heard your position yet.
+You've got me to do your work for you over there.
+No, my take on why is a little more cynical.
+I think it's because Intel is an influential partner,
+a major code contributor, and because the code they
+are contributing is GPL.
+But I'm curious if there's a moral obligation there.
+Yeah, I mean, it does make us ask some questions
+around the relationship with Intel.
+It's not even just some random provider.
+This is a company we like to laud
+as sort of doing open source and working
+with the kernel the right way.
+So you can see if the kernel were to take a stand here,
+I mean, that could really affect the way Intel
+is used to doing business.
+It seems like they are willing to do that model.
+They've adopted to that model.
+So then having to sort of, would they start shipping their own?
+Or would we be booting into FreeDOS
+to sort of load these certificates
+or doing some other, you know?
+Would the alternative be that this would still
+have to happen until it would keep moving forward?
+It would just be a worse interface
+to do so because you couldn't do it as easily directly
+with the kernel.
+Yeah, I guess we don't know.
+It seems like with the dominance of the x86 world
+and the popularity we see amongst developers
+and Hollywood production shops, Intel
+would have to be pressured into at least a few workstation
+and consumer line Intel chips, too,
+that were functional enough.
+But here's the devil's advocate's position,
+I think, for doing this.
+And I don't know if I fully buy it,
+but this is where I think Intel's coming from.
+And because, Brent, you touched on it,
+there are real genuine economies of scale when it comes here.
+And we've seen how screwed up chip manufacturing has gotten
+in the last couple of years.
+And so if there is a way for Intel
+to create a chip at one price point
+that they can then make millions of,
+and that makes it possible to actually meet demand, supply
+demand, and that makes it possible to sell at price
+points that give us devices that are like Chromebooks in cost
+or give us high-end workstation devices,
+depending on what people are willing to spend, I get it.
+I mean, it also helps Intel maximize revenue.
+But having a company that's making good revenue,
+there's one of the few American-owned companies.
+I'm just going to throw that in, too.
+Maybe that's a good thing.
+While also, they reduce the amount
+of different testing surfaces they have,
+so perhaps the products become more reliable.
+And it also means that you could buy something today
+for a cheaper price, like a $300 laptop or something
+like that.
+And then later on, you could add another feature,
+like maybe you could turn on virtualization for $80
+or something like that.
+And it means customers who have minimal needs
+but are very price-sensitive could technically
+get access to something that later on could
+become more advanced as their skill set becomes more
+advanced.
+So it really opens up the world to a whole new price point,
+and it gives a whole new stability and production
+pipeline for Intel.
+And we've seen in the last few years how important that is.
+It is just a shame.
+It feels like we're going backwards in some ways.
+It makes me think of the whole stuff
+with getting your Pi codecs in place
+and just what a pain.
+It's all fine, right?
+You can do it.
+You can run the right scripts or figure it out.
+But just practically, it sucks.
+There have been some interesting questions,
+like Kenji in our IRC room wondering,
+how's this going to work around?
+Is it per machine or CPU or person?
+So I buy it, and then I give my computer to Brent.
+Is that a separate thing?
+Does he need to buy a new copy of that from Intel himself?
+Or can you transfer it from one machine to the next,
+for instance, if you have a personal license
+and you have two computers and you change the workload on one
+and you decide it's more suited to the other,
+can you just move that over?
+Yeah, or what happens when you reload your box?
+Because these are getting written to this virtual device.
+That has to happen somehow.
+And if you nuke and pave your system,
+what makes that stick around?
+Yeah, the administration side will be interesting, too.
+What's persisting this, and is it, yeah?
+Devil's advocate aside now, this is clearly a step back.
+This is absolutely something that I will
+be voting with my wallet on.
+I made that comment quickly in land,
+but just to expand on that, the Ryzen systems
+have never looked any better as far as I'm concerned.
+And I could live a long, happy life with Ryzen systems
+and Apple M-based systems.
+And as long as I can run Linux on both,
+I may never need Intel again.
+You combine that with Raspberry Pi's,
+Intel's been less relevant than ever for me.
+And I see this kind of stuff, and I
+understand that because it's GPL software
+and they're just creating a device that you write files to,
+it's going to land in the kernel.
+Because it's Intel, there's not going to be a lot of pushback.
+I wish this stuff got more scrutiny.
+I have a ton of love and respect for the kernel team.
+I think they get away with this kind of stuff all the time.
+The University of Minnesota stuff
+should have gotten more scrutiny.
+This should be getting more scrutiny.
+But because we love these people,
+and because they work so hard, I think
+we are hesitant to criticize.
+I don't know if criticism is the right place, though.
+Like, I don't know that insisting
+that they take this moral judgment is.
+I think I could see you making the opposite argument of wanting
+them to remain a useful, neutral tool to be used for whatever
+purpose, especially considering that that's so much of what
+makes it successful.
+We often, on the show, talk about,
+yeah, there's the philosophy part, which I think
+matters to us, at least the hosts of the show,
+a fair amount, but matters seemingly less and less
+to the general cloud public who just use it as a tool.
+Yeah, I think where I really get concerned
+and I feel like where I've kind of landed on this one is,
+you're right, it's not their role,
+but it's sort of like our last line of defense.
+That's where I just go, if anybody was going to stop this,
+or if anybody was just going to embarrass Intel for doing this,
+it would be these developers with this platform,
+even if it just kind of raised awareness in the consumer
+population so they could start voting with their wallets.
+But instead, it's just been totally quiet.
+Yeah, it has been very quiet.
+It does make me think it's one of those areas that
+seems to come up a lot these days of sort of not
+necessarily the letter of the law, but the spirit
+and what their behavior will be.
+If this is really a thing that's limited to, say,
+a feature that's only used by giant data centers
+when they're training models or doing some specific task that
+really is not applicable to my sort of use case,
+even as a somewhat odd user of software,
+a technological enthusiast, then maybe it's
+not that big of a deal.
+But if it's something that most Intel buyers start running
+into, that'll sour things pretty quick.
+I imagine not, right?
+I imagine it's the enterprise that's really going to get it.
+Well, I mean, they're the ones who are going to shell out
+the money anyway, right?
+Right.
+And there's so many nickel and dimey ways you can do this.
+And you could see a CPU that maybe has more cores you
+can turn on.
+And you've got to license it for that.
+And then it's a lot more manageable problem, too,
+because then you're making Red Hat, SUSE, and Debian packages.
+And you've pretty much covered all of the enterprise
+deployments that are going to be using this thing.
+I suppose so, right?
+You know, but again, I want to just mention LW one more time.
+Because there was a bit in here that I think resonated with me.
+They're talking about business models in here
+and talking about how car manufacturers like Tesla
+want to include features that you pay for to turn them on.
+And we've kind of just accepted this.
+They're calling these rent-based business models.
+And they say it's been spreading through the technology
+industry for some time.
+Many of us have no longer purchased and even run
+our own servers.
+We run them from a cloud provider.
+Companies are still in the proprietary software business.
+But they're finding that monthly subscription models are appealing.
+Simply, it just works better than regular software licensing.
+And of course, there's dodgy websites
+out there that handle payments for all kinds
+of different content.
+He's making a joke about LWN, which is a paid-for content
+website there.
+But the issue really comes down to free software
+is supposed to enable freedom and access to these machines.
+But now we're going to find ourselves using it to our free
+software is going to ask the hardware for permission
+to be available to do things.
+Essentially, we're going to a model where free software
+enabled us to explore and use these computers, perhaps
+in ways that were never intended.
+And now we're going to a model where free software is relegated
+to the rest of the world asking for permission
+to get these features.
+If this approach is commercially successful,
+we're likely going to see more of it.
+And you combine that with kind of like the monthly subscription
+thing or something like that that Brent was saying.
+And then I think we kind of have a dystopia scenario.
+Oh, you can see like a weird, it's
+a range of CPUs that are targeting the netbook thing
+comes back or whatever right there.
+And you can't enroll your own TPM keys or something like that
+or the trust secure boot keys anymore
+unless you subscribe to the enterprise model.
+Is there an opportunity here for some of the reverse engineering
+that we're seeing in like the M1, for instance?
+Is any of that even possible in this case?
+That's a good question, Brent, because some
+of what's made the M1 Linux port possible
+is a lot of the functionalities at the firmware level.
+So the drivers just hand it off and the firmware does it.
+We see this with the Nvidia card.
+Like this new open source driver is really
+being made possible because the firmware is
+going to handle a lot of the stuff that Nvidia wanted
+the driver to handle in the past, for better or for worse.
+But we're definitely seeing this transition
+to the software side is a lot simpler
+and the complexity is being offloaded
+to the individual hardware components.
+And these are like little micro operating systems
+and microcomputers all in their own.
+And it's just becoming more and more common.
+Well, just at the same time as we see, yeah, and way
+more specialized chips for various roles
+instead of just one big old generalized CPU.
+Yeah, I think it's a good and bad thing.
+I think we're seeing the pros and cons of it.
+I think in the example of the M1 stuff,
+it's meant the Linux port has gone very, very rapidly
+from what I thought it would.
+And it seems like there's a nice little halves and gets
+that the developers are getting because of the functionality
+that the firmware handles.
+Same thing with Nvidia.
+If you want the functionality of an Nvidia card,
+or you want access to CUDA and Nvidia Compute,
+but you didn't want to have to hassle
+with the proprietary driver, well, they
+found a solution around that.
+And this is the future we're going into.
+And it's built in at the hardware level.
+And it's going to be trickier to navigate.
+There's going to be different things
+to consider for consumers now when we're buying hardware.
+It's not just going to be speed and specs.
+Yeah, there's more in there because it's
+running its own, basically, software as well.
+And you're going to have to care about how well that's
+implemented.
+Yeah, you're going to have to care about,
+how does that firmware work?
+What kind of driver does it have now?
+It's a whole new kind of nuance that we're going
+to have to help people navigate.
+And a reminder that as far as we've
+gotten in some areas with free and open source software,
+there's a whole other layer down there.
+So Jonathan has a great post at LWN.
+Again, I've mentioned that.
+We'll link it.
+I'd love to hear the audience's reaction to this
+because my question to you out there,
+where do you personally draw the line?
+Is your Android device fine because that
+requires a bunch of firmware?
+What about a Nintendo Switch?
+What about electric cars like the Tesla
+that you can buy self-driving or whatever for $10,000
+or whatever it is after the fact?
+Where do we draw that line?
+And are you concerned about the slide
+into subscriptions for every little component there?
+So send us a boost in with a new podcast app
+or use the Breeze app if you don't switch podcast apps.
+Or send us an email at linuxunplugged.com
+slash contact and let us know what you think.
+Bitwarden.com slash Linux.
+Go get started with a free trial for Teams, Enterprise,
+or a personal account at bitwarden.com slash Linux.
+As an individual user, I love it.
+But of course, as a business owner,
+it's been, I think, a big part to what keeps our information
+secure and protected.
+Bitwarden is the easiest way for an individual or a business
+to store, share, and sync sensitive information.
+And Bitwarden is open source.
+It's trusted by millions of users in their community.
+It has a self-hosted component as well.
+And it's what Wes and I use to store all of our passwords,
+manage our two-factor codes.
+We're both customers of Bitwarden Cloud, which is just
+an unbelievable great deal.
+Man, and you know they keep adding new features too.
+Bitwarden has rolled out account switching.
+That's great.
+But now they've just recently added the ability on Android
+to switch accounts while you're at the password fill out.
+You know, this is so nice because I
+have a business account and a personal account.
+And now, right there, when you're at the prompt,
+you can tap the avatar bubble and switch
+to another account quickly, get the password access,
+authenticate, and deploy that one password.
+How nice is that?
+Account switching has been great.
+And one of the features I'm just getting into,
+and it just got better, is their username generator.
+Now, this makes it easy to create a random username
+for a website you're signing up for or a service
+and add an extra level of security.
+That's just genius.
+But now, they're making it even easier to use.
+When you generate a new username,
+there will now be an option to create an email address
+with a subselection for choosing something
+like simple login, a non-addy, or my favorite, Firefox Relay.
+Yeah.
+So you just enter the API key for your individual account
+for that service, like Firefox Relay.
+And then, upon generation of the username and the password,
+it'll also generate that email address that's
+just for them and unique.
+A new alias is instantly registered to your account.
+And it's all saved in Bitwarden and then synced across
+your devices automatically.
+Using a good password manager is probably
+one of the number one things you can do for your security.
+You probably already know that.
+But if a friend or a family or a colleague or your workplace
+hasn't really wrapped their noodle around that,
+have them try out Bitwarden.
+It's the best way to do this.
+And you can support the show and get a free trial
+for Teams, Enterprise, or an individual plan
+by going to bitwarden.com slash Linux.
+That's where you go.
+Go right now.
+Support the show and try it out.
+It's like a low-hanging fruit to protect yourself.
+Bitwarden.com slash Linux.
+As always, we got some great feedback this week.
+Chris wrote in.
+Last week, you mentioned the new HP laptop running Pop!
+OS.
+And it did get me wondering about whether devs really
+use laptops all that much.
+I'm not a dev.
+And it would drive me nuts to sit in front of the laptop
+all day trying to get anything serious done.
+Wouldn't the standard pony for a dev or any other heavy PC user
+be the most powerful desktop with the biggest
+monitor you could afford?
+I seem to only use my laptop when I'm on the road.
+Well, Wes, you're a developer by day.
+Do you use a laptop?
+Yes, I do.
+Yeah, you know, I think you probably
+would assume it would be a nice big workstation.
+I think for folks open source work or at homework,
+that probably is often the case.
+Maybe this is one of those things
+that needs to get caught up for our post-pandemic working
+remotely life.
+But I think a lot of it comes down
+to just sort of the lowest common denominator, right?
+Like, your folks need to sometimes go to meetings.
+They sometimes travel for work.
+They sometimes go to conferences.
+And therefore, you're either going to get them two machines
+or you just get them one.
+And to be clear, no one's really sitting there just
+typing on a single laptop unless they have to, right?
+Like, these days, you've got sort of hotel stations
+where you just plug into a dock at a little
+wherever you're sitting down and you've got all the monitors
+you need.
+I wonder, too, if the work from home trends
+have maybe accelerated this a bit so that way you can take
+your machine back and forth.
+But if you look at the sales numbers,
+laptops are selling like gangbusters over desktops.
+And if you look specifically at Apple,
+they sell way more MacBook Pros than they
+do regular desktop machines.
+And they target those things hard at developers.
+And I think they've done a pretty good job
+of balancing dedicated CPU versus integrated CPU or disk
+and except for when they didn't with the bad keyboards
+and stuff.
+And you see Dell adopt the Sputnik model.
+You see HP with the Dev1.
+And of course, System76 is catering to that audience.
+I think there's something nice about having everything in one.
+That's why the iMac's popular, too.
+I think there's people that like the all-in-one.
+But I get where you're coming from,
+other Chris, because it's like for me,
+I can tell the difference when I'm
+using a workstation still versus a laptop.
+It's beginning to change, but I still
+feel like there's a performance delta
+between a laptop and a desktop.
+Right, so you'd be the one sort of complaining to IT,
+I really need a desktop.
+I need one, and a laptop, and a tablet, and a phone,
+obviously.
+Oh, and a projector, too.
+Now, we did get a lot of questions around the Pop OS
+and HP sort of project that we touched on last week.
+And we got some boosts about that, too.
+And now, it is time for Le Boost.
+Nick wrote in with some feedback,
+and the golden dragon wrote in with a boost six days ago
+with two, two, two, two sats, which
+apparently is a row of ducks.
+I'm a duck, D-U-K, duck, loaded with talent.
+It is.
+If you type in two, two, two, two into a calculator,
+it looks like a row of those yellow duckies.
+I think we got a sat amount last week as well.
+That was one of those old calculator secrets, which
+maybe we'll have to look back on that.
+So the golden dragon wrote in.
+Now, this sounds promising.
+HP plus Pop with AMD seems like a stellar dev system.
+The one question I would have is,
+what is a killer system like this going to cost?
+Well, I think we'd know it's going to start around $1,000.
+I thought it was like $1099, something like that, right?
+Yeah, something like that.
+What we don't know is what the price goes up
+to when you tweak the specs.
+Because that came with 16 gigs of RAM
+and one terabyte of disk space, which is really
+not too bad for that price.
+And 16 gigs of RAM might be the max,
+but you might be able to tweak storage and processor.
+We are collecting these questions,
+so keep sending them in.
+Boost.
+Yeah, Nick wrote in about the same lines
+with some great questions I think are worth exploring
+in the future as well, one of them
+being, how long is the laptop going to be supported?
+Firmware updates, how are those going to work?
+Will it use the existing Pop OS firmware delivery method?
+I thought those were all really good questions.
+Yeah, you know, I haven't really used an HP machine for a while.
+Are they playing nice with some of our fancy new Linux
+firmware stuff?
+Yeah, I hope it has LVFS support, right?
+It needs that LVFS.
+Come on.
+It needs that.
+Yeah, that's a good question.
+Magenta Sheep boosts in using Buries no less,
+six days ago, with 3,142 SATs.
+Is that Pop OS HP system running Core Boot?
+That is probably the number one question we got.
+Yeah, right there.
+Oh, I've written that one down.
+I don't know how much can be shared yet or not too,
+so I got to get information on the NDAs around this thing.
+Keeping secrets from us.
+I don't have the info, but I just
+know that once I get it, there's going
+to be that kind of thing, so.
+Core Boot's definitely the number one question though.
+We got a double boost from Magenta Sheep
+six days ago, 3,142 SATs again.
+They write, ZFS's killer feature for me is sending
+encrypted raw snapshots.
+Nothing else I know of lets me have
+better security and integrity.
+Not just an encrypted snapshot, but an encrypted raw snapshot.
+I hear from the audience all kinds of clever ways
+they're using ZFS send and receive.
+Totally.
+To move things around between data centers and servers.
+And that's an awesome feature.
+When we get to poking at BcashFS in a real way,
+I think we've got to play around with some of these features
+that people love about ZFS and ButterFS.
+Speaking of BcashFS.
+Oh yes, user 7620 boosted in five days ago with 10,000 SATs.
+B-O-O-S-T.
+Hooray for BcashFS.
+I can't wait.
+Hey, well, user 6720.
+We agree.
+We agree.
+I still have it on that laptop.
+I'll run it for a little bit.
+I got to also figure out a good set of benchmarks.
+So we'll be chatting about that in the future.
+I agree, though.
+Very exciting.
+You know, I'm curious about those two touch on kind
+of the same topic we explored last week.
+And I wondered how ButterFS dealt with,
+I've been reading tons about it this week,
+but I wondered how you mentioned ZFS's encrypted raw snapshots.
+Well, how does ButterFS compare in there?
+I want to know for my own purposes here.
+Sounds like you have some experimenting to do.
+I do.
+Young master brand.
+Michael wrote in with a boost as well one day ago, 30,000 SATs.
+He writes, helping you helping others, smiley face.
+Supporting open source projects is a great idea.
+Ah, this is in reference to sending a 15% split
+to OpenSATs, which we're doing this episode as well,
+which is a nonprofit charity that
+gives 100% of the revenue sent to their general funds
+to free software projects.
+And so when you boost this here podcast and office hours,
+we're doing a little experiment.
+15% goes to OpenSATs.
+So for this episode, if my rough quick math as we're doing this
+is right, we've sent about 3,200 and change to OpenSATs.
+Nice.
+Yeah, that's pretty great.
+So thank you, everybody, for helping us experiment
+with that.
+You did note in there, we have a couple of folks
+that are now boosting in with Breeze.
+That's B-R-E-E-Z. I think it's breeze.technology
+for the website.
+This works on Android or iOS.
+And what it essentially does is it gives you a lightning node
+in your pocket.
+I thought you were just happy to see me.
+Well done, sir.
+Well done.
+Breeze is sort of a front end to different services
+on the Lightning Network, including
+value for value podcasts.
+And so it's a way to send in a boost
+without having to switch from your favorite podcast app.
+Eventually, there is discussion for folks
+like AntennaPod, which AntennaPod supports
+a lot of podcasting 2.0 features,
+but not value and boost yet, although they
+are looking at integrating Breeze to accomplish that.
+Oh.
+Yeah.
+So you get a little head start right now.
+It is pretty cool, for better or for worse,
+to run a lightning node in your pocket.
+You can also grab a new podcast app at newpodcastapps.com.
+I'm using Fountain FM these days.
+You can follow me on Fountain.
+I'm at chrislas.
+And I'm clipping the podcasts that I listen to,
+including JB shows and others.
+So if you're interested in the podcasts I listen to,
+you can follow me on Fountain.
+I'm just at chrislas.
+And it's fountain.fm, I think, for that.
+newpodcastapps.com has them all.
+And with that, gentlemen, you know what it's time for?
+The picks.
+It is time for the picks.
+And I had a hard time picking one
+that I felt was on theme for this week.
+So that's the thing I've been trying to do.
+Yes, you have.
+Not just some random dirty pick, but one that's on theme.
+And I think I found it.
+I mentioned earlier in the show
+that my Ubuntu system was using Linux 5.18 already.
+And it's this tool I'm using to do it.
+I was suspicious you were compiling these things by hand.
+Actually, if you recall, what were we doing, Wes?
+You and I were in here recently recording,
+and a pop-up as we finished came up and said,
+5.18's ready.
+It must have been last week's.
+It must have been last week's, yeah.
+It's really just that.
+It's not an app you should use.
+Don't do what Chris does.
+Don't do this.
+To tell you what kind of a lunatic I am
+and why you should never do this,
+I'm actually doing this on KDE Neon, too.
+So it's not even like,
+it's already kind of a Frank and Ubuntu setup.
+So I got Neon on top of Ubuntu,
+and then I'm also on top of that role on my own kernel.
+Don't do this.
+But if you want to, it's called Ubuntu Mainline,
+and it lets you pick your version.
+And you can have multiple versions.
+You can go way back.
+You can do all kinds of stuff.
+Or you can be a madman
+and literally get a new kernel the day it's posted,
+and a little pop-up will come up
+if you leave the notifications on,
+and it downloads and installs.
+It's just a PPA away.
+Does the thing have like RC releases, too,
+if you wanted to help test out?
+I think it does, Wes.
+Yes, it does.
+In fact, it does.
+I just skip them.
+Yeah, sure, sure.
+Yeah, and you can purge older kernels,
+and you can choose some of this stuff.
+I should mention, it gives you a GUI to manage all this,
+which is handy.
+You can also get the header packages
+if you need to build stuff and whatnot
+for your other modules and stuff.
+And honestly, as much as I say don't use this,
+Maybe use it.
+I've been using it for 10 months on this machine.
+You're just telling us about this now?
+Yeah.
+That's what's been putting that skip in your step.
+You know why I did it?
+Is initially, I was just a little disappointed
+in the performance.
+It felt like the machine was getting slow,
+and I'm like, I need a little more pep in my step.
+Maybe a newer kernel will do it.
+And you know what?
+It did break my NVIDIA driver, however.
+So I'm using the free NVIDIA driver again.
+This is why we can't have nice things.
+I probably could fix that,
+but I just give no crap at all.
+You know what I mean?
+It's an old NVIDIA card,
+and I've spent so many years fighting the NVIDIA driver
+on laptops and stuff,
+that now that it's the lights at the end of the tunnel,
+I just can't be bothered.
+You're done.
+I'm playing Race the Sun on this thing.
+What do I need 3D acceleration for?
+So, good enough.
+But that might also explain
+why the machine's been a little laggy.
+If you'd like to give us a pick idea,
+you can go to linuxunplugged.com slash contact
+and send an idea in.
+We'd love to have them over there.
+If you want more show,
+well, there's a few ways you can do it.
+You can become a member.
+Linux Unplugged does have a membership program
+at unpluggedcore.com.
+These members get special access to two different feeds.
+One that's an ad-free feed,
+nice, tight, full production with all of Drew's editing,
+who's our summer editor right now.
+Or you can choose the live version.
+And then you'd know I just screwed that up right there.
+But because editor Drew is so smooth, you don't know.
+But if you listen to live version,
+you hear all the mess ups,
+all the times we stopped the show
+because Wes has got to go to the bathroom.
+Okay, that doesn't happen very often.
+But if it did, you'd know.
+Actually, what you really get with the live show
+is just more show.
+There's like almost an entire additional show
+in the pre and post show.
+It's just a lot more casual.
+And as a thank you,
+because you give us runway to decide which sponsors we do
+or don't wanna work with.
+It's not something we talk a lot about,
+but I've just for a little while,
+I'm gonna just mention
+that we get the most ridiculous pitches on this show.
+They get sent in for just all these kinds of crazy products
+and services that they want us to pitch to you guys.
+And it's so nice that our members give us the option
+to just hit the delete button on all of those emails, right?
+That's powerful.
+It keeps us independent.
+It keeps us focused on making content
+that's true to our audience and true to our members.
+So thank you to our members at unpluggedcore.com.
+And if you're missing Linux action news,
+well, then you are missing out on not only that Intel news,
+but a bunch of other stuff that happens every single week
+in the world of Linux and free software.
+So go to linuxactionnews.com for that.
+Plus you get more Westpain.
+Darn right.
+Darn right.
+Go get more Westpain at linuxactionnews.com.
+And last but not least,
+we'd love to have you join us live.
+See you next week.
+Same bad time, same bad station.
+Yeah, that's right.
+Why don't you come on over?
+We do the show on Sundays.
+We may be experimenting with some new tools,
+maybe experimenting with video streams for this year's show
+so you can see us doing the show live from the JB1 studio.
+Could have some announcements in that regard.
+Perhaps next Sunday would be a good one to join us for
+at jblive.tv, 12 p.m. Pacific, 3 p.m. Eastern.
+Now links to everything we talked about today,
+that's over at linuxunplug.com slash 460.
+You can find our RSS feed over there,
+contact page, previous episodes,
+and then don't forget all the great shows
+over at jupiterbroadcasting.com.
+Thanks so much for joining us on this week's episode
+of the Unplugged program.
+See you back here next week.
+If you like the show, please subscribe.
+The cone of silence.
+Do we have any more details on the London meetup?
+Because we didn't mention that in the show and I'm wondering we could like record a thing
+but is there any updates?
+Well, I think is our resident Canadian which is like halfway to England is my understanding
+Brent might know.
+You got anything new for us, Brent Lee?
+Last time we talked about this, which was on office hours last Tuesday.
+There were about 40 people signed up to go to the meetup.
+And as far as today, this update as this minute, there are 53 people.
+So I think the numbers are going up quite considerably.
+I think that might end up being a problem in terms of venue, but that's a good problem
+to have.
+So I feel like there and those are probably 53 really amazing people to go and meet.
+I feel kind of jealous.
+I see one Martin Wimpress on there, so perhaps Martin Wimpress could do some local advising.
+Mm hmm.
+All right.
+So this is I think this thing's happening, though, on August 6, 2022.
+I think this is happening.
+So what we'll do is let's we'll just play it cool.
+We'll pretend like we planned to do this in the post show the entire time.
+So get ready.
+The cone of silence.
+Hey, everybody, I just want to make sure that you know that London meetup is on.
+Go get details at meetup.com slash Jupiter broadcasting.
+Hey, guys, look at this.
+Fifty three people attending already.
+Can you believe it?
+That is wow.
+I never expected that at all.
+What a surprise.

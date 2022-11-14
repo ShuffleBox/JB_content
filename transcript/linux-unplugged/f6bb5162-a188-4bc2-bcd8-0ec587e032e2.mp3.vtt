@@ -1,0 +1,3395 @@
+WEBVTT
+
+00:00.000 --> 00:05.500
+The Starlink satellite network runs Linux and at a massive scale.
+
+00:05.540 --> 00:10.640
+We could potentially see 32,000 Linux systems orbiting the planet
+
+00:11.240 --> 00:12.440
+just about right now.
+
+00:12.480 --> 00:14.140
+Yeah, it's super interesting.
+
+00:14.180 --> 00:16.280
+These things are amazing, and I'm really excited
+
+00:16.320 --> 00:20.480
+for eventually having internet beamed to me from space from Linux.
+
+00:20.520 --> 00:22.580
+And they have a ton of fascinating details,
+
+00:22.620 --> 00:25.220
+if you want more, over in AMA on Reddit,
+
+00:25.260 --> 00:27.860
+including that they use the same Linux stack
+
+00:27.860 --> 00:30.960
+for the Dragon spacecraft and Starlink,
+
+00:30.980 --> 00:33.260
+and they're running with the preempt patch.
+
+00:44.700 --> 00:47.840
+Hello friends and welcome into your weekly Linux talk show.
+
+00:47.880 --> 00:48.900
+My name is Chris.
+
+00:48.940 --> 00:49.940
+My name is Wes.
+
+00:49.980 --> 00:54.840
+Hello Wes and welcome to episode 358.
+
+00:54.840 --> 00:57.480
+We have a lot to get into today.
+
+00:58.200 --> 01:01.160
+I'm going to do something that I never saw coming.
+
+01:01.160 --> 01:06.440
+I'm going to attempt to defend ButterFS in this episode of your Unplugged program.
+
+01:07.160 --> 01:08.760
+I'll make the case here in a little bit.
+
+01:09.320 --> 01:13.720
+And then we want to have a discussion about how y'all, because I'm in Texas,
+
+01:13.720 --> 01:19.400
+how y'all are feeling about GitHub's decision to start using main instead of master
+
+01:19.400 --> 01:23.240
+and OpenZFS decision to change some of their terms.
+
+01:23.240 --> 01:27.640
+We'll talk about post-market OS as well and what they have for the PinePhone.
+
+01:27.640 --> 01:30.520
+And then towards the end of the episode,
+
+01:31.080 --> 01:36.040
+we will discuss what proprietary systems are doing better
+
+01:36.040 --> 01:40.200
+and what Linux needs to do right now to catch up.
+
+01:40.200 --> 01:45.240
+So to help us get to all of that, we've called upon the powers of cheese and Drew.
+
+01:45.240 --> 01:45.960
+Hello, gentlemen.
+
+01:45.960 --> 01:46.600
+Hello.
+
+01:46.600 --> 01:48.200
+Hello, Internets.
+
+01:48.200 --> 01:51.480
+And then like amulets attached to their belts of power,
+
+01:51.480 --> 01:53.240
+it is our virtual lug time.
+
+01:53.240 --> 01:54.760
+Appropriate greetings, Mumble Room.
+
+01:58.760 --> 02:00.360
+Hello, everybody.
+
+02:00.360 --> 02:01.320
+Amazing.
+
+02:01.320 --> 02:02.760
+I am very pleased to have you here.
+
+02:02.760 --> 02:06.840
+And I don't even have the full list in front of me, but I sense a strong presence.
+
+02:06.840 --> 02:08.040
+I sense a strong presence.
+
+02:08.040 --> 02:13.240
+I don't have the full list because I'm broadcasting from Lady Joops down in Texas.
+
+02:13.240 --> 02:17.720
+Leander, Texas, I think is how you say it, which is Austin's fastest growing town.
+
+02:17.720 --> 02:18.440
+Did you know?
+
+02:18.440 --> 02:19.800
+I'll fill you in here, Chris.
+
+02:19.800 --> 02:24.920
+We've got 13 fine folks joining us via Mumble and a whole bunch more over in Quiet Listening.
+
+02:24.920 --> 02:27.000
+Yeah, they figured out the Quiet Listening thing, didn't they?
+
+02:27.000 --> 02:27.640
+I like that.
+
+02:28.200 --> 02:28.920
+That's pretty great.
+
+02:28.920 --> 02:32.280
+We do these shows here on Tuesdays when we are doing them,
+
+02:32.280 --> 02:34.920
+which is just about every Tuesday at noon Pacific.
+
+02:35.480 --> 02:37.400
+So let's get into a few things.
+
+02:37.400 --> 02:40.840
+I am here in Texas right now and enjoying the heat.
+
+02:40.840 --> 02:42.360
+It's one of those weird ones.
+
+02:42.360 --> 02:43.080
+Let's see.
+
+02:43.080 --> 02:46.840
+Are you guys familiar with the feels with versus the actual temperature?
+
+02:46.840 --> 02:50.280
+I don't even know why we use anything but feels like, you know what I mean?
+
+02:50.280 --> 02:51.800
+Tinkering with weather.
+
+02:53.160 --> 02:57.480
+According to my sensors, it's partly cloudy in this municipality.
+
+02:57.480 --> 02:59.480
+They also found radon in your home.
+
+03:00.360 --> 03:00.860
+Great.
+
+03:02.680 --> 03:07.480
+It's 95 degrees technically, but it's one of those where it feels like 105.
+
+03:07.480 --> 03:08.440
+What the hell is that?
+
+03:08.440 --> 03:10.120
+That's commonplace here in Texas, right?
+
+03:10.120 --> 03:11.240
+Because of the humidity.
+
+03:11.240 --> 03:15.800
+And I'm actually surprised that it feels like 105 up there in Austin.
+
+03:15.800 --> 03:20.200
+Because it's usually a little drier there than it is down here on the Gulf Coast.
+
+03:20.200 --> 03:25.320
+So I have my server booth open right now and ventilating because I can't get it
+
+03:25.320 --> 03:28.040
+below 95 degrees in lady jubes.
+
+03:28.040 --> 03:33.080
+And I've shut down one of my raspberry pies to try to reduce the thermal load
+
+03:33.080 --> 03:34.760
+and it has gone nowhere.
+
+03:35.320 --> 03:41.640
+Thankfully, I SSH in and Ubuntu 2004 server edition puts right on the message
+
+03:41.640 --> 03:43.080
+of the day what your CPU temperature is.
+
+03:43.080 --> 03:46.600
+So as soon as I SSH into that sucker, I know what my temperature is.
+
+03:46.600 --> 03:49.880
+And it's so far, they're around 65, 67 degrees.
+
+03:49.880 --> 03:51.960
+So I'm not too concerned, but it's...
+
+03:51.960 --> 03:55.160
+I like the idea of you, you know, making yourself more uncomfortable
+
+03:55.160 --> 03:56.920
+for the sake of your technology.
+
+03:56.920 --> 03:57.320
+I am.
+
+03:57.320 --> 04:00.840
+I am radiating the heat into the RV and I have the ACs off for the show.
+
+04:00.840 --> 04:01.880
+So it's a double whammy.
+
+04:02.520 --> 04:05.080
+I do have one fan going, one lone fan.
+
+04:05.080 --> 04:05.320
+All right.
+
+04:05.320 --> 04:08.440
+Well, let's get into the show because we have a whole bunch to talk about today.
+
+04:08.440 --> 04:11.880
+And I wanted to start with something that's going to get me ridiculed.
+
+04:11.880 --> 04:13.080
+I like to do that these days.
+
+04:13.080 --> 04:16.200
+You know, first I'll say something that's somewhat reasonable about Microsoft
+
+04:16.200 --> 04:18.600
+and I'll have people write attack articles about me.
+
+04:18.600 --> 04:22.440
+And so now I'm going to say something somewhat reasonable about ButterFS
+
+04:22.440 --> 04:26.360
+and I'm going to get attacked by friends and by people who don't even know me.
+
+04:26.360 --> 04:30.600
+But I think it is time to defend ButterFS a bit
+
+04:31.400 --> 04:36.920
+after having recently gone through my own trials and tribulations with it.
+
+04:36.920 --> 04:42.520
+If you listened a couple of weeks ago, I had a ButterFS snafu when I was in the middle
+
+04:42.520 --> 04:47.560
+of a file system conversion and like a dummy, I switched my Wi-Fi networks,
+
+04:47.560 --> 04:50.920
+dropped my SSH session and borked the entire thing.
+
+04:50.920 --> 04:54.680
+One of my ultimate all time will never forget mistakes in data loss.
+
+04:54.680 --> 04:56.840
+It's like you've never adminned a box before.
+
+04:56.840 --> 04:58.680
+Oh, Wes, when I did it, I knew it.
+
+04:59.480 --> 05:03.640
+I felt all the years of doing IT shame.
+
+05:03.640 --> 05:06.280
+Like I just I knew I had made a mistake immediately.
+
+05:06.280 --> 05:07.400
+And Hadia saw it in my face.
+
+05:07.400 --> 05:09.880
+My wife, she was standing across from me from the room.
+
+05:09.880 --> 05:11.400
+She's like, oh, what happened?
+
+05:11.400 --> 05:12.120
+Did somebody die?
+
+05:13.080 --> 05:13.320
+Right.
+
+05:14.520 --> 05:15.640
+Just good data, honey.
+
+05:15.640 --> 05:16.760
+Just good data.
+
+05:16.760 --> 05:21.160
+So let's talk about this because today I had the opportunity to attend a Fedora
+
+05:21.160 --> 05:27.320
+working group meeting where they brought on some developers from Facebook who use
+
+05:27.320 --> 05:30.520
+ButterFS in production on their servers.
+
+05:30.520 --> 05:35.640
+They brought in the main developer of ButterFS, who also happens to be a Facebook employee,
+
+05:35.640 --> 05:41.560
+and a system developer, as well as other Fedora party members, workstation developers.
+
+05:41.560 --> 05:45.560
+And myself was there as well as Neil, who's in the Mamba room.
+
+05:45.560 --> 05:46.680
+He was there.
+
+05:46.680 --> 05:52.440
+And the conversation was really around Facebook's use of ButterFS, their lessons
+
+05:52.440 --> 05:59.240
+learned in production, and their overall opinions, takes, lessons learned that they
+
+05:59.240 --> 06:05.560
+could kind of pass on to the Fedora team who has currently an open bug about revisiting
+
+06:05.560 --> 06:08.440
+the default partitioning layout for Fedora workstation.
+
+06:08.440 --> 06:12.920
+And this is the genesis of this entire conversation, I believe.
+
+06:12.920 --> 06:20.120
+The workstation working group has to look at this problem that has arisen with the use
+
+06:20.120 --> 06:22.200
+of Docker and Flat Hub.
+
+06:22.200 --> 06:25.640
+The default disk layout in this bug report says that it's problematic.
+
+06:25.640 --> 06:29.960
+Having a separate home and small root means running out of disk much more quickly.
+
+06:29.960 --> 06:34.840
+And the bug submitter says, in fact, it's actually happened on every single machine
+
+06:34.840 --> 06:37.480
+I have when I'm deploying a lot of Flatpaks.
+
+06:37.480 --> 06:42.760
+Things are a lot different, they write, since we made the decision to have the current default
+
+06:42.760 --> 06:43.720
+disk layout.
+
+06:43.720 --> 06:48.840
+We have a much more reliable upgrade, very true, I agree with that, in addition to a
+
+06:48.840 --> 06:53.160
+lot of new technology that eats up a lot of root disk space.
+
+06:54.040 --> 06:56.200
+Now, think about this problem.
+
+06:56.200 --> 07:02.280
+If you're Fedora and you think perhaps you have to re-evaluate the way you are default
+
+07:02.280 --> 07:07.480
+partitioning every workstation install, at the same time, you have distributions like
+
+07:07.480 --> 07:14.760
+Ubuntu deploying ZFS, you have distributions like SUSE deploying ButterFS, and they're
+
+07:14.760 --> 07:20.600
+solving these problems and gaining benefits like compression and snapshots and copy-on-write
+
+07:20.600 --> 07:26.600
+copy-on-write and checksums and sending and receiving data that is really fantastically
+
+07:26.600 --> 07:27.100
+awesome.
+
+07:27.640 --> 07:32.520
+And you also have to solve a problem that traditionally you've done with tools like
+
+07:32.520 --> 07:38.440
+LVM and extended for that perhaps are no longer as competitive with what the rest of the
+
+07:38.440 --> 07:39.880
+commercial market has.
+
+07:39.880 --> 07:48.360
+See the rest of our topic later today, like later versions of NTFS, Apple's APFS on their
+
+07:48.360 --> 07:50.840
+Macs and on the iPhones.
+
+07:50.840 --> 07:57.080
+And honestly, Ubuntu 20.04, I mean, shipping ZFS and making an option you can check, it's
+
+07:57.080 --> 07:59.880
+a competitive consideration, even if they don't want to come right out and say it.
+
+08:00.440 --> 08:05.720
+Combined with trying to solve a real problem that has presented itself to its users who
+
+08:05.720 --> 08:11.480
+are using things like containers and flat packs, which Fedora is driving, and they have
+
+08:11.480 --> 08:12.680
+to pick a path here.
+
+08:12.680 --> 08:14.760
+And so the timing of this was pretty important.
+
+08:14.760 --> 08:19.640
+And bringing these developers in from Facebook, I thought, was a great way to hear how folks
+
+08:19.640 --> 08:21.800
+do it in production.
+
+08:21.800 --> 08:27.320
+There's some context for like why we have to set up the way we do today with LVM and
+
+08:27.320 --> 08:30.200
+having X4 for workstation and XFS for server.
+
+08:30.760 --> 08:35.240
+The reason we have it set this way is that even back when we made this change, like over
+
+08:35.240 --> 08:40.600
+a decade ago, the concept of being able to grow or reconfigure the storage was considered
+
+08:40.600 --> 08:46.360
+very valuable and necessary, especially as people's systems tended to change over time.
+
+08:46.360 --> 08:52.120
+And like one of the core tenants is that we don't want the system to be a pain for people
+
+08:52.120 --> 08:54.120
+to adjust it as their needs change.
+
+08:54.120 --> 08:58.200
+Like if you need to have more space, you should have an easy way to slot in more space.
+
+08:58.920 --> 09:06.680
+So that's why workstation has for the longest time done X4 on LVM so that we get these things
+
+09:06.680 --> 09:09.800
+and we get like 60 to 70% of the way there.
+
+09:09.800 --> 09:15.240
+And, you know, as a matter of public record, when the workstation working group was first
+
+09:15.240 --> 09:21.240
+founded several years ago, I think it was like 2012, 2013 or something like that, like
+
+09:21.240 --> 09:28.520
+as part of the original design doc, we always aimed to move towards an advanced file system
+
+09:28.520 --> 09:33.720
+technology to unify or stack and simplify the user experience for storage management.
+
+09:33.720 --> 09:38.680
+And in there, we listed ButterFS as one that we wanted to go towards when we felt we were
+
+09:38.680 --> 09:42.360
+ready for it and when the developers felt it was ready for that.
+
+09:43.000 --> 09:46.520
+Periodically, members of the workstation working group, as well as other members of Fedora
+
+09:46.520 --> 09:49.160
+have visited this, tried it out and evaluated.
+
+09:49.160 --> 09:53.480
+I've, you know, as I've stated many times before, I've personally been running ButterFS
+
+09:53.480 --> 09:59.320
+on all of my systems for the past five years and with containers and flat packs and even
+
+09:59.320 --> 10:04.040
+people who are packagers, like you're using tools like mock, which makes roots and image
+
+10:04.040 --> 10:10.040
+roots and things like that to do clean builds, it eats all of your space up so very quickly.
+
+10:10.840 --> 10:16.120
+These were not all demands that we had when we made this decision long ago.
+
+10:16.120 --> 10:19.160
+And we still have all the same needs that we had before.
+
+10:19.160 --> 10:23.880
+Also, I would point out that when these decisions were made, SSDs weren't nearly as common.
+
+10:23.880 --> 10:24.200
+Right.
+
+10:24.200 --> 10:27.880
+So like you had a performance limit that you really just weren't going to have to deal
+
+10:27.880 --> 10:29.640
+with in software.
+
+10:29.640 --> 10:34.600
+And now we're we've blown past that point, like I think arguably three years ago when
+
+10:34.600 --> 10:37.240
+laptops started switching to SSDs by default for everything.
+
+10:37.800 --> 10:39.960
+And and there's a whole new set of challenges.
+
+10:40.520 --> 10:43.320
+And trim is more of a consideration now as well.
+
+10:43.320 --> 10:46.920
+You have to have a file system that's aware that it's writing to an SSD and support that.
+
+10:47.480 --> 10:48.600
+There's those issues as well.
+
+10:48.600 --> 10:51.400
+And laptops now just almost all of them ship with SSDs.
+
+10:52.440 --> 10:58.920
+Now, the thing is, and I think it's detectable in these conversations, but I don't I don't
+
+10:58.920 --> 11:05.640
+recall being directly addressed is Butterfess has a bit of a reputation problem.
+
+11:05.640 --> 11:09.880
+I just recently talked about me using Butterfess on my Raspberry Pi's.
+
+11:11.080 --> 11:14.600
+And God bless them, Jim and Alan just think I'm completely insane.
+
+11:15.160 --> 11:19.880
+And in talking to them, I realized even I have my own biases against it.
+
+11:19.880 --> 11:24.440
+Like the data I'm currently using on Butterfess is it's it's replaceable.
+
+11:24.440 --> 11:29.000
+It's not it's not like my only copy because I was playing it safe.
+
+11:29.000 --> 11:33.560
+But I think one of the things that I took away from these developers at Facebook is
+
+11:34.360 --> 11:39.560
+it's not the same Butterfess as it was a few years ago when I was running Arch
+
+11:39.560 --> 11:42.360
+and I hit that bug that prevented my system from booting.
+
+11:42.360 --> 11:43.240
+It's so hard, right?
+
+11:43.240 --> 11:47.160
+I mean, we have all these horror stories from the early years or from whenever.
+
+11:47.160 --> 11:50.760
+But unless you're someone who uses it in production or maybe a developer,
+
+11:50.760 --> 11:55.080
+how do you really go assess the current state of the art and like what the limitations are?
+
+11:55.080 --> 11:59.240
+Right. You have to keep checking in on things in the open source world because they just
+
+11:59.240 --> 12:00.440
+continually improve.
+
+12:00.440 --> 12:05.400
+And if you've made your mind up about something based on an opinion you collected a few years ago,
+
+12:05.400 --> 12:09.880
+it's almost guaranteed that if that project is under any kind of active development,
+
+12:09.880 --> 12:11.960
+your opinion is now out of date.
+
+12:11.960 --> 12:16.360
+And Joseph, who is the lead developer of Butterfess and he's employed by Facebook
+
+12:16.360 --> 12:21.640
+full time and he seems like a very genuine guy who is a real straight shooter,
+
+12:21.640 --> 12:27.320
+says that a lot of these faults that we find with Butterfess now is actually
+
+12:27.320 --> 12:30.760
+Butterfess exposing hardware problems.
+
+12:30.760 --> 12:34.120
+Obviously, I'm very familiar with every problem we ever get in Butterfess because
+
+12:34.120 --> 12:35.560
+it ultimately lands on me.
+
+12:38.200 --> 12:43.720
+Like that said, you know, we do not we've not really had any issues that are directly
+
+12:43.720 --> 12:48.680
+Butterfess' fault. And in fact, most of the things that we find with Butterfess that I
+
+12:48.680 --> 12:51.640
+assume are Butterfess' fault have ended up being hardware.
+
+12:51.640 --> 12:56.120
+So we found interesting problems where like a RAID controller would write to the middle
+
+12:56.120 --> 12:57.240
+of a disk on reboots.
+
+12:57.880 --> 13:00.760
+We found this because Butterfess started throwing checks on errors.
+
+13:01.480 --> 13:04.360
+And yeah, that was super fun.
+
+13:04.360 --> 13:08.600
+And previously, these controllers had XFS on them.
+
+13:08.600 --> 13:13.880
+And so we had been randomly corrupting AI test data for years.
+
+13:13.880 --> 13:15.480
+This bug had existed for years.
+
+13:15.480 --> 13:16.440
+Butterfess found it.
+
+13:18.040 --> 13:23.400
+We found a variety of microarchitectural issues and CPUs because of the way Butterfess
+
+13:23.400 --> 13:25.720
+kind of hammers on the CPU with compression stuff.
+
+13:27.160 --> 13:33.640
+By and large, we have, you know, we all know as file system developers that disks are awful.
+
+13:34.280 --> 13:36.680
+Butterfess has really highlighted this fact.
+
+13:36.680 --> 13:39.000
+In the chat room says, boy, that that recording is horrible.
+
+13:39.880 --> 13:41.160
+Yeah, it is true.
+
+13:41.160 --> 13:46.040
+It is the hashtag Zoom meetings reality.
+
+13:46.040 --> 13:47.880
+Actually, this is blue jeans, but that's how it goes.
+
+13:48.520 --> 13:52.920
+But that is an opportunity to hear from the lead developer of Butterfess.
+
+13:52.920 --> 13:57.000
+And he says there that they've gotten to a point now where a lot of times it's some
+
+13:57.000 --> 14:03.480
+esoteric aspect of the CPU and the disk or just a crappy piece of hardware that's causing
+
+14:03.480 --> 14:10.200
+errors and file systems that we traditionally use like XFS and extended for my two go tos
+
+14:11.160 --> 14:14.440
+don't necessarily find that stuff.
+
+14:14.440 --> 14:20.520
+And so we just go along blissfully ignorant of issues that Butterfess is raising.
+
+14:20.520 --> 14:25.480
+And we often will attribute a failure to Butterfess when in reality it's Butterfess
+
+14:25.480 --> 14:27.960
+warning you about something that's wrong with hardware.
+
+14:27.960 --> 14:31.800
+Obviously, it's not every time, but it's more and more common now when we when Butterfess
+
+14:31.800 --> 14:33.400
+does run into issues like this.
+
+14:33.400 --> 14:34.680
+Now, this is Alex.
+
+14:34.680 --> 14:40.280
+He is in charge of literally millions of servers at Facebook.
+
+14:40.280 --> 14:46.920
+And he says you just have to simply accept it's not the Butterfess of a few years ago.
+
+14:46.920 --> 14:52.440
+But you can essentially think of like the fleet as like a big stress test.
+
+14:53.480 --> 14:55.000
+I mean, that's how it feels to me.
+
+14:55.000 --> 14:55.640
+Pretty stressful.
+
+14:56.680 --> 15:00.200
+And when we were pushing these things out, like every time you're doing like a million
+
+15:00.200 --> 15:01.720
+Butterfess operations now.
+
+15:01.720 --> 15:02.440
+Right.
+
+15:02.440 --> 15:10.040
+And so in the past several years, I will say that like, well, I think Joseph has been awesome
+
+15:10.040 --> 15:11.000
+from the very beginning.
+
+15:12.040 --> 15:16.760
+The number of issues that like have been top of mind for us from even dealing with Butterfess
+
+15:16.760 --> 15:20.840
+on like the edge cases, you're talking like millions of servers, like something goes wrong
+
+15:20.840 --> 15:21.720
+and somebody is mad about it.
+
+15:21.720 --> 15:25.240
+We got to figure out what happened has decreased dramatically.
+
+15:25.240 --> 15:30.120
+And so it's like a very reliable file system for us, even under the, you know, we've spent
+
+15:30.120 --> 15:33.960
+on containers for builds, we have containers for services, all this other crazy stuff using
+
+15:33.960 --> 15:36.360
+snapshots and compression and a bunch of the new stuff.
+
+15:38.040 --> 15:39.800
+It's been like super rock solid.
+
+15:39.800 --> 15:46.200
+And he mentions we're pushing out updates multiple times a day to the Facebook.com website.
+
+15:46.920 --> 15:52.120
+And when we push these things out, they're doing it at the file system level across millions
+
+15:52.120 --> 15:57.000
+of servers where there are millions of file system operations per server.
+
+15:58.600 --> 15:59.800
+On millions of servers.
+
+15:59.800 --> 16:03.160
+So it's really the definition of a stress test.
+
+16:03.160 --> 16:07.560
+Now, it's a particular use case, but over time, they kept finding all the different
+
+16:07.560 --> 16:13.320
+education cases and they have the developer there and they fix them when they've come
+
+16:13.320 --> 16:13.880
+across them.
+
+16:13.880 --> 16:18.840
+And it's sort of been in like this intense incubation chamber for the last few years,
+
+16:18.840 --> 16:22.520
+a benefit that CFS, I think, gained from Sun.
+
+16:22.520 --> 16:27.080
+Initially, it was developed in-house where they just kept throwing their edge cases at
+
+16:27.080 --> 16:29.800
+it and made it better and better and better.
+
+16:29.800 --> 16:31.720
+And that was like a three to five year development period.
+
+16:31.720 --> 16:33.000
+I don't recall what the time frame was.
+
+16:33.000 --> 16:35.320
+And then they released that publicly after that.
+
+16:35.320 --> 16:35.640
+Yes.
+
+16:35.640 --> 16:40.280
+I mean, it's almost a mythical sort of, you know, the birth of ZFS inside Sun.
+
+16:40.280 --> 16:43.480
+And that's why it has such better foundations than ButterFS.
+
+16:43.480 --> 16:43.720
+Right.
+
+16:44.360 --> 16:46.680
+As if these things over time don't improve.
+
+16:47.560 --> 16:50.520
+I think that's a common myth associated with ButterFS.
+
+16:50.520 --> 16:54.360
+Well, it does seem like there's a sort of attitude, true or not.
+
+16:54.920 --> 16:56.440
+We can debate that with evidence.
+
+16:56.440 --> 17:01.560
+But just that ButterFS foundations were bad and are bad and it can't be salvaged, at least
+
+17:01.560 --> 17:03.960
+from some on the ZFS side.
+
+17:03.960 --> 17:04.280
+Yeah.
+
+17:04.280 --> 17:06.120
+And maybe I bought into some of that.
+
+17:06.840 --> 17:07.880
+I don't know.
+
+17:07.880 --> 17:08.520
+I will see.
+
+17:08.520 --> 17:10.520
+I'm now running it in production myself.
+
+17:10.520 --> 17:11.560
+So I will find out.
+
+17:11.560 --> 17:15.720
+Either I will eat these words or it will turn out that things have improved.
+
+17:16.440 --> 17:21.160
+But there's other aspects than just laying the files out on a disk.
+
+17:21.160 --> 17:26.040
+There is benefits to checksums, but there's benefits to snapshots.
+
+17:26.040 --> 17:32.600
+But there's also benefits in production on a laptop or on a server to compression.
+
+17:32.600 --> 17:36.040
+And it's not just because compression is awesome.
+
+17:36.040 --> 17:38.040
+Also, I wanted to speak to the compression thing.
+
+17:38.040 --> 17:42.200
+We don't just use compression because it's awesome because we can save space, but it
+
+17:42.200 --> 17:46.280
+also drastically reduces write amplification issues for us.
+
+17:46.280 --> 17:52.040
+And so we're talking about like drastically extending the lifetimes of our very, very
+
+17:52.040 --> 17:57.400
+terrible solid state drives, you know, laptop class all day drives.
+
+17:58.120 --> 18:01.880
+We extended their lives quite a bit and save us quite a bit of money just by turning on
+
+18:01.880 --> 18:02.760
+compression.
+
+18:02.760 --> 18:07.400
+This is something else I learned in this working group chat is Facebook is buying like the
+
+18:07.400 --> 18:11.560
+cheapest SSDs they can get their hands on because they're buying so many at such a scale
+
+18:11.560 --> 18:13.800
+and they're throwing them in machines.
+
+18:13.800 --> 18:16.760
+It's not like they're doing this with enterprise grade disk.
+
+18:16.760 --> 18:20.360
+In fact, they're doing this a lot of times with laptop grade disk.
+
+18:20.360 --> 18:27.000
+So ironically, ButterFS is getting punished on a disk that shares a lot of characteristics
+
+18:27.000 --> 18:28.840
+with what you or I would use.
+
+18:28.840 --> 18:29.800
+Yeah, isn't that fascinating?
+
+18:29.800 --> 18:32.040
+It's sort of the next like, you know, commodity version of that.
+
+18:32.040 --> 18:37.240
+You don't have this one bespoke giant array because that won't work for Facebook scale.
+
+18:37.240 --> 18:41.080
+And so you have these, you know, these cheapo components that combinations of open source
+
+18:41.080 --> 18:45.480
+software like Linux and open source and ButterFS make usable.
+
+18:45.480 --> 18:50.040
+I started off by saying that Joseph has identified that a lot of times issues that we attribute
+
+18:50.040 --> 18:54.200
+to ButterFS eventually boil down to weird hardware problems.
+
+18:54.760 --> 19:01.960
+Well, this could actually be a real user problem in production at scale.
+
+19:01.960 --> 19:06.520
+If say Fedora, for example, were to switch over to ButterFS and there was a conversion
+
+19:06.520 --> 19:13.960
+process and then people had finicky SSDs, they may start seeing a lot of errors that
+
+19:13.960 --> 19:19.000
+they weren't even aware of, not necessarily because of ButterFS, but because ButterFS
+
+19:19.000 --> 19:20.040
+identifies them.
+
+19:20.040 --> 19:26.120
+And this creates a interesting situation for a workstation OS.
+
+19:26.120 --> 19:30.680
+I think ButterFS will definitely expose more errors.
+
+19:30.680 --> 19:35.720
+So if you had a situation where the underlying storage device is likely wonky or as Joseph
+
+19:35.720 --> 19:39.000
+mentioned, there's like silent data corruption, that would definitely become visible.
+
+19:40.680 --> 19:46.680
+In my opinion, that's a good thing because I definitely do not want to get random silent
+
+19:46.680 --> 19:49.000
+corruption on my device.
+
+19:49.000 --> 19:54.440
+It does mean, however, that if your laptop is wonky and you're running ButterFS, you
+
+19:54.440 --> 19:59.320
+would probably become more aware of the wonkiness than you were before where you might have
+
+19:59.320 --> 20:03.320
+been going merrily your way without realizing there was silent data corruption.
+
+20:03.320 --> 20:07.160
+Now, that sounds both like a good thing, but think about the bad side to this.
+
+20:07.880 --> 20:13.160
+Bad side to this is if your file system in the past would just continue along completely
+
+20:13.160 --> 20:18.520
+ignorant or ignoring the situation as an end user, you would just go about your day.
+
+20:18.520 --> 20:22.280
+I mean, yeah, sure, maybe that picture has been ruined or that MP3 will never play again.
+
+20:22.840 --> 20:23.960
+But what do you care?
+
+20:23.960 --> 20:27.640
+You know, you can still get to your system, your web browser, as far as you're blissfully
+
+20:27.640 --> 20:31.800
+unaware, as far as you're concerned, nothing is wrong and you're still getting your work
+
+20:31.800 --> 20:32.040
+done.
+
+20:32.760 --> 20:36.200
+ButterFS is much more sensitive to that.
+
+20:36.200 --> 20:42.360
+And getting those files back after some sort of catastrophic situation has happened,
+
+20:42.360 --> 20:44.520
+traditionally has been tricky.
+
+20:44.520 --> 20:51.720
+But Joseph's been creating certain recovery tools that look pretty solid and are starting
+
+20:51.720 --> 20:53.880
+to get upstreamed into the mainline kernel.
+
+20:53.880 --> 20:58.040
+You know, speaking from the guy who usually ends up having to put random users data back
+
+20:58.040 --> 21:02.840
+together, we have I have a lot of over the years written a lot of tools to recover because
+
+21:03.720 --> 21:08.200
+it's really like ButterFS's ability to find crappy drives is really good.
+
+21:08.200 --> 21:14.440
+The problem is, is we are also pretty vulnerable to crappy drives because of the way we do
+
+21:14.440 --> 21:15.000
+things.
+
+21:15.560 --> 21:20.360
+And so like, whereas XFS goes and finds like a bad block that doesn't make any sense,
+
+21:20.360 --> 21:25.000
+whatever, it just like anything else that doesn't kind of work in that area, it continues
+
+21:25.000 --> 21:25.480
+to work.
+
+21:25.480 --> 21:31.720
+It's kind of like half copy off stuff, whereas ButterFS is just gonna be like, no, you don't
+
+21:31.720 --> 21:35.960
+get anything, which is like a really shitty user experience.
+
+21:35.960 --> 21:39.560
+So that's historically how it's worked.
+
+21:39.560 --> 21:44.600
+We have more and more, like I wrote a bunch of tools, like offline tools to copy stuff.
+
+21:45.560 --> 21:49.400
+Those offline capabilities are making their way into the kernel themselves.
+
+21:49.400 --> 21:54.840
+In fact, most of them now exist where you can mount the file system, read only in recovery
+
+21:54.840 --> 21:59.240
+mode, and it'll just throw, it'll throw errors for things that have errors.
+
+21:59.240 --> 22:02.520
+But generally, if it can get to stuff, it'll let you copy it.
+
+22:02.520 --> 22:05.320
+So historically, it was really, really bad.
+
+22:05.320 --> 22:11.560
+You basically had to hope that you could get me on IRC to recover your data or fun.
+
+22:11.560 --> 22:17.160
+And then after that, use one of the awful tools that I had written to go and just copy
+
+22:17.160 --> 22:17.880
+stuff.
+
+22:17.880 --> 22:23.320
+And now we're to the point where those strategies exist in the kernel themselves.
+
+22:23.320 --> 22:27.560
+I don't think he anticipated that you attending this meeting meant throwing him under the
+
+22:27.560 --> 22:29.080
+bus on a podcast.
+
+22:30.120 --> 22:30.920
+I know, right?
+
+22:30.920 --> 22:35.560
+Yeah, and what I love about it, honestly, is just how really open and honest they were
+
+22:35.560 --> 22:36.840
+through this entire process.
+
+22:36.840 --> 22:38.040
+Like, yeah, this is an issue.
+
+22:38.040 --> 22:39.880
+The users will think this is a problem.
+
+22:39.880 --> 22:41.480
+This is probably how it should work.
+
+22:41.480 --> 22:43.720
+But users are going to consider this a problem.
+
+22:43.720 --> 22:46.280
+And there is multiple solutions.
+
+22:46.280 --> 22:50.600
+And part of it is on the distribution to solve that front end.
+
+22:50.600 --> 22:54.280
+I think that's what's great about having that kind of frank conversation is, yeah, this
+
+22:54.280 --> 22:55.800
+thing's going to detect that stuff.
+
+22:55.800 --> 22:58.360
+And in the past, you have just been ignorant of it.
+
+22:58.360 --> 23:03.480
+And you need to probably eventually come up with a way to even surface that to end users
+
+23:03.480 --> 23:06.760
+in a way that doesn't leave their system unbootable.
+
+23:06.760 --> 23:13.640
+And to that end, there could be in the next maybe one or two kernel releases a, for lack
+
+23:13.640 --> 23:20.840
+of a better term, a simply don't care mode, just continue on, obviously be read only.
+
+23:20.840 --> 23:22.120
+It's still be protecting your data.
+
+23:22.120 --> 23:26.920
+But the idea would be just throw the system in a, yeah, I know I've got a problem.
+
+23:26.920 --> 23:29.800
+But I've got to boot up so that way the user can solve it.
+
+23:29.800 --> 23:36.680
+And so the ideas in the next version or two is to automatically turn these options on
+
+23:36.680 --> 23:42.120
+like, okay, we aborted the transaction because of corruption, we'll put you in the we don't
+
+23:42.120 --> 23:43.160
+care mode.
+
+23:43.160 --> 23:45.800
+So you can just do what you need to do.
+
+23:45.800 --> 23:49.640
+We haven't done that work yet, because we're still validating those artworks.
+
+23:49.640 --> 23:55.000
+But that being said, that's the ideal, right is that we want to, you know, you've suffered
+
+23:55.000 --> 24:00.920
+some sort of corruption that you didn't notice, you boot up the box, that's the biggest trick,
+
+24:00.920 --> 24:05.320
+right is booting the box and the file system refuses to mount read, right.
+
+24:05.320 --> 24:10.040
+And suddenly, you're kind of stuck in a shell, we want to be able to like, let you continue
+
+24:10.040 --> 24:11.040
+to boot.
+
+24:11.040 --> 24:13.760
+So you can troubleshoot and fix it.
+
+24:13.760 --> 24:18.440
+And so what I have done in the past is I've made like my root file system extended for
+
+24:18.440 --> 24:22.760
+and then I'll make my data drives, a different file system, right, just so you don't have
+
+24:22.760 --> 24:23.760
+to worry about that.
+
+24:23.760 --> 24:25.220
+Mm hmm.
+
+24:25.220 --> 24:29.400
+It's fascinating to me to hear a little bit more from butter fs, you know, developers
+
+24:29.400 --> 24:31.280
+and people hands on deploying it.
+
+24:31.280 --> 24:35.760
+And I think that's one area where, sort of paradoxically, being a part of the kernel,
+
+24:35.760 --> 24:40.360
+well, we all have huge respect for the kernel, and it's deployed in production so many places.
+
+24:40.360 --> 24:46.680
+But that lack of, you know, sort of representation community, a couple of voices to represent
+
+24:46.680 --> 24:51.320
+the people working on it, you I mean, CFS has its own whole GitHub repository with issues
+
+24:51.320 --> 24:55.800
+and things so you kind of get a sense of who's working on this, what are the real problems.
+
+24:55.800 --> 24:58.800
+And before this, like, I never got that from butter fs.
+
+24:58.800 --> 25:02.480
+And so it just felt like a sort of void of like, well, is this just something that's
+
+25:02.480 --> 25:03.680
+kept in the kernel?
+
+25:03.680 --> 25:05.160
+Or is it something that people are really using?
+
+25:05.160 --> 25:09.460
+Yeah, that has been under active development, active troubleshooting, and it's been punished
+
+25:09.460 --> 25:11.800
+at a massive scale.
+
+25:11.800 --> 25:14.720
+And there's new things coming to it, it's not done.
+
+25:14.720 --> 25:17.200
+Native encryption is coming down the pipeline.
+
+25:17.200 --> 25:21.640
+And Neil asked a good question, he said, will the new native butter fs because you could
+
+25:21.640 --> 25:27.320
+use dm crypt today, but will the new native butter fs encryption support live encrypting
+
+25:27.320 --> 25:31.600
+assist a series of data, a drive or a folder or whatever?
+
+25:31.600 --> 25:34.040
+Can we encrypt something that has been traditionally unencrypted?
+
+25:34.040 --> 25:37.880
+Can we take that and encrypt it with this new native butter fs encryption?
+
+25:37.880 --> 25:41.080
+Because traditionally, that's a huge pain in the butt.
+
+25:41.080 --> 25:46.640
+And what I like about this answer that Joseph gives is, it's using a code pathway that is
+
+25:46.640 --> 25:52.080
+tried and true, and you will be able to do a conversion of non encrypted to encrypted
+
+25:52.080 --> 25:53.080
+data.
+
+25:53.080 --> 25:56.560
+Compression and encryption will go through the same data paths for us, like it's essentially
+
+25:56.560 --> 25:59.360
+just a data transformation thing.
+
+25:59.360 --> 26:02.920
+And it'll work this, it'll take advantage of the same infrastructure that compression
+
+26:02.920 --> 26:03.920
+has.
+
+26:03.920 --> 26:10.080
+So if you want to suddenly compress everything, you compress it and tell it, hey, rewrite everything,
+
+26:10.080 --> 26:14.320
+you can like the auto defrag can do it on demand, or you can say re defrag the whole
+
+26:14.320 --> 26:18.800
+file system and defrag essentially just means rewrite.
+
+26:18.800 --> 26:23.240
+And then you it rewrites and it goes through the data path for compression and re compresses.
+
+26:23.240 --> 26:24.880
+The same will work for encryption.
+
+26:24.880 --> 26:32.560
+So if you want to go and correct the sub volume and do that, and the the tooling will just
+
+26:32.560 --> 26:38.560
+automatically kick off the thing to re write everybody and then as that, you know, as that
+
+26:38.560 --> 26:43.280
+happens, everything re encrypts, you don't have to blow everything away and try again.
+
+26:43.280 --> 26:45.000
+Doesn't that seem smart?
+
+26:45.000 --> 26:48.400
+Just use the same data pathway that compressions already using tried and true.
+
+26:48.400 --> 26:51.740
+People use that at scale all the time for all of its perceived faults.
+
+26:51.740 --> 26:54.840
+It's just such a flexible file system, you know, because you can do these things where
+
+26:54.840 --> 26:58.200
+you can decide like, oh, yeah, all of a sudden, I don't want copy on right over there.
+
+26:58.200 --> 27:01.440
+Or all of a sudden, yes, I want compression and I want encryption over here.
+
+27:01.440 --> 27:03.320
+It was a fascinating talk.
+
+27:03.320 --> 27:05.320
+I'm glad I had a chance to attend.
+
+27:05.320 --> 27:10.760
+And it did make me reconsider the state of butterFS, which just sort of happened to fit
+
+27:10.760 --> 27:14.800
+perfectly with me just redeploying it in production again.
+
+27:14.800 --> 27:21.000
+Anyways, let's move on to something that's happening, admittedly, in a much broader context
+
+27:21.000 --> 27:23.560
+than what we normally talk about here on the show.
+
+27:23.560 --> 27:27.680
+And that is various different open source projects have stepped up the pace in which
+
+27:27.680 --> 27:32.900
+they are looking at their code base, they're looking at the terms and the vernacular they
+
+27:32.900 --> 27:38.520
+use, and they're shifting to things that they believe are a little more sensitive, a little
+
+27:38.520 --> 27:43.680
+more understanding, and probably the behemoth in this discussion is since we all gathered
+
+27:43.680 --> 27:52.140
+here last time, GitHub has decided to start using the term main instead of master as a
+
+27:52.140 --> 27:54.240
+branch name.
+
+27:54.240 --> 28:01.800
+And additionally, the ZFS co-creator Matthew Ahrens has decided to take a search through
+
+28:01.800 --> 28:04.200
+the code base and make changes there.
+
+28:04.200 --> 28:12.560
+This week, Matt Ahrens decided to send a poll request in to remove any unnecessary references
+
+28:12.560 --> 28:16.400
+to slavery, as he put it, from the open ZFS code base.
+
+28:16.400 --> 28:21.800
+He says the quote, horrible effects of human slavery continue to impact society.
+
+28:21.800 --> 28:27.840
+He goes on to write, the casual use of the term slave in computer software is unnecessary.
+
+28:27.840 --> 28:30.720
+It's a reference to a painful human experience.
+
+28:30.720 --> 28:34.560
+And chiming in a bit more about the project's acceptance, well, the short patch switches
+
+28:34.560 --> 28:43.740
+the script zpool.d slash slaves for zpool dash d slash dm dash deps, and usage of slave
+
+28:43.740 --> 28:48.280
+to dependent or dep throughout the code and the documentation.
+
+28:48.280 --> 28:54.200
+There's no change to the way open ZFS works, and the change was accepted by the project
+
+28:54.200 --> 28:55.200
+team.
+
+28:55.200 --> 29:01.320
+They do note, though, in what I think is maybe a dig on Linux, that references to slash sys
+
+29:01.320 --> 29:08.000
+slash class slash block slash star dev slash slaves remain because that path is determined
+
+29:08.000 --> 29:13.600
+by the Linux kernel, and working around that would require elevated privileges, a situation
+
+29:13.600 --> 29:16.800
+Ahrens described as unfortunate.
+
+29:16.800 --> 29:21.040
+Also Redis and Python shifted away from the use of master and slave, OpenShift dropped
+
+29:21.040 --> 29:26.320
+the whitelist and blacklist terms, and the GitHub command line and desktop interfaces
+
+29:26.320 --> 29:31.960
+replaced master with trunk or main, depending on which UI you're using.
+
+29:31.960 --> 29:36.200
+I think also Apache made some changes fairly recently as well.
+
+29:36.200 --> 29:39.840
+And I mean, a ton of these changes to you mentioned, like Redis and Python and Ruby,
+
+29:39.840 --> 29:42.560
+you know, that some of this stuff has been in the works for a long time.
+
+29:42.560 --> 29:45.740
+And so I thought maybe we'd have a moment here on the show because this is something
+
+29:45.740 --> 29:49.760
+that's rippling across open source software, and I feel like we should, we should address
+
+29:49.760 --> 29:56.960
+it and to avoid it would be not only a disservice, but somewhat obvious thing to avoid.
+
+29:56.960 --> 29:59.460
+And so I thought, let's, let's discuss this.
+
+29:59.460 --> 30:03.100
+Let's actually have a conversation around this, and see kind of what our thoughts are
+
+30:03.100 --> 30:04.100
+on it.
+
+30:04.100 --> 30:10.960
+And I want to keep this as a just a as an inclusive, open conversation as we can.
+
+30:10.960 --> 30:15.780
+And see what see what you all think I'll start with initially, I have to be honest, I do
+
+30:15.780 --> 30:20.480
+have a bit of a bias towards this where I, my first reaction to this is sometimes it
+
+30:20.480 --> 30:26.720
+feels a little bit like small change for small feelings.
+
+30:26.720 --> 30:31.520
+But the more I thought about it, the more that started to shift.
+
+30:31.520 --> 30:34.760
+But I don't want to hog the mic on this one, I kind of want to, I kind of want to pass
+
+30:34.760 --> 30:35.760
+it around.
+
+30:35.760 --> 30:38.520
+And I thought maybe I'd start with you, Drew, since you haven't, you haven't talked for
+
+30:38.520 --> 30:39.520
+a bit here on the show.
+
+30:39.520 --> 30:44.060
+I'm kind of curious what you think about projects, projects that are going through their code
+
+30:44.060 --> 30:50.060
+base, and they're replacing terms like master or slave with something else like original
+
+30:50.060 --> 30:51.400
+or dependent.
+
+30:51.400 --> 30:58.220
+I think it's indicative of the way things are moving in sort of our political climate.
+
+30:58.220 --> 31:04.980
+And the idea that we need to be more sensitive to different cultures.
+
+31:04.980 --> 31:07.000
+I think it's a good thing.
+
+31:07.000 --> 31:15.120
+Personally, I always felt a little weird going with the master-slave terminology just because
+
+31:15.120 --> 31:18.380
+of the implications that it has.
+
+31:18.380 --> 31:23.920
+And seeing projects like, you know, Reaper come out with their new edition is codenamed
+
+31:23.920 --> 31:28.920
+Black Lives Matter, and they had this exact change.
+
+31:28.920 --> 31:35.660
+It speaks to the fact that technology and technology companies are understanding that
+
+31:35.660 --> 31:42.220
+we're part of the greater world and we need to be sensitive to the things that are happening
+
+31:42.220 --> 31:43.220
+around us.
+
+31:43.220 --> 31:50.780
+We don't exist in a bubble and everything touches technology these days.
+
+31:50.780 --> 31:53.880
+So we need to move with the times.
+
+31:53.880 --> 31:55.620
+So I agree with all of that.
+
+31:55.620 --> 32:00.280
+I think there are a couple of valid slippery slope style arguments in which you can argue
+
+32:00.280 --> 32:02.000
+where does the change stop?
+
+32:02.000 --> 32:05.220
+I want to read a couple of comments that struck me.
+
+32:05.220 --> 32:10.380
+King32 on Reddit wrote, as a black software engineer, I think this is nonsense.
+
+32:10.380 --> 32:16.340
+I thoroughly dislike how much energy and attention this one specific issue is getting and wish
+
+32:16.340 --> 32:20.860
+it were invested in something that would actually improve the workspace for minorities.
+
+32:20.860 --> 32:26.460
+I realize this isn't a zero sum, but it just feels like a massive distraction.
+
+32:26.460 --> 32:31.980
+And I think that was perhaps how I felt initially to this issue.
+
+32:31.980 --> 32:37.780
+But after thinking about it a little bit, my opinion on that is I disagree.
+
+32:37.780 --> 32:42.720
+I feel like you can't tell people where to spend their time and energy in open source.
+
+32:42.720 --> 32:43.720
+People scratch their own itch.
+
+32:43.720 --> 32:47.200
+And if this is a matter that they feel is important to them, they're not necessarily
+
+32:47.200 --> 32:50.640
+taking it away from something else because they were never going to contribute to that
+
+32:50.640 --> 32:51.640
+to begin with.
+
+32:51.640 --> 32:52.900
+I do wish it worked like that.
+
+32:52.900 --> 32:57.900
+I wish I could say, everyone all at once, let's focus on the desktop, but it just doesn't
+
+32:57.900 --> 32:58.900
+work like that.
+
+32:58.900 --> 33:01.900
+Yeah, please fix the Linux desktop, but now it doesn't.
+
+33:01.900 --> 33:02.900
+Yeah.
+
+33:02.900 --> 33:08.180
+And he says that he admits that it's not a zero sum game.
+
+33:08.180 --> 33:10.560
+That is literally what it comes down to.
+
+33:10.560 --> 33:13.160
+Open source is not a zero sum game.
+
+33:13.160 --> 33:16.480
+You can do one thing while not taking away from another.
+
+33:16.480 --> 33:21.100
+But that said, another comment that I did initially kind of resonate with, but then
+
+33:21.100 --> 33:26.240
+upon further reflection have thought a little more about, and that's from B Bradley.
+
+33:26.240 --> 33:32.720
+He says, master in this context means main or principle, like a master copy.
+
+33:32.720 --> 33:36.640
+So when we're talking about the GitHub change, I totally understand when it's specifically
+
+33:36.640 --> 33:42.160
+used in the master or slave context, but this seems like an effort which could be spent
+
+33:42.160 --> 33:47.680
+on other more effective means by improving the workplace for black Americans.
+
+33:47.680 --> 33:54.880
+I think what we have to think about here is it's a broader picture than one group or demographic.
+
+33:54.880 --> 33:56.160
+It includes all of us.
+
+33:56.160 --> 33:58.200
+It's not just Americans.
+
+33:58.200 --> 34:00.960
+It's a worldwide community here.
+
+34:00.960 --> 34:06.200
+I know this is going to be difficult, but when I see the situation, I think to myself,
+
+34:06.200 --> 34:08.960
+language changes all the time.
+
+34:08.960 --> 34:13.080
+These particular types of changes are generally fairly straightforward.
+
+34:13.080 --> 34:19.160
+The most rigorous aspect of the change is us humans have to learn a new nomenclature.
+
+34:19.160 --> 34:25.200
+And part of being understanding and kind to people is being willing to constantly adapt.
+
+34:25.200 --> 34:31.000
+Our regular on the show, Carl, linked in the JB Telegram group, a great video by Rich Bowen
+
+34:31.000 --> 34:32.720
+all about welcoming nomenclature.
+
+34:32.720 --> 34:35.720
+I think it's a great primer if you'd like to start thinking about and talking about
+
+34:35.720 --> 34:37.320
+some of these issues.
+
+34:37.320 --> 34:41.640
+And it really, at the end of the day, at least in my mind, comes down to compassion and empathy.
+
+34:41.640 --> 34:47.180
+And we need to be open, especially, I mean, I'll just say, as a privileged middle class
+
+34:47.180 --> 34:52.440
+white male, I need to be open to experiences that are different than me.
+
+34:52.440 --> 34:57.240
+And, you know, a lot of this stuff is embraced by the projects themselves.
+
+34:57.240 --> 34:59.240
+And there are people willing to do the work.
+
+34:59.240 --> 35:03.700
+And it's just a tiny little bump in all the change of technology that we're constantly
+
+35:03.700 --> 35:04.700
+accommodating to.
+
+35:04.700 --> 35:07.080
+I mean, before long, we'll have forgotten about this.
+
+35:07.080 --> 35:11.360
+And we'll be dealing with the next thing that system D eats.
+
+35:11.360 --> 35:17.360
+It may seem like a small change, it may seem like it's a nothing burger of an argument
+
+35:17.360 --> 35:21.080
+to say, well, we should change master slave to something different.
+
+35:21.080 --> 35:27.440
+But we're talking about huge systemic problems that face our entire society.
+
+35:27.440 --> 35:35.760
+And you don't make big changes with just large movements all at once.
+
+35:35.760 --> 35:43.680
+It takes a lot of smaller changes to really get from point A to point B in this context,
+
+35:43.680 --> 35:49.240
+because we're fighting centuries of problematic thinking.
+
+35:49.240 --> 35:54.020
+And yeah, the master slave argument, it seems small, but it is important.
+
+35:54.020 --> 35:57.920
+And it's one step out of many steps that need to be taken.
+
+35:57.920 --> 36:04.520
+While it might seem like a small change, it's something that projects like this can easily
+
+36:04.520 --> 36:05.520
+implement.
+
+36:05.520 --> 36:08.160
+It's not like it's going to take a ton of time to implement this.
+
+36:08.160 --> 36:13.360
+But it also brings awareness so that future projects can think about these things when
+
+36:13.360 --> 36:15.080
+they're developing their projects.
+
+36:15.080 --> 36:19.480
+So I think that it's a win win for the open source community.
+
+36:19.480 --> 36:22.040
+And I mean, obviously, we can do be doing things better.
+
+36:22.040 --> 36:27.960
+But I think where you can do something, and where you can make change, then why not do
+
+36:27.960 --> 36:28.960
+it?
+
+36:28.960 --> 36:30.720
+So just just take that leap and do it.
+
+36:30.720 --> 36:35.660
+That's kind of where I come down on this is it is a simple search and replace.
+
+36:35.660 --> 36:40.840
+And if it means that 10 years because this stuff continues to evolve, right?
+
+36:40.840 --> 36:47.200
+So if it means five, 10 years from now, a black developer, or a Native American developer,
+
+36:47.200 --> 36:54.120
+or a Chinese developer, whoever can sit down and, and not have a tinge of hmm, I'll give
+
+36:54.120 --> 36:57.540
+you a reframe where this kind of helped me rethink about this.
+
+36:57.540 --> 37:00.540
+Because obviously, this is not an issue that directly impacts me.
+
+37:00.540 --> 37:04.400
+And so you're what I have to do is I have to try to put myself in other people's shoes.
+
+37:04.400 --> 37:06.520
+And I think that's a good exercise.
+
+37:06.520 --> 37:11.960
+And I tried to make it kind of, what about things that trigger me?
+
+37:11.960 --> 37:13.920
+And what gets me kind of upset?
+
+37:13.920 --> 37:19.460
+And that is when people just excessively use militarized terms for things.
+
+37:19.460 --> 37:23.760
+And projects kind of have like a military nomenclature.
+
+37:23.760 --> 37:25.080
+I don't like that.
+
+37:25.080 --> 37:27.360
+I think it's disrespectful to our service members.
+
+37:27.360 --> 37:29.640
+I think it exaggerates what they're doing.
+
+37:29.640 --> 37:32.640
+I think it, it just is, it's gross.
+
+37:32.640 --> 37:36.720
+And it, it actually kind of grosses me out when I start seeing projects use military
+
+37:36.720 --> 37:38.400
+terms for things.
+
+37:38.400 --> 37:41.520
+And that's a form of language I just, I don't like now.
+
+37:41.520 --> 37:43.640
+Should that be included in this conversation?
+
+37:43.640 --> 37:48.480
+I think it kind of is one of those things you have to take in every particular scenario
+
+37:48.480 --> 37:50.720
+and evaluate it on its own merits.
+
+37:50.720 --> 37:57.360
+I personally, I might draw the line at renaming a project like GIMP because of the historical
+
+37:57.360 --> 38:02.440
+context, because it's an acronym, because all of these, all of these aspects to it.
+
+38:02.440 --> 38:05.760
+I kind of scoffed at the GIMP renaming project.
+
+38:05.760 --> 38:10.800
+But this is an area where you could argue, maybe we should consider things like that
+
+38:10.800 --> 38:12.240
+should be changed.
+
+38:12.240 --> 38:17.360
+And I, I landed on, I'm going to keep using GIMP, and I'm going to keep calling it GIMP.
+
+38:17.360 --> 38:21.560
+Yeah, I don't think there will be a, you know, a one size fits all answer here.
+
+38:21.560 --> 38:24.720
+One great thing in that video I mentioned was just how often some of these changes,
+
+38:24.720 --> 38:28.620
+especially around like whitelist and blacklist, they're just better, more clear terms that
+
+38:28.620 --> 38:32.200
+don't rely on, on metaphor that can get your point across.
+
+38:32.200 --> 38:35.920
+And then I think there are also going to be times where, yeah, you know, it's just, it's
+
+38:35.920 --> 38:40.240
+too late to make that change, or we all already know that project, and there's a context around
+
+38:40.240 --> 38:41.240
+it.
+
+38:41.240 --> 38:44.240
+So it's not some, you know, decree from on high.
+
+38:44.240 --> 38:47.680
+It's more about thinking about it actively and making the right calls where they make
+
+38:47.680 --> 38:48.680
+sense.
+
+38:48.680 --> 38:52.200
+And as a project, maybe thinking about, well, who do we want to attract as contributors?
+
+38:52.200 --> 38:55.520
+Who do we, who do we not want to turn away as contributors?
+
+38:55.520 --> 39:00.560
+And considering that, I think this is actually kind of trickier than you think, because there's
+
+39:00.560 --> 39:08.040
+not necessarily inherent ethical standards or problems around software or hardware.
+
+39:08.040 --> 39:12.960
+You know, when I had IDE hard drives and I had a master and a slave, I never thought
+
+39:12.960 --> 39:15.800
+about that in a human context.
+
+39:15.800 --> 39:21.360
+I simply thought about it in this is the master device and this is a secondary device.
+
+39:21.360 --> 39:26.200
+But I also don't have any background or experience that, that might change the way I perceive
+
+39:26.200 --> 39:27.200
+that.
+
+39:27.200 --> 39:32.680
+And the answer was, well, if language changes all the time, and this technology is a kind
+
+39:32.680 --> 39:38.360
+of a search and replace and submit a new pull request and it's done kind of job.
+
+39:38.360 --> 39:45.280
+And the biggest negative that you could really quantify is we have to learn a new term.
+
+39:45.280 --> 39:48.520
+Well, that's just not enough to say, don't do it.
+
+39:48.520 --> 39:50.320
+Honestly, I can learn a new term.
+
+39:50.320 --> 39:52.360
+Technology, it doesn't care.
+
+39:52.360 --> 39:53.880
+It doesn't care if it's master, it's slave.
+
+39:53.880 --> 39:56.240
+It doesn't care if it's original and secondary.
+
+39:56.240 --> 39:57.720
+It doesn't care.
+
+39:57.720 --> 40:02.780
+And as people change happens all the time in other contexts as well.
+
+40:02.780 --> 40:07.440
+And so I kind of come down on the side of generally it's a good thing.
+
+40:07.440 --> 40:12.160
+And I, I think having reflected on it, I can see where Matt Aaron's is coming from for
+
+40:12.160 --> 40:13.240
+open ZFS.
+
+40:13.240 --> 40:15.000
+I can see where GitHub is coming from.
+
+40:15.000 --> 40:16.880
+I can see where postfix is coming from.
+
+40:16.880 --> 40:18.200
+That's an interesting one.
+
+40:18.200 --> 40:23.800
+So the postfix email demon, as you can imagine, has lots of master and slave commentary throughout
+
+40:23.800 --> 40:24.800
+it.
+
+40:24.800 --> 40:31.680
+They are embarking on what will likely end up to be a multi-year change.
+
+40:31.680 --> 40:38.000
+They will roll it out slowly to warn users about retired vernacular.
+
+40:38.000 --> 40:41.720
+And then eventually the retired vernacular will just stop working.
+
+40:41.720 --> 40:42.720
+Yeah, that's just it.
+
+40:42.720 --> 40:46.760
+We can find solutions here that, you know, for whatever impacts that may be detrimental
+
+40:46.760 --> 40:49.640
+to some groups, we can figure out ways to ameliorate those.
+
+40:49.640 --> 40:54.240
+And otherwise, let's all get on with the great business of open source.
+
+40:54.240 --> 41:00.640
+Yeah, really quite, quite literally change is always happening and these things are always
+
+41:00.640 --> 41:01.900
+shifting.
+
+41:01.900 --> 41:03.600
+And I know it can be hard.
+
+41:03.600 --> 41:06.000
+I know it can be, it can seem exhausting.
+
+41:06.000 --> 41:07.760
+It can seem never ending.
+
+41:07.760 --> 41:17.800
+And my answer to that is welcome to the human race for all a real pain in the neck.
+
+41:17.800 --> 41:22.280
+I really kind of see that more as the beginning of the conversation, not our final word on
+
+41:22.280 --> 41:23.280
+it.
+
+41:23.280 --> 41:28.520
+But it's also open to anyone who's listening and wants to give us their feedback at linuxunplug.com
+
+41:28.520 --> 41:30.160
+slash contact.
+
+41:30.160 --> 41:35.760
+But post-market OS is doing something the Librem 5 never did.
+
+41:35.760 --> 41:41.940
+And that is actually shipping the GUI based on Gnome to end users.
+
+41:41.940 --> 41:47.120
+Post-market OS traditionally has been really kind of a basic OS that you could get going
+
+41:47.120 --> 41:50.000
+on older hardware that have been abandoned.
+
+41:50.000 --> 41:55.720
+But they seem to have taken a liking to the pine phone and they say there's a few things
+
+41:55.720 --> 41:59.480
+about it that we like and on their post that we'll have linked, they have a quick rundown.
+
+41:59.480 --> 42:04.720
+Number one, mainline Linux kernel with few patches and everything getting upstreamed,
+
+42:04.720 --> 42:12.920
+free software GPU driver, a modem that is separated from the main CPU, a removable battery,
+
+42:12.920 --> 42:19.440
+a micro SD card slot, a headphone jack that also doubles as a serial port and hardware
+
+42:19.440 --> 42:20.920
+kill switches.
+
+42:20.920 --> 42:24.800
+You bring all these together with some reasonable specs and it seems like people are taking
+
+42:24.800 --> 42:27.880
+a real liking and post-market OS is one of them.
+
+42:27.880 --> 42:32.160
+Interestingly, this community edition will be shipped with Phosh.
+
+42:32.160 --> 42:36.880
+And Phosh, if you're not familiar, is the phone shell running on top of various Gnome
+
+42:36.880 --> 42:41.800
+components developed by Purism for their own Linux smartphone, of course, the previously
+
+42:41.800 --> 42:43.280
+mentioned Librem 5.
+
+42:43.280 --> 42:45.120
+Yeah, how about that?
+
+42:45.120 --> 42:52.240
+So the Phosh UI will get in the hands of end users via the pine phone.
+
+42:52.240 --> 42:53.240
+Isn't that something?
+
+42:53.240 --> 42:54.240
+Mm hmm.
+
+42:54.240 --> 42:58.480
+You think that you think that that bugs Purism a little bit?
+
+42:58.480 --> 42:59.480
+You got to wonder.
+
+42:59.480 --> 43:03.340
+You do have to wonder, although regardless, I think it's kind of interesting as a reflection
+
+43:03.340 --> 43:07.120
+on like, how do you manufacture and build these things and maybe some of the differences
+
+43:07.120 --> 43:11.880
+between experience in the pine phone side of building hardware and then some experience
+
+43:11.880 --> 43:17.080
+that we have to grant here on the Purism side of working upstream with some of those vendors
+
+43:17.080 --> 43:23.060
+and being able to build seemingly a shippable, if not by them, phone shell.
+
+43:23.060 --> 43:26.840
+What you're going to get here is a post-market OS community edition, which will come with
+
+43:26.840 --> 43:31.820
+a new on-device installer and it will ask you for a password and then it will encrypt
+
+43:31.820 --> 43:40.040
+the installation and you have a GUI graphical environment that's easy to flash or pre-order
+
+43:40.040 --> 43:46.640
+on the pine phone and I think it's pretty noteworthy because until the pine phone really
+
+43:46.640 --> 43:52.840
+became an actual product in end users hands, we weren't sure how all of the different open
+
+43:52.840 --> 43:55.140
+source projects would adapt.
+
+43:55.140 --> 43:57.160
+Would this actually become viable?
+
+43:57.160 --> 44:02.880
+I just want to propose to you that we fast forward, I don't know, let's just say a year
+
+44:02.880 --> 44:08.640
+and maybe they're working on a pine phone two and the Librem five in a fairly usable
+
+44:08.640 --> 44:10.680
+condition has shipped.
+
+44:10.680 --> 44:15.960
+We now have ourselves, I think you could argue, a bit of a baby ecosystem.
+
+44:15.960 --> 44:16.960
+Cute little ecosystem.
+
+44:16.960 --> 44:18.320
+Yeah, I love it.
+
+44:18.320 --> 44:23.400
+I'm totally sold and I need to get some pine devices myself, which is why I'm interested
+
+44:23.400 --> 44:27.600
+to note here that pre-orders open early July 2020.
+
+44:27.600 --> 44:32.480
+That's this year for those of you who've lost track of what day, let alone year it is.
+
+44:32.480 --> 44:36.560
+We'll have a link to the announcement in the show notes, of course, over at LinuxUnplugged.com
+
+44:36.560 --> 44:39.280
+slash 358.
+
+44:39.280 --> 44:42.720
+You know, after July, then you'll be able to buy the postmarket OS pine phone community
+
+44:42.720 --> 44:49.600
+edition for $150 plus any relevant shipping and handling costs, and maybe import charges
+
+44:49.600 --> 44:51.720
+depending on your region.
+
+44:51.720 --> 44:55.300
+And in what I love is a, you know, nice piece of transparency.
+
+44:55.300 --> 45:00.720
+The pine store is going to donate $10 per sale to postmarket OS.
+
+45:00.720 --> 45:06.720
+They also have a little thanks to Purism for pushing the free software smartphone revolution,
+
+45:06.720 --> 45:07.720
+Wes.
+
+45:07.720 --> 45:11.840
+Wouldn't it be interesting if some of the biggest contributions out of Purism on the
+
+45:11.840 --> 45:16.280
+mobile side don't actually come from the Librem 5 directly, but from the software created
+
+45:16.280 --> 45:18.440
+for the Librem 5 that got upstreamed?
+
+45:18.440 --> 45:21.240
+I think that's just more magic of open source.
+
+45:21.240 --> 45:22.960
+I think you might be right, Wes.
+
+45:22.960 --> 45:23.960
+All right.
+
+45:23.960 --> 45:27.120
+Well, with that said, you know, we are well into the show at this point.
+
+45:27.120 --> 45:32.520
+We really got away from us, but we have to do a bit of housekeeping.
+
+45:32.520 --> 45:36.520
+There's not a lot of housekeeping this week because honestly, I'm on the road, so there's
+
+45:36.520 --> 45:38.060
+not much to report on.
+
+45:38.060 --> 45:42.920
+But I do want to mention the Luplugged every single Sunday at noon Pacific.
+
+45:42.920 --> 45:46.560
+It's on the official live calendar now.
+
+45:46.560 --> 45:49.680
+It's noon Pacific, which is the time we do this show.
+
+45:49.680 --> 45:54.520
+You just go convert that to your time now at Jupiterbroadcasting.com slash calendar.
+
+45:54.520 --> 45:59.280
+An easier option might just be to show up in the Mumble Room every day at noon Pacific
+
+45:59.280 --> 46:00.480
+and just see who's around.
+
+46:00.480 --> 46:03.360
+And at least two days a week, you'll find somebody.
+
+46:03.360 --> 46:07.780
+A 24-7 live stream monitor.
+
+46:07.780 --> 46:12.160
+You probably want to have an entire box, just an entire computer dedicated to just the Mumble
+
+46:12.160 --> 46:13.920
+Room going all the time.
+
+46:13.920 --> 46:19.760
+And then what I would do is I'd probably pop off at least three computers for Twitter feeds.
+
+46:19.760 --> 46:21.120
+You know, you got to get Wes's feed up there.
+
+46:21.120 --> 46:22.120
+You got to get my feed up there.
+
+46:22.120 --> 46:23.680
+You got to get the Jupiter signal.
+
+46:23.680 --> 46:27.040
+And if you're really dialed in, you probably got to have another computer for Cheez's feed
+
+46:27.040 --> 46:28.040
+and Drew's feed.
+
+46:28.040 --> 46:29.040
+You never know what's going to happen.
+
+46:29.040 --> 46:30.040
+Right?
+
+46:30.040 --> 46:31.040
+Damn right.
+
+46:31.040 --> 46:32.720
+Or just check Jupiterbroadcasting.com slash calendar.
+
+46:32.720 --> 46:35.240
+I mean, whatever works for you.
+
+46:35.240 --> 46:39.280
+We also have a chat room, IRC chat room at IRC.geekshed.net.
+
+46:39.280 --> 46:43.640
+And it's at pound hashtag quadrathroat Luplugged.
+
+46:43.640 --> 46:47.400
+And you can chat along in there while we have our special get togethers.
+
+46:47.400 --> 46:51.760
+I tried to join just briefly while I was visiting family this week.
+
+46:51.760 --> 46:55.080
+I was walking up to a family store and I'm like, oh, the Luplugged.
+
+46:55.080 --> 46:57.080
+So I jump on there, tap it.
+
+46:57.080 --> 46:58.080
+Hello, everybody.
+
+46:58.080 --> 46:59.200
+How's it going?
+
+46:59.200 --> 47:00.200
+And do one of those.
+
+47:00.200 --> 47:01.200
+All right.
+
+47:01.200 --> 47:02.200
+Thanks.
+
+47:02.200 --> 47:03.200
+OK.
+
+47:03.200 --> 47:04.200
+I'll see you later.
+
+47:04.200 --> 47:05.200
+And I jump out.
+
+47:05.200 --> 47:06.200
+But I try to do that even if I can't hang out.
+
+47:06.200 --> 47:10.080
+But often we're hanging out, chatting about things, and people are creating reasons for
+
+47:10.080 --> 47:12.240
+you to buy cool hardware devices.
+
+47:12.240 --> 47:16.000
+What's nice about it is, you know, the Mumble Room is definitely the best thing about this
+
+47:16.000 --> 47:19.560
+show, but we never have enough time to discuss everything.
+
+47:19.560 --> 47:21.920
+And the Luplugged, well, that's the place to do it.
+
+47:21.920 --> 47:22.920
+That's right.
+
+47:22.920 --> 47:27.960
+Also, if you are on the Twitters, I'm sorry, but check out at Jupiter Signal.
+
+47:27.960 --> 47:29.500
+It's the network account.
+
+47:29.500 --> 47:33.600
+Anything going on with a network or any particular episode release gets announced at Jupiter
+
+47:33.600 --> 47:36.800
+Signal and the show at Linux Unplugged.
+
+47:36.800 --> 47:38.160
+I'm sorry if you're on Twitter, though.
+
+47:38.160 --> 47:39.160
+I am so sorry.
+
+47:39.160 --> 47:42.240
+But if you are, you should definitely be following those accounts.
+
+47:42.240 --> 47:43.240
+You made that choice.
+
+47:43.240 --> 47:44.480
+OK, that's your fault.
+
+47:44.480 --> 47:45.480
+That's on you.
+
+47:45.480 --> 47:47.280
+You can't blame Westride for that.
+
+47:47.280 --> 47:51.820
+Make it better by following us.
+
+47:51.820 --> 47:54.600
+So what could we do as Linux?
+
+47:54.600 --> 48:00.740
+Let's say we've been equipped with the ability to assemble masses of developers, wave magic
+
+48:00.740 --> 48:06.520
+wands and solve a problem that would make us instantly more competitive with commercial
+
+48:06.520 --> 48:07.880
+systems.
+
+48:07.880 --> 48:09.880
+What could we change today?
+
+48:09.880 --> 48:13.600
+And I think this, you know, could be one of those things where we could go on forever.
+
+48:13.600 --> 48:18.380
+We could have a whole dedicated podcast on this, but I'm sure some of us have thoughts.
+
+48:18.380 --> 48:23.440
+And so I thought we could just kick them around a little bit and and give our opinions on
+
+48:23.440 --> 48:28.040
+some areas that Linux could shore up a little bit or a lot a bit to be fully competitive
+
+48:28.040 --> 48:31.920
+with Mac OS or Windows or maybe it's Android or iOS.
+
+48:31.920 --> 48:38.160
+It's up to each one of us to decide and and maybe give a few opinions on how to get that
+
+48:38.160 --> 48:39.160
+started.
+
+48:39.160 --> 48:44.240
+But to kick things off, because I like to apparently punish Drew this week, I'm going
+
+48:44.240 --> 48:45.240
+to send it to Drew.
+
+48:45.240 --> 48:49.040
+I will take that abuse and roll with it.
+
+48:49.040 --> 48:57.040
+The thing that I really want to see move forward is audio and video support and capabilities.
+
+48:57.040 --> 49:02.760
+And I know PipeWire is coming and I have high hopes for PipeWire, but looking back through
+
+49:02.760 --> 49:10.680
+the history of it, you know, ALSA and the OSS sound system and Pulse Audio and and all
+
+49:10.680 --> 49:16.280
+of the video issues that we've had throughout time, you know, a lot of it comes down to
+
+49:16.280 --> 49:24.280
+proprietary codecs, but a lot of it also comes down to the fact that I always feel like everything
+
+49:24.280 --> 49:30.700
+that I'm touching in regards to audio and video is designed by and for engineers and
+
+49:30.700 --> 49:34.120
+not really for real people.
+
+49:34.120 --> 49:42.720
+So when you compare against something like Mac OS or Windows where everything is, I'd
+
+49:42.720 --> 49:48.960
+like to say much simpler, but honestly on Windows, it's kind of terrible there too.
+
+49:48.960 --> 49:56.780
+But Mac has it down with their audio interfaces and the way that it all works.
+
+49:56.780 --> 50:03.120
+It is super simple and slick and easy to use and there's no wonder that so many professional
+
+50:03.120 --> 50:12.080
+audio people tend to run Macs for, you know, DJ sets or for music composition or whatever.
+
+50:12.080 --> 50:18.320
+And I think Linux really could be competitive in that space, but we need to get there.
+
+50:18.320 --> 50:22.520
+We need to make it more accessible and I want to see that happen.
+
+50:22.520 --> 50:28.280
+Yeah, you know I'm right there with you, 100% right there with you.
+
+50:28.280 --> 50:32.760
+If you could, and I know this is kind of just a rando, but if you could just kick it off
+
+50:32.760 --> 50:34.480
+in one direction, where would you start?
+
+50:34.480 --> 50:35.480
+Would it be PipeWire?
+
+50:35.480 --> 50:37.160
+Yeah, I think so.
+
+50:37.160 --> 50:46.320
+I think getting PipeWire up and running and simple and easy to use as well as, you know,
+
+50:46.320 --> 50:50.580
+really taking over the jack stack and making it more transparent and easier for people
+
+50:50.580 --> 50:58.460
+to really get going, get ingrained with and removing those barriers to entry would be
+
+50:58.460 --> 51:00.120
+a huge step.
+
+51:00.120 --> 51:01.120
+Yes.
+
+51:01.120 --> 51:07.600
+I mean Linux is so powerful and flexible and can be tuned to do very specific things.
+
+51:07.600 --> 51:14.480
+So there's no reason why we can't have super performant video and audio applications ready
+
+51:14.480 --> 51:15.480
+to go.
+
+51:15.480 --> 51:22.760
+It just needs that work to turn it into a real monster of a multimedia production system.
+
+51:22.760 --> 51:28.160
+I think that, you know, unification that PipeWire offers is maybe one of the things that's going
+
+51:28.160 --> 51:32.720
+to be present throughout a lot of these Linux criticisms is just there are so many different
+
+51:32.720 --> 51:33.720
+systems.
+
+51:33.720 --> 51:37.040
+I recently wanted to, you know, set up my main microphone running through jack with
+
+51:37.040 --> 51:42.480
+a pair of Bluetooth headphones running on pulse and that is a whole adventure I would
+
+51:42.480 --> 51:46.600
+never like to repeat, but, you know, it's the same about so many things, including things
+
+51:46.600 --> 51:51.840
+like, you know, developer docs or how do you actually target, quote unquote, Linux?
+
+51:51.840 --> 51:58.940
+I was just reading an internet discussion today that was super, super, super critical
+
+51:58.940 --> 52:05.560
+of SystemD as if it was five years ago and they were just rabidly discussing how horrible
+
+52:05.560 --> 52:11.200
+it is and how anti-Unix it is and I think a part of what has kept that conversation
+
+52:11.200 --> 52:16.080
+going is it's true, it is less Unix-like, but when I look at those clips that we just
+
+52:16.080 --> 52:21.720
+played earlier today and we were talking about rolling out a competitive modern file system
+
+52:21.720 --> 52:27.840
+for a Linux workstation and one of the bits that has to be solved is how the system handles
+
+52:27.840 --> 52:34.720
+a failed disk, well, you have to make changes across multiple projects, the bootloader,
+
+52:34.720 --> 52:42.320
+the kernel and SystemD and if instead of SystemD it was five different projects, it literally
+
+52:42.320 --> 52:48.600
+would never get done, but because it's now three projects, it is actually possible for
+
+52:48.600 --> 52:53.920
+us to create something that isn't user hostile and I don't know how to explain this to people
+
+52:53.920 --> 52:55.960
+who are so anti-SystemD.
+
+52:55.960 --> 53:04.680
+I agree, we did indeed lose something, but the benefits have been numerous from management
+
+53:04.680 --> 53:13.520
+to predictability to simple coordination of development and it is really hard to quantify
+
+53:13.520 --> 53:17.520
+that kind of stuff, but I think what you're talking about, Drew, here with Pipewire would
+
+53:17.520 --> 53:23.600
+bring a cohesiveness that SystemD brings at the system level that would be not nearly
+
+53:23.600 --> 53:28.640
+as controversial and Brent, I bet you have some along these same lines here when it comes
+
+53:28.640 --> 53:30.800
+to professional camera gear.
+
+53:30.800 --> 53:35.160
+When I was reflecting on this question, one thing I thought was, yeah, of course audio
+
+53:35.160 --> 53:39.920
+and video, that's our thing around here, but I thought what are the things that we take
+
+53:39.920 --> 53:45.760
+for granted and one thing that I use all the time that I take for granted is the software
+
+53:45.760 --> 53:53.240
+and my pro photo cameras or any camera for that matter and it has been sort of a dream
+
+53:53.240 --> 53:58.480
+of mine for a long time and I would imagine others and we've had hints of sort of addressing
+
+53:58.480 --> 54:03.300
+it, but having some open source firmware on those things would be pretty neat because
+
+54:03.300 --> 54:07.440
+that cameras are really getting to a place where they are just computers with a lens
+
+54:07.440 --> 54:13.760
+stuck on them now and so it would be really amazing to see what could happen in that space
+
+54:13.760 --> 54:19.040
+if only we had a little bit of access and a little bit of open software running on them.
+
+54:19.040 --> 54:20.200
+No kidding.
+
+54:20.200 --> 54:21.200
+No kidding.
+
+54:21.200 --> 54:23.620
+At that level, oh man, what a game changer.
+
+54:23.620 --> 54:28.960
+So Mr. Bacon, you've been a Linux user for let's just say longer than some of my children
+
+54:28.960 --> 54:30.120
+have been alive.
+
+54:30.120 --> 54:32.200
+I'm curious what you would change.
+
+54:32.200 --> 54:40.920
+One thing that some of the proprietary offerings like Mac OS and Windows do provide is that
+
+54:40.920 --> 54:43.380
+installation experience.
+
+54:43.380 --> 54:45.780
+It's dead simple.
+
+54:45.780 --> 54:51.280
+It's pretty much stayed the same throughout the years and as a new user, if you're coming
+
+54:51.280 --> 54:55.520
+into Linux, there's so many different variations of installers, right?
+
+54:55.520 --> 54:58.400
+You have Anaconda that Red Hat and Fedora use.
+
+54:58.400 --> 55:06.640
+You have Calamares that Manjaro, KDE Neon, Distant that Elementary and Pop OS use, Ubiquity
+
+55:06.640 --> 55:09.160
+that Ubuntu and some Debian systems use.
+
+55:09.160 --> 55:15.720
+I feel like at some point we need to kind of unify these installers to create the same
+
+55:15.720 --> 55:19.560
+human interface kind of guidelines throughout them.
+
+55:19.560 --> 55:25.800
+And one of the real things that I appreciated about what Elementary and Pop OS did is that
+
+55:25.800 --> 55:33.800
+they decided just to build their own, which again kind of segments the installer market
+
+55:33.800 --> 55:41.580
+for Linux, but they really thought about the key goal there was getting the OS installed
+
+55:41.580 --> 55:44.440
+to the drive as quickly as possible.
+
+55:44.440 --> 55:49.760
+And personally, it's one of my favorite installers and Calamares really has attempted to kind
+
+55:49.760 --> 55:50.820
+of bridge that gap.
+
+55:50.820 --> 55:54.320
+So it's a distro agnostic, right?
+
+55:54.320 --> 55:59.240
+You can use it for whatever project you're working on, building your own Linux distribution.
+
+55:59.240 --> 56:03.880
+You can really customize it as well, but everybody has their own kind of way that they've done
+
+56:03.880 --> 56:07.440
+it in their own, you know, Ubiquity is primarily Python.
+
+56:07.440 --> 56:16.240
+I think the elementary distant is basically Rust with Vala and GTK on top of it.
+
+56:16.240 --> 56:21.440
+So I would love to see that kind of unified, even if we're using different installers that
+
+56:21.440 --> 56:29.280
+same human interaction guidelines set forth through all of these installers so that whenever
+
+56:29.280 --> 56:34.960
+you get to partitioning, it's going to look very similar, if not the same on Fedora as
+
+56:34.960 --> 56:39.960
+it would on elementary or pop or Ubuntu or anything else like that.
+
+56:39.960 --> 56:40.960
+Wouldn't that be something?
+
+56:40.960 --> 56:46.360
+A universal Linux installer that is the same distro installer for all of them.
+
+56:46.360 --> 56:50.480
+Maybe they each have their own, but then yet there's some like universal version you could
+
+56:50.480 --> 56:51.480
+use.
+
+56:51.480 --> 56:55.920
+Some sort of metaprotocol free desktop installer dot D thing that you implement.
+
+56:55.920 --> 56:56.920
+Yeah.
+
+56:56.920 --> 56:57.920
+Wouldn't that be something?
+
+56:57.920 --> 56:58.920
+What a world.
+
+56:58.920 --> 57:00.180
+You know, even the same process, right?
+
+57:00.180 --> 57:05.280
+So like you start out, you know, here, then you go to disk partitioning, then you go to
+
+57:05.280 --> 57:09.780
+user creation and then you have your slide show while the installation process is going
+
+57:09.780 --> 57:10.780
+on.
+
+57:10.780 --> 57:15.720
+But basically the same kind of following the same sort of guidelines for all of these installers
+
+57:15.720 --> 57:22.040
+across board, I think would be would be a great step up, you know, in showing that we're
+
+57:22.040 --> 57:24.900
+kind of a unified operating system.
+
+57:24.900 --> 57:30.280
+Even if it's not the same installer, they're following the same basic principles.
+
+57:30.280 --> 57:35.240
+Yeah, I could see that actually working because here's my when I talk when we talk about this,
+
+57:35.240 --> 57:45.240
+my my target user is a developer, engineer, sysadmin, DevOps kind of user who is sitting
+
+57:45.240 --> 57:49.280
+down to use a professional grade workstation.
+
+57:49.280 --> 57:52.900
+Obviously in Linux on the server, this is not really as much of an issue.
+
+57:52.900 --> 57:57.240
+You either build your own, you roll your own, you have some sort of deployment system or
+
+57:57.240 --> 58:01.640
+you've learned just how to manage the system that you like to use and you do it at scale.
+
+58:01.640 --> 58:02.640
+It's already solved.
+
+58:02.640 --> 58:09.200
+But at the desktop level, there's not like this minimum requirements of usability options
+
+58:09.200 --> 58:12.660
+and standards for how to get Linux on a system.
+
+58:12.660 --> 58:16.680
+And that never even really occurred to me until you brought that up.
+
+58:16.680 --> 58:20.520
+Mr. Payne, you must be looking at the market, you're reviewing it, you're sitting back and
+
+58:20.520 --> 58:25.920
+going, we have to fix this in the next year to be competitive with commercial desktops.
+
+58:25.920 --> 58:30.080
+OK, well, it's not really for me, but for some folks I know.
+
+58:30.080 --> 58:36.080
+And I think one thing and it's, again, probably a result of just, you know, so many options,
+
+58:36.080 --> 58:41.520
+but accessibility, you know, there are there are things including including orca if you
+
+58:41.520 --> 58:42.840
+need it on Linux.
+
+58:42.840 --> 58:44.760
+And there's a variety of options.
+
+58:44.760 --> 58:48.800
+And I think in one sense, the open source nature and, you know, hack it in yourself
+
+58:48.800 --> 58:53.360
+means that there is a good potential and there might even be a lot of room for folks who
+
+58:53.360 --> 58:57.240
+need to implement these solutions themselves.
+
+58:57.240 --> 59:01.360
+But anyone who's doing a ton of, you know, of exactly that work you were talking about
+
+59:01.360 --> 59:05.160
+stuff, you know, that you're doing everything in the shell or the terminal, a text based
+
+59:05.160 --> 59:09.480
+interface, they're using Mac OS because, you know, the screen reader is really great.
+
+59:09.480 --> 59:10.800
+They've got all kinds of stuff.
+
+59:10.800 --> 59:15.640
+And you can use technology like dragons, you know, naturally speaking to talk to your computer
+
+59:15.640 --> 59:20.880
+if you're not able to type for whatever reason, and Linux, I think, is fragmented and probably
+
+59:20.880 --> 59:21.880
+behind.
+
+59:21.880 --> 59:26.040
+Yeah, that and that was that's when I feel particularly bad about I'm really glad you
+
+59:26.040 --> 59:33.160
+brought that up is that's an area where wouldn't it be fantastic if we were the default destination
+
+59:33.160 --> 59:38.400
+for people with certain disabilities that made it harder to use the computer or nearly
+
+59:38.400 --> 59:39.520
+impossible.
+
+59:39.520 --> 59:42.280
+And if you could just say, well, Linux, that'd be great.
+
+59:42.280 --> 59:43.720
+It's a great point.
+
+59:43.720 --> 59:48.460
+The other thing that Brent's pointing out that I think we should circle back to is sometimes
+
+59:48.460 --> 59:50.080
+brand is just simple stuff.
+
+59:50.080 --> 59:51.080
+It's just like the basics.
+
+59:51.080 --> 59:55.360
+Yeah, I have a few friends and family who I've helped sort of move to Linux for various
+
+59:55.360 --> 59:56.400
+reasons.
+
+59:56.400 --> 01:00:03.000
+And all of them repeatedly come to me with desires to edit PDFs or do certain things
+
+01:00:03.000 --> 01:00:05.720
+with PDFs, like combine them or take pages out and stuff.
+
+01:00:05.720 --> 01:00:07.080
+And I know that is so simple.
+
+01:00:07.080 --> 01:00:13.680
+And there are solutions, but man, are they ever kind of clumsy.
+
+01:00:13.680 --> 01:00:16.840
+And I've explored this repeatedly over the years and I haven't come up with anything
+
+01:00:16.840 --> 01:00:18.180
+that's as nice.
+
+01:00:18.180 --> 01:00:24.680
+And I'm not suggesting necessarily that we should come up with better PDF solutions.
+
+01:00:24.680 --> 01:00:28.920
+Part of my feeling is that, well, why is PDF kind of the format out there?
+
+01:00:28.920 --> 01:00:33.400
+And that's a lot harder for us to change because it's out of our control, but those are the
+
+01:00:33.400 --> 01:00:38.360
+things that I see more often than not as part of the challenge on Linux.
+
+01:00:38.360 --> 01:00:40.860
+Ah, the legacy problems of PDF.
+
+01:00:40.860 --> 01:00:42.720
+It's the language of business, Brent.
+
+01:00:42.720 --> 01:00:47.280
+You know, it's like if it's a PDF, it must be unaltered so we can trust it.
+
+01:00:47.280 --> 01:00:48.280
+Yeah, right.
+
+01:00:48.280 --> 01:00:52.080
+That makes me vomit in my mouth a little bit.
+
+01:00:52.080 --> 01:00:56.600
+I want to see the workstation be the best on the planet.
+
+01:00:56.600 --> 01:01:03.720
+I really think that the Linux desktop should be a shining example of technical excellence.
+
+01:01:03.720 --> 01:01:08.160
+And maybe that means it doesn't have the best UI.
+
+01:01:08.160 --> 01:01:10.560
+Maybe that means it doesn't have the most common look.
+
+01:01:10.560 --> 01:01:13.720
+Maybe that means it has a couple of electron apps.
+
+01:01:13.720 --> 01:01:18.760
+But I think the one area it should not ever compromise should be the technical excellence
+
+01:01:18.760 --> 01:01:27.040
+of the desktop, multi-threaded, doesn't crash, runs reliably for months at a time.
+
+01:01:27.040 --> 01:01:33.700
+It should be the beacon of technical excellence for any engineer or developer or admin who's
+
+01:01:33.700 --> 01:01:39.280
+sitting back and going, I want to deploy the most technically competent, the most technically
+
+01:01:39.280 --> 01:01:41.360
+superior workstation.
+
+01:01:41.360 --> 01:01:47.800
+It should be so far and above clear that that is Linux, that Windows or Mac OS never comes
+
+01:01:47.800 --> 01:01:49.220
+into the conversation.
+
+01:01:49.220 --> 01:01:53.140
+But quite frankly, that is not the situation today.
+
+01:01:53.140 --> 01:01:58.120
+Our file systems do not compete with commercial file systems.
+
+01:01:58.120 --> 01:02:02.280
+The multi-threaded aspects of GNOME are lacking.
+
+01:02:02.280 --> 01:02:05.280
+You know, if you looked at that from a commercial grade operating system, whoever developed
+
+01:02:05.280 --> 01:02:07.360
+that operating system should be fired.
+
+01:02:07.360 --> 01:02:12.720
+We haven't gotten our act together on a 3D API that includes sound and 3D.
+
+01:02:12.720 --> 01:02:18.660
+Thankfully, thankfully Vulkan came along, thankfully, but it wasn't, it wasn't something
+
+01:02:18.660 --> 01:02:19.960
+of our doing.
+
+01:02:19.960 --> 01:02:24.760
+There's so many areas where it feels like you're running a desktop environment on top
+
+01:02:24.760 --> 01:02:28.160
+of a command line environment, which is running on top of a kernel.
+
+01:02:28.160 --> 01:02:30.560
+You can feel that stack sometimes.
+
+01:02:30.560 --> 01:02:35.420
+There's some distributions like Fedora that get really close to bringing it all together.
+
+01:02:35.420 --> 01:02:39.560
+And there's other distributions, SUSE, where it feels like they're millions of miles apart
+
+01:02:39.560 --> 01:02:41.100
+or Arch even.
+
+01:02:41.100 --> 01:02:46.840
+And the reality is, be selfish for a second, wouldn't it feel incredible that every time
+
+01:02:46.840 --> 01:02:51.360
+you suggested someone install Linux on their machine, you knew with ultimate certainty
+
+01:02:51.360 --> 01:02:55.320
+in the back of your mind, it was the most technically competent piece of software that
+
+01:02:55.320 --> 01:02:57.080
+could be deploying on their desktop.
+
+01:02:57.080 --> 01:02:58.480
+There was nothing better.
+
+01:02:58.480 --> 01:03:00.360
+Windows wasn't going to do a better job technically.
+
+01:03:00.360 --> 01:03:03.760
+Mac OS didn't take better advantage of the hardware.
+
+01:03:03.760 --> 01:03:07.120
+It just was the best option.
+
+01:03:07.120 --> 01:03:14.080
+And if Linux is not that, I think people will continue to buy Mac books and surfaces.
+
+01:03:14.080 --> 01:03:20.600
+Simply put, people who are in the know, who appreciate these finer details about how software
+
+01:03:20.600 --> 01:03:26.040
+is actually built, who are evaluating things not based on the morality of software, but
+
+01:03:26.040 --> 01:03:31.760
+based on how it is designed and engineered, we've got to step up our game there.
+
+01:03:31.760 --> 01:03:34.440
+It's not a huge gap.
+
+01:03:34.440 --> 01:03:36.860
+It's not an impossible problem.
+
+01:03:36.860 --> 01:03:41.120
+It just requires organization at the lower levels, the medium levels, and the higher
+
+01:03:41.120 --> 01:03:43.260
+levels of the desktop stack.
+
+01:03:43.260 --> 01:03:48.860
+Something we haven't necessarily been great at in the past, but it's not outside our reach.
+
+01:03:48.860 --> 01:03:53.120
+My thing is very vague because it starts at the file system on the disk.
+
+01:03:53.120 --> 01:03:57.640
+It goes all the way up to the IO scheduler that's handling things like a browser that's
+
+01:03:57.640 --> 01:04:03.280
+using your GPU and your disk and your RAM at the same time while keeping all of your
+
+01:04:03.280 --> 01:04:06.920
+other applications on your desktop responsive.
+
+01:04:06.920 --> 01:04:11.460
+And it's vendor applications that take advantage of all that stuff because we have created
+
+01:04:11.460 --> 01:04:12.640
+an API.
+
+01:04:12.640 --> 01:04:17.720
+We've created a developer story, an inclusive developer story that tells them how to make
+
+01:04:17.720 --> 01:04:22.200
+fantastic software, taking advantage of all of the latest open source and free software
+
+01:04:22.200 --> 01:04:25.280
+development that's happened on the platform.
+
+01:04:25.280 --> 01:04:27.200
+And we don't have that today.
+
+01:04:27.200 --> 01:04:35.720
+So a week minus a day, it'll be Apple's first virtual WWDC, Worldwide Developer Conference.
+
+01:04:35.720 --> 01:04:41.400
+They may announce ARM Macs in this conference, they may not.
+
+01:04:41.400 --> 01:04:46.720
+If they do, they will announce something that we as a community have half accomplished in
+
+01:04:46.720 --> 01:04:49.720
+the last half, I don't know, decade.
+
+01:04:49.720 --> 01:04:57.020
+They will announce an operating system that was originally built for power PC hardware,
+
+01:04:57.020 --> 01:05:02.720
+now running on ARM hardware, and they will have all of their applications ready to go.
+
+01:05:02.720 --> 01:05:06.720
+They will have their sound system, they will have their video system, they will have their
+
+01:05:06.720 --> 01:05:11.200
+desktop applications, they will have their web browser, and they will likely even have
+
+01:05:11.200 --> 01:05:17.080
+a large amount of commercial support going to the ARM platform.
+
+01:05:17.080 --> 01:05:18.660
+We could not do that.
+
+01:05:18.660 --> 01:05:24.040
+We could not just say all of Linux is switching to RISC-V processors and just have everything
+
+01:05:24.040 --> 01:05:26.720
+start switching over over the next five years.
+
+01:05:26.720 --> 01:05:31.160
+It would take 30 years and it would be half-assed and we'd still have people running 32-bit
+
+01:05:31.160 --> 01:05:33.780
+software on x86 processors.
+
+01:05:33.780 --> 01:05:38.720
+So some kind of singular vision on the workstation.
+
+01:05:38.720 --> 01:05:42.480
+There's projects out there, Canonical does this, Fedora does this, but we need something
+
+01:05:42.480 --> 01:05:48.300
+that's turned up to 11, that's looking at the desktop and really putting it all together
+
+01:05:48.300 --> 01:05:52.160
+and then evaluating where we lack and solving that problem.
+
+01:05:52.160 --> 01:05:59.520
+Because right now, for some work cases, I don't think we are technically the best solution.
+
+01:05:59.520 --> 01:06:03.600
+And man, does that really burn me in 2020.
+
+01:06:03.600 --> 01:06:07.000
+Am I a bastard if I bring up Chrome OS here?
+
+01:06:07.000 --> 01:06:08.000
+No.
+
+01:06:08.000 --> 01:06:09.240
+I mean, I think that's a good example, isn't it?
+
+01:06:09.240 --> 01:06:10.240
+Yeah.
+
+01:06:10.240 --> 01:06:11.240
+I mean, it is just that.
+
+01:06:11.240 --> 01:06:14.000
+And you hit on that, you know, some folks from the elementary OS side, I think, and
+
+01:06:14.000 --> 01:06:18.520
+as you said, Canonical, like there just hasn't been that much pressure and you need an organization
+
+01:06:18.520 --> 01:06:22.560
+that is dedicated to touching all those places in the stack.
+
+01:06:22.560 --> 01:06:26.600
+And it is a hard problem, it's a distributed problem where there's so many different things
+
+01:06:26.600 --> 01:06:32.280
+to tune that you can tune, thankfully, but that you have to tune to get the desktop experience
+
+01:06:32.280 --> 01:06:36.120
+that I guess we're expecting from the proprietary world.
+
+01:06:36.120 --> 01:06:38.280
+I just want somebody to bring it all together.
+
+01:06:38.280 --> 01:06:43.400
+I want somebody who can look at GNOME Shell and say, fix these 10 areas of GNOME Shell.
+
+01:06:43.400 --> 01:06:48.500
+I want somebody who can look at our 3D APIs and say, let's reach out to these two vendors
+
+01:06:48.500 --> 01:06:49.880
+and solve this problem.
+
+01:06:49.880 --> 01:06:53.720
+And I want somebody who can just look at the whole picture, Wes.
+
+01:06:53.720 --> 01:06:54.720
+Yeah, that's tough.
+
+01:06:54.720 --> 01:06:56.720
+I mean, you've got to pay for it, right?
+
+01:06:56.720 --> 01:06:59.160
+And there are organizations that's work is getting done.
+
+01:06:59.160 --> 01:07:05.240
+It's just not enough and, you know, too little and the world keeps changing and we have to
+
+01:07:05.240 --> 01:07:06.880
+try and keep up.
+
+01:07:06.880 --> 01:07:07.880
+There are hopes, right?
+
+01:07:07.880 --> 01:07:12.560
+We've gotten things better with Wayland and with Pipewire and with Vulkan and with SystemD.
+
+01:07:12.560 --> 01:07:17.440
+I think there has been some consolidation and modernization, but we're definitely not
+
+01:07:17.440 --> 01:07:18.440
+there yet.
+
+01:07:18.440 --> 01:07:24.240
+It's not lost on me that maybe we would lose something kind of special if that did happen.
+
+01:07:24.240 --> 01:07:25.240
+Yeah.
+
+01:07:25.240 --> 01:07:28.280
+I mean, there's no Sparky Linux for Mac OS, right?
+
+01:07:28.280 --> 01:07:30.960
+Boy, it's a tricky thing.
+
+01:07:30.960 --> 01:07:37.280
+And maybe the more realistic answer is something more closer to the middle.
+
+01:07:37.280 --> 01:07:41.720
+And maybe we are starting to see that more and more.
+
+01:07:41.720 --> 01:07:47.520
+Elementary OS, Fedora Workstation, Ubuntu, especially in conjunction with vendors like
+
+01:07:47.520 --> 01:07:55.360
+Lenovo and Dell, feel like we're starting to see them address each one of these issues,
+
+01:07:55.360 --> 01:07:57.960
+starting with the low hanging fruit and working their way up.
+
+01:07:57.960 --> 01:08:04.320
+But if I were in the industry right now and I were looking to burn a few grand on a laptop,
+
+01:08:04.320 --> 01:08:07.640
+it feels like still a bit of a gamble on a Linux machine.
+
+01:08:07.640 --> 01:08:11.120
+I know me personally, it would be fine.
+
+01:08:11.120 --> 01:08:15.120
+But if I were someone who maybe I was going independent for the first time and I'm starting
+
+01:08:15.120 --> 01:08:21.160
+my own firm and traditionally I worked at a shop that used Mac or Windows.
+
+01:08:21.160 --> 01:08:23.520
+I just recently had a conversation with somebody about this.
+
+01:08:23.520 --> 01:08:25.240
+So this is where this is coming from.
+
+01:08:25.240 --> 01:08:27.280
+And they chose to go with Windows.
+
+01:08:27.280 --> 01:08:33.000
+We talked about Linux as an option, but they were buying Alienware hardware and they just
+
+01:08:33.000 --> 01:08:38.440
+wanted to get all $4,000 worth of the Alien hardware and shipped with Windows 10.
+
+01:08:38.440 --> 01:08:40.560
+And they ultimately decided to stay with it.
+
+01:08:40.560 --> 01:08:45.580
+And I couldn't make the argument because they were doing OBS and live streaming.
+
+01:08:45.580 --> 01:08:48.680
+And my argument was you can do it on Linux.
+
+01:08:48.680 --> 01:08:54.060
+And that wasn't good enough because, well, it's supported on Windows and it might be
+
+01:08:54.060 --> 01:08:57.360
+even slightly better in this scenario with Windows.
+
+01:08:57.360 --> 01:09:00.500
+And I just couldn't seal the deal.
+
+01:09:00.500 --> 01:09:03.320
+It was awkward because this just recently happened to me.
+
+01:09:03.320 --> 01:09:07.680
+And I used to make a living on going into places and selling them on switching their
+
+01:09:07.680 --> 01:09:10.840
+servers from Windows to Linux.
+
+01:09:10.840 --> 01:09:18.940
+And here I was in 2020 trying to convince a client of mine that they should deploy OBS
+
+01:09:18.940 --> 01:09:24.720
+on Ubuntu 2004 and they were buying Alien hardware to do it and they wanted to do live
+
+01:09:24.720 --> 01:09:29.400
+streaming and they decided to stay with Windows 10.
+
+01:09:29.400 --> 01:09:35.700
+And I didn't push super hard because I just, I couldn't quite articulate like the killer
+
+01:09:35.700 --> 01:09:38.240
+reason they had to switch to Ubuntu.
+
+01:09:38.240 --> 01:09:40.720
+All my reasons were you can do the same thing.
+
+01:09:40.720 --> 01:09:41.720
+That's hard.
+
+01:09:41.720 --> 01:09:47.480
+There's a natural place where Linux and open source excels when you need that customization,
+
+01:09:47.480 --> 01:09:48.480
+right?
+
+01:09:48.480 --> 01:09:53.560
+Sometimes you buy an off the shelf solution and sometimes you hire a sys admin who assembles
+
+01:09:53.560 --> 01:09:55.400
+that stuff and maintains it for you.
+
+01:09:55.400 --> 01:09:59.400
+And that's really where Linux excels when you can do something slightly better because
+
+01:09:59.400 --> 01:10:03.440
+you had all the knobs and available things for you to use.
+
+01:10:03.440 --> 01:10:08.180
+And then there's also the philosophical side that just belief in free software and open
+
+01:10:08.180 --> 01:10:13.920
+source software and then that's fundamentally often a better way to do things.
+
+01:10:13.920 --> 01:10:18.760
+And when you take that out of the equation and you just have an end user who has a computing
+
+01:10:18.760 --> 01:10:21.440
+task, it gets a little more dicey.
+
+01:10:21.440 --> 01:10:27.280
+When it isn't infrastructure that you depend on for 10 years and you need transparency
+
+01:10:27.280 --> 01:10:31.440
+and you need modularity and you need customizability.
+
+01:10:31.440 --> 01:10:35.200
+You know, going back to the Fedora working group, one of the comments that was made by
+
+01:10:35.200 --> 01:10:40.000
+the Facebook developers is they've essentially rolled their own container solution.
+
+01:10:40.000 --> 01:10:44.000
+They don't use Docker, but they took a look at the world of container technologies and
+
+01:10:44.000 --> 01:10:48.000
+said, you know what, we'll just use the primitives provided by the operating system and we'll
+
+01:10:48.000 --> 01:10:50.440
+roll our own container solution.
+
+01:10:50.440 --> 01:10:57.840
+And that is extremely common on Linux at scale in the enterprise and is extremely uncommon
+
+01:10:57.840 --> 01:11:03.720
+on the desktop that modularity, that customizability, that choose your own solution is the very
+
+01:11:03.720 --> 01:11:06.840
+thing that appeals to production environments.
+
+01:11:06.840 --> 01:11:11.960
+And it's the very kind of thing that doesn't seem to work in consumer environments.
+
+01:11:11.960 --> 01:11:18.200
+And I think this is where we have this impedance mismatch and we kind of just ride the middle.
+
+01:11:18.200 --> 01:11:23.000
+And I have to say, as a longtime Linux user, the trend is better.
+
+01:11:23.000 --> 01:11:30.280
+Like the trend is improvement and things do seem to be getting simpler.
+
+01:11:30.280 --> 01:11:35.600
+Setting up your video, setting up your audio, getting 3D acceleration, getting playback
+
+01:11:35.600 --> 01:11:39.680
+of H.264 and MP3 codecs.
+
+01:11:39.680 --> 01:11:45.960
+All of that is so much simpler than it even was four, five or 10 years ago.
+
+01:11:45.960 --> 01:11:48.040
+And there is a steady march towards it.
+
+01:11:48.040 --> 01:11:53.400
+But this was really an idea of if we could just change something right away and just
+
+01:11:53.400 --> 01:11:58.400
+really amp up the competitiveness of the desktop, these are the things we would do.
+
+01:11:58.400 --> 01:12:04.280
+And the reality is, if you wait long enough, a lot of this stuff does tend to arrive to
+
+01:12:04.280 --> 01:12:05.280
+desktop Linux.
+
+01:12:05.280 --> 01:12:09.680
+It just it takes time for development and the right parties to get interested and then
+
+01:12:09.680 --> 01:12:11.760
+spend the resources on it.
+
+01:12:11.760 --> 01:12:13.480
+I think we've probably talked that one out.
+
+01:12:13.480 --> 01:12:17.160
+We have more for the post show, but I'd love to get your ideas or your thoughts on this
+
+01:12:17.160 --> 01:12:22.760
+particular topic, linuxunplugged.com slash contact or join us live.
+
+01:12:22.760 --> 01:12:25.760
+Get in that mumble room, hang out with us.
+
+01:12:25.760 --> 01:12:28.120
+Just go Google search Jupiter colony mumble.
+
+01:12:28.120 --> 01:12:29.120
+You'll get our setup guide.
+
+01:12:29.120 --> 01:12:34.240
+You can come right in and tell us your thoughts or hang out in that IRC room, irc.geekshed.net
+
+01:12:34.240 --> 01:12:37.120
+pound Jupiter broadcasting.
+
+01:12:37.120 --> 01:12:40.640
+But I think that just about wraps up for this week's episode of the Unplugged program.
+
+01:12:40.640 --> 01:12:45.540
+Go get more Wes at Wes Payne, go get more me at Chris Lass and the whole show at Linux
+
+01:12:45.540 --> 01:12:46.540
+Unplugged.
+
+01:12:46.540 --> 01:12:47.540
+See you next Tuesday.
+
+01:13:16.540 --> 01:13:31.740
+Making up weather conditions, quick, we must sacrifice the entire state of Delaware to
+
+01:13:31.740 --> 01:13:34.980
+appease the sun god.
+
+01:13:34.980 --> 01:13:40.440
+It's so hot, it is dysfunctionally hot here.
+
+01:13:40.440 --> 01:13:42.840
+I think I am seeing unicorns right now.
+
+01:13:42.840 --> 01:13:44.840
+Either that or unicorns live in lady jubes.
+
+01:13:44.840 --> 01:13:45.840
+I'm not sure.
+
+01:13:45.840 --> 01:13:47.440
+Maybe the unicorns actually just live here now.
+

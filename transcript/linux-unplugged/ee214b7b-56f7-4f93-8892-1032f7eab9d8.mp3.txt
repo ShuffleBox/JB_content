@@ -1,0 +1,1886 @@
+Although, maybe before we start, we
+should probably start with a very special happy birthday.
+Happy birthday!
+Happy birthday, Brent.
+Happy birthday, dude.
+Oh, you guys.
+Thank you.
+Still out there traveling the world in parts.
+It's the new normal.
+I assume he wouldn't want it any other way.
+Well, I'm glad you're here, Brent,
+even though it's your birthday, because we went down
+to Intel's Portland campus and learned all about Clear Linux
+and got some really good takeaways.
+So we'll be talking about that in today's show.
+But that's for later.
+Just right now, I want to say happy birthday, sir.
+I kind of didn't even realize it was coming up,
+because I don't even know which day of the week it is anymore.
+Time compression.
+It's a real problem.
+I don't know how Elle deals with it, to be honest,
+because how do you deal with it?
+Do you not suffer from time compression like I do?
+I think I just never know what time it is.
+Yeah, I think there's some of us out there
+that when you travel a lot, you're dateless.
+The only thing that keeps me pinned is the show recordings.
+Like, if I don't do a show, I don't really
+know what day of the week it is.
+That's why when you change which day you do a show,
+it really, I mean, your whole week changes.
+It really messes with you.
+It's a weird phenomenon.
+You're running stateless, is what you're saying, right?
+Stateless and dateless.
+There it is.
+Ouch.
+This is Linux Unplugged, episode 303 for May 28, 2019.
+Well, hello there, and welcome into your weekly Linux talk
+show.
+My name is Chris.
+My name is Wes.
+Hello, Mr. Payne.
+How are you feeling?
+Jet-lagged at all today?
+I think finally I'm back to normal.
+You actually look good.
+Thank you.
+You do look good.
+I'm ready to do Linux Unplugged again.
+It was a pain to be away last week,
+but you guys did a great job.
+Special thanks to my pal, Brent.
+Somebody has to go to Spain.
+Somebody.
+I mean, yeah, it's whew.
+Barcelona is somebody's job.
+We didn't want Elle to go alone, right?
+I mean, it's not as much fun that way.
+Yeah, so Wes and Elle are back from Barcelona this week.
+They went to Kubicon, and they grabbed a few really good
+insights from the entire event.
+We'll share those with you.
+And Brent and I are back from our trip
+to Clear Linux in Portland, Intel's campus.
+We'll tell you all about that.
+There's a ton of stuff to get into.
+But before we can do any of the community news
+and our own legit form of journalism,
+I want to say time-appropriate greetings, virtual lug.
+Hello, mumbles.
+Hello.
+Hello.
+Hello.
+And I do believe, rumor has it, we also have Alex Ellen.
+She's here too.
+Hey, guys.
+Hey.
+Hey, what's up?
+What up?
+Oh, you know, doing a podcast, doing a podcast.
+How you doing, Alex?
+How are you doing?
+Oh, it's 98 here today.
+I am melting.
+It's too hot.
+It's too hot.
+Well, geez, I hope your equipment doesn't fall apart.
+Yikes.
+I'm like on top of the world right now.
+I pulled off a thing recently, and it feels good.
+You know, something I've been toying with,
+doing for a really long time.
+It's kind of been a dream.
+There's a nice thing happening right now,
+that now that all of us are working
+full-time for Linux Academy, we're
+kind of like infecting each other with Linux enthusiasm.
+You wouldn't believe what we did to the studio today,
+but that's a story for another time.
+It's like being a Windows switcher all over again.
+It's so exciting.
+And so we keep like, everybody is experimenting
+with different stuff right now.
+And I decided to tackle hardware pass-through in a VM
+on my ThinkPad.
+Because those that listen to the show for a while now
+may recall that a bit back, I bought one of those GPU docks.
+It's a Thunderbolt 3 Lenovo dock with an NVIDIA
+1050 built into it.
+So you get a discrete graphics card,
+and you get all the ports and all that kind of stuff.
+Right.
+And I got it to work.
+It's actually nice, but it has its drawbacks.
+Mostly that when you don't have it connected,
+the NVIDIA driver goes crazy looking for the hardware.
+It's pretty common that you've got this separate graphics
+card that mysteriously connects and disconnects,
+and not many other systems have that limitation.
+No.
+So I thought, well, wouldn't it be cool if I just said,
+ah, bag it, and let's just pass the entire dock through
+to a VM.
+Make it simpler on the host system,
+and now you have two computers in one.
+See, at first I thought I'd pass my GPU through to KVM,
+and I'd call it good.
+But now going through this, I've learned
+that all of the devices that are in that PCI group
+have to be allocated to the VM.
+So if you've got, say, in this case,
+an NVIDIA card that also has an HDMI port with a sound chip
+on it, those are both in the same PCI group,
+and both have to be removed from the host system
+and allocated to the VM.
+All or none?
+I didn't realize that.
+And it gets even more complicated
+with a Thunderbolt 3 dock, because you've
+got the Thunderbolt 3 bus, you've got the USB adapters,
+plus you've got low energy mode bus.
+Like, there's multiple things.
+So I really did this deep dive on my Fedora 30
+install of my ThinkPad of going through and blacklisting
+all of these PCI devices and making sure
+that the Nuvoo driver wouldn't load and all of this.
+But at the end of it, I am happy to say
+I successfully managed to allocate the entire Thunderbolt
+3 dock to a Windows 10 VM running on my ThinkPad
+under Vert Manager.
+And just works?
+I mean, Windows sees the GPU?
+Yes, now, there's one big drawback.
+And so I haven't taken the final plunge yet.
+In order to get it working, you have
+to uninstall the virtual machine graphics card.
+You can't have both the VM graphics and the host graphics.
+So you've got a little graphics card dance to perform.
+And I know how much you love administering Windows.
+Yeah, so I was getting everything set up.
+It's funny, though, because now the Windows machine is connecting
+over the ethernet port on the dock.
+And if I don't have the ethernet plugged in,
+my Windows VM doesn't have network.
+It really is too machined.
+It really is.
+So I'm going to hook up a mouse and keyboard and a monitor
+to the dock, and I will have a separate machine there.
+Not really any plans to use it for anything
+other than I just wanted to see if I could pull it off.
+But so far, it's been really cool.
+So now I just got to take the plunge,
+remove that virtual graphics card, hook up a monitor,
+and see if it works.
+If you're on Fedora and you want to mess around
+with something like this, Red Hat themselves actually
+have decent-ish documentation.
+Really?
+Mm-hmm.
+The problem with all this stuff is it
+gets out of date really quick, especially if it's
+documentation for RHEL.
+So just make sure you double check everything.
+Sometimes, like the path for where the grub config
+is changed and stuff like that.
+PCI passthrough was what got me interested in Linux
+in the first place.
+I wanted to put one graphics card into my server
+so I didn't have to buy another computer because I
+was a poor student at the time.
+And now it's so easy using OVMF, which support UEFI graphics
+cards, that in the old days, you used
+to have to eject the GPU before shutting down Windows
+because the BIOS on the graphics card
+didn't know what was happening.
+Whereas now, they support resetting,
+and it's just dead easy now.
+But if you're interested in this kind of thing,
+I highly recommend there's an Arch Linux wiki
+article called PCI passthrough via OVMF.
+And that takes you through everything
+you need to know about this topic and more.
+And if you want to reach out to me as well,
+I still run this every day.
+I have a Windows VM that I use for Lightroom
+and other Adobe stuff.
+But there's a really cool project
+called Looking Glass, which I think you might
+want to investigate, Chris.
+I actually have it bookmarked right now.
+It looks really promising, although it
+looks like it's also early days, and it's a little finicky
+to install, possibly.
+So can you explain what it is and why
+I might want to check it out?
+Yeah, I'll do my best because it's not simple.
+So when you are outputting graphics
+through a graphics card, you are sending frames
+to a frame buffer, which then go out through the HDMI port.
+So what this guy, I think his name
+is Ginniff or Galliff or something is his username.
+He worked with Wendell over on level one text
+to do some really funky stuff, actually.
+You install a driver, which hooks into that frame buffer.
+Then on the Linux guest, you run a client,
+which can view that frame buffer, which
+is a kind of shared piece of memory
+between the VM and the host.
+And then you can basically, like a VNC window,
+just open up the client on your host machine
+and view Windows in a window, if that's not
+too much of inception for you, with maybe two or three
+milliseconds of latency.
+It is incredible.
+And recently, there was a new plug-in announced
+called Scream, or IV Scream or something,
+which does audio through that same method as well.
+Oh, no kidding.
+So in the Windows VM side, it's using DirectX
+to do all that frame buffer stuff.
+So whatever DirectX can render, as fast as it can render it,
+it can toss it in that frame buffer.
+It's very high performance.
+It's just also very early days and a little finicky.
+But it seemed like a great way to get very high performance
+Windows without having to have a dedicated monitor, which
+is what they were going for.
+It's a really interesting kind of journey I ended up on.
+Because I think long term, it might
+be how I try to solve this issue for my son
+if he ever gets in a position where he really
+wants Windows 10.
+And I want to say thank you, because I
+got a couple of audience members who
+submitted me part systems from PC Part Picker.
+That's great, just a nice little build you can put together.
+A couple of really nice ones, including
+a nice little small one that uses a case that Linus Tech
+Tips just featured.
+And I'm really looking forward to doing this rise and build.
+But now they just got the new CPUs.
+We'll see.
+We'll see.
+I might have to wait.
+So on that note, there is something
+to be aware of with Intel versus AMD in this space.
+So Intel requires for this to work the extension VT-D and VT-X.
+AMD have their own, and the name escapes me right now.
+But the important thing is that you can pass through IOMMU
+groups.
+And that's the important thing you want
+to look for in any motherboard.
+And it can vary down to the exact BIOS version
+on that motherboard.
+So sometimes the only way to be sure it's actually going to work
+is to buy the product and try it out.
+So buy it from Amazon, because you can send it back
+if it doesn't work.
+Yeah, so those IMMOU groups, if I'm getting that right,
+is like what I was talking about where
+you have a couple of PCI devices that are grouped together,
+like an NVIDIA graphics card, GPU,
+as well as the HDMI audio output.
+And anytime you have devices that are essentially
+like that in the same group, they all
+have to be allocated at once to the virtual machine.
+It's all or nothing, which is tricky, but doable.
+There is a kernel patch you can apply
+called ACS, which can sometimes break down those IOMMU groups
+into smaller chunks.
+So occasionally, I mean, into my Arch install right now
+in front of me, I have that kernel patch installed,
+which enables me to only pass through a couple of devices
+instead of 10 or 15.
+So I can have two GPUs in the same system,
+pass one through, and leave the other one
+with the host, for example.
+So there are ways around these things,
+but it does get quite involved quite fast.
+Yeah, but nothing more than maybe an evening or two.
+That's about how I would sum it up.
+Nowadays, you're absolutely right, yeah.
+That's nice.
+I mean, not super simple, but something someone
+looking for a project could easily handle.
+And then once you have it done, you essentially
+have two computers out of one.
+And what I'm really trying to get out of this,
+I was telling you this yesterday,
+is I just kind of feel like I'm done repartitioning
+my disk for a while.
+I've got a really solid base install on that Fedora 30
+on that ThinkPad.
+I mean, I may have to repave just
+to be compatible with the studio machines,
+but right now, Fedora 30 is working so good.
+And if I can avoid having to reload that system
+by using things like virtualization
+with hardware pass-through and kexec, hey-o, I might.
+I might try to make it like the entire release of Fedora
+30 without repartitioning.
+You're in love with this installation.
+I can tell, right?
+You don't want to make any changes.
+You're trying to figure out anything
+you can do to make stuff work on Fedora, which has actually
+proven pretty possible.
+Yeah, it's been really good.
+All right.
+Oh, there's our warning that we've
+waded off into the weeds.
+Let's get into some community news.
+What do you say?
+Start with speaking of Ubuntu, Ubuntu 19.10
+is going to have a new trick.
+It's going to bundle NVIDIA's proprietary driver right
+into the ISO.
+The NVIDIA binary drivers won't be activated by default,
+but they will be present on the install media
+to make it easier to turn on afterwards.
+Yeah, that's right.
+Novu will still be the default if you've
+got an NVIDIA graphics card on new Ubuntu installations.
+Really, the change is just positioning the mainline
+and legacy proprietary drivers onto the actual ISO
+so it can be easily obtained locally post-install, right?
+So maybe you have a system set up.
+You want to use the proprietary drivers.
+You might not have internet after or during installation.
+You don't need it now for that.
+I guess the not having internet thing
+is a business customer request.
+I guess I got the word that that trickled down
+from requests on large installations in enterprises.
+I mean, it is nice when you can sort of do all these things
+and not have to futz with gateways.
+Do you care that it made the ISO bigger?
+Not really.
+I usually use something like the Bootstrap
+anyway to build my systems from a more minimal ISO anyway.
+A lot of people seem to be super excited about the new ZFS
+on Linux 0.8 release that came out in the last week.
+I guess there's some pretty nice features
+that people have been waiting for for quite a long time.
+Oh, yeah, things like native encryption support,
+as well as raw encrypted ZFS send and receive support,
+which, man, send and receive stuff is just great.
+Another prominent feature is support for device removal
+and pooled checkpoints, as well as trim or discard
+for solid state drives.
+All of those things people have been waiting for
+to be shipped as part of ZFS.
+Now, in the past, you could layer things together, right?
+You could use Lux and ZFS or some other combination.
+This just means ZFS has more features.
+And since it already does, I don't know, everything,
+violates all the layers, eats everything related
+to the file system and disks, now it does more of those things.
+If you trust ZFS, you're probably
+going to like these changes.
+Yeah, I mean, I think the encryption support's huge,
+right?
+And so is the trim support.
+That's for solid state drives.
+That's massive.
+And hey, OK, Python 3 compatibility with its tools,
+the conversion marches on.
+OK.
+Yeah, you're right.
+You're right.
+You're right.
+Have you seen what?
+There's a website now that tracks
+how many days, hours, and months left until Python 2.7,
+whatever.
+Good for them.
+Yeah, right?
+I mean, steady improvements.
+Are you running this anywhere?
+I have not updated to this release.
+But I do use ZFS on Linux.
+Yeah, of course.
+Do you?
+Who do you think I am?
+Where?
+I mean, on my, like, arrays at home.
+Now, I do still have one that needs
+to get converted that's on ButterFS.
+But that's just kind of been something
+to watch and to play with.
+How many arrays you got?
+You got ButterFS arrays.
+You got ZFS arrays.
+Yeah, right?
+Now, there aren't any Bcache ones right now.
+I need to, or Stratus.
+So I'm not that hipster.
+I got to work on that.
+Yeah, man.
+Get your Stratus set up.
+What the heck?
+Alex, you got any Stratus rolling
+at home in your home lab with the new fancy rack I saw.
+Congratulations.
+Thank you.
+Yeah, I had some offcuts of wood left around.
+So I thought, get it off the floor,
+away from the spiders that jump.
+Built himself a server rack.
+Nice.
+Very nice.
+So you got any ZFS or ButterFS or Stratus
+rolling any of that stuff?
+So after listening to a couple of episodes of TechSnap
+where Jim and Wes evangelized it and going
+to the talks at Linux Fest Northwest from Jim
+and the one and only Alan Jude, they
+convinced me that I was missing out
+by not having some ZFS in my life.
+And yeah, I've given it a go.
+And I'm presenting a ZFS pair now.
+And then on top of it, I'm using MergerFS
+to kind of blend it in with my normal.
+There you go.
+Very neat.
+Normal storage stuff.
+So anything I really care about is now on ZFS.
+Anything I don't care about is just on the JBOD MergerFS
+kind of XT4 drives.
+So yeah, I'm using ZFS.
+Oh no, I said Z. I'm turning into an American.
+We're getting there.
+Yeah, so I'm using it for a bit.
+And I must be honest, the learning curve I felt like
+was quite steep because I feel like if you make an array,
+if you make a pair, like a pool, wrong on day one,
+that can have some serious ramifications in a year
+or two's time when you're trying to recover data.
+So I wanted to make sure I was right.
+So I ran everything past Alan and Jim,
+and they said it was OK.
+So so far, so good.
+Welcome to BSD Unplugged, your weekly BSD talk show
+that's too busy getting actual work done
+to care about what your silly display server.
+My name is Alan.
+Alan Jude.
+You know, Chris, you don't want to touch your install.
+I'm thinking it's time to pave my ThinkPad.
+And you know what?
+It's probably going to have ZFS on route
+on this next generation.
+I think so.
+What distro?
+Sticking with Ubuntu or?
+Probably, but that's most likely.
+I haven't convinced you to try Fedora 30, huh?
+I think I'll have set it up.
+There may be some room for a Fedora installer too on there.
+Or at least a K, exactly.
+Well, maybe the biggest hoopla news this week
+in the desktop Linux community has
+been this big post by a group of GNOME application developers.
+Stop theming my.app.
+Please don't theme our apps.
+An open letter from independent app developers
+to the wider GNOME community.
+This is all about users that are changing the themes
+on their GNOME desktop, and in the opinion
+of these developers, breaking their apps
+because they're now inconsistent with how the application
+developer had designed them.
+Isn't this fascinating?
+Right on the heels of our conversation with Cassidy
+last week about this.
+By the way, congratulations to Cassidy, who is now a new dad.
+That's wonderful.
+Like, he was just on the show last week right before that.
+That's some commitment.
+And was talking about trying to create a free desktop
+standard around dark theming.
+Because a big part of why people are switching their theme
+is to go dark.
+They want the dark theme, yeah, of course.
+Not everybody, but a big part of it.
+I'll raise my hand.
+That's right, me too.
+They say, all of our efforts designing, developing,
+and testing our apps are made futile by theming in many cases.
+And they do have a couple of examples.
+Yeah, they do.
+Things like GTK style sheets.
+Well, they can make applications look broken,
+and sometimes in corner cases, unusable.
+Icon themes can change icon metaphors,
+leading to interfaces with icons that
+don't express what the developer actually intended.
+And app icons, well, they're the identity of an application.
+So changing an app's icon denies the developer the possibility
+to control their brand.
+I really actually kind of agree with that last point the most.
+I think that is true.
+And I think at the user individual level,
+the offense is mild.
+But it's a much bigger deal when you
+have a large distribution that does it,
+because by default, out of the box,
+it's changed for the users.
+You know, it's interesting.
+I'm not sure at some point, there
+was a section of open source, maybe just free,
+I don't know, open source software that, I don't know,
+in the past we would say had a brand, right?
+I mean, if it's some code in a repository.
+But now things are thought of as apps, right?
+We're using those terms, and they have brands.
+Everything has a brand.
+And of course, there's trademarked art and logos.
+And there is a brand, but we're taking that more seriously.
+And maybe there's older schools of thoughts
+about how open source software is shipped.
+It does seem to be a confliction of those two things,
+doesn't it?
+You're right.
+We now live in a world where people want Thunderbird
+and GIMP to look like Thunderbird and GIMP.
+And developers want to be able to ship an application expecting
+a style sheet to look a certain way.
+And then you have distributions that sort of make it
+a point of pride to customize the distribution
+to represent their brand.
+This is not a new thing either.
+We kind of touched on this about six months ago.
+We said, hey, this thing is brewing out there
+in the community, especially in the GNOME community.
+And now we're really seeing it being taken to the next level.
+And there's also a response to this letter
+that tries to point out in its own letter
+that this crap's open source.
+So no matter what you do, we can still get to it and theme it.
+And it is, quite frankly, much, much, much cheaper for us
+to re-theme these things than it is for us to create new ones
+from whole cloth.
+And as long as it's free and legal for us to do so,
+and the code's right there, it's always
+going to be in our best interest to re-theme this stuff.
+So why don't we just try to come to some common ground?
+Yeah, that does seem like a good approach, right?
+Acknowledge it's going to happen.
+Maybe we can build things in a way
+that at least mitigates some of the worst
+cases of their examples, which, I mean, those do happen.
+They make a good point here, Cheez,
+and I want to get your thoughts on this.
+They say, the problem we're facing
+is the expectation that apps can be arbitrary restyled
+without manual work, which is and has always been an illusion.
+Like, if you restyle it, there's things
+that have to be fixed up and tweaked and changed.
+That's just not how design works.
+Well, I think that, first off, if you want Linux
+on the desktop, these are growing pains for that, right?
+Everybody, like you said, they want GIMP to look like GIMP.
+They want Firebird to, you know, Thunderbird
+to look like Thunderbird, so on and so forth.
+And it is free and open source.
+So regardless of how they feel, people
+are still going to iterate on this,
+and they're going to continue to do what they do.
+I mean, I think that we do need to find some common ground,
+a kind of unified standard that everything can be designed
+under to some extent.
+But that's also part of the reason
+that I got into Linux was because you
+could tinker with it and change it and make it
+into what you wanted.
+So to say that all of a sudden this isn't cool, guys,
+stop doing this, I think is just you're
+pushing people away from these different distros in Linux
+in general.
+As for the iconography and the branding and redoing that,
+you know, that comes on the heels of the purism stuff,
+too, and them lifting some icons that maybe they
+weren't OKed to use.
+So to me, that's the bigger problem,
+is that if you take something and brand it as your own
+and then put it into something that's
+going to be made commercially available,
+there's a problem with that.
+And you should not do that.
+From a moral standpoint, really.
+Absolutely.
+Absolutely.
+Part of me thinks with this whole situation
+and Cassidy talking last week and Gnome and just everything
+that's going down, I see why elementary kind of went
+its own way to develop its own thing.
+Right, they might have the most sane approach
+when you play this whole thing out long term,
+especially if they work in a dark mode.
+Absolutely, man.
+And they will, right, because they're
+listening to the feedback, and they're
+going to respond to that feedback.
+So they absolutely will.
+And I expect that when they do it, they're going to nail it.
+They're going to do it right.
+I want to pick up on something you said earlier.
+You said one of the things that drew you to desktop Linux
+was the ability to theme it.
+And I'm going to echo that.
+I thought that was like, oh, this is next level power user.
+Because you remember one of the stupid things
+you could do in early Windows that you
+could get that stupid plus pack?
+Oh, right.
+Window blinds, I think it was called.
+Yes.
+Or you could go third party and do window blinds.
+Yeah.
+I thought that was the bee's knees, man.
+It was kind of the first step in.
+Oh, look at all the tweaks I can make.
+So the fact that that was built into my desktop
+was like, oh, I'm amongst my people.
+You know, that's what I mean.
+But I also completely connect with where these developers are
+coming from.
+It is probably one of the most frustrating experiences
+in the world to build something and care about it
+and then release it.
+And an end user has a bad experience,
+not because of a bug you've introduced,
+but because of something that happened simply by a style
+sheet that developer never expected hiding something,
+making something hard to recognize,
+making the UI less intuitive, or even break in some cases.
+And they do have some examples where that happens.
+I would imagine that's got to be supremely frustrating,
+because it's just something that's totally
+out of your control.
+Like, you did everything right.
+You made something good.
+It wasn't a bug you've created, and yet the user
+is still hitting a wall.
+And you've got to sit there and go, this is impossible.
+I could never be successful.
+And I could see how they'd want to get together.
+They'd probably get together at events and kind of thinking,
+we got to do something about this.
+This has been in the works for a long time.
+When you look at the developers that are on this list,
+a bunch of great apps on here that I like.
+The maintainer of podcasts, the maintainer of UberRider,
+and Fractal, and Gnome Games, and Lollipop, and Passbook,
+and Authenticator, amongst others, are on this list.
+So I think even if you as an end user react to this and say,
+don't take away my theming, which I can also completely
+connect with, I think it's worth hearing them out,
+because we got to find some common ground here.
+And this is a direction that I think
+is going to become more and more important to these developers
+on the Gnome side of things.
+Well, I think, like I said, this is a growing pain
+for desktop Linux, right?
+At some point, we're going to have
+to come to this crossroads where we say, hey, guys,
+everybody that's developing a distro around Gnome,
+we need to set some common goals for Gnome and how we style
+things, what's expected to be here,
+what's not expected to be here, and then cut you loose
+and let you do what you do best and create
+an awesome distro for us.
+I think, too, in a way, if we don't figure this out,
+if you ever did have a Photoshop, or a Premiere,
+or one of those applications like AutoCAD
+that people live in to do their jobs,
+and it's one of the top of the list of things
+we really need on Linux for people to switch,
+you think they're going to use GTK or Qt,
+and then have the user themes or distro themes
+break the experience?
+No, they're going to build their own custom toolkits.
+They're going to build their own custom UI elements.
+And they're going to ship that, just because they can't.
+I mean, that's what Reaper does.
+Yeah, right.
+I mean, we're using Reaper right here to record the show,
+and that's exactly what they do.
+It's kind of a shame, though, because then you
+don't get to take advantage of all those new technologies.
+Yeah, that's true.
+It is like a cheese as a growing pain, I guess.
+Yeah, we are having, instead of them shipping this thing that's
+meant as a blank canvas that you sort of drop on and theme
+and customize, they have a higher level goal, right?
+They're trying to make this whole end-to-end package
+and experience for you.
+And that does mean pruning some branches.
+You're just not really allowed to go down.
+Couple of housekeeping items today.
+So I think for this one, I say we kick off the Joe
+Rez original.
+Let's do it.
+Now, first up and foremost, this weekend, ladies
+and gentlemen, it is finally here, Texas Linux Fest 2019.
+It's happening.
+It's happening May 31 through June 1.
+Link in the show notes.
+And there'll be a family dinner, too, Friday night
+at meetup.com slash Jupiter Broadcasting for details
+on that if you're going to Texas Linux Fest
+and you want to hang out with Elle and I and others.
+I almost got it up.
+Cheese and Alex aren't going to be there till later.
+They're missing the dinner?
+They're going to be there, though, but just not till later.
+I actually might get there a little earlier now.
+Really, girl?
+Yeah, you know that.
+I did not know that, actually.
+That's great.
+Well, you do now.
+That's great.
+Because otherwise, Elle and I are just
+going to totally talk trash about you the entire time.
+It might still happen, but.
+That's never stopped me.
+Shocker.
+All right, OK.
+So that's coming up really, really soon.
+And I know a lot of you can't be there,
+but if you're going to be there, I'd
+love to see you at the meetup.
+I want to also mention, now that we're doing the housekeeping,
+Friday stream, fridastream.com slash 5.
+I've got some big news.
+You know, I've been thinking about this.
+A lot of our shows, like this show,
+it's about Linux and the open source community.
+Oh, that's what it's about.
+OK, OK.
+Linux Action News, you know, same thing.
+You've got to eat it.
+But this show, the Friday stream, it's really about us.
+It's just totally a selfish show.
+It's really about the people that
+make these shows possible.
+Yeah, they're warning.
+Their stories.
+And some of the stories we're interested in that
+don't fit in other shows.
+Ways to express the stuff we are interested in, yeah.
+We did talk about some SpaceX stuff in that one.
+Yeah, why don't you talk about all the space stuff
+when I'm not on it?
+I know.
+Yeah, you've got to come on the next one, actually.
+There's a problem that came up in the show that only Westpac can solve.
+That's how Brendan and I ended up going to Portland.
+In the Friday stream, we were chatting about it.
+And in this last one, I'm sharing some life.
+The wife joins, and we share some big news, some big news.
+Fridaystream.com slash five.
+Yeah, things happen on Fridays.
+You've got to watch it.
+Also, speaking of things happening, we should mention
+Linux Academy just did a bunch of new content updates
+and just recently pushed out 26 new hands-on labs
+with a new interface and a lot more.
+26?
+No better way to learn than actually doing.
+And a great example of this is if you just finally
+want to completely wrap your head around SELinux,
+a hands-on lab is such a great way to do it.
+There's probably no other way to get it, right?
+Yeah.
+Yeah.
+Also, the community edition will begin its June rotation soon.
+So if you're not a community member at Linux Academy,
+which is the free account where Elle maintains a fresh rotation,
+go sign up over there.
+And we'll have a link to the Linux Academy weekly update,
+which has some information about the new UI stuff and the new labs.
+Go check out the YouTube channel at linuxacademycom on YouTube.
+Some good stuff there.
+Also, speaking of the community edition,
+the mobile app has that now, too.
+So you can get in on that stuff.
+There you go.
+Right there, ladies and gentlemen.
+That is the housekeeping, as I have it, at least.
+Did I miss anything?
+I think you got it all.
+Perfect.
+Thank you.
+10 out of 10.
+Thank you.
+Big shout out to Alex over there for working on that UI, UX
+stuff, man.
+Yes, it looks good.
+It does.
+I know.
+They got a good team over there.
+So we have been doing some legit straight up journalism.
+I feel so proud of us as a team right now,
+because we are covering multiple events across the world
+at the same time.
+And I don't know, man.
+It's just like big time.
+It's something we could never have done on our own.
+And that was part of a large organization.
+I just feel like we can crush some of these things.
+And so Elle had an opportunity to go to Kubicon,
+and she decided she would bring Westpain.
+Drug me alone.
+So it was a great event, because I got to hang out with, what,
+7,000 of my closest friends.
+And the keynote was really focused
+on the concept of diversity.
+Well, the keynote on the first day,
+there were lots of keynotes.
+And they really did a lot to promote the diversity that
+was going on for not only the projects,
+but the contributors behind the work.
+That's great to hear.
+Well, let's fast forward to, I believe, it's Friday.
+Westpain wakes up and takes us on a stroll to the keynote.
+This is obviously a huge year for Kubernetes and the Cloud
+Native Computing Foundation.
+The estimates I've heard is that there's
+7,700 attendees this year.
+And keep in mind, Kubernetes didn't get a 1.0 until 2014.
+And I know, we keep calling this KubeCon.
+But really, it's KubeCon and the Cloud Native Computing
+Foundation convention, because that's a big part of it.
+Sure, Kubernetes is the platform.
+But the Cloud Native family of tools and open source
+utilities, they tie this all together.
+And that's a lot of what people are here to talk about today.
+Yes, you're probably running Kubernetes.
+But maybe you're just running Fluentd.
+I've also been very pleased to note
+that while there are plenty of business, marketing, sales,
+and the usual assortment of team members,
+there are a lot of engineers here.
+You can tell, you walk up to any of the booths
+in the sponsor showcase, or you just
+look around at the clothes people are wearing
+and the name tags, and you can tell the people that are here.
+Sure, there's operators and sys admins.
+But primarily, it's application developers.
+These are people who are using Kubernetes and users excited
+about the possibilities of this platform.
+And that's a big difference when you compare it
+to something like the Open Infrastructure
+Summit and the OpenStack community, which
+is a lot more focused on the people running the software
+and not the people targeting the software.
+All right, now I'm going to play a couple of moments
+from that keynote that Mr. Westpain was hustling
+to from his hotel.
+So yes, Kubernetes in 2019.
+Don't stop believing.
+So let me set this talk.
+So there's been 31,000 contributors to Kubernetes.
+Oh my god.
+That's a lot of contributors.
+That is a lot of ideas.
+That is a lot of thoughts.
+That's a lot of time.
+And if you sit in the SIG meetings
+and you see how the sausage is made,
+you understand, wow, that's crazy.
+If you look at Slack, that's crazy.
+There's been 164,000 commits.
+This is a large, large project.
+Brian is a VMware senior software engineer.
+And he makes one other point that I
+want to play before we circle back to this that I thought
+was very interesting and I want to get West's take on.
+Kubernetes is a cloud-native platform for building platforms.
+Sounds weird.
+A lot of people don't think about it that way.
+Kubernetes is not the end.
+It's not a product.
+Unless you're a cloud or a vendor,
+you don't get anything from selling Kubernetes.
+The real power of Kubernetes is what it allows you to build.
+And that's how I want us to think about it.
+Kubernetes is a cloud-native platform
+for building platforms.
+And then this was West's thoughts
+right after that keynote, which we'll pick up from.
+That wraps up the keynote for the day, the last and final day
+of KubeCon EU 2019.
+I think the theme of don't stop believing
+is very much on point because there's
+something of a tacit acknowledgment here.
+It's an undercurrent buried a bit below the hype.
+There's a lot of companies here, and a lot of them
+are using and working with Kubernetes.
+But there's an open question of, how much of this is production?
+I think, by and large, most of what people are doing
+is still in the exploratory stage.
+And we saw that, as Brian mentioned in the keynote.
+Kubernetes didn't graduate as a CNCF project
+until about a year ago.
+March 2018.
+And that was the date when they started to say to the world,
+look, Kubernetes might be ready for you.
+It's one thing if you're a developer, or an advocate,
+or someone at the forefront who really
+does have the largest problems.
+Maybe you're someone like Amazon, or Microsoft,
+or Google.
+OK, maybe you need to develop that.
+It's very different if you're trying to just use
+this platform, or platform for a platform, as they said,
+to develop things.
+So don't stop believing is a call, a call to action,
+a call to continued action.
+Many companies have begun the journey to Kubernetes.
+And while there's so many problems left, right?
+I mean, stateful applications, from Brian's point of view,
+are still something of a maybe.
+But you can see the momentum.
+I mean, 7,000 attendees here, engineers, business leaders,
+everyone.
+And there is an embrace of this common tooling.
+Kubernetes, all of the cloud-native,
+computing foundations, projects.
+The theme is that instead of hiding away in data centers,
+because we're all using the cloud,
+because we all have very similar goals,
+there's this democratization, standardization
+of the base layer of computing.
+Whether you're on a cloud provider,
+or doing a little more work, and rolling your own hybrid,
+or on-prem solution, these tools are all designed
+not as full products, but as components of a solution,
+so that you, a vendor, a consultant, your engineers,
+can work together to take these components
+and build your own custom solution.
+But at the same time, leaving a robust, upstream path,
+a way that, regardless of what company you work on,
+there's a community.
+There's a community of engineers all working on the same stuff,
+because these tools are a common business goal.
+It's a common business platform, too.
+So LL, I'm curious, since you were at DockerCon,
+you said it almost felt like Docker
+was in the shadow of Kubernetes.
+Now that you've gone to KubeCon, is this the common platform?
+Did you get the other part of that picture?
+I think that it's definitely going
+to be when the worlds collide kind of concept,
+because I walk in, and I start seeing people
+from the Docker community from day one.
+There are so many of the contributors of actual Docker
+ink staff there.
+They had a booth there.
+I think they really are wanting to just be that underlying
+container runtime for Kubernetes as a standard.
+I'm thinking that's where they're
+going to head to their bet.
+That's just my opinion.
+I didn't have anyone confirm it, but that's really
+what it feels like.
+That seems like if I was going to put money,
+if we had betting, if we could bet on this kind of stuff?
+Next time, next time.
+We should come up with something.
+Overall impressions, L, of not just the size of the conference,
+because it sounds like it was huge, but just comparison
+to other industry events and the things
+that they tried to cover.
+What was your takeaway in that regard?
+You know, I come in from more of the community architect
+mindset of, how are we going to build the community?
+How are we going to get the contributors?
+And one thing I just kept talking to Wes about
+is how distant this conference feels compared to others.
+When I would go to Open Infrastructure at the time,
+Open Stack Summit, there were a lot of user groups that meet.
+There are established dinners, established times
+to go in and talk about contributing to the project.
+And it really is about building up and fostering
+that contributor groundwork so people
+want to spend the time helping this project grow.
+I didn't really feel that at the Kubernetes conference.
+I just really felt that it was more vendor-targeted,
+more trying to sell, more trying to get the name out there.
+The keynotes were great with the message,
+but I didn't feel there was any follow-through.
+I think if you were to attend and you're one person in 7,000,
+it would be easy just to get lost in the bunch
+and not really get your money's worth
+or find out how to become a contributor
+or a part of the community.
+Hmm.
+It did seem like they made some efforts,
+like there was a mental health in tech talk, it sounded like.
+That's something, but not quite connecting
+with what you're talking about.
+Yeah, it was more like, here's some information.
+Take it in.
+But then what?
+It's like handing somebody a deck of cards,
+but not really showing them what to do with it,
+where I felt that DockerCon with their hallway tracks,
+and I've already talked about OpenStack, really
+kind of give you the tools and then say, OK, go over there,
+and we'll teach you what you're going to do next.
+Is that your impression too, Wes?
+Yeah, it seemed like they were talking the right talk.
+They had the right intentions, perhaps.
+They want to find ways to have more contributors
+or find users and turn them into contributors,
+but it's not very fleshed out yet.
+So unless you already have enough motivation
+that maybe you're using one of these tools at work,
+so you're familiar and you started sending pull requests,
+that sort of person I'm sure could make their way.
+But if you're just an interested party coming in,
+you would feel pretty disconnected.
+Can we talk for a second about that message
+of don't stop believing?
+Seems like they sort of hit on that a couple of times.
+Like that was the key part of the keynote there.
+So yes, Kubernetes in 2019, don't stop believing.
+What's that about?
+Why drive that message home?
+Well, there's just been a lot of change,
+and it's not that old of a project.
+So you're just now seeing things like financial firms
+or telcos or large scientific institutions moving over
+to Kubernetes.
+There's been a lot of gains.
+There's huge adopters that all the cloud services,
+all the cloud providers provide these Kubernetes services.
+But we're not even, I mean, to be fair,
+we're not even fully out of the hype cycle yet.
+Yes, exactly, right.
+So there's a long way to go and there's a lot of work.
+I liked he had a slide, Brian had a slide there
+where he said, this is old advice.
+And it was talking about stateful applications
+on Kubernetes and you shouldn't do it.
+And he goes, well, here's my new advice.
+Slide is replaced just with the word maybe.
+And so it's not there, right?
+Like Kubernetes isn't finished.
+There's not, it's not some ultimate solution,
+but there's, along with Kubernetes
+and the whole suite of cloud native applications,
+they're all communally building building blocks
+they can further their businesses with.
+And I think that's been a lot of it is leaving,
+so we saw the merger of two projects,
+open census and open tracing.
+They've become open telemetry.
+They were very clear when talking about it
+that they're not trying to provide an end to end solution,
+like some like APM monitoring tool.
+No, they just wanna provide the building blocks
+and that leaves a lot of room for businesses on top.
+Maybe that seems weird from the open source,
+but the results I think are that
+all these businesses feel comfortable
+sharing and working on the same lower end tool set.
+Well, because of that,
+they're all going open source by default.
+In fact, an observation you made
+while walking around the streets of Barcelona.
+One thing that's very apparent at KubeCon
+is that open source is front and center.
+In almost every product, whether it's a paid service or not,
+open source is one of the first words you hear.
+Now you get some interesting reactions
+when you start asking about the license,
+but several of those interactions
+end up being with one of the lead programmers
+or architects of the product.
+And usually they just pull up the GitHub page
+and show you the license directly.
+To be clear, many of these services
+are paid commercial offerings.
+Some are totally open source and provide support.
+Some are more of an open core model,
+although I'm not sure they would like to be called that.
+It is very apparent that this is a community
+focused on open source as a balancing layer.
+So I guess if you take nothing else away
+from all this talk about Kubernetes and containers
+and all of that is at the very high level,
+it is resulting in a ton of new open source code.
+Some of these little companies are gonna go away
+or get consolidated, but they're all still producing
+open source code that will be useful.
+Yeah, I think many of these companies,
+I went to a great talk by some Spotify employees
+talking about how they had reinvented
+so many of these cloud native projects internally.
+I think that happened to a lot of companies.
+Data centers were set up just enough differently
+that there wasn't this motivation
+for that shared internal coding and infrastructure.
+And as one outcome of the cloud is,
+everyone was using the same APIs
+and had sort of the same set of problems.
+So there became this base
+that you could easily build open source tools on top of.
+Everybody was super, super worried for a very long time
+that the cloud was gonna mean
+like all this really crazy vendor lock-in.
+And it still does, it still will for some people.
+But Kubernetes is sort of creating this common platform
+that is vendor neutral.
+And that's why I think it has so much excitement around it.
+Yeah, one of the things that was a big takeaway for me
+that this was the first time
+that I've been to any container event
+where we actually talked about the concept of in production.
+And one of the things that we kept joking around
+is like, yeah, Kubernetes,
+everyone's doing it in development,
+but who's doing it in production?
+And that was always the naysayer.
+And this was the first conference where companies are like,
+you know what, we're running thousand level nodes
+in production, here's our failover rate.
+It was actual information,
+actual statistics of companies doing it live.
+Real lessons learned in production.
+Yep.
+That is nice.
+Yeah, they're not there, right?
+I mean, it's usually the easy ones,
+but there is real stuff.
+It's getting there, right?
+The first workloads.
+They talk about reliability as one of the factors, right?
+So they are seen in those scenarios
+where it is well-developed and makes sense.
+Better results, you know,
+it's not just that it's lower maintenance or what,
+the applications are running better.
+Brian, that senior software engineer at VMware,
+I have a link in the show notes to his keynote.
+He also talks about
+what Kubernetes is not doing well right now.
+It's a bit of a hype buster keynote,
+but I really appreciate that.
+Yeah, I mean, so the keynotes were at times awkward,
+but the upside of that is I think a reason
+is it was mostly engineers, not business executives.
+Sure, there were like product managers and people,
+but these were mostly nerdy people
+directly involved in these products.
+Maybe they weren't coding anymore,
+but they'd been coding for years.
+Elle, did you get any step tracking?
+I would imagine you must've gotten.
+I did.
+I think we averaged about 20,000 a day,
+except for the day that we went to the after party
+and Wes says, we should just walk back to the hotel.
+And then we were almost at 30,000 steps
+because why look at the map before you leave?
+No regrets.
+Oh man, that's the only exercise I get
+is going to cover these events, so I shouldn't complain.
+We were in the same venue
+that they hold Mobile World Congress at,
+which that's way more attendees,
+and we weren't using all of it, just a little bit.
+It just meant that between,
+if you wanted to go look at all the sponsors
+being displayed out on the expo hall,
+and then you wanted to go to a talk,
+well, you have to walk literally between buildings.
+It's fenced off in a way,
+kind of like the Boston airport, you might say, Chris,
+where you just, there's no choice but to go the long way.
+Oh man.
+And the long way is like a 20 minute walk
+with actual escalator, you know,
+with like moving walkways like you find in an airport.
+Yeah, you should note that the only place
+that they had coffee located at the venue
+was next to the showcase showroom.
+So if you were at a talk and you wanted coffee,
+you had to make the walk all the way through.
+That's brutal.
+Well, I know we've got even more stories
+that we want to share in the Friday stream.
+And when we do that again,
+I'm looking forward to some of that.
+And I got a couple of things
+I think I might ask you in the post-show.
+We should probably keep going.
+Any other thoughts, Elle, before we wrap up?
+I think that we are going to see
+and bigger things coming out of Kubernetes.
+I almost hate to say that because I did want to be a person
+that say, you know, it's all hype,
+but I'm really changing my mind on that
+and really seeing what it can do for businesses.
+So you know that I work day in, day out with OpenShift,
+which is the Red Hat version of Kubernetes, if you like.
+And I agree that it's not hype.
+There are huge, huge companies using OpenShift
+to run their entire websites,
+shipping millions of parcels every day.
+You know, there are huge businesses using it.
+So it's not just hype.
+I know, and it's making a maturity transition now,
+which you, I think, pointed out pretty well in your clip
+about the fact that it's really, we're talking like 2018
+is when this thing kind of hit gold master status.
+So very good.
+Well done, you two.
+Thank you for going over there.
+How long was the flight?
+I mean, pretty long.
+I think I set the record getting back
+from leaving my hotel door to my apartment in Seattle,
+23 hours.
+I thought Elle would have set the record back
+since she had all those delays.
+He beat me by one hour.
+My God, you guys.
+Nearly 24 hours of traveling.
+It was pretty smooth for me.
+I got a little layover in Heathrow
+and then just a short little hop to Spain,
+but the way back was a bit more complicated.
+Next year, why don't you consider sending somebody
+from the JB crew you've already got in Europe, you know?
+Save the bodies.
+I think maybe they wanted to go, but I'm not sure.
+Or maybe.
+I'm even more impressed that TechSnap went out then.
+That's really something.
+Well, glad you guys are back
+and glad that the jet lag is beginning to fade.
+I did not have to go as far for my event.
+I was lucky enough to notice
+that the folks at Intel had launched a meetup
+to explain what they're doing with Clear Linux,
+and I was all about it.
+I really, I felt like I had not really been able
+to wrap my head around Clear Linux,
+and this was an opportunity to finally write that.
+Well, Intel campus number two for me this time
+at the Hawthorne Farm Campus,
+and it's just outside of Portland, Oregon,
+and they had an event all about Clear Linux,
+with an architecture overview,
+and then some demonstrations,
+and now they're actually doing a hands-on lab right now.
+They just also gave out dinner.
+And I wanted to step outside with Brent
+and kind of share our thoughts about the presentation,
+what they're kind of offering.
+Yeah, well, first, I think showing up
+to the campus was really special.
+It was really neat.
+The people were really nice here.
+Going into the actual auditorium to take in the presentation,
+for me being pretty visual, I thought, okay,
+there's, I don't know, maybe like 60 people in attendance
+or so, I think the meetup page at 63 or so.
+And then, but I felt, at least initially,
+it was quite technical right away.
+Really technical, and the people that were talking
+obviously knew some of what they were talking about,
+and with the focus on basically
+the update mechanism and security
+were what I saw as the overarching theme, really.
+Some concepts that they're doing sounds really great to me.
+I think a lot of distributions can put some
+of what they're talking about in play.
+But in other parts, I was a little underwhelmed.
+Like, they were fumbling a little bit
+in answering some of the questions from the crowd.
+So I just wondered, you know, they've been working on this,
+what, for four or five years now?
+And I just wondered why the push all of a sudden
+to push it out, and wondered,
+maybe it needs a bit more polish.
+But overall, I was impressed.
+Aha, so that's an interesting thing
+you picked up on there.
+So I asked about that.
+I said, why the push now?
+And the answer essentially came down to,
+for the last two years, we've really been cranking
+to make this thing good,
+and now we think we've gotten there.
+And so this is the first of what's going to be
+a quarterly kind of event that they're gonna hold
+to tell people about Clear Linux and do demonstrations.
+And they're refining it with this one.
+I mean, well, not even refining it,
+it's really 1.0, this whole thing.
+It's the first time some of these people
+have ever talked in front of people before.
+And so, yeah, sometimes they couldn't answer
+like the stateless question.
+They had a hard time explaining
+how Clear Linux did stateless versus other distributions.
+And then after some back and forth in the conversation,
+people were able to kind of grok that,
+essentially to Clear Linux, stateless means
+you can install the application
+and not have to configure its state.
+It's ready to go.
+Nothing has to be in slash Etsy at all.
+And you could delete slash Etsy
+and the applications will still start and run.
+That's what their version of stateless is.
+But that's not everybody's definition of stateless.
+And they didn't come out with a clear answer
+to that right away.
+And I think that's what you picked up on
+was one of those instances,
+and that is them working this out.
+But that message of we've been really working
+at this thing for two years,
+and now we're just gonna start talking about it like crazy.
+Like they're ramping up a whole messaging program
+around this.
+I think she said next month,
+I talked to Chris, one of their,
+she's one of their head open source community organizers.
+And she said that they're doing essentially
+this same presentation with this same crew,
+but they're gonna take another crack at it
+in California next month.
+I think maybe it's their strength is iteration.
+If you saw the version numbers on ClearOS,
+they're pretty high.
+They're very high.
+So maybe that's one of their strengths.
+I mean, a lot of these people are really technical.
+So iteration is a good way to push forward, right?
+So maybe this presentation, it's a first go.
+They're here, they're doing it smaller group.
+Maybe in California, they can have a bigger groups
+and practice and things like that.
+So maybe it's a good approach.
+Yeah, I'd be curious to circle back to this in a quarter
+and see what the presentation is like
+and see what they're talking about.
+And you know, I'll say this,
+I learned a few things in the presentation
+that I didn't quite understand before,
+about how they control versions, about how the updates,
+how bundles work.
+Like that was pretty good to wrap my head around.
+And I think it makes it worth the trip down here alone.
+But then to get the bigger picture
+where Intel is going with this,
+they're clearly trying to build something
+for the entire stack.
+So you have an OS that's optimized for your containers.
+You have an OS that's optimized for machine learning.
+You have OSs that are optimized for developer workstations.
+Because their whole approach is,
+you can use them as upstream
+and then bundle up and mix your own software
+and make it your own distribution
+with them as sort of a, a sort of upstream.
+It could be a compelling sell to some enterprises.
+So we'll see how they do.
+I'm glad we made it.
+You, are you glad you came down here?
+I'm definitely glad.
+I mean, it's been great to be more part of the community
+and having someone like Intel pushing something out,
+of course we're going to have to be here and cover it.
+I'm really glad we made it.
+And I would, like I said,
+I got an opportunity to better understand
+a couple of aspects of clear Linux.
+And I thought maybe I'd share
+a few of those insights with you.
+The thing I didn't really understand before was bundles.
+So I grabbed a little audio,
+the entire presentation where the audio is,
+the recording, the audio is actually much, much worse
+than what I'm about to play.
+Wow.
+It's like done over a phone line.
+So it's quite bad.
+But I have the link to the, to a video version
+and a link to the slides, if you want to know more,
+and if you want to see the slides
+to this guy's presentation.
+But here's a little, little tiny bit
+about what bundles are in clear Linux.
+So the idea behind, behind bundles is to simplify
+discovery installation of, of the software that you need
+to satisfy certain use cases.
+If you're familiar with the set of bundles
+that phones provide, right now there's around 900 or so.
+A lot of them, especially the ones that have been around
+for a long time are, are very use case focused.
+Some of them are providing, you know,
+like interpreters for various languages
+like Python two, Python three, et cetera.
+But others are a bit more use case focused
+like application server, cloud control.
+Some of the ones that I've, that are shown
+in the diagram on the right.
+Bundles are, you can kind of think of them
+as similar to package groups and other distros in a way.
+And they can be more work case specific.
+They can have a wider range of applications.
+Some of them are fairly complicated.
+And another aspect about packaging on clear Linux
+that is unique to clear Linux
+is when they resolve dependencies.
+It's not when you install a package.
+All dependencies are resolved at build time
+instead of at runtime, which is what you usually see
+with package managers and other distributions.
+The main motivation behind this is to keep things simple
+for what's running on the end user system.
+And also just to speed up update times
+is another motivation for that.
+It's kind of neat, huh?
+I like that they're rethinking some things
+about how you put together a Linux distribution.
+And we've seen that in other projects,
+but few with backers who have the resources of Intel, right?
+So they might actually get away with it
+if they can get enough stuff running on their system.
+And Brent, I don't know about you,
+but I had the sense that we were witnessing
+the beginning of something new for Intel.
+Yeah, I like that insight too.
+It felt like we were there at the start
+and that there were some small group people
+that are pretty jazzed about what they were doing.
+And we weren't the only ones trying to wrap our heads
+around everything they were doing.
+There was a lot of really insightful questions
+coming from the audience and some really good answers too.
+And they were also kind of upfront when they said,
+we're still learning about this too at the same time.
+So when we know more,
+we'll definitely communicate more about that.
+So it was kind of neat to see that back and forth happening
+between the audience and the clear OS team as well.
+Can I ask, it seems like we're,
+maybe skeptical is too strong of a word,
+but we're obviously very curious about
+why Intel's doing this, what are the motivations?
+It's funny, especially in the times, right?
+We've just lost Antegos
+and we've seen many small distributions die off.
+Should we just be kind of happy
+that there's a new player in the field?
+Yes, I think that is a default,
+but I think we're underestimating them.
+Part of what I got a better appreciation of
+over the last couple of years,
+because you remember it was not too long ago,
+I went to meet BSD, which was also at the Intel campus.
+And that's where I learned like the number of people
+in their open source division is over 100.
+Like we're talking...
+That's some significant staffing, yeah.
+Yeah, I mean, so they have some resources here
+and they've been really heads down
+for about two years on Clear Linux.
+And I think they're kind of getting to a point now
+where they're pretty proud of what they made
+because they've built a couple of different scenarios
+where you can see there's some clear advantages,
+ha ha ha, and they're able to tout those use cases.
+And it's compelling.
+In fact, they don't really talk about this very much,
+but even on AMD systems, you can see clear optimizations
+and benefits of using Clear Linux.
+Yeah, it's not just Intel.
+So they've done a good job with it.
+Yeah, it's really anything back to Haswell,
+and which is any modern CPU, it's gonna work great.
+And they have a very sharp community manager, Carrie,
+who I met.
+She's also, she's doing like...
+Do you remember the name of the podcast, Brent,
+that they're doing?
+Something like Open Source Voices.
+Or Clear Voices.
+Clear Voices, something like that.
+We'll have to find it.
+Yeah, I'm gonna talk to her more
+and see if maybe we can't be of assistance in some way.
+But she was really sharp and I think they have a good plan
+of how to try to get the word out there.
+They're not, they're just getting started.
+So I think our skepticism that we have today at mid-2019,
+at this time in 2020, will be gone.
+It'll be obvious what their value is, I think.
+And I think they're gonna do a good job explaining it.
+Well, I've got it running on my system,
+and maybe I'll just let it stick around for a while.
+What did you think of the install?
+Did you use the GUI installer or did you use the...
+I did use the GUI.
+What'd you think?
+For me, it was actually surprisingly smooth.
+Really? Yeah, I didn't mind it.
+And now you have GNOME?
+Or what, what'd you go with?
+I mean, I'm back in Plasma for the show.
+I wasn't ready to do Unplugged on that.
+Did you do it in a VM?
+I did it in a VM, but I booted into it as well.
+Did you K-exec into it?
+I mean, maybe.
+I can't believe you.
+Well, it's just the easiest way to try it out, okay?
+Okay, well, how come you don't show me how to do this?
+This is something I wanna know how you do.
+That I can do.
+So you're applying it, so you installed it via a VM,
+and then once it's a VM, you K-exec into it
+and run it like it's on your actual machine.
+Like, then at that point, it thinks it's running,
+I mean, it is running, your kernel switches over to it,
+right? Yeah, I mean,
+there's like a little overhead with the way
+the disk is set up right now.
+It doesn't have to be that way,
+but otherwise it works great.
+Okay, how does K-exec compare to like a Chirrut
+or an Alex C or something?
+The biggest difference is just that it's booting
+into a new kernel, basically.
+So you could do it with grub too.
+The K-exec part is just a little smoother or faster,
+I guess, you don't have to make a modification to your-
+The host OS just goes away?
+Is it like just pulling the power point?
+It like loads the new kernel in memory
+and then jumps to the new kernel.
+So as far as like the processes are concerned,
+you've just pulled the power on your machine?
+Yes, System D has a nice command option,
+so it will do all the shutdown stuff,
+and at the very end, instead of like issuing a halt,
+it'll do a K-exec.
+This has been built with a kernel for a while now.
+Yeah, there's a whole bootloader based around
+just using it, right?
+It's such a great, this is between that
+and hardware pass-through with my virtual machines,
+I just feel like I could make it an entire release cycle
+without having to repartition.
+I could try out different distros
+with full hardware support.
+Clear Linux though, as a workstation,
+that I feel like I would want to give a go
+on physical hardware for a while.
+It's to me, it's a clear winner on the server
+and as a container platform,
+depending on what your different workloads are,
+what your requirements are.
+But as the workstation OS, maybe.
+I mean, they do have support for Flatpak,
+so that does open the door to a lot of apps.
+That's what I'm curious about is, you know,
+how well they've changed the idea, right?
+They've gone from packages to bundles.
+How well does that play out?
+And I'm not sure on a server I wouldn't,
+I might not interact with that as much as I would
+on a desktop.
+And it's a rolling release distro to the extreme.
+Like they sometimes have three releases in a day.
+Woo.
+Yeah.
+And what's crazy is there's a way to build
+every version they've ever released
+and they keep on their server the source code
+and compiled versions of every version
+they've ever released, every branch.
+You remember what their version number that they're at now?
+It's something like in the thousands,
+like maybe the multiples of thousands.
+Yeah, they iterate on tens, if I remember correctly.
+So, but the number was at like 2,500,
+something like that.
+It was ridiculous.
+Yeah, and so they keep a copy on their servers
+and they were just moving around cloud providers
+and they say when they apply aggressive deduplication,
+the whole ClearLinux source stack is about 16 terabytes.
+But if they don't apply aggressive dedupe,
+do you have a guess?
+You have a guess what it would be?
+100 terabytes?
+Very close, 76 terabytes.
+Yeah, 76.
+So they said, we might not do this forever.
+We might not keep every build forever.
+Giant, immutable storage of all packages.
+I would love to know how big the Ubuntu package archives are
+just for comparison.
+I wonder, you figure ClearLinux has been around
+for a couple of years and it's that large.
+I can't do that forever.
+They are Intel though.
+Right, but they're moving fast,
+so generating lots of versions.
+Yeah, yeah, it looks like, I think it's a,
+I feel like it is a Linux distribution
+that deserves to be here.
+All right, so when do you think we're gonna see
+the first distro based on ClearLinux?
+Oh, hmm.
+But you know, with its own branding and website.
+It seems like that'd be pretty doable
+because they have this whole mix system
+where you can mix your own ClearLinux
+that has like stuff pre-built in and ready to go
+that's still based on their upstream stuff.
+So it's almost like a distro re-spinners dream in a way.
+They've already thought of that and made it easy for you.
+Yeah, yeah.
+Or does that just mean that they won't need it as much
+because you can do it yourself?
+Have you thought of a date?
+Have you thought of a timeline?
+Because I had, you know, you just sprung this up.
+No, I just think of that might be a sign of a success
+at some point.
+So the numbers are in.
+Pixel Geek from the IRC says the version number current
+is 29,660.
+How about that?
+That's their version number.
+Go, baby, go.
+29,000.
+Version 29,000.
+Take that, Chrome.
+Wow, yeah.
+I just missed a decimal point.
+No big deal.
+Oh, yeah.
+Jeez.
+Well, anyways, you're right.
+Anyways, it was a cool insight,
+and I feel like I understand them a lot better now.
+And I'm kind of rooting for them.
+Are they going to do more of these events?
+Yeah, frequently.
+In fact, I think next month they have one in California
+or something like that,
+and then they're going to try to do one.
+I think they're at the campus like nearly every quarter.
+They're important.
+Wow, that's a lot of outreach.
+Yeah, it is.
+It is.
+They did a catered dinner too.
+Wow, first class.
+They really had a nice setup.
+You get there and it's structured beautifully.
+You start with a architecture overview
+that was really well presented by,
+I believe his name was Patrick McCarty.
+And he did a great job of going through
+the overall architecture of it.
+Then you got a couple of use case demos.
+So they did some onstage demos
+of how Clear Linux can be kind of handy.
+And they were legit demos.
+Then you break for dinner,
+and then you come back and it's hands-on.
+You set up Clear Linux,
+you go through some scenarios
+with the engineers in the room there.
+And you just bug them for any questions or tips.
+Yeah, and the Intel campus is,
+they have auditoriums.
+In fact, I encourage everyone
+to go check out the blog posts for,
+don't call it a blog.
+They're really articles.
+They're not blogs, they're articles.
+For both Wes and Elle's trip to Barcelona,
+and Brent and my trip to Portland,
+they're both beautifully visualized.
+What's the word I'm looking for?
+Come on, Wes, help me out, great photos.
+You guys, did you take that photo of Elle?
+Yeah.
+That's a great photo.
+Yeah, that worked out really nicely.
+I mean, and you know.
+Elle, I'm just saying.
+Working with a good subject, too.
+That photo, that photo that Wes took of you
+would make like a good Twitter banner, you know?
+It's a little scary,
+because I never saw him take them.
+That's always the best ones.
+Those are always the best photos.
+In your element.
+Yeah, and you can see me being a goof.
+In your element.
+A hint of some of my big news.
+Those are both posted.
+Brent wrote up the trip to Portland,
+and Elle wrote up the trip to Kubicon.
+And they're both posted.
+Now, they're in the show notes.
+But if you would like to just go over there,
+if you click on the little blog link,
+I don't know why they call it that,
+because they're articles.
+Articles. Obviously, obviously.
+Or you go to linuxonplug.com slash articles,
+then you'll see them.
+And many others, like my factory tour of system memory
+went to systems.
+That was a lot of fun.
+It's on there, too.
+Great write up, both of you.
+Elle and Brent, you guys.
+Thank you, guys.
+Yeah, yeah, and Cheese's previous write ups
+about LinuxFest are on there.
+So go check that out.
+We don't talk about it very much,
+but this is an audio podcast,
+and there's some great visuals right there on the blog.
+So you can go check it out all over at linuxonplug.com.
+And while you're over there,
+go to linuxonplug.com slash contact,
+and send us your feedback.
+Of course, we've got this wonderful virtual lug,
+but not everybody can make it on a 2 p.m.
+We get it, it's a hard time.
+Tuesdays are workdays.
+And 2 p.m. is, that's Pacific time.
+Who's, we're at the end of the world over here.
+Who's in Pacific time, right?
+Yeah, so I totally get it.
+So let us know what you think.
+Go to linuxonplug.com slash contact,
+and also linuxonplug.reddit.com.
+We monitor both those and Telegram,
+jupiterbroadcasting.com slash Telegram.
+Now the show is live.
+I'll be doing it from Texas next week.
+We'll see how that goes.
+Thanks so much for tuning in.
+See you back here next Tuesday.
+I'll see you back here next Tuesday.
+So the one thing that we didn't talk about in the show,
+because it'd be completely inappropriate,
+but I'm curious to hear your take and Elle's take
+on how the press aspect of Kubicon was.
+Did they have a media room?
+Was there media food and all that kind of stuff?
+Yes, there was a media room,
+and they had a little area for quiet meetings.
+I actually saw some pictures,
+I guess someone had recorded,
+but looked like a podcast in there.
+Although the room was way too reflective for my taste.
+We avoided it.
+But they had space to sit and access to power chargers
+and that sort of thing.
+What did you think?
+How did it stack up compared to other events, Elle?
+Yeah, the room was pretty barren.
+I would say that they were just kind of like,
+here's the extra leftover room that we had.
+And I love that Wes says that they had access to power
+chargers and adapters because we couldn't use them.
+We forgot that not everyone runs the same way the US does.
+Oh, I want to hear all about that.
+We got to tell that story in the Friday stream.
+So I would say it was definitely,
+they had some stuff,
+so we got to see Jim Zemlin basically fawn over Google
+and just thank them over and over
+for giving the world Kubernetes.
+So they had some people and they had like a little panel
+we got to see, but that was it.
+It was like kind of media stuff on one day
+in a little room with terrible audio.
+They couldn't hear any of the questions
+coming back at them.
+So nowhere near as good as the Red Hat Summit.
+Ah, interesting.
+How was the food?
+Well, it was all right.
+Elle had some misadventures in food
+because the her and the Barcelona tastes
+just don't really align.
+That's another Friday stream.
+Yeah, we'll talk more about it on Friday.
+I can't.
+Oh, Elle lost six pounds.
+That's right.
+Oh, no.
+Well, that's just because Wes has you walking everywhere.
+He did the same thing at Red Hat Summit.
+Now, we did do our best to try to like
+eat all of Amazon's money.
+They had one of the after parties we went to.
+So those snacks were pretty good.
+Were the parties all right?
+I drug him to every single party, I think.
+Attagirl, good for you.
+Did he complain, Elle, or was he a trooper?
+No, I think he made friends with my friends, so.
+That's Wes for you.
+You have nice friends.
+You know what?
+It's like that's one of the great things
+about hanging out with Brent, too.
+Wes and Brent, same way, it's like,
+you guys are pretty much down for anything.
+Except we hate each other for some reason.
+Yeah, right.
+Nice.
+Brent, I had such a great time.
+Again, I'm just so glad we did that.
+You know, Brent's down for whatever you want to do.
+Like, you want to sit around and watch some YouTube,
+Brent's good with that.
+You want to go take a crazy ass road trip to some coastal town
+so that way you can get tacos, Brent's good with that.
+You want to get pulled over?
+Sure.
+Oh, yeah.
+Oh, my story about getting pulled over
+with Brent in the car, totally embarrassing,
+in episode five of the Friday stream.
+Were those prawn tacos?
+Yeah, they were.
+They were prawn tacos.
+Have I told you about prawns?
+I'd like to take a moment and tell you about prawns.
+Oh, my.
+Oh, my.
+It's something we're working on.
+I don't want to tell you now.
+But I'm very excited about a new prawn opportunity.
+Project prawn?
+We'll get there.
+You'll see.
+You'll see.

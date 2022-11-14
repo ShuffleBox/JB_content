@@ -1,0 +1,1035 @@
+Just missed it, but Debian turned 27 since the last time we were gathered here on the podcast.
+27th anniversary. How about that? Happy birthday, Debian. You know, we may take you for granted, but I think we're all glad you're still around.
+Wide variety of hardware support, a large actively maintained software archive, and a packaging system
+that made Linux seem possible. Might not use you directly every day, but I appreciate you.
+Hello, friends, and welcome into your weekly Linux talk show. My name is Chris. My name is Wes. Episode 367, Mr. Payne.
+I like that we color coordinated this week, just because. Well, you know, we have so much to get into.
+We have some news that we'll start things off with and then something that is applicable to all of you.
+I have data to back this up. We'll do a roundup of podcasts, catchers, the ones that we like the best for the desktop, mobile and the web.
+It is our podcatcher playoff coming up in a little bit, plus pics and feedback. And to help us chew on all of that, Drew and Cheezer here.
+Hello, guys. Hello, Internet. Hello. Hi, gentlemen. I see you're all wearing purple, too. That's nice. Look at us.
+We're just we're just a matching outfit. Now, we really, really need our panel of experts for this one.
+So I'm going to just right here before I go any further, without any more delay, before any more segues, before I can think of another thing to delay this.
+And I'm not just going to keep talking here. I'm going to introduce our virtual lug. Time appropriate greetings, Mumble Room.
+Hello. Hello. I was psyching your minds out. I was just messing with you a little bit there. I'm sorry.
+Hey, guys, thanks for being here. There is 32 of you. Wow. In the virtual lug today. What good friends we have.
+And I see that we have a couple of guests from the Manjaro Project that will be chatting with us in a few moments.
+But I wanted to start with some news and probably let's do a little shout out since we were just talking about Debian.
+They have a call for artwork. Cheesy noticed this and threw a link in the show notes.
+So this might be something people who maybe couldn't contribute code to Debian, maybe they could contribute a little at their art.
+You know, like you're at Westpain, you're an artiste. Yeah, yeah. I was just thinking back fondly to a few of my paintings I've hung on the wall.
+They didn't last long. Oh, yeah. But yeah, that's all we really had to say on that, I suppose. Right, Cheese?
+Yeah, yeah. I mean, that's pretty much it. Just get your get your artwork into the Debian project and there'll be a link in the show notes.
+Needs to be submitted by October 15th, I believe. So get in there, submit your artwork and find your wallpaper on the next Debian Bullseye release.
+The only thing that's going to be awkward for you, Wes, is the only thing you're good at drawing is Spider-Man. So that's.
+Yeah, but I'm really good.
+I don't know how they're going to work that into the Debian branding, though. That's on them. That's true. It is really good, though.
+So Google has made a lot of news in the Linux community this week under the radar of the desktop scene.
+But there's been like almost on every major news site that I've seen a story about Google introducing some big block of code, something really awesome.
+That sounds like it's going to have a ton of advantages. And I just can't really for the life of me care or really even understand what it is.
+I guess it's a subsystem that Google is open sourcing that they've already created that they're contributing to the Linux kernel.
+That's about the first I took it and then I kind of started to glaze over.
+Yeah, as you do. OK, well, internally, I think this is really another case of Google uses a ton of Linux and makes enhancements, has the kind of scale where they can run their own custom
+about kernels, all kinds of internal tooling and systems, and they also serve some giant, you know, very resource intensive websites that, you know, run a lot of the Internet.
+So internally, they developed what's called an MN user space threading subsystem backed by their Google private switch to Linux kernel API.
+And they use this for latency sensitive services all over at Google, where you need things like fine grained user space control over scheduling or, you know,
+what's running because you might really need, you know, as they say, latency sensitive things.
+You have very specific workloads that you're running a whole bunch of and the default Linux kernel scheduling, well, it's just not getting the job done for you.
+They've actually just started the work to get this upstream, although I don't know if it was that well received just because they started things with, as you'll see from this presentation
+we gave back in 2013 and then not a super thorough review of the patch that they were proposing.
+So the kernel maintainers weren't too pleased with that.
+So it was a big code dump. And then I go watch this video for more information.
+Yes. You know, it is interesting, though. There's, you know, plenty of stuff, especially Google's own Go language that uses user mode scheduling where, you know,
+they've got their own concept of threads, sometimes called schedulers or fibers that are different than using the big, quote unquote, heavyweight baked in kernel threading because, you know,
+you just have different concerns. The kernel scheduling, it's got to deal with all kinds of generic workloads.
+Right. But you might have stuff that really does have sensitive latency targets or has other guarantees that are needed or just have some special tuning you need to do for your workload.
+So I get all that. But wasn't this figured out back in the 80s when we had preemptive multitasking versus cooperative multitasking?
+And we essentially had systems that could only do one application and that application was responsible for all of its own scheduling and it managed everything.
+But you couldn't run that application alongside another. So then developers and engineers went, oh, you know, what we need is the system to handle this.
+If we did this at the system level, then it could be aware of all of the applications and it could make much smarter decisions based on the global needs of the system.
+I thought we already solved this. Well, you know, in technology, it's all circular.
+We're just coming back. And when you're running a whole bunch of, you know, one type of specific application, you kind of have different concerns at times.
+Right. So in an application instance, there's times where that application maybe is for performance reasons or sophistication reasons.
+It needs to just essentially be in charge of that kind of stuff on its own.
+Well, there's also other benefits, too. It can be really nice as a concept to think about.
+You know, a lot of these languages today, you know, you have evented things like node.js or you've got stuff using async away like Python or JavaScript.
+And all these are, you know, you have a highly concurrent system oftentimes waiting on things over the network.
+If you send, you know, a million web requests, then all those servers are very slow with threads that can sometimes be difficult to manage, at least, you know, some of the time under some performance constraints.
+So with this, if, say, this code was accepted to the kernel and people used it outside of Google, but let's just say all these things are given and were accepted.
+Would that mean you kind of best of both worlds where that scheduling and that and that stuff is happening at the system level, but the application can kind of write to it, it can take advantage of it, doesn't have to implement it itself?
+Yeah, I mean, I think really it'll just be some better support in the kernel to support these applications.
+You know, you can already certainly do this and write your own user mode scheduler just, you know, by yourself on top of the existing schedule that's running.
+I think this just makes the Linux kernel a little better at handling programs running under it with some new hooks that those programs can use and get, you know, nice performance.
+So they're targeting kernel 5.9, but it doesn't sound like we have a clear signal from the kernel team if they're actually going to accept it yet.
+But that is the trajectory if everything goes as planned.
+Yeah. And so far, I think we've just seen, you know, the initial patch series.
+It's a, you know, fairly decent size change here.
+So as usual, it takes time.
+Yeah. Well, I'm glad you explained it to me because I grok that it was somewhat important just because of the amount of coverage it was getting.
+But I couldn't quite grok the, you know, I find it interesting sort of in the historic perspective, too.
+If you think about, you know, containers, a lot a lot of those concepts coming out of stuff that Google figured out they needed inside because they were doing all kinds of interesting,
+neat things, pushing the boundaries of Linux.
+And in some sense, I see this as the same.
+Yeah, I follow you there. Oh, watch out.
+Watch out. What is this? Oh, my gosh. It's a rust update.
+In the Mozilla news, it came out that part of that large layoff that we talked about last week,
+some of the rust team at Mozilla was getting laid off, but more importantly, Mozilla also plays a financial and legal ownership role over some of rust activities.
+So the question was, what now?
+Well, today, just a little bit before we started the old podcast here, there was a post over on the Rust blog and it starts laying the foundation for Rust's future.
+This was posted by the Rust core team on August 18th, 2020, and they start the Rust project was originally conceived in 2010 as a Mozilla research project.
+But the long term goal has always been to establish rust as a self sustaining project.
+Then in 2015, with the launch of Rust 1.0, Rust established its project direction and governance independent of the Mozilla organization.
+Since then, Rust has been operating as an autonomous organization, with Mozilla being a prominent and consistent financial and legal sponsor.
+On Tuesday, August 11th, 2020, Mozilla announced their decision to restructure the company to lay off around 250 people.
+That is news that we're still processing. We're still hearing about people.
+It was a pretty important batch of people. Yeah. And there's been websites launched to help them find work.
+That's been really interesting to see. So there's been a lot of outreach, but it's it's really been sad.
+Anyways, resuming from the blog, they say when Mozilla had to lay off around 250 people, including folks who are active members of the Rust project and the Rust community.
+Understandably, these layoffs have generated a lot of uncertainty and confusion about the impact on Rust and the project itself.
+Our goal in this post is to address those concerns. And they talk a bit about it.
+They talk about also sort of the unfortunate timing of these layoffs during the pandemic, which that really is so true.
+It really is a shame that it had to happen during the pandemic. Nobody should lose their job right now.
+It's really unfortunate. But they talk about how this and the lessons from this and other things have come together to lay the foundation to launch a foundation.
+Yeah, you know, it's interesting because they write, while we were able to be successful with Mozilla's assistance for quite a while,
+we've reached a point where it's difficult to operate without a legal name, address and bank account.
+And yeah, all right. At some point, that does make sense. If you just need to go through Mozilla for everything, you can say you're independent in governance.
+But are you really? How does the Rust project sign a contract has become a question we can no longer put off.
+Yeah, that's awkward. Yeah. And this is something that's been in the works for a while.
+They write on the blog last year, we began investigating the idea of creating an independent Rust foundation.
+Members of the Rust team with prior experience at open source foundations got together to look at the current landscape.
+Building on that work, the Rust core team and Mozilla are happy to announce plans to create a Rust foundation.
+The Rust core team's goal is to have the first iteration of the foundation up and running by the end of the year.
+This foundation's first task will be something Rust is already great at, taking ownership.
+This time, the resource is legal rather than something in a program.
+The various trademarks and domain names associated with Rust, Cargo and crates.io will move into the foundation,
+which will also take financial responsibility for the costs they incur.
+This doesn't make for compelling content or a great blog post or an awesome YouTube video.
+But the work that goes into the administrative stuff is a lot.
+It's a lot of expense. It involves way more lawyers than it should.
+And it is a many, many, many, many, many month process.
+And it's something that just doesn't get talked about a lot because it's not very compelling.
+It's it's the minutiae of open source, but it's really in business stuff.
+And now that's what they're taking on. You know, that's what they're doing now.
+And boy, do I sympathize with where they're at right now, because it's important work that needs to get done.
+But it's not work that gets any code necessarily directly.
+It's all the stuff behind the scenes that you have to get right so you can keep going on.
+Yeah. So it's like if you're a developer, all you want to do is code, code, code, code and make great stuff.
+But meanwhile, you're doing these emails and you're calling lawyers and you're doing all this follow up stuff that takes forever
+and runs massive expense and isn't even clear what the value actually is and how much of it you'll actually have needed to do long term.
+It's a process. So I respect that they're going through that.
+And they write up for now will remain laser focused on these initial narrow goals for the foundation as an immediate step to the core team.
+They have selected members to form a project group driving the efforts to form the foundation itself.
+They'll have follow up blog posts and more information and opportunities to give feedback.
+They write and they say thank you to they say thank you to their community.
+They say thank you to Rust developers for creating such a great ecosystem.
+They say thank you to Mozilla for helping them.
+Yeah. I mean, they had Mozilla has been a big backer over us.
+This seems like a pretty big step for this language.
+You know, a language getting its own foundation is a certain kind of step in its life course.
+Like it's not it's not like a code development.
+It's not like a big version number, but it's still like a very important milestone.
+Yeah. I mean, you know, breaking away from the shores of Mozilla, striking out on its own.
+And, you know, you've seen wide adoption at companies outside of Mozilla now, too.
+So it's kind of got this stronger, wider community base.
+You know, we need is an open source betting platform that, you know, maybe just for funny money.
+But we take like Linux tokens and we bet on how long until they get gobbled up by the Linux Foundation.
+Like, what do you say? You're like, what are the odds? Right.
+And it's just who knows? Maybe never like that could also be one.
+But then how would you win? But you just got to wonder, will they end up getting consumed by the foundation of all foundations?
+The Mothership Foundation, maybe probably depends on how many important tools over the years.
+If we actually see if we start seeing some, you know, Rust kernel modules ship.
+All right. Well, please make sure your podcast is in the upright position.
+We'll be getting to our podcast catcher playoff in a little bit.
+But first, we had a little change in the managerial community that showed up on our radar.
+And we thought, let's chat with the team to see what's going on.
+They write on their form, our forms malfunctioned and all the uploaded images were lost.
+We made an effort to recover the lost files, but the backups and archives were affected as well.
+We don't yet know the root cause for sure.
+But our service provider speculated it might have been due to a botched update.
+The missing files left the form in a rather unpleasant state and it could not be cleaned up to a satisfactory condition.
+Therefore, we have decided to start from scratch on a new platform to ensure functionality and security on the form.
+Philip, welcome back to the show. That must have been a couple of long nights.
+Yeah, it was eight p.m. on a Sunday, the 9th of August.
+And someone in the forum posted, hey, I cannot see any pictures anymore.
+And we said, well, what is going on?
+It's always late at night. So disappointed.
+It's always an end user who's noticed before you have for some reason because of some series of conditions.
+It's always how it goes.
+And so, Philip, I know you brought a guest with you, too. Will you do the introductions for us?
+Well, it's Matty and he helped a lot and he can talk a lot about what he thought about that as I was all over the servers and checked.
+And there was no security risk.
+It's simply the backups were gone and some pictures were gone and most likely it was an update of a discourse because it was a little funky on this weekend.
+Oh, man. So, Matty, did you get the panicked call from Philip on this and or the panicked message probably about the forums?
+What happened? Tell us the series of events.
+It has been quite right, but I actually cannot recall anymore because there has been too little sleeping going on for a few days.
+Too much stress, not enough sleep.
+Yeah, we tried to recover the images and get the site back working for a few days.
+But at one point, we just realized that we really can't get it working properly and it's not going to look nice or be nice to use.
+And then we decided that, OK, we're going to start from scratch.
+And I think in a way it might even end up being a good thing.
+We have refactored the forum, reorganized the categories, and in general, we try to make it even more welcoming place to new users.
+It is always kind of nice to start fresh sometimes with forums.
+I had my butt saved by Alan Jude years ago because we had the Stoked podcast, the official, not the official, the ultimate, because you couldn't call ourselves official.
+The Star Trek online podcast, yes, I'm that geek.
+And we got we got early info and it was in our forums and nobody else had it.
+So all of a sudden our forum started blowing up and our host shut us down and no word, no warning, just hard off.
+And then, of course, a user messages me, hey, Chris, getting a 404 on this.
+So I totally can appreciate that position because I think it was about 10 p.m. at night for me.
+I was sort of just wrapping up for the evening.
+Thank goodness Alan Jude was a night owl.
+So, Philip, is your plans to import some of the old stuff or are you guys going to leave the archive up?
+Now what happens? Because starting fresh means there's a lot of maybe valuable troubleshooting and forum threads that help people do stuff on Manjaro that they're probably going to want access to.
+Well, in parallel, we also work on the Wiki and the knowledge about what you do and such should be there.
+We will try to recover stuff, only what is usable.
+So there are a lot of junk there as well, because there was some subculture and chit chat going on.
+And this we want to change, though that's only more focused on the US and Manjaro itself and not about what you drink, what car you drive and what movie you watched last.
+So this is something which can go to Facebook or somewhere else, but not in our forums.
+So with this, we can simply mold it again and have a great community as we started five years ago with the forums.
+And hopefully it will be like that again.
+Yeah, nice fresh start. Yeah, we'll see.
+I signed up, made myself an account.
+I don't know if I had one before, so I just thought now why not?
+Now that it's new, go get in now, right?
+Get one ready to go. Get one of the early user IDs.
+Like that's even a thing anymore, but that's still how I think.
+Well, gentlemen, good work on just getting something back up.
+I know it's never perfect because, of course, there'll be a large, large legacy of user accounts and posts that people are going to want access to that they're going to want.
+So there's going to be some upset folks.
+I can totally appreciate that position on the Internet now.
+But having been in this kind of similar thing where it's like, oh, man, this is not again going back to what we were talking about earlier.
+It's like this is not the core thing.
+We were just talking about this with Rust.
+You guys want to focus on making a distribution, not necessarily running a forum, but it's obviously an important part to having a community around the distribution.
+So it's really kind of in one of those tight spots.
+And sometimes this is what's ultimately best for the project.
+So I think it's pretty great. I signed up and I'll be lurking.
+So keep us posted on how things go.
+Well, most people say, hey, why is that link not working?
+I searched it on Google and I said, yes, if you put archive dot in front of it, then you might find it.
+So it's take a while until Google will find it.
+It does. But time will write that.
+Philip, Maddie, thank you very much for joining us.
+We have to do something kind of special right now.
+So last week on the podcast, we spun up a test matrix server on a 2009 Mac Pro that we kind of lightly refurbished.
+But Ubuntu 2004 on it, cleaned it up and then exposed it to the Internet and said, have at it made live again.
+And we chose Matrix because in the back of our minds, we're thinking maybe around September, November timeline, maybe in October,
+we'll start looking at some overall community platform approach.
+And we thought Matrix was a candidate.
+So maybe it'd be good to get a little hands on for that.
+And we decided to roll it out on this test server.
+There's a few other things we considered for the load.
+We put it on there and it turned out not much load ran.
+Great. Don't skip the episode.
+I still think it's worth checking out, but it ran great.
+And then we started thinking, well, geez, we could probably pretty sufficiently self host something like this.
+This wouldn't take a lot.
+And we started talking about it more and more.
+And the dang test went so well, we thought, you know, let's shut down the test matrix server because that really was just a test matrix server.
+We don't want that to be the public thing because it's running on an old Mac Pro.
+None of it is set up for production.
+We're going to go ahead and we're going to step things up a little bit.
+I think this is going to be pretty exciting.
+I'm going to shut it down with go ahead and kill the switch.
+Here we go. Kill switch has been thrown.
+Old matrix server test matrix server is shutting down and we decided instead of waiting until the end of summer or October or November,
+we're going to launch a new production matrix server today, right now on the show.
+So I'm going to flip the switch on colony dot Jupiter broadcasting dot com.
+We now have an official Jupiter broadcasting matrix server launched right now live on the show colony dot Jupiter broadcasting dot com.
+It is a work in progress.
+We will take a methodical approach to rolling out bridges and we'll be setting up rooms or playing with features right now.
+We're still learning, so we appreciate any help and input.
+But long term, I want this to be a 10 year community platform for Jupiter broadcasting.
+So eventually it won't really matter if you're in the telegram or if you're in the mostly defunct discord,
+or maybe if I can get the Geek Shed admins to drink a bunch of beer or something, I can get a bridge or something for the IRC too.
+And I want to just eventually, but we'll carefully methodically bring everything together.
+So there'll be one chat platform for all of the Jupiter broadcasting audience.
+You can either go directly to the core using matrix today at colony dot Jupiter broadcasting dot com,
+and you can rock today with a user ID that's Jupiter broadcasting dot com and matrix.
+I think that's pretty cool. I like it.
+I'm Chris last Jupiter at Jupiter broadcasting dot com.
+Boom. It's great.
+And that's the core thing.
+So that'll be the core of the platform that's up and running right now.
+If you have element or whatever, you can get going.
+But if you want to hang out in telegram forever or IRC forever, eventually we'll come for you, too.
+But when we do, we'll try to do it the best, cleanest, most user friendly native experience we can with the bridge.
+Like there's always going to be something that's not quite perfect with the bridge, it seems.
+And if you're not familiar with these terms, these bridge terms, I should back up just one step.
+So matrix, one of the things great about it is it's pretty easy to connect to other even proprietary chat platforms
+and bring that into matrix and have the two talk.
+That's what's so appealing for us as a network that has chats everywhere.
+We can bring it all into one place.
+And I find that to be compelling and connected community and not a fractured one.
+The brilliant thing about matrix, too, is there's going to be multiple chat clients over the future.
+It's sort of like the web, how you have multiple web browsers.
+You're going to have multiple chat clients and there already are.
+But Element is the most popular, formerly Riot.
+And I think it's going in the right direction long term to base our future chat platform around this.
+So our production server, while new and still has lots of work to do, is up and running.
+There's like a community now for Linux unplugged on the matrix server that has rooms associated with Linux unplug.
+So there's a Linux unplugged general feedback room.
+But I'm going to tell you about another fun room that I've created in a little bit when we get to the feedback segment.
+Something specifically for a future segment of the show.
+I've just created a room for it in the matrix and I've put it in that group.
+So when you go get the Linux unplugged community, you'll see both those channels, hopefully.
+So anyways, I think it's got a lot of potential because we can have channels for every show.
+We can group them together so you know what channels go with what show.
+And it doesn't have to be overwhelming if you don't watch or listen to a particular show.
+You just don't join that community.
+I like it. I think it's got a lot of potential.
+So I'm very excited. Wes, thank you.
+You did all of the hard work over the last couple of nights to set up a production server.
+We have it running up on Linode.
+And I think you did a kind of a nicer rig, not like the super nice one, but like a decent rig because it doesn't take a lot of resources.
+Yeah, it'll be interesting to watch as more people sign up and start chatting over there.
+Did Arch for the server?
+I was tempted.
+He sent me a screenshot with Arch and I'm like, not really, right?
+He's like, no, not really.
+So very excited about this.
+And of course, looking into the future of how we're going to federate this stuff and connect with all the other matrix communities that are out there,
+it's going to be a big learning curve for me.
+Wes is already kind of getting deep into it.
+And thankfully, we have people in our community that are very familiar with it as well.
+Maybe we'll set up like a matrix brainstorming room or something.
+That's a good idea where people can join and we can talk about ways to improve that experience because it's all new.
+But this is like the very core of it set up right now.
+Yeah. And maybe we should be clear, too.
+If you've already got a matrix account somewhere else and you're trying to join that way, the actual server name is Jupiter Broadcasting dot com.
+Yes. If you'd like to go register on that server, then you can head to colony dot Jupiter Broadcasting dot com.
+Put that into your client and register that way, too.
+Yep. So the actual. Yeah, that's a great point.
+That's the colony at Jupiter Broadcasting dot com is only really necessary if you're setting up element and you want to change servers
+and you want Jupiter Broadcasting dot com to be your home server.
+But if you're already on another box, yeah, just join Jupiter Broadcasting dot com.
+We're out there. It's cool. It's it's going. Are you are people joining?
+What's happening right now? Yeah, there's chats happening right before our eyes.
+Oh, that's so neat. And IRC and Telegram channels that we have, those are other kind of popular areas.
+They probably won't get changed for a while.
+But as we come up with solutions to integrate those communities, we will.
+And it's they're just as much of a part as they always have been.
+The matrix chat is just another platform, another opportunity and where the puck is going, but it's not there yet.
+So if you prefer the Telegram channel and keep your telegram channel, keep chatting there and maybe also try out the new matrix room.
+Yeah. Yeah. Give it a go. Why not? I mean, it's all great open source.
+It's a really cool project. So it's just it's checking all those boxes.
+Not going to replace Mumble for this.
+I think Mumble just does a fantastic job for what we do here.
+And I don't really see the need to replace it.
+I mean, if we're using this thing for 10 years, maybe in seven years, I might change my mind.
+Who knows? But right now, Mumble works great for our Lug, and it's also free and open source software.
+So I don't see any reason to change that either.
+Kumbay, open source, y'all West. Yeah, there's just too much good open source software.
+What a nice problem to have. To just a couple of things to mention in the housekeeping, the Lug that's a separate meetup takes place on Sunday.
+It's not during a show unless we're recording something special.
+Sneaky. It's just a chance for like minded Linux users to hang out in the lobby of our Mumble server, the Lug, Sunday at noon Pacific.
+It's on the Jupiter Broadcasting calendar.
+Also, once you get set up for that, you can join this thing here.
+This this little podcast that we do, that's on Tuesdays at JBLive.TV, noon Pacific.
+But same place, Jupiter Broadcasting dot com slash calendar to get that converted to your local time.
+Now we'll have to have something in this section about how to join our matrix chat.
+Oh, we don't have the spiel ready. Yeah, yeah, we're going to have to get us.
+You can tell how early days it is. We're going to have to get a spiel ready.
+But this will be the section where I'll tell you about the matrix chat.
+In the meantime, just go get Element and log into the Jupiter Broadcasting dot com server.
+All right, West, guess what? That's all the housekeeping.
+Clean and tidy. Yeah, we've been keeping it nice around here.
+So we just were chatting about some recent podcast catchers,
+that's what we're going to call them, that have made news and thought, you know,
+let's do a podcast catcher playoff and talk about some of the different options for mobile, desktop and web,
+because everybody listening likely has some way, but maybe you're curious in other options
+or maybe you'd like to also listen to podcasts on your desktop.
+So we've got a couple. I just read the one that Drew just sneaky put in the list.
+He's such a troll. We have a honorable mentions section.
+These are like table stakes podcast players that we're not going to spend a lot of time on.
+Number one, you can just get known podcasts, which is pretty simple and straightforward.
+You know, I'm just realizing I've never used it. I'm going to have to give that a try.
+Yeah, it's not bad. It's not bad.
+G Potter has been a go to around the J.B. Studio for like a decade, I think.
+So G Potter, another GTK one. And Pod Fox also is getting an honorable mention.
+I don't know if it's actively maintained anymore. I'm not positive.
+But one of the things I love about Pod Fox is it has a really cool directory structure,
+a simple configuration stores for in each podcast in that directory.
+So it's just got a little JSON file that holds all the settings for that podcast.
+So you just back up your directory and then when you reinstall Pod Fox,
+you just restore the directory and all of the configuration settings is all right there.
+Bam. Done. Also, an audience member that wrote this.
+So what's great is like in their GitHub examples, it's all text app episodes.
+Hey, look at that. Yeah. Isn't that neat?
+So that's Pod Fox and I wanted to give it an honorable mention,
+but just not totally sure if it's active. And then Drew snuck in Spotify.
+You noticed I left that one out, huh, Drew?
+I did. Yeah. Now, you know what, Drew, I thought about it.
+You want something that has show notes, something that syncs your play position.
+That's nice. And it doesn't cost money just to play podcasts, right?
+Spotify free accounts can play podcasts. I would assume so.
+I mean, I've been a Spotify subscriber for many, many years now.
+So for me, it was kind of obvious once it became good enough to take over from Pocket Casts,
+which is what I used to use. And yeah, I mean, having a real desktop client is great
+because then my media controls work and it syncs position with my phone.
+It's not the best, but it does well enough for me.
+I have concerns about Spotify from a podcast ecosystem perspective,
+but you're absolutely right. And soon will be the exclusive way to get the Joe Rogan podcast.
+I mean, it is nice that the Linux client works just fine.
+All right. You ready for our contenders of, I think, new considerations?
+That was the table stakes, the honorable mentions category in the contenders.
+We have a mix here of desktop and command line podcast catchers.
+So let's start with the desktop ones. Have you seen wins?
+No, but this is beautiful.
+Wins like the wind that blows, not like the kind you have in a casino.
+It's an open source RSS app that also has podcast support.
+So this is sort of two birds, one stone. It's a nice looking React node based application.
+It has what they call activity stream and personalization, which uses some smart thinking inside the code of the application.
+It has some AWS back end stuff to accelerate stuff.
+It's a very nice looking RSS reader and decent podcast player in one.
+And it supports the links. It has the ability for you to play your podcast while you're reading the news.
+So you can hit play on the podcast and then go through and read your feeds kind of like that.
+I noticed it says it's open source too. It's interesting. There's a lot of these features are stuff you don't get with, you know,
+I don't know that all their back end stuff. I don't know if that's open source.
+I haven't dug into that, but at least having an open source client and getting some of these more advanced features,
+they've got some sort of machine learning to do recommendations.
+Maybe you hate that, but maybe you miss that.
+That's the machine thinking right there.
+They do have a system based on your listening to generate new suggestions, which is kind of nice for discovery.
+And the other thing that I think you need to look for, especially on the desktop applications, is it exports and imports OPML,
+which is like a list of all of your feeds with some settings about them and some information about them.
+That makes it really easy to move between podcast clients.
+Not all mobile clients have support for this, but a lot of the desktop ones do.
+And so I'll try to call it out if they do. And Wins, W-I-N-D-S, is one of them that has OPML import and export support.
+And like you said, Wes, it's open source. It's at version 3.1, so it's had several releases.
+It's not like some fly by night podcast RSS reader.
+It seems like a serious contender.
+And if you want something that is on the desktop that has show notes support, there's not a lot of options.
+Right. It's a major flaw with a lot of these.
+But CPOD seems to have a lot of the basic features you might want in the bag.
+CPOD is a simple, beautiful podcast app for all of the desktop operating systems.
+It has, I think, a benefit that it uses the iTunes podcast directory.
+So that is, in my opinion, a benefit because everybody submits to that directory.
+Right. As much of a standard place as we have.
+Yeah. And Apple takes some actions to prune inactive podcasts after a while.
+And there's just a there's an ecosystem there that makes it a pretty decent directory of podcasts.
+And it's nice to be able to leverage that without having to have iTunes, right, or Apple podcast, whatever.
+So that's CPOD, C-P-O-D.
+It has decent search and subscribe support.
+It has queue management if you want to queue up a bunch of episodes.
+It has filters if you want to filter a date range or, you know, whatever.
+Has support for import and export of OPML.
+And this is an interesting one that not a lot of podcast catchers offer, but I appreciate it.
+Is it has a specific option to just refresh all of the podcast artwork because some podcasts actually change their cover art sometimes.
+I used to, well, yeah, I used to and we don't as much anymore.
+But it was nice to do that.
+It's nice. It's nice if it can do that.
+Most of them don't have that option.
+No chapter support, no proper full show notes support.
+It has limited show notes support.
+Not a big fan of that. And it doesn't sync across desktop versions.
+None of if you have it here on one machine, you have it on another machine.
+Those are separate.
+Yeah, you're going to you're going to be importing and exporting and then manually moving that file between machines.
+You can totally do it, but it's not automatic.
+You know, it's not like super easy.
+That said, performance is pretty decent.
+Looks pretty good. C Pod's a decent contender.
+I'm going to and I have one more graphical one I want to throw at you before we get to the terminal.
+So these are our current graphical contenders wins C Pod and the last one, Airsonic.
+It was subsonic, then it became Libre Sonic and now it's Airsonic.
+OK, so this is one of those stories tells you everything you need to know.
+Absolutely. Airsonic is a web based media streamer.
+Full stop. It's not just for podcasts.
+It gives you access to your music everywhere with a web interface or apps that connect with it.
+It makes it easy to share stuff like podcasts and music with friends, family, etc, etc.
+It's like Plex, but only for music and free and open source.
+And it also has a pretty decent podcast management solution.
+And what I like about this and something I used to do, but I don't do currently is I would use this to download my podcast to my NAS and then I would just play them from there either over an app or or just copy them to a device.
+And I would have one machine and then I would just move them to the devices I wanted to listen on.
+But I don't do that anymore. I just I'll tell you what I do it a bit, but it worked really well.
+Yeah. No, this seems like a really nice setup.
+I can see if you weren't already using some sort of integrated streaming service environment, this would be a nice alternative.
+You want to roll your own Spotify.
+Right.
+You know, you're doing like the self-hosted podcast style and you just want to have your own music library available over DLNA and, you know, as a terminal.
+And you can also just pull up a web page and use it as a jukebox.
+I've had like a Google Play Music account for a thousand years because they used to let you upload your own music into it and that's ending.
+So, I mean, something like Airsonic is looking pretty nice to me right now.
+I know. That's sad.
+That's one of the services that hurts.
+Does. I mean, sure, they haven't invested in it in years, but it's been working mostly fine.
+So Airsonic lets you roll your own streaming solution for your music and in there it has podcast management.
+So this is a bigger, higher end solution.
+But I mean, thinking about this, you could easily throw this on a VPS and then just pull up the mobile web page from your phone.
+I assume you've already ordered a new Pi to put it on.
+I don't need to. I've got plenty floating around at this point, Wes.
+Actually, stay tuned. We have a totally cool new use for your Pi that she's found that we'll be mentioning.
+Out of the three GUIs, Airsonic, CPOD and WINS, if I was going with a GUI on the desktop, I actually like WINS because it's also a decent RSS client.
+I like WINS the most.
+But for me, if I was going to roll it today and I wasn't going with the current solution that I use, 100 percent Airsonic would be a great solution for somebody that wants more than just an app on their desktop to listen to podcasts.
+But they want something that's omnipresent across all their devices that also manages audiobooks and music.
+That's Airsonic. Yeah, it could be handy, too, if you wanted to share it with family members or friends.
+Oh, yeah, 100 percent. You just got to do a little bit of the firewall work, but it's designed for sharing.
+It's got all the kind of functionality built in.
+But, Wes, there is some contenders on the command line.
+They're going to be very hard to beat.
+Now, I know it sounds silly to manage your podcast on the command line.
+I hear you. But what if I could tell you not only could you manage your podcast on the command line, but you can do it with a Rust app.
+That's right. Friends, I introduce you to Shellcaster, a terminal based podcast manager built in Rust.
+And it's a doozy. It's all key bindings. It's the whole experience is key bindings.
+You know, it's all just and they list all out on the GitHub page, which we'll have linked.
+It's one button to add a feed, another button to mark who's played.
+And interestingly enough, it has zero playback support directly itself.
+So better hope you have a media player installed.
+Yeah, it defaults to VLC, which who doesn't have VLC installed?
+That's true. Everybody has VLC installed, but you can put anything you want.
+It's all configurable in there. And Shellcaster also has a sync sub command that can be used to download your podcast there in the database in the background.
+You could set that up with a cron job or one of them system D timers that West likes.
+Oh, yeah. Yeah. I subscribe to Linux headlines in Shellcaster.
+And it's great because there's so many episodes of Linux headlines.
+It makes it really easy to just blast right through them with some simple, quick keyboard commands.
+You can mark them all as played and throw them to VLC and just then they get marked as play in the database.
+I mean, it's nice, quick and simple. And once you learn it's like A to do this, B to do that, H and F to do this.
+Once you get those basic commands memorized, you're whipping through this thing at light speed.
+Yeah. Could we client too slow for your podcasting needs? Shellcaster.
+That's a pretty good tagline, Wes. That could be totally it.
+Yeah, I liked it a lot. I've played with different terminal based podcast catchers over the years.
+But Shellcaster is the one that I think I'll be putting into production here in the studio.
+I really liked it. But there's a couple other command line ones that I think are worth mentioning.
+I think it's probably worth mentioning. Is it Castero?
+Castero. Yeah.
+You know, it's similar to Shellcaster, but, you know, in the Python world.
+It might have a nicer way to display like show note information, which is where Shellcaster falls short.
+Yeah, you know, I think it's a little older of a project, too, so might have a few less rough edges, maybe a few more features and support.
+It does also need an external media player, but it'll figure that out with VLC or MPV if you've got those on the system.
+And then something a little on the simpler side, very simple configuration,
+supports just basic downloading and getting of the files for you and then you manage it yourself, is cast git.
+Yeah, I like that this is, you know, we've been kind of talking about like Tooey clients.
+But what if you just want to write a script that needs to go sync this podcast because you're ingesting it for analysis
+or you just want to queue it up for yourself some other way later?
+Cast git might be just enough for what you need.
+I didn't try cast git before the show. I spent time on Shellcaster.
+Looking at this, this might actually be more appropriate to my needs here because I just need these podcasts grabbed and thrown in a directory,
+and then I manage them later for the playback systems here in the studio, right?
+Right. Yeah, exactly.
+I can see like running casket here on the OBS machine to grab the reruns and stuff like that.
+Yeah, just runs in one of those system D timers and we're set.
+One of your system D timers?
+Yeah.
+One of the system D timers.
+Hipster chron, you know.
+That's pretty good.
+The command line podcast catchers that we like again are Shellcaster, Castero and casket.
+And we will have links to all of these at Linux Unplugged dot com slash three, six, seven.
+So you can go grab those there.
+If you're looking for something on your desktop machine or your laptop, I think those are some of your best options right now.
+Maybe we missed something, though. So please let us know.
+Give us some feedback if you're using a command line client that we didn't include.
+Yeah, that I would like to know the solid command line ones.
+The desktop ones did a pretty extensive rundown.
+I don't really like there's are a lot of other ones we didn't mention here, but that's kind of on purpose.
+Mostly the one that I like that I didn't get a chance to review, but I like the way it looks is vocal,
+which I think looks like a really solid, gooey one.
+But I just haven't I didn't have a chance in this roundup to try it.
+But it does look really great. But of course, not all of us.
+In fact, most majority of the podcast audience is listening on their mobile devices.
+So we have a couple of mobile mentions.
+And I think the top when you're just doing mobile mentions has to be PocketCast.
+PocketCast is a very solid podcast client with a solid podcast directory, solid playback options.
+And you got to pay for it, but a pretty decent web client to not perfect,
+but a pretty decent web playback experience, which syncs with your mobile device.
+So it makes it pretty nice to finish off like I do this.
+I'm listening in the car, I get to the studio or I get home and I want to finish the podcast.
+The web player is great for that.
+Oh, yeah. You know, I like PocketCast mostly because I listen to a lot of podcasts in my living room via Chromecast.
+And they've got cast support built right in. So that's nice.
+Yeah, that is nice.
+I do have a bit of cautionary information, I guess, about PocketCast.
+And that is that in 2018, PocketCast was acquired by NPR, a group of other public radio stations like This American Life and others
+that want to monetize podcasts with dynamically inserted podcast ads and are proposing a standard that tracks more significantly
+what you listen to, where you listen to it and what you skip and what you replay.
+It's a spec that they're proposing and that group has purchased PocketCast.
+So they will likely use PocketCast to further that agenda at some point, which may not be great for the podcast ecosystem.
+Yeah. And it's very much feels like, you know, it's like a retail podcatcher in that like it doesn't support a ton of like import, export niceties.
+And if you want to add some random feed URL, well, you got to go add it to their back end service and they'll eventually index it and then let you subscribe to it.
+You know, you don't have that much control, but it works especially, you know, works just fine for popular podcasts.
+That's why we wanted to also mention the easy to use, flexible and open source podcast manager for Android called AntennaPod.
+Yeah.
+AntennaPod, I hear so many good things from the community about it and it also has OPML import and export support, which is not often found on a mobile app.
+Yeah, actually, it's really nice and it just feels like exactly what an open source mobile podcatcher should be.
+You know, it feels like, you know what's going on, you control it, you get to drive it, configure it how you need.
+And other than that, it gets out of your way.
+Also has Chromecast support, Wes, has Chromecast support.
+So it might be worth considering for that.
+I don't know how long they've had that, but it's.
+Oh, you know, I haven't I haven't tried in a while.
+I'll have to give that a shot because actually I'm already using both.
+I use a couple of podcast catchers myself on iOS.
+There's the built in podcast app is fine, I guess.
+But I really like Overcast.
+It is one of the kind of classic podcast clients, the kind of standard podcast client that used to be what every podcast was what Overcast is.
+It open standards.
+There's no like secret agenda to take over the advertising space and podcasting.
+It's created by Marco Armit, who is a podcast host himself and a software developer.
+So he created Overcast and essentially, you know, his motivation really is to just further the podcast ecosystem.
+And so it is not only a great podcast, but the intentions behind it are pretty good, too.
+And I think, you know, if you're a podcast fan, it's something to think about.
+And so Overcast is my recommendation.
+You can get it overcast.fm for iOS.
+It does have a web player component.
+The web playback is awful.
+I mean, it works, right?
+You can play it and stuff, but it's you hear the sound.
+It's so bare bones.
+It's super bare bones.
+But it does work with the NSYNC with the client, which is nice.
+So Pocket Cast, Overcast and Antennapod for the mobile in that batch.
+I think we're given the nod to Antennapod.
+Don't you think? Yeah.
+I'm going to switch from Pocket Cast to Antennapod on my Pixel.
+Look at you. I'm going to do it.
+I'm going to do it.
+I don't know if Pocket Cast will let me export out my subscriptions.
+You know, I've never tried.
+But it doesn't really matter.
+I mean, I know which ones I listen to.
+It really doesn't take that long to set back up.
+It's just then you have to just go through and mark them all as listened to.
+So, yeah, great.
+You know, there's a whole other category that I don't know that the open source
+world's doing too well in, which is like some people listen to podcasts on their
+smart assistants these days.
+That's true.
+I've experimented with that, but it's not awesome.
+Yeah, I'll sometimes yell at the big G, you know, to catch the latest Linux
+headlines because that's a quick, easy one.
+I don't mind playing through their platform.
+But yeah, yeah, yeah, I prefer the shorter stuff.
+Linux headlines is kind of an example of one that does work in the in the in the
+assistant, too. But otherwise, I like to have something I can take with me in the
+car, I can have in the headphones, I can have from the wherever you are.
+Yeah, everywhere. That's essentially what it is.
+All right. So we'll have links to all that stuff.
+Like I said, at Linux Unplugged slash 367.
+Moving on now, let's get to the feedback section of the show.
+This is a steak and potatoes edition of the Unplugged show.
+So extra for me, please.
+I know, right? You put a lot of butter on them taters to us.
+You know, what about more? But we ran out.
+I know. I didn't expect somebody to eat that much butter.
+So the fake VIP says he's still using a Mac Pro as his daily driver, which is
+what we were running our test matrix around.
+He says, I still to this day run a Mac Pro as my daily driver with Windows,
+Mac OS and Linux.
+I've got Arch with I3.
+It's a dream machine for me, all the accessibility because he's blind of a Mac
+with most of the flexibility of a PC.
+I've put an RX 580 in mine, as well as an MVME SSD on the expansion card.
+And it runs beautifully.
+That's pretty cool because when we were talking like these machines base price
+with a Xeon and some RAM and some disk, 200 bucks, totally reasonable.
+And I mean, yeah, you get the get the glory of the triple boot.
+Yeah, you don't see much of that these days. You don't.
+That used to be kind of like the golden the golden goose with the Hackintosh.
+You could do anything. You had every OS.
+I did for a little while have a triple boot set up on on a machine and never
+really use the other OS's so that I never was in trouble again.
+Seriously, I was like, oh, that was neat.
+It wasn't worth it.
+It sure was a lot of work up up front.
+Well, a non why must I'm not familiar with this.
+A non why must writes in says I've seen a shift in how things have been going
+with cloud convergence, serverless AI and all the buzzwords that the marketers use.
+He says, I feel like as a community, we probably need to embrace the web more.
+But I have a question for you.
+Would you still use Linux if there was no more Internet?
+The Internet goes out. Would you still use Linux?
+You know, that's interesting.
+I think, unfortunately, one area that we struggle with and maybe maybe not,
+as we've just kind of rounded up here in the podcatcher discussion,
+but I don't use that many Linux desktop apps these days.
+You know, it's like it's oftentimes electron clients to interface with some
+web service that I wouldn't be using or just a browser.
+Now, if I'm if I'm using the terminal, if I'm programming, doing something like that.
+OK, there's plenty of stuff.
+But what about like the desktop notifications, the file manager,
+clipboard, that stuff? That's all part of the desktop.
+It's just parts that are sort of out of the way a little bit.
+I'm just wondering, do other platforms have an advantage now?
+Maybe not if more and more of those things have become cloud connected
+in a way where Linux desktop applications haven't.
+But what about, you know, I'm just wondering, would you have more things
+you could do offline on a Windows PC that you'd actually want to do?
+I don't know. What's your take on this?
+If you say, you know, say they announce due to some health risk or whatever,
+we have to shut down the Internet and we thought 2020 was bad.
+But 2021 is the year they take away the Internet.
+So you've got until January 1st, 2021.
+Are you reloading your machines?
+You know, probably what I would do, I would continue to use Linux,
+but I would go fetch as many ISOs as I could.
+So I would fetch all of the Debian ISOs, pull everything down.
+So I had access to some degree to just a large library of software.
+Totally. Yeah. You begin to build your offline archive.
+Right, right. Obviously, if the Internet goes down, though,
+you're going to have a problem with updates and how do you get those?
+So, yeah, but you also have less security threats.
+That's true. That's true. Right. Right.
+All right. I want to know what Brent would do
+if the Internet was going to be shut down on January 1st.
+Would you switch operating systems?
+Would you switch distros?
+What would be your first steps, Brent?
+I think step number one is I would cry a little and hold myself.
+But I would say that I experienced this here and there
+because I often am traveling in locations that don't have the Internet.
+Either I'm off grid or something.
+Brent's a time traveler and that's what it is.
+Don't tell too many people.
+And that's actually an interesting experience
+because it makes you realize sort of what you can do without the Internet.
+And Linux is such a pleasure to use.
+Like I'm on I'm on KD, I'm using plasma and have for many years.
+And I just love using my computer from a visual
+and just from a feel perspective.
+And then every single time I go on anything else,
+there's that kind of cringe factor for me.
+So I think purely from a like
+joy of using perspective, I would stay.
+But also all of the tooling that's under the hood, like so many times
+I'm doing stuff locally and I'm using our sync or I'm using different
+terminal applications to just make things happen in a nice kind of streamlined way.
+And I just don't want to give any of that up, whether I have the Internet or not.
+So I don't know.
+I think there's a huge value in Linux in our back pocket, even if we're disconnected.
+I completely agree. I couldn't set it better myself.
+That's exactly how I feel.
+Computer Kid doesn't this kind of remind you of the scenario
+that Endless OS was building for?
+It's designed for developing countries that don't yet have stable Internet access.
+So it's got a large amount of Wikipedia already on there,
+all kinds of different auto install applications, which, you know,
+they're a controversial topic.
+But if you don't have Internet, you kind of want as many
+auto install applications as you can.
+Yeah.
+The ISO is actually 15 gigabytes for the full version.
+But I mean, it's 15 gigabytes for a good reason.
+But the last 15 gigabytes, you'll never download.
+That's right.
+You know, Wes, I remember back in my day,
+I started using Linux before the Internet was common.
+I had to dial up for the Internet.
+Limited access.
+Most of the time, I didn't have Internet.
+So I already started using Linux then.
+So I obviously would continue much for the same reasons
+that you all have just touched on.
+I like Brent's point, too, is if we're going to build our own,
+you know, bootleg Internet, Linux is going to be the tool we want.
+Absolutely. That would be my next thing is like in the last few months,
+I'd be like trying to coordinate with the audience to build like a mesh network
+across the world.
+I mean, we'd start where we could, right?
+JBnet.
+Yeah, I mean, absolutely.
+So empowered by Matrix, right?
+So that would be my first actions.
+But I have thought about this to a degree because I find it's nice to get away.
+I don't want to be completely without some of the niceties of modern society.
+So I talk about this a ton on the self-hosted podcast,
+but I created Project Off Grid and Lady Joop's where I created personal wiki
+and a markdown note system and an offline media playback system,
+all powered by solar that works completely offline.
+But we can sit down and we can still pull up news stories.
+We can still listen to our music.
+We can still stream things from our local media, all powered by Raspberry Pies.
+And I call that Project Off Grid because what I like to do is go somewhere
+where I have no messages.
+I'm so committed to this, I can't just turn it off.
+Like I don't just, I have to literally be forcibly removed from it.
+You don't have enough switch, though.
+He just put you in a big fair day case.
+That's basically it, right?
+And so going these places for even like 24 hours
+is a great way for me to avoid burnout, but still be able to do things
+like watch Star Trek Voyager and read my offline articles that I've saved
+and refer to my notes when working on Lady Joop's.
+And all of that stuff can still continue.
+I just, I don't have ready access to Google and I don't have messaging systems.
+It's mostly what it feels like.
+And that was my solution, was to try to create a LAN locally.
+That meant solving DNS.
+That meant caching certain things.
+That meant syncing things so they'd be available
+should the connection just go away.
+You just have to be very knowledgeable about the various dependencies
+and the systems you're using and when and where they rely on outside networks.
+Yeah, it's funny how much stuff breaks now without internet.
+Right? Even sometimes not the whole thing, but just little pieces here and there.
+I thought, though, what would be a lot of fun,
+because we could talk about this for ages,
+is what if we did just do a little exercise with the community?
+How would you prepare for an outage?
+And so I thought, let's think about this in layers.
+What would you do if the cloud goes out, cloud being a service you use?
+What would you do then?
+Maybe it's a backup service.
+What would you do if your backup service went away?
+So some cloud service you depend on.
+So that's one layer.
+What would you do if your main rig went out?
+What's your backup plan for that?
+What if, for some reason, you got a bug out?
+I mean, let's just have a little fun with this.
+Like, what if you got a bug out?
+What's your scenario then?
+How are you going to have access to stuff?
+What do you take with you?
+What's your bug out rig?
+I thought, let's just have fun and talk about being a Linux prepper.
+So in the new matrix server, I set up a Linux prepper room
+just so we can have some fun talking about this.
+Perfect.
+It's part like, let's just think through scenarios
+so our backups and our systems can be more resilient,
+and part like, let's have a little fun
+and pretend like we're being preppers.
+And I thought, let's just set up a new room
+where we can dedicate the chatter to that.
+And that's on the new matrix server in the Jupyter
+colony, which has a Linux unplugged community, which
+then has a Linux prepper room.
+Did I get all that right, Wes?
+Matrix isn't confusing at all.
+Yeah, and I think just lup is the community name.
+Like, lup, colon, Jupyter, broadcasting, dot com.
+Something, it's all in there, though.
+Anyways, so Linux prepper time, and maybe we'll
+get some good conversation going,
+and we can kind of come up with some ideas.
+And I'll share them in a future episode, maybe
+next week's episode of the show.
+Linux prepper, Wes, what would you do?
+I mean, you've got to fill your bunker with as much Linux
+stuff as possible, right?
+That's right.
+I restated those layers that we should think about, too,
+just as some suggestions in the topic of that channel.
+So when you get in there, you'll see the layers
+that at least I started thinking about.
+And of course, you can also send your ideas
+if you don't want to hassle none of that matrix nonsense
+to just linuxunplugged.com slash contact.
+We got a form there you can fill out,
+and they'll come on into our emails.
+But if you had to be a Linux prepper, what would you do?
+Let us know.
+I think that'd be a fun topic to kick around
+in there for a little bit.
+We got a couple of picks this week.
+We're going to do a hardware pick and a software pick.
+What?
+Cheese found, I'm sure somebody must have linked you to this,
+or you came across this searching for it one day,
+Cheese, but an idea that I've been kicking around
+in different versions and never saw anything
+that's like this solid, almost consumer device
+level looking solution for the Raspberry Pi that turns it
+into essentially a full-fledged NAS.
+You may have heard of the company Radaxa.
+This particular case is a quad SATA kit, a little quad NAS.
+And essentially what it is, it's a hat
+that sits on top of the Pi.
+It allows you to connect up to four 2.5 inch drives.
+They do make a Penta version of this
+as well that gives you an eSATA connection,
+so you could potentially run more disk off of this
+if you wanted to go that route.
+The case itself is a little pricey at $100.
+It does have some neat features.
+It has, like I said, the hat that really
+drives the brains of it.
+It comes with a heat sink and fan.
+It comes with another board that sits on top of the drives.
+It has a little OLED display and an exhaust fan.
+And that OLED display will give you
+load averages, fan speeds, and it'll support up to 16 terabytes.
+So that's four, four terabyte disk.
+Picked one of these up.
+I haven't decided what I'm going to do.
+I'm going to go SSD or if I'm going to go spinning rust yet.
+But I'll figure it out once the box actually gets here.
+And as you were saying about the preppers,
+I mean, this could be your little prepper server.
+It's small enough.
+It's smaller than a 20 ounce soda.
+You don't need a lot of power to run it.
+So being that we do have a lot of hurricanes and storms
+around this area, I wanted to make something
+that I could just snatch up real quick
+and bring with me if I needed a bug out.
+It's pretty neat.
+I like it, man.
+It's, like you say, it's smaller than a bottle of Coke.
+And I think what really makes it magic
+is it's a hat and a case together.
+And that hat gives you tons of disk.
+It looks like, Wes, you remember those old tower airport
+express's that were like, totally in the middle?
+It looks like one of those.
+It's like that size, only maybe a little smaller.
+It's a little tower that you put the Raspberry Pi at the bottom.
+So you have access to all your ports on the back and inside.
+And then you stack the disk towards the top.
+And then it's got a little cooling fan
+to sort of blow on everything.
+I'm just going to call it now.
+And in a couple of years, you're just
+going to be putting pies in regular old ATX cases.
+The loop will be complete.
+Yeah.
+I mean, you'll need it for the amount of cooling
+they're going to require at that point, right?
+Well, now how about a software pick?
+So this week, we're going to pick Outrun.
+You may have seen this floating around the web
+because it's so cool.
+It is a Python project that lets you execute a local command
+using the processing power of another Linux machine.
+What?
+Local command processing power of another machine.
+There's no need to first install the command
+on the other machine.
+It references the local files and path like you normally
+would, so you don't have to think about the remote machine's
+paths.
+How cool is this?
+And it works across several distributions.
+So you could have your machine be Ubuntu,
+but it could be an Alpine container on the cloud
+that the command's actually executing in.
+How do you like me now?
+Crazy.
+How about that?
+I know, when I saw this floating around,
+I just had to talk about it.
+It's a simple install.
+If you've got Python 3.7, it's just pip3 install outrun,
+and you're off to the races.
+Now, there is a couple of caveats.
+As you probably guessed, you're going to need to have root
+access on the other machine.
+You're going to have to trust that machine because it's
+going to have access to the local files
+that you're using in this command, I mean, clearly.
+But in the example, which totally resonates with us,
+he shows you using FFmpeg to encode a local MP4
+in a remote machine with all the horsepower.
+Think about that, Wes.
+Think about that.
+How cool is that?
+So this is just such a neat one, and you
+don't have to have FFmpeg installed
+on the remote machine.
+This is just such a neat one, I had to mention it.
+So it's outrun, and it's also linked to the show.
+It's fascinating.
+Now, it's not purely magic.
+You can't go running because it actually copies the binaries
+over and their dependencies, so you can't go change architectures
+or anything like that.
+And it probably only really makes sense
+for stuff that really needs a bunch of computational horsepower
+because other things will be limited
+by chipping the files back and forth,
+file system performance, and bandwidth.
+Yeah, also, if it's something that would just
+work better executing on your local machine,
+if you think about it, a lot of jobs,
+if you include the upload and download time,
+it might just be faster to run locally.
+But I could see this really being great
+if you could go cross-platform because you imagine,
+like, Raspberry Pi is a desktop, but then some really
+intense compute you execute.
+Go run it on your big server.
+Yeah, yeah.
+But even still, I could see this working low-power development
+machine or something like that, ultra-portable laptop,
+something that's x86 but just low power,
+and you're trying to optimize for battery life.
+This would make it very easy, especially
+if you have a decent connection, to just do
+some of that heavy lifting on another machine
+without a lot of just awkwardness.
+That's fuss.
+Yeah, right?
+You don't have to go to SSH into that machine
+and run around and reset up the directory structure.
+Install ffmpeg as an example or whatever.
+Yeah, so that's what appeals to me.
+And it's cool that this is just possible.
+I mean, that's Linux right here, right?
+Like, that's so cool.
+I agree.
+So with that, I think that means that we should probably
+wrap it up, Wes.
+Is there anything else we want to touch on?
+Should we mention, maybe, how people
+can find you on the Twitters?
+Yes, at Wes Payne.
+And maybe come find me on our new matrix server.
+We'd love to have you join us live next week at jblive.tv.
+Noon Pacific, get that converted to your local time
+at jupiterbroadcasting.com slash calendar.
+And yeah, do join us in that matrix.
+That's the way to go.
+I'm going to have it up on my screen.
+I'm going to be geeking out.
+Thank you, everyone, who helped us test it,
+has been giving us feedback and information.
+We'll try to set up a room on there for matrix conversations
+so we can get things dialed in.
+It's early days, but I'm excited about where it's going to go.
+So I guess we'll probably put up a matrix page at some point.
+So look for that.
+That'll be coming soon.
+But in the meantime, just keep tuning right back in here.
+We'll give you all the information
+you need here in the podcast in an easy to listen to form.
+That's obviously the best.
+Thanks so much for tuning this week's episode
+of the Unplugged program.
+And we'll see you right back here next Tuesday.
+And we'll see you right back here next Tuesday.
+At just a public service announcement before we go,
+DebConf 20 starts this week from August 23 to the 29th, 2020.
+So that's coming up real soon.
+By the time you're hearing this, it'll be basically
+in a couple of days.
+So check that out, debconf.org.
+Before we go, you had a bonus hardware pick.
+Why don't you slip that guy in, and we'll talk about it.
+Yeah, so someone pointed me to a very nifty device.
+Do you like to have a U2F security token?
+Yes.
+And a rubber ducky bed USB?
+Yes.
+And an RFID card reader and emulator?
+I do.
+And an iButton reader and emulator?
+That can't be done.
+And an IR transceiver?
+No way.
+Yeah, so the Flipper Zero.
+Flipper Zero?
+Boy, they should call it the Flipper 6 with all that it does.
+I mean, come on.
+Or is that the 7?
+They have some nice features on it.
+And they seem to have delivered a previous device of this kind.
+And so they already delivered on something like this.
+And they had a simple goal.
+They smashed it within a few hours.
+And they're already in the millions with the Kickstarter.
+And the Kickstarter is still 10 days left on this recording.
+Well, there you have it.
+That sounds like a pretty cool little device.
+Yeah, it sure does.
+And they've got a cute little dolphin logo.

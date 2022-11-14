@@ -1,0 +1,1309 @@
+It's for people who like to mess with computers.
+This is Linux Unplugged, episode 308,
+for some time in the future.
+Oh, hey there, yeah, you.
+Thanks for tuning in to your weekly Linux talk show.
+My name is Chris.
+My name is Wes.
+Hello, Wes.
+This week, we're doing something kind of special.
+We're throwing out the regular format,
+and we're making an episode all about PCI Passerby.
+Wait, wait, finally.
+I know.
+I know, finally, really.
+Actually, this is actually something
+I've been wanting to do for, oh, I don't know, about five years.
+And we finally get to do it.
+But wait, if it's not for you, I encourage you to stick around.
+You may learn something.
+Maybe it will pique your interest.
+This is something that solves a lot of problems.
+If you want to run Windows, Mac OS, and Linux at the same time,
+maybe you even want to run Windows games
+without having to mess with proprietary drivers
+on your main Linux desktop.
+This is something that can help you achieve that.
+And PCI Passerby can also just be a great way
+to get full performance when you distro hop.
+And I use the term full performance a little vaguely,
+but full graphical performance, if nothing else.
+For distro hopping, that's such a great way
+to try out different Linux distributions
+without having to nuke and pave every single time.
+Or the slowness and artificial properties of using a VM.
+Oh, Wes, oh.
+I have got a long sort of sordid history with virtualization.
+It really stems back from maybe even
+pre-PowerPC on the Macintosh System 7 platform.
+You had Virtual PC, which would emulate the entire Intel stack.
+It had to do translation from Intel to PowerPC
+to execute on a PowerPC system, where
+it might have been an 8086 system back then.
+I don't remember what they were.
+Those were the days.
+So you were really in real virtualization.
+As time went on, if money was available,
+you could buy a expansion, I think
+it was NetBus card, that you would
+install that had an Intel processor and memory on it.
+It was like an entire PC on an expansion card
+that would then communicate with proprietary, expensive
+virtualization software.
+So desktop virtualization has come a long way.
+And server virtualization has come even further.
+I have a long history with VMware and server
+virtualization, too.
+One of the best things about desktop Linux
+is we can take advantage of all of the developments
+and progress in the server space right here on our workstations.
+So there are a few caveats about PCIe Pass.
+There's a few things you have to know.
+But I thought we'd start with describing our hardware setup
+so you have an idea of what works for us.
+And maybe you can build your setups around there.
+So let's start by going around the horn,
+because also on the line we have Cheese, Alex, and Drew.
+Alex, let's start with your virtualization setup.
+Right then.
+So this topic is something that I've
+been secretly hoping you would cover for years.
+And I'm so happy that I'm around whilst you're doing it.
+PCIe Pass got me into Linux in the first place in 2013.
+I'm just looking back at the Linux server blog.
+And I have a post dated 10th of August, 2013,
+how to compile a custom kernel ready for Xen and Ubuntu
+Server 1304.
+Oh, boy.
+So that's going back a bit.
+Yeah, I think you probably have the longest
+standing on the panel here.
+Back then, there was a whole bunch
+of stuff you had to consider.
+But there's a few things that have remained
+constant throughout that period.
+And the most important thing to get right
+is your physical hardware.
+So there's a few prerequisites that you need.
+First of all, your CPU must support
+what's called VT-D or VTX if you're in the Intel world.
+I forget the name of the AMD one,
+but there's a similar equivalent.
+So not only must your CPU actually support it,
+and you can use the Intel Arc to tell you
+whether it does or not, your motherboard
+must also support it.
+But on top of that, your specific BIOS version
+must support it.
+So there have been cases where BIOS updates have
+broken PCR pass-through for people
+and they've had to downgrade.
+So it's cutting edge, a lot less so
+than it was five, six years ago.
+But it's still, some assembly is required.
+Yeah, that's fair.
+That's definitely fair.
+Now, most Xeons, in fact, I think all Xeons
+have shipped with VT-D extensions for the longest time.
+So you don't need to worry if you have a Xeon-based system,
+because servers and things like that
+have been using pass-through for NICs and SATA controllers
+and all sorts of stuff for a long time.
+What got me the most excited about this stuff a few years
+ago was being able to put a video card in my system.
+So back then, you used to need an AMD card.
+But nowadays, you can use an AMD card or an NVIDIA card
+with some caveats, which we'll probably come to later.
+And when you say passing through the video card,
+you essentially are blacklisting it
+from the underlying operating system
+and exclusively making it available to the virtualization
+subsystem.
+And it shows up in your VM as if it was plugged right
+into that VM's PCI bus.
+And the operating system in your VM
+is responsible for the driver and the communication
+with the hardware, the whole lot.
+The VM has no idea that it's not directly connected
+to the PCI bus as if it was a native machine.
+So that's why the performance is roughly
+between 95% and 98% of bare metal performance,
+which is, for all intents and purposes, pretty good.
+Pretty, pretty good.
+And then there's also the visceral experience,
+in my case, although there's other ways
+to do this, which we'll cover.
+I have then a physical monitor plugged into that video card.
+And I'm also using a physical mouse and keyboard that are
+plugged into dedicated USB ports.
+So the VM that I am using feels completely
+to my monkey brain like a dedicated PC,
+because it's got a screen, it's got a mouse,
+it's got a keyboard, and everything's fully accelerated.
+Now, CPUs prior to Skylake, Intel did some skew,
+skull-doggery, ooh, that's a nice phrase,
+where they limited VTD to non-K chips only.
+So traditionally, the K chips were their overclocking chips,
+and the non-K chips were not.
+And if you wanted to do this virtualization
+pass-through, PCI pass-through, you
+had to buy an i5-3570, not the 3570K, for example.
+So from Skylake onwards, though, I
+think pretty much every CPU included VTD.
+But use the Intel Arc to double check what the CPU does
+and does not support.
+Sounds especially annoying for gamers, right?
+You might want to overclock, and then you couldn't
+use something like pass-through.
+Yeah, it's one of these things that really turns me off Intel,
+to be honest, and makes me hate them.
+There's some stuff that Nvidia have done as well,
+which we'll come to.
+But these big guys, they just have
+this way of differentiating their products that is just BS,
+and it's really annoying sometimes.
+Yeah, it comes down to artificial limitations,
+so that way they can charge more for the enterprise-grade chips.
+In the case of Intel, it's Xeons.
+And in the case of Nvidia, it's their higher-end graphics card
+that they sell to businesses.
+Now, we'll circle back to video here in a moment,
+because there's still some fundamentals that your system
+has to be able to support.
+And there's a very important concept
+that you have to understand in order
+to group these PCI devices together and allocate them
+to your VM.
+Do you want to cover the IOMMU grouping stuff real quick?
+Yeah, so to pass a device through,
+you must pass an entire IOMMU group.
+Yeah, I'm sorry, but just to interrupt really quick,
+what is an IOMMU group in really basic terms?
+So far as I understand it, and I'm probably
+going to butcher this, but it's a logical grouping of devices
+on the motherboard.
+So I think it's got something to do with PCI lanes
+and how they're presented to the CPU and all that kind of thing.
+So often, what you'll find on consumer-grade motherboards
+is that two or three different PCI slots are grouped together
+into a single group.
+And that doesn't sound like a big deal
+until you're doing one VM has a graphics card,
+and then you want your host to also have a graphics card
+as well, for example.
+So you've got two GPUs in this system.
+Now, if they're both in the same IOMMU group,
+then you're unable to tell the VM to only grab
+that single device.
+It will try and grab everything in that group.
+So the same is true of USB controllers or SATA controllers
+or anything.
+Each thing has to be in its own group for separation.
+And you have to bring over the entire group.
+So here's a perfect example that just about anybody
+doing video pass-through will run into.
+Most modern video cards have an HDMI port.
+Well, that HDMI port includes audio.
+And so that actually, the audio component of HDMI
+shows up as a separate device on the PCI bus.
+And you need to blacklist both of those devices
+and then allocate them to the VM,
+because they're all in that IOMMU group.
+And the other thing that, in my case, was very relevant
+is a Thunderbolt 3 device, all of those devices
+in that Thunderbolt 3 device are in a PCI group
+or an IOMMU group.
+And that, in my case, worked really well,
+because I could dedicate the entire dock to the VM
+in that instance.
+Yeah, and like server equipment.
+So we talked about Xeons being well-supported.
+Server motherboards often have very generous IOMMU groups.
+So they have one group per PCI slot, for example,
+because they know that a lot of their customers
+are going to be doing this.
+So all hope is not lost.
+If you have bought a consumer-grade motherboard
+that groups multiple PCI ports together under the same group,
+you can apply an ACS kernel patch,
+which will artificially separate those devices out
+into separate groups, allowing you
+to have multiple devices in the same physical group.
+But so far as your OS is concerned,
+they're in a different logical grouping.
+So it works just fine.
+There are some security concerns.
+And I forget exactly what they are.
+But you want to be sure that you understand
+the ramifications of this ACS patch before you apply it,
+because it can allow for some nasty things, breakouts
+from the VMs, for example.
+Yeah, it essentially does not guarantee isolation
+for a particular device.
+So while it does get quote unquote isolated,
+it's not quite the same where something could potentially
+use it to break out of a VM and attack the host.
+Right, and to be clear, this is only
+if you're using that workaround, that ACS patch.
+And in my case, this actually works out fantastic,
+because I'm passing through Thunderbolt 3 devices.
+And on these Thunderbolt 3 devices,
+I want the gigabit ethernet.
+I want the USB bus.
+I want the sound card, the display port, the GPU.
+I want it all to go to the virtual machine.
+So it just happened to be in my particular setup.
+Having to group all these together anyways
+made it actually simpler to just pass the entire Thunderbolt 3
+devices through to the VM.
+And in my case, I'm not breaking any isolation.
+I'm not running any risk.
+It's perfectly safe.
+I'll tell you another use case where this ACS patch is useful.
+So if you have multiple identical graphics cards
+in the same system, let's say you've got two RX 560s,
+for example, or two 1060s, or something,
+two GPUs that present themselves as their PCI IDs
+as the same device, that can be really tricky.
+And sometimes you need to move the physical devices around
+in the actual slots on your motherboard
+to get the host to pick up the right GPU first.
+So in my system here, for example,
+I have an RX 560 and a 1080 Ti.
+The 560 is in the top slot on the motherboard,
+and the 1080 is in the second slot, which
+is the other way around to what you would think to get the 16x
+and the 8x slots.
+In reality, that performance difference
+is so negligible that I don't actually care about that.
+And by having it this way around, my arch host
+can pick up the AMD GPU first and use that for Linux
+with all the native kernel support it has.
+And then my guest just picks up the second slot,
+and it just works.
+Now we'll get more into our individual setups,
+because each one of us has a very different setup.
+But one thing that's going to be common
+is all of these VMs will use an open source UEFI firmware.
+They have to be on UEFI firmwares for this to work.
+Yeah, so the magic that makes all this possible is OVMF.
+That was one of the things a few years ago
+that caused a lot of headaches.
+So if I look at one of my really old blog posts
+from September 2013, I am looking at a Windows 8 VM,
+just to give you an idea of the context of where
+we were at that point, kernel 3.10 for Linux.
+So it's quite a long time ago.
+You used to have to eject your graphics card
+before rebooting the VM, because if you didn't do that,
+then the firmware on the graphics card didn't reset.
+So when you reboot your system, there's
+a whole bunch of resetting of different firmwares.
+And basically, the graphics card has a small BIOS on it
+as well.
+That doesn't sound like too big of a deal
+until something like Windows Update
+comes along and just randomly reboots your VM for fun.
+So I had to write these very basic scripts back in the day
+that ran in a registry key that ejected the graphics
+card at startup and shut down in the Windows VM
+to get around that problem.
+Now, these days with OVMF, it's so easy
+that the UEFI BIOSes on all these cards
+just handles the resets, even in a VM scenario, just fine.
+So you can reboot, shut down, reattach to a different VM.
+You can go to town and go crazy, and it will just
+continue to work, and it won't lock up the host anymore.
+I have had bad luck with my RX 570
+doing a full reset, where in some cases with Windows
+and Mac VMs, I have to power off the system
+or sleep the system, the host system,
+before the graphics will reset.
+Did not have that issue with the NVIDIA graphics,
+which surprised me.
+I thought it'd be the other way around.
+OK, now why don't we get into our setups?
+Because I think that's an interesting bit here is,
+and then we'll get into configuring
+the various aspects of it, depending
+on what your setup is.
+I also want to get into something
+like Looking Glass, if you don't necessarily
+want to have a dedicated monitor, dedicated hardware.
+There's other solutions there too.
+But Alex, let's start with your current PCI pass-through setup.
+I have two.
+So my main desktop rig is, as I've said,
+it's got an RX 560 and a 1080 TI in it.
+The 1080 is dedicated to Windows,
+and the RX 560 is dedicated to Linux.
+And to be honest with you, the only reason
+I have Windows lying around these days
+is for Adobe stuff, for Lightroom and Photoshop
+and that kind of thing.
+It's an Intel CPU, an 8700K, and 32 gigs of RAM.
+So not that much RAM, but it works just fine.
+You're doing a dedicated disk, or are you just
+doing a Cal file or somewhere?
+How are you doing that?
+Oh, yes.
+Disks are important to talk about.
+So when you've got two machines on your system,
+you're probably going to want to make sure that there's
+at least a SSD per machine.
+Now, you can run your virtual machine out of a QCOW image
+on the same SSD as your host OS.
+Obviously, that's going to limit performance,
+because there's only so many inputs and outputs
+physically a device can do in any given time.
+So I have a dedicated SATA controller
+that I pass through to the VM so that the guest just
+sees a native SSD as if it was plugged straight in.
+Now, there is one other thing that's worth talking about.
+There's these VertIO drivers.
+Now, they are developed by Red Hat,
+and they enable a huge performance leap over just
+standard SATA emulation.
+Now, when you're installing Windows,
+there's a few hoops you'll need to jump through in terms
+of enabling drivers.
+So in the installer, you'll need to load up
+not only the Windows ISO, but also a VertIO ISO,
+which is available in the show notes.
+There's a link.
+And with that VertIO ISO, you'll need to browse through
+and find the storage driver to enable Windows
+to see the VertIO drive.
+Otherwise, when you get to the Install page,
+and it says, select the device you want to install,
+it will just be a blank list.
+And that foxed me for quite a while.
+The fun of Windows, ooh.
+VertIO is amazing, because the system, the driver,
+is aware that it's virtualized.
+And so it communicates intelligently
+with the hypervisor.
+And just a quick rabbit hole tangent to that,
+QMU developer, I think Alex, you're
+the one that noticed this, thinks
+that it looks like Apple is adding early support for VertIO
+and frame buffer graphics to the latest iterations of Mojave
+and Catalina.
+So it looks like Apple is adding virtualization VertIO driver
+support to Mac OS, which is going to make this even easier
+down the road.
+Would that justify $100,000 cheese grater to you?
+No, because I can run this on a custom built Linux box
+and get GPU performance in Mac OS.
+In fact, we'll get there in a moment.
+But is there any other notes on your setup?
+That's a pretty comprehensive review.
+I like that.
+I like the SATA pass-through tip.
+I am using a QCOW file on my laptop disk,
+because obviously I can't stuff a ton of SATA disk in there.
+And I do notice a bit of a performance impact.
+Nothing major, ones like games are loaded and stuff.
+But yeah, during patching and whatnot, it's brutal.
+As a few other things, like CPU pinning, for example,
+for performance.
+So you need to ensure that your host system has
+at least one full core available to use at all times.
+Otherwise, if your host system runs out of CPU time,
+you're going to have a bad time.
+The other thing is, how do you handle
+sound and keyboard and mice?
+So sound is a tricky one.
+There's lots of different options here.
+The one that I'm using at the moment
+is to stream from the guest through to Pulse Audio
+on the host.
+And that works fine.
+It can be a little crackly at times,
+but not enough that I bothered to fix it.
+The other thing is, you could just buy a USB DAC,
+for example, sound card.
+Plug that in and pass that through.
+And that will give you audio directly from the host.
+Another neat way to do it is to use the HDMI headphone out
+on your display to plug into your sound that way.
+So when you switch the input on a display,
+you're automatically switching the sound input as well.
+So that's another way to do it.
+I'll add, just for context, what I decided to do
+was get a USB gaming headset.
+And I use that for all kinds of stuff.
+And if I want audio, I just plug that in.
+OK, Drew, so you've recently set up a PCI pass-through.
+And I think it's a little different than what we're doing.
+So tell me about your setup.
+So my setup is on a Ryzen-based system.
+So I am using AMD-V instead of VTD.
+And that works fine.
+That I had no problems with at all,
+was pretty much out of the box on the latest kernel, which
+at the time is 5.1.2, I want to say.
+Are you on Fedora?
+Currently, yes.
+And the reason I'm on Fedora is I had started this journey
+on Ubuntu.
+And I ran into some issues because I
+do have an RX 580 and an RX 480.
+And they do show up with the same device IDs.
+So while they were in different IOMMU groups,
+I could not select just one of them to pass through.
+And I started, I even rolled a whole kernel.
+But I couldn't get the init RAM FS script that
+would detect the boot GPU and then pass
+through the non-boot GPU through.
+I couldn't get that to run reliably.
+So I ended up going back to Fedora
+because in all honesty, I'm just more comfortable with Drakut
+and using their init RAM FS system.
+To me, it's more transparent and easier for me to read.
+I'm sure I probably could have gotten there on Ubuntu.
+But it would have taken a lot more time.
+And I wanted to get this going.
+So yeah, over to Fedora.
+And it turns out I needed to use the ACS patch.
+Well, there is a handy dandy pre-built kernel for it
+in copper.
+So I grabbed that.
+That'll be linked in the show notes.
+And loaded up the init RAM FS script
+that I grabbed from the Arch Wiki
+and dropped that into Drakut and off to the races.
+It immediately put that second RX card into the VFIO drivers
+and dropped it out of the host system entirely.
+So like that monitor, boot up, that monitor's black.
+It's not picking up anything.
+And I could pass it straight through
+to the VM, which is great.
+Now, currently, the way I'm doing keyboard and mouse
+is I am also passing through the USB 3.1 ports on my tower.
+And I have a little USB 3 breakout
+that I can plug between the front panel on my computer
+to a USB extension that runs back to that USB 3.1
+that I'm passing through.
+And these are different devices.
+So you still have USB ports for the host system.
+But then you have a separate USB controller
+that you can pass through to the guest?
+Exactly, yeah.
+So I just move that USB hub from one port to the other.
+And boom, donzo, I've switched from controlling my host
+to my VM.
+So that was the simplest, easiest solution.
+There's a fun little USB switcher thing
+that you can buy, which is a box which has two USB cables coming
+out the back.
+One you plug into one bus, one you plug into the other bus
+that's passed through to the VM.
+And then there's a button on top of it
+that you can physically press.
+Where do I find this?
+I'll find a link and put it in the show notes.
+Thank you.
+Yeah, I need that real bad.
+So now for disks, I had originally
+started trying to use a spare partition that I had.
+But because this is UEFI, you can't really
+use just a single partition.
+The UEFI just does not work properly,
+because it'll see that there is another UEFI on that same disk
+and try to boot through that.
+You have to do a whole disk.
+And Alex, you can correct me if I'm wrong.
+Maybe I didn't do it right, but it did not work for me.
+So I think I need to go out and buy another SSD
+and slap it in my tower to really do it right.
+But right now, I'm using a raw image, not QCOW, but raw.
+Why raw over QCOW?
+Just because it's a little more performant.
+And since I'm just using this for gaming and nothing
+business facing, I don't really need the extra safety
+that QCOW provides.
+Yeah, that makes sense.
+Yeah, I had the same internal debate myself.
+So that's curious.
+So once everything was all said and done with the pass-through
+and all of that, did you run into any issues with the VM?
+In particular, like Windows, when
+you're working with an NVIDIA card,
+it can kind of suss out that it's in a VM.
+And the NVIDIA driver can essentially disable itself.
+And that's where you get this really common code 43
+in the event log that says, or it's
+even when you just go into Device Manager
+and you look at the driver, it'll be disabled.
+And you go in there, and it'll say error 43 or code 43.
+Device could not be properly initialized.
+Did you run into any of that kind of stuff?
+That's really common.
+No, I use AMD because they don't pull
+those kind of shenanigans.
+You know what?
+You say that.
+You say that.
+However, I also, in this whole journey,
+I switched from an NVIDIA card to an AMD RX 570.
+And man, it worked perfectly under Windows 10.
+And Mac OS just automatically detected it.
+Never got it to work under Linux,
+so I wonder if something's wrong there.
+But under Windows 10, it works perfectly, full acceleration,
+until I upgrade to the absolute latest Insider build,
+so that way I could try out the WSL 2.
+We were going to do a little report on it.
+And when I do that, when I get to the latest build of Windows
+and it sucks down a newer version of the GPU driver,
+it disables my card, and I actually get code 43 now
+in Event View or in the log for my AMD card.
+It goes from working to not working.
+I'd be cautious about throwing shade
+based on an Insider build, though, that's pre-release.
+Yeah.
+Yeah, however, I did.
+So get this, Daddy-O. I went back
+to a clean Windows 10 standard install, which is up to date,
+but it's just on a regular default track,
+and downloaded the latest AMD driver from their website,
+installed that, same issue.
+I don't know, because I pulled the latest AMD driver
+off the website just yesterday to do the install,
+and it worked fine for me.
+I'm loving Drew calling you on this, Chris.
+I know.
+Well, it really could be something in my setup,
+because it's a new video card.
+So you've got to work these things out.
+Well, that's a pretty solid.
+So what are you using it for, Drew?
+Is it Windows stuff you're using it for,
+or what's the utility you get out of this?
+Windows 10 gaming.
+So my wife is obsessed with this game called Arc,
+and they just put out a new map,
+and occasionally I like to play with her.
+Now, Arc has a native Linux build, but it's terrible,
+and trying to run it through Proton technically works,
+but it also uses BattleEye, so it's real hit or miss.
+And so I thought, well, okay,
+I want to play with her on this new map,
+so why don't I try this pass-through thing?
+And yeah, I was able to get into the game
+and play a little bit, and it works just great.
+It's the only way I'm going to run Windows now.
+It's like, it's Windows with a safety net,
+because you've got snapshots,
+you can physically copy the image file around.
+It really, it feels like safe Windows to me,
+and I like it.
+So I'll just briefly, my setup is two different setups.
+I've got what I call a virtualization go-bag,
+and I'm very proud of this.
+I showed it to Wes the other day,
+and I was just going on and on about it.
+I am so jealous,
+and since I have the same backpack you used,
+I might have to copy you.
+Yeah, I use the swag backpack we got from Red Hat Summit,
+and I use that as my virtualization go-bag.
+So it's a companion backpack
+that goes with my laptop backpack,
+and I don't take it with me everywhere,
+but I do sometimes take it between the studio and the RV.
+And inside this backpack is a tiny HDMI 1080p LCD screen.
+It's brilliant, because it's so compact.
+Like, it's just super dense pixels,
+and it just looks gorgeous,
+and it's a very vibrant screen.
+HDMI cable that goes into the Thunderbolt 3 Lenovo GPU dock
+that I got.
+I've talked about it before on the show.
+This is why I bought the GPU dock too,
+because I plan to do something like this, you know?
+And so I have that in there,
+which has a Thunderbolt 3 cable
+that connects to the ThinkPad T480.
+I've got a USB gaming headset, a USB mouse,
+and a tiny portable USB keyboard
+that all go in this backpack,
+plus the power adapter that powers the whole thing.
+I bust all that stuff out, I hook it up.
+And in that, I've essentially got in that backpack
+a Mac, a Win 10 VM, and an Ubuntu 1910 VM,
+which I use for all kinds of different testing.
+The host system, like I said, is the ThinkPad.
+It runs Fedora 30, and it's been a dream to set this up.
+I use Vert Manager as the software front end
+to manage my VMs.
+I love it, because I also have Vert Manager
+connected now to the on-premises server
+that we have here at the studio,
+and I can manage those virtual machines
+and my local virtual machines all through one UI.
+It also is a very easy way, by the way, BT dubs,
+to go through and select the PCI devices
+you wanna pass through to the guest.
+It's just nice, because I like seeing the device names,
+selecting it, hitting apply, and then it's boom, it's set up.
+Oh, that sounds really nice.
+Yeah, you gotta do the blacklisting
+of the PCI devices first, but once you've got them
+blacklisted on the host system, which is not hard to do,
+it's really just a matter of getting a list
+of the PCI devices on your Linux box.
+Checking it twice, I'm sure.
+Yeah, and we'll have some guides linked in the show notes.
+That's worth mentioning, Wes,
+because if you blacklist the wrong device,
+your system may not boot, because suddenly
+the hard drive's ripped out from under the feet of the OS.
+Just be careful with that.
+Pro.
+Yeah, yeah, yeah, so you get a list of the PCI devices,
+you blacklist their individual IDs, you reboot,
+and then you go into Vert Manager,
+and as you're setting up the VM,
+you can go in and configure it for the additional options,
+and you add hardware, and one of them is pass-through devices,
+and you just start clicking on them.
+It won't let you add a device you haven't blacklisted.
+If a PCI device is in use, it won't let you assign it
+to a VM, so it's pretty easy.
+You can't put a square thing into a round hole in this case.
+And once you have it all set up, you double click it,
+you start it.
+When you start it, it is such a sensation,
+because you start what feels like a piece of software
+on your laptop, and all these other physical hardware
+devices light up.
+The monitor comes on, the keyboard lights up,
+the USB audio card turns on, the blue light comes on,
+I hear that pop in the speakers.
+It is amazing.
+You've just magicked up another computer.
+Exactly.
+I've conjured it from nothing.
+I've conjured it from nothing.
+And what's crazy about it is, with modern systems,
+with SSDs, and eighth generation processors,
+and et cetera, et cetera, you don't even really
+feel it on the host.
+I'm just sitting there, I'm still
+running like a dozen and a half electron apps,
+I'm browsing websites in Chrome, I'm updating packages.
+You don't even feel it on the host system,
+because there's so much power to spare.
+I've got cores for days, right?
+And I've got 32 gigs of RAM in a laptop.
+So it's just brilliant, because you've
+got so much horsepower to spare that you can actually
+have another complete environment.
+And if you're even the slightest distro hopper or distro curious,
+this is so wonderful, because I finally
+got the perfect Linux desktop.
+I am so happy with this setup.
+I am so happy with where things are at right now in 2019,
+because Linux is just doing so well.
+The Mac is finally getting interesting again.
+Windows 10 is not like Windows before.
+That's something else I've learned in this experiment,
+is they're doing different stuff with Windows 10.
+When you bring Windows 10 up to the latest Insider builds,
+and you get everything up to date
+so you can run WSL and all those new goodies, it's a new OS.
+It's absolutely something Microsoft would have held back
+and made a different OS in years past.
+I mean, I'm talking different UI, different assistance pop-up,
+different menu options, completely different
+configuration options.
+It's a different start menu.
+The login screen is different.
+Everything changes in these later Insider builds.
+And it's so exciting to watch.
+I'm not going to switch to Windows 10.
+I'm not going to switch to the Mac.
+But it is fun right now.
+The platforms are actually getting interesting again.
+I happen to think Linux is the best right now.
+And now it's letting me play with these other things
+occasionally.
+But more importantly, I can keep trying out the latest Linux
+distributions without wiping my main setup.
+And that's where I can fence off all the proprietary crap.
+All of the closed source video card drivers,
+like for the NVIDIA card, or proprietary games and software,
+that's all now in these VMs.
+And my desktop is like this pure open source stack.
+That's just a rock solid machine.
+And if nothing else, that's what I love about it.
+It seems like it would work really well
+for any sort of appliance, right?
+Like maybe if you were going to record a show
+and you could just sort of dock your ThinkPad into this setup
+and have all the sound devices ready,
+software configured in the VM set to go,
+and you don't have to fuzz with it.
+As we're recording this, we're recording this a little early
+because of travel.
+Last night, the Linus Tech Tips channel
+released a video with something like six editors, one PC,
+where they're using this technology with a GUI on top.
+They're using Unraid as a KVM management tool.
+And they're allocating each developer an SSD,
+like 30 gigs of RAM or something like that,
+a Titan video card.
+And they're essentially setting up one Linux
+PC to power six editing stations.
+Yeah, it did cost them $100,000.
+So it's in Mac Pro price territory.
+So my other setup is I recently got,
+and I'll have a link to this, a Mantiz eGPU dock.
+And this thing's pretty neat because a Mantiz,
+it's with a Z, it has not only a full sized PCI slot
+for a full graphics card, so I put a AMD 570 in there.
+But it also has a SATA enclosure inside,
+so you can have a dedicated SATA disk.
+It has a USB hub, so it's got, I think, five USB 3 ports.
+And it's got gigabit ethernet.
+That's everything you need to make a virtual machine
+essentially a real PC.
+There's really not much fake about it at that point
+because I'm using real USB, real ethernet, real graphics,
+real physical devices to interact with it.
+It's running inside a VM, but it's not really
+that much more unusual than a regular machine at that point.
+You just happen to be using the CPU virtually.
+Everything else is real.
+Right, yes, absolutely.
+Right, yeah, you're just kind of loaning it some compute.
+Yes, and it's all coming in over one Thunderbolt 3
+cable, which also, by the way, happens
+to supply power to my laptop.
+So I'm doing all of this with literally only a single cable
+coming out of my laptop.
+Now, there's video cable and USB cables and stuff
+coming out the back of the eGPU box.
+But the laptop, it's one cable, and it does all of this.
+But still, shut up and take my money.
+That sounds amazing.
+It's so great.
+It's so fun.
+And to really be able to play around
+with these operating systems and feel like they're full speed,
+I'm never going back.
+And I can honestly see myself not really needing
+to reload my laptop, as long as the base OS continues
+to run fine.
+The base OS matters less than ever,
+with Docker and containers and this and everything.
+I looked last night.
+I haven't reloaded my art system in 18 months,
+because I don't need to.
+Every time I get this itch, I can just spin up a VM
+and pass the graphics card through, and it's so good.
+Proxmox is another way to do this, right?
+Doesn't Proxmox now support PCIe pass-through?
+Yeah, so Proxmox just uses KVM under the hood anyway.
+And this was a second setup, which
+I realized I forgot to talk about.
+So in my basement, I have a file server,
+which is serving Plex and a whole bunch of other stuff.
+I also have a PFSense VM on there.
+Now, that VM has a 4 gigabit Intel NIC card,
+with two of those ports pass-through.
+One plugs into the WAN port on the back of my router,
+and the other one plugs into my LAN.
+And so I have a fully virtualized PFSense,
+and I've been running it now since I moved here,
+so since September.
+And it's been great.
+The only time I've had an issue is when the power's gone out,
+and I haven't been home, because my router hasn't rebooted
+properly or something.
+But that's on the sysadmin.
+That's not on the software being a problem.
+Right, true.
+So yeah, I pass through also to my main file server.
+I also pass through three different SATA controllers.
+One's an MVME one, and then I have one that has,
+I think, 12 disks connected, and another one that
+has another four disks connected or something.
+So you can really take this technology and run with it.
+And if you can think it, you can do it.
+You just have to know how.
+Right.
+Yeah, I liked your note in the show notes, like, hey,
+by the way, not a bad way to mine crypto.
+Oh, yeah, no.
+So when I was getting into Bitcoin mining,
+this was when December, what, two years ago?
+When Bitcoin was going bonkers, I
+built a Bitcoin mining rig with like seven GPUs in it
+or something.
+Turns out, Windows has a four GPU limit.
+So what did I do?
+I created two Windows VMs and passed through four GPUs
+to each VM, or four and three to each VM,
+and got around the problem that way instead,
+rather than doing all sorts of crazy registry
+hacks that the internet was suggesting.
+Problem solved.
+I mean, one potential reason you could even
+justify installing a video card in the server we have here
+at the JB Studio is something else you could do
+is run a headless VM of Windows that's accelerated,
+and then do steam streaming, and just
+pass through a whole bunch of games to all your Linux
+boxes on the network.
+That works stupidly well, except for one caveat.
+You're going to need some kind of a dummy dongle
+to go into the HDMI port to trick it
+into the correct resolution.
+So you can buy these things on Amazon that are 1080p,
+like headless, tricky dongle things.
+I don't know the name.
+It's not technical, is it?
+Yeah, but it's been around for a while.
+You need them for a lot of Bitcoin mining setups, too.
+Yeah, I have a question about this.
+So I tried to steam stream from my Windows
+pass-through VM to my Linux desktop that was a host,
+and it did crash Steam on the host, not on the guest.
+Is there anything special that needs
+to be done to support this, like do I
+need to pass through a discrete NIC,
+or does it only work if the disk is fully passed through
+and it's got a discrete disk?
+Where am I going wrong?
+Or is it just that this particular game is just
+horribly buggy, which is certainly true?
+Games don't have bugs in them.
+Who are you kidding?
+So there's a couple of ways to skin this turkey.
+First of all, I don't know what you've done with your NICs,
+but the traditional way is to use
+Vert.io to have a 10 gigabit ethernet link
+between the host and the guest.
+So I'm assuming that's the way you go,
+because that's what all the guides do.
+You could do what Chris did and pass
+through an actual physical NIC, which is also
+another way to do it.
+But what you might be running into
+is the CPU pinning thing that I talked about earlier.
+If one or either of the VMs or the host
+runs out of enough CPU time, there
+can be some contention issues there.
+So it's worth pinning those CPU cores.
+That is one thing I haven't gotten to yet,
+so I will give that a shot.
+Same.
+Also, something else Drew might consider
+is maybe just not doing this setup,
+but playing around with something like Looking Glass.
+Yeah, so Looking Glass is super duper cool.
+So the frame buffer technology that Chris talked about
+being potentially added to Mac OS,
+this technology was developed by a chap on the Level 1 Tech
+Forums.
+Gniff, I think, is his moniker.
+Wendell and all those guys over on Level 1.
+So Looking Glass allows you to capture the frame buffer
+output from the HDMI port.
+So when Windows renders a frame, it
+writes that very short term to a piece of memory.
+What Looking Glass does is it hooks into that piece of memory
+and makes it available from the guest to the host.
+And there's also another patch that
+lets you view that frame in a VM.
+So you could effectively share this piece of memory
+between two VMs via the host, which
+is kind of meta and amazing.
+And what this allows you to do is capture, basically,
+in real time the HDMI output from the guest
+and display it in a window on your Linux desktop.
+Oh, wow.
+So you could effectively marginalize
+Windows to be nothing more than just a window.
+And no physical monitor, physical keyboard.
+Nope.
+And the latency is sub-5 milliseconds.
+So it's just as good as anything.
+And it's pretty amazing.
+It's better than some monitors.
+Yeah.
+Now, really, you can tie all that together
+by getting some input in there, too,
+with something like Synergy, which the audience tells us
+all about all the time, and we never really talk about it.
+But Synergy is there's a couple alternatives, too.
+But it lets you move a mouse between hosts on your LAN
+or the host and the VM.
+Yeah.
+We talked briefly about keyboard and mice earlier.
+So there's the USB switcher option,
+which is in the show notes.
+There's Synergy, which allows you to just move your cursor
+from one window to the next seamlessly
+as if it's multiple windows on the same system.
+It's like magic, and it's amazing.
+There are other ways to do it using EV dev,
+so you can actually pass the devices through that way.
+Or you can use vrsh attach device,
+which is a command that allows you to interact with your VM.
+You need to write a couple of XML files,
+and I've provided a couple of templates I use from my VFIO
+repo on GitHub.
+And it's a very simple.
+You can just script it and bind it to a hotkey.
+So I have a hotkey that changes the monitor inputs using
+ddutil and also passes through my keyboard and mouse
+at the same time.
+And then I have the same thing in Windows,
+but it just SSHs into the host remotely
+and then undoes what it's just done.
+So you have to give it some thought,
+but it's not too hard to get a slick setup going.
+Yeah.
+So Chris, I know that one of the things that you've mentioned
+is using macOS in a PCIe pass-through setup.
+And would this be a way for me to possibly get away
+from having to run macOS as being my daily driver
+because I need those Adobe applications?
+And then, two, how will that affect those Adobe
+applications?
+So whenever I go to render out, most often it's 1080p.
+But whenever I go to render out 1080p video,
+am I going to see a performance hit there on the rendering
+side?
+How exactly would this work out?
+Because I would love to eventually have
+a system like this where I have a rock solid Linux
+base with VMs and pass-throughs.
+I could see this being great for not only my desktop,
+my personal desktop, but also my travel work laptop,
+just being able to plug in, pass everything through,
+get work done, shut it down, or not necessarily
+have to feel like I need to reload an old beater machine
+to test out maybe a different distro.
+Totally.
+But be able to play around with it a little bit more.
+Well, I'll start with the latter half.
+So the last half of the question is,
+is it a performance penalty?
+I think it depends on how you look at it.
+I think to get a Mac that could outperform
+what I can match in commodity PC hardware would probably
+cost me thousands of dollars.
+Could I buy an iMac Pro that would outperform this VM?
+Yes.
+Could I afford one?
+No.
+And the other thing that's nice about this
+is this eGPU setup also can benefit the host system
+down the road if I want.
+I could plug this into another computer
+and just use it as a video card if I want later.
+It doesn't have to be used for VMs.
+And obviously, I'm using this hardware
+for multiple operating systems, which that wouldn't necessarily
+be the case with Mac OS, even with Boot Camp.
+You could even bring it to the Sprint or something, right?
+And you're sharing your GPU with others.
+Yeah, I mean, I've got the Go Bag.
+I've got the Virtualization Go Bag.
+And I would say that that is going to probably easily
+outperform a laptop or a Mac Mini.
+So that's where I look at the performance aspect.
+And you could go all in, right?
+You could get a really expensive PC,
+and you could probably allocate just a portion of that
+to outpower a Mac, unless you were
+looking at the really high end.
+Now, the other side of it.
+Could you use it to run Final Cut and whatnot?
+I haven't actually done a full edit session yet.
+But you and I are on the same page here.
+This is what I'm thinking is I'd really
+like to get back into flying the drone
+and doing drone videography and photography.
+And as soon as I do that, I'm going to want to edit.
+I'm going to want to color correct.
+I'm going to want to fix it up a little bit.
+And I'm going to want to use Final Cut,
+because in my opinion, my experience, it's just the better
+editor for online media.
+Now, maybe I'll try some other ones over time.
+Like, I'm not announcing some intention here.
+It's just something that's been in the back of my mind.
+I thought, well, OK, let's see.
+Let's just see.
+Could I, as a thought experiment,
+before I go learn Blender or before I go spend
+a whole bunch of time with DaVinci or et cetera, et cetera,
+could I get Mac OS working in a VM that could actually
+be hardware accelerated and use Final Cut?
+Because in theory, I could easily
+buy a video card that's nicer than 90% of the Mac video cards
+that you get when you buy a Mac.
+And to that end, there are surprisingly more and more
+guides and systems to get Mac OS,
+even the latest betas of Catalina, running under VM.
+So I would say it's like hackintoshing,
+but it's like the most Mac way possible to hackintosh,
+because you have a known set of hardware
+that you have a known set of drivers for.
+So it's like how Apple develops Mac OS for the Mac.
+It's like hackintoshing that way.
+It's becoming like the go-to way to run Mac OS really easily
+on PC hardware.
+It's sort of the most reliable way to hackintosh right now.
+Does that make sense?
+There's some risk.
+I mean, it's not a Mac, but it's probably the most solid.
+And with Apple seemingly adding VertIO driver support
+to later versions of Mac OS, it may be even easier soon.
+There's a big caveat there, isn't there?
+Don't you need a Mac to create the install
+media in the first place?
+No.
+Not anymore.
+You used to could, as my kids would say.
+But have you seen this simple Mac KVM guide going around?
+Nope.
+You're going to tell me all about it now, though, right?
+Yes.
+We'll have a couple of links in the show notes.
+It's pretty brilliant.
+So there is a little tomfoolery going on to make it possible.
+The author of this script, which is an open source script,
+I think, I have not looked into it,
+but I think is presenting to the Apple servers
+a Apple user agent ID, because it's an HTTP request.
+And I think this is maybe the only tomfoolery happening here.
+But what you have is he's got two scripts, basic.sh,
+and then there's a second script that essentially launches
+the VM for you and does some of the pass-through commands.
+And what basic.sh does is it says,
+hey, what version of Mac OS would you like?
+And you just add it with a TAC Catalina, TAC Mojave,
+or whatever.
+And then it goes and it knocks on Apple's recovery server
+doors and says, hi, I'm a broken iMac,
+and my user needs to reload their operating system.
+Can I stream the installer from you, please?
+And it says, OK, here's the URL on the Akamai CDN.
+We'll blast you those packets as fast as humanly possible,
+or actually electronically possible.
+And so it tells the recovery service
+that you're a broken iMac.
+And you can then, without ever having
+to download from the Mac store and flash a USB disk
+or anything, it'll get you the recovery ISO.
+Then you boot that in the VM, and it just pulls down
+the installer like a net install would.
+Does it work with modern Nvidia GPUs?
+Because Apple haven't shipped 10 series, have they?
+Now, your mileage there is going to vary.
+This is that fun corner of Hackintosh, isn't it?
+Yeah, you're going to have a much better time with an AMD
+graphics card.
+Is that the same for AMD and Intel
+as far as being supported by Hackintoshing?
+See, this is where doing it in a VM
+actually makes things a little easier,
+because that stuff is a little more abstracted.
+It's just standard VM stuff at that point.
+And so it just looks like a regular Intel system
+or whatever to the Mac OS.
+So it doesn't care about the underlying chip architecture
+at all?
+No, not really, as long as your CPU supports all the stuff.
+Now, to be clear, I have run into issues with networking
+support and whatnot.
+I'm not here proclaiming that it works flawlessly yet.
+I've gotten close.
+But I have not gotten it all working yet.
+I have not gotten through a full test of Final Cut yet.
+I have not brought in 4K footage.
+So it's up in the air.
+I have gotten Linux and Windows VMs.
+Those are my priority.
+And no surprise here, guess what operating system
+works the best, Linux.
+I actually now have decided that I'm
+going to do all of my gaming in a VM.
+I'll just have a VM image, or actually this SSD disk,
+if I can say that, this SSD disk that's
+in my eGPU is just going to be loaded with a VM that's
+got all my Steam games and all my GOG games installed
+and all my Lutris games always installed
+with all of the proprietary graphics drivers installed.
+I hook that up to my base system, and I start playing.
+No more downloading.
+Maybe I have to patch a little bit.
+No big deal.
+Linux is such a great guest in this setup.
+So it's like, even if you never have
+any intention of running Windows or Mac OS,
+it's absolutely worth it just to play with Linux.
+I thought, though, too, Wes has talked about this a little bit
+on and off in the past.
+But since we're doing different crazy great ways
+to run Linux and other operating systems
+without having to nuke your install,
+Wes has got a clever way that he likes to run machines.
+I know you've played around with a few different things.
+What do you want to share with the class today, Wes?
+Oh, man, there's just so many ways.
+I was disappointed to hear that some of this pass-through stuff
+might not work with partitions because just having
+a separate partition can be an easy way down that road
+where you can boot into something,
+or it's really easy to use virtualization to just attach
+to an existing partition.
+And as long as you're not accessing that
+or have it mounted in the host, then away you go.
+I love that just because anytime I
+can use the host system to install a new operating system
+without having to reboot and go through that painful cycle
+of disconnecting everything I'm doing
+or having to go get a second computer,
+I just don't want to be bothered.
+You know, I do kind of walk kind of a happy medium here.
+I'm passing through ISO images, and I am doing a Cal file.
+But I also, for the Windows installation,
+before I wanted to get everything all plugged in
+and everything, I just clicked in the VM
+and had it grab my mouse and keyboard.
+I actually did the whole Windows install
+with a laptop mouse and keyboard on the laptop screen using,
+it's like a VN, they call it Spice,
+where you can just remote view.
+I did that, and then once the installation was done,
+I hooked up all the physical hardware.
+So I kind of do like a balance there.
+Windows can actually boot from a raw image
+as long as you make it in the VHD format.
+So if you already had, say, a shared NTFS drive,
+that's one way you can easily do it from a file
+if you don't want to muck about with separate drives
+or even a separate partition.
+So that's nice, too, is if you're clever about it,
+you can often boot into files, especially on Linux,
+because you can make Linux do anything.
+You can have a virtual machine image,
+set it up in a virtual machine,
+and then if you play around with your init RAM FS
+or your grub setup a little bit,
+you can reboot right into that
+and not have to mess with having a separate system.
+You just got to know how, huh?
+You just got to know how.
+So that's something that I use quite heavily.
+I actually switched away from grub to system de-boot
+on my host.
+It makes it a lot easier to specify
+which particular kernel I'm booting into
+or things like that than I found grub.
+So give system de-boot a try.
+Oh, yeah, it's fantastic.
+And the configuration files are easy to read
+and easy to modify.
+Very good.
+And then I suppose for something completely different,
+if you don't feel like virtualizing,
+there's always kexec,
+which we've talked about that before, too,
+which is sort of like live switching to a whole new kernel.
+Wes likes to make it extra spicy.
+By then, when you kexec, you also are running his,
+he runs his disk out of RAM.
+So it's like the whole thing is just like.
+Right, I mean, if you're not sure about a distribution,
+you just want to give it a try.
+You really don't want to commit.
+That's about as close as I can get.
+You could just, the ultimate rage quit,
+you turn off the power button
+and the entire thing is erased.
+You know, it's gone, it's so satisfying.
+I wonder how fast Windows would feel
+if I ran it from RAM.
+I might try that.
+Oh, you should.
+I think Windows Update would still take forever.
+I'll tell you what.
+Oh, that's been one thing
+that I have just shaken my head at.
+They've tried to make it better in the later builds,
+but what they did is they added like six more screens
+of options.
+That's a lot.
+I really just appreciate package managers after that.
+All right, well,
+I know we just kind of given you the basics to get started,
+but this is one of those things you'll have to go deep dive.
+We'll have some additional resources in the show notes
+and a surprise here.
+Shocker, everybody.
+The Arch Wiki is also a great resource.
+Who would have known?
+We'll be back with a regular format
+at our regularly scheduled live time over at jblive.tv.
+Right here next Tuesday.
+Oh, man.
+I apparently in last week's code radio,
+I leaked what the next free study groups are
+on Linux Academy.
+I didn't mean to.
+I guess I did talk about it
+before it was public on there.
+Oops.
+Well, I don't know.
+You know, this is one of those episodes
+I have been wanting to do PCI.
+I know I said this beginning,
+but I really been wanting to do a PCI pass-through
+since it was ever, ever a thing.
+And it always seemed,
+it always seemed like just like way too much work
+to get started with.
+Yes.
+I've been following it too, right?
+Cause it's always been that sort of holy grail,
+like, oh, maybe you need windows.
+You don't want to deal with separate machines or rebooting.
+You can have everything and I guess you can.
+Yeah, I think it's totally worth it.
+And it's not that bad anymore.
+If you've got modern hardware, that's really the keys.
+You gotta happen to have some current stuff,
+but eventually everybody's going to have this stuff.
+And then we're really going to be cooking with gas.
+Like it's going to be,
+I'm just really excited about the potential.
+And now that I have an Nvidia setup and an AMD setup,
+I feel like I'm going to really be able to get to play.
+Like neither one of the setups
+are particularly high end graphics wise,
+but there's still so much to learn
+and see how systems respond with different graphics stacks.
+And that's going to be a particular area of interest
+for me, I think.
+I've just dropped into Slack a link to a file
+that might help your networking issue on OS 10.
+This BRNetFilter thing needs to be called by sysctl
+at boot time to allow the IP tables, I think,
+to be modified.
+So I think my Windows VM wouldn't get an IP address
+until I enabled this.
+So that's worth considering.
+It's in that archvfio repo that's on my GitHub.
+Of course.
+And in the show notes.
+Yeah, I was going to say.
+OS, you're on top of it.

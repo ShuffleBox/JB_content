@@ -1,0 +1,1512 @@
+1
+00:00:00,000 --> 00:00:05,280
+Coming up on today's show we have Jeff Geerling. You may know him as GeerlingGuy in Ansible Galaxy.
+
+2
+00:00:05,280 --> 00:00:11,200
+He's also on a bunch of work recently with the Raspberry Pi. Chris loses his mind a little bit
+
+3
+00:00:11,200 --> 00:00:17,520
+when Jeff tells him how he hooked up 16, yes, 16 drives to a Raspberry Pi. I'm Alex.
+
+4
+00:00:17,520 --> 00:00:24,560
+I'm Chris and this is Self-Hosted 41. Alex, we have a lot to talk about today and we also have
+
+5
+00:00:24,560 --> 00:00:31,040
+a special guest. We do indeed. Yes, we have GeerlingGuy, Jeff Geerling, the Raspberry Pi, Ansible Maestro,
+
+6
+00:00:31,680 --> 00:00:38,080
+all the sorts of superlatives. My new YouTube habit. I love what he's putting out. Yeah, I thought you
+
+7
+00:00:38,080 --> 00:00:44,160
+might like him. Yeah, I do. I want to say thanks to A Cloud Guru for sponsoring this episode. They are
+
+8
+00:00:44,160 --> 00:00:48,320
+the leader in learning for the cloud, Linux and other modern tech skills. Get hundreds of courses,
+
+9
+00:00:48,320 --> 00:00:54,720
+thousands of hands-on labs. Get certified, get hired, get learningacloudguru.com. The interview
+
+10
+00:00:54,720 --> 00:00:59,040
+really will be the bulk of the show today because there's so many great things we get into. But
+
+11
+00:00:59,040 --> 00:01:05,520
+before we start, I kind of wanted to chat with you about Nabu Kasa buying ESPHome. How'd you feel
+
+12
+00:01:05,520 --> 00:01:10,240
+about it? I mean, when I first heard the news, I was like, oh, I wasn't quite sure how to feel. And
+
+13
+00:01:10,240 --> 00:01:18,640
+then some more details trickled out about how the original creator, Otto, was, you know, basically
+
+14
+00:01:18,640 --> 00:01:25,360
+burning out. And I think overall, it's a great way to save an open source project that is
+
+15
+00:01:25,360 --> 00:01:33,440
+one of my personal favorite ways to configure, you know, ESP boards. It's a clear value
+
+16
+00:01:33,440 --> 00:01:38,800
+for the Home Assistant community. And this was, you're right, I had my first read of this was sort
+
+17
+00:01:38,800 --> 00:01:45,680
+of like, I'm not so sure because they're a small team with a lot to do. But when you read between
+
+18
+00:01:45,680 --> 00:01:51,760
+the lines, it seems pretty clear that Otto was about to hit the nope out button. And the project
+
+19
+00:01:51,760 --> 00:01:58,000
+would have been left without its leader and lead developer. This is kind of nice because this gives
+
+20
+00:01:58,000 --> 00:02:04,000
+the project room to grow. It'll bring in some new contributors. Otto is taken care of. He's able to
+
+21
+00:02:04,000 --> 00:02:07,280
+participate if he likes, but you know, he's going to focus on life for a bit. He's shutting down
+
+22
+00:02:07,280 --> 00:02:12,480
+the Patreon account. He doesn't have to worry about the management side of things. And it continues
+
+23
+00:02:12,480 --> 00:02:20,480
+to be a free software project. And if anything, I would expect it will be even tighter integrated
+
+24
+00:02:20,480 --> 00:02:24,560
+into Home Assistant now. We're seeing some of that already. Frank, one of the main developers
+
+25
+00:02:24,560 --> 00:02:29,600
+for Home Assistant has already made some significant improvements to the VS Code plugins
+
+26
+00:02:29,600 --> 00:02:35,120
+for how that interfaces with ESP Home. So there's some autocomplete stuff coming and things like
+
+27
+00:02:35,120 --> 00:02:41,840
+that. But let's just back up a little bit and explain what ESP Home is. So the way I got started
+
+28
+00:02:41,840 --> 00:02:48,640
+with it was I was programming these ESP8266 single-board computers, if you like. They're kind
+
+29
+00:02:48,640 --> 00:02:53,440
+of in the same space as an Arduino, more than a Raspberry Pi. So they don't run a full OS. They
+
+30
+00:02:53,440 --> 00:02:59,280
+actually run a pre-compiled firmware. And that used to require writing an Arduino sketch and
+
+31
+00:02:59,280 --> 00:03:05,600
+uploading it to the board and all the stuff that comes with the Arduino IDE and Universe and that
+
+32
+00:03:05,600 --> 00:03:12,560
+kind of thing. And what ESP Home does, and it is pure magic in my opinion, is you define the
+
+33
+00:03:12,560 --> 00:03:19,040
+firmware as a YAML file. You add a couple of modules here with a couple of lines to enable
+
+34
+00:03:19,040 --> 00:03:23,440
+Wi-Fi and then another couple of lines to enable logging and then another couple of lines to enable
+
+35
+00:03:23,440 --> 00:03:29,040
+the Home Assistant API, for example. And then you flash that binary that is generated from the YAML
+
+36
+00:03:29,040 --> 00:03:35,760
+file onto the ESP8266 without having to write a single line of C code or whatever the Arduino
+
+37
+00:03:36,320 --> 00:03:40,080
+equivalent would be. And it just makes it so approachable.
+
+38
+00:03:40,080 --> 00:03:43,760
+Yeah, and there's so many devices that run off this type of firmware out there.
+
+39
+00:03:44,480 --> 00:03:49,280
+And you can really see long-term the value that Home Assistant, if Home Assistant can make this
+
+40
+00:03:49,280 --> 00:03:54,640
+even simpler. Imagine a future, if you would, Alex, where Home Assistant could even auto-detect
+
+41
+00:03:54,640 --> 00:04:01,200
+devices and guide the user through generating the firmwares and maybe even has a way to deploy it
+
+42
+00:04:01,200 --> 00:04:06,640
+with some DNS magic or something, depending on the device. But they could really make this
+
+43
+00:04:06,640 --> 00:04:11,200
+a whole inclusive package at some point. Absolutely, they could, because with this
+
+44
+00:04:11,200 --> 00:04:17,360
+acquisition, Nabu Casa now owns the copyright to Otto's code and therefore the ESP Home
+
+45
+00:04:17,360 --> 00:04:23,600
+organization on GitHub and Docker as well. Yeah, and esphome.io is a great resource.
+
+46
+00:04:23,600 --> 00:04:27,520
+So if you want to learn a little bit more, go check out esphome.io. And of course,
+
+47
+00:04:27,520 --> 00:04:31,760
+we'll have a link in the notes, which, as always, you can find at selfhosted.show.
+
+48
+00:04:33,360 --> 00:04:40,640
+linode.com slash SSH. linode.com slash SSH gives you a $100 60-day credit towards a new account
+
+49
+00:04:40,640 --> 00:04:45,840
+at Linode. And of course, it supports the show. Linode is our cloud hosting provider.
+
+50
+00:04:45,840 --> 00:04:49,600
+Anything we want to try out or anything we put in production, we put it up on Linode.
+
+51
+00:04:49,600 --> 00:04:54,480
+We get emails into the show. We try stuff out on Linode. It's really quick to get going.
+
+52
+00:04:54,480 --> 00:04:58,960
+But also it's because it's fast. We know it's just going to get done really quick.
+
+53
+00:04:58,960 --> 00:05:03,040
+And sometimes you just want to prototype something as fast as possible. Now we host
+
+54
+00:05:03,040 --> 00:05:07,920
+all of our major infrastructure for Jupiter broadcasting 3.0 on Linode, of course. But
+
+55
+00:05:07,920 --> 00:05:12,240
+even the stuff that never makes it public, that never is listener facing, we run on Linode as
+
+56
+00:05:12,240 --> 00:05:17,280
+well. They're super fast. They have native SSD storage, 40 gigabit network, totally easy to
+
+57
+00:05:17,280 --> 00:05:22,320
+use cloud manager, really simple to take snapshots and get the idea of the last time your computer,
+
+58
+00:05:22,320 --> 00:05:26,960
+I should say Linode, was backed up. You can really simplify your infrastructure
+
+59
+00:05:26,960 --> 00:05:32,400
+while also reaping the benefits of great performance at a great price. Linode costs 30
+
+60
+00:05:32,400 --> 00:05:38,880
+to 50% less than AWS or Google Cloud or Azure. And it really works well if you want to just blend a
+
+61
+00:05:38,880 --> 00:05:43,600
+little bit of on premises and cloud as well. That's how I use it for Nextcloud. I have a cloud
+
+62
+00:05:43,600 --> 00:05:49,120
+component to my Nextcloud setup on Linode. And then the big bulk of the storage, like the archival
+
+63
+00:05:49,120 --> 00:05:54,000
+stuff, it's all here locally on my LAN. It works fantastic that way. And with 11 data centers
+
+64
+00:05:54,000 --> 00:05:57,840
+worldwide, you're going to find just the right spot to deploy. And you'll rest easy knowing
+
+65
+00:05:57,840 --> 00:06:03,120
+that Linode's rocking fast and has great monitoring tools that can alert you to problems
+
+66
+00:06:03,120 --> 00:06:07,920
+before you even notice them. Of course, these things are really important, but performance
+
+67
+00:06:07,920 --> 00:06:14,400
+matters as well. And Linode has you covered there too. Cloud Spectator recently did a study of the
+
+68
+00:06:14,400 --> 00:06:21,600
+different cloud providers, like all of them. DO, Amazon, Google, looked at Azure, all of them,
+
+69
+00:06:21,600 --> 00:06:26,560
+put them in there and saw who was the fastest. And one of the things that really makes Linode stand
+
+70
+00:06:26,560 --> 00:06:31,600
+out is their dedicated CPU rigs have AMD epic processors that are just cranking faster than
+
+71
+00:06:31,600 --> 00:06:36,960
+the other providers. And Linode's disk storage is super fast. So you can feed those processors
+
+72
+00:06:36,960 --> 00:06:41,680
+faster than the other providers. And what Cloud Spectator's survey shows is that not only does
+
+73
+00:06:41,680 --> 00:06:47,360
+Linode have the best CPU and disk performance, but it has the best continuous performance as well,
+
+74
+00:06:47,360 --> 00:06:50,640
+which really matters when you have large jobs that need processing or you're getting a lot of
+
+75
+00:06:50,640 --> 00:06:55,760
+traffic. You need that sustained performance. I mean, Linode started in 2003 as one of the
+
+76
+00:06:55,760 --> 00:07:00,000
+first companies in cloud computing. So they really know what they're doing. They're independently
+
+77
+00:07:00,000 --> 00:07:04,080
+owned and founded on a love for Linux, open source technologies, and the community that
+
+78
+00:07:04,080 --> 00:07:08,560
+surrounds them. So just go try what I'm talking about. I've told you about the object storage
+
+79
+00:07:08,560 --> 00:07:12,560
+before. I've told you about the cloud firewall before. There's a lot to check out with Linode
+
+80
+00:07:12,560 --> 00:07:19,520
+and what they've chosen to do, they do really well. So go spend that $100. Linode.com slash SSH.
+
+81
+00:07:19,520 --> 00:07:24,320
+Go see what I've been talking about and support the show. Linode.com slash SSH.
+
+82
+00:07:26,320 --> 00:07:30,400
+Well, I'm delighted to welcome to the show somebody whose work I've been following for
+
+83
+00:07:30,400 --> 00:07:34,640
+many years as an Ansible user. We have Jeff Geerling on the show today. Welcome, Jeff.
+
+84
+00:07:35,280 --> 00:07:40,240
+Thanks for having me. Thank you for being here. And more recently, of course, a YouTube
+
+85
+00:07:40,240 --> 00:07:45,760
+extraordinaire content creator. Yeah, that's how I came to know you. Yeah. So you've been doing a
+
+86
+00:07:45,760 --> 00:07:49,280
+lot of videos lately on the Raspberry Pi 4 compute module. I thought we'd talk to you a little bit
+
+87
+00:07:49,280 --> 00:07:55,680
+about that. But before we get to that side of the discussion, I wanted to sort of talk to you a
+
+88
+00:07:55,680 --> 00:08:01,600
+little bit about what I knew you for first, which was Ansible. So you have a really rather excellent
+
+89
+00:08:01,600 --> 00:08:07,840
+101 getting started course. Before Jeff Geerling existed and created this, you know,
+
+90
+00:08:08,880 --> 00:08:14,320
+de facto guide for people getting started with Ansible, how did you get involved with the project?
+
+91
+00:08:14,320 --> 00:08:20,800
+I started off by having a few servers than many servers and then dozens of servers. And once I
+
+92
+00:08:20,800 --> 00:08:25,920
+went from many to dozens, I realized I had to switch to some sort of configuration management
+
+93
+00:08:25,920 --> 00:08:32,400
+system. And at the time, Ansible was pretty much brand new. That was 2012, 2013, when I was making
+
+94
+00:08:32,400 --> 00:08:38,240
+that transition from shell scripts and runbooks to something more formal. So I tried out Chef,
+
+95
+00:08:38,240 --> 00:08:44,720
+but I'm not a Ruby developer. And I didn't really like it. It felt too much like programming to me
+
+96
+00:08:44,720 --> 00:08:52,800
+and learning Ruby when I did PHP and Node.js and things like that. So I got into Ansible at that
+
+97
+00:08:52,800 --> 00:08:58,560
+time. And at the time, it was so simple that you could pick everything up in a day. And it was
+
+98
+00:08:58,560 --> 00:09:02,400
+focused really on just Linux administration, not all the other things that it does today.
+
+99
+00:09:03,920 --> 00:09:08,000
+But the documentation was great, but there wasn't a ton of examples out there. So
+
+100
+00:09:08,800 --> 00:09:14,080
+I just started blogging about my experiences. And then I realized that there wasn't a book for it.
+
+101
+00:09:14,080 --> 00:09:21,920
+So I put my blog post together into a 50-page sampler thing and stuck it onto Leanpub,
+
+102
+00:09:21,920 --> 00:09:26,080
+which was also pretty new at the time, and started self-publishing this little ebook.
+
+103
+00:09:26,640 --> 00:09:33,440
+And my goal was to maybe sell 100 copies or 200 copies. And I hope some people learn Ansible. And
+
+104
+00:09:33,440 --> 00:09:38,000
+lo and behold, a couple of years later, since it was one of the first books on Ansible,
+
+105
+00:09:38,000 --> 00:09:42,960
+it became one of the most purchased books. And to this point, I don't remember how many tens of
+
+106
+00:09:42,960 --> 00:09:49,360
+thousands of books I've sold, but lots of thousands of books have been sold. It was the number one
+
+107
+00:09:49,360 --> 00:09:56,960
+bestseller for infrastructure automation for a number of periods on Amazon and has been in the
+
+108
+00:09:56,960 --> 00:10:03,680
+top five, top 10 books on Leanpub for years now, too. Congratulations. Yeah, thanks. I don't doubt
+
+109
+00:10:03,680 --> 00:10:09,840
+it. Every time you search for anything related to a specific role or something like that for
+
+110
+00:10:09,840 --> 00:10:15,440
+Ansible, you're looking, there's a Jeff Geerling role in there in Ansible Galaxy. So some of our
+
+111
+00:10:15,440 --> 00:10:20,480
+listeners will be familiar with Ansible, but some won't. So what's your quick kind of elevator
+
+112
+00:10:20,480 --> 00:10:26,880
+picture of what Ansible is and does? There's an XKCD about whether or not you should automate
+
+113
+00:10:26,880 --> 00:10:31,680
+something. And I think that that's a good illustration of what Ansible is. Once you reach
+
+114
+00:10:31,680 --> 00:10:37,280
+the point where you're doing something, maybe to a group of computers or to network switches or to
+
+115
+00:10:37,280 --> 00:10:42,080
+servers, or even I use it to manage my own computer, if you're doing a repetitive task
+
+116
+00:10:42,800 --> 00:10:47,360
+that can be automated, Ansible can automate that, almost anything in the world that has to do with
+
+117
+00:10:47,360 --> 00:10:54,080
+technology. So that's what it does. And it's very simple. That's the big selling point for it
+
+118
+00:10:54,080 --> 00:10:59,760
+compared to other tools is it uses YAML configuration, which is very approachable,
+
+119
+00:10:59,760 --> 00:11:05,520
+very easy to learn. And that's why I liked it over the other solutions at the time, Chef and
+
+120
+00:11:05,520 --> 00:11:12,480
+Puppet that I was looking at. People back in 2012-13 time were just moaning about how YAML was
+
+121
+00:11:12,480 --> 00:11:17,120
+so complicated with its white space. And I never quite understood the hate, to be honest with you,
+
+122
+00:11:17,120 --> 00:11:25,840
+because people say, oh, I'd much rather write JSON. I'm like, are you mad? YAML's way easier
+
+123
+00:11:25,840 --> 00:11:34,000
+to work with. Yeah. I think a lot of people maybe don't, they aren't used to having a code editor
+
+124
+00:11:34,000 --> 00:11:38,400
+do formatting for them and things like that. It's much more common nowadays, especially in
+
+125
+00:11:38,400 --> 00:11:43,360
+the infrastructure space than it was 10 years ago. And I think that's the biggest difference
+
+126
+00:11:43,360 --> 00:11:48,480
+nowadays. YAML, people complain about it mostly because they see people do things that you
+
+127
+00:11:48,480 --> 00:11:53,280
+shouldn't do in YAML. But back then it was more the syntax and the formatting. They're like,
+
+128
+00:11:53,280 --> 00:12:00,480
+I could put in anything in JSON or God forbid XML, but YAML is going to complain about it.
+
+129
+00:12:00,480 --> 00:12:06,400
+And I think nowadays we're past the formatting stage and we're into what could be a next
+
+130
+00:12:06,400 --> 00:12:10,080
+generation format for configuration that's even better than YAML. Because it does have
+
+131
+00:12:10,080 --> 00:12:15,440
+shortcomings, but it's, in my opinion, it's a thousand times better than JSON, XML and
+
+132
+00:12:15,440 --> 00:12:19,520
+SOAP and all the other protocols we used to have to know to be able to configure things.
+
+133
+00:12:19,520 --> 00:12:24,000
+Couldn't agree more. Yeah. So I think, speaking of things that people shouldn't do,
+
+134
+00:12:24,960 --> 00:12:28,320
+turning Ansible into a programming language is probably up there, right? I mean,
+
+135
+00:12:28,320 --> 00:12:34,000
+you can do some pretty crazy stuff in Ansible. And my day job is related to OpenShift at Red Hat.
+
+136
+00:12:34,000 --> 00:12:39,040
+And a lot of the OpenShift installer stuff for version three, the last major version,
+
+137
+00:12:39,760 --> 00:12:44,800
+there was some pretty crazy hacky stuff going on in those Ansible playbooks and stuff like that.
+
+138
+00:12:44,800 --> 00:12:48,320
+But what's the most crazy thing that you've seen with Ansible?
+
+139
+00:12:48,320 --> 00:12:54,880
+I think it's the abuse of the when condition in tasks. When your when condition is longer
+
+140
+00:12:54,880 --> 00:12:59,440
+than the rest of your Ansible task for a given piece of automation, I think that's where you've
+
+141
+00:12:59,440 --> 00:13:05,120
+failed. At that point in Ansible, you can write modules in Python. You can actually,
+
+142
+00:13:05,120 --> 00:13:10,160
+there are ways to write modules in other languages too, but typically you'd write it in Python.
+
+143
+00:13:10,160 --> 00:13:14,240
+And if you're going to use complex logic to determine whether to do something or how to do
+
+144
+00:13:14,240 --> 00:13:20,000
+something, that should be in Python. At that point, you're getting into advanced Ansible usage that
+
+145
+00:13:20,000 --> 00:13:25,440
+requires you to have some of that programming knowledge. Programming in YAML is a terrible,
+
+146
+00:13:25,440 --> 00:13:32,480
+terrible idea. Never do it. Every time I have gone further than an if-else type condition,
+
+147
+00:13:32,480 --> 00:13:34,800
+I've regretted it and the maintenance is a nightmare.
+
+148
+00:13:34,800 --> 00:13:38,160
+And then there's always the Ginger 2 stuff that people do, the crazy templating,
+
+149
+00:13:38,720 --> 00:13:43,360
+for loops, all that kind of stuff. So anyway, should we talk about Ansible 3 for a minute?
+
+150
+00:13:43,360 --> 00:13:48,480
+There's been a big release in the last few weeks of Ansible 3.0, which brings a lot of changes to
+
+151
+00:13:48,480 --> 00:13:52,880
+the way in which modules are delivered to users. What do you make of all that change?
+
+152
+00:13:52,880 --> 00:13:58,720
+It's been an interesting transition and I think it's ongoing and will be ongoing for another
+
+153
+00:13:58,720 --> 00:14:04,640
+period of time, six months to a year probably, mostly because Ansible 2.9, which is the previous
+
+154
+00:14:04,640 --> 00:14:09,600
+major version of what you would get when you installed Ansible using PIP or a package manager
+
+155
+00:14:09,600 --> 00:14:15,440
+or something like that. Ansible 2.9 will still be supported for a while, mostly because I think
+
+156
+00:14:15,440 --> 00:14:20,160
+there's just a lot of people who the transition to the new version of Ansible does introduce some
+
+157
+00:14:20,160 --> 00:14:25,200
+changes that could impact people's workflows a little bit. The good thing about the transition
+
+158
+00:14:25,200 --> 00:14:30,320
+is that all my existing playbooks, and I have a ton of playbooks that do a ton of different things,
+
+159
+00:14:30,320 --> 00:14:36,560
+they all work fine if I just upgrade Ansible using PIP, which is the Python package manager.
+
+160
+00:14:36,560 --> 00:14:41,360
+There are other ways to install Ansible that might not work with Ansible 3 the same way anymore,
+
+161
+00:14:41,360 --> 00:14:46,320
+so you have to watch out for that. And that's why I always recommend using PIP to install it,
+
+162
+00:14:46,320 --> 00:14:52,560
+because it's a Python program and PIP is the preferred way. But the big, big change is that
+
+163
+00:14:52,560 --> 00:14:59,520
+collections of modules used to all be maintained in one giant code base. And there were various
+
+164
+00:14:59,520 --> 00:15:05,520
+reasons that was not very sustainable. There were something like 4,000 or 5,000 different plugins
+
+165
+00:15:05,520 --> 00:15:10,560
+and modules. And the core team of developers who managed the releases and things, it was just a lot
+
+166
+00:15:10,560 --> 00:15:16,960
+to coordinate. So the main goal was to move all of that content out into smaller collections that
+
+167
+00:15:16,960 --> 00:15:21,440
+could be maintained by people with more knowledge of just the modules in that collection. There's
+
+168
+00:15:21,440 --> 00:15:28,720
+no reason why, let's say, an F5 network load balancing module should be under the same
+
+169
+00:15:28,720 --> 00:15:37,120
+maintenance umbrella as an email script thing. All these different modules were lumped together
+
+170
+00:15:37,120 --> 00:15:41,120
+from network vendors and storage vendors and cloud vendors and Linux and Windows.
+
+171
+00:15:41,680 --> 00:15:48,160
+So now it's all broken out, but the challenge has been making it all come together back into
+
+172
+00:15:48,160 --> 00:15:53,600
+what we install if we do a PIP install Ansible. And the nice thing is it all works, but the
+
+173
+00:15:53,600 --> 00:15:58,800
+downside is there are a few little bumps, especially if you have specialized use cases.
+
+174
+00:15:59,360 --> 00:16:05,120
+But another cool side effect is you could install Ansible without all that stuff and just add in
+
+175
+00:16:05,120 --> 00:16:09,760
+the few things you need. So if you just do Linux administration, you can install Ansible plus the
+
+176
+00:16:09,760 --> 00:16:16,880
+Linux modules and not install Windows, not install networking, not install cloud. So it does offer
+
+177
+00:16:16,880 --> 00:16:20,480
+some flexibility, but I think there's going to be some growing pains over the next year.
+
+178
+00:16:20,480 --> 00:16:25,360
+We're seeing that trend quite a lot in technology at the moment. Docker being an example with Podman
+
+179
+00:16:25,360 --> 00:16:32,480
+coming along to break that out into being less of a monolith type deployment model. So I think
+
+180
+00:16:32,480 --> 00:16:36,960
+it's a good thing personally. And, you know, the work that's gone in has clearly been very well
+
+181
+00:16:36,960 --> 00:16:42,320
+thought out. Are there any particularly good resources that you'd recommend people visit to
+
+182
+00:16:42,320 --> 00:16:49,120
+get their head around what the major changes are? The documentation is the best place to know what's
+
+183
+00:16:49,120 --> 00:16:55,840
+going on. Not only is there a guide for upgrading Ansible in the release notes, and if you are
+
+184
+00:16:55,840 --> 00:17:00,560
+involved in using Ansible, I would highly recommend subscribing to the Ansible project mailing list
+
+185
+00:17:00,560 --> 00:17:06,960
+on Google groups. But the guides and the documentation are by far the best. They encapsulate
+
+186
+00:17:06,960 --> 00:17:14,480
+everything that I could ever think of that could affect someone's workflow. And also I did update
+
+187
+00:17:14,480 --> 00:17:18,400
+my book recently. So if you are interested in learning Ansible and you don't know it yet,
+
+188
+00:17:18,400 --> 00:17:25,920
+Ansible for DevOps has a major second revision. I've actually revised it 25 times now. But a major
+
+189
+00:17:25,920 --> 00:17:32,320
+revision happened to incorporate some of the information about collections especially. And I'm
+
+190
+00:17:32,320 --> 00:17:38,160
+still working on fully revising the book to be up to date with Ansible 3. It all works. It's just
+
+191
+00:17:38,160 --> 00:17:56,400
+there are some things that could be optimized a little more. Datadog.com slash self-hosted. Analyze
+
+192
+00:17:56,400 --> 00:18:02,160
+code level performance across your entire environment and troubleshoot issues faster with
+
+193
+00:18:02,160 --> 00:18:07,760
+Datadog. Datadog has a continuous profiler that automatically collects profiles from your production
+
+194
+00:18:07,760 --> 00:18:13,360
+of beautiful dashboards. Get a unified picture of your environment by correlating code performance
+
+195
+00:18:13,360 --> 00:18:17,760
+metrics with your other monitoring data with real-time dashboards. You got to see these
+
+196
+00:18:17,760 --> 00:18:23,120
+dashboards. Go to datadog.com slash self-hosted to get a free trial and to see these beautiful
+
+197
+00:18:23,120 --> 00:18:27,040
+dashboards. And you'll get a free t-shirt when you sign up a trial and create a dashboard with
+
+198
+00:18:27,040 --> 00:18:32,720
+tightly integrated APM, tracing, log management, and continuous profiler products in one single
+
+199
+00:18:32,720 --> 00:18:38,320
+form. Datadog enables you to pinpoint the root cause of issues faster than ever. Are you seeing
+
+200
+00:18:38,320 --> 00:18:42,960
+the value here when you can visualize everything at once down to the application level, server stuff,
+
+201
+00:18:42,960 --> 00:18:49,040
+even website performance? It's all in Datadog and you can get smart alerts as well. Try Datadog's
+
+202
+00:18:49,040 --> 00:18:55,680
+products for free for 14 days by visiting datadog.com slash self-hosted for a limited time.
+
+203
+00:18:55,680 --> 00:19:00,400
+If you start a free trial and create one dashboard, you'll get a free Datadog t-shirt. And who doesn't
+
+204
+00:19:00,400 --> 00:19:07,840
+love free swag? So that's datadog.com slash self-hosted. So Jeff, I've been watching on
+
+205
+00:19:07,840 --> 00:19:12,800
+your YouTube channel, you've been doing the impossible with Raspberry Pi's. I'm talking
+
+206
+00:19:12,800 --> 00:19:20,240
+like I think one of your setups was like 10 SATA disks. 16 hard drives. How is this possible? How
+
+207
+00:19:20,240 --> 00:19:27,520
+is this madness accomplished? Is it all with using the new Pi compute module? Yes, and the funny
+
+208
+00:19:27,520 --> 00:19:33,760
+thing is the Raspberry Pi 4, the one that's been out since I think 2019, that was the Pi day release
+
+209
+00:19:33,760 --> 00:19:39,520
+back then. The Raspberry Pi 4 actually has the same processor and capabilities, but the big
+
+210
+00:19:39,520 --> 00:19:46,160
+difference the compute module has is it exposes the internal PCI Express lane. And that's the
+
+211
+00:19:46,160 --> 00:19:53,040
+big game changer. With the Pi 4, you could hack it. You could de-solder a chip on it, the VL805
+
+212
+00:19:53,040 --> 00:19:59,440
+chip that controls USB3. You could de-solder that, wire up some jumpers and get PCI through it. And
+
+213
+00:19:59,440 --> 00:20:03,920
+a couple of people actually did that. The first time that I started working with the compute
+
+214
+00:20:03,920 --> 00:20:10,880
+module, I was looking at their work because PCI Express support is rudimentary right now on
+
+215
+00:20:10,880 --> 00:20:16,320
+Raspberry Pi OS. And they were kind of like the groundbreaking people that got that going.
+
+216
+00:20:16,320 --> 00:20:23,120
+But the compute module 4 includes a standard PCI Express slot on the IO board that you can buy with
+
+217
+00:20:23,120 --> 00:20:28,400
+it. And the cool thing is that a lot of people are building boards around it that have different
+
+218
+00:20:28,400 --> 00:20:37,920
+PCI form factors. So M.2 slots for things like LTE modems or for storage with NVMe drives or SATA
+
+219
+00:20:37,920 --> 00:20:44,880
+drives that are either in M.2 form factor or using a SATA controller. And you can plug in
+
+220
+00:20:44,880 --> 00:20:50,160
+hard drives and things like that. So a really cool thing happened. Somebody from Broadcom
+
+221
+00:20:50,160 --> 00:20:54,560
+actually contacted me after they saw some of the work I was doing and said, hey, we want to see if
+
+222
+00:20:54,560 --> 00:20:58,720
+we can get a hardware RAID controller, an enterprise storage controller. These things cost
+
+223
+00:20:58,720 --> 00:21:03,920
+like a thousand bucks. We want to see if we can get that working on a Pi and we can't get a Pi.
+
+224
+00:21:04,960 --> 00:21:08,880
+They work at Broadcom, but they had trouble sourcing a Raspberry Pi because the compute
+
+225
+00:21:08,880 --> 00:21:15,280
+module 4 has been in such high demand since the launch. So they shipped me the card, they shipped
+
+226
+00:21:15,280 --> 00:21:21,200
+me a storage controller and had me work with a couple of storage engineers and we got it working.
+
+227
+00:21:21,200 --> 00:21:26,560
+So at that point I had eight drives on the Pi, but then I found that I could also plug in eight
+
+228
+00:21:26,560 --> 00:21:31,840
+more drives with the card I had. So I did a live stream and got all 16 hard drives plugged into
+
+229
+00:21:31,840 --> 00:21:36,720
+the Pi and in one giant RAID array. Wow. How was performance? Yeah. How is it?
+
+230
+00:21:36,720 --> 00:21:40,400
+Because, right? I mean, that's always the thing about the Pi is everybody says the Pi 4 is great,
+
+231
+00:21:40,400 --> 00:21:44,560
+except for the IO really limits it now. But this seems like that changes that a little bit.
+
+232
+00:21:44,560 --> 00:21:50,400
+It changes it a little bit. It doesn't fix all the problems. That's for sure. The big problem is that
+
+233
+00:21:50,400 --> 00:21:59,760
+it's X1, a by one lane. So it's PCI Express Gen 2 by one and the maximum throughput you can get with
+
+234
+00:21:59,760 --> 00:22:06,640
+that is five gigabits per second. But that's theoretical. So the maximum real world throughput
+
+235
+00:22:06,640 --> 00:22:11,520
+that I've gotten, I've tested 10 gig ethernet, I've tested the storage controller, I've tested
+
+236
+00:22:11,520 --> 00:22:17,440
+all kinds of different crazy things so far. And the maximum real world throughput is about 3.2
+
+237
+00:22:17,440 --> 00:22:24,000
+gigabits, a little over 400 megabytes per second. So I threw this hardware RAID storage controller
+
+238
+00:22:24,000 --> 00:22:29,920
+on it. It could do like 10 gigabytes per second, but I can only put through 400 megabytes per second.
+
+239
+00:22:29,920 --> 00:22:36,000
+So it's not going to give you magically access to all of the wonderful things you could throw into
+
+240
+00:22:36,000 --> 00:22:43,360
+like a modern Threadripper PC. But it does give us a lot more options than with the Pi 4 where you
+
+241
+00:22:43,360 --> 00:22:48,880
+just have USB 3.0, which has its own limitations. I mean, the fact that you could have redundant
+
+242
+00:22:48,880 --> 00:22:54,160
+storage is an upgrade beyond the fact that it's slightly faster too. But do you think this kind of
+
+243
+00:22:54,160 --> 00:23:01,920
+is maybe an indication of where the Pi is going to go? Is this compute module a hint of what we might
+
+244
+00:23:01,920 --> 00:23:08,640
+see maybe in the Pi 5? I hope so. Another thing to keep in mind is there are a lot of Pi competitors
+
+245
+00:23:08,640 --> 00:23:14,240
+and it's which one is going to be the Pi killer. Nothing's going to kill the Raspberry Pi just
+
+246
+00:23:14,240 --> 00:23:20,400
+because the Raspberry Pi has a community and a force behind it that is unparalleled in all the
+
+247
+00:23:20,400 --> 00:23:24,800
+other kind of makerspace single board computing realm. And don't you think that's kind of the
+
+248
+00:23:24,800 --> 00:23:30,560
+advantage of using the compute module in another board versus getting an SBC that just has all this
+
+249
+00:23:30,560 --> 00:23:36,480
+stuff? It's like you're getting the Raspberry Pi ecosystem with some of these cool new toys. Yeah,
+
+250
+00:23:36,480 --> 00:23:42,480
+yeah. On the flip side, though, there are some boards like the, what is it, the Rockchip RX?
+
+251
+00:23:42,480 --> 00:23:49,920
+I forget what the specific chip is. Rockchip Pro. Yeah, it has a by four lane. So you get more
+
+252
+00:23:49,920 --> 00:23:55,360
+bandwidth and more lanes so that you can do more with it and have more IO speed. There's still
+
+253
+00:23:55,360 --> 00:24:01,520
+limitations just based on the fact that the CPU is not super fast. And even if you give it, you
+
+254
+00:24:01,520 --> 00:24:06,640
+know, let's say we get 10 gigabits or 20 gigabits of throughput, the CPU is going to be limited in
+
+255
+00:24:06,640 --> 00:24:12,880
+other ways on these cheaper ARM SBCs like the Raspberry Pi. For instance, today I'm doing some
+
+256
+00:24:12,880 --> 00:24:18,720
+testing for a 2.5 gigabit NAS that I'm building with a Pi to see if it can compete with an out
+
+257
+00:24:18,720 --> 00:24:24,560
+of the box NAS from QNAP or Synology or something like that. And without overclocking the CPU,
+
+258
+00:24:24,560 --> 00:24:31,120
+I can only pump through 1.7 gigabits of network traffic because the way the CPU is architected,
+
+259
+00:24:31,120 --> 00:24:36,000
+all packets go on one core on the CPU. It's a four core CPU, so it could support more,
+
+260
+00:24:36,000 --> 00:24:41,520
+but the way the network throughput works on the Pi, it's stuck on one core and it maxes out. So
+
+261
+00:24:41,520 --> 00:24:46,400
+you have to overclock it to get more speed. I think, you know, there are two things I really
+
+262
+00:24:46,400 --> 00:24:52,640
+want to see in the next Pi. One is maybe more PCI bandwidth. The other is just a faster CPU.
+
+263
+00:24:52,640 --> 00:24:58,640
+And we've seen what's possible. Apple with their M series, even the A series, just blows away the
+
+264
+00:24:58,640 --> 00:25:04,240
+competition in terms of performance per watt and, you know, single threaded performance for any kind
+
+265
+00:25:04,240 --> 00:25:12,560
+of mobile device. So I think that the ARM SBCs have a bright future. And that's I'm hoping that
+
+266
+00:25:12,560 --> 00:25:18,160
+IO speed and CPU speed, which is becoming the bottleneck for a lot of my projects. Those are
+
+267
+00:25:18,160 --> 00:25:22,080
+the two things I really hope to see improved. I wonder where you come up with some of these
+
+268
+00:25:22,080 --> 00:25:28,080
+ideas, man. Your head must be an interesting place. If you want to come over to my house sometime,
+
+269
+00:25:28,080 --> 00:25:32,640
+I will show you the pile. I have so many projects that I really, really want to work on.
+
+270
+00:25:32,640 --> 00:25:35,600
+And I don't think I'll get to them in the next few months, unfortunately.
+
+271
+00:25:35,600 --> 00:25:37,120
+Are you near me? Are you in Raleigh?
+
+272
+00:25:37,120 --> 00:25:42,560
+No, I'm in St. Louis, Missouri, but, you know, fly over here after the coronavirus is over.
+
+273
+00:25:42,560 --> 00:25:44,960
+Oh, maybe one day we'll do another road trip, hey, Chris?
+
+274
+00:25:44,960 --> 00:25:48,400
+Yeah, for sure. I don't think that's a maybe. Nothing about that's a maybe.
+
+275
+00:25:49,040 --> 00:25:53,040
+So if we were to come visit, what kind of stuff would we see you self-hosting in your place?
+
+276
+00:25:53,040 --> 00:25:59,360
+Right now, the major thing that I'm hosting is PiedRamble.com. This has been a project since
+
+277
+00:25:59,360 --> 00:26:04,960
+2014. I started doing it. It was to see if I could host a Drupal site specifically,
+
+278
+00:26:04,960 --> 00:26:10,240
+because I am involved in the Drupal open source community. If I could host Drupal in my house
+
+279
+00:26:10,240 --> 00:26:18,480
+long term, and that site has had 99.997 or eight uptime since 2014, running on Raspberry
+
+280
+00:26:18,480 --> 00:26:23,600
+Pi's. Now, I cheated in 2016. I switched to use Cloudflare as a front end, but the cache
+
+281
+00:26:23,600 --> 00:26:28,160
+is only 30 minutes. So if I do have a major outage, it will go down after 30 minutes.
+
+282
+00:26:28,160 --> 00:26:30,640
+I don't think that's cheating. That's just good engineering.
+
+283
+00:26:31,440 --> 00:26:36,160
+Yeah, well, I was getting tired of if my ISP goes down for two minutes, I would get a
+
+284
+00:26:36,160 --> 00:26:41,040
+notification. I was going to say, how have you managed to have ISP uptime that high at home?
+
+285
+00:26:41,040 --> 00:26:44,800
+That was the most impressive part. Well, I've switched too. In St. Louis,
+
+286
+00:26:44,800 --> 00:26:48,240
+we have Spectrum, but... Yeah, me too. It sucks.
+
+287
+00:26:48,240 --> 00:26:54,800
+Yeah, it's difficult because the ISPs, they have a monopoly basically. And another fun thing that
+
+288
+00:26:54,800 --> 00:26:58,560
+I'm going to be trying, I actually just got last week, a Starlink.
+
+289
+00:26:58,560 --> 00:27:00,640
+Awesome. And I'm going to be
+
+290
+00:27:00,640 --> 00:27:08,240
+testing it out. My ultimate goal is to have, either through the router, I have an ASUS router,
+
+291
+00:27:08,720 --> 00:27:13,680
+either through that or maybe through a Raspberry Pi. I'm also testing a router build using a
+
+292
+00:27:13,680 --> 00:27:15,520
+Raspberry Pi compute module. Of course.
+
+293
+00:27:15,520 --> 00:27:21,840
+Having a redundant link that will automatically fail over and possibly do link aggregation,
+
+294
+00:27:21,840 --> 00:27:27,040
+but for now, I just care about the redundancy. Just because I do work from home, I do streaming,
+
+295
+00:27:27,040 --> 00:27:33,440
+I do video uploads, and I need a lot of bandwidth and I need reliability. And I do want to host more
+
+296
+00:27:33,440 --> 00:27:37,840
+besides just the PyDramble site. I want to host my personal site here at some point. I want to
+
+297
+00:27:37,840 --> 00:27:42,960
+host some other things that are more high impact and could survive an outage of one of the two
+
+298
+00:27:42,960 --> 00:27:48,400
+network links, which Starlink could give me. I don't think we've seen many people discussing
+
+299
+00:27:48,400 --> 00:27:52,960
+hosting services on Starlink either. I'd be curious to see what they allow, what can get
+
+300
+00:27:52,960 --> 00:27:54,800
+through. Have you heard much?
+
+301
+00:27:54,800 --> 00:28:00,080
+It's a mixed story there. So they don't give you a consistent IP address. And they also don't,
+
+302
+00:28:00,080 --> 00:28:04,080
+they don't pass through traffic in a way that you can host directly from home. So I'd have to use
+
+303
+00:28:04,080 --> 00:28:11,280
+some sort of proxy. And I can have one of the VPSs I have at DigitalOcean or something like that,
+
+304
+00:28:12,000 --> 00:28:13,920
+pass through the traffic for me.
+
+305
+00:28:13,920 --> 00:28:18,400
+Sure. So give us an idea of what other, so I heard you have a, sounded like you're running Drupal on
+
+306
+00:28:18,400 --> 00:28:22,080
+a Raspberry Pi server. Any x86 boxes in that mix we'd see?
+
+307
+00:28:22,080 --> 00:28:29,600
+I do have one x86 server that mostly what it's doing is allowing me to RDP into it and do Windows
+
+308
+00:28:29,600 --> 00:28:36,320
+things when I need to. It's running Windows 10 Pro and I use it for a lot of network testing
+
+309
+00:28:36,320 --> 00:28:40,480
+because it has a Mellanox card inside of it so I can get 10 gig network tests done on it.
+
+310
+00:28:40,480 --> 00:28:43,920
+Especially if it's a long test that's going to take a few hours, I don't want to do it on my
+
+311
+00:28:43,920 --> 00:28:48,400
+main workstation, which is a laptop, because then it's stuck wherever I have it running.
+
+312
+00:28:48,400 --> 00:28:52,400
+Yeah, I know that one. Like, why did I start that job on the laptop? Dang it.
+
+313
+00:28:52,400 --> 00:28:58,640
+Exactly. And then you have to come back downstairs later and find it. And then the other things that
+
+314
+00:28:58,640 --> 00:29:04,240
+I do, I have a couple of Pis that run around the clock doing just little tasks around the house,
+
+315
+00:29:04,240 --> 00:29:08,960
+checking on things, keeping track of temperature and like myself,
+
+316
+00:29:08,960 --> 00:29:14,880
+and like my sump pump, checking the level of the pit, and just logging that data.
+
+317
+00:29:15,520 --> 00:29:19,600
+The other thing that I have running right now, and this is part of the motivation for all this
+
+318
+00:29:19,600 --> 00:29:26,480
+Pi experimentation, is I have a 2011 Mac Mini. Super old. The OS is not even supported on it,
+
+319
+00:29:26,480 --> 00:29:32,240
+I can't upgrade it anymore. It's still my primary network storage device, which is terrible.
+
+320
+00:29:32,240 --> 00:29:36,320
+Like I've set up all these different NASes and things and I still am using this Mac Mini,
+
+321
+00:29:36,320 --> 00:29:42,240
+which has USB two. So my external 12 terabyte single hard drive, not a RAID,
+
+322
+00:29:42,240 --> 00:29:46,640
+my single hard drive is running at USB two speeds. I'm doing file copies with, you know,
+
+323
+00:29:46,640 --> 00:29:51,520
+20 gigs, 40 gigs at 30 megabytes per second. So this would be a bad time to ask you how
+
+324
+00:29:51,520 --> 00:29:55,520
+many terabytes. One of the questions we tend to ask all of our guests is how many
+
+325
+00:29:55,520 --> 00:29:59,600
+terabytes do you have on your LAN? And we had Wendell on a few months ago and I think he had
+
+326
+00:29:59,600 --> 00:30:04,720
+a petabyte, so maybe you won't quite match that. But how many do you have, Jeff?
+
+327
+00:30:04,720 --> 00:30:11,360
+No, no. Online right now I have about 24 terabytes, but in the house I have about
+
+328
+00:30:12,320 --> 00:30:18,240
+60 or so. There's a lot of terabytes of hard drives that are sitting on my desk over there
+
+329
+00:30:18,240 --> 00:30:22,880
+that are being tested and not in use because when you're testing you don't, you know,
+
+330
+00:30:22,880 --> 00:30:26,080
+you don't want to have production data on a hard drive you're running benchmarks against.
+
+331
+00:30:26,080 --> 00:30:28,080
+Ready to go in that NAS you were talking about.
+
+332
+00:30:28,080 --> 00:30:33,280
+So yes. Yeah. And the other thing that I mentioned on, I don't remember if it was a
+
+333
+00:30:33,280 --> 00:30:38,480
+video or a live stream, but my goal is at some point in the next year, if I can get a storage
+
+334
+00:30:38,480 --> 00:30:44,320
+vendor to work with me, I would love to build a petabyte Pi. Have one Raspberry Pi controlling
+
+335
+00:30:44,320 --> 00:30:48,480
+a petabyte of storage. I think that would be something fun. It would be a 400 megabytes per
+
+336
+00:30:48,480 --> 00:30:52,320
+second. It'd be such a waste, but it'd be so cool to see that.
+
+337
+00:30:52,320 --> 00:30:56,000
+Petabyte Pi project rolls off the tongue too. I like it. It's bop, bop, bop.
+
+338
+00:30:56,000 --> 00:30:56,880
+Exactly.
+
+339
+00:30:56,880 --> 00:31:00,400
+Is a petabyte a thousand or a hundred terabytes? I can never remember.
+
+340
+00:31:00,400 --> 00:31:01,200
+A thousand.
+
+341
+00:31:01,200 --> 00:31:04,720
+Oh my goodness. How would you even do that? Like that? Wow. Yeah.
+
+342
+00:31:04,720 --> 00:31:09,680
+You got to get at least like a hundred hard drives. So it would be, it would not be super fun
+
+343
+00:31:09,680 --> 00:31:14,560
+to do the project. I mean, it'd be super fun, but the hardware, I would probably have to build a
+
+344
+00:31:14,560 --> 00:31:20,480
+rack or something and figure out a place maybe in my, my wood workshop or something to try to,
+
+345
+00:31:20,480 --> 00:31:21,600
+try to fit that.
+
+346
+00:31:21,600 --> 00:31:25,040
+Cause if you've got a 3d printer, you could, you could probably rustle something up with one of
+
+347
+00:31:25,040 --> 00:31:29,840
+those. There you go. How did I know? How did I know that would be your suggestion, Alex?
+
+348
+00:31:29,840 --> 00:31:32,480
+Well, see, this is why I'm going to say subscribe to your channel, Jeff,
+
+349
+00:31:32,480 --> 00:31:37,040
+cause there's just some great videos over there and maybe one day I'll see that project on there.
+
+350
+00:31:37,040 --> 00:31:38,560
+I hope so. That would be fun.
+
+351
+00:31:38,560 --> 00:31:40,080
+Well, Jeff, before we get out of here,
+
+352
+00:31:40,080 --> 00:31:42,400
+I was wondering if there's any way you'd like to send people, you know,
+
+353
+00:31:42,400 --> 00:31:44,640
+your channel or Twitter or something like that.
+
+354
+00:31:44,640 --> 00:31:48,480
+Everything is linked from my personal website, jeffgeerling.com.
+
+355
+00:31:48,480 --> 00:31:55,680
+I started my personal site back in 2001 or two or something like that. And I like to have
+
+356
+00:31:55,680 --> 00:32:02,320
+my data in my site. So I typically post things preferentially there and, you know, I don't,
+
+357
+00:32:02,320 --> 00:32:06,320
+I can't do video hosting and things like that. I could, and I actually did at one point,
+
+358
+00:32:06,320 --> 00:32:11,040
+but I realized that YouTube does it way better than I ever could with streaming and all that
+
+359
+00:32:11,040 --> 00:32:15,520
+kind of stuff. So I like to take ownership of that. So jeffgeerling.com is where I throw
+
+360
+00:32:15,520 --> 00:32:19,760
+everything primarily, and then you can go to the other sites from there.
+
+361
+00:32:19,760 --> 00:32:22,480
+We'll have a link in our show notes too. Thanks for joining us, Jeff.
+
+362
+00:32:22,480 --> 00:32:24,240
+Yeah. Thanks so much for having me.
+
+363
+00:32:24,240 --> 00:32:28,880
+And a big thank you from me because you've saved my bacon. I can't count the number of
+
+364
+00:32:28,880 --> 00:32:33,760
+times with the roles on Ansible Galaxy. So huge, huge, past Alex, thanks current Jeff.
+
+365
+00:32:36,960 --> 00:32:40,560
+Well, now I'm even more excited about the Raspberry Pi. Thanks to Jeff for coming on.
+
+366
+00:32:40,560 --> 00:32:44,960
+Of course, like we said, we have links to his channel and everything in the show notes.
+
+367
+00:32:44,960 --> 00:32:49,200
+And I want to mention, you can find our sponsor, Cloud Guru on social media. It's just slash
+
+368
+00:32:49,200 --> 00:32:54,800
+the Cloud Guru at YouTube, Twitter, Facebook, like all of the social media platforms. It's
+
+369
+00:32:54,800 --> 00:32:56,080
+super, super easy.
+
+370
+00:32:56,080 --> 00:33:01,280
+And a big thank you to our members over at selfhosted.show slash SRE. Our site reliability
+
+371
+00:33:01,280 --> 00:33:06,240
+engineers support the show. You guys get a limited ad feed and a little bit of extra
+
+372
+00:33:06,240 --> 00:33:07,680
+post show every week.
+
+373
+00:33:07,680 --> 00:33:11,360
+Oh yeah. I haven't told you what I want to talk about yet. That's coming up for the members.
+
+374
+00:33:11,360 --> 00:33:15,840
+No, no. It's going to be a surprise to me too. And you can go to selfhosted.show slash
+
+375
+00:33:15,840 --> 00:33:20,000
+contact. That's the place to go to get in touch with us. I'm on Twitter at ironic badger.
+
+376
+00:33:20,000 --> 00:33:24,720
+Yeah, I'm there too at Chris LAS and the show is at self hosted show.
+
+377
+00:33:24,720 --> 00:33:28,800
+And don't forget the network at Jupiter signal. Thanks for listening everyone. That was self
+
+378
+00:33:28,800 --> 00:33:47,840
+hosted dot show slash 41.
+

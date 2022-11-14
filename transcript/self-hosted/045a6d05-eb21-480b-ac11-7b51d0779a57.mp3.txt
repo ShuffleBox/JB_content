@@ -1,0 +1,416 @@
+My searches for understanding how to integrate different temperature sensors and gadgets into home assistant
+I kept coming across the intermittent tech channel and when Alex suggested that we chat with
+Quintin are today. I thought it was a great opportunity to really geek out Quintor. Welcome to the self-hosted program
+Thank you very much. Thank you for joining us Alex
+And I are both impressed with the amount of output that you have on your channel
+But also the depth of detail that you seem to go into like project after project you must
+You must put a lot of work into that
+Yeah, it's it takes up a lot of my free time
+But I'm I guess I geek you would call it by heart and I like finding
+Going to the bottom of things and then trying to explain it to others so they can do it also
+Well, I appreciate that
+Well, it's kind of the ground basis why it started as a blog and then it transitioned into a YouTube channel
+So yeah, there are some things that just don't translate into text, huh? Yeah, very true
+and and the other way around too, so like
+Heaps of code do better on a blog. So now I do kind of both. I
+Appreciate that because I agree completely with that and Alex has been striking a good balance with that himself
+So Alex was at the recent home server series that put quindor on your radar this time. It was yeah, so
+You've been building a server lately. Haven't you with ZFS and doing some stuff with Ryzen and Proxmox and all that kind of stuff
+Yeah, my my old server was about six years old now
+I think and there were some disks starting to fail and I started to have some other problems and
+One of the ways we noticed that is I actually run demotics and home assistant still at both
+And well at some point the lights didn't turn on because a disk was crashing stuff like that
+So I thought okay time to build a new one
+That's the side of self-hosting people don't talk about very often is when it breaks. It's your fault. You got to fix it
+Sometimes it's an opportunity
+Yeah, so this server looks really sweet. It's a hundred terabyte 10 gigabit server that that's the that's the branding on all of all
+Of your videos. How did you come to some of the decisions around?
+Choosing the hardware and and and Proxmox and stuff like that for me. The server is kind of
+Multi-purpose. I have my youtube channel as we just mentioned and for that I need a lot of storage
+I generate about six to eight terabytes of footage raw footage a year
+and I also like to live edit from the server, but my old server wasn't really up to that and
+Next to that. I run my home animation VMs like with demotics and home assistant from it and for work
+I also run some testing environments and things like that. So I
+kind of wanted to renew it and
+more cores is more better in that regard and
+the new
+Ryzen 3000 series was launching
+So I was like, okay, let's move my old Ryzen
+a 1700 desktop to my server platform and then buy a new Ryzen
+3000 series and basically buy a new desktop but get a new server out of it. Now have you found the Ryzen switch because
+Intel these days
+I don't know if you've seen the the latest videos from like Jay's two cents and Linus tech tips and all that
+But they are beating up hard on Intel these days. Yeah, well this sort kind of started during the Ryzen 1000 series
+So as I said, I was one of the first guys to get it and I did a whole series called the road to Ryzen
+Getting the first eight core where I came from a quad core and Intel
+well, they quickly followed with six and eight cores, but now I have a 12 core and
+Intel basically has nothing that can compete with it even
+In the areas where they used to be better
+So in IPC and power usage and stuff like that the right especially the Ryzen 3000 series is just better
+Yeah, I'm curious specifically which workloads you see a big improvement on is it encoding work? What types of?
+CPU loads are you using that benefit? Well take my video rendering from the Intel box
+I had before and granted it was a few years old that basically became four times as fast. That's wonderful
+we have from a four and a half gigahertz quad core to it basically a four and a half gigahertz with higher IPC 12 core and
+the CPU was about the same during that era in price and
+From the server. That's now an eight core server
+Well, like five years ago that would have been ultra high-end and now it's just like it's eight cores. It's okay
+It's something isn't it and you said something in there that piqued my interest because it's something we've attempted
+To various degrees of success your live editing over that 10 gigabit connection. You've built on that server
+How is that and had did you have to do any particular tweaking to your network your switches in general your network card?
+Configuration to make that work. Well, it started in the design of the server
+Reusing a desktop platform, but wanting to have high bandwidth
+Capabilities you need to take a lot into account
+So for instance a desktop platform is mostly limited in regards to PCIe bandwidth
+so I did some research and made some videos about that and how to look up how many PCIe lanes there are and your
+Motherboard and how they're distributed and then how you should basically distribute your cards over the available PCI slots
+so that there won't be a bottleneck there and
+After that, I run Proxmox with ZFS under it
+And I did a little bit of tuning in regards to flash based caching in ZFS
+So basically on the server the the project I'm editing
+After a little while, especially from ingesting footage is basically all on the cache drive, which is an NVMe drive
+so I can basically edit at full 10 gig speeds and
+although that's still slower than locally, especially the latency that it doesn't come from a hard disk and
+Well one gigabyte a second. That's plenty fast to edit video. I gotta say you're making me want to try it again
+That's great. And then the storage is taken care of you're investing your money in one place
+You have you can you can focus your performance on the server. That's really clever
+Yeah, but also things around it like backup scripts and stuff like that
+We're all kind of lax in setting that up on our desktop or workstation and stuff like that
+But on my server, I basically have directories where everything goes. So I have some scripts running which make
+backups to my as I call a DIY cloud backup solution, which I set up a few years ago and
+That always runs that just runs during the night when my desktop is off, but my server is on
+So I know if my stuff is on there, it's good
+Because using ZFS you have the advantage of stuff like data sets and do you do make use of anything like ZFS send
+For remote backups or like how do you do you even worry about off-site backups?
+Yeah, I don't make bad use of ZFS send or receive but I do off-site backups using a
+Basically a DIY cloud backup solution. I built a few years ago
+Um, do you guys remember a backup service called crash plan? Oh, yeah with a horrible Java client and everything. Yep. Wonderful
+Okay, granted, but they were the first to offer online backups with an unlimited plan basically for like a few bucks a month
+So I've been using that for a few years and it was great and they allowed you to back up 10 PCs
+So I backed up my mother's and father's PC and my sister's and mine and my laptop and some VMs
+I had and that was all fine. And then they announced well, we're stopping and
+a lot of other
+Cloud hosted backup solutions out there. They're limited to
+One client only so let's say you have black place and you have their unlimited plan
+They limit you to have only a single client, but I have like eight or ten clients which have all my data
+naturally, so I basically got together with a few friends and my parents home just got
+500
+Symmetrical megabits fiber
+so we basically chipped in got five ten terabyte hard disks and I set up a
+s3 server on their LAN which we could access remotely and
+Ever since I've been backing up to that because it turns out if you buy five times ten terabytes with
+Like an atom based server and run minio for s3
+you can use all kinds of backup tools out there which talk as s3 and currently using RESTIC and
+Back up anything you want to that and if you share that with a few friends
+It's even a lot cheaper than the cloud if you take in if you look at it for like five years
+Absolutely, I love that you chose to essentially implement
+Self-hosted s3 services simply because of the client compatibility. That's probably a similar direction
+I would have considered going because you're right you get so many good backup clients now and
+Yeah, even if even if once a year around, you know, like an annual sale
+Everybody goes in and you buy one more hard drive or two more hard drives to add to the mix or whatever your whatever your plan
+Is have you thought about that long term? Like will you just continue to add this at an add to at a time or what?
+Your thoughts around long term five years like you were saying
+well
+Since I went to ZFS route
+Expandability isn't really a thing yet. So we went with five times ten terabyte
+Which would basically be enough for the people involved for those five years and just don't even have to worry about it then no
+No, that's gonna be fine for a few years
+That is fantastic. Well going back to your new server
+I don't want to spoil it because it's a series of videos and there's a lot of details in there
+but something that Alex mentioned to me that I I wanted to sort of
+Not only get you to chat about here on the show, but it kind of is a great example of your attention detail
+You spend some time in this home server build specifically paying attention to the PCI Lane setup
+I'm not really familiar with that part of the series. So could you fill me in on those details?
+Basically if you're using a desktop platform
+those are basically geared towards having you have everything on board and
+Then having a graphics card and nowadays, maybe an NVMe SSD
+So the PCI lanes so it's what is particularly is it just more more of them and more performance on the desktop boards versus a server
+board have you heard of the
+The eight times or 16 times graphics card situations like when you're plugging a graphics card in it says I'm running at eight times speed
+Or 16 times speed or whatever. Sure
+okay, and those refer to the number of PCIe lanes that are available for bandwidth between that device and the CPU one of the
+nice things about Threadripper is that it has
+Like I forget the exact number but it has like 30 or it might even be 60 PCIe lanes
+Yeah, Threadripper has 64 and the newer generation that launched this year actually has 72. Holy crap
+So like an NVMe SSD will will generally have a an x4
+Slot so that will use four of your PCIe lanes
+Which is why it's so fast because it's basically plugged directly into the matrix
+When when you're looking at a desktop platform like Andreas says
+One of the ways they save money is by not including so many PCIe lanes in the chipsets
+if you do want to use your desktop chipset and
+Platform for a server and you want to hook up 24 drives and some NVMe cache and have 10 gigabit
+You kind of need to take that into account because just plugging all those cards into your motherboard
+It might work, but it'll be very limited in regards to bandwidth
+You're able to get so in my case if I plug in my graphics cards even into a times one slot
+My times four slot will get limited to times two instead of times four PCIe lanes
+and that means I can only get about five six gigabit over my ten giga leg instead of getting ten and
+That's of course easily testable using network performance tools
+But if this happens to your HBA which is hooked up to your hard disks
+You'll be scratching behind your ears like why isn't this performing the way I thought it would but yeah
+Okay, because Ryzen needs a graphics card, right?
+It doesn't have a built-in GPU of any any description like the Intel chips might so one of the one of the videos
+Andreas shows he literally
+has a GPU that's just garbage just for installing the OS and then he pulls it out and he shows the difference between
+his network card running at 6 giga second on a
+X 2 or X 4 link and then pulls it out
+And then suddenly the extra PCIe lanes are available and he gets the full 10 gig speed
+It's actually pretty interesting to watch that is fascinating
+I love that you took the time to actually demonstrate that to you. That's that's great
+As you said, I think it's the details that the bigger youtubers they might build something cool
+But they don't really have time to work that in the videos
+So I thought like okay, let's do a whole series about this so that people want to do the same
+Actually know what to take into account because what's your background?
+I've picked up in some of the some of the episodes that you might have an enterprise you storage you type background
+I'm just curious. I've been doing enterprise storage and mainly backup focused storage
+And and backup solutions for the past 20 years now
+In the bigger enterprise situation
+So if you have like five and a terabyte or even a few petabyte and you want a storage solution for that or a backup
+Solution and basically you're a guy. So what what we're doing at home is is kind of cute to you, I guess
+in some ways, but it also
+Teaches me a lot of stuff. So it's it's a win-win for that for both
+Both sides basically and how do you square off?
+You know because in the enterprise everything's about being highly available which will lead into another topic shortly
+You know, how do you square off desktop hardware of you know?
+Having a single power supply only and stuff like that against that kind of enterprise. Let's have redundant everything
+so in the enterprise
+Time is basically money
+So if you can spend more money to not have downtime basically
+That's most often worth it. So having a dual PSU which will cost you
+$600 instead of having a single one which will cost you $200
+But being down one hour costs you $2,000
+Well that choice is easy
+Mm-hmm, but at home
+$2,000 for like oh, sorry
+$600 for like a dual power supply is a lot of money where two hundred dollars will work fine
+Except indeed if it fails, but then if it fails
+I'll just run out get a different power supply plug it in and I've been down maybe a day and during that day
+And well not two thousand dollars per 24 per hour were lost
+So I can't really
+Make the same judgment call. So my time is worth less money than it is in the enterprise
+Yeah, it's a good rationale and I can't argue with it, you know
+But one thing that has come up in your latest video is a highly available home assistant
+I am super interested in this
+So please talk us through what that is first of all what that means because some people listening to this may not be familiar with what?
+Highly available means in the enterprise next to having redundant components on a single server
+they also have a term ha or called high availability is that if a
+Complete hardware box would go down
+basically, there's a cluster of hardware boxes, which then would take over the function or
+VMs or guests or whatever that other box was running and then basically started again
+To make that service it was running or providing available again
+So a really simple example of this in the real world would be if you only have one car
+That's a single point of failure in your life, right if your car breaks down and you can't drive it anymore
+Suddenly you think to yourself. Well, I should have a backup car. Well, this is what we're talking about in terms of
+Site reliability engineering here. It's a bit of a DevOps II type topic
+but it's very important in in cloud architectures and that kind of thing as well and
+I don't see any reason why we can't start implementing some of this stuff in our home setups
+I home assistant and stuff like that when you're running
+Services in your house that you rely on to control your lighting your heating etc, etc
+having home assistant able to be able to
+Move between a Raspberry Pi and your server and a NUC under the stairs, you know
+So you've got two or three different devices that are capable of running that setup. You might have one
+That's your primary beefy, you know your best car or whatever to get back to that analogy
+But you might have your backup car that might be a bit old and a bit rusty
+But it will get the job done in a in a pinch. Yeah, that's that's exactly as I've well
+I'm still trying to build this or looking into it, but that's basically what I have
+I have the the beefy new server, but the old server has become one of the nodes in a Proxmox cluster and
+It certainly can't do everything the new server can but if if the new server would fail for whatever reason I am
+Well, we'll go into it deeper, but you can basically start the home assistant VM again on one of the lesser power machines
+So you won't get all functionality maybe but you'll get the functionality you need
+So what what considerations do you have to make with home assistant when you're trying to run it in two places at once?
+Effectively, are you are you a has I O user first of all, or do you run it out of a container or an LXC?
+or what I've been looking into that and
+To start off
+I've been a has I O user in a on a Raspberry Pi and then I basically quickly moved into a VM
+Because if you want to do something with influx DB and Grafana and stuff like that
+The the pie will die a very quiet death. Well the SD card more specifically will will fail very quickly. Yeah. Yes
+That's not good news for me
+Yeah, cuz I'm feeling all what you're saying right now thinking to myself
+Yeah, I really don't want to be troubleshooting a struggling pie at 9 p.m. When I'd rather just sit down on the couch
+I can relate to that
+You know if you do a lot of this stuff
+There's certain times of the day where you just want to be done and when it's something as important as home assistant
+This just happened to me recently
+Instead of going to bed. I was I was resolving a home assistant issue and I thought to myself for a minute
+You know what?
+I need to have a way to just switch over to another system or have a snapshot or something. So
+it it might sound silly to think about making your home assistant system highly available, but
+Listening to the two of you. I think you both make a very compelling argument
+It's making me rethink some of my setup even though it's so new which I just hate that
+Yeah, that's how it goes but making
+Locally run home automation highly available isn't talked about much or at least I don't see a lot of topics about it
+but for me, I've just
+Encountered this where the box is down because of a hardware issue and I know the VM is on there and I have another box
+but I just well
+If you don't take any precautions
+You're you're done and that's basically what we're talking about here
+Making sure that by whatever means possible
+The VM if that hardware goes down you can basically start it somewhere else and doesn't even have to be fully automated, right?
+Because a lot of stuff in the enterprise has health checks and heartbeats and all that kind of stuff that does automatic failover
+But at home, you know this this weekend, for example, I spent a bit of time with has I owe automating snapshots and stuff like that
+so I now have the tar files are syncing from my house I owe instance to a
+folder on my ZFS
+Array, and maybe I could run a house
+I ovm on my desktop for a week whilst I wait for a part to come in or something like that using that snapshot
+So is that the kind of approach you were taking?
+Yes, but a bit more enterprising. I guess you could say so first
+I built a four node Proxmox cluster with basically hardware ahead around the house
+And even if you just have two boxes instead of one, that's fine. You can build a Proxmox cluster
+With that and then the first thing I set up was in Proxmox a few versions back. They introduced
+ZFS
+replication
+so basically
+Proxmox will take a snapshot every 15 minutes of your VM and
+Send it to the other box and the same VM is over there. It's just turned off. Oh, that's slick
+I didn't know you could do that that could turn the recovery time into five minutes. That's really great. I
+Want to make sure we chat about something before we go because Alex and I have been getting really into
+LED light strips that are controlled by home assistant and you have a really cool DIY project called Quinn LED
+I'm not very familiar with it, but it looks like it could be right up our alley
+I started this when I started building the house. I'm currently living in I
+Wanted to have a dimmer for LED strips and LED lights. It's mainly for LED strips
+which I could control using demotics at that time and
+I started looking into this and Philips U just became a thing and I started looking into that
+I was like, okay, I can do this in my whole house and it's cloud connected and then I have to pay like
+$20,000 I was like, that's never gonna happen
+How can we do this otherwise and I started looking into this and I basically built the the Quinn LED
+OG as I now call it. It was in
+2015 I think and I basically designed a PCB in a board with some custom code on an ESP
+8266 was an ESP 01 at the time and built a little dimmer board which integrated into demotics
+Now fast-forward a few years. I've built more boards. I've built the Quinn LED quad and deca
+That's a four channel and ten channel board which I for instance use for all the lighting in my home
+But also in my film studio and stuff like that because it's able to do very high PBM frequencies and the newest board
+I've released is the Quinn LED dig uno
+That's a single channel
+Digital LED controller so where analog LEDs can basically only set the strip to a single color
+or brightness intensity
+Digital LEDs can do this per LED
+So you can make all kinds of effects and patterns and all kinds of cool stuff
+one thing that I never really considered because the smart LEDs was the first project that got me into
+You know, I used to build my own racing drones
+I mean I still do but that got me into electronics and soldering and that kind of thing
+but the first thing that got me into
+Building my own stuff at home was LED lighting and I've got three or four of these things around my house right now
+And then I watch your video about this
+Dig uno with a fuse in it and polarity protection and all the rest of it and I'm like, oh, yeah
+No, I probably should have a fuse in there, shouldn't I?
+The Quinn LED dig uno basically was like, okay, I want to do more with digital LEDs around the house and
+you can just take an ESP8266 or an Arduino or something like that hook up the pin to the LED strip and
+Then you can make the effects
+But if you want to install this in somewhat more permanent fashion
+You want it like controllable in home assistant and you don't want it to burn down or if you're working it up at 380
+Working it up at 3 a.m. And you cross the wires the wrong way
+You don't want everything to blow up and that's basically everything I put into the dig uno design
+so if a fuse reverse polarity protection
+there is a level shifter on there because a ESP sends out 3.3 volts and the LED strip expects 5 volts and
+Most of the time it works except when it doesn't
+So I kind of incorporated all that into the board
+But for people who want to move on from the breadboard with DuPont connections, and if you wiggle it it well turns off
+To a bit more permanent setup.
+I absolutely love and and thank you for this. I love that you have open-sourced the PCB design
+I just think that's so cool.
+I basically want it to be available for everyone
+I want to talk about two year convert for a few minutes and for those of you that aren't familiar with this wonderful project
+There are a bunch of smart plugs that you can buy based around the ESP8266 chip
+Tekin in the US makes some and I'm sure Andreas will fill us in on a few
+that are available in Europe. These things they try and
+Connect back to the the manufacturers data center for some reason to get their firmware updates
+And so what two year convert does which there'll be a link in the show notes is it emulates the update server
+On a Raspberry Pi or any other device with two NICs what one has to be a Wi-Fi adapter and one has to be an Ethernet
+But essentially you turn your Raspberry Pi into the update server of this company
+You then flash Tasmota or whatever other firmware you want to onto these devices and then you own them forever
+It's really really cool and two year convert is something that you've got into a fair bit, right Andreas?
+About a year or one and a half ago a lot of two year based projects like light bulbs and also
+Smart metering plugs became available for really interesting prices. These were like 10-15 bucks apiece and
+At the time I wanted to measure some stuff in my home for power usage and things like that
+And I basically want to have that data in home assistant so it can go to influx and Grafana and you can do all the stuff
+with it
+But these plugs as you said for some reason have to have an online connection and you can use an app and stuff like that
+The hardware is in there. We just want to use it in our own way
+But for some reason these manufacturers they don't allow that they they want you to run their firmware and then
+And then connect to their data centers and then be allowed to use your data
+And I really don't know why it needs to know when I turn on my Christmas lights or not
+What are they doing with that data?
+I often wonder particularly something that is so random as a switch like what possible information can they have from a switch being on or off?
+Presence detection at least at least they know you're there. Do they I mean, I've definitely left my soldering iron on when I'm not home
+I
+Mean there's such a big community
+Basically liberating these kinds of devices with ESP home and Tasmota firmware that I think like okay if even one
+manufacturer would just give us the ability to easily do this by hitting a switch in some kind of web interface like
+Allow custom third-party binary you take all responsibility click here
+It would be an instant hit with the home home automation community, I think but
+Nobody does this and is our data worth that much
+I mean, I I can't imagine it is and there's so many motivating factors for doing it for myself
+I just want it to completely function offline with no internet connection
+So when I take the RV somewhere where we have no connectivity
+I want everything to remain functional all of my automations to continue to work
+I'm not as concerned about the privacy aspect, but that's number two on the list. Those are two pretty strong motivators right there
+so I'm already adjusting my buying habits based on what the community seems to be able to
+Reflash at different times when I'm purchasing and I'm I know more and more people are doing it and it reminds me of
+the battle days with cheap routers
+DWRT
+Yeah, it's just like that all over again
+Only more of them and of different varying quality now
+There is a fun Twitter account that I like to follow called the Internet of shit and this talks about how the Internet of things is
+It's vulnerable to quite a few things and it isn't always updated and that kind of stuff. It's it's pretty funny
+Well and and to Andres's point a little bit more
+Why do all of these companies want to be cloud companies with infrastructure and vulnerabilities and services to maintain and API's to update?
+Why does a smart plug manufacturer want to even get in that game planned?
+Obsolescence Chris you think it is planned. It could be that's the office. That's a little conspiracy bacon Alex
+Well, yeah, think about it right if you're a hardware manufacturer and you're selling
+it's what's essentially a
+one or two dollar circuit board wrapped up in let's say another two or three dollars worth of plastic and
+Then you've got to get an FCC rating and all that kind of stuff right there isn't gonna be much money to be made
+I wouldn't have thought on a $10 smart plug. The margins are gonna be quite small
+so you've got to find some way to get people to buy these things every X number of years and
+One fun way to do that is to accidentally I mean air quotes accidentally brick the device
+you don't even have to break it you just bring out a new app and
+And then the new app can't talk to the old devices, but all the new devices can only talk to the new app
+Philips hue hub did yes. Yes, exactly. That's exactly what I have that exact situation because I went into an old
+Office that was shutting down and they had old Hughes lights all over the place and I thought well
+How great is this and of course?
+none of them could be controlled I had to go spelunking for an old app that I
+Had I guess had gotten at one point and so I was able to retrieve it
+I'm not even know if that normally how it works on the iOS App Store
+And then I had to bring it through a generational upgrade process is obnoxious
+So, I mean if you can own your hardware, I highly recommend doing it and this two-year convert
+Collection of scripts is is really pretty cool. And there's been some updates over this course of this year
+Two-year or the two-year compatible device manufacturers patched a lot of the exploits that were being used
+And then in September sort of time an update came out and people have found another exploit and that's what we're currently using
+So bear in mind this could go away at any time, but a device I bought this week is the Tekin
+SS 30 and this thing has four individually controllable
+AC ports and four
+And four controllable USB ports. So in home assistant, I now have five switches that I can control on one like power strip
+Using the the TAS motor firmware and it's really great because I know that that's just going to carry on working now until the end
+Of time or until that device physically fails. Wow, that is really great. Is this the one that's only $24 on Amazon?
+Yep, believe it or not. I'm gonna drop a link to that in the notes. That's really cool
+and all you need to flash it is a Raspberry Pi right and then you own it forever and
+They may not make that device forever and or they may patch that vulnerability
+but that one now that you own it's good and if you were to buy a couple at a time, you could just kind of set
+Up a production chain and just flash a few of them and get it over with and the thing that home assistance enables is now
+That you you can use hue and your own flash plugs and all
+All kinds of stuff from all kinds of brands and basically connect it all together as long as you can get it into home assistant
+And it does that with a lot of cloud enabled stuff too, but getting in it and in there native with Tasmota or ESP home
+It's just it makes it work so flawlessly every time
+Mm-hmm. Yeah
+I really do appreciate that aspect of home assistant because it means that some of these old IOT devices aren't throwaways a
+Home assistant doesn't care that these hue bulbs that I got have old firmware on them
+It still controls them just fine every now and then they pop offline
+It's a little obnoxious
+But it's so great at the same time to have three or four different vendors products all controlled locally by one piece of software
+But the key thing that I've found is now I shop with home assistant compatibility in mind
+That's where I start or a refresh ability for that. But yeah, right? Yep. Yep a good good point
+That's another way to look at it. That's basically why I started one of the reasons
+I designed my own hardware and dimmers and boards and stuff like that
+It's all geared to being controlled with home assistant now
+It's an ESP so you can run anything you want on it
+But from what I gather and the people in discord and on my website and stuff like that
+95% uses it with home assistant. Well Condor. I just want to say thank you again for not only all of the great details
+I came across your channel when I was looking for cheap integration thermostats and the home assistant which has made my life more comfortable and
+I also just really appreciate the level of details
+so we will link to the intermittent tech YouTube channel in the show notes keep up the great work and
+Keep us in the loop on future projects and we'd love to chat about them. Sure will do
+Thank you for having me. Is there anywhere you would explicitly like to send people? I mean are you on Twitter?
+I know you have a discord for example
+Um, well people starting with the YouTube channel and if they then want to join the discords the link and stuff are there
+So start with the YouTube channel. I think that's a good starting point and you can get more self-hosted show
+On Twitter at self-hosted show. I'm on Twitter at ironic badger
+I'm at Chris LAS and I'm there under intermittent tech and you can find links to all of those good things in the show notes
+at self-hosted.show slash nine

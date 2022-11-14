@@ -1,0 +1,1404 @@
+Well, I found something I'm gonna be staring at
+for a little while.
+It's a live tracker of Starlink satellites.
+Have you seen this, Wes?
+Satellite map.space.
+Talk about a new distraction I did not need.
+And it's not only Starlink, there's OneWeb on here too.
+They're just flying all over the place.
+They're above us right now.
+Like I'm looking at these two here and it,
+wait a minute, are they about to, oh no!
+Hello, friends, and welcome back to your weekly Linux talk show.
+My name is Chris.
+My name is Wes.
+Hello, Wes.
+Brush off all that Starlink debris.
+We have a show to do, would you?
+This episode is brought to you by the all-new A Cloud Guru,
+the leader in learning for the cloud, Linux,
+and other modern tech skills.
+Hundreds of courses, thousands of hands-on labs.
+Get certified.
+Get hired.
+Get learning at acloudguru.com.
+Well, coming up on the show today,
+can you self-host your own shells.com-like alternative?
+Obviously, at a different scale, but is it possible
+to take a desktop environment and put it in a container
+and then access it remotely?
+Well, not only is it possible, thanks
+to a really cool open source project,
+but it really kicks the llama's ass.
+In fact, you can do it with just about any modern web browser
+and you'll probably be able to get it set up
+in about 15 minutes or so.
+We'll tell you all about our experiments
+with Web Top on the show and how it's
+going to solve a major problem during our Jupiter Colony
+reunion road trip.
+It's going to be like our hero tool, potentially.
+That is, if I can get the server up and running
+for any continuous moment.
+It's been crashing all morning, Wes, and I'm a mess right now.
+This is going to be a bad show.
+I'm just going to warn you.
+Normally, I say it's going to be a great episode.
+Got a real big show.
+We have a terrible show today.
+It's going to be awful because of me.
+I'd like to point out that we didn't just do an Arch update.
+I'm not to blame.
+No, you are not to blame.
+It is, I think, the heat.
+The server is locking up and it's
+behaving very much in a hardware failure kind of way.
+I got in this morning and I went to connect
+to our beloved Arch server.
+And my web dashboard for this thing
+I'm working on for the road trip didn't load.
+And the server has been so dang reliable,
+I thought to myself, oh, it must be my workstation.
+So let me check network manager.
+It says I'm connected.
+Let me see if I can ping other stuff.
+Hmm.
+Well, all right, I'll go to the console.
+So I go down to the garage slash server room.
+And I access the console.
+And it's just dead.
+No response, nothing.
+I type in nothing, no blinking cursor, nothing, Wes.
+Nothing on the console.
+So this is not just a network problem.
+It's not the NIC going out.
+This thing's dead.
+The server is so reliable that it did cross my mind that it
+might actually be a bad keyboard.
+So I swapped out the keyboard.
+Because I thought, no way, the server's locked up.
+It's never locked up.
+The server has actually never crashed on us,
+unless we screw up an update.
+It's been a rock.
+No, that's been it, yeah.
+Sometimes we did stuff, and ZFS didn't build right,
+and our root file system wouldn't mount.
+But that was on us, not the server.
+And honestly, every time we learned a lesson,
+and it's been really solid.
+And so I would swap out the keyboard, still not working.
+I do a hard reset, power it off, power it back on.
+And I'm watching the console output like a hawk
+at this point.
+Every BIOS post message, when grub loads, then system D.
+Like, I'm watching every single thing.
+The console loads up.
+I type on it.
+I get logged in.
+I can ping stuff.
+OK.
+I go back to my desk.
+The web dashboards load.
+A few things need to be cleaned up.
+A couple of the applications crapped themselves.
+But I fix all that up.
+Good to go.
+So I come down to the studio.
+I jump on the stream, and I'm kvetching
+about how our server crashed this morning.
+But I think everything's OK.
+And I go check on it, and it doesn't respond.
+And again, I go out to the console,
+and it's totally locked up.
+And this is what, Wes?
+Like 20 minutes ago, 15 minutes ago, maybe, at the most?
+Yeah, pretty much, right before we get on the air.
+My baby, Wes.
+My baby.
+And I think it's dying.
+I think the heat here in the Pacific Northwest
+has just crushed it.
+It has been too much.
+And the worst part is it's about to get hotter
+over the next few days.
+Right.
+You won't be here to manage it.
+And you do your best at the studio,
+as I've seen trying to manage airflow, cool it off
+when you can, which isn't always possible.
+And then not only is this a valuable archival resource
+for us at the studio, it's a back door into the studio
+with WireGuard as our server there.
+And I know it hosts a bunch of personal stuff
+in some of your media collection, which you probably
+want if you're about to go on the road.
+Not only that, but it's going to be an environment where
+I can run this web top application that we're
+about to talk about and have a remotely accessible machine
+on the studio LAN.
+And that, to me, is going to be extremely valuable when
+I am in limited compute and limited mobility with LTE
+connectivity.
+Having a rock solid always on workstation
+that can do a lot of my heavy lifting
+was going to be a key part of my on the road strategy.
+I think now I'm going to move that off to Linode
+because I just can't count on this local server.
+I'm just going to have to deploy this on Linode
+and run it there.
+And they're going to have plenty of compute
+and plenty of networking.
+But it's unfortunate it's going this way.
+It's an old box, too.
+We bought it from Unix Surplus used,
+I think in 2017, 2018.
+I can't remember exactly when.
+So that means it's been through a couple of winters
+and a couple of summers.
+It's got an Intel Xeon L5640 24 core CPU.
+So it's got quite a bit of cores for what we need.
+And it's got 56 gigs of RAM.
+I can't remember exactly how we got there.
+But it's got 56 gigs of RAM in it.
+And it's done a really great job for us.
+But now it doesn't seem to be able to stay up more than 20,
+25 minutes.
+And I am legit going through an emotional process.
+I am grieving the loss of our server right now,
+especially because I'm six days out from the road trip.
+So I can't even get anything to replace it,
+even if I had the money to replace it right now.
+There's just not the time to get it in place, no.
+I mean, you really don't appreciate these things
+and how reliable and how much you depend on them
+until you start questioning it.
+Yeah, when I realized what a rocket had been
+and what it feels like now, it's like I'm
+losing a friend.
+But the road show goes on, in theory.
+And our first meetup is scheduled for August 7,
+which really is not that far away in Salt Lake City.
+Our second meetup that is scheduled
+is in Denver, August 20.
+Plus, we will have the micro meetup link available,
+where you can submit a request to me with,
+I just have a few questions in there for you.
+And we'll have a route with a live tracker.
+Our own tracks installation is still up and running,
+because that's up on a Linode box.
+And so we'll have the live map that will give you
+my location as we go around.
+But we have a lot to get into today,
+despite the state of my server.
+So before we go any further, we've
+got to bring in our virtual lug.
+Time appropriate greetings, Mumble Room.
+Hello.
+Hello.
+Hello.
+Hello, Chris.
+Hello, everybody.
+About 22 of you on the Mumble server today.
+Linuxonplug.com slash Mumble, if you'd ever like to join us.
+We have a quiet listening area and an on-air area.
+It's a great way to just listen to the show in real time.
+Talk about a low latency way to do it.
+But the other thing that's just kind of cool
+is it's all free software.
+If you join like on a Linux box, or I suppose a PSD machine,
+and run Mumble, we're running this entire stack
+in the studio on Linux.
+Mumble is free software.
+So you can listen to the show in real time
+with low latency, high quality Opus audio
+when you connect in on Mumble.
+And if you ever want to join us on air to jump in on something,
+you can.
+Like the Framework laptop, which is our first community news
+item this week, we've all been waiting for the reviews
+to land for this ultimate right to repair machine.
+And it seems like overall, the reviews
+have been a lot more positive than I think probably either
+one of us expected.
+Yeah, really.
+I mean, the biggest negative that seems to have popped up,
+and unfortunately, more than a few times at this point,
+is the battery life.
+But maybe we can take the Verge's review
+as a bit of a case study.
+They took a look at a model, came with let's see
+the configuration here, display 13.5 inch 3-2 aspect ratio.
+Yeah, 3 by 2 aspect ratio is kind of unique.
+I like that.
+It's your only option, but I like it.
+Yeah, 2256 by 1504, and not a touch screen before you ask.
+Comes with an Intel Core i5-1135G7,
+and only 8 gigs of RAM on this model.
+But don't worry, you can get more
+if you're building this for yourself.
+And that price, I think for configured,
+as configured like that, is just under $1,000,
+or basically $1,000 at $999.
+But the notes about the battery struck me
+as potentially solvable, because the whole idea
+about the framework is that so many parts are replaceable,
+swappable, and the battery is absolutely one of those.
+And so if this thing was successful,
+it'd be pretty easy for a third party
+or for framework themselves to build a higher capacity
+battery that you fit in there, assuming they could have
+around the same form factor.
+That's one of the weird things about talking
+about this laptop is I think, especially at this point,
+we're so used to just everything being soldered in
+and having to optimize what am I buying right now,
+because I can't change it and it has to last.
+And it's a little bit of you have to unlearn that when
+you're configuring this thing.
+True.
+And ByteBitten, it looks like there
+may be a touch screen in the future, possibly.
+Yes, so what some other channels showed
+was there is on the motherboard a connector for touch screen.
+So when you use it in the framework chassis,
+because you can take out the motherboard
+and create a small form factor design with it,
+and you put then a touch screen on it, it's all possible.
+Yeah, I'd love to see that kind of thing
+take off where other people start building parts for it
+too, but you'd really have to have some mass user adoption.
+I think that's kind of the whole elephant
+in the room about the framework laptop
+is how it ends up playing out is going
+to depend on how successful it is,
+because they're not going to make
+all of these additional modules, and there's not
+going to be a bunch of upgrade components
+and multiple iterations on the motherboard and CPU
+that fit in the same chassis unless this thing sells
+like crazy.
+It seems like that's the other part of this
+that has to be successful.
+Yeah, I mean, I think, thankfully, it seems
+like a decent laptop anyway.
+So if it doesn't take off, it still
+could be a fine machine to just get work done and run Linux on.
+But you're right.
+If it does take off, the value proposition
+could really be a lot more.
+You could easily get this thing repaired.
+You could find spare parts.
+You could swap things out, upgrade it as time went on,
+change out the ports as things got fancier.
+That would be pretty exciting.
+If you look at the Venn diagram of customers
+for the framework laptop, Linux user and write
+to repair users, I think they overlap a lot in this diagram.
+And depending on where you fall down on the write
+to repair issue and how important to you
+a machine like this is, I think pushes you over the edge
+if you want to order this or not.
+And it's been really interesting,
+because I've gotten a lot of notes from people that
+definitely fall into that.
+I believe in write to repair.
+And I want a system that can run Linux.
+I like this idea.
+And they're pulling the trigger.
+And I know you've been on the fence, Wes.
+And I think at the core of your indecision
+is where you stand on write to repair.
+And not so much as, of course, you want it to exist.
+Everybody wants write to repair to be a thing.
+But I'm curious how important you feel it is to you personally.
+You know, that's a tough one.
+I do think it's really important.
+But I feel like I've been a little burned, skeptical,
+just sort of, maybe it's just too pessimistic, honestly,
+at the end of the day.
+It's been hard to be able to engage
+as a consumer who wants sort of the higher end of things.
+You know, who really does care about computing,
+likes nice computers, uses nice computers, not just for sport,
+but for work and for getting stuff done.
+And up until now, it's been hard.
+You do have some of that stuff maybe in the ThinkPad line,
+especially.
+But basically, everywhere else, this
+isn't really a choice you've gotten to make.
+So unfortunately, it seems like there's
+a bit of a barrier or an activation potential
+for me emotionally to sort of be willing to believe
+in this potential again, even though I really do want to.
+Carl, it sounds like it does match up for you.
+You ordered one.
+Yes, sir.
+I'm looking forward to getting it.
+I'm going to be in batch two, which
+is supposed to ship in August.
+I'm guessing you probably went with the DIY edition,
+so it's OS free.
+Absolutely.
+Yeah, I didn't get any storage RAM or OS for it.
+So I'll handle those whenever I get it.
+In fact, I just placed a new egg order for RAM and storage
+today, and I placed the pre-order for the laptop
+a week or two ago.
+I miss the idea of just ordering the components
+I want for my laptop from Newegg.
+That's what a concept.
+That's crazy, Carl.
+Like, you can do that?
+Wow.
+Yeah, it's exciting.
+What's going to be tricky, though, is what Linux
+you decide to put on there, because you're
+going to need something with a pretty new kernel.
+Seems like 5.11, maybe the bare minimum, ideally kernel 5.12.
+And so Jim Salter had a hard time getting Ubuntu 20.04
+working on it, obviously, because it
+has such an older kernel.
+And even 21.04 wasn't perfect.
+And I think if I'm just remembering off the top of my
+head, I think 21.04 ships with 5.11.
+You'd want a distro that ships with 5.11 or 5.12.
+I've been looking on the framework laptop form,
+and they actually have a whole Linux section, which
+I'll link to in the show notes for just getting
+Linux on the DIY edition.
+And I would say probably what seems
+to be the most popular distro reading through there
+is Fedora, although there's a poll that
+was conducted just two days ago.
+Or no, no longer than that, but the last vote was two days ago.
+And Ubuntu was the largest in the poll,
+so people are also probably doing Ubuntu then
+maybe with the kernel PPA backport, possibly.
+That might work.
+But if I were going to get a framework,
+I would probably try to run Fedora or an Arch-based distro
+on there, just that way you get all that new kernel goodness.
+Because not only is it an 11th gen Intel,
+but there's also just a lot of new components in there.
+It's a lot of USB 3.0 stuff.
+I would go with a newer kernel.
+Yes, I mean, this is just not in the category
+of off-the-shelf laptop in any way yet.
+So if you're interested in this, you
+should probably be prepared to do some tinkering.
+Should we talk a little BSD in our Linux podcast, Wes?
+Oh, it's been too long, but our friends over at FreeBSD
+are working on some interesting stuff,
+including a new installer.
+Although this one has a bit of a twist.
+This new experimental installer is web-based,
+with the interface running from a web browser
+either locally on the machine you're installing FreeBSD on,
+or it can actually run on a remote system.
+What a cool idea.
+And I don't think this is absolutely the first time
+I've ever seen this executed.
+I feel like an early Debian installer prototype
+did this too.
+But the idea that the whole installer is web-based,
+and you either just do it in a web browser on a live session
+on the box, or you do it on a remote system,
+seems actually kind of like a compelling idea for FreeBSD,
+especially since most of them, probably a lot of them,
+are being deployed headless.
+What do you think of a web-based installer?
+OK, it seems really practical, but the troll in me
+just wants to say, this is one step away from an Electron
+installer, right?
+I mean, yeah.
+Like, why not ship it as an Electron app on the desktop?
+What's the difference at that point?
+I mean, I don't know, though.
+It could probably be a pretty simple, well, maybe not.
+It could be a monster of a web application.
+That could be its Achilles heel, I suppose,
+is to create a competent web installer.
+It may have to be an absolute monster,
+especially because you're probably
+going to want some abstraction in there at various levels.
+And that's probably going to be tricky to even wrap your head
+around.
+They're also working on improvements
+to their Linux compatibility layer, which I think
+is based on Linux 5.7 right now.
+And it looks like they're focusing a lot on AMD Radeon
+and newer Intel GPU support to get those fancied up.
+Also nice to see is that the Hello System project,
+which we talked about a little bit ago on the show,
+the freeBSD-powered desktop OS, well, that's
+been steadily progressing.
+They had a recent release, and they're making great progress
+towards their next one.
+Wes, that's the project being worked on by the App Image
+founder, right?
+Indeed it is.
+Hello System is one to keep your eye on.
+It's not for those of you who are offended by things that
+try to look like Mac OS, because they're just
+leaning hard into that whole UI paradigm and workflow
+and just trying to create a BSD-based system.
+Michael Larbel, though, has a pretty good write-up over
+at Ferronix from the freeBSD community, so go check that out
+if you like yourself the BSD news.
+But we wanted to sneak in just a real quick deck update.
+There's some interesting technical details
+that we learned about the Steam Deck's Linux implementation.
+Not only will the Steam Deck be using Wayland,
+but it seems like once again they've
+decided to take on the hard problem of building
+their own compositor.
+Building their own compositor, yes, that's right.
+It appears Valve's Pierre-Lou Graffé has developed GameScope
+as a follow-up to the Steam Comp Manager, which was previously
+used for this role, on the original Debian-based Steam OS.
+He tweeted a short video of a game
+being played on the Deck, and it had a crosshair cursor,
+which people noticed and then asked him about.
+Nerds.
+Yeah, exactly, right?
+He replied, yes, this is Steam OS on the Deck,
+and it uses GameScope.
+The cursor is drawn by xWayland.
+Huh.
+GameScope is the new compositor, eh?
+GameScope is the new compositor, and there's
+some bits in there, too, that suggests maybe Steam OS 3.0 is
+powered by Vulkan.
+That wouldn't surprise me at all.
+I think it would require Vulkan just for Proton
+to work completely.
+I noticed that Neil, who's not here today,
+has submitted a proposal to create a spin of Fedora
+targeted at the Steam Deck that would be Fedora for game
+developers and players.
+And you wonder, what would the advantage of that be?
+But one advantage would be that then it
+could be essentially a meta package of sorts
+that you could DNF install and get all of that stuff
+you need to create and develop games on Linux.
+So that actually could be a pretty slick solution.
+But right now, we're just going to wait and see.
+We haven't seen the release of Steam OS 3.0,
+and we're getting a trickle feed of information.
+I'm hoping I'd love for one day to be
+able to chat with somebody at Valve about the Linux
+implementation, because we just love to geek out
+about that kind of stuff.
+We'll see.
+Maybe one day.
+If you're listening at Valve, linuxunplug.com slash contact.
+Let us know.
+We can come to you.
+No problem.
+That's right.
+All right, well, one more community news item before we
+go.
+We deployed a matrix server.
+It continues to grow.
+The information is at linuxunplug.com.
+And it's a project that we watch with a lot of interest.
+And it seems that Element, the creators of the Element chat
+client, and they also work on the core matrix protocol,
+just raised a significant chunk of money.
+Yeah, they've just raised $30 million of Series B funding
+in order to further accelerate matrix development
+and improve Element, the chat client.
+It's a little confusing, because Element's
+both the name of the client and the name of the startup.
+Yeah, I wasn't really sure how to explain that.
+You're right.
+And they also work on the core matrix protocol as well.
+They're like some of the core contributors.
+The people that are throwing in the money this time
+is led by Protocol Labs and MetaPlanet.
+That's a fund that was established
+by the co-founder of Skype and Kazaa.
+And both Protocol Labs and MetaPlanet are big fans
+and have publicly supported decentralized communication
+in the past.
+So it does seem likely that this is a great source of funding
+that their visions of how they want to see communications
+and where Element is taking things line up.
+Because when you see funding like this,
+you wonder, OK, well, what's their agenda?
+But it seems, early days here, but it seems
+like things are lining up.
+It has led some folks to wonder that since Protocol Labs is
+involved, might there be some overlap between IPFS
+and matrix?
+And at least in this initial announcement,
+it sounds like, yeah, where the tech makes sense anyway,
+the teams are looking to work more closely together.
+Linode.com slash unplugged.
+Go there to get $100 in credit for 60 days on a new account,
+and you support the show by going to linode.com slash
+unplugged.
+Linode is our hosting provider for everything
+that we've built in the last couple of years,
+and we just doubled down when we went independent.
+I was using them for about two years
+before we made the switch for the JB infrastructure.
+When we got the keys back to the kingdom,
+when we went independent again, we went this direction,
+and we've just gone all in.
+Their infrastructure is super solid.
+It's flexible, and it's fast.
+You can focus on your project and not your infrastructure.
+And while I'm here right now dealing with a server
+outage on our LAN, my first thought
+is there's no way I can get a replacement server in six days
+before I leave or get one set up.
+I'm going to look through the services we're
+running on our local host here, and I'm
+going to spin them up on Linode.
+And that's just going to be the quickest and most reliable
+solution for a lot of this stuff.
+They have 11 data centers to choose from,
+so I'll probably pick something centralized
+for where I'll be traveling.
+Every service level they have is backed by the best customer
+support in the business, and when that matters,
+it really, really matters.
+And what Linode has done is they have honed and crafted
+a fine product.
+They've been doing this for 18 years,
+and they've really focused on just making it better
+over all of those years, and they have remained independent
+the entire time.
+Wow.
+I have so much respect for that.
+Imagine the headwinds they were facing
+when some of the larger hyperscalers launched,
+like when AWS came around.
+And then when VC funded competitors
+came that could basically just burn money
+and they just brought on another VC anytime
+they needed more money.
+They had to remain competitive, and they
+had to make their product more appealing than people
+that essentially had endless money on either side of them.
+And they did it.
+They made their product more competitive,
+and I watched them do it.
+I watched them, and they won me over.
+I didn't have to choose Linode.
+I chose to come over to Linode after watching
+them respond to the market and build something better,
+but stay true to their original vision
+about making cloud computing accessible and affordable
+for just darn near everybody.
+Their prices are 30% to 50% less than other providers,
+and their systems are just screamers.
+They continually invest in the hardware.
+They know what they have to do to remain competitive,
+and they're all about it.
+It's not like one of the many businesses that they run,
+or it's not like one of the very, very many businesses
+that their VC is funding.
+It's not part of their business.
+This is what they do.
+It is totally all about the best experience
+of running stuff on Linux.
+And they got a ton of distros for you to choose from.
+They've got bare metal machines in the works right now.
+I just recently set up a box to just hold some data for me
+up in the cloud, and I have a system here
+where I select what datasets I want to go up,
+and it uploads it up to a Linode box.
+On the back end, I have my file system mounted
+to their object storage, so it just expands as I need it.
+It's so flexible, so powerful,
+and now I am really appreciating how reliable it is.
+But I'd love you to try it out.
+Maybe it's part of a multi-cloud strategy.
+Maybe you want to performance test your system,
+or maybe you need a backup server like I do.
+So go to linode.com slash unplug.
+Get that $100 for your new account,
+and just try this stuff out.
+Go build something, or maybe learn something,
+and you support the show while you're doing it.
+There are a lot of ways and a lot of companies
+that let you host stuff.
+I mean, there's just an unbelievable amount now.
+But none of them, none of them check all the boxes
+like Linode.
+When it comes to the performance,
+when it comes to the customer support,
+when it comes to the reliability, the clean dashboard,
+the API, which I don't talk about enough,
+the command line client, which I also don't talk about,
+the whole picture with Linode.
+And it's just one of those things
+you have to experience for yourself.
+Linode.com slash unplugged.
+During our upcoming Jupiter Colony reunion road trip,
+I suspect there will definitely be some moments
+when bandwidth and resources are a little constrained.
+But that can't stop the shows.
+They must go on.
+That's what led us on our quest
+to build a powerful workstation in the cloud.
+That could be our steady state, a system to rely on,
+a system we can jump back onto anytime we need a lot
+of compute, a lot of bandwidth, need
+to download a lot of resources, and we don't want to use
+maybe a constrained mobile connection
+or whatever sketchy coffee shop Wi-Fi we can find at the time.
+But we needed a way to do that, and ideally,
+a full graphical workstation because some of our tools,
+we might be rendering audio, we might be streaming something.
+We don't want to be constrained just by a console.
+And so we decided to give WebTop a try.
+We had heard this lets you do this,
+and we thought maybe eventually we
+could turn this into like a remote rendering system.
+Because when Wes and I do Linux action news on Sunday,
+it's gotten to the point now where the export of our audio
+is one to one almost with the length of the audio
+because we're doing a new workflow where we're
+doing the effects in a new way.
+And it's a super cool learning experience,
+and it's both really impressed Wes and I, I think,
+with what you can do on Linux now with audio,
+even when it requires like a Windows plug-in or something
+like that.
+But it also has cost us a lot in render time.
+And so we thought after the road trip,
+this is probably something we'd keep around.
+I initially was thinking we could use the NAS here
+in the studio because it has 24 cores we could use for rendering.
+But then later, like 20 minutes ago, 15 minutes ago,
+I started thinking maybe we want to do this
+on like a big old powerful Linode.
+And I know, Wes, you jumped in there last night
+and tried to mess around with Reaper
+and try to get it running.
+Before we get into WebTop and all of that,
+I'm just curious how far you're able to push it as a desktop.
+I mean, pretty far.
+I ultimately ran into some issues
+getting some of the weirder wine apps to run.
+But I suspect some of those issues
+might have been the host system that I happened to pick.
+I picked one of our servers running on Linode
+to try this out.
+Probably should have spun up at something dedicated,
+but trying to be quick here.
+And that was a pretty old kernel.
+So I think some of the issues might have been related.
+But besides the few kind of out there wine applications,
+everything was working surprisingly well.
+I mean, I got Reaper up and running.
+I even re-streamed the Koda Radio live stream
+yesterday with OBS running in WebTop on this server,
+doing a video capture out of the browser.
+And it worked.
+That's impressive.
+So the technology here is WebTop.
+You get an Alpine or Ubuntu-based container
+that has a full desktop environment.
+And you access it using RDP.
+They bundle it with Guacamole, which
+is a XRDP web-embedded client.
+So the end product, the way you consume it, is at a URL.
+It just spins up a URL.
+I think it's like port 3000.
+You get a login prompt.
+You provide the user credentials,
+which is like ABC by default. And you're in.
+You get a desktop, and you pick which kind you want.
+I think by default, it's Alpine with Ubuntu
+if you don't specify a tag.
+But if you specify the tag, like we did,
+you can get Ubuntu with Plasma.
+And their version is based on Ubuntu 20.04,
+which is pretty reasonable.
+That's the LTS, makes a pretty good workstation.
+But it is a little funky, like Wes just hinted at,
+because it's a container.
+It's not a VM.
+It seems like a simple concept to wrap your noggin around
+when I say it.
+But when you're using it, you immediately forget
+you're inside a container.
+You really do.
+You really do.
+Yeah, and you just don't have any clue,
+until you do a uname.
+And you see some weird kernel version
+that doesn't ship in 20.04.
+And that's when it all dawned on me.
+Oh, yeah, right.
+There's a host system under this.
+So that would be a tip of mine.
+And I think Wes's, it sounds like,
+is maybe deploy this with a host OS that
+has a more modern kernel.
+So that way, any applications you
+might need in the container that take advantage
+of modern kernel features have that,
+because we did run into that.
+Yeah, it's like an upside and a downside,
+I think, of easy containerization, right?
+And this is one area where virtualization
+and containerization can go hand in hand, really.
+The whole setup process is really pretty straightforward
+if you're using Docker Compose, right?
+Oh, yeah.
+I mean, this is a great release from Linux Server I.O.
+Because they've just thought of a lot of stuff.
+And they hit on it here.
+They admit it kind of goes against the Docker grain,
+because you're running a whole bunch of services
+in a single container.
+And as it's set up by default, you
+should be aware that it's a weird kind of hodgepodge
+in between the way a lot of the Docker tooling is meant to work.
+But it's not really a VM.
+But it's somewhere in the middle.
+So by default, I think it's set up so everything in your home
+directory stays.
+But if you blow the container away and spin it back up,
+well, you're going to have to reconfigure the operating
+system.
+The performance is surprisingly good.
+Because like I mentioned, it's not using VNC or Spice.
+It's using RDP.
+And the XRDP project has actually
+gotten some love in the last few years.
+So it's stayed pretty performant.
+And I experienced a totally usable session of Plasma.
+I did turn the effects to instant
+just because I wanted to, to make it maybe feel
+a little faster.
+We're trying to be generous here.
+Yeah, and why waste the bandwidth
+trying to transmit and render a fade-in and fade-out
+of a menu when it can just be an instant pop-up?
+So that was my thinking.
+But I was able to use that kind of configuration of Plasma
+on an iPad over LTE.
+That was like my ultimate edge case,
+is could I turn an iPad into a Linux desktop that
+has its own dedicated connection so I'm not
+stealing from my limited LAN bandwidth when I'm on the road.
+And it worked.
+It freaking worked.
+And it was totally usable.
+And they have this nice little menu that expands out
+from the left-hand side.
+They have a little arrow, and you tap that arrow or click it.
+And a little drawer slides out.
+And in there, they have the ability
+to kick off a keyboard overlay if you need it.
+They have a clipboard, so you can copy and paste
+contents between your remote desktop and your local desktop.
+Super handy.
+So there, you can kind of copy out
+whatever is in the clipboard.
+And if you paste something in, that
+becomes the new clipboard contents in the container.
+That's so great.
+And I needed that almost immediately.
+So.
+Yeah, exactly.
+I was like, how do I?
+Oh, my gosh.
+I don't want to.
+OK, honestly, the first time I just
+used Netcat to get some data in there,
+that was before I discovered the handy clipboard support.
+Amazing.
+Amazing.
+And I love how you're playing like it was Netcat when you
+and I both know it was Magic Wormhole.
+I used both.
+OK, I just got tired of having to hop onto the host
+system to use Netcat.
+So yeah, OK, Magic Wormhole's handy too.
+Yeah, they're both good.
+But it's just, there is something really
+that sparks my fancy about this, because in my old IT days,
+I deployed a lot of thin clients and terminal services.
+I did Linux terminal services and Windows terminal services.
+And you could just use this to really kind of accomplish
+the same dang thing.
+I mean, I think if I was going to use it
+for a really extended period of time,
+there's a few modifications I might like to make to it.
+The whole thing right now is kind of based around the ABC
+user.
+And I think things get a little hairy
+if you want to change that.
+And I do not like that.
+So that's something I'd want to spelunk into a little bit.
+What are your thoughts on changing the username?
+Because it looks like by their docs, they don't recommend it.
+Yeah, they do mention that.
+But they do have some decent docs
+in here about for developers if you
+want to build your own image.
+So I think it's possible with a little consideration.
+It is, ABC is not the best username.
+And it would be nice to be able to customize this.
+I think maybe, too, we might want a version based on Arch,
+perhaps.
+Maybe that would be kind of cool.
+I could make 2004 work for a while, though.
+It's not the end of the world.
+As long as it's Plasma, that's the main thing.
+Really, the whole idea is to have this system that's
+running that you can reconnect to and disconnect.
+And it has all the tools up and ready to go.
+It's an always-on state.
+And we experimented with this.
+You can join and reattach to sessions
+and leave things running from different web browsers,
+from different IP addresses.
+It's all based around the user credentials.
+So that means that we can leave things.
+Wes could stage something for me.
+I could leave something staged for Wes.
+He can pop in and finish it.
+That kind of back-and-forth collaboration ability
+while we're remote and on the go and with limited connectivity,
+jeez, man, this is just going to be a lifesaver.
+It's not as flexible as something like shells.com
+that lets you run a whole bunch of different distros
+and all that kind of stuff.
+It's one distro, one desktop environment,
+really meant for one user.
+The way Wes and I are going to use it, it's really for two users.
+And it's not really meant for a whole suite of users
+and stuff like that.
+But if you need something for yourself,
+if you want a full desktop environment that
+runs in your web browser with really good support
+and pixel-perfect resolution rendering,
+if you resize your web browser, your desktop environment
+sees that as a screen resize and adjusts to accommodate it
+pretty quickly.
+Yeah, it really is impressive.
+And I've got to just have a lot of respect
+for the work, the folks behind this implementation.
+It's relying on a lot of different open-source software.
+But I think the Linux server folks
+have really done a good job of taking it to the next level
+and combining all of those pieces in a thoughtful way that
+just works really nicely.
+By default, one of the example compose files they have,
+it actually even mounts the Docker socket in there.
+Now, security-wise, you should be careful with this,
+of course.
+But if you're doing this in a controlled environment
+where you want to use this as an admin machine
+for the whole VM, now in your remote desktop,
+you can launch up other containers on that server.
+It's really cool the amount of possibilities that you have
+and sort of serverizes and deploys
+the power of the Linux desktop in a way that
+might be a lot more difficult with a proprietary desktop.
+But for us, it's just install Plasma in a Docker container.
+Go for it.
+Yep.
+Yeah, that's such a great point.
+ByteBit, and it sounds like you were thinking about doing this
+with a Raspberry Pi.
+Yeah, so I like working with a graphical user interface.
+But with the Raspberry Pi, you want
+to save as much resources as possible.
+So I install the headless version, install Docker,
+install WebTop.
+And when I need a desktop, I launch WebTop.
+When I'm done, I shut the container down
+and put it up when I need it.
+But I have the resources available to me
+without a full desktop.
+Yeah, and all of the packages it would
+require to be installed on the host system
+to support the desktop, even when you're not running it.
+Oh, good point.
+Yeah.
+Nice little optimization right there.
+Yeah, that's something I might want to try in the future.
+I think that's the part that's nice about this,
+is some of the extra flexibility, too.
+One of the things we were highlighting
+is running it on Linode, which is great because they
+have super fast bandwidth.
+And we can get fast processing and fast disk and connection
+wherever we need.
+But you might also want it, like you
+were mentioning, on a server somewhere that's super beefy
+or has local access to some data that you might need
+to run experiments on or to do analysis on
+or just to have a really powerful server
+to offload some rendering to.
+Yep, yep.
+And something else you and I were talking about off air
+for our use case, we have a system here
+in the studio that records our shows.
+And it also does tons of really great Jack audio routing
+for remote hosts and guests and the Mumble Room
+and brings it all together independently, digitally,
+into our specific tracks in Reaper for us.
+And it's just such an awesome machine.
+I hate to even touch it, but it is old.
+It's got eight gigs of RAM.
+It's got super old processors, old disks.
+It's in a bad way.
+And I do want to replace it, but I
+don't want to replace it with a $5,000 system, which
+is what we would need to get enough CPU cores and memory
+to do the rendering we want in a reasonable time.
+And so my thought was is perhaps this
+is an opportunity to offload this work to a server.
+We do the core recording on this machine.
+We stage everything.
+We export the project out, load it up in this web top instance
+up on Linode with a dedicated CPU machine,
+and then we just let it go to town for a while.
+And then we only have to deal with it just as a recorder.
+And it keeps our costs down.
+It keeps the noise of the machine
+down here in the studio.
+So that might be something we do,
+or I may end up now having to replace
+the server in the garage.
+And maybe there we go with something
+that has a lot of extra horsepower.
+And we offload some of the processing job using web top.
+We move the project file over.
+We log into web top, fire up Reaper,
+and begin rendering the project.
+And what's so neat too is you've got both sides of it
+in that if it's something you need to go in and futz with
+in the UI, you have a graphical UI.
+But in the same sense, it's just a Linux install.
+So you can have SSH in there if you need,
+or whatever back to our access to go in,
+kick off the script that way or with automation,
+and then check on it visually.
+Yep, and like everything the Linux server IO guys put out,
+it's really, really well done.
+The Docker compose file is easy to read.
+It's easy to understand.
+And then they have some great documentation
+that explains it all,
+that we will have linked in the show notes
+at linuxunplug.com slash 416.
+Go check it out.
+I think they've done a fantastic job.
+And I'd love to know other ways
+you particularly solve this problem.
+Let us know at linuxunplug.com slash contact.
+Linux.entropy.works, use promo code LUP13 and save 15%.
+This is a member of our community
+and I love watching them go.
+They're an industry leading mobile
+and web development studio based in the UK.
+And Entropy has global clients,
+including Mars Wrigley, Walmart, Mediacom,
+the Financial Times.
+They're trusted by some of the biggest names
+in media content, but it's not just about the big names.
+No, they wanna work with everybody.
+They love working with smaller companies, startups,
+people that are just getting into it.
+They just love building mobile desktop
+and web applications.
+And because they're on our show,
+probably not a huge surprise to you,
+but I love seeing this,
+Entropy runs on Linux.
+They are open source hounds.
+They have a team of distro hoppers
+and Linux hardware nerds
+and everything they do really goes back
+to their love for the Linux community.
+They're listeners of the show
+and they thought, you know what,
+like I preach often, let's spend locally.
+And I think that's a great way to go.
+And some of their key tools involve Ruby on Rails,
+of course, that's huge,
+but they're really moving into Flutter.
+Flutter for mobile and desktop
+and Flutter for the Linux desktop.
+They've pioneered some of the most complex
+Flutter apps ever built
+with full machine learning integration.
+They can rapidly build apps for iOS,
+Android, Windows, Mac OS, and yes,
+Linux, of course.
+In fact, they can pretty much do it in no time.
+That's how they've become
+one of the global leaders in Flutter development
+with dozens of deployments in the last year alone.
+So if you're thinking about taking the plunge
+into Flutter for the Linux desktop
+or maybe another platform,
+or maybe you're a small or large business,
+maybe you're just an independent dude
+or dudette trying to get into the app game,
+well, Entropy is always ready to chat.
+They'd love to discuss your ideas
+and give you some opinions, some thoughts, some input,
+regardless if you wanna move forward or not,
+they just love to chat.
+So get in touch, chat mobile, chat Flutter,
+or discuss your favorite Linux podcasts
+to help you get started
+and to help incentivize you a little bit.
+They're offering Linux Unplugged listeners
+15% off their first project.
+Mobile app, web app, maybe a Linux app.
+If I could vote, build a Linux app
+that makes recording PipeWire sources super easy
+and build it around Flutter.
+Go talk to Entropy about that.
+I'd buy it.
+So go to linux.entropy.works,
+fill out their contact form, use promo code LUP13,
+they'll get in touch, get you started.
+There's never any pressure.
+They're always happy just to chat
+and discuss your project and help any way they can.
+So that's linux.entropy.works and use promo code LUP13.
+Well, I think it's time for some feedback.
+What do you say, Chris?
+Indeed, Mr. Payne, you wanna read us Nicholas's email?
+Cause he's got something that,
+well, it's one of those elephants in the room.
+Hey guys, huge fan of the show.
+I've been waiting the last couple of episodes
+to hear what you think of this.
+It's a tablet built for Linux.
+Not sure if you've heard about it
+or maybe you've had some skepticism,
+but I hope you guys keep doing what you do either way.
+And he's talking about here, the JingOS tablet.
+Uh-huh, yeah, we haven't talked about this, have we?
+No, it's been out there.
+I mean, I think a lot of our audience out there
+has probably seen it on Twitter
+or been written about in some of the Linux news out there.
+Nicholas tries to sweeten the pot a bit,
+noting that the developer says it's not locked to JingOS,
+the actual hardware he means.
+You're supposed to be able to boot
+any ARM Linux on the device.
+Although of course, the hardware is coming with JingOS,
+which is designed for the tablet experience.
+I don't know though, the note about skepticism in here
+rang true for me.
+I mean, not just about Linux tablets,
+but kind of non-iPad tablets at all, if I'm honest.
+Yeah, that must be part of it.
+I know the reason why we haven't talked about it
+is because Wes and I are becoming
+so skeptical about all of these types of things.
+And this one seems particularly tricky
+because you've got the JingPad, which is a hardware device,
+and then you've got JingOS.
+And the ask here from the Jing folks
+is for us to believe that both of those things, the OS
+and the hardware, will be in some kind of production state
+that it's worth dropping $600 on.
+And it's a great price when you consider it $600
+and that includes the keyboard, which Apple charges like $300
+just for the keyboard.
+And then the tablet's like $1,000 on top of that.
+Right.
+But you're right.
+It's not only are we just skeptical of these kinds
+of devices now.
+I was on late night Linux this week,
+and we talked about grifters and open source and free software.
+And we've just seen so many grifters now
+that it is hard to believe anything's
+going to actually succeed.
+And so part of us just sits here and goes, well,
+when you ship, we'll believe you.
+Like the framework laptop.
+I think that same skepticism was applied
+to the framework laptop.
+Yeah, really.
+However, the downside to that is sometimes
+we miss cool things really early in the stage.
+It's like we've gotten old and bitter.
+We're missing the new stuff.
+We don't want to be that cynical, right?
+We should still have hope.
+I think that's essential.
+And we want to support projects that have a reasonable chance
+of working out.
+Right, right.
+However, I have seen some videos of the Jing Pad running Jing
+OS.
+And it's early days still, but it looks surprisingly good.
+To say it's been heavily inspired by iPad OS
+would be an understatement.
+But it has taken a lot of the elements
+that work well in iPad OS and applied them
+to a Linux environment.
+And this is once again offering that idea
+that you could have something that works in a tablet mode
+and also can be switched to a desktop mode
+for greater productivity.
+Convergence.
+Yeah, convergence.
+I've never heard that one before.
+And these kinds of things, they just check a skepticism box.
+So something that looks like iPad OS but isn't
+means that it's never going to quite be as good as the thing
+it's attempting to emulate.
+Something that offers convergence but so new
+and doesn't have super high-end hardware leaves me skeptical.
+I think you're hitting on it right there,
+is that it's not that they're not saying the right things.
+It's not that these aren't good goals.
+But we've seen so many folks have these goals.
+And then it's not even that they didn't get part of the way.
+But the claim and the competition on the market
+is executed on such a level and with the amount of polish
+that when you just sort of casually imply
+that's what you're building to, and then it doesn't hold up,
+you really start doubting, like, does our community even
+get why people like these other proprietary solutions?
+Yep, well said.
+Now, it seems conceivable, Wes, that as time goes on,
+technology improves, software projects
+continue to get iterated on, hardware gets better and better,
+display technology and CPUs in particular
+have just really just gotten better and better.
+I mean, maybe at some point, those things
+converge in a way that makes it possible for a promise
+like this to actually be met.
+And we'll be over here on the skepticism sidelines,
+thinking it's never going to happen.
+And we've missed this convergence of timing and hardware
+and software.
+And something great does come from it.
+But what we try to do is we try to talk about things
+on the show that we know are likely going to produce.
+And they're going to result in something.
+And if we talk about it and you go spend your money,
+you're not going to get scammed.
+Because I'm still waiting on my damn Atari VCS.
+And it was a lot of those types of things back in that era
+that just sort of burned me out on this.
+And now I want to see proof.
+I want to see a product.
+And I want to see it really starting to ship, at least
+to reviewers, before we really go in on it.
+But it's not to say we're not at least keeping our eye on it.
+And I do wonder if maybe we missed the boat on this.
+And maybe we should have talked about it earlier or not.
+But I still stand by that core principle of,
+I don't want the audience getting scammed.
+That's one area maybe where some of the Pine stuff
+has been a little more successful.
+Or at least, they've had an approach
+of not setting expectations too high.
+That's where it really gets dangerous to my mind.
+Right, is setting those expectations too high
+and then being unable to ever really achieve
+the initial promise.
+Yeah.
+Because I want us to play.
+I want us to try these things.
+But we just need to be honest if we're still
+working out a lot of the kinks.
+I like their progress.
+I'm happy to see this landing in reviewers' hands.
+And I think it's time to start taking it more seriously.
+And I may end up having to re-evaluate my stance
+on these types of projects.
+If both the framework laptop and the JingPad
+end up actually being really solid products that deliver
+on their promises, well, then that
+means it's time for Chris to reconsider this line
+and figure out where that line should lie, I suspect.
+Well, watch.
+I actually do really hope that I have reason
+to re-evaluate the skepticism that has brewed inside me.
+We'll see.
+Also, I'd like to make a call out on the podcast.
+We're looking to chat with someone at Bedrock Linux.
+Please email me, chris at jupiterbroadcasting.com.
+It's on our minds, and we'd like to chat with you.
+Well, like I mentioned, I was on Late Night Linux this week.
+Go check out Late Night Linux for that.
+We chatted about SyncThing, which my SyncThing install just
+recently hit the two-year mark.
+It's been running really solid.
+And the guys had me on to chat about that,
+grifters in the open source community,
+and a little fedora silver blue.
+So that was Late Night Linux episode 135,
+where I joined the boys.
+It was a good time.
+Go check that out.
+We'd love to have you join our Telegram group.
+I posted the most adorable picture of Levi
+in there this morning.
+I don't do it often.
+But every now and then, the really good ones,
+I drop them in there at jupiterbroadcasting.com
+slash Telegram.
+And if you join while this podcast is out,
+it's probably not too far back in there.
+Or you could just look at all the photos, I suppose.
+You can do that.
+So jupiterbroadcasting.com slash Telegram.
+And maybe as a bonus, there's a little bit of Linux chat
+sometimes, but mostly dog pics.
+That's not, it's mostly Linux chat.
+It is, but I mean, you saw the picture.
+It's very cute.
+It was adorable.
+Meetup.com slash jupiterbroadcasting,
+and last but not least, we'd love to hear from you.
+Linuxunplug.com slash contact.
+That goes into an inbox that both Wes and I can check
+and read, and we try to read every single one of them.
+Even if we don't respond, and they don't all
+make it into the show, we try to read every email every week.
+That's linuxunplug.com slash contact.
+I imagine I'll be worse at that practice
+while I'm on the road, but when I get back,
+I'll try to get that back in.
+It's something I, it's a goal of mine recently
+because I ask you to send the email in.
+The least I could do is read it.
+So it is actually a personal goal of mine
+to read each one of them that comes in.
+It may be a little sketchy while I'm on the road,
+but we do try.
+And last but absolutely not least, actually,
+I need to mention the Luplug.
+They get together every Sunday noon Pacific
+in our Mumble Room at linuxunplug.com slash Mumble.
+You can get the details, and then you join,
+and you're good to go.
+You hang out and chat with some like-minded folks.
+Get the info, linuxunplug.com slash Mumble.
+When we were fooling around with our cloud Linux desktop,
+you came across a pretty neat trick.
+Yeah, this is by a gentleman named Scotty Hardy on GitHub.
+It's called Docker Wine, and it's a Docker image
+that includes wine and wine tricks.
+But not only that, it's pre-configured
+with a handy little helper script
+that's ready to set things up locally with X11 forwarding.
+If you've got an X server running and just wanna run the app
+in the container, or it's got RDP built in
+if you wanna run this wine app on a remote server.
+Which means it also supports audio redirection.
+It'll play sounds through Pulse Audio on your Linux box
+using this whole setup.
+So Windows applications in a container
+that you're connecting to over RDP with sound support.
+And the name is cleverly Docker Wine.
+We'll have a link to this in the show notes.
+This is great.
+This is so neat because you sometimes need to crap up
+your system to get all of this wine stuff working.
+Yeah, no one wants to install all these weird,
+janky Windows programs, right?
+That's the perfect use case for a container.
+It really is.
+Like, just go crap up a container,
+and then when you're done with it, you throw it away.
+And what's so nice about this project
+is that as somebody who does weird things
+with containers and plates with it,
+there can be some arcane tricks between user permissions,
+between mounting all the right Pulse and X11 stuff,
+let alone configuring the RDP connection to be easy.
+So it's just nice that a lot of that knowledge and trickery
+is distilled in one handy little script you can run.
+Well, I'm gonna check on the server.
+It looks like it's still up, Wes.
+Huh, I wonder why it would have crashed so soon
+after last time, and this time it's remained up.
+What's the difference, right?
+Something tells me we're gonna stop pinging it
+and stop paying attention to it after the show,
+and then it's gonna crash immediately.
+Oh boy, we gotta get this fixed.
+This is gonna, I think job one really is while it's up,
+offload as much config as I can, right?
+That's job one.
+Because the data's okay, I would rather honestly
+have some hardware component on the motherboard
+or the CPU fail than any of the disks fail.
+Even though we've got them in a ZFS RAID,
+at least all of the disks are fine.
+We can ultimately move those.
+Time to check our backups.
+No kidding.
+In the meantime, go follow the show on Twitter
+for news announcements or schedule changes,
+which I don't expect there will be,
+or other kinds of things like that.
+At Linux Unplugged, the whole network is at Jupiter Signal
+because yes, there are an entire network,
+a fantastic podcast, including the self-hosted podcasts,
+Encoder Radio, and of course, the companion to this show,
+Linux Action News, every Monday morning,
+Wes and I break down everything that mattered
+in the week of Linux and open source.
+And you gotta catch that.
+If you're not catching Linux Action News,
+you're like missing half of this show practically,
+but it's just the news segment,
+just the news you need to know.
+It's great too if you're in the industry.
+In fact, if you know anybody in the industry
+that should stay up to date on this stuff
+as part of their job, send them a link
+to your favorite episode of Linux Action News.
+It's a great way for people in the industry to stay informed.
+As for us, one more show in the studio before we head out.
+It's literally the last thing I do before I hit the road.
+So join us for that.
+It'll be the last Linux Unplugged from the studio
+for a while next Tuesday at noon Pacific, 3 p.m. Eastern.
+See you next week.
+Same bat time, same bat station.
+Indeed, links to everything we talked about today,
+how to contact, how to join the Mumble Room,
+the matrix server, all of it.
+What we've done is put it all together
+on a webpage at linuxunplugged.com.
+I'd like you to check it out.
+Also there, you'll find links to everything
+we've talked about for previous episodes,
+the entire bat catalog.
+It's incredible.
+We're still working on a Gopher version though.
+It'll happen.
+And maybe a Usenet version as well.
+Great way to download the show.
+Anyways, as for us, thanks for joining us
+on this week's episode.
+We'll see you back here next Tuesday!
+Right!
+And we'll see you next week.
+Alright, go vote JBtitles.com.
+We got through it.
+It was rough.
+I am off my game, you know, because I was already getting a little rough.
+One of my data plans just got canceled on me, which has kind of sent me into a panic
+about the road trip.
+And then to have this server failure happening right now.
+I think you're a one-legged stool right now.

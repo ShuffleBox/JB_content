@@ -1,0 +1,4972 @@
+1
+00:00:00,000 --> 00:00:05,480
+In celebration of Unix turning 50 today, we open with a special clip.
+
+2
+00:00:05,480 --> 00:00:11,520
+Back in 1969, a couple of computer scientists here at Bell Labs started to develop some
+
+3
+00:00:11,520 --> 00:00:15,020
+programs they needed for their own use.
+
+4
+00:00:15,020 --> 00:00:19,700
+What Ken Thompson and Dennis Ritchie started developing then has evolved into the Unix
+
+5
+00:00:19,700 --> 00:00:24,240
+operating system, which by now is widely used around the world.
+
+6
+00:00:24,240 --> 00:00:27,060
+We were trying to make computing as simple as possible.
+
+7
+00:00:27,060 --> 00:00:32,080
+In the late 1960s, Dennis Ritchie and I realized that the then current operating systems were
+
+8
+00:00:32,080 --> 00:00:33,940
+much too complex.
+
+9
+00:00:33,940 --> 00:00:40,400
+We attempted to reverse this trend by building a small, simple operating system on a minicomputer.
+
+10
+00:00:40,400 --> 00:00:45,160
+What we wanted to preserve was not just a good programming environment in which to do
+
+11
+00:00:45,160 --> 00:00:58,880
+programming, but a system around which a community could form, fellowship.
+
+12
+00:00:58,880 --> 00:01:01,400
+Hello friends and welcome into the Unplugged program.
+
+13
+00:01:01,400 --> 00:01:02,400
+My name is Chris.
+
+14
+00:01:02,400 --> 00:01:03,400
+And my name is Wes.
+
+15
+00:01:03,400 --> 00:01:04,400
+Hello, Wes.
+
+16
+00:01:04,400 --> 00:01:05,400
+Hello.
+
+17
+00:01:05,400 --> 00:01:07,080
+You know, we have something special planned for old 324.
+
+18
+00:01:07,080 --> 00:01:09,120
+Oh, we've been hard at work.
+
+19
+00:01:09,120 --> 00:01:10,120
+We have.
+
+20
+00:01:10,120 --> 00:01:11,840
+We've been having a lot of fun this week.
+
+21
+00:01:11,840 --> 00:01:16,720
+We wanted to put ZFS and Extended 4 to the test.
+
+22
+00:01:16,720 --> 00:01:20,000
+The promise of ZFS is pretty high.
+
+23
+00:01:20,000 --> 00:01:21,000
+Oh, yeah.
+
+24
+00:01:21,000 --> 00:01:24,320
+But is there a performance bottleneck for that data security?
+
+25
+00:01:24,320 --> 00:01:26,600
+What's this going to be like using it for real day to day?
+
+26
+00:01:26,600 --> 00:01:30,680
+Yeah, maybe you're on a laptop, you've got an SSD, but it's nothing super fancy.
+
+27
+00:01:30,680 --> 00:01:35,600
+In our case, this week, we used a Samsung Evo 850.
+
+28
+00:01:35,600 --> 00:01:40,800
+And we wanted to see how Extended 4 and ZFS performed against each other in both normal
+
+29
+00:01:40,800 --> 00:01:44,120
+conditions and lower memory conditions.
+
+30
+00:01:44,120 --> 00:01:50,080
+Maybe you've got a few electron apps running, you've got some tabs going, how then do things
+
+31
+00:01:50,080 --> 00:01:51,080
+perform?
+
+32
+00:01:51,080 --> 00:01:53,480
+And what kind of penalty do you take for that data security?
+
+33
+00:01:53,480 --> 00:01:54,520
+Or do you?
+
+34
+00:01:54,520 --> 00:01:55,520
+So we wanted to find out.
+
+35
+00:01:55,520 --> 00:01:58,560
+Plus, we've got some more thoughts on 1910.
+
+36
+00:01:58,560 --> 00:02:03,240
+And we've also been running Pop OS as just our daily driver, which has been pretty great.
+
+37
+00:02:03,240 --> 00:02:04,240
+We have some thoughts on that.
+
+38
+00:02:04,240 --> 00:02:09,040
+And I had a quick chat with Carl from System76 and have some good little insight nuggets
+
+39
+00:02:09,040 --> 00:02:12,320
+from him on things we can talk about, including that upgrade process.
+
+40
+00:02:12,320 --> 00:02:13,880
+Yeah, that sounds pretty smooth.
+
+41
+00:02:13,880 --> 00:02:15,840
+I want to talk about that too.
+
+42
+00:02:15,840 --> 00:02:19,600
+But before we get to that and the community news and all the other goodies, I got to say
+
+43
+00:02:19,600 --> 00:02:21,160
+hello to Cheese and Alex.
+
+44
+00:02:21,160 --> 00:02:22,160
+Hello, gentlemen.
+
+45
+00:02:22,160 --> 00:02:23,160
+Hey there.
+
+46
+00:02:23,160 --> 00:02:24,160
+Hello, internet.
+
+47
+00:02:24,160 --> 00:02:25,160
+Hello there.
+
+48
+00:02:25,160 --> 00:02:27,880
+And of course, a big time appropriate greetings to that mumble room.
+
+49
+00:02:27,880 --> 00:02:28,880
+Hello.
+
+50
+00:02:28,880 --> 00:02:29,880
+Hello.
+
+51
+00:02:29,880 --> 00:02:30,880
+Hello.
+
+52
+00:02:30,880 --> 00:02:31,880
+Howdy.
+
+53
+00:02:31,880 --> 00:02:32,880
+Howdy.
+
+54
+00:02:32,880 --> 00:02:33,880
+Happy Linux Tuesday.
+
+55
+00:02:33,880 --> 00:02:34,880
+We've got a chipper bunch today.
+
+56
+00:02:34,880 --> 00:02:36,080
+That's great.
+
+57
+00:02:36,080 --> 00:02:39,560
+Everybody's been properly caffeinated, at least I have been.
+
+58
+00:02:39,560 --> 00:02:43,080
+Now I have to also admit that I've got a CPAP machine now.
+
+59
+00:02:43,080 --> 00:02:46,260
+So not only am I sleeping, but I'm also still caffeinating.
+
+60
+00:02:46,260 --> 00:02:48,040
+So you better watch out, Wes.
+
+61
+00:02:48,040 --> 00:02:50,240
+Superpower of regular sleep.
+
+62
+00:02:50,240 --> 00:02:52,920
+Well, we have some community news that I wanted to start with.
+
+63
+00:02:52,920 --> 00:02:57,080
+Besides the fact that Unix turned 50, they actually, it's a funny thing, I have some
+
+64
+00:02:57,080 --> 00:03:01,200
+links in the show notes, they celebrated over like a two day period.
+
+65
+00:03:01,200 --> 00:03:03,800
+So I think it was either yesterday and today or today and tomorrow.
+
+66
+00:03:03,800 --> 00:03:07,040
+But it's technically the 50th anniversary of Unix.
+
+67
+00:03:07,040 --> 00:03:12,200
+And I have a really great clip that when I was playing as part of a longer series.
+
+68
+00:03:12,200 --> 00:03:13,700
+And I linked that in the show notes.
+
+69
+00:03:13,700 --> 00:03:17,200
+So if you guys want to watch that, it's so great.
+
+70
+00:03:17,200 --> 00:03:18,200
+So great.
+
+71
+00:03:18,200 --> 00:03:21,680
+In fact, if I remember, I'll play part of a training video that they did.
+
+72
+00:03:21,680 --> 00:03:24,360
+Some of these old clips are hilarious.
+
+73
+00:03:24,360 --> 00:03:30,320
+But also, I mean, it's shocking both how far we've come in 50 years and also how much is
+
+74
+00:03:30,320 --> 00:03:31,320
+pretty much the same.
+
+75
+00:03:31,320 --> 00:03:32,320
+Yeah.
+
+76
+00:03:32,320 --> 00:03:35,800
+It's kind of shocking how far we've come in 15 years.
+
+77
+00:03:35,800 --> 00:03:41,020
+This is a really great interview with Matthew Miller over at Tech Republic about Fedora
+
+78
+00:03:41,020 --> 00:03:43,400
+at 15 years old.
+
+79
+00:03:43,400 --> 00:03:44,400
+Wow.
+
+80
+00:03:44,400 --> 00:03:46,400
+It doesn't feel like it.
+
+81
+00:03:46,400 --> 00:03:52,680
+Considering I was using Red Hat before Fedora as my desktop.
+
+82
+00:03:52,680 --> 00:03:53,680
+Kind of it really does.
+
+83
+00:03:53,680 --> 00:03:54,920
+It kind of it shocks me.
+
+84
+00:03:54,920 --> 00:03:57,600
+It's really it's something.
+
+85
+00:03:57,600 --> 00:04:01,520
+It's been a long time, but it doesn't feel that long anyways.
+
+86
+00:04:01,520 --> 00:04:02,520
+Good interview.
+
+87
+00:04:02,520 --> 00:04:03,520
+We'll leave it to you to read most of it.
+
+88
+00:04:03,520 --> 00:04:06,820
+But there's a couple of tidbits in here that I wanted to chat about with you guys.
+
+89
+00:04:06,820 --> 00:04:09,800
+Throughout the process, he asked a series of questions.
+
+90
+00:04:09,800 --> 00:04:13,800
+He being James Sanders, sorry, over at Tech Republic.
+
+91
+00:04:13,800 --> 00:04:17,720
+And one of the topics that comes up is flat packs and snaps.
+
+92
+00:04:17,720 --> 00:04:22,560
+And he asked why Fedora prefers flat packs as the portable application standard.
+
+93
+00:04:22,560 --> 00:04:25,360
+And Matthew responds, there are definitely some technical differences.
+
+94
+00:04:25,360 --> 00:04:28,920
+If you talk to our engineers who are working on this, they're very, very passionate about
+
+95
+00:04:28,920 --> 00:04:31,040
+the technical differences.
+
+96
+00:04:31,040 --> 00:04:34,880
+One of the things with snap is it's the answer to all things.
+
+97
+00:04:34,880 --> 00:04:42,540
+We see OCI docker containers as having won the server enterprise and IoT use cases.
+
+98
+00:04:42,540 --> 00:04:45,840
+Docker doesn't necessarily fit well for the desktop.
+
+99
+00:04:45,840 --> 00:04:49,520
+So flat pack is a technology specifically meant for the desktop.
+
+100
+00:04:49,520 --> 00:04:50,920
+I mean, it shows right?
+
+101
+00:04:50,920 --> 00:04:55,320
+We talk about that property of flat pack all the time.
+
+102
+00:04:55,320 --> 00:04:57,080
+It does put a different spin on it.
+
+103
+00:04:57,080 --> 00:04:59,400
+I kind of thought of it always as like a limitation.
+
+104
+00:04:59,400 --> 00:05:01,980
+You know, I kind of mix command line and gooey apps.
+
+105
+00:05:01,980 --> 00:05:02,980
+So this was weird.
+
+106
+00:05:02,980 --> 00:05:04,940
+That does make some sense, though.
+
+107
+00:05:04,940 --> 00:05:10,800
+I don't think I have heard that as clearly just enunciated like it's, it's just simply
+
+108
+00:05:10,800 --> 00:05:16,160
+not trying to address that I like you saw it more as an oversight as a lack of like
+
+109
+00:05:16,160 --> 00:05:17,160
+something.
+
+110
+00:05:17,160 --> 00:05:20,820
+Wait a minute, you know, Wes, now that I think about it, I think I've even seen developer
+
+111
+00:05:20,820 --> 00:05:25,120
+statements to the extent saying they were planning to add server support, like that
+
+112
+00:05:25,120 --> 00:05:27,160
+was something they were going to build in later on.
+
+113
+00:05:27,160 --> 00:05:29,640
+I'm pretty sure I've read those statements.
+
+114
+00:05:29,640 --> 00:05:35,380
+Perhaps things have changed because I also tend to agree with this, as I've been getting
+
+115
+00:05:35,380 --> 00:05:41,080
+pretty excited about self hosting, and been spinning up more and more of my own infrastructure.
+
+116
+00:05:41,080 --> 00:05:43,600
+I've had the option for a couple of them to use snaps.
+
+117
+00:05:43,600 --> 00:05:46,960
+But the reality is it's containers all the way down, baby.
+
+118
+00:05:46,960 --> 00:05:52,240
+Yeah, and mostly advice and workflows and styles of doing so well, it's built around
+
+119
+00:05:52,240 --> 00:05:53,840
+the container ecosystem.
+
+120
+00:05:53,840 --> 00:05:57,280
+And that ecosystem has come a long way in having cross compatibility on its own.
+
+121
+00:05:57,280 --> 00:05:59,040
+I'm glad to hear that, Chris, by the way.
+
+122
+00:05:59,040 --> 00:06:00,040
+I bet you are.
+
+123
+00:06:00,040 --> 00:06:04,020
+I mean, you know, the thing is, is, you know, this very well.
+
+124
+00:06:04,020 --> 00:06:08,440
+It's just that containers just kind of came in and became a default way for people to
+
+125
+00:06:08,440 --> 00:06:10,680
+ship software on servers.
+
+126
+00:06:10,680 --> 00:06:11,680
+Absolutely right.
+
+127
+00:06:11,680 --> 00:06:15,600
+For better or for worse, in some cases, perhaps, but we're not here really to debate that today.
+
+128
+00:06:15,600 --> 00:06:19,280
+There's a part in this interview that he touches on about improvements that have come along
+
+129
+00:06:19,280 --> 00:06:21,820
+or innovations, as the article puts it.
+
+130
+00:06:21,820 --> 00:06:25,080
+And I was just waxing about this on the live stream about how this has really changed the
+
+131
+00:06:25,080 --> 00:06:26,080
+game for me.
+
+132
+00:06:26,080 --> 00:06:27,080
+Yeah, right.
+
+133
+00:06:27,080 --> 00:06:29,040
+It is something if you think about it, it makes sense.
+
+134
+00:06:29,040 --> 00:06:31,600
+And Matthew Miller's answer is interesting.
+
+135
+00:06:31,600 --> 00:06:36,960
+I think it's when the graphics driver people decided to go with open source, Intel buying
+
+136
+00:06:36,960 --> 00:06:42,240
+in first on the network drivers, and then on the graphics drivers was huge.
+
+137
+00:06:42,240 --> 00:06:46,680
+Now AMD coming along, I have an AMD desktop that I use for gaming.
+
+138
+00:06:46,680 --> 00:06:51,160
+It's awesome how it just works without having to fiddle with anything.
+
+139
+00:06:51,160 --> 00:06:52,880
+I love that.
+
+140
+00:06:52,880 --> 00:06:58,400
+There's also obviously a subtext of, come on, NVIDIA, get with the program.
+
+141
+00:06:58,400 --> 00:07:03,680
+I am blown away on my desktop workstation upstairs.
+
+142
+00:07:03,680 --> 00:07:11,000
+I've got full 3D acceleration, and I'm playing nice games, and I'm using zero proprietary
+
+143
+00:07:11,000 --> 00:07:15,440
+drivers, no binary driver for my video card.
+
+144
+00:07:15,440 --> 00:07:16,440
+It's so great.
+
+145
+00:07:16,440 --> 00:07:18,040
+And then, of course, the Intel side has been like that for quite a while.
+
+146
+00:07:18,040 --> 00:07:19,040
+Right.
+
+147
+00:07:19,040 --> 00:07:23,280
+Not for granted, but over the 15 years, that's definitely changed, and I wouldn't want to
+
+148
+00:07:23,280 --> 00:07:24,280
+go back.
+
+149
+00:07:24,280 --> 00:07:29,240
+Tech Republic also touches on a spot that seems to have really left a mark on the project.
+
+150
+00:07:29,240 --> 00:07:33,960
+This was a while ago in 2011, I think before Matthew Miller was even involved with the
+
+151
+00:07:33,960 --> 00:07:35,060
+project.
+
+152
+00:07:35,060 --> 00:07:39,680
+There was a shock to the ecosystem when Fedora 15 landed.
+
+153
+00:07:39,680 --> 00:07:45,840
+Fedora 15 was the version that shipped Gnome Shell for the first time, Gnome Shell 3.0.
+
+154
+00:07:45,840 --> 00:07:47,400
+At the same time, System D.
+
+155
+00:07:47,400 --> 00:07:48,400
+Mm-hmm.
+
+156
+00:07:48,400 --> 00:07:49,400
+Yeah.
+
+157
+00:07:49,400 --> 00:07:50,400
+What?
+
+158
+00:07:50,400 --> 00:07:53,600
+Miller says the release had an incredibly dramatic amount of change.
+
+159
+00:07:53,600 --> 00:07:57,420
+Both Gnome Shell 3.0 and System D. landed in that release, and basically, we lost half
+
+160
+00:07:57,420 --> 00:07:58,960
+our users doing that.
+
+161
+00:07:58,960 --> 00:08:04,920
+Or at least, put another way, half of them did not upgrade to Fedora 14, and they stopped
+
+162
+00:08:04,920 --> 00:08:05,920
+growing.
+
+163
+00:08:05,920 --> 00:08:10,000
+They say it was a pretty bad situation, and that there were plenty of ways that blame
+
+164
+00:08:10,000 --> 00:08:14,360
+was getting thrown around, but just absorbing all of that change all at once is really hard
+
+165
+00:08:14,360 --> 00:08:15,360
+on people.
+
+166
+00:08:15,360 --> 00:08:19,360
+But what they learned, if you look at the Gnome user interface, is if you go back and
+
+167
+00:08:19,360 --> 00:08:23,280
+install Gnome 3.0 and compare it to 3.3.2, it's a very different experience.
+
+168
+00:08:23,280 --> 00:08:24,280
+Yeah.
+
+169
+00:08:24,280 --> 00:08:25,280
+I mean, he's totally right.
+
+170
+00:08:25,280 --> 00:08:26,840
+I don't think about it that way, but it is.
+
+171
+00:08:26,840 --> 00:08:28,840
+Oh, it is radically different.
+
+172
+00:08:28,840 --> 00:08:32,060
+It was a totally, it was almost a different vision now.
+
+173
+00:08:32,060 --> 00:08:39,600
+He says in here, I think that if Gnome Shell goes to 4.0, it's not going to be a radical
+
+174
+00:08:39,600 --> 00:08:41,120
+redesign like that.
+
+175
+00:08:41,120 --> 00:08:44,560
+It's going to be architectural shifts under the hood.
+
+176
+00:08:44,560 --> 00:08:45,560
+That makes sense, right?
+
+177
+00:08:45,560 --> 00:08:49,760
+I mean, we need to move, and yes, Fedora moves quickly, but at the end of the day, I still
+
+178
+00:08:49,760 --> 00:08:50,760
+want it to work.
+
+179
+00:08:50,760 --> 00:08:51,760
+15 years old.
+
+180
+00:08:51,760 --> 00:08:52,760
+Are you kidding me?
+
+181
+00:08:52,760 --> 00:08:53,760
+Are you kidding me?
+
+182
+00:08:53,760 --> 00:08:55,280
+Here's to the next 15, huh?
+
+183
+00:08:55,280 --> 00:08:56,280
+No kidding.
+
+184
+00:08:56,280 --> 00:08:59,760
+I'd love to know a little more, Chris, what you mean when you say that version three is
+
+185
+00:08:59,760 --> 00:09:02,600
+such a huge departure from 3.3.2.
+
+186
+00:09:02,600 --> 00:09:04,040
+Oh, boy.
+
+187
+00:09:04,040 --> 00:09:07,760
+Well, first of all, it's a huge, there's a lot of UI differences.
+
+188
+00:09:07,760 --> 00:09:09,960
+It's very, very big, like big.
+
+189
+00:09:09,960 --> 00:09:10,960
+It's big.
+
+190
+00:09:10,960 --> 00:09:11,960
+Everything's big.
+
+191
+00:09:11,960 --> 00:09:12,960
+Everything's touch focused.
+
+192
+00:09:12,960 --> 00:09:13,960
+Huge.
+
+193
+00:09:13,960 --> 00:09:17,120
+It looks like a maniac.
+
+194
+00:09:17,120 --> 00:09:24,760
+Crashes like Richard Hammond, just frequently and big, and also is very, very, very early.
+
+195
+00:09:24,760 --> 00:09:25,760
+It's very rough.
+
+196
+00:09:25,760 --> 00:09:28,920
+Let's just say a clunky doesn't feel well put together yet.
+
+197
+00:09:28,920 --> 00:09:29,920
+Go look at a screenshot of it.
+
+198
+00:09:29,920 --> 00:09:35,280
+It's really, it's remarkable, and if you remember back then too, touchscreens were really becoming
+
+199
+00:09:35,280 --> 00:09:36,280
+a big thing.
+
+200
+00:09:36,280 --> 00:09:43,500
+The iPad was a new product, the PC was a truck, and iPads were a car, and everybody was going
+
+201
+00:09:43,500 --> 00:09:44,960
+to be on a car.
+
+202
+00:09:44,960 --> 00:09:46,320
+What date was name three released?
+
+203
+00:09:46,320 --> 00:09:47,320
+I don't know.
+
+204
+00:09:47,320 --> 00:09:48,320
+I mean, it was a long time ago.
+
+205
+00:09:48,320 --> 00:09:49,320
+I'll look it up.
+
+206
+00:09:49,320 --> 00:09:54,280
+Kind of, you know, I think I recall where I was when I heard about it.
+
+207
+00:09:54,280 --> 00:09:55,720
+There's a few major moments.
+
+208
+00:09:55,720 --> 00:09:59,640
+I remember where I was when Unity was announced.
+
+209
+00:09:59,640 --> 00:10:04,600
+I remember where I was when it was announced that Unity was ending.
+
+210
+00:10:04,600 --> 00:10:10,740
+I was at Linux Fest Northwest when it was announced in a room with Brian, and we were
+
+211
+00:10:10,740 --> 00:10:12,680
+about to do Alas.
+
+212
+00:10:12,680 --> 00:10:20,640
+And I was at Dell when they announced that it was ending with Noah in a room with the
+
+213
+00:10:20,640 --> 00:10:27,000
+Sputnik team who also learned about it at the same time, and it was really something.
+
+214
+00:10:27,000 --> 00:10:34,160
+So name three was April 2011, so it's a different world in terms of mobile and everything else,
+
+215
+00:10:34,160 --> 00:10:35,160
+you know?
+
+216
+00:10:35,160 --> 00:10:36,160
+Absolutely.
+
+217
+00:10:36,160 --> 00:10:39,080
+Well, speaking of interviews, just a quick plug for me.
+
+218
+00:10:39,080 --> 00:10:43,880
+I was interviewed by opensource.com, Mr. Don Watkins, a gentleman over there who I've met
+
+219
+00:10:43,880 --> 00:10:44,880
+in Denver.
+
+220
+00:10:44,880 --> 00:10:45,880
+Really nice guy.
+
+221
+00:10:45,880 --> 00:10:46,880
+Yeah, we met him over at System76.
+
+222
+00:10:46,880 --> 00:10:49,280
+Look at you with the memory.
+
+223
+00:10:49,280 --> 00:10:53,240
+Just dang, West is on fire today.
+
+224
+00:10:53,240 --> 00:10:57,120
+And it's a Jupiter Broadcasting origin story and sort of like the future where we're going
+
+225
+00:10:57,120 --> 00:10:59,120
+under the wing of Linux Academy.
+
+226
+00:10:59,120 --> 00:11:00,640
+And it published a couple of weeks ago.
+
+227
+00:11:00,640 --> 00:11:04,160
+I just have not been good about mentioning it because I was traveling.
+
+228
+00:11:04,160 --> 00:11:05,160
+It's worth a read, though.
+
+229
+00:11:05,160 --> 00:11:06,160
+I mean, it's not too long.
+
+230
+00:11:06,160 --> 00:11:07,160
+Oh, stop.
+
+231
+00:11:07,160 --> 00:11:08,360
+I even learned some things.
+
+232
+00:11:08,360 --> 00:11:09,360
+You did?
+
+233
+00:11:09,360 --> 00:11:10,360
+Oh, yeah.
+
+234
+00:11:10,360 --> 00:11:11,360
+Really?
+
+235
+00:11:11,360 --> 00:11:12,360
+Yeah.
+
+236
+00:11:12,360 --> 00:11:13,360
+I mean, there's a lot of stuff in kind of the longer term history that I just didn't
+
+237
+00:11:13,360 --> 00:11:14,360
+know.
+
+238
+00:11:14,360 --> 00:11:15,360
+Early days stuff.
+
+239
+00:11:15,360 --> 00:11:16,360
+Sure, yeah.
+
+240
+00:11:16,360 --> 00:11:17,360
+We'll put a link in the show notes if people are interested.
+
+241
+00:11:17,360 --> 00:11:22,520
+I think, you know, that kind of stuff to me, it's like I'm so focused on what we're working
+
+242
+00:11:22,520 --> 00:11:26,480
+on now that I actually kind of forget every now and then to look back at how far things
+
+243
+00:11:26,480 --> 00:11:27,480
+have come.
+
+244
+00:11:27,480 --> 00:11:29,480
+And it really is pretty remarkable.
+
+245
+00:11:29,480 --> 00:11:33,240
+It's pretty, like I was just saying to West, it's like, you know, it's really, there's
+
+246
+00:11:33,240 --> 00:11:34,400
+a lot that has changed.
+
+247
+00:11:34,400 --> 00:11:41,200
+And in such a way that I'm really proud of, it's really been for the benefit of us taking
+
+248
+00:11:41,200 --> 00:11:45,040
+our craft more seriously and trying to do a better job and trying to do better reporting
+
+249
+00:11:45,040 --> 00:11:52,040
+and doing research and contacting sources, all these things, staffing editors, it's been
+
+250
+00:11:52,040 --> 00:11:53,040
+pretty awesome.
+
+251
+00:11:53,040 --> 00:11:54,880
+It's just enabling us to do a better job of doing this.
+
+252
+00:11:54,880 --> 00:11:55,880
+It's been iterative.
+
+253
+00:11:55,880 --> 00:12:00,640
+If you've been a listener for a while, you can really hear an iterative trend.
+
+254
+00:12:00,640 --> 00:12:03,160
+And that's another nice way of saying our old stuff is really crappy.
+
+255
+00:12:03,160 --> 00:12:05,360
+I mean, you tell me if the whole clip, oh boy.
+
+256
+00:12:05,360 --> 00:12:06,360
+It's bad.
+
+257
+00:12:06,360 --> 00:12:07,360
+We just cringe.
+
+258
+00:12:07,360 --> 00:12:08,360
+All right.
+
+259
+00:12:08,360 --> 00:12:12,480
+Well, we got a little interesting valve news in the show.
+
+260
+00:12:12,480 --> 00:12:14,680
+It's been a while.
+
+261
+00:12:14,680 --> 00:12:17,600
+Did you hear about Steam Remote Play?
+
+262
+00:12:17,600 --> 00:12:22,960
+It is a new Steam feature that lets you play on your couch or on your computer with your
+
+263
+00:12:22,960 --> 00:12:24,840
+friends over the internet.
+
+264
+00:12:24,840 --> 00:12:28,760
+With Remote Play together, they say, you can now invite Steam friends to join your local
+
+265
+00:12:28,760 --> 00:12:34,760
+co-op or your local multiplayer with a shared or split screen game.
+
+266
+00:12:34,760 --> 00:12:35,760
+Yeah.
+
+267
+00:12:35,760 --> 00:12:38,040
+Only the host needs to own and install the game.
+
+268
+00:12:38,040 --> 00:12:41,720
+The additional players just connect through Steam Remote Play.
+
+269
+00:12:41,720 --> 00:12:44,640
+It's kind of neat because it just kind of shows up as a menu entry item.
+
+270
+00:12:44,640 --> 00:12:49,100
+If everybody supports it, it's just a little button and the menu says Remote Play together.
+
+271
+00:12:49,100 --> 00:12:50,100
+It's really easy.
+
+272
+00:12:50,100 --> 00:12:51,100
+Yeah.
+
+273
+00:12:51,100 --> 00:12:54,400
+And then like all your friends, their controllers just act like they are right there on your
+
+274
+00:12:54,400 --> 00:12:55,400
+computer.
+
+275
+00:12:55,400 --> 00:12:56,400
+And then you've got a little menu.
+
+276
+00:12:56,400 --> 00:12:59,000
+You can control voice and volume and hear everybody.
+
+277
+00:12:59,000 --> 00:13:00,000
+This is some magic.
+
+278
+00:13:00,000 --> 00:13:01,880
+It sounds so easy.
+
+279
+00:13:01,880 --> 00:13:07,080
+And they right here say just some words on the screen.
+
+280
+00:13:07,080 --> 00:13:08,080
+Supports Linux.
+
+281
+00:13:08,080 --> 00:13:09,080
+It's going to be good.
+
+282
+00:13:09,080 --> 00:13:12,080
+I mean, you know, they've done a lot of work on the streaming stuff in the back end.
+
+283
+00:13:12,080 --> 00:13:16,480
+I remember playing with it, I don't know, four or five years ago now.
+
+284
+00:13:16,480 --> 00:13:19,560
+And I haven't heard about it since.
+
+285
+00:13:19,560 --> 00:13:20,560
+Obviously it still works.
+
+286
+00:13:20,560 --> 00:13:21,560
+So it's nice to see a new development.
+
+287
+00:13:21,560 --> 00:13:23,920
+I have to tell you, man.
+
+288
+00:13:23,920 --> 00:13:28,680
+I had a Valve developer in my ear like two years ago telling me we're doing big things
+
+289
+00:13:28,680 --> 00:13:29,680
+with streaming.
+
+290
+00:13:29,680 --> 00:13:30,680
+Just wait.
+
+291
+00:13:30,680 --> 00:13:31,680
+And I was like, great.
+
+292
+00:13:31,680 --> 00:13:33,240
+Oh, I'm super excited.
+
+293
+00:13:33,240 --> 00:13:36,000
+And then never heard anything and never saw anything.
+
+294
+00:13:36,000 --> 00:13:38,600
+I was like, oh, that project must have been killed.
+
+295
+00:13:38,600 --> 00:13:41,000
+I think this is this is what it was.
+
+296
+00:13:41,000 --> 00:13:42,000
+Skunkworks.
+
+297
+00:13:42,000 --> 00:13:43,200
+It was in the Skunkworks for quite a while.
+
+298
+00:13:43,200 --> 00:13:47,280
+And sometimes this stuff takes a little while to suss out, especially when you're supporting
+
+299
+00:13:47,280 --> 00:13:49,720
+Windows, Mac and Linux.
+
+300
+00:13:49,720 --> 00:13:52,600
+I mean, and over the network, that's always a little bit tricky.
+
+301
+00:13:52,600 --> 00:13:55,480
+Well, I'm curious how it's doing the device stuff.
+
+302
+00:13:55,480 --> 00:14:01,040
+Like how is it taking my like, say I got a controller over USB or Bluetooth hooked up
+
+303
+00:14:01,040 --> 00:14:03,240
+to my Linux box.
+
+304
+00:14:03,240 --> 00:14:07,120
+Is Steam just taking those inputs and then forwarding it to the remote?
+
+305
+00:14:07,120 --> 00:14:09,520
+Is it just like raw throwing it over the network?
+
+306
+00:14:09,520 --> 00:14:11,640
+Is there something more sophisticated in the middle?
+
+307
+00:14:11,640 --> 00:14:15,240
+The other thing that's fascinating about this, as you think about it, is they're now first
+
+308
+00:14:15,240 --> 00:14:16,240
+to streaming.
+
+309
+00:14:16,240 --> 00:14:19,360
+They beat Stadia and they beat the Xbox.
+
+310
+00:14:19,360 --> 00:14:20,360
+I mean, does this count?
+
+311
+00:14:20,360 --> 00:14:21,360
+It is only in beta.
+
+312
+00:14:21,360 --> 00:14:22,360
+They're at least right.
+
+313
+00:14:22,360 --> 00:14:23,360
+They're up there.
+
+314
+00:14:23,360 --> 00:14:27,040
+I'll tell you what I like about it is without a shadow of a doubt, it's going to have the
+
+315
+00:14:27,040 --> 00:14:28,040
+best game catalog.
+
+316
+00:14:28,040 --> 00:14:32,280
+The thing I'm thinking about Stadia is I'm going to get my Stadia package in like late
+
+317
+00:14:32,280 --> 00:14:34,840
+November and it's going to show up and I'm going to be able to play two games that are
+
+318
+00:14:34,840 --> 00:14:35,840
+even worth it.
+
+319
+00:14:35,840 --> 00:14:36,840
+I hope you like them.
+
+320
+00:14:36,840 --> 00:14:37,840
+Yeah.
+
+321
+00:14:37,840 --> 00:14:41,960
+Whereas this could be any game I've ever owned in Steam and the fact that you can do local
+
+322
+00:14:41,960 --> 00:14:42,960
+player stuff.
+
+323
+00:14:42,960 --> 00:14:48,800
+So that opens up to a whole range of games and you're not having to futz with firewall
+
+324
+00:14:48,800 --> 00:14:50,840
+stuff or anything.
+
+325
+00:14:50,840 --> 00:14:52,080
+So got to give this a go.
+
+326
+00:14:52,080 --> 00:14:53,080
+I'm going to try it.
+
+327
+00:14:53,080 --> 00:14:55,800
+You know, I haven't really needed or needed to do this, had an opportunity, but it's something
+
+328
+00:14:55,800 --> 00:14:56,800
+I'd be worth it.
+
+329
+00:14:56,800 --> 00:14:59,640
+You know, the whole Steam Machine thing.
+
+330
+00:14:59,640 --> 00:15:00,640
+It's funny.
+
+331
+00:15:00,640 --> 00:15:01,640
+Now it's almost a perfect time.
+
+332
+00:15:01,640 --> 00:15:04,320
+I kind of want just a little Steam Machine set up next to my TV now.
+
+333
+00:15:04,320 --> 00:15:05,320
+Oh yeah.
+
+334
+00:15:05,320 --> 00:15:06,320
+Steam Machines.
+
+335
+00:15:06,320 --> 00:15:07,320
+Oh yeah.
+
+336
+00:15:07,320 --> 00:15:08,320
+Oh yeah.
+
+337
+00:15:08,320 --> 00:15:10,840
+That was a thing for a little bit.
+
+338
+00:15:10,840 --> 00:15:16,760
+Oh, you know, you know what you always say, Wes, and you always say this.
+
+339
+00:15:16,760 --> 00:15:19,240
+It turns out if you try hard enough, you can.
+
+340
+00:15:19,240 --> 00:15:20,240
+But sometimes not.
+
+341
+00:15:20,240 --> 00:15:21,240
+Yeah.
+
+342
+00:15:21,240 --> 00:15:28,360
+Hey, why don't we just take a moment and mention that the Gnome Foundation is full on fighting
+
+343
+00:15:28,360 --> 00:15:32,960
+this patent troll that is coming after them for this Shotwell photo transfer feature.
+
+344
+00:15:32,960 --> 00:15:33,960
+Yeah, they're bringing it.
+
+345
+00:15:33,960 --> 00:15:34,960
+It's nice to see.
+
+346
+00:15:34,960 --> 00:15:36,080
+It is really nice to see.
+
+347
+00:15:36,080 --> 00:15:39,000
+And in that effort, they are attempting to raise some funds.
+
+348
+00:15:39,000 --> 00:15:40,920
+So so far they've done pretty good.
+
+349
+00:15:40,920 --> 00:15:46,000
+They've got 108 donors and they have raised $28,000.
+
+350
+00:15:46,000 --> 00:15:50,320
+They have a goal of 125, but my instinct says they could probably use triple that amount
+
+351
+00:15:50,320 --> 00:15:52,720
+because it'd be really nice for them to be able to bring this fight.
+
+352
+00:15:52,720 --> 00:15:57,440
+So we're going to have a link in the show notes Linux Unplugged dot com slash three
+
+353
+00:15:57,440 --> 00:15:59,600
+to four.
+
+354
+00:15:59,600 --> 00:16:03,280
+If you can throw, you know, any amount at them.
+
+355
+00:16:03,280 --> 00:16:06,240
+They have some one times that are just click one buttons.
+
+356
+00:16:06,240 --> 00:16:08,180
+They have some monthlies you can do.
+
+357
+00:16:08,180 --> 00:16:11,560
+It looks like it's a really nice, clean, simple, not going to have to like sign up with a whole
+
+358
+00:16:11,560 --> 00:16:13,640
+bunch of accounts crap to do it.
+
+359
+00:16:13,640 --> 00:16:18,900
+And it would definitely be a good cause because even if you're not a Gnome Shell user, this
+
+360
+00:16:18,900 --> 00:16:23,160
+patent fight is really important because if they can come well, I guess another way to
+
+361
+00:16:23,160 --> 00:16:28,480
+put this is Shotwell is damn lucky they're part of the Gnome Foundation.
+
+362
+00:16:28,480 --> 00:16:32,700
+If they were an open source independent project that wasn't part of a foundation like this,
+
+363
+00:16:32,700 --> 00:16:35,180
+they would be royally screwed right now.
+
+364
+00:16:35,180 --> 00:16:39,040
+So it's important that even if you're not a Gnome Shell user, that we help them fight
+
+365
+00:16:39,040 --> 00:16:40,040
+this crap.
+
+366
+00:16:40,040 --> 00:16:41,040
+Right.
+
+367
+00:16:41,040 --> 00:16:44,320
+I mean, we want to send this tone that you don't you don't get to be abusive and trolling
+
+368
+00:16:44,320 --> 00:16:46,160
+these open free and open source projects.
+
+369
+00:16:46,160 --> 00:16:49,980
+You know, it gets me worked up and I'm already over caffeinated with and you know what happens
+
+370
+00:16:49,980 --> 00:16:53,320
+when I get worked up as I start renting.
+
+371
+00:16:53,320 --> 00:16:54,320
+Let me get the soapbox.
+
+372
+00:16:54,320 --> 00:16:55,320
+Yeah.
+
+373
+00:16:55,320 --> 00:16:57,320
+Yeah, we left it outside.
+
+374
+00:16:57,320 --> 00:17:00,160
+It's been a little while since we got up on the soapbox.
+
+375
+00:17:00,160 --> 00:17:01,160
+You never know.
+
+376
+00:17:01,160 --> 00:17:02,160
+It could be just around the corner, though.
+
+377
+00:17:02,160 --> 00:17:04,720
+You can never tell with that soapbox.
+
+378
+00:17:04,720 --> 00:17:07,480
+It's sometimes it's sometimes lurking.
+
+379
+00:17:07,480 --> 00:17:08,480
+Well, you're right.
+
+380
+00:17:08,480 --> 00:17:09,480
+It was very easy.
+
+381
+00:17:09,480 --> 00:17:10,480
+I've just made a donation now.
+
+382
+00:17:10,480 --> 00:17:11,480
+Really?
+
+383
+00:17:11,480 --> 00:17:13,600
+Once I got past identifying the cars in the capture, of course.
+
+384
+00:17:13,600 --> 00:17:14,600
+Oh, yeah.
+
+385
+00:17:14,600 --> 00:17:15,680
+You got to make sure you find the cars.
+
+386
+00:17:15,680 --> 00:17:16,680
+Or buses.
+
+387
+00:17:16,680 --> 00:17:17,680
+Somebody's got to train that machine.
+
+388
+00:17:17,680 --> 00:17:20,680
+Let's do a little housekeeping.
+
+389
+00:17:20,680 --> 00:17:27,840
+Oh, so we went down to Texas, went to a cyber summit, and you may be wondering how that
+
+390
+00:17:27,840 --> 00:17:28,840
+went.
+
+391
+00:17:28,840 --> 00:17:31,680
+Well, my friends, I've got just the thing for you.
+
+392
+00:17:31,680 --> 00:17:37,860
+Elle, Wes, Cheese, and myself did an extra on our trip to Texas Cyber Summit extras dot
+
+393
+00:17:37,860 --> 00:17:40,560
+show slash 24.
+
+394
+00:17:40,560 --> 00:17:46,400
+Nice little wrap up of not just what it's like for some Linux people to go to a cyber
+
+395
+00:17:46,400 --> 00:17:51,440
+summit, but also good details on the great food that Carl took us to.
+
+396
+00:17:51,440 --> 00:17:52,440
+Oh, boy.
+
+397
+00:17:52,440 --> 00:17:53,880
+So don't listen if you're hungry.
+
+398
+00:17:53,880 --> 00:17:54,880
+I can't help it.
+
+399
+00:17:54,880 --> 00:17:56,760
+You know, I just got Carl, you might want to listen to that.
+
+400
+00:17:56,760 --> 00:18:01,180
+I think you get name dropped a couple of times in that one.
+
+401
+00:18:01,180 --> 00:18:07,920
+And also, to go along with that, Elle wrote up a fantastic write up wrote up write up
+
+402
+00:18:07,920 --> 00:18:10,080
+blogged blog post.
+
+403
+00:18:10,080 --> 00:18:11,080
+Don't call it a blog.
+
+404
+00:18:11,080 --> 00:18:12,080
+It's an article.
+
+405
+00:18:12,080 --> 00:18:13,360
+Article post that will link in the show notes.
+
+406
+00:18:13,360 --> 00:18:18,680
+It has some descriptions, some pictures, some some of the characters I was talking about
+
+407
+00:18:18,680 --> 00:18:20,280
+in that extra.
+
+408
+00:18:20,280 --> 00:18:24,580
+And then if you want even more than that, cheese is popping off like crazy in that Jupiter
+
+409
+00:18:24,580 --> 00:18:25,580
+gallery.
+
+410
+00:18:25,580 --> 00:18:26,580
+Jupiter.
+
+411
+00:18:26,580 --> 00:18:27,580
+So good.
+
+412
+00:18:27,580 --> 00:18:28,580
+Dot gallery.
+
+413
+00:18:28,580 --> 00:18:29,580
+How about that?
+
+414
+00:18:29,580 --> 00:18:30,580
+Jupiter dot gallery.
+
+415
+00:18:30,580 --> 00:18:31,580
+Chris, what's this?
+
+416
+00:18:31,580 --> 00:18:34,580
+You say you say, well, here we go out to these things like these Linux fests.
+
+417
+00:18:34,580 --> 00:18:40,120
+Or maybe you heard about Alex and I taking a road trip to go see Wendell recently or
+
+418
+00:18:40,120 --> 00:18:44,800
+Texas Linux Fest or Red Hat Summit or Linux Fest Northwest and you wonder, are there any
+
+419
+00:18:44,800 --> 00:18:46,720
+pictures from this event?
+
+420
+00:18:46,720 --> 00:18:50,760
+Well, friends, cheese bacon has the answer for you.
+
+421
+00:18:50,760 --> 00:18:51,760
+That's right.
+
+422
+00:18:51,760 --> 00:18:55,240
+And if you have any pictures from these events that you'd like to submit, you can do so by
+
+423
+00:18:55,240 --> 00:19:00,860
+emailing me at cheese at Jupiter broadcasting dot com and that's CHZ at Jupiter broadcasting
+
+424
+00:19:00,860 --> 00:19:05,160
+dot com and I'll be happy to put them on the gallery.
+
+425
+00:19:05,160 --> 00:19:08,400
+That's the best part is as that happens, when I go back and check, there's like more pictures.
+
+426
+00:19:08,400 --> 00:19:09,400
+There's new stuff.
+
+427
+00:19:09,400 --> 00:19:10,400
+I haven't seen.
+
+428
+00:19:10,400 --> 00:19:11,400
+Yeah.
+
+429
+00:19:11,400 --> 00:19:12,400
+Yeah.
+
+430
+00:19:12,400 --> 00:19:13,400
+Jupiter dot gallery.
+
+431
+00:19:13,400 --> 00:19:14,480
+What else do I got to say?
+
+432
+00:19:14,480 --> 00:19:19,120
+We'll just keep updating that throughout the next year and stuff as we go to events and
+
+433
+00:19:19,120 --> 00:19:20,120
+whatnot.
+
+434
+00:19:20,120 --> 00:19:22,680
+Well, we'll have that up there and check out extras.
+
+435
+00:19:22,680 --> 00:19:23,840
+Extras dot show slash 24.
+
+436
+00:19:23,840 --> 00:19:25,380
+But not just that one.
+
+437
+00:19:25,380 --> 00:19:29,120
+For goodness sake, go over there and and look at the what is a container listen to the what
+
+438
+00:19:29,120 --> 00:19:31,380
+is a container episode.
+
+439
+00:19:31,380 --> 00:19:32,380
+It's just 20 19.
+
+440
+00:19:32,380 --> 00:19:34,200
+I mean, you don't want to be behind.
+
+441
+00:19:34,200 --> 00:19:35,200
+You don't.
+
+442
+00:19:35,200 --> 00:19:36,900
+And it's 24 minutes.
+
+443
+00:19:36,900 --> 00:19:40,240
+And Alex, you did a great job explaining this stuff.
+
+444
+00:19:40,240 --> 00:19:45,200
+You and I talk about how we use these in practical setups that are approachable by people that
+
+445
+00:19:45,200 --> 00:19:50,260
+are either beginners or using this in an enterprise because we you know, we've really we've talked
+
+446
+00:19:50,260 --> 00:19:51,260
+about these things a lot.
+
+447
+00:19:51,260 --> 00:19:54,000
+We've taken all of the experience we have talking about these and Alex talks about them
+
+448
+00:19:54,000 --> 00:19:55,640
+all day for his day job.
+
+449
+00:19:55,640 --> 00:19:58,040
+And we've put it into this episode.
+
+450
+00:19:58,040 --> 00:19:59,360
+So I think it's helpful for people.
+
+451
+00:19:59,360 --> 00:20:03,640
+And it's a great companion for the new self hosted show.
+
+452
+00:20:03,640 --> 00:20:04,800
+Check that out.
+
+453
+00:20:04,800 --> 00:20:06,420
+Extras dot show.
+
+454
+00:20:06,420 --> 00:20:09,780
+And also recently, some brunches just got posted.
+
+455
+00:20:09,780 --> 00:20:13,920
+So got to go get so many good brunches, especially that one there with Alan Jude mentioned that
+
+456
+00:20:13,920 --> 00:20:14,920
+last week.
+
+457
+00:20:14,920 --> 00:20:18,000
+You got to go get that Alan Jude brunch, you know, he's gonna be talking about BSD and
+
+458
+00:20:18,000 --> 00:20:19,480
+making your question your Linux faith.
+
+459
+00:20:19,480 --> 00:20:21,360
+You don't want to miss that.
+
+460
+00:20:21,360 --> 00:20:25,520
+And then come back to Linux on plug and we'll set you straight.
+
+461
+00:20:25,520 --> 00:20:26,520
+It's true, though.
+
+462
+00:20:26,520 --> 00:20:27,520
+All right.
+
+463
+00:20:27,520 --> 00:20:29,360
+That's the housekeeping for this week.
+
+464
+00:20:29,360 --> 00:20:30,920
+I mean, speaking of Linux, right?
+
+465
+00:20:30,920 --> 00:20:31,920
+Mm hmm.
+
+466
+00:20:31,920 --> 00:20:34,040
+Let's get into this 1910 in more detail.
+
+467
+00:20:34,040 --> 00:20:38,080
+There is a lot to talk about with this release, but we're gonna actually put some of it aside
+
+468
+00:20:38,080 --> 00:20:39,720
+and just wait for 2004.
+
+469
+00:20:39,720 --> 00:20:44,560
+And just focus on a few details for you this week that drew our attention.
+
+470
+00:20:44,560 --> 00:20:48,480
+And one that I know cheese and I have been talking about, and I think West you and I
+
+471
+00:20:48,480 --> 00:20:53,440
+talked about a little bit is I'm noticing more than I thought I would that there's a
+
+472
+00:20:53,440 --> 00:20:56,860
+lot of apps in the software center that are actually snaps.
+
+473
+00:20:56,860 --> 00:21:01,440
+It seems to be with the way it works is if there is a snap version of an application,
+
+474
+00:21:01,440 --> 00:21:04,320
+the software center prefers that and installs that first.
+
+475
+00:21:04,320 --> 00:21:06,380
+Now, maybe we should be clear.
+
+476
+00:21:06,380 --> 00:21:09,520
+How are you noticing this right because Oh, they clearly label it right.
+
+477
+00:21:09,520 --> 00:21:10,520
+But would you have noticed right?
+
+478
+00:21:10,520 --> 00:21:11,520
+Isn't that the test?
+
+479
+00:21:11,520 --> 00:21:14,240
+You know, is it detrimental if you're a regular user?
+
+480
+00:21:14,240 --> 00:21:15,240
+Do you care?
+
+481
+00:21:15,240 --> 00:21:17,280
+Because you're investigating, you know, we're doing a review here.
+
+482
+00:21:17,280 --> 00:21:21,880
+The only two ways in which I notice it is startup time.
+
+483
+00:21:21,880 --> 00:21:26,800
+And when I sometimes go to edit something on my local file system, it's like a couple
+
+484
+00:21:26,800 --> 00:21:27,800
+clicks.
+
+485
+00:21:27,800 --> 00:21:28,800
+Right.
+
+486
+00:21:28,800 --> 00:21:29,800
+There's the confinement comes into play.
+
+487
+00:21:29,800 --> 00:21:30,800
+Yeah.
+
+488
+00:21:30,800 --> 00:21:33,480
+And so there's a couple of instances where I'm like, well, the job of this application
+
+489
+00:21:33,480 --> 00:21:35,560
+is to be like all over my file system.
+
+490
+00:21:35,560 --> 00:21:38,520
+So I don't actually want the snap version.
+
+491
+00:21:38,520 --> 00:21:43,160
+And the way I've just worked around that is I just didn't go to the terminal, I apt install
+
+492
+00:21:43,160 --> 00:21:44,680
+and I got the debt.
+
+493
+00:21:44,680 --> 00:21:45,680
+Right.
+
+494
+00:21:45,680 --> 00:21:48,680
+But to your point, for the most part, no, not really actually an issue.
+
+495
+00:21:48,680 --> 00:21:53,200
+And in the case of VS code seems to have been a net benefit because it just like self updated
+
+496
+00:21:53,200 --> 00:21:55,360
+and got the latest VS code and it was good to go.
+
+497
+00:21:55,360 --> 00:21:56,360
+Right.
+
+498
+00:21:56,360 --> 00:21:57,360
+Yeah.
+
+499
+00:21:57,360 --> 00:21:58,360
+Yeah.
+
+500
+00:21:58,360 --> 00:21:59,360
+Yeah.
+
+501
+00:21:59,360 --> 00:22:03,600
+And it does seem like they've gotten better, you know, I mean, the, the, the theming, the
+
+502
+00:22:03,600 --> 00:22:06,760
+system integration, that stuff is a lot better than the last time I used these.
+
+503
+00:22:06,760 --> 00:22:07,760
+Yes.
+
+504
+00:22:07,760 --> 00:22:08,760
+Yes.
+
+505
+00:22:08,760 --> 00:22:09,760
+That has been, that has gotten a lot better.
+
+506
+00:22:09,760 --> 00:22:15,640
+So cheese, you had a chance to not just only use stock 1910, but also Mate 1910 over the
+
+507
+00:22:15,640 --> 00:22:17,640
+week, trying out different systems.
+
+508
+00:22:17,640 --> 00:22:20,440
+And what was your extra week with 1910 like?
+
+509
+00:22:20,440 --> 00:22:21,440
+Overall it was great.
+
+510
+00:22:21,440 --> 00:22:25,960
+So I started with the beta, then the dailies, and then the final.
+
+511
+00:22:25,960 --> 00:22:27,680
+I tried it on three different machines.
+
+512
+00:22:27,680 --> 00:22:35,360
+I tried it on my desktop, which is a rise in 2600, 16 gigs of Ram, 256 gigabyte NVME
+
+513
+00:22:35,360 --> 00:22:43,520
+and an Nvidia 1060, an older Dell and Spearion and this new ThinkPad 440 S T 440 S that I've
+
+514
+00:22:43,520 --> 00:22:44,840
+recently picked up.
+
+515
+00:22:44,840 --> 00:22:52,660
+I will say that out of the box whenever I try to Ubuntu, I installed steam immediately
+
+516
+00:22:52,660 --> 00:23:00,080
+went to CSGO, dropped in and was playing some games, some deathmatch there in CSGO and I
+
+517
+00:23:00,080 --> 00:23:03,920
+was averaging around, you know, 200 frames per second, something like that.
+
+518
+00:23:03,920 --> 00:23:04,920
+What?
+
+519
+00:23:04,920 --> 00:23:05,920
+Yeah.
+
+520
+00:23:05,920 --> 00:23:06,920
+200 frames per second.
+
+521
+00:23:06,920 --> 00:23:08,840
+What do you normally get on that box?
+
+522
+00:23:08,840 --> 00:23:11,240
+Under windows, it was right around the same.
+
+523
+00:23:11,240 --> 00:23:13,720
+So I mean, there was really no difference.
+
+524
+00:23:13,720 --> 00:23:21,080
+It would peak up to like 230 frames a second, which was about average for what windows was
+
+525
+00:23:21,080 --> 00:23:22,080
+doing as well.
+
+526
+00:23:22,080 --> 00:23:25,360
+Oh, so this was your, uh, the last windows box, the gaming rig.
+
+527
+00:23:25,360 --> 00:23:26,360
+Yes.
+
+528
+00:23:26,360 --> 00:23:28,520
+So this was the gaming rig that I ditched.
+
+529
+00:23:28,520 --> 00:23:32,760
+Um, I had an extra NVME tossed in there and I ditched the SSD.
+
+530
+00:23:32,760 --> 00:23:35,800
+Are you telling me 1910 killed windows for you?
+
+531
+00:23:35,800 --> 00:23:36,800
+Uh, yeah.
+
+532
+00:23:36,800 --> 00:23:42,080
+I mean, I really, the desk, this desktop was only ever really used for gaming anyway.
+
+533
+00:23:42,080 --> 00:23:45,640
+So, um, I decided just to make that, make that jump.
+
+534
+00:23:45,640 --> 00:23:49,040
+I do have the fallback SSD if I want to toss it back in the box.
+
+535
+00:23:49,040 --> 00:23:51,900
+I physically removed it though, so it would take some effort.
+
+536
+00:23:51,900 --> 00:23:53,380
+You go take this victory lap, geez.
+
+537
+00:23:53,380 --> 00:23:56,240
+This is a big moment and Wes and I are proud of you.
+
+538
+00:23:56,240 --> 00:23:57,240
+Thank you guys.
+
+539
+00:23:57,240 --> 00:23:58,240
+God.
+
+540
+00:23:58,240 --> 00:23:59,240
+So good.
+
+541
+00:23:59,240 --> 00:24:00,720
+So it sounds like performance is comparable.
+
+542
+00:24:00,720 --> 00:24:05,160
+You haven't taken like a Linux tax for switching.
+
+543
+00:24:05,160 --> 00:24:06,160
+No, not at all.
+
+544
+00:24:06,160 --> 00:24:10,680
+And I was using the Nvidia, uh, which one thing that's awesome about 1910 is it comes
+
+545
+00:24:10,680 --> 00:24:12,220
+bundled with the Nvidia driver.
+
+546
+00:24:12,220 --> 00:24:18,640
+So I was using, um, the 435, uh, Nvidia driver, uh, worked great.
+
+547
+00:24:18,640 --> 00:24:22,920
+Um, whenever I flipped over to Monte though, I did notice a performance hit.
+
+548
+00:24:22,920 --> 00:24:25,560
+Uh, I was averaging about a hundred frames per second.
+
+549
+00:24:25,560 --> 00:24:27,640
+I'm not sure exactly what's going on there.
+
+550
+00:24:27,640 --> 00:24:29,680
+Again, this was just kind of out of the box testing.
+
+551
+00:24:29,680 --> 00:24:31,320
+I didn't do any additional stuff.
+
+552
+00:24:31,320 --> 00:24:35,120
+So you're saying you had a hundred frames per second switch that there must be something
+
+553
+00:24:35,120 --> 00:24:36,120
+there.
+
+554
+00:24:36,120 --> 00:24:39,640
+There that's gotta be a bug or comp is issue or something probably worth troubleshooting
+
+555
+00:24:39,640 --> 00:24:44,080
+or the fact that Linux and Nvidia aren't best friends could be a thing too.
+
+556
+00:24:44,080 --> 00:24:45,080
+I don't know.
+
+557
+00:24:45,080 --> 00:24:50,400
+So, um, I had some PI problems in my week with 1910.
+
+558
+00:24:50,400 --> 00:24:54,680
+I mean, we primarily, the rest of the episode, we're going to talk about the ZFS and extended
+
+559
+00:24:54,680 --> 00:24:57,640
+four and comparing that in low memory and regular memory.
+
+560
+00:24:57,640 --> 00:25:04,520
+But I just want to take a moment and say that they sneaky included support for the PI four
+
+561
+00:25:04,520 --> 00:25:05,520
+in 1910.
+
+562
+00:25:05,520 --> 00:25:06,520
+It was sneaky.
+
+563
+00:25:06,520 --> 00:25:11,600
+They did list it in their official, like a canonical.com.
+
+564
+00:25:11,600 --> 00:25:12,600
+Not much before.
+
+565
+00:25:12,600 --> 00:25:13,600
+Yeah.
+
+566
+00:25:13,600 --> 00:25:19,440
+So PI four supports not easy and it's something that distributions are slowly getting to.
+
+567
+00:25:19,440 --> 00:25:23,040
+There are architectural changes that are pretty significant.
+
+568
+00:25:23,040 --> 00:25:30,080
+I heard it described as the PI four is in appearance in similarity only to the previous
+
+569
+00:25:30,080 --> 00:25:34,480
+PI's like there's all, there's total differences for the USB stack for the, for the way that
+
+570
+00:25:34,480 --> 00:25:37,920
+the PCI bus is addressed for the video card.
+
+571
+00:25:37,920 --> 00:25:39,480
+Like there's just major changes.
+
+572
+00:25:39,480 --> 00:25:41,120
+Isn't it great that we don't have to care about that at all?
+
+573
+00:25:41,120 --> 00:25:42,120
+I mean, once it's fixed.
+
+574
+00:25:42,120 --> 00:25:46,000
+And if you're using Raspbian and you don't even think about it, they just did it.
+
+575
+00:25:46,000 --> 00:25:50,720
+Which yeah, that's the point of Raspbian, but they got, they got like the bulk of everything
+
+576
+00:25:50,720 --> 00:25:56,120
+in 1910 to their credit, which is great because people like to use that Raspberry PI's for
+
+577
+00:25:56,120 --> 00:25:58,880
+like Kubernetes training and things like that.
+
+578
+00:25:58,880 --> 00:26:04,740
+And I threw it on there and they spun two images, a 32 bit and a 64 bit.
+
+579
+00:26:04,740 --> 00:26:11,840
+As we record, although this is very rapidly in progress, the 64 bit image has an issue
+
+580
+00:26:11,840 --> 00:26:15,640
+where USB devices don't work.
+
+581
+00:26:15,640 --> 00:26:18,200
+And there's a couple other limitations of it.
+
+582
+00:26:18,200 --> 00:26:25,280
+It's an issue once you go over like three gigs of RAM ish, like 348 I think is the magical
+
+583
+00:26:25,280 --> 00:26:26,280
+number.
+
+584
+00:26:26,280 --> 00:26:30,020
+And the USB quits working.
+
+585
+00:26:30,020 --> 00:26:33,680
+And so if you use the 32 bit image, it's totally fine and no issues.
+
+586
+00:26:33,680 --> 00:26:36,480
+So you get to play around with 1910 on a Raspberry PI if you're okay with 32.
+
+587
+00:26:36,480 --> 00:26:38,120
+But you've been hoping to escape 32.
+
+588
+00:26:38,120 --> 00:26:40,440
+Come on, 32 bit, everybody knows it's going away.
+
+589
+00:26:40,440 --> 00:26:42,680
+I mean, you're using all the bits.
+
+590
+00:26:42,680 --> 00:26:46,760
+I will mention to the 64 bit and 32 bit images have SSH turned on by default.
+
+591
+00:26:46,760 --> 00:26:51,800
+So even if you can't use the USB to like plug in a keyboard, if you got the ethernet plugged
+
+592
+00:26:51,800 --> 00:26:53,480
+in, you can still SSH it.
+
+593
+00:26:53,480 --> 00:26:54,480
+Perfect.
+
+594
+00:26:54,480 --> 00:26:55,920
+They already have it in progress though.
+
+595
+00:26:55,920 --> 00:27:00,320
+I did a little, you know, I did my part in the bug report because I was a good boy this
+
+596
+00:27:00,320 --> 00:27:02,680
+time and went in there and said, here's my system information.
+
+597
+00:27:02,680 --> 00:27:05,360
+Here's my, you know, I can reproduce the bug.
+
+598
+00:27:05,360 --> 00:27:08,480
+And they seem to have identified the, all the issues and fixes are in progress right
+
+599
+00:27:08,480 --> 00:27:10,480
+now as we record.
+
+600
+00:27:10,480 --> 00:27:12,840
+So they'll probably, I don't know, maybe they'll spin a new image, I would hope.
+
+601
+00:27:12,840 --> 00:27:13,840
+Yeah, hopefully so.
+
+602
+00:27:13,840 --> 00:27:15,560
+Hopefully it just works in the future.
+
+603
+00:27:15,560 --> 00:27:16,560
+Yeah.
+
+604
+00:27:16,560 --> 00:27:17,560
+Now what about you?
+
+605
+00:27:17,560 --> 00:27:18,560
+How's your week been on 1910?
+
+606
+00:27:18,560 --> 00:27:21,160
+Any updates to your initial impressions last week?
+
+607
+00:27:21,160 --> 00:27:24,720
+Honestly, I mean, it's just been pretty smooth.
+
+608
+00:27:24,720 --> 00:27:27,480
+I had to, you know, make a few changes here, there.
+
+609
+00:27:27,480 --> 00:27:31,080
+There's an app armor was still enabled on this system, which I mean, I left it enabled,
+
+610
+00:27:31,080 --> 00:27:35,720
+but you know, I did some tweaks, got all my regular tooling working.
+
+611
+00:27:35,720 --> 00:27:37,840
+Really it's kind of just nice.
+
+612
+00:27:37,840 --> 00:27:43,960
+I mean, I've been enjoying neon and I do miss plasma sometimes there's little, little pieces
+
+613
+00:27:43,960 --> 00:27:49,400
+of my workflow that I just haven't really adapted over, but I have surprisingly few
+
+614
+00:27:49,400 --> 00:27:50,400
+complaints.
+
+615
+00:27:50,400 --> 00:27:51,400
+Like there's no weird oddities.
+
+616
+00:27:51,400 --> 00:27:52,600
+I haven't had any glitches.
+
+617
+00:27:52,600 --> 00:27:55,940
+There's been no surprising reboots or programs not working.
+
+618
+00:27:55,940 --> 00:27:58,640
+And I was doing a bunch of testing, sort of messing around with some of the bootloader
+
+619
+00:27:58,640 --> 00:28:01,940
+stuff and modifying the system.
+
+620
+00:28:01,940 --> 00:28:03,200
+It's just resilient.
+
+621
+00:28:03,200 --> 00:28:07,920
+My past experiences with gnome shell tell me that this may be subject to change, but
+
+622
+00:28:07,920 --> 00:28:10,760
+right now I haven't had any shell stability issues.
+
+623
+00:28:10,760 --> 00:28:14,920
+It's all been very solid, very reliable, and I'm very happy to report that I had a chance
+
+624
+00:28:14,920 --> 00:28:16,200
+to try out pop as well.
+
+625
+00:28:16,200 --> 00:28:17,960
+I think we all did.
+
+626
+00:28:17,960 --> 00:28:18,960
+Most of us.
+
+627
+00:28:18,960 --> 00:28:21,480
+Boy, did I see a lot of excitement online about this.
+
+628
+00:28:21,480 --> 00:28:25,520
+I wasn't even positive I was going to try it out, but then I was getting so much like,
+
+629
+00:28:25,520 --> 00:28:26,520
+Hey, Chris, you got to try this.
+
+630
+00:28:26,520 --> 00:28:27,920
+Hey, Chris, have you tried pop?
+
+631
+00:28:27,920 --> 00:28:28,920
+It's really good.
+
+632
+00:28:28,920 --> 00:28:29,920
+Yeah.
+
+633
+00:28:29,920 --> 00:28:30,920
+Talking about the release.
+
+634
+00:28:30,920 --> 00:28:31,920
+Yes.
+
+635
+00:28:31,920 --> 00:28:35,440
+So we did some digging into what, why are people so happy about this?
+
+636
+00:28:35,440 --> 00:28:36,640
+Like what's going on?
+
+637
+00:28:36,640 --> 00:28:43,080
+And there's a few things that I think a system 76 has done here, but the one that like a
+
+638
+00:28:43,080 --> 00:28:49,560
+lot of people were talking about on day one and two for obvious reasons was how buttery
+
+639
+00:28:49,560 --> 00:28:55,360
+smooth the upgrade process was from the previous version of pop.
+
+640
+00:28:55,360 --> 00:29:00,120
+And they appear to have done some custom engineering around this.
+
+641
+00:29:00,120 --> 00:29:05,280
+And so I emailed Carl, the CEO of system 76 and asked him, what have you guys done to
+
+642
+00:29:05,280 --> 00:29:06,760
+change the upgrade process?
+
+643
+00:29:06,760 --> 00:29:09,880
+And why is it, why is everybody saying it's so much better?
+
+644
+00:29:09,880 --> 00:29:15,940
+Carl wrote back and he said, the Ubuntu updates weren't well integrated into gnome and we
+
+645
+00:29:15,940 --> 00:29:20,660
+found that live upgrades while in the user session can be unreliable.
+
+646
+00:29:20,660 --> 00:29:25,040
+We also had no way to communicate the upgrade and changes to the user through the product.
+
+647
+00:29:25,040 --> 00:29:29,760
+Instead users learned about the available upgrades through news or social media or like
+
+648
+00:29:29,760 --> 00:29:31,440
+an email campaign or whatever.
+
+649
+00:29:31,440 --> 00:29:35,540
+Now customers receive a notification when there's a new OS upgrade and they click a
+
+650
+00:29:35,540 --> 00:29:37,260
+button to start the process.
+
+651
+00:29:37,260 --> 00:29:41,220
+The pop upgrade first prepares the system for upgrade, ensuring that all the required
+
+652
+00:29:41,220 --> 00:29:45,360
+dependencies and upgrades are in place and then downloads the new packages.
+
+653
+00:29:45,360 --> 00:29:48,660
+If there are conflicts, the upgrade is automatically rolled back.
+
+654
+00:29:48,660 --> 00:29:53,040
+The customer can go off and do other work while the upgrade is being prepared and downloaded.
+
+655
+00:29:53,040 --> 00:29:56,840
+They'll receive a second notification when the upgrade is ready to be installed.
+
+656
+00:29:56,840 --> 00:30:02,760
+The tracking upgrade prompts to reboot where the offline upgrade will then take place.
+
+657
+00:30:02,760 --> 00:30:08,420
+And with the pop upgrade, customers will be able to upgrade from an LTS to any release.
+
+658
+00:30:08,420 --> 00:30:14,260
+So for example, if you decide you don't want to be stuck on pop 1804 until 2004, you could
+
+659
+00:30:14,260 --> 00:30:15,600
+go to 1910.
+
+660
+00:30:15,600 --> 00:30:19,540
+You'll be able to jump directly from 1804 to 1910.
+
+661
+00:30:19,540 --> 00:30:22,240
+That's coming in early November.
+
+662
+00:30:22,240 --> 00:30:24,880
+So they've done some really interesting engineering there.
+
+663
+00:30:24,880 --> 00:30:27,760
+So I love some of the other things.
+
+664
+00:30:27,760 --> 00:30:32,400
+He says to him, the most striking change in 1910 is the new aesthetic.
+
+665
+00:30:32,400 --> 00:30:38,000
+The team, Kate himself, Ian, they started working together on a new color palette and
+
+666
+00:30:38,000 --> 00:30:39,000
+contrast.
+
+667
+00:30:39,000 --> 00:30:42,880
+He says they measured the contrast ratios between elements and text to achieve a high
+
+668
+00:30:42,880 --> 00:30:47,240
+contrast by default rather than requiring a separate theme.
+
+669
+00:30:47,240 --> 00:30:52,520
+He says the difference is noticeable throughout, but especially in the shell menus.
+
+670
+00:30:52,520 --> 00:30:53,520
+He's right about that.
+
+671
+00:30:53,520 --> 00:30:55,240
+He says, I love the new dark color palette.
+
+672
+00:30:55,240 --> 00:30:56,240
+It's incredible.
+
+673
+00:30:56,240 --> 00:31:00,560
+It's like candy, like a luxurious kind of candy.
+
+674
+00:31:00,560 --> 00:31:01,840
+I think they're very proud of it.
+
+675
+00:31:01,840 --> 00:31:02,840
+It does look very nice.
+
+676
+00:31:02,840 --> 00:31:04,080
+I mean, I enjoyed using it.
+
+677
+00:31:04,080 --> 00:31:05,080
+Yeah.
+
+678
+00:31:05,080 --> 00:31:07,180
+Also worth mentioning their work around Tensor Man.
+
+679
+00:31:07,180 --> 00:31:11,440
+I didn't really appreciate what a pain in the butt apparently TensorFlow is to set up.
+
+680
+00:31:11,440 --> 00:31:12,440
+I love this.
+
+681
+00:31:12,440 --> 00:31:17,280
+Packaging TensorFlow for Linux distributions is notoriously difficult, if not impossible.
+
+682
+00:31:17,280 --> 00:31:18,280
+That's the first line of the GitHub.
+
+683
+00:31:18,280 --> 00:31:19,280
+Yeah.
+
+684
+00:31:19,280 --> 00:31:23,440
+And I guess even like using the Docker container is still a huge pain in the butt.
+
+685
+00:31:23,440 --> 00:31:26,280
+You've got all kinds of different versions depending on quite what you're doing or how
+
+686
+00:31:26,280 --> 00:31:28,880
+you need TensorFlow configured.
+
+687
+00:31:28,880 --> 00:31:33,000
+And I mean, if you're running these just off the command line in Docker, it's not a lot
+
+688
+00:31:33,000 --> 00:31:34,000
+of fun.
+
+689
+00:31:34,000 --> 00:31:37,840
+So Tensor Man, which is a little Rust daemon, of course, it just sits there and makes this
+
+690
+00:31:37,840 --> 00:31:42,120
+easy for you and kind of orchestrates on top of Docker to get you all the stuff you need
+
+691
+00:31:42,120 --> 00:31:44,000
+and smooth out the process.
+
+692
+00:31:44,000 --> 00:31:45,000
+That's pretty great.
+
+693
+00:31:45,000 --> 00:31:51,120
+And it seems to me like they've keyed in on a good customer demo there because what do
+
+694
+00:31:51,120 --> 00:31:52,120
+they do?
+
+695
+00:31:52,120 --> 00:31:57,680
+They use powerful systems and like laptops and desktops that people buy to use TensorFlow.
+
+696
+00:31:57,680 --> 00:32:00,000
+Like that must be a decent customer base.
+
+697
+00:32:00,000 --> 00:32:01,000
+Right.
+
+698
+00:32:01,000 --> 00:32:02,000
+I mean, that could be pretty useful.
+
+699
+00:32:02,000 --> 00:32:05,040
+And if it just gets you out of the gate with the standard technology you want to use on
+
+700
+00:32:05,040 --> 00:32:08,040
+Linux faster, that's superb.
+
+701
+00:32:08,040 --> 00:32:15,120
+The thing that I have to acknowledge before we go any further is I was skeptical of PopOS.
+
+702
+00:32:15,120 --> 00:32:19,020
+In fact, I was pretty vocal about thinking it was a bad idea that they had limited resources
+
+703
+00:32:19,020 --> 00:32:22,560
+and it could be better spent in other places.
+
+704
+00:32:22,560 --> 00:32:27,760
+We're several releases in now, and thankfully I left myself a little bit of wiggle room
+
+705
+00:32:27,760 --> 00:32:28,760
+on this.
+
+706
+00:32:28,760 --> 00:32:32,720
+And I said, you know, if they add value and they make it something that's a true differentiator,
+
+707
+00:32:32,720 --> 00:32:34,240
+then I'll reconsider.
+
+708
+00:32:34,240 --> 00:32:35,400
+They've done that.
+
+709
+00:32:35,400 --> 00:32:36,840
+They've done that with the installer.
+
+710
+00:32:36,840 --> 00:32:38,360
+They've done that with the upgrade process.
+
+711
+00:32:38,360 --> 00:32:39,440
+They've done that with the theme.
+
+712
+00:32:39,440 --> 00:32:42,040
+It's truly one of the best themes on Linux.
+
+713
+00:32:42,040 --> 00:32:43,280
+And now they've done it.
+
+714
+00:32:43,280 --> 00:32:47,400
+There's a couple other things that are in there, like the pop shop that are really nice.
+
+715
+00:32:47,400 --> 00:32:51,000
+Like they've opted to keep Chromium as a deb.
+
+716
+00:32:51,000 --> 00:32:54,200
+They can make that choice as they do with their platform.
+
+717
+00:32:54,200 --> 00:32:59,440
+They've integrated their system firmware updater into no shell settings now, just built right
+
+718
+00:32:59,440 --> 00:33:00,440
+in.
+
+719
+00:33:00,440 --> 00:33:01,440
+You don't have to go find it.
+
+720
+00:33:01,440 --> 00:33:04,080
+And even on a non-System 76 machine, I appreciate that.
+
+721
+00:33:04,080 --> 00:33:08,180
+That's I think what has stood out to me is it hasn't felt like Pop was some walled off
+
+722
+00:33:08,180 --> 00:33:10,320
+garden, hidden away, totally different.
+
+723
+00:33:10,320 --> 00:33:12,360
+It is its own thing.
+
+724
+00:33:12,360 --> 00:33:13,880
+But a lot of the stuff you can still take, right?
+
+725
+00:33:13,880 --> 00:33:17,520
+If I want to use Tensor Man, I can just go get that from GitHub and use it.
+
+726
+00:33:17,520 --> 00:33:21,480
+Or if I want to use the theme, but not all of Pop OS, that's possible too.
+
+727
+00:33:21,480 --> 00:33:27,680
+I think Pop OS, because it's not tied to System 76's hardware, you get benefits by using
+
+728
+00:33:27,680 --> 00:33:31,000
+it as I experienced in my recent laptop review.
+
+729
+00:33:31,000 --> 00:33:33,680
+But you don't really have any downsides.
+
+730
+00:33:33,680 --> 00:33:35,980
+There's like not any negatives to it.
+
+731
+00:33:35,980 --> 00:33:40,520
+And it's not so derivative of Ubuntu that it's totally different.
+
+732
+00:33:40,520 --> 00:33:42,080
+Mint is kind of its own thing.
+
+733
+00:33:42,080 --> 00:33:46,480
+You can still skirt by by following some Ubuntu tutorials or getting a PPA and it's probably
+
+734
+00:33:46,480 --> 00:33:48,400
+going to be fine.
+
+735
+00:33:48,400 --> 00:33:50,880
+But with Pop, there's no like probably about it.
+
+736
+00:33:50,880 --> 00:33:51,880
+It's going to be fine.
+
+737
+00:33:51,880 --> 00:33:52,880
+It just works.
+
+738
+00:33:52,880 --> 00:33:53,880
+And it's 1910.
+
+739
+00:33:53,880 --> 00:33:54,880
+They want it to work.
+
+740
+00:33:54,880 --> 00:33:55,880
+Exactly.
+
+741
+00:33:55,880 --> 00:33:58,840
+So there's not a penalty really for using it.
+
+742
+00:33:58,840 --> 00:34:04,580
+There's an upside if you like their aesthetic and the value add that they've contributed.
+
+743
+00:34:04,580 --> 00:34:08,420
+And you're not running something that's so foreign that you can't just treat it like
+
+744
+00:34:08,420 --> 00:34:09,420
+an Ubuntu system.
+
+745
+00:34:09,420 --> 00:34:10,420
+Exactly.
+
+746
+00:34:10,420 --> 00:34:12,640
+So I really nailed a sweet spot.
+
+747
+00:34:12,640 --> 00:34:18,240
+And because of that, when I do one more reload for some testing upstairs, when I'm on my
+
+748
+00:34:18,240 --> 00:34:25,420
+final build for my daily driver workstation, I'm going with Pop 1910.
+
+749
+00:34:25,420 --> 00:34:31,160
+And the reason for me is I'm going to take Carl at his word about that upgrade system.
+
+750
+00:34:31,160 --> 00:34:34,720
+Because this is my got to get shit done workstation.
+
+751
+00:34:34,720 --> 00:34:38,400
+And I was after all of this going to just reload it back to an LTS.
+
+752
+00:34:38,400 --> 00:34:40,560
+I don't got time to play around on that thing.
+
+753
+00:34:40,560 --> 00:34:43,960
+When we reinstall all the other machines in the studio, you got to have one you know is
+
+754
+00:34:43,960 --> 00:34:44,960
+working.
+
+755
+00:34:44,960 --> 00:34:45,960
+Right.
+
+756
+00:34:45,960 --> 00:34:49,680
+And I honestly was not looking forward to it because the new gnome shell has kind of
+
+757
+00:34:49,680 --> 00:34:50,680
+broken me.
+
+758
+00:34:50,680 --> 00:34:51,680
+It's very fast.
+
+759
+00:34:51,680 --> 00:34:53,240
+It's very nice.
+
+760
+00:34:53,240 --> 00:34:56,560
+And I hate to go back to slower.
+
+761
+00:34:56,560 --> 00:34:59,200
+Cannot stand to downgrade.
+
+762
+00:34:59,200 --> 00:35:02,440
+And I was really hemming and hawing putting it off.
+
+763
+00:35:02,440 --> 00:35:04,600
+And this gives me an opportunity here.
+
+764
+00:35:04,600 --> 00:35:12,000
+I can I can get the latest and greatest and have a pretty solid chance it's going to upgrade
+
+765
+00:35:12,000 --> 00:35:13,640
+as smoothly as say a fedora system will.
+
+766
+00:35:13,640 --> 00:35:17,600
+I mean, I'm already looking forward to finding out how that goes.
+
+767
+00:35:17,600 --> 00:35:19,600
+So I'm going to put it on my main workstation upstairs.
+
+768
+00:35:19,600 --> 00:35:20,600
+Hooey Wes.
+
+769
+00:35:20,600 --> 00:35:21,600
+Here I go.
+
+770
+00:35:21,600 --> 00:35:25,400
+You know, my dad used to have a saying, I used to be indecisive, but now I'm not so
+
+771
+00:35:25,400 --> 00:35:26,400
+sure.
+
+772
+00:35:26,400 --> 00:35:31,160
+I think that applies to you in desktop environments.
+
+773
+00:35:31,160 --> 00:35:34,800
+You know, hey, if they keep making it better, I'm not going to ignore it.
+
+774
+00:35:34,800 --> 00:35:35,800
+I'm no fool.
+
+775
+00:35:35,800 --> 00:35:37,080
+I'm going to acknowledge it.
+
+776
+00:35:37,080 --> 00:35:44,120
+Plus, I mean, you'll already be set up for making all those deep fakes.
+
+777
+00:35:44,120 --> 00:35:45,120
+You know, that's my new hobby.
+
+778
+00:35:45,120 --> 00:35:48,760
+I'm going to set up a side hustle where I just do deep fakes for hire.
+
+779
+00:35:48,760 --> 00:35:50,880
+I probably should have said that on air.
+
+780
+00:35:50,880 --> 00:35:51,880
+Damn it.
+
+781
+00:35:51,880 --> 00:35:55,320
+Well, I can I can attest to pop us being pretty solid, man.
+
+782
+00:35:55,320 --> 00:35:57,280
+I mean, I've been using it since March.
+
+783
+00:35:57,280 --> 00:35:59,560
+The upgrade process was super.
+
+784
+00:35:59,560 --> 00:36:01,760
+I mean, it was just painless.
+
+785
+00:36:01,760 --> 00:36:04,480
+It did, in fact, pop up, say that there's a new version available.
+
+786
+00:36:04,480 --> 00:36:09,680
+So what I did there, it popped up, hey, oh, it did say there was a new version available.
+
+787
+00:36:09,680 --> 00:36:16,540
+It pulled everything down, asked me to reboot, you know, installed the update perfectly right
+
+788
+00:36:16,540 --> 00:36:17,580
+back into it.
+
+789
+00:36:17,580 --> 00:36:18,580
+The new contrast.
+
+790
+00:36:18,580 --> 00:36:22,640
+I mean, immediately, you know, I could notice a difference.
+
+791
+00:36:22,640 --> 00:36:27,020
+And it was overall a really great experience for me.
+
+792
+00:36:27,020 --> 00:36:30,560
+I'm installing this on an older 2015 MacBook Pro.
+
+793
+00:36:30,560 --> 00:36:35,440
+And I really I really have no reason to to go with another distro on that machine, because
+
+794
+00:36:35,440 --> 00:36:40,200
+very much like you, it's just the get shit done type machine, you know, and it works
+
+795
+00:36:40,200 --> 00:36:41,200
+great.
+
+796
+00:36:41,200 --> 00:36:44,160
+I really have no reason to move anywhere else on it.
+
+797
+00:36:44,160 --> 00:36:47,600
+It was almost good enough to give me to give up fedora on the ThinkPad.
+
+798
+00:36:47,600 --> 00:36:49,100
+I got close.
+
+799
+00:36:49,100 --> 00:36:53,720
+And what I ended up doing to compromise is I went through and just beautied up my fedora
+
+800
+00:36:53,720 --> 00:36:54,720
+install.
+
+801
+00:36:54,720 --> 00:36:55,720
+Oh, it does.
+
+802
+00:36:55,720 --> 00:36:56,720
+It does look pretty nice.
+
+803
+00:36:56,720 --> 00:36:58,120
+I got my dash to doc more dialed in.
+
+804
+00:36:58,120 --> 00:36:59,240
+I got my theme dialed in.
+
+805
+00:36:59,240 --> 00:37:04,320
+I went and got the pop theme.
+
+806
+00:37:04,320 --> 00:37:06,600
+You know, something to note here, too.
+
+807
+00:37:06,600 --> 00:37:10,840
+There is no ZFS on route in the installer for pop OS.
+
+808
+00:37:10,840 --> 00:37:12,900
+So let's talk about ZFS on route.
+
+809
+00:37:12,900 --> 00:37:14,680
+The promise is huge.
+
+810
+00:37:14,680 --> 00:37:18,100
+Eventually one day you have a file system that protects you from bit rot.
+
+811
+00:37:18,100 --> 00:37:21,040
+It can do incremental snapshots that are elegant.
+
+812
+00:37:21,040 --> 00:37:24,660
+You could potentially have boot environments, you could move data around, you could over
+
+813
+00:37:24,660 --> 00:37:26,120
+commit storage.
+
+814
+00:37:26,120 --> 00:37:28,280
+It integrates with container platforms.
+
+815
+00:37:28,280 --> 00:37:31,600
+I mean, it's it's truly worth all of the hype.
+
+816
+00:37:31,600 --> 00:37:32,600
+Right.
+
+817
+00:37:32,600 --> 00:37:33,600
+I mean, the advantages are clear.
+
+818
+00:37:33,600 --> 00:37:38,960
+Now, is it worth it on route, especially if maybe you don't have an MVD drive or maybe
+
+819
+00:37:38,960 --> 00:37:40,960
+you don't have 32 gigs of RAM?
+
+820
+00:37:40,960 --> 00:37:41,960
+Right.
+
+821
+00:37:41,960 --> 00:37:44,540
+Oftentimes we're thinking about, you know, big systems, maybe custom server builds that
+
+822
+00:37:44,540 --> 00:37:47,760
+you've designed to be running this file system with a lot of data.
+
+823
+00:37:47,760 --> 00:37:51,000
+The old myth was you can't use ZFS without ECC RAM.
+
+824
+00:37:51,000 --> 00:37:52,000
+Right.
+
+825
+00:37:52,000 --> 00:37:53,000
+And what about a laptop?
+
+826
+00:37:53,000 --> 00:37:57,840
+What about kind of not the newest laptop with run of the mill hardware?
+
+827
+00:37:57,840 --> 00:38:02,240
+Maybe you got a Samsung Evo in there, maybe you got 16 gigs of RAM and you got a few apps
+
+828
+00:38:02,240 --> 00:38:07,460
+you're using every single day and you don't have a bunch of available memory.
+
+829
+00:38:07,460 --> 00:38:09,680
+Is this still a good idea?
+
+830
+00:38:09,680 --> 00:38:12,320
+Genuinely did not know the answer to this question.
+
+831
+00:38:12,320 --> 00:38:14,740
+And now I'm feeling like we have figured it out.
+
+832
+00:38:14,740 --> 00:38:16,720
+So Wes and I, I'll give you I'll give you a little bit of basics.
+
+833
+00:38:16,720 --> 00:38:23,720
+So Wes and I took the Librem 15 with a Evo 850 drive, 512 gigabyte capacity and 16 gigabytes
+
+834
+00:38:23,720 --> 00:38:24,720
+of RAM.
+
+835
+00:38:24,720 --> 00:38:33,640
+And I think it's a Skylake processor and we installed Ubuntu 1910 fresh latest spun ISOs
+
+836
+00:38:33,640 --> 00:38:38,960
+and did one install with extended four and one install with ZFS on route.
+
+837
+00:38:38,960 --> 00:38:45,280
+Ran the same exact software setup, same exact steps, same exact benchmarks.
+
+838
+00:38:45,280 --> 00:38:51,640
+Then we did it all over again, but this time we robbed the system of RAM to create and
+
+839
+00:38:51,640 --> 00:38:55,320
+simulate a very exact amount on both of them.
+
+840
+00:38:55,320 --> 00:39:00,440
+We took out a chunk of RAM so both of them had to operate in a low memory environment.
+
+841
+00:39:00,440 --> 00:39:04,720
+And then we started a user session with a terminal and a web browser with some complicated,
+
+842
+00:39:04,720 --> 00:39:09,360
+but not overly complicated work in there that was reproducible in both environments.
+
+843
+00:39:09,360 --> 00:39:10,360
+Right.
+
+844
+00:39:10,360 --> 00:39:13,100
+You know, model something like maybe you're running a bunch of virtual machines or doing
+
+845
+00:39:13,100 --> 00:39:17,440
+other work or possibly just have a, you know, more low end computer available.
+
+846
+00:39:17,440 --> 00:39:18,440
+Right.
+
+847
+00:39:18,440 --> 00:39:22,540
+And so we did things like we threw some compile jobs at the hard disk.
+
+848
+00:39:22,540 --> 00:39:27,680
+We threw some SQL work, creating lots of little files, creating large files, creating small
+
+849
+00:39:27,680 --> 00:39:28,680
+files.
+
+850
+00:39:28,680 --> 00:39:32,440
+We did it with as much RAM as the system could eat and we did it in a more memory pressure
+
+851
+00:39:32,440 --> 00:39:33,440
+environment.
+
+852
+00:39:33,440 --> 00:39:39,000
+So we essentially operated the system as if we were using about 60 percent of that 16
+
+853
+00:39:39,000 --> 00:39:41,800
+gigs when we did the low memory test.
+
+854
+00:39:41,800 --> 00:39:44,680
+Because then the way we got to this number is we took several of our systems here in
+
+855
+00:39:44,680 --> 00:39:49,000
+the studio and we loaded them up with our daily driver applications.
+
+856
+00:39:49,000 --> 00:39:53,960
+Couple of electron apps, some cute apps, some GTK apps, a web browser, a couple of terminals,
+
+857
+00:39:53,960 --> 00:39:55,680
+you know, that kind of stuff.
+
+858
+00:39:55,680 --> 00:40:00,400
+And then we came to an average memory usage after they'd been running for a while and
+
+859
+00:40:00,400 --> 00:40:05,540
+determined, all right, this is what it costs us in memory to run our workstations.
+
+860
+00:40:05,540 --> 00:40:10,540
+And then we allocated that for this test and ate that up virtually by just slicing it off
+
+861
+00:40:10,540 --> 00:40:16,160
+from the kernel saying you can't have it and let it go.
+
+862
+00:40:16,160 --> 00:40:22,000
+And what we found in some ways really surprised the heck out of me.
+
+863
+00:40:22,000 --> 00:40:26,120
+It's the answer on the broad perspective is it depends on your workload.
+
+864
+00:40:26,120 --> 00:40:27,120
+Of course.
+
+865
+00:40:27,120 --> 00:40:28,300
+Of course it does.
+
+866
+00:40:28,300 --> 00:40:35,140
+But there's some areas where even in low memory situations, ZFS pulled ahead.
+
+867
+00:40:35,140 --> 00:40:36,140
+Not in all areas.
+
+868
+00:40:36,140 --> 00:40:37,140
+No, certainly not.
+
+869
+00:40:37,140 --> 00:40:41,400
+Because there's many categories where EXE4 is just going to be faster, it's doing less.
+
+870
+00:40:41,400 --> 00:40:48,320
+If you were to attribute performance failures in a high memory pressure environment, it
+
+871
+00:40:48,320 --> 00:40:52,600
+was actually extended for the demonstrated most of the variance.
+
+872
+00:40:52,600 --> 00:40:56,660
+Yeah, that's what kind of surprised us the most is even test where maybe it was already
+
+873
+00:40:56,660 --> 00:41:02,200
+slower or already faster, the change between having more memory available and it was like
+
+874
+00:41:02,200 --> 00:41:03,200
+nothing in ZFS.
+
+875
+00:41:03,200 --> 00:41:04,680
+I mean, you know, it got a little bit worse, but not much.
+
+876
+00:41:04,680 --> 00:41:06,160
+There was some degradation, but not much.
+
+877
+00:41:06,160 --> 00:41:07,640
+And then much more for EXE4.
+
+878
+00:41:07,640 --> 00:41:13,160
+Yeah, you got like an entirely different box in some benchmarks with extended for now in
+
+879
+00:41:13,160 --> 00:41:16,840
+some situations, extended for may have still performed better than ZFS.
+
+880
+00:41:16,840 --> 00:41:18,660
+I'll give you an example.
+
+881
+00:41:18,660 --> 00:41:22,700
+Say you're unzipping a project and you're assembling it and getting it ready to compile.
+
+882
+00:41:22,700 --> 00:41:29,640
+In that situation, in a low memory or a regular memory situation, extended for is simply faster.
+
+883
+00:41:29,640 --> 00:41:32,720
+ZFS, though, remains consistent.
+
+884
+00:41:32,720 --> 00:41:36,580
+And then once you begin to actually build the project, and this could be attributed
+
+885
+00:41:36,580 --> 00:41:42,080
+to how ZFS caches files, ZFS is actually significantly faster than extended for.
+
+886
+00:41:42,080 --> 00:41:47,040
+Yeah, you know, it was a pretty healthy competition here between what EXE4 was better at and what
+
+887
+00:41:47,040 --> 00:41:48,040
+ZFS.
+
+888
+00:41:48,040 --> 00:41:50,720
+Certainly not one sided in favor of EXE4.
+
+889
+00:41:50,720 --> 00:41:51,720
+No.
+
+890
+00:41:51,720 --> 00:41:55,520
+Michael Lerbal did some of his own benchmarks over at Phyronix, which we'll have linked.
+
+891
+00:41:55,520 --> 00:41:56,760
+On some higher end hardware.
+
+892
+00:41:56,760 --> 00:41:59,000
+Yeah, and our results are pretty consistent.
+
+893
+00:41:59,000 --> 00:42:03,040
+Now he also had a bunch of other more like server applications, stuff like various databases.
+
+894
+00:42:03,040 --> 00:42:05,120
+And of course, those were faster with EXE4.
+
+895
+00:42:05,120 --> 00:42:07,080
+And I mean, that's kind of expected.
+
+896
+00:42:07,080 --> 00:42:13,720
+I was just surprised how similar things were just in the everyday use case and how resilient
+
+897
+00:42:13,720 --> 00:42:15,100
+ZFS was to memory pressure.
+
+898
+00:42:15,100 --> 00:42:18,240
+It doesn't really make sense to me if I didn't have the data here.
+
+899
+00:42:18,240 --> 00:42:20,320
+And we will publish all of this.
+
+900
+00:42:20,320 --> 00:42:22,280
+And you can compare it to your own systems.
+
+901
+00:42:22,280 --> 00:42:25,680
+If you are familiar with how to use the Phyronix test suite, actually comparing your system
+
+902
+00:42:25,680 --> 00:42:29,060
+to our benchmark is one of the easiest things to do with the test suite.
+
+903
+00:42:29,060 --> 00:42:32,840
+If you're just curious to see how your system would perform.
+
+904
+00:42:32,840 --> 00:42:36,880
+So we'll publish all of our data with the charts in the show notes.
+
+905
+00:42:36,880 --> 00:42:43,280
+But by going with this, I have to say, I would advise you're perfectly fine using ZFS.
+
+906
+00:42:43,280 --> 00:42:45,640
+When you add the benefits.
+
+907
+00:42:45,640 --> 00:42:46,640
+Right.
+
+908
+00:42:46,640 --> 00:42:50,340
+Yes, you're probably going to need to be taking care of the benefits and things may still
+
+909
+00:42:50,340 --> 00:42:53,160
+change here and how Ubuntu is using it.
+
+910
+00:42:53,160 --> 00:42:58,120
+And one time we did run into a little snag where grub wasn't quite updating properly
+
+911
+00:42:58,120 --> 00:43:00,600
+after, you know, and that only happened on the ZFS side.
+
+912
+00:43:00,600 --> 00:43:02,080
+So totally worth doing.
+
+913
+00:43:02,080 --> 00:43:05,480
+It does seems like it's very usable day to day.
+
+914
+00:43:05,480 --> 00:43:08,480
+Be aware, you may need to learn a few things about ZFS administration.
+
+915
+00:43:08,480 --> 00:43:12,440
+That is a good red flag to bring up because I'm only talking about it from a performance
+
+916
+00:43:12,440 --> 00:43:15,960
+penalty standpoint, not yet from an implementation standpoint.
+
+917
+00:43:15,960 --> 00:43:17,320
+That's still in flux.
+
+918
+00:43:17,320 --> 00:43:19,900
+And it's, as they label, experimental.
+
+919
+00:43:19,900 --> 00:43:26,140
+And you need to consider it as such because ZFS won't protect you from like a total different
+
+920
+00:43:26,140 --> 00:43:28,900
+scheme of layout change that's incompatible with what you got set up.
+
+921
+00:43:28,900 --> 00:43:33,020
+Like there's just nothing that's going to or like we ran into grub not updating properly
+
+922
+00:43:33,020 --> 00:43:36,520
+when we were trying to do a couple of small little things to reduce memory and increase
+
+923
+00:43:36,520 --> 00:43:37,520
+pressure.
+
+924
+00:43:37,520 --> 00:43:39,000
+Thankfully, we were just going to reinstall anyway.
+
+925
+00:43:39,000 --> 00:43:40,000
+Yeah.
+
+926
+00:43:40,000 --> 00:43:41,000
+Yeah, true.
+
+927
+00:43:41,000 --> 00:43:45,200
+So I do want to make sure it's clear at this point in time as we record, we are talking
+
+928
+00:43:45,200 --> 00:43:50,000
+about performance and not necessarily about implementation, but in a performance sense,
+
+929
+00:43:50,000 --> 00:43:57,440
+when you look at all of the crap ZFS does from snapshots to write verification to ZFS
+
+930
+00:43:57,440 --> 00:44:02,640
+send, which once you wrap your head around what you can do with ZFS send, Extended4 is
+
+931
+00:44:02,640 --> 00:44:05,200
+going to look like a child's file system.
+
+932
+00:44:05,200 --> 00:44:09,640
+And when you think about all of this, it just comes with ZFS and it's so big and it's got
+
+933
+00:44:09,640 --> 00:44:19,240
+all this stuff, the fact that it is competitive on a three-year-old laptop where we intentionally
+
+934
+00:44:19,240 --> 00:44:24,480
+drain the thing of RAM to give it a real world heavily used system condition.
+
+935
+00:44:24,480 --> 00:44:25,480
+I mean, we were monitoring too.
+
+936
+00:44:25,480 --> 00:44:26,480
+I mean, it was busy.
+
+937
+00:44:26,480 --> 00:44:28,040
+It was working hard.
+
+938
+00:44:28,040 --> 00:44:29,040
+It was working really hard.
+
+939
+00:44:29,040 --> 00:44:30,040
+It was great.
+
+940
+00:44:30,040 --> 00:44:35,640
+And I'm just damn impressed with what the ZFS project has managed.
+
+941
+00:44:35,640 --> 00:44:39,640
+I mean, ZFS on Linux, open ZFS in general, it's just fantastic.
+
+942
+00:44:39,640 --> 00:44:45,400
+And having it available, ready to go without messing around with DKMS, which by and large
+
+943
+00:44:45,400 --> 00:44:50,520
+is pretty reliable, but I still find myself running into issues and not having that, it
+
+944
+00:44:50,520 --> 00:44:53,560
+just feels so much more reliable and professional.
+
+945
+00:44:53,560 --> 00:44:59,360
+I thought what we'd do is I thought we'd come on the show and say, if you just need all-out
+
+946
+00:44:59,360 --> 00:45:03,960
+performance and you don't care about data integrity, snapshots or any of the other features,
+
+947
+00:45:03,960 --> 00:45:08,600
+compression, encryption, which by the way, we did not have compression turned on.
+
+948
+00:45:08,600 --> 00:45:10,920
+Compression may have significantly changed the game here.
+
+949
+00:45:10,920 --> 00:45:12,920
+We were just using defaults on both.
+
+950
+00:45:12,920 --> 00:45:16,880
+If we had used compression, ZFS may have kicked ass on this.
+
+951
+00:45:16,880 --> 00:45:19,600
+It would be really interesting to run it again actually now that I think about it.
+
+952
+00:45:19,600 --> 00:45:21,280
+Oh boy, there's always more benchmarks.
+
+953
+00:45:21,280 --> 00:45:25,520
+But anyways, I honestly thought at the end of all this, we'd come here and say, if you
+
+954
+00:45:25,520 --> 00:45:30,340
+just want full, nothing but performance, go with Extended 4.
+
+955
+00:45:30,340 --> 00:45:35,240
+But the reality is, depending on your use case, you may actually get higher performance
+
+956
+00:45:35,240 --> 00:45:39,160
+even in low memory conditions with ZFS, depending on your use case.
+
+957
+00:45:39,160 --> 00:45:41,440
+We have a few links in the show notes.
+
+958
+00:45:41,440 --> 00:45:47,000
+The one that I think would be really interesting for you to check out are the low memory versus
+
+959
+00:45:47,000 --> 00:45:54,520
+regular memory tests and the low memory Extended 4 versus low memory ZFS.
+
+960
+00:45:54,520 --> 00:45:58,440
+And then it's really easy to compare all of them actually, but we'll have the links in
+
+961
+00:45:58,440 --> 00:45:59,440
+the show notes.
+
+962
+00:45:59,440 --> 00:46:02,360
+There's some interesting data.
+
+963
+00:46:02,360 --> 00:46:08,120
+I walk away from this thinking, it's safe from a performance standpoint to use ZFS,
+
+964
+00:46:08,120 --> 00:46:11,240
+and even if it's on a system that you want to have high performance from.
+
+965
+00:46:11,240 --> 00:46:17,360
+And then there's additional benefits as you go up the hardware scale, like when you start
+
+966
+00:46:17,360 --> 00:46:22,040
+going to MV and E drives, there's additional benefits to going with ZFS.
+
+967
+00:46:22,040 --> 00:46:23,040
+It just gets better.
+
+968
+00:46:23,040 --> 00:46:26,800
+And when you start wanting to use multiple disks and pool them together, there's a lot
+
+969
+00:46:26,800 --> 00:46:31,960
+more benefits to going with ZFS that Extended 4 can't offer without having to strap on LVM
+
+970
+00:46:31,960 --> 00:46:36,560
+or other management tools, whereas ZFS brings it all in one suite of tools.
+
+971
+00:46:36,560 --> 00:46:41,600
+So this is really fascinating for me because what the data says is even in a worst case
+
+972
+00:46:41,600 --> 00:46:47,600
+ZFS scenario, old SSD, three-year-old system, limited memory, it's still very competitive.
+
+973
+00:46:47,600 --> 00:46:51,760
+And then when you put it in a situation where you have a lot more hardware to throw at it
+
+974
+00:46:51,760 --> 00:46:56,200
+and you have a lot more disks to throw at it, the benefits just really get bigger.
+
+975
+00:46:56,200 --> 00:46:57,200
+All right.
+
+976
+00:46:57,200 --> 00:46:58,200
+Well, then I think it's prediction time.
+
+977
+00:46:58,200 --> 00:46:59,200
+What do you think?
+
+978
+00:46:59,200 --> 00:47:04,240
+Does this pave the way to ZFS on root by default in a future Ubuntu release?
+
+979
+00:47:04,240 --> 00:47:05,520
+Can you see it?
+
+980
+00:47:05,520 --> 00:47:09,600
+I mean, it would make a lot of sense, especially on the server side when you want to protect
+
+981
+00:47:09,600 --> 00:47:12,880
+from bogus updates or configuration mistakes.
+
+982
+00:47:12,880 --> 00:47:13,880
+Right.
+
+983
+00:47:13,880 --> 00:47:17,520
+And it would be a big advertising point if you had that integrated into that Ubuntu tooling,
+
+984
+00:47:17,520 --> 00:47:18,520
+right?
+
+985
+00:47:18,520 --> 00:47:21,280
+Ubuntu is a great choice because look, you can just roll back.
+
+986
+00:47:21,280 --> 00:47:26,160
+If we could properly get boot environment support at grub, it'd be worth it just to annoy
+
+987
+00:47:26,160 --> 00:47:28,040
+the BSD crowd that already has it.
+
+988
+00:47:28,040 --> 00:47:29,760
+You know what I mean?
+
+989
+00:47:29,760 --> 00:47:30,760
+Look, we caught up.
+
+990
+00:47:30,760 --> 00:47:31,760
+Yeah.
+
+991
+00:47:31,760 --> 00:47:34,520
+But we talk about it like it's the first time we've got to pretend we've never heard that
+
+992
+00:47:34,520 --> 00:47:35,520
+they've done it.
+
+993
+00:47:35,520 --> 00:47:36,520
+Yeah.
+
+994
+00:47:36,520 --> 00:47:37,520
+They hate that.
+
+995
+00:47:37,520 --> 00:47:38,520
+Because they hate that.
+
+996
+00:47:38,520 --> 00:47:39,520
+They hate that.
+
+997
+00:47:39,520 --> 00:47:40,520
+And so that would really make it perfect.
+
+998
+00:47:40,520 --> 00:47:42,080
+And that's what I hope for.
+
+999
+00:47:42,080 --> 00:47:49,960
+Do you think that they would ever shift and do ZFS on the Ubuntu server while ext4 on
+
+1000
+00:47:49,960 --> 00:47:50,960
+the desktop?
+
+1001
+00:47:50,960 --> 00:47:51,960
+Could do.
+
+1002
+00:47:51,960 --> 00:47:56,280
+You know, on my machine upstairs when I reload it, I'm not going with CFS on my root.
+
+1003
+00:47:56,280 --> 00:47:57,280
+I'm still waiting.
+
+1004
+00:47:57,280 --> 00:47:59,480
+Again, because that's an implementation thing.
+
+1005
+00:47:59,480 --> 00:48:02,600
+Also likely go pop and they don't have it in the installer.
+
+1006
+00:48:02,600 --> 00:48:07,800
+However, I have three disks that I pooled together and I am absolutely going to move
+
+1007
+00:48:07,800 --> 00:48:09,360
+them over from XFS to ZFS.
+
+1008
+00:48:09,360 --> 00:48:10,360
+Right.
+
+1009
+00:48:10,360 --> 00:48:11,360
+That's the other nice thing here.
+
+1010
+00:48:11,360 --> 00:48:13,960
+Even if you don't do it on root, well, if you're running Ubuntu, it's at hand.
+
+1011
+00:48:13,960 --> 00:48:17,720
+I may be near the end of ever really using LVM again.
+
+1012
+00:48:17,720 --> 00:48:23,560
+Although LVM has been great and solid and I've got nothing against it, I like the ZFS
+
+1013
+00:48:23,560 --> 00:48:24,560
+tools better.
+
+1014
+00:48:24,560 --> 00:48:27,680
+And as I learn them more, I think they seem to be more complete.
+
+1015
+00:48:27,680 --> 00:48:32,520
+And the whole idea of bringing it all together where the file system is aware of the hardware
+
+1016
+00:48:32,520 --> 00:48:38,520
+and aware of the RAID and aware of what the user space is doing brings so many advantages.
+
+1017
+00:48:38,520 --> 00:48:42,120
+So it's a bright future either way, because you can still pick whichever file system floats
+
+1018
+00:48:42,120 --> 00:48:43,120
+your boat.
+
+1019
+00:48:43,120 --> 00:48:44,880
+But you could also go with something new and furniture.
+
+1020
+00:48:44,880 --> 00:48:48,440
+Chris, if you say it out loud, you know, the BSD folks might hear you.
+
+1021
+00:48:48,440 --> 00:48:50,240
+Are they listening?
+
+1022
+00:48:50,240 --> 00:48:52,680
+Have you done any ZFS experimentation over there?
+
+1023
+00:48:52,680 --> 00:48:53,680
+I have.
+
+1024
+00:48:53,680 --> 00:48:54,680
+Yeah.
+
+1025
+00:48:54,680 --> 00:49:00,200
+So I moved from Debian to Ubuntu for my primary server simply to get the ZFS support.
+
+1026
+00:49:00,200 --> 00:49:01,200
+Oh, really?
+
+1027
+00:49:01,200 --> 00:49:02,200
+Why?
+
+1028
+00:49:02,200 --> 00:49:03,240
+What was so like, gotta have?
+
+1029
+00:49:03,240 --> 00:49:06,280
+Because you've had what, various solutions in the past?
+
+1030
+00:49:06,280 --> 00:49:12,040
+I went to a talk by Jim Salter at Lennox Fest Northwest, and then Alan Jude gave me one
+
+1031
+00:49:12,040 --> 00:49:14,000
+of his books for free and that was that.
+
+1032
+00:49:14,000 --> 00:49:17,360
+That's having two devils on your shoulder in that case, Tanya.
+
+1033
+00:49:17,360 --> 00:49:20,080
+It's really compelling, you know, all the checksumming stuff.
+
+1034
+00:49:20,080 --> 00:49:25,600
+So the use case I use it for is I just have a pair of drives mirrored that store all of
+
+1035
+00:49:25,600 --> 00:49:26,920
+the irreplaceable data.
+
+1036
+00:49:26,920 --> 00:49:29,880
+So my drone footage, my photos and stuff like that.
+
+1037
+00:49:29,880 --> 00:49:34,360
+You know, the stuff that is irreplaceable, genuinely irreplaceable.
+
+1038
+00:49:34,360 --> 00:49:38,480
+And then I use ZFS Send to send that to England and then Duplicati does a bunch of other stuff
+
+1039
+00:49:38,480 --> 00:49:39,480
+with it as well.
+
+1040
+00:49:39,480 --> 00:49:42,120
+But I've really been enjoying it.
+
+1041
+00:49:42,120 --> 00:49:46,480
+And yes, there's a lot to learn and there's some monitoring stuff with how like DF handles
+
+1042
+00:49:46,480 --> 00:49:51,720
+monitoring free space and there are some things to learn, but I don't mind learning stuff.
+
+1043
+00:49:51,720 --> 00:49:53,200
+That's part of the fun for me.
+
+1044
+00:49:53,200 --> 00:49:54,680
+Yeah, it does have a learning overhead.
+
+1045
+00:49:54,680 --> 00:49:57,360
+Yeah, but that's true for, you know, anytime you kind of step out of the box, right?
+
+1046
+00:49:57,360 --> 00:49:58,360
+Even with ThunderFest.
+
+1047
+00:49:58,360 --> 00:49:59,360
+True.
+
+1048
+00:49:59,360 --> 00:50:00,360
+Okay.
+
+1049
+00:50:00,360 --> 00:50:01,360
+Yeah, very fair.
+
+1050
+00:50:01,360 --> 00:50:02,840
+Brent, you had a question about CFS capabilities.
+
+1051
+00:50:02,840 --> 00:50:08,120
+Yeah, well, I often tend to like default to using encryption in many places as a way of
+
+1052
+00:50:08,120 --> 00:50:10,280
+forcing myself to learn it.
+
+1053
+00:50:10,280 --> 00:50:12,080
+But I wondered about ZFS and encryption.
+
+1054
+00:50:12,080 --> 00:50:15,520
+Does anybody have any experience with that or has done any research?
+
+1055
+00:50:15,520 --> 00:50:20,120
+I haven't played with it too much yet, but they do now have it natively inside CFS.
+
+1056
+00:50:20,120 --> 00:50:24,880
+I think before I usually would, you know, kind of to layer it on, but that would sidestep
+
+1057
+00:50:24,880 --> 00:50:28,600
+some of the direct, give CFS direct access to the disk benefits.
+
+1058
+00:50:28,600 --> 00:50:30,240
+I haven't played too much with it though.
+
+1059
+00:50:30,240 --> 00:50:35,560
+Yeah, so it, I think just recently landed in the last couple of point releases for CFS
+
+1060
+00:50:35,560 --> 00:50:36,600
+on Linux.
+
+1061
+00:50:36,600 --> 00:50:42,880
+Rebsd has had some solutions for a little while, but it's pretty nice.
+
+1062
+00:50:42,880 --> 00:50:46,920
+One of the things that I'll probably look at doing in the future is you can, in CFS,
+
+1063
+00:50:46,920 --> 00:50:48,800
+you can have these concepts of pools of disks.
+
+1064
+00:50:48,800 --> 00:50:53,560
+So you can have like a media pool and like a documents pool and stuff like that.
+
+1065
+00:50:53,560 --> 00:50:58,600
+And you can do partitions across them or whatnot, but you can also just say encrypt everything
+
+1066
+00:50:58,600 --> 00:50:59,720
+in this pool.
+
+1067
+00:50:59,720 --> 00:51:04,720
+So if you have, if you want to have like a documents folder in your home folder, that
+
+1068
+00:51:04,720 --> 00:51:06,960
+could actually be mapped to an entire storage pool.
+
+1069
+00:51:06,960 --> 00:51:11,480
+That one folder could be mapped to the documents pool and you could just say anything I put,
+
+1070
+00:51:11,480 --> 00:51:15,400
+which just looks like a folder to you, but it's actually an entire pool of disks.
+
+1071
+00:51:15,400 --> 00:51:17,520
+Anything I put in this folder encrypted.
+
+1072
+00:51:17,520 --> 00:51:19,400
+And then once you set it, it's done.
+
+1073
+00:51:19,400 --> 00:51:20,400
+You don't worry about it.
+
+1074
+00:51:20,400 --> 00:51:21,400
+You're exciting me.
+
+1075
+00:51:21,400 --> 00:51:23,240
+I think, you know, it's not quite there.
+
+1076
+00:51:23,240 --> 00:51:28,480
+It's not daily driver yet, but we've got such great potential where the desktop environments
+
+1077
+00:51:28,480 --> 00:51:32,040
+and the toolkits around them, because like we haven't given a lot of attention to plasma
+
+1078
+00:51:32,040 --> 00:51:38,400
+on this release, but also just still doing great, still doing great, very solid and working
+
+1079
+00:51:38,400 --> 00:51:44,200
+away at their Wayland support, making it, making it a top priority for Kwin.
+
+1080
+00:51:44,200 --> 00:51:45,840
+It's really gotten to a good spot.
+
+1081
+00:51:45,840 --> 00:51:47,640
+So, and this is just another part of it.
+
+1082
+00:51:47,640 --> 00:51:52,720
+This is just, this is a part of the stack that we get to enjoy as free software users.
+
+1083
+00:51:52,720 --> 00:51:57,720
+We just get this stuff for free and a whole team of people worked on packaging this all
+
+1084
+00:51:57,720 --> 00:52:03,080
+up for us and then one day an arbitrary date, they decide you now get this thing and it,
+
+1085
+00:52:03,080 --> 00:52:04,080
+it can change your life.
+
+1086
+00:52:04,080 --> 00:52:06,640
+It can like, it can save your precious memories.
+
+1087
+00:52:06,640 --> 00:52:09,600
+It can change how you back up and move data around the world.
+
+1088
+00:52:09,600 --> 00:52:12,580
+It can provide features that you've never thought possible with your computer before.
+
+1089
+00:52:12,580 --> 00:52:15,840
+It makes your computer more capable, even if you choose not to use it.
+
+1090
+00:52:15,840 --> 00:52:16,840
+That's awesome.
+
+1091
+00:52:16,840 --> 00:52:17,840
+That's it, right?
+
+1092
+00:52:17,840 --> 00:52:20,200
+Like, I mean, there's no going back if you're like, Oh, I didn't think I'd want those pictures,
+
+1093
+00:52:20,200 --> 00:52:22,120
+but I left them on this old drive here.
+
+1094
+00:52:22,120 --> 00:52:25,640
+I mean, if you have ZFS underneath, you know, better safe than sorry.
+
+1095
+00:52:25,640 --> 00:52:30,480
+Well, and if you just look at it from like an old school, like imagine your, your favorite
+
+1096
+00:52:30,480 --> 00:52:35,500
+Linux distro as a boxed product on the shelf and you know, every year they got to have
+
+1097
+00:52:35,500 --> 00:52:37,480
+new bullet points on that box.
+
+1098
+00:52:37,480 --> 00:52:44,720
+Well, your favorite distro box, if it's Ubuntu based, just got some unbelievable features
+
+1099
+00:52:44,720 --> 00:52:49,360
+that just would, if you're looking at it from like features on a box standpoint, it's just
+
+1100
+00:52:49,360 --> 00:52:50,360
+incredible.
+
+1101
+00:52:50,360 --> 00:52:54,160
+And you combine that with everything else we can do on Linux these days and just, just
+
+1102
+00:52:54,160 --> 00:52:55,920
+blows my mind.
+
+1103
+00:52:55,920 --> 00:52:56,920
+Just blows my mind.
+
+1104
+00:52:56,920 --> 00:53:01,620
+So check out the links in the show notes for our benchmarks, including the comparison of
+
+1105
+00:53:01,620 --> 00:53:06,480
+low memory versus high memory, them with just, you know, having at the system as much as
+
+1106
+00:53:06,480 --> 00:53:09,560
+they can and then compare it to your system.
+
+1107
+00:53:09,560 --> 00:53:10,700
+Yeah, we'd love to see that.
+
+1108
+00:53:10,700 --> 00:53:13,000
+Maybe let us know if you get some interesting results.
+
+1109
+00:53:13,000 --> 00:53:17,140
+I have a pick for you this week that I think is going to be perfect for you, Mr. Bacon.
+
+1110
+00:53:17,140 --> 00:53:19,480
+It's called ThinkPad Tools.
+
+1111
+00:53:19,480 --> 00:53:23,220
+This is going to be applicable to everybody, but it's pretty nice for those of you that
+
+1112
+00:53:23,220 --> 00:53:25,360
+have a ThinkPad out there and it sounds like you just got one.
+
+1113
+00:53:25,360 --> 00:53:26,360
+Yeah.
+
+1114
+00:53:26,360 --> 00:53:27,800
+So I just recently picked one up.
+
+1115
+00:53:27,800 --> 00:53:33,360
+I picked up the older T440S.
+
+1116
+00:53:33,360 --> 00:53:38,240
+After doing some research, I probably should have got the T440P, but you know, it is what
+
+1117
+00:53:38,240 --> 00:53:39,240
+it is.
+
+1118
+00:53:39,240 --> 00:53:43,560
+170 bucks, 12 gigs of RAM, 256 gig SSD.
+
+1119
+00:53:43,560 --> 00:53:44,560
+I think he just wanted to brag.
+
+1120
+00:53:44,560 --> 00:53:45,560
+That's why he brought this up.
+
+1121
+00:53:45,560 --> 00:53:46,560
+Shut up.
+
+1122
+00:53:46,560 --> 00:53:47,560
+This is the biggest humble brag.
+
+1123
+00:53:47,560 --> 00:53:51,920
+Well, I mean, you could find the same deal for a little bit cheaper if you did some digging
+
+1124
+00:53:51,920 --> 00:53:52,920
+out there.
+
+1125
+00:53:52,920 --> 00:54:01,040
+But after watching Popey go on his spiel about it, he makes me want to buy used ThinkPads
+
+1126
+00:54:01,040 --> 00:54:02,040
+too.
+
+1127
+00:54:02,040 --> 00:54:08,880
+Well, and then I just given my older ThinkPad to L, so I was jonesing for that track point
+
+1128
+00:54:08,880 --> 00:54:09,880
+again, you know?
+
+1129
+00:54:09,880 --> 00:54:11,240
+Well, welcome back to the club.
+
+1130
+00:54:11,240 --> 00:54:14,840
+You know, like having a ThinkPad, I hadn't experienced this before having one.
+
+1131
+00:54:14,840 --> 00:54:16,440
+It kind of is like a little club.
+
+1132
+00:54:16,440 --> 00:54:20,680
+There's something special about Linux users and ThinkPads, and that's why we get all the
+
+1133
+00:54:20,680 --> 00:54:24,080
+nice toys like the pick this week, ThinkPad tools.
+
+1134
+00:54:24,080 --> 00:54:28,600
+So sorry if you don't have a ThinkPad, although maybe take Jesus advice and go find one near
+
+1135
+00:54:28,600 --> 00:54:29,600
+you.
+
+1136
+00:54:29,600 --> 00:54:31,400
+I can't believe that.
+
+1137
+00:54:31,400 --> 00:54:32,400
+That's a great value.
+
+1138
+00:54:32,400 --> 00:54:33,400
+And that'll be a great test machine.
+
+1139
+00:54:33,400 --> 00:54:35,360
+You know, we've got a nice range now.
+
+1140
+00:54:35,360 --> 00:54:39,480
+We've got a good range of super high end machines that are ridiculous in scale.
+
+1141
+00:54:39,480 --> 00:54:43,600
+And then we've got machines that are real practical daily drivers that people might
+
+1142
+00:54:43,600 --> 00:54:47,440
+be picking up either second hand or just own for a couple of years and don't need to replace
+
+1143
+00:54:47,440 --> 00:54:48,440
+it.
+
+1144
+00:54:48,440 --> 00:54:51,520
+So I think we're going to get a good, with the whole team now, we're getting good representative
+
+1145
+00:54:51,520 --> 00:54:53,080
+sample of people's machines.
+
+1146
+00:54:53,080 --> 00:54:56,840
+The other thing I'd like to add about ThinkPads is that they're super easy to repair.
+
+1147
+00:54:56,840 --> 00:55:01,120
+I swapped out the keyboard on my wife's ThinkPad in about an hour.
+
+1148
+00:55:01,120 --> 00:55:06,000
+You know, so even if you pour water over the thing, it's cheap and easy to repair.
+
+1149
+00:55:06,000 --> 00:55:07,560
+We don't recommend you do that.
+
+1150
+00:55:07,560 --> 00:55:09,040
+We do not recommend you do that.
+
+1151
+00:55:09,040 --> 00:55:11,320
+Anyways, if you're thinking, well, what does it do?
+
+1152
+00:55:11,320 --> 00:55:14,000
+It'll adjust the track point speed and sensitivity.
+
+1153
+00:55:14,000 --> 00:55:18,360
+It'll help you get better battery information and it can help you troubleshoot that under
+
+1154
+00:55:18,360 --> 00:55:19,360
+vaulting CPU issue.
+
+1155
+00:55:19,360 --> 00:55:20,360
+We've talked about before.
+
+1156
+00:55:20,360 --> 00:55:23,800
+I mean, I didn't know that my sensitivity was 128, but now I do.
+
+1157
+00:55:23,800 --> 00:55:24,800
+Now you do, Wes.
+
+1158
+00:55:24,800 --> 00:55:29,000
+Actually, it is like, I mean, the little battery status is nicely displayed in the terminal
+
+1159
+00:55:29,000 --> 00:55:30,200
+and it's just in Python.
+
+1160
+00:55:30,200 --> 00:55:31,200
+So it's easy to install.
+
+1161
+00:55:31,200 --> 00:55:32,200
+Yeah.
+
+1162
+00:55:32,200 --> 00:55:33,200
+So check that out.
+
+1163
+00:55:33,200 --> 00:55:37,960
+Link in the notes for that and all of it's at linuxunplug.com slash three, two, four.
+
+1164
+00:55:37,960 --> 00:55:42,160
+While you're there, you can subscribe to get the show directly every single week at linuxunplug.com
+
+1165
+00:55:42,160 --> 00:55:43,280
+slash subscribe.
+
+1166
+00:55:43,280 --> 00:55:46,080
+But more importantly, if you want to give us your thoughts, your feedback, your take
+
+1167
+00:55:46,080 --> 00:55:50,560
+on the new release of 1910 or anything else we've talked about, linuxunplug.com slash
+
+1168
+00:55:50,560 --> 00:55:51,560
+contact.
+
+1169
+00:55:51,560 --> 00:55:52,560
+That's so easy.
+
+1170
+00:55:52,560 --> 00:55:54,640
+There's just like a form there and it sends an email for you.
+
+1171
+00:55:54,640 --> 00:55:55,640
+Easy, easy.
+
+1172
+00:55:55,640 --> 00:55:58,680
+You could also tweet us at Linux Unplugged on the Twitter.
+
+1173
+00:55:58,680 --> 00:55:59,680
+Yeah.
+
+1174
+00:55:59,680 --> 00:56:01,080
+And the whole network's at Jupiter Signal.
+
+1175
+00:56:01,080 --> 00:56:02,080
+That guy right there.
+
+1176
+00:56:02,080 --> 00:56:03,080
+At Wes Payne.
+
+1177
+00:56:03,080 --> 00:56:04,080
+I'm at Chris LAS.
+
+1178
+00:56:04,080 --> 00:56:05,080
+Cheesy.
+
+1179
+00:56:05,080 --> 00:56:06,080
+I'm at cheesebacon.
+
+1180
+00:56:06,080 --> 00:56:07,080
+C-H-C-B-A-C-O-N.
+
+1181
+00:56:07,080 --> 00:56:09,240
+Go get some Alex.
+
+1182
+00:56:09,240 --> 00:56:11,640
+At Alex is a K-T-Z on the Twitter.
+
+1183
+00:56:11,640 --> 00:56:12,640
+Ironic Badger.
+
+1184
+00:56:12,640 --> 00:56:13,640
+Oh, that's right.
+
+1185
+00:56:13,640 --> 00:56:14,640
+Ironic Badger.
+
+1186
+00:56:14,640 --> 00:56:15,640
+Yes.
+
+1187
+00:56:15,640 --> 00:56:16,640
+Ironic Badger.
+
+1188
+00:56:16,640 --> 00:56:17,640
+Ironic Badger.
+
+1189
+00:56:17,640 --> 00:56:19,480
+Go get some Alex, too.
+
+1190
+00:56:19,480 --> 00:56:23,000
+It's so ironic that I forgot that, except for that's not ironic.
+
+1191
+00:56:23,000 --> 00:56:24,000
+That's not ironic at all.
+
+1192
+00:56:24,000 --> 00:56:25,000
+I know.
+
+1193
+00:56:25,000 --> 00:56:26,000
+I know.
+
+1194
+00:56:26,000 --> 00:56:27,000
+I'm sorry.
+
+1195
+00:56:27,000 --> 00:56:28,000
+Anyways, and did I mention mine?
+
+1196
+00:56:28,000 --> 00:56:29,000
+Probably.
+
+1197
+00:56:29,000 --> 00:56:30,000
+You did, yeah.
+
+1198
+00:56:30,000 --> 00:56:32,920
+But you didn't mention that you should go get more of you and Alex over at that self-hosted
+
+1199
+00:56:32,920 --> 00:56:33,920
+show.
+
+1200
+00:56:33,920 --> 00:56:34,920
+Oh, we should mention that.
+
+1201
+00:56:34,920 --> 00:56:35,920
+Uh-huh.
+
+1202
+00:56:35,920 --> 00:56:36,920
+Yeah.
+
+1203
+00:56:36,920 --> 00:56:43,520
+And while we're just doing plug skis, I should mention TechSnap.Systems slash 414.
+
+1204
+00:56:43,520 --> 00:56:49,360
+Wes and Jim have such a great discussion on ZFS in general, especially like around the
+
+1205
+00:56:49,360 --> 00:56:50,360
+snapshot stuff.
+
+1206
+00:56:50,360 --> 00:56:52,360
+There's so many good points.
+
+1207
+00:56:52,360 --> 00:56:57,160
+But Jim's explanation of snapshots truly made me understand it and appreciate why it can
+
+1208
+00:56:57,160 --> 00:57:01,600
+happen pretty quick, why the snapshots don't take a ton of disk space, and why it's kind
+
+1209
+00:57:01,600 --> 00:57:04,440
+of a big deal that this is landing on such a large Linux distro.
+
+1210
+00:57:04,440 --> 00:57:05,440
+Yeah.
+
+1211
+00:57:05,440 --> 00:57:06,440
+Put it all into perspective.
+
+1212
+00:57:06,440 --> 00:57:11,220
+TechSnap.Systems slash 414, and join us next Tuesday over at jblive.tv.
+
+1213
+00:57:11,220 --> 00:57:14,920
+We do this show at 2 p.m. Pacific at jblive.tv.
+
+1214
+00:57:14,920 --> 00:57:15,920
+Got a chat room, the mumble.
+
+1215
+00:57:15,920 --> 00:57:43,200
+See you back here next Tuesday!
+
+1216
+00:57:45,920 --> 00:57:57,160
+Now, we gotta title this thing.
+
+1217
+00:57:57,160 --> 00:57:58,160
+Potato Computing.
+
+1218
+00:57:58,160 --> 00:57:59,160
+I like that.
+
+1219
+00:57:59,160 --> 00:58:01,520
+It's as slow as a potato.
+
+1220
+00:58:01,520 --> 00:58:02,520
+You know what?
+
+1221
+00:58:02,520 --> 00:58:06,040
+Potatoes are great, so let's not throw potatoes under the bus.
+
+1222
+00:58:06,040 --> 00:58:07,240
+Especially them free-range taters.
+
+1223
+00:58:07,240 --> 00:58:08,880
+It's the only ethical kind of tater.
+
+1224
+00:58:08,880 --> 00:58:09,880
+Of course.
+
+1225
+00:58:09,880 --> 00:58:10,880
+It's a free-range tater.
+
+1226
+00:58:10,880 --> 00:58:11,880
+Be kind to the potatoes.
+
+1227
+00:58:11,880 --> 00:58:14,200
+So, uh, let's go get this thing named.
+
+1228
+00:58:14,200 --> 00:58:16,440
+I'm gonna vote for RamBurglars.
+
+1229
+00:58:16,440 --> 00:58:21,720
+I'm going to, like, try to slam this install on my system, and then be done.
+
+1230
+00:58:21,720 --> 00:58:26,720
+Because in the last three weeks, I got a different phone, I've been loading and reloading systems,
+
+1231
+00:58:26,720 --> 00:58:28,280
+and so, like, nothing's set up.
+
+1232
+00:58:28,280 --> 00:58:31,360
+Like, I gotta log into everything, you know what I'm saying?
+
+1233
+00:58:31,360 --> 00:58:35,760
+Like, it's just been weeks of setting up software, so, like, I'm gonna, after this show's over.
+
+1234
+00:58:35,760 --> 00:58:37,760
+Should we take away your root privileges on there?
+
+1235
+00:58:37,760 --> 00:58:38,760
+Just to be fair.
+
+1236
+00:58:38,760 --> 00:58:40,760
+I'll set a BIOS password.
+
+1237
+00:58:40,760 --> 00:58:41,760
+Right, yes.
+
+1238
+00:58:41,760 --> 00:58:42,760
+No more.
+
+1239
+00:58:42,760 --> 00:58:48,080
+So, after this episode, I'm going upstairs, I'm reloading that box, I'm ordering food,
+
+1240
+00:58:48,080 --> 00:58:52,360
+and I'm not leaving the studio until my basics are logged into.
+
+1241
+00:58:52,360 --> 00:58:53,360
+And I'm calling it good for a while.
+
+1242
+00:58:53,360 --> 00:58:54,600
+It's nice to have that ready to go, though, right?
+
+1243
+00:58:54,600 --> 00:59:13,600
+So, like, tomorrow, you can actually just get work done.
+

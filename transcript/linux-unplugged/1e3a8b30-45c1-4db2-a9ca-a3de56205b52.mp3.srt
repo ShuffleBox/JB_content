@@ -1,0 +1,4416 @@
+1
+00:00:00,000 --> 00:00:06,960
+There's one story I've seen going around more than any other this week, and it's the announcement
+
+2
+00:00:06,960 --> 00:00:13,560
+of a new project that promises to create a Linux-compatible kernel completely written
+
+3
+00:00:13,560 --> 00:00:14,960
+in Rust.
+
+4
+00:00:14,960 --> 00:00:19,960
+The aim is not to replace Linux, but to create something written from scratch that aims to
+
+5
+00:00:19,960 --> 00:00:20,960
+be ABI-compatible.
+
+6
+00:00:20,960 --> 00:00:26,840
+In other words, it would support running unmodified Linux binaries.
+
+7
+00:00:26,840 --> 00:00:29,840
+Wes, I think you're a little skeptical pants about this one.
+
+8
+00:00:29,840 --> 00:00:30,840
+Oh, no.
+
+9
+00:00:30,840 --> 00:00:31,840
+I don't know about that.
+
+10
+00:00:31,840 --> 00:00:36,820
+I think what I like about this project is it's intentionally limited in scope.
+
+11
+00:00:36,820 --> 00:00:40,280
+The project author is really just trying to make something that's Linux-compatible but
+
+12
+00:00:40,280 --> 00:00:46,000
+that can run in a function-as-a-service runtime environment, actually using Firecracker VMs,
+
+13
+00:00:46,000 --> 00:00:47,000
+also written in Rust.
+
+14
+00:00:47,000 --> 00:00:51,720
+And so, you know, you don't have to worry about things like kernel crashes because it's
+
+15
+00:00:51,720 --> 00:00:54,160
+not doing long-running workloads.
+
+16
+00:00:54,160 --> 00:00:56,840
+That doesn't sound impossible, does it?
+
+17
+00:00:56,840 --> 00:01:01,920
+I actually was thinking of this as more like a tiny VM environment host, our guest kind
+
+18
+00:01:01,920 --> 00:01:07,000
+of a thing, or container runtime environment that's just this itty-bitty environment that's
+
+19
+00:01:07,000 --> 00:01:08,120
+binary-compatible.
+
+20
+00:01:08,120 --> 00:01:14,200
+But I liked that the motivation was the conversation around how could we use Rust in the Linux
+
+21
+00:01:14,200 --> 00:01:15,660
+kernel?
+
+22
+00:01:15,660 --> 00:01:20,000
+That kind of evolved into inspiration for this project to say, okay, well, let's take
+
+23
+00:01:20,000 --> 00:01:21,720
+this all the way.
+
+24
+00:01:21,720 --> 00:01:26,360
+And it seems like the exact kind of thing that Free Software lends itself to, where
+
+25
+00:01:26,360 --> 00:01:30,840
+you can have just these, it's not, this isn't necessarily a fork, but you can have these
+
+26
+00:01:30,840 --> 00:01:35,600
+side projects that may never really ship, may never go into production anywhere, may
+
+27
+00:01:35,600 --> 00:01:40,040
+never even be a container runtime or a VM guest OS.
+
+28
+00:01:40,040 --> 00:01:45,040
+But it can be an R&D factory for things that do actually make it in the mainline Linux
+
+29
+00:01:45,040 --> 00:01:46,040
+kernel.
+
+30
+00:01:46,040 --> 00:01:49,400
+Yeah, it teaches the person working on this, any contributors, and anyone along for the
+
+31
+00:01:49,400 --> 00:01:53,160
+ride, you know, like, what does or doesn't work about doing it this way?
+
+32
+00:01:53,160 --> 00:01:58,080
+And maybe it informs both future operating systems and the Rust language itself.
+
+33
+00:01:58,080 --> 00:02:00,520
+Now, it is very, very early days.
+
+34
+00:02:00,520 --> 00:02:04,720
+This isn't gonna, you know, this isn't gonna be like something you're gonna have some weird
+
+35
+00:02:04,720 --> 00:02:09,000
+distro Frankenstein thing with, with this kernel, which I think is BSD licensed, like
+
+36
+00:02:09,000 --> 00:02:11,160
+this isn't happening anytime soon.
+
+37
+00:02:11,160 --> 00:02:20,040
+But I'll tell you what, if it does start to happen, we're gonna give it a go.
+
+38
+00:02:20,040 --> 00:02:27,040
+Hello, friends, and welcome back to your weekly Linux talk show.
+
+39
+00:02:27,040 --> 00:02:28,040
+My name is Chris.
+
+40
+00:02:28,040 --> 00:02:29,040
+My name is Wes.
+
+41
+00:02:29,040 --> 00:02:30,040
+And my name is Brent.
+
+42
+00:02:30,040 --> 00:02:31,280
+Hello, you two.
+
+43
+00:02:31,280 --> 00:02:33,400
+This episode is brought to you by the all new a cloud guru.
+
+44
+00:02:33,400 --> 00:02:36,120
+You know, they are the leader in learning for the cloud Linux and other modern tech
+
+45
+00:02:36,120 --> 00:02:37,120
+skills.
+
+46
+00:02:37,120 --> 00:02:40,440
+They got hundreds of courses and 1000s of hands on labs get certified get hired get
+
+47
+00:02:40,440 --> 00:02:47,700
+learning at a cloud guru.com Well, coming up on the show today, it's fedora 35 release
+
+48
+00:02:47,700 --> 00:02:50,700
+day and we're making a whole theme out of it.
+
+49
+00:02:50,700 --> 00:02:54,880
+We're gonna have a project check in with Matthew Miller.
+
+50
+00:02:54,880 --> 00:02:57,000
+He's gonna tell us what's going on over there.
+
+51
+00:02:57,000 --> 00:03:00,160
+We're then going to do our exit interview with fedora 34.
+
+52
+00:03:00,160 --> 00:03:03,480
+We had an opportunity to give it a spin later in its lifecycle.
+
+53
+00:03:03,480 --> 00:03:05,980
+And it's a totally different fedora.
+
+54
+00:03:05,980 --> 00:03:10,640
+So I want to have that chat and then it's our review of fedora 35 will tell you what's
+
+55
+00:03:10,640 --> 00:03:14,200
+new, what's different, what works, what doesn't work.
+
+56
+00:03:14,200 --> 00:03:18,240
+And then we'll round out the show with some great emails, some pics, some follow up, you
+
+57
+00:03:18,240 --> 00:03:20,000
+know, all that kind of stuff that we do.
+
+58
+00:03:20,000 --> 00:03:23,880
+So before I go any further, I have to say time appropriate greetings, mumble room Hello
+
+59
+00:03:23,880 --> 00:03:24,880
+virtual lug.
+
+60
+00:03:24,880 --> 00:03:25,880
+Hello.
+
+61
+00:03:25,880 --> 00:03:30,320
+Man, hello, everybody.
+
+62
+00:03:30,320 --> 00:03:33,680
+It's nice to be back in the studio this week.
+
+63
+00:03:33,680 --> 00:03:34,680
+Everything's back to normal.
+
+64
+00:03:34,680 --> 00:03:35,680
+I'm no longer in the woods.
+
+65
+00:03:35,680 --> 00:03:37,720
+I don't even think it's raining right now.
+
+66
+00:03:37,720 --> 00:03:38,720
+You're right.
+
+67
+00:03:38,720 --> 00:03:39,720
+It finally stopped.
+
+68
+00:03:39,720 --> 00:03:42,660
+Oh, man, that's been nice, although it was raining on the drive in.
+
+69
+00:03:42,660 --> 00:03:44,960
+So it's really only stopped while I'm in here.
+
+70
+00:03:44,960 --> 00:03:50,600
+But that aside, I mean, the weather does suck, but I kind of have I kind of have an idea.
+
+71
+00:03:50,600 --> 00:03:55,120
+Maybe this is stupid with with it getting close to the holidays and all of that.
+
+72
+00:03:55,120 --> 00:04:02,080
+But there is an opportunity at the Museum of Flight here in the Seattle area to go see
+
+73
+00:04:02,080 --> 00:04:06,040
+the new Mars rover and the Linux copter, you know, like their clones.
+
+74
+00:04:06,040 --> 00:04:09,840
+They have a whole Mars set up right now at the Museum of Flight.
+
+75
+00:04:09,840 --> 00:04:13,680
+And I thought, you know, maybe, maybe some in the audience might be interested in like
+
+76
+00:04:13,680 --> 00:04:17,080
+a little micro meetup at the Museum of Flight where we go check this thing out.
+
+77
+00:04:17,080 --> 00:04:18,080
+I don't know.
+
+78
+00:04:18,080 --> 00:04:19,080
+What do you think?
+
+79
+00:04:19,080 --> 00:04:20,080
+I'm in.
+
+80
+00:04:20,080 --> 00:04:21,080
+All right.
+
+81
+00:04:21,080 --> 00:04:22,080
+Sign me up.
+
+82
+00:04:22,080 --> 00:04:23,080
+Yeah, you go.
+
+83
+00:04:23,080 --> 00:04:24,080
+You go.
+
+84
+00:04:24,080 --> 00:04:25,080
+I mean, we can't go to Mars yet.
+
+85
+00:04:25,080 --> 00:04:26,080
+I don't I don't think Starship is ready.
+
+86
+00:04:26,080 --> 00:04:27,080
+This seems like the next best thing.
+
+87
+00:04:27,080 --> 00:04:28,080
+Yeah.
+
+88
+00:04:28,080 --> 00:04:29,080
+Yeah.
+
+89
+00:04:29,080 --> 00:04:30,560
+That would be nice one day to be able to go visit Mars and see the Linux copter.
+
+90
+00:04:30,560 --> 00:04:31,560
+What a thought.
+
+91
+00:04:31,560 --> 00:04:34,800
+I haven't really thought it all through yet, but here's what I do know.
+
+92
+00:04:34,800 --> 00:04:40,440
+The copter and the rover will be there October 30th, so they're there now through April
+
+93
+00:04:40,440 --> 00:04:41,440
+3rd, 2022.
+
+94
+00:04:41,440 --> 00:04:45,800
+And I think maybe we should pick something in there sooner than later with the holidays.
+
+95
+00:04:45,800 --> 00:04:50,440
+But let me know if you'd like to go and do a little micro meetup at the Museum of Flight
+
+96
+00:04:50,440 --> 00:04:55,680
+Linux Unplugged dot com slash contact or the Jupiter broadcasting telegram group, Jupiter
+
+97
+00:04:55,680 --> 00:04:59,840
+broadcasting dot com slash telegram or on Twitter at Chris Elias.
+
+98
+00:04:59,840 --> 00:05:02,800
+Let me know if you'd be interested in a little hyper local meetup.
+
+99
+00:05:02,800 --> 00:05:07,240
+I know this doesn't apply to ninety nine percent of you out there, but what an opportunity.
+
+100
+00:05:07,240 --> 00:05:11,080
+I thought if some of us got together and went down there, Wes and I could bring our microphones,
+
+101
+00:05:11,080 --> 00:05:13,640
+we could capture a little bit of it and we'd share it with you guys.
+
+102
+00:05:13,640 --> 00:05:17,320
+So it kind of be like you went.
+
+103
+00:05:17,320 --> 00:05:19,040
+But I don't really have any other details than that.
+
+104
+00:05:19,040 --> 00:05:23,720
+I guess I've been back for what, two months and I'm jonesing for a meetup again already.
+
+105
+00:05:23,720 --> 00:05:29,200
+I guess that's how long it takes to get back from the woods and I'm ready to see people.
+
+106
+00:05:29,200 --> 00:05:30,200
+I guess that's a good thing.
+
+107
+00:05:30,200 --> 00:05:32,200
+Well, I think it speaks well of our audience.
+
+108
+00:05:32,200 --> 00:05:33,200
+Yeah.
+
+109
+00:05:33,200 --> 00:05:34,200
+So let me know.
+
+110
+00:05:34,200 --> 00:05:36,480
+Contact page is probably the best place.
+
+111
+00:05:36,480 --> 00:05:41,360
+And once I hear from a few people, if I even hear from I'd say four or five people, really,
+
+112
+00:05:41,360 --> 00:05:42,360
+it doesn't need to be a lot.
+
+113
+00:05:42,360 --> 00:05:45,920
+It's just enough for like, you know, like a lunch crew so we can we can share all our
+
+114
+00:05:45,920 --> 00:05:46,920
+fun learnings.
+
+115
+00:05:46,920 --> 00:05:52,240
+Although I have to say, I'm a little upset because just about every week I get an email
+
+116
+00:05:52,240 --> 00:05:57,040
+from somebody in the, quote unquote, Seattle area and I'm like, how come I've never met
+
+117
+00:05:57,040 --> 00:05:58,160
+you?
+
+118
+00:05:58,160 --> 00:05:59,960
+Why have you never been to anything we've done?
+
+119
+00:05:59,960 --> 00:06:01,160
+Why don't you go to Linux Fest?
+
+120
+00:06:01,160 --> 00:06:07,080
+Like there's a lot of people who listen in the West Coast area, secret Seattle JB fans
+
+121
+00:06:07,080 --> 00:06:08,080
+out there.
+
+122
+00:06:08,080 --> 00:06:09,080
+What are you doing?
+
+123
+00:06:09,080 --> 00:06:10,500
+I think they're all hanging out with you downtown.
+
+124
+00:06:10,500 --> 00:06:11,500
+That's what I think.
+
+125
+00:06:11,500 --> 00:06:12,500
+And you guys just aren't sharing.
+
+126
+00:06:12,500 --> 00:06:13,500
+But that's fine.
+
+127
+00:06:13,500 --> 00:06:14,500
+That's fine.
+
+128
+00:06:14,500 --> 00:06:15,500
+Well, I mean, we already had a crew.
+
+129
+00:06:15,500 --> 00:06:16,500
+There's a lot to invite you.
+
+130
+00:06:16,500 --> 00:06:17,500
+I'm so far away.
+
+131
+00:06:17,500 --> 00:06:21,160
+You know, you got to wait like a half hour.
+
+132
+00:06:21,160 --> 00:06:22,160
+Think of Levi.
+
+133
+00:06:22,160 --> 00:06:23,160
+That's true.
+
+134
+00:06:23,160 --> 00:06:24,160
+That's true.
+
+135
+00:06:24,160 --> 00:06:25,160
+That is a good point.
+
+136
+00:06:25,160 --> 00:06:29,640
+Well, this is our Fedora episode and we wanted to have a little project check in with Matthew
+
+137
+00:06:29,640 --> 00:06:30,640
+Miller.
+
+138
+00:06:30,640 --> 00:06:35,000
+He's the project leader, perhaps maybe better known as the real beefy miracle.
+
+139
+00:06:35,000 --> 00:06:36,760
+Matthew, welcome back to Linux Unplugged.
+
+140
+00:06:36,760 --> 00:06:38,440
+Hey, glad to be here.
+
+141
+00:06:38,440 --> 00:06:42,120
+And thank you very much for taking the time to join us on release day.
+
+142
+00:06:42,120 --> 00:06:43,720
+Yeah, absolutely.
+
+143
+00:06:43,720 --> 00:06:46,320
+It's a little chaotic, but you know, I got some time.
+
+144
+00:06:46,320 --> 00:06:47,800
+Well, we appreciate it.
+
+145
+00:06:47,800 --> 00:06:51,080
+And we've been checking out the new release and I want to get there.
+
+146
+00:06:51,080 --> 00:06:57,400
+But you know, trying out the last several releases of Fedora, I really felt like this
+
+147
+00:06:57,400 --> 00:07:06,920
+trend picked up momentum in 33, then 34 brought us GNOME 40, now 35 is bringing us Wire Plumber
+
+148
+00:07:06,920 --> 00:07:08,920
+and GNOME 41.
+
+149
+00:07:08,920 --> 00:07:13,200
+Where I sit and having watched this stuff for a long time, I think there was a period
+
+150
+00:07:13,200 --> 00:07:17,920
+of time where Ubuntu was really setting the tone for the desktop.
+
+151
+00:07:17,920 --> 00:07:22,760
+And I feel like the transition of that baton has been completed with the last several releases
+
+152
+00:07:22,760 --> 00:07:28,840
+of Fedora, and now it really feels to me like Fedora is leading the direction of future
+
+153
+00:07:28,840 --> 00:07:30,760
+desktop Linux.
+
+154
+00:07:30,760 --> 00:07:35,200
+And people are looking to the Fedora project to see what direction things are going in.
+
+155
+00:07:35,200 --> 00:07:38,840
+And as a result of that, I think we're seeing some better traction with things like Wayland
+
+156
+00:07:38,840 --> 00:07:42,200
+and PipeWire and the entire ecosystem is improving as a result of that.
+
+157
+00:07:42,200 --> 00:07:44,880
+And I think it contributes to that momentum.
+
+158
+00:07:44,880 --> 00:07:48,720
+And I'm curious if you see this from where you're sitting at in the project and what
+
+159
+00:07:48,720 --> 00:07:53,000
+your, or maybe you think I'm wrong, but just what your observations are about this trend.
+
+160
+00:07:53,000 --> 00:07:54,480
+I'll take it.
+
+161
+00:07:54,480 --> 00:08:00,160
+I think people in Fedora have been working on these things for quite a long time, longer
+
+162
+00:08:00,160 --> 00:08:02,040
+than that.
+
+163
+00:08:02,040 --> 00:08:05,920
+I won't speak bad about the other Linux distributions at all.
+
+164
+00:08:05,920 --> 00:08:09,080
+I'm going to try to just completely avoid the comparison.
+
+165
+00:08:09,080 --> 00:08:15,160
+But I think it's often the case that we've had a hard time getting those out to users
+
+166
+00:08:15,160 --> 00:08:16,200
+in a timely fashion.
+
+167
+00:08:16,200 --> 00:08:19,720
+We struggled with meeting our own schedule for a while.
+
+168
+00:08:19,720 --> 00:08:24,920
+And despite a one week delay this time, it's fine.
+
+169
+00:08:24,920 --> 00:08:29,480
+We've really been meeting our six month schedules really reliably, which helps.
+
+170
+00:08:29,480 --> 00:08:33,880
+And we've been doing a better job about kind of talking about the things we've done.
+
+171
+00:08:33,880 --> 00:08:38,000
+There's been a lot of cases where people working in Fedora, people in the Red Hat desktop team
+
+172
+00:08:38,000 --> 00:08:44,040
+like actually made stuff that ended up being headline features in other distros first.
+
+173
+00:08:44,040 --> 00:08:48,080
+So we're actually getting it out and talking about it sooner.
+
+174
+00:08:48,080 --> 00:08:49,120
+So I think that's part of it.
+
+175
+00:08:49,120 --> 00:08:54,800
+I think that we generally have a lot of new positive growing enthusiasm and energy around
+
+176
+00:08:54,800 --> 00:08:56,640
+Fedora as a project overall.
+
+177
+00:08:56,640 --> 00:09:02,240
+And I think that reflects in what both the actual technical output of all the people
+
+178
+00:09:02,240 --> 00:09:06,480
+working on it and just kind of all the polish around it that goes into making a release
+
+179
+00:09:06,480 --> 00:09:09,720
+and then in delivering a good experience to everybody.
+
+180
+00:09:09,720 --> 00:09:11,400
+So I'll get to my experience in a bit.
+
+181
+00:09:11,400 --> 00:09:15,040
+But while we're on this kind of trend line here, I'm curious if you can fill in the details
+
+182
+00:09:15,040 --> 00:09:18,520
+on how something like the following will work for Fedora.
+
+183
+00:09:18,520 --> 00:09:23,520
+So I've been noticing that Red Hat's been making a lot of significant hires that are
+
+184
+00:09:23,520 --> 00:09:27,480
+going to have a big impact on future desktop features at some point.
+
+185
+00:09:27,480 --> 00:09:31,080
+You know, I mean, it's very early because they're just opening the positions.
+
+186
+00:09:31,080 --> 00:09:37,000
+But I've recently seen positions open for HDR support on Linux.
+
+187
+00:09:37,000 --> 00:09:41,640
+I've seen more positions open for improving 3D and Vulkan and video.
+
+188
+00:09:41,640 --> 00:09:48,320
+I've seen hiring in all kinds of areas that are really like the low plumbing of desktop
+
+189
+00:09:48,320 --> 00:09:49,320
+Linux.
+
+190
+00:09:49,320 --> 00:09:54,040
+And the Red Hat hires, but that work that's going to be developed, that must be happening
+
+191
+00:09:54,040 --> 00:09:55,040
+in Fedora.
+
+192
+00:09:55,040 --> 00:09:56,040
+Is that correct?
+
+193
+00:09:56,040 --> 00:10:00,560
+Actually, generally, that work, we try to make it happen as far upstream as possible
+
+194
+00:10:00,560 --> 00:10:06,160
+because it's the right thing to do and it's less work for Red Hat really in the long run,
+
+195
+00:10:06,160 --> 00:10:09,240
+even if it sometimes feels like harder work up front.
+
+196
+00:10:09,240 --> 00:10:13,880
+So a lot of that work actually will go into the upstream projects and then kind of by
+
+197
+00:10:13,880 --> 00:10:18,680
+its nature, but also because the same people are working on it, we then try and bring those
+
+198
+00:10:18,680 --> 00:10:23,040
+things into Fedora as features pretty quickly and soon.
+
+199
+00:10:23,040 --> 00:10:26,240
+And it obviously helps when it's the same person working on the thing in an upstream
+
+200
+00:10:26,240 --> 00:10:28,800
+and in the project itself.
+
+201
+00:10:28,800 --> 00:10:32,280
+So like the pipewire stuff, I think is a good example of that.
+
+202
+00:10:32,280 --> 00:10:36,200
+I wonder if you felt like I did over the summer as I saw these positions.
+
+203
+00:10:36,200 --> 00:10:41,200
+I counted it up for Linux Action News a few weeks ago and I think it was like seven new
+
+204
+00:10:41,200 --> 00:10:44,580
+positions that have been opened and since then, there's like another position.
+
+205
+00:10:44,580 --> 00:10:46,320
+So I think in total, it's like eight positions.
+
+206
+00:10:46,320 --> 00:10:47,320
+It just keeps going.
+
+207
+00:10:47,320 --> 00:10:48,320
+Yeah.
+
+208
+00:10:48,320 --> 00:10:53,000
+I saw that as, you know, there's been a lot of talk of post IBM acquisition.
+
+209
+00:10:53,000 --> 00:10:54,000
+What's it mean for Fedora?
+
+210
+00:10:54,000 --> 00:10:57,200
+What's it mean for some of their free software contributions that contribute upstream and
+
+211
+00:10:57,200 --> 00:11:01,080
+some of us worried it could mean like the bean counters are going to get involved and
+
+212
+00:11:01,080 --> 00:11:04,040
+dial that stuff down and we're now several years into this now.
+
+213
+00:11:04,040 --> 00:11:09,280
+And it seems like there's actually increasing investment in this stuff that doesn't directly
+
+214
+00:11:09,280 --> 00:11:12,120
+translate to a rail product.
+
+215
+00:11:12,120 --> 00:11:16,120
+I mean, I acknowledge there is rail workstation and all that, but you know, I'm getting that
+
+216
+00:11:16,120 --> 00:11:20,920
+like it feels like this is this is the actual walk that is matching the talk.
+
+217
+00:11:20,920 --> 00:11:21,920
+Yeah.
+
+218
+00:11:21,920 --> 00:11:26,360
+Some of that I got a very carefully bracket with, like I can't speak to IBM business or
+
+219
+00:11:26,360 --> 00:11:27,360
+anything.
+
+220
+00:11:27,360 --> 00:11:30,640
+I have no idea, let alone like even even if I knew I couldn't.
+
+221
+00:11:30,640 --> 00:11:32,720
+But actually, the case is, I don't even know.
+
+222
+00:11:32,720 --> 00:11:38,000
+And my question really is about is, does this feel to you like the real kind of validation
+
+223
+00:11:38,000 --> 00:11:40,960
+that there is going to be continued investment here from just a personal feeling?
+
+224
+00:11:40,960 --> 00:11:41,960
+Yeah.
+
+225
+00:11:41,960 --> 00:11:42,960
+So, right.
+
+226
+00:11:42,960 --> 00:11:44,920
+So, yeah, I can speak as a person and an employee.
+
+227
+00:11:44,920 --> 00:11:48,320
+I think, you know, a lot of us at Red Hat were worried about this acquisition, what
+
+228
+00:11:48,320 --> 00:11:49,640
+would happen.
+
+229
+00:11:49,640 --> 00:11:53,880
+But we were assured at the time that, you know, well, like that was really important
+
+230
+00:11:53,880 --> 00:11:56,120
+to them and they wanted to continue to invest in it.
+
+231
+00:11:56,120 --> 00:11:59,480
+It wasn't it was not an extract money thing.
+
+232
+00:11:59,480 --> 00:12:03,920
+I think we kind of see some validation in the spin off of Kindle.
+
+233
+00:12:03,920 --> 00:12:07,880
+I don't know how much big boring business news you follow, but that's happening like
+
+234
+00:12:07,880 --> 00:12:13,440
+this week, which is like the IBM managed service stuff is basically going away.
+
+235
+00:12:13,440 --> 00:12:18,520
+So Red Hat is going to be a bigger chunk of the new IBM than it ever was before.
+
+236
+00:12:18,520 --> 00:12:20,880
+So it's really significant.
+
+237
+00:12:20,880 --> 00:12:26,720
+So yeah, Red Hat real success is very important to the future of IBM.
+
+238
+00:12:26,720 --> 00:12:29,680
+And I think we're seeing that borne out.
+
+239
+00:12:29,680 --> 00:12:34,320
+Another thing that's going on here, there's actually a lot of these things you're seeing
+
+240
+00:12:34,320 --> 00:12:39,880
+are desktop related technologies, but they're actually hires related to an automotive initiative,
+
+241
+00:12:39,880 --> 00:12:44,120
+which you'll see automotive keywords and a lot of these hires as well.
+
+242
+00:12:44,120 --> 00:12:47,480
+And I don't have a lot of the details on that, but it is connected into things that
+
+243
+00:12:47,480 --> 00:12:53,320
+are, you know, useful on the desktop, but also useful in other contexts as well.
+
+244
+00:12:53,320 --> 00:12:57,760
+And, you know, the more we can find things that tie all these things together, the more
+
+245
+00:12:57,760 --> 00:12:58,760
+we all benefit.
+
+246
+00:12:58,760 --> 00:13:04,440
+It's funny, Wes and I were just kind of remarking about that off air yesterday that even some
+
+247
+00:13:04,440 --> 00:13:08,960
+of the work in the pipeline is about to enable AV in automotive Linux.
+
+248
+00:13:08,960 --> 00:13:10,640
+Yeah, exactly.
+
+249
+00:13:10,640 --> 00:13:11,880
+And then that benefits us all.
+
+250
+00:13:11,880 --> 00:13:13,720
+So yeah, that's awesome.
+
+251
+00:13:13,720 --> 00:13:15,240
+I'm down for that, right?
+
+252
+00:13:15,240 --> 00:13:20,160
+Like I think that's actually been one of the low key brilliant things about desktop Linux
+
+253
+00:13:20,160 --> 00:13:25,380
+that we underappreciate is how we have been able to leverage where the business is willing
+
+254
+00:13:25,380 --> 00:13:28,520
+to invest to also enrich the desktop and benefit from that.
+
+255
+00:13:28,520 --> 00:13:30,960
+It's just like the next level of shared infrastructure, right?
+
+256
+00:13:30,960 --> 00:13:33,600
+The kernel is doing that and the desktop is trying to do that, too.
+
+257
+00:13:33,600 --> 00:13:34,600
+Yeah.
+
+258
+00:13:34,600 --> 00:13:36,120
+Maybe Fedora is the king at that, really.
+
+259
+00:13:36,120 --> 00:13:38,000
+Yeah, I hope so.
+
+260
+00:13:38,000 --> 00:13:40,880
+Yeah, I think so, maybe.
+
+261
+00:13:40,880 --> 00:13:47,480
+So this is, okay, so this is release day of Fedora 35 and GNOME 41 is in here.
+
+262
+00:13:47,480 --> 00:13:50,960
+Fedora is going to be out ahead with GNOME 41 for a while.
+
+263
+00:13:50,960 --> 00:13:54,280
+But when you look at the release overall, Matthew, I'm kind of curious, just personally
+
+264
+00:13:54,280 --> 00:13:57,200
+as a longtime Fedora user, what's jumping out to you?
+
+265
+00:13:57,200 --> 00:14:01,320
+So yeah, on the desktop, I switched to it when the beta hit.
+
+266
+00:14:01,320 --> 00:14:04,640
+So I have to remember back to what's new.
+
+267
+00:14:04,640 --> 00:14:09,160
+But I really do feel like this is a really like a polished release and not in a bad way
+
+268
+00:14:09,160 --> 00:14:14,600
+where GNOME 40 had a lot of changes and then there's a lot of things that are responding
+
+269
+00:14:14,600 --> 00:14:16,400
+to people's feedback about that.
+
+270
+00:14:16,400 --> 00:14:21,080
+Like one of the things that's a big change that I appreciate is there's a setting for
+
+271
+00:14:21,080 --> 00:14:26,760
+the multi-monitor workspaces now that wasn't there originally.
+
+272
+00:14:26,760 --> 00:14:30,360
+And also a lot of little things like that were looked at and addressed, I think like
+
+273
+00:14:30,360 --> 00:14:34,160
+the new power settings, things like those are some nice things that kind of build on
+
+274
+00:14:34,160 --> 00:14:38,600
+features in GNOME 40 before, so I'm glad to see those things.
+
+275
+00:14:38,600 --> 00:14:42,360
+I think there's also a lot of exciting things going on in the project, like the Fedora Cloud
+
+276
+00:14:42,360 --> 00:14:47,160
+work in group is really energized and I was looking at the Fedora Linux 34 statistics
+
+277
+00:14:47,160 --> 00:14:53,560
+and we have something like 15% of Fedora systems are Fedora Cloud when you look at systems
+
+278
+00:14:53,560 --> 00:14:57,800
+that are installed over a period of time.
+
+279
+00:14:57,800 --> 00:15:03,160
+So we don't track individual systems, but we have a thing where systems by default will
+
+280
+00:15:03,160 --> 00:15:06,360
+report in once a week just with a count me.
+
+281
+00:15:06,360 --> 00:15:11,840
+And so we can tell if a system, and there's no UID or anything attached to it, so we can't
+
+282
+00:15:11,840 --> 00:15:15,320
+actually tell which systems they are, but we can kind of get a difference between the
+
+283
+00:15:15,320 --> 00:15:19,340
+number of systems that just show up once, like test systems and so on, or systems that
+
+284
+00:15:19,340 --> 00:15:21,240
+show up beyond that.
+
+285
+00:15:21,240 --> 00:15:26,640
+So of those test systems, 30% of them are Fedora Cloud and like another big chunk of
+
+286
+00:15:26,640 --> 00:15:29,380
+them are Fedora Container, not surprising.
+
+287
+00:15:29,380 --> 00:15:34,520
+So it's interesting to see like how much non-desktop use is going on in Fedora as well,
+
+288
+00:15:34,520 --> 00:15:40,560
+which I think is important because, okay, I was talking about that Synergy and Synergy
+
+289
+00:15:40,560 --> 00:15:43,980
+is a terrible business word, but just that like thing we get when we've got lots of
+
+290
+00:15:43,980 --> 00:15:47,520
+different things working together in the same project.
+
+291
+00:15:47,520 --> 00:15:52,920
+If we were to become just a desktop OS, it's kind of harder to get all of the investment
+
+292
+00:15:52,920 --> 00:15:57,440
+from Red Hat, but from everybody who has all these different interests working together
+
+293
+00:15:57,440 --> 00:16:00,260
+in one thing that lists everything.
+
+294
+00:16:00,260 --> 00:16:04,680
+So I think it's exciting to see, even though the cloud stuff isn't desktop focused, I think
+
+295
+00:16:04,680 --> 00:16:09,840
+it will help lift up desktop Fedora and just like the enthusiasm around desktop Fedora
+
+296
+00:16:09,840 --> 00:16:15,720
+and GNOME and so on kind of helps, I think, support that enthusiasm around our cloud offering
+
+297
+00:16:15,720 --> 00:16:16,720
+as well.
+
+298
+00:16:16,720 --> 00:16:20,280
+That wouldn't even be there if the desktop weren't there and people were not paying attention
+
+299
+00:16:20,280 --> 00:16:21,280
+to that.
+
+300
+00:16:21,280 --> 00:16:22,400
+So I think it all works together really nicely.
+
+301
+00:16:22,400 --> 00:16:27,780
+Well, you can see that maybe with cloud shipping, ButterFS as the default file system now, right?
+
+302
+00:16:27,780 --> 00:16:29,920
+After kind of having proven itself over on the workstation.
+
+303
+00:16:29,920 --> 00:16:31,960
+Yeah, yeah, great.
+
+304
+00:16:31,960 --> 00:16:32,960
+Exactly that.
+
+305
+00:16:32,960 --> 00:16:33,960
+That's exactly what I was thinking, Wes.
+
+306
+00:16:33,960 --> 00:16:37,560
+I wonder if some of that adoption is because of that ButterFS switch.
+
+307
+00:16:37,560 --> 00:16:41,840
+I've never really thought about it in the use case of like on a VPS, but I actually
+
+308
+00:16:41,840 --> 00:16:44,800
+now that I'm working through that, I could actually see the logic.
+
+309
+00:16:44,800 --> 00:16:49,520
+Just like the data integrity stuff, I appreciate that from my photo collection, right?
+
+310
+00:16:49,520 --> 00:16:54,200
+Like I want to know if some bit rot flipped, like that's important.
+
+311
+00:16:54,200 --> 00:16:59,240
+And you like the send receive stuff is pretty nice as well for server uses.
+
+312
+00:16:59,240 --> 00:17:00,240
+Yep.
+
+313
+00:17:00,240 --> 00:17:04,960
+So I just overall I just wanted to this isn't really a question so much as I just wanted
+
+314
+00:17:04,960 --> 00:17:11,320
+to pass along how impressed I was at how complete the arm ISO felt.
+
+315
+00:17:11,320 --> 00:17:16,920
+This is the first opportunity I've ever had to download an ISO image of a Fedora arm release.
+
+316
+00:17:16,920 --> 00:17:21,640
+Usually it's like I get an image file and I flash that to an SD card and I've never
+
+317
+00:17:21,640 --> 00:17:25,720
+really gone through like the complete process like I would for a real x86 computer is how
+
+318
+00:17:25,720 --> 00:17:31,160
+I put it where I get an ISO image and I run through the actual installer and I installed
+
+319
+00:17:31,160 --> 00:17:36,640
+it on a computer, but I had a chance to run it in an arm VM and I don't think people would
+
+320
+00:17:36,640 --> 00:17:37,640
+in fact.
+
+321
+00:17:37,640 --> 00:17:41,760
+In fact, now that I think about it, my son didn't even realize he was on arm Linux at
+
+322
+00:17:41,760 --> 00:17:42,760
+people.
+
+323
+00:17:42,760 --> 00:17:43,760
+You just wouldn't know.
+
+324
+00:17:43,760 --> 00:17:48,840
+It feels like a very complete implementation and you maniacs have all kinds of architectures
+
+325
+00:17:48,840 --> 00:17:49,840
+you support.
+
+326
+00:17:49,840 --> 00:17:53,960
+When I go and look in the in those download folders, I'm just amazed at the amount of
+
+327
+00:17:53,960 --> 00:17:55,680
+ISOs you must be spinning out.
+
+328
+00:17:55,680 --> 00:17:56,680
+Yeah.
+
+329
+00:17:56,680 --> 00:18:04,200
+If you have an S390 mainframe, IBM Z, we've got you covered.
+
+330
+00:18:04,200 --> 00:18:12,280
+I know some people who have power system workstations, is it a laptop, the Talos system?
+
+331
+00:18:12,280 --> 00:18:20,720
+I've never actually seen one, but yeah, what you were saying, this has actually been somewhat
+
+332
+00:18:20,720 --> 00:18:24,760
+hard for Fedora because this has always been our aspiration.
+
+333
+00:18:24,760 --> 00:18:29,520
+When we have another architecture, we want to make it an equal thing and make it, like
+
+334
+00:18:29,520 --> 00:18:32,720
+you said, you don't need to know you're in a different architecture.
+
+335
+00:18:32,720 --> 00:18:37,560
+You get the full, powerful, complete operating system.
+
+336
+00:18:37,560 --> 00:18:45,200
+Some of this stuff where other distributions have been content to have specialized kernels
+
+337
+00:18:45,200 --> 00:18:49,960
+and stripped down versions, which there's nothing wrong with that.
+
+338
+00:18:49,960 --> 00:18:52,120
+It's just a different approach.
+
+339
+00:18:52,120 --> 00:18:56,240
+Sometimes we've been behind because we're not able to get everything out so quickly
+
+340
+00:18:56,240 --> 00:18:58,840
+because we want it to be so complete.
+
+341
+00:18:58,840 --> 00:19:04,480
+But then the final result, when it gets there, is you have an amazing, fully functional operating
+
+342
+00:19:04,480 --> 00:19:08,240
+system that you can know and understand and treat like something else.
+
+343
+00:19:08,240 --> 00:19:13,320
+ARM is now, I think there's the RISC-V stuff, which is pretty interesting.
+
+344
+00:19:13,320 --> 00:19:16,760
+I'm talking to a lot of people about that as an emerging architecture.
+
+345
+00:19:16,760 --> 00:19:21,160
+I'm not going to pick any winners, but I find it really fascinating.
+
+346
+00:19:21,160 --> 00:19:26,720
+It's basically an open hardware implementation, open source hardware, and there's a lot of
+
+347
+00:19:26,720 --> 00:19:28,640
+enthusiasm around that.
+
+348
+00:19:28,640 --> 00:19:32,680
+That's not an official Fedora architecture right now, but there are some unofficial builds
+
+349
+00:19:32,680 --> 00:19:39,680
+of it, and we're looking at bringing that on maybe at least as a shadow architecture
+
+350
+00:19:39,680 --> 00:19:42,520
+and then maybe official sometime in the next few years.
+
+351
+00:19:42,520 --> 00:19:44,160
+I think that's pretty cool.
+
+352
+00:19:44,160 --> 00:19:45,520
+That is really exciting.
+
+353
+00:19:45,520 --> 00:19:46,520
+I love to hear that.
+
+354
+00:19:46,520 --> 00:19:48,440
+I love that you just got your eye on it.
+
+355
+00:19:48,440 --> 00:19:54,680
+Well, Matthew, will you please relay our congratulations and our gratitude to the entire Fedora community?
+
+356
+00:19:54,680 --> 00:19:58,380
+They've created another fantastic release, and thank you for taking some time to come
+
+357
+00:19:58,380 --> 00:19:59,380
+join us.
+
+358
+00:19:59,380 --> 00:20:00,380
+Yeah, absolutely.
+
+359
+00:20:00,380 --> 00:20:03,000
+And I'll be very interested in hearing what your experiences are.
+
+360
+00:20:03,000 --> 00:20:06,320
+So I'm going to run off and do some other things, but I'm going to listen to that later
+
+361
+00:20:06,320 --> 00:20:07,860
+when I get a chance.
+
+362
+00:20:07,860 --> 00:20:11,480
+Thank you very much.
+
+363
+00:20:11,480 --> 00:20:12,480
+Leno.com slash unplugged.
+
+364
+00:20:12,480 --> 00:20:17,560
+Go there to get $100 in 60 day credit on a new account and you support the show, right?
+
+365
+00:20:17,560 --> 00:20:21,080
+Just like saying, hey, thanks for supporting my favorite Linux podcast.
+
+366
+00:20:21,080 --> 00:20:25,240
+It's really what makes this work is you guys go there and Linode is willing to offer you
+
+367
+00:20:25,240 --> 00:20:26,760
+something pretty substantial in exchange.
+
+368
+00:20:26,760 --> 00:20:31,080
+I mean, $100 that says go try it and go form a real opinion, right?
+
+369
+00:20:31,080 --> 00:20:33,240
+Like they could give you $15 of credit.
+
+370
+00:20:33,240 --> 00:20:37,200
+You could start to get a first impression, but they're giving you $100 to really go try
+
+371
+00:20:37,200 --> 00:20:38,200
+this thing.
+
+372
+00:20:38,200 --> 00:20:42,920
+They've been around for 18 years making this the best way to run applications on Linux.
+
+373
+00:20:42,920 --> 00:20:46,020
+If it runs on Linux, you can run it on Linode.
+
+374
+00:20:46,020 --> 00:20:50,000
+They are our infrastructure, and I suppose I could go get locked into one of the big
+
+375
+00:20:50,000 --> 00:20:55,140
+huge hyperscalers who has a totally custom weird system.
+
+376
+00:20:55,140 --> 00:21:01,280
+And I could just just spend money like crazy as people download podcasts, or I could go
+
+377
+00:21:01,280 --> 00:21:07,760
+like buy some rack space somewhere and some colo, but I mean, that almost feels like caveman
+
+378
+00:21:07,760 --> 00:21:08,760
+stuff.
+
+379
+00:21:08,760 --> 00:21:10,920
+Like that's what we did back in the 90s, right?
+
+380
+00:21:10,920 --> 00:21:15,720
+I mean, and when you look at Linode's pricing, it's 30 to 50% cheaper than any of those hyperscalers
+
+381
+00:21:15,720 --> 00:21:19,640
+and you're going to get $100 from our offer to actually really try it out.
+
+382
+00:21:19,640 --> 00:21:22,400
+It's a great way to try out new projects too as things come along.
+
+383
+00:21:22,400 --> 00:21:25,080
+It's like my R&D place for sure.
+
+384
+00:21:25,080 --> 00:21:28,880
+It's when you look at the invoice that comes in, like some months there's like all these
+
+385
+00:21:28,880 --> 00:21:31,760
+weird R&D servers that come on the next month, they're all gone.
+
+386
+00:21:31,760 --> 00:21:33,700
+And I'm just kind of messing around with stuff all the time.
+
+387
+00:21:33,700 --> 00:21:39,720
+But I also noticed in the news today that Zoom announced the free versions of Zoom are
+
+388
+00:21:39,720 --> 00:21:45,560
+going to get ads now, yay, ads in your Zoom meetings.
+
+389
+00:21:45,560 --> 00:21:51,800
+And this is maybe just one of those windows of opportunity where you can say, hey, y'all,
+
+390
+00:21:51,800 --> 00:21:55,240
+would you rather switch to something free that we can host ourselves and have control
+
+391
+00:21:55,240 --> 00:21:56,240
+over?
+
+392
+00:21:56,240 --> 00:21:58,600
+Because Linode's got a one click deployment for Jitsi.
+
+393
+00:21:58,600 --> 00:22:00,400
+This could be your window of opportunity.
+
+394
+00:22:00,400 --> 00:22:04,840
+You get the $100 credit, you deploy that thing, $100 means y'all could try that out for a
+
+395
+00:22:04,840 --> 00:22:07,460
+while and not have to pay a dime.
+
+396
+00:22:07,460 --> 00:22:10,760
+They also have lots of other one click deployments or you can go the whole DIY route.
+
+397
+00:22:10,760 --> 00:22:16,440
+I mean, like nuke and pave and build up your own thing, like I have a crazy esoteric VPN
+
+398
+00:22:16,440 --> 00:22:19,120
+distro for my PEP wave on Linode.
+
+399
+00:22:19,120 --> 00:22:24,320
+My peplink router and it has this crazy combo LTE VPN.
+
+400
+00:22:24,320 --> 00:22:25,800
+And of course, they have their own Linux distribution.
+
+401
+00:22:25,800 --> 00:22:29,480
+Well, wouldn't you know it, Linode has so many great guides and tutorials, they've even
+
+402
+00:22:29,480 --> 00:22:31,640
+got a guide on how to do that kind of thing.
+
+403
+00:22:31,640 --> 00:22:35,680
+And they have super fast networking, incredibly fast rigs, they've just upgraded their MVME
+
+404
+00:22:35,680 --> 00:22:36,680
+storage.
+
+405
+00:22:36,680 --> 00:22:41,080
+They're just blazing fast and they support a lot of community projects.
+
+406
+00:22:41,080 --> 00:22:44,160
+And they've made things like our Jupiter colony reunion road trip possible.
+
+407
+00:22:44,160 --> 00:22:48,180
+I doubt that made them a ton of money, right?
+
+408
+00:22:48,180 --> 00:22:52,240
+It's expensive to drive lady jips, but they wanted to make that community connection.
+
+409
+00:22:52,240 --> 00:22:54,000
+They brought out their own people too.
+
+410
+00:22:54,000 --> 00:22:55,800
+They were hanging out with us.
+
+411
+00:22:55,800 --> 00:22:58,080
+It was pretty cool and it's pretty neat to see them do that kind of stuff.
+
+412
+00:22:58,080 --> 00:23:00,200
+They don't have to do that kind of thing.
+
+413
+00:23:00,200 --> 00:23:02,080
+So go sign up today and try it out.
+
+414
+00:23:02,080 --> 00:23:07,000
+Linode.com slash unplugged get $100 in 60 day credit on your new account and your support
+
+415
+00:23:07,000 --> 00:23:12,800
+in this here show Linode.com slash unplugged.
+
+416
+00:23:12,800 --> 00:23:18,920
+All right, before we get to Fedora 35, all the hype, all the new things, let's conduct
+
+417
+00:23:18,920 --> 00:23:21,840
+a Fedora 34 exit interview.
+
+418
+00:23:21,840 --> 00:23:26,120
+This is something we'd like to do more of something like a chance to follow up on a
+
+419
+00:23:26,120 --> 00:23:28,760
+distro a little later in its release cycle.
+
+420
+00:23:28,760 --> 00:23:33,940
+And we should be clear about this too, just because 35 is out doesn't mean Fedora 34 is
+
+421
+00:23:33,940 --> 00:23:34,940
+going anywhere.
+
+422
+00:23:34,940 --> 00:23:38,560
+It's going to be with us for a bit longer.
+
+423
+00:23:38,560 --> 00:23:43,220
+Actually the end of life is scheduled for May 17th, 2022.
+
+424
+00:23:43,220 --> 00:23:47,920
+So let's see if you're a regular Fedora day to day user and you're not quite ready to
+
+425
+00:23:47,920 --> 00:23:51,440
+try out 35, which just lands today.
+
+426
+00:23:51,440 --> 00:23:53,080
+What's life like for you right now?
+
+427
+00:23:53,080 --> 00:23:57,200
+Yeah, I recently had a chance to give Fedora 34 a go.
+
+428
+00:23:57,200 --> 00:24:00,880
+And kind of like Matthew was saying, I never do this.
+
+429
+00:24:00,880 --> 00:24:06,400
+I'm always trying out Fedora as it hits the beta cycle, that I really kind of get serious
+
+430
+00:24:06,400 --> 00:24:10,220
+as it firms up and what you could kind of consider the RC phase.
+
+431
+00:24:10,220 --> 00:24:13,520
+And then I'm always doing like fresh installs of the actual released version and I'm doing
+
+432
+00:24:13,520 --> 00:24:18,760
+upgrades to the newly released version and I'm always kind of in that mode of Fedora's
+
+433
+00:24:18,760 --> 00:24:21,600
+life cycle and I kind of live there.
+
+434
+00:24:21,600 --> 00:24:28,560
+I almost never ever go back to a late stage distro, if you will, somehow you've moved
+
+435
+00:24:28,560 --> 00:24:29,560
+on already.
+
+436
+00:24:29,560 --> 00:24:32,440
+Yeah, I just don't normally have a reason to.
+
+437
+00:24:32,440 --> 00:24:37,560
+But I've been thinking recently about how it'd be nice to move my son and then if that
+
+438
+00:24:37,560 --> 00:24:43,000
+works for him, my daughters over to Fedora because then they'd be on what I'm using.
+
+439
+00:24:43,000 --> 00:24:47,920
+I want to be able to recommend Fedora to friends and family, but I didn't feel like I could.
+
+440
+00:24:47,920 --> 00:24:54,520
+And so I wanted to try giving a slightly older version a go and see if that changed my experience
+
+441
+00:24:54,520 --> 00:24:59,640
+and what it might be for somebody who might have, like my son, a more gaming focused desktop
+
+442
+00:24:59,640 --> 00:25:00,640
+setup.
+
+443
+00:25:00,640 --> 00:25:01,640
+Yeah, that's a good question.
+
+444
+00:25:01,640 --> 00:25:06,320
+Like what does the support life cycle of a Fedora family member actually look like?
+
+445
+00:25:06,320 --> 00:25:12,400
+But beyond that, I think Fedora 34 in particular, it just had a lot of changes going on and
+
+446
+00:25:12,400 --> 00:25:18,420
+something of an elephant in the room because when it landed, we were kind of still reassuring
+
+447
+00:25:18,420 --> 00:25:24,840
+people that Fedora was OK after all the big CentOS news, plus GNOME 40 had just shipped
+
+448
+00:25:24,840 --> 00:25:29,380
+and was brand new and had a ton of changes that were quite controversial.
+
+449
+00:25:29,380 --> 00:25:31,800
+And we were switching to pipeline by default.
+
+450
+00:25:31,800 --> 00:25:34,640
+And all of this was going to be the base for RHEL 9.
+
+451
+00:25:34,640 --> 00:25:38,960
+I mean, it was just it was a lot of neat stuff and a lot to be excited about, but also a
+
+452
+00:25:38,960 --> 00:25:42,640
+lot of stuff that had to be tested and maybe had some questions around it.
+
+453
+00:25:42,640 --> 00:25:43,640
+Yeah.
+
+454
+00:25:43,640 --> 00:25:47,000
+And so many like GNOME extensions were broken.
+
+455
+00:25:47,000 --> 00:25:51,880
+PipeWire was causing issues for people that were joining like Zoom meetings.
+
+456
+00:25:51,880 --> 00:25:55,640
+And so the question was, is what is this going to be like after things shake out?
+
+457
+00:25:55,640 --> 00:25:59,640
+So we're six months into its life cycle now, pretty much right on the nose.
+
+458
+00:25:59,640 --> 00:26:05,160
+And I did an update of a Fedora 34 install I did today, just a regular update.
+
+459
+00:26:05,160 --> 00:26:09,280
+And yeah, sure enough, you know, there's still every few days fresh packages.
+
+460
+00:26:09,280 --> 00:26:13,240
+In fact, I have to say, because they keep the kernel current and they keep pretty much
+
+461
+00:26:13,240 --> 00:26:17,520
+everything else current, except for really they just iterate on the desktop environment.
+
+462
+00:26:17,520 --> 00:26:24,160
+And up to date, Fedora 34 install right now, even as 35 releases, still feels quite modern
+
+463
+00:26:24,160 --> 00:26:26,400
+in just about every way.
+
+464
+00:26:26,400 --> 00:26:32,480
+But the thing that's kind of nice now is just about all the critical, if you will, for lack
+
+465
+00:26:32,480 --> 00:26:37,800
+of a better term, GNOME extensions have caught up to GNOME 40 now.
+
+466
+00:26:37,800 --> 00:26:40,560
+So the situation there is a lot better.
+
+467
+00:26:40,560 --> 00:26:47,040
+And I noticed a significant improvement for third party software for Fedora 34.
+
+468
+00:26:47,040 --> 00:26:53,000
+Like you can go find prepackaged RPMs for Fedora 34 for like a commercial application
+
+469
+00:26:53,000 --> 00:26:57,600
+or a popular open source app, or they'll have their repository already updated.
+
+470
+00:26:57,600 --> 00:26:58,600
+Yeah, exactly.
+
+471
+00:26:58,600 --> 00:27:01,880
+All those things that you're kind of understanding when you're trying out the beta because of
+
+472
+00:27:01,880 --> 00:27:03,120
+course they don't have support yet.
+
+473
+00:27:03,120 --> 00:27:06,240
+And then, oh, yeah, eventually they do update.
+
+474
+00:27:06,240 --> 00:27:11,200
+And the other thing too, Wes, is like a lot of the guides are just not all of them.
+
+475
+00:27:11,200 --> 00:27:15,200
+Some of them are still horribly outdated, but a lot of guides have been refreshed for
+
+476
+00:27:15,200 --> 00:27:17,320
+the new version of Fedora.
+
+477
+00:27:17,320 --> 00:27:19,960
+And so by that point, six months into it, like if somebody is going to update their
+
+478
+00:27:19,960 --> 00:27:22,280
+guide for Fedora, they've done it at that point.
+
+479
+00:27:22,280 --> 00:27:27,040
+And that those all those things, they're like they remove paper cuts to switching.
+
+480
+00:27:27,040 --> 00:27:33,640
+And I actually think a Fedora release six months into its release cycle is sort of sitting
+
+481
+00:27:33,640 --> 00:27:39,560
+in a special sweet spot in the Linux ecosystem where it's got a lot of kinks worked out,
+
+482
+00:27:39,560 --> 00:27:43,160
+especially if you grab fresh packages.
+
+483
+00:27:43,160 --> 00:27:47,280
+It's got pretty good third party support and community support at that point.
+
+484
+00:27:47,280 --> 00:27:53,180
+It's still because it's Fedora, a very modern install, and you've still got months of support.
+
+485
+00:27:53,180 --> 00:27:58,240
+So you could just ride that for at least another six months and then upgrade to the next version
+
+486
+00:27:58,240 --> 00:28:01,320
+that's now becoming the old version of Fedora.
+
+487
+00:28:01,320 --> 00:28:05,600
+I think it makes a life a little easier and I think this is the one that's the version
+
+488
+00:28:05,600 --> 00:28:09,400
+of Fedora, the one that's about six months into its life cycle that you can recommend.
+
+489
+00:28:09,400 --> 00:28:13,280
+And I've teased people before that say, oh, wait a few months when you're looking at it
+
+490
+00:28:13,280 --> 00:28:14,920
+for like a family machine.
+
+491
+00:28:14,920 --> 00:28:15,920
+Just wait a release.
+
+492
+00:28:15,920 --> 00:28:16,920
+That's what you're saying, huh?
+
+493
+00:28:16,920 --> 00:28:17,920
+Yeah, right.
+
+494
+00:28:17,920 --> 00:28:22,120
+Wait a release because each each release gets 13 months of support.
+
+495
+00:28:22,120 --> 00:28:26,280
+So you got some buffer time for everything to kind of get worked out and they don't care
+
+496
+00:28:26,280 --> 00:28:28,240
+if they're on the latest and greatest.
+
+497
+00:28:28,240 --> 00:28:29,240
+That's just it.
+
+498
+00:28:29,240 --> 00:28:30,240
+You're right.
+
+499
+00:28:30,240 --> 00:28:31,240
+Most people don't care.
+
+500
+00:28:31,240 --> 00:28:33,200
+I mean, we care, but it's not necessarily rational.
+
+501
+00:28:33,200 --> 00:28:34,200
+Yeah.
+
+502
+00:28:34,200 --> 00:28:35,200
+Yeah.
+
+503
+00:28:35,200 --> 00:28:37,160
+Part of it's enthusiasm driven for sure.
+
+504
+00:28:37,160 --> 00:28:41,340
+But you know, but it also means I could wait a little bit on my main machine, maybe three
+
+505
+00:28:41,340 --> 00:28:46,360
+months after release, update a little bit before everybody, do a little checking around,
+
+506
+00:28:46,360 --> 00:28:47,520
+see how things are going.
+
+507
+00:28:47,520 --> 00:28:54,360
+You know, like there's I kind of I like this idea that maybe my main rig that I'm on, maybe
+
+508
+00:28:54,360 --> 00:29:00,180
+three months into that final six months, I upgrade and I figure out what needs still
+
+509
+00:29:00,180 --> 00:29:02,640
+to be fixed or what works fine.
+
+510
+00:29:02,640 --> 00:29:06,240
+And then when the next release drops, I upgrade the kids machines.
+
+511
+00:29:06,240 --> 00:29:08,640
+And then, of course, you've got you know, you've got stream in the mix, too.
+
+512
+00:29:08,640 --> 00:29:12,200
+If you have something that might need to be even more stable than that down the road.
+
+513
+00:29:12,200 --> 00:29:13,200
+Yeah, true.
+
+514
+00:29:13,200 --> 00:29:14,200
+There that could be interesting.
+
+515
+00:29:14,200 --> 00:29:18,960
+A sent us nine stream for a family, for family and friends, perhaps.
+
+516
+00:29:18,960 --> 00:29:23,440
+But when we were trying this out, we wanted to give this an honest go like, can I give
+
+517
+00:29:23,440 --> 00:29:24,960
+this to friends and family?
+
+518
+00:29:24,960 --> 00:29:30,660
+And what I envisioned is bringing everybody to Fedora, put everybody on Fedora and put
+
+519
+00:29:30,660 --> 00:29:34,800
+everyone on a tail scale network, which is a wire guard mesh VPN solution.
+
+520
+00:29:34,800 --> 00:29:35,800
+All right.
+
+521
+00:29:35,800 --> 00:29:36,800
+So you've got everyone there.
+
+522
+00:29:36,800 --> 00:29:38,760
+You can access everyone machine just right over tail scale.
+
+523
+00:29:38,760 --> 00:29:39,760
+That makes sense.
+
+524
+00:29:39,760 --> 00:29:40,760
+Right.
+
+525
+00:29:40,760 --> 00:29:41,760
+Super simple.
+
+526
+00:29:41,760 --> 00:29:45,960
+And if they need support, I can SSH to their machine.
+
+527
+00:29:45,960 --> 00:29:48,120
+But I wanted to go a little bit further than that.
+
+528
+00:29:48,120 --> 00:29:51,000
+And I wanted to do remote desktop support.
+
+529
+00:29:51,000 --> 00:29:55,800
+And I love Rust Desk, but Rust Desk is X11 only.
+
+530
+00:29:55,800 --> 00:29:56,800
+No.
+
+531
+00:29:56,800 --> 00:30:03,920
+And, you know, in Fedora 34 and in Fedora 35, on GNOME, the Wayland supports.
+
+532
+00:30:03,920 --> 00:30:04,920
+It's really nice.
+
+533
+00:30:04,920 --> 00:30:09,440
+It's you get a better experience now and I don't want to I don't want to go backwards
+
+534
+00:30:09,440 --> 00:30:10,440
+for them.
+
+535
+00:30:10,440 --> 00:30:11,440
+I know, right.
+
+536
+00:30:11,440 --> 00:30:12,440
+Maybe in some ways.
+
+537
+00:30:12,440 --> 00:30:15,240
+But when Wayland works, it works really well.
+
+538
+00:30:15,240 --> 00:30:19,360
+Yeah, it's smooth as butter, but not butter, but butter.
+
+539
+00:30:19,360 --> 00:30:20,840
+But so we were digging around.
+
+540
+00:30:20,840 --> 00:30:24,160
+You and I were doing this, I think, after we did LAN one day.
+
+541
+00:30:24,160 --> 00:30:30,600
+And we found that the recommended way to kind of do this now on Wayland with GNOME Shell
+
+542
+00:30:30,600 --> 00:30:36,420
+is to use the RDP server that's built into GNOME Shell that I think uses pipewire and
+
+543
+00:30:36,420 --> 00:30:38,380
+all this kind of stuff on the back end.
+
+544
+00:30:38,380 --> 00:30:42,880
+But we discovered that it's not actually shipping yet.
+
+545
+00:30:42,880 --> 00:30:47,640
+Some of the documentation talks about it like it exists, but it doesn't actually fully exist
+
+546
+00:30:47,640 --> 00:30:48,640
+yet.
+
+547
+00:30:48,640 --> 00:30:49,640
+Yeah.
+
+548
+00:30:49,640 --> 00:30:50,640
+So, like, you might see this.
+
+549
+00:30:50,640 --> 00:30:51,640
+You can enable the remote desktop stuff.
+
+550
+00:30:51,640 --> 00:30:54,400
+But by default, it just exposes it over VNC.
+
+551
+00:30:54,400 --> 00:30:55,400
+And we gave that a try.
+
+552
+00:30:55,400 --> 00:30:56,400
+But it's a VNC.
+
+553
+00:30:56,400 --> 00:30:59,560
+It's not going to be great over a remote network.
+
+554
+00:30:59,560 --> 00:31:04,920
+But at some point they added via free RDP RDP support baked in as well.
+
+555
+00:31:04,920 --> 00:31:06,960
+But yeah, there's just no.
+
+556
+00:31:06,960 --> 00:31:10,420
+Because this is Linux, there's just nothing exposed graphically right now.
+
+557
+00:31:10,420 --> 00:31:14,840
+And setting it up and enabling it and providing default credentials, well, there's a guide,
+
+558
+00:31:14,840 --> 00:31:16,480
+but it's not exactly simple.
+
+559
+00:31:16,480 --> 00:31:18,040
+It wasn't horribly bad.
+
+560
+00:31:18,040 --> 00:31:21,560
+Like, I think we ended up pulling down a few things from GitHub and building them and then
+
+561
+00:31:21,560 --> 00:31:23,560
+moving them around, right?
+
+562
+00:31:23,560 --> 00:31:25,920
+Then maybe we had to start something with systemd.
+
+563
+00:31:25,920 --> 00:31:27,400
+So there was some futzing.
+
+564
+00:31:27,400 --> 00:31:28,400
+Yeah, you're right.
+
+565
+00:31:28,400 --> 00:31:29,400
+We did have to.
+
+566
+00:31:29,400 --> 00:31:30,400
+There's like a little script that's posted.
+
+567
+00:31:30,400 --> 00:31:33,160
+We'll have it linked in the show notes that you got to compile and then that lets you
+
+568
+00:31:33,160 --> 00:31:38,440
+configure like the credentials set up so that you can put a password on it and then you
+
+569
+00:31:38,440 --> 00:31:41,960
+go in and modify with decomp some settings.
+
+570
+00:31:41,960 --> 00:31:44,680
+And then I think, yeah, we just logged out, logged back in.
+
+571
+00:31:44,680 --> 00:31:48,200
+It did work, though, at the end of the day, that that was the part that was pretty nice.
+
+572
+00:31:48,200 --> 00:31:49,200
+It seemed decent.
+
+573
+00:31:49,200 --> 00:31:51,460
+Oh, man, it worked really good.
+
+574
+00:31:51,460 --> 00:31:55,520
+If you had the right RDP client, like we tried a couple of them and I wish I would have written
+
+575
+00:31:55,520 --> 00:31:57,920
+down the one that didn't work very good.
+
+576
+00:31:57,920 --> 00:32:00,200
+I want to say it was Romania, but I'm not sure.
+
+577
+00:32:00,200 --> 00:32:05,640
+But if you got the right RDP client, like Microsoft's RDP client or there's there's
+
+578
+00:32:05,640 --> 00:32:09,440
+like XRDP, there's a couple with the right settings.
+
+579
+00:32:09,440 --> 00:32:11,760
+It's impressively high performance.
+
+580
+00:32:11,760 --> 00:32:14,640
+It's much better than VNC.
+
+581
+00:32:14,640 --> 00:32:18,760
+I think it was near real time because we had the laptop and we had the remote machine right
+
+582
+00:32:18,760 --> 00:32:19,760
+next to each other.
+
+583
+00:32:19,760 --> 00:32:23,900
+It was there's just a very, very slight lag, which makes me think that if I was supporting
+
+584
+00:32:23,900 --> 00:32:27,360
+them over a remote link, it'd probably be fairly usable.
+
+585
+00:32:27,360 --> 00:32:28,480
+Yeah, that's that's the test.
+
+586
+00:32:28,480 --> 00:32:31,160
+But I just need this to work a little.
+
+587
+00:32:31,160 --> 00:32:33,640
+And it would work for family support machine, I think.
+
+588
+00:32:33,640 --> 00:32:35,120
+I think it would actually do the job.
+
+589
+00:32:35,120 --> 00:32:38,480
+So the only problem is, and I haven't tested this yet, dang it.
+
+590
+00:32:38,480 --> 00:32:40,720
+Now that I think about this, I wish I would have.
+
+591
+00:32:40,720 --> 00:32:46,200
+I'm not sure if this is going to break when I go from GNOME 40 to GNOME 41.
+
+592
+00:32:46,200 --> 00:32:49,340
+And I just did that on my machine that we we did this test set up on.
+
+593
+00:32:49,340 --> 00:32:52,160
+So after the show, I'll see if RDP is still working on it.
+
+594
+00:32:52,160 --> 00:32:53,720
+We've got some follow up to do.
+
+595
+00:32:53,720 --> 00:32:55,640
+Yeah, I should have thought of that.
+
+596
+00:32:55,640 --> 00:32:59,880
+I was just you know, I was so focused on getting the upgrade and so worried that it was going
+
+597
+00:32:59,880 --> 00:33:05,880
+to break my Fedora 34 install, because as I was going through this little journey.
+
+598
+00:33:05,880 --> 00:33:08,520
+To see if this was a usable setup.
+
+599
+00:33:08,520 --> 00:33:15,120
+What I ended up with at the end of my Fedora 34 walk, if you will, is one of my all time
+
+600
+00:33:15,120 --> 00:33:17,560
+favorite Linux installs.
+
+601
+00:33:17,560 --> 00:33:19,120
+I really liked it.
+
+602
+00:33:19,120 --> 00:33:23,640
+It doesn't happen very often anymore, but it became precious to me and I was worried
+
+603
+00:33:23,640 --> 00:33:25,760
+that the upgrade would break it.
+
+604
+00:33:25,760 --> 00:33:31,600
+I know that's how much I liked the 34 experience six months into its life cycle.
+
+605
+00:33:31,600 --> 00:33:35,000
+I'd say I was impressed, but it felt early days when it released.
+
+606
+00:33:35,000 --> 00:33:40,080
+But six months in, it became my favorite setup I've ever had on that ThinkPad.
+
+607
+00:33:40,080 --> 00:33:42,400
+It really it really rocked.
+
+608
+00:33:42,400 --> 00:33:49,580
+So yeah, I think this is a really capable family distro if you just give it a little
+
+609
+00:33:49,580 --> 00:33:52,040
+bit for the community to catch up to it.
+
+610
+00:33:52,040 --> 00:33:56,320
+As well, Fedora isn't as just crazy moving forward as Arch.
+
+611
+00:33:56,320 --> 00:33:58,800
+It is fairly out there on the edge of things.
+
+612
+00:33:58,800 --> 00:34:04,040
+So I don't know if this is just me being crazy, but Brian, I kind of actually feel like maybe
+
+613
+00:34:04,040 --> 00:34:06,880
+we'll get into this in our review, but I kind of feel like this might be the perfect Fedora
+
+614
+00:34:06,880 --> 00:34:07,880
+set up for you.
+
+615
+00:34:07,880 --> 00:34:08,880
+Oh, tell me more.
+
+616
+00:34:08,880 --> 00:34:09,880
+Why do you think that?
+
+617
+00:34:09,880 --> 00:34:13,880
+Well, if somebody came to me like I have this, I have I always remember this conversation
+
+618
+00:34:13,880 --> 00:34:14,880
+I had.
+
+619
+00:34:14,880 --> 00:34:18,680
+There was this buddy of mine who was this big time PHP developer and he said, Chris,
+
+620
+00:34:18,680 --> 00:34:20,440
+I am so frustrated with Linux.
+
+621
+00:34:20,440 --> 00:34:22,120
+I just want to get my work done.
+
+622
+00:34:22,120 --> 00:34:25,160
+And he said, I installed Ubuntu and I can't remember what it was.
+
+623
+00:34:25,160 --> 00:34:27,440
+It was probably like eight, ten or something.
+
+624
+00:34:27,440 --> 00:34:29,520
+It was a long time ago.
+
+625
+00:34:29,520 --> 00:34:31,600
+And he said, you know, this isn't working.
+
+626
+00:34:31,600 --> 00:34:32,600
+That isn't working.
+
+627
+00:34:32,600 --> 00:34:35,400
+My PHP environment is broken and went on and on.
+
+628
+00:34:35,400 --> 00:34:41,640
+And so I introduced him to the Ubuntu LTS model and I said, here's what you need to
+
+629
+00:34:41,640 --> 00:34:44,160
+kind of whenever the LTS was kind of new.
+
+630
+00:34:44,160 --> 00:34:45,600
+So I don't know how long ago this was.
+
+631
+00:34:45,600 --> 00:34:49,460
+And I said, this is kind of what this is what you probably want to be running for your kind
+
+632
+00:34:49,460 --> 00:34:50,960
+of workload.
+
+633
+00:34:50,960 --> 00:34:53,240
+And Fedora doesn't offer anything like that.
+
+634
+00:34:53,240 --> 00:34:54,800
+They don't have an LTS version.
+
+635
+00:34:54,800 --> 00:34:56,620
+They have 13 months of support.
+
+636
+00:34:56,620 --> 00:35:00,600
+And then, of course, there's sent off stream, but it's not really quite the same comparable
+
+637
+00:35:00,600 --> 00:35:02,840
+desktop environment yet.
+
+638
+00:35:02,840 --> 00:35:08,160
+But I think this this model that we're talking about here where you kind of you ride six
+
+639
+00:35:08,160 --> 00:35:13,600
+months behind release is essentially as close to an LTS model as you're going to get with
+
+640
+00:35:13,600 --> 00:35:20,200
+mainline Fedora, because the upgrade experience is pretty smooth and the reliability and community
+
+641
+00:35:20,200 --> 00:35:21,560
+support is pretty high.
+
+642
+00:35:21,560 --> 00:35:26,240
+So when you want to troubleshoot in the middle of the night, you can find a guide online
+
+643
+00:35:26,240 --> 00:35:30,300
+and you can get it fixed instead of having to wait for somebody to, you know, like figure
+
+644
+00:35:30,300 --> 00:35:33,440
+it out, who's still like maybe waiting for the bug report to come in.
+
+645
+00:35:33,440 --> 00:35:34,440
+Right.
+
+646
+00:35:34,440 --> 00:35:35,440
+Do you see what I'm saying?
+
+647
+00:35:35,440 --> 00:35:36,440
+Like, it's those are all things I love for sure.
+
+648
+00:35:36,440 --> 00:35:37,440
+Yeah.
+
+649
+00:35:37,440 --> 00:35:40,960
+It's a more reliable target for the for if you wanted to be in the Fedora user land,
+
+650
+00:35:40,960 --> 00:35:44,280
+but you wanted that kind of reliability, I think that's the target right there.
+
+651
+00:35:44,280 --> 00:35:48,560
+Well, and to be fair, I do the same thing with the Ubuntu LTS right now.
+
+652
+00:35:48,560 --> 00:35:54,180
+I wait a few I wait several months, actually, because the reality of how much engineering
+
+653
+00:35:54,180 --> 00:35:58,280
+goes behind these things is that there's just inevitably some stuff that once you get it
+
+654
+00:35:58,280 --> 00:36:03,760
+out to users, there's like thousands and thousands of users who find all these bugs and things.
+
+655
+00:36:03,760 --> 00:36:07,940
+And then it's so three months later, six months later, of course, going to be more polished.
+
+656
+00:36:07,940 --> 00:36:13,480
+So I think that's a good strategy for anybody who's risk averse.
+
+657
+00:36:13,480 --> 00:36:14,720
+Maybe it's a good way to put it.
+
+658
+00:36:14,720 --> 00:36:17,400
+Or the first job is that it's a work tool.
+
+659
+00:36:17,400 --> 00:36:20,080
+The second job is that it's a tinker tool, right?
+
+660
+00:36:20,080 --> 00:36:23,600
+Like my see my think a lot of times my ordering slightly different, like sometimes tinker
+
+661
+00:36:23,600 --> 00:36:27,380
+tool is above work tool on some of my systems.
+
+662
+00:36:27,380 --> 00:36:31,020
+But you don't have seven systems like I do, right?
+
+663
+00:36:31,020 --> 00:36:33,420
+So you've got to you've got to narrow that focus a little bit more.
+
+664
+00:36:33,420 --> 00:36:37,400
+So honest, what I'm saying is if you came to me, like we just met at an event and you
+
+665
+00:36:37,400 --> 00:36:40,080
+and I didn't, you know, know each other and you said, Chris, what Linux should I use?
+
+666
+00:36:40,080 --> 00:36:43,920
+I'm a photographer and I want to be very reliable and I have a lot of things going on right
+
+667
+00:36:43,920 --> 00:36:47,840
+now and I need to be able to just open up my computer and have it work and perform well.
+
+668
+00:36:47,840 --> 00:36:50,720
+I would today if you asked me that I'd say fedora 34.
+
+669
+00:36:50,720 --> 00:36:51,840
+I don't think I'd say anything else.
+
+670
+00:36:51,840 --> 00:36:57,840
+I'd say go get fedora 34 and bring it fully up to date.
+
+671
+00:36:57,840 --> 00:37:02,000
+unpluggedcore.com want to support the show directly go to unpluggedcore.com and become
+
+672
+00:37:02,000 --> 00:37:07,380
+a member you get the full live feed the very long version of the show if you'd like or
+
+673
+00:37:07,380 --> 00:37:12,440
+you can get a nice cut down version with limited spots that Joe makes his full production you
+
+674
+00:37:12,440 --> 00:37:16,380
+know it's got all the Joe quality it just a little bit shorter runtime which can be
+
+675
+00:37:16,380 --> 00:37:19,960
+nice if you have a shorter commute but you also are supporting the show and on top of
+
+676
+00:37:19,960 --> 00:37:24,620
+that you're going to get access to special promo codes when we have new merch if and
+
+677
+00:37:24,620 --> 00:37:29,760
+when I'm not saying anything not announcing anything but I'm just saying if new things
+
+678
+00:37:29,760 --> 00:37:34,680
+were in the works and they were going to be announced as a thank you to our members we
+
+679
+00:37:34,680 --> 00:37:40,200
+offer discount codes so you can support the show get discount codes on new jb merch and
+
+680
+00:37:40,200 --> 00:37:44,480
+of course you get access to the two feeds the live uncut feed or the fully produced
+
+681
+00:37:44,480 --> 00:37:48,520
+shorter limited ad feed that's just a thank you for everyone out there who supports us
+
+682
+00:37:48,520 --> 00:37:56,000
+at unpluggedcore.com okay I think we've stretched out long enough we got to talk about fedora
+
+683
+00:37:56,000 --> 00:38:02,680
+35 it lands today and the way the fedora release cycle works is they kind of have some target
+
+684
+00:38:02,680 --> 00:38:08,800
+weeks and they release when the blocking bugs have been fixed or a solution is in place
+
+685
+00:38:08,800 --> 00:38:14,200
+it's not so much a date driven release as it is things aren't broken so we can ship
+
+686
+00:38:14,200 --> 00:38:18,480
+release and I have to say I'm I'm actually completely fine with that model and we just
+
+687
+00:38:18,480 --> 00:38:22,120
+kind of watch the bug tracker because it's all out in the open and you all can kind of
+
+688
+00:38:22,120 --> 00:38:25,800
+just follow along and find out when they're gonna release and yeah you know we get it
+
+689
+00:38:25,800 --> 00:38:30,760
+when it's ready why not yeah no rush and this version features gnome 41 which has been
+
+690
+00:38:30,760 --> 00:38:37,840
+out for a little bit in fact it looks like gnome 41.1 is just about just about out and
+
+691
+00:38:37,840 --> 00:38:42,840
+it includes in gnome 41 some improved power management options which we can touch on in
+
+692
+00:38:42,840 --> 00:38:49,760
+a little bit also like Matthew was saying those new controls for how the virtual desktop
+
+693
+00:38:49,760 --> 00:38:54,320
+layout I guess is how I'll say it works with virtual monitors and some more work on that
+
+694
+00:38:54,320 --> 00:38:59,040
+RDP back end that we were talking about and I have to say the thing that I'm most excited
+
+695
+00:38:59,040 --> 00:39:05,480
+about is the continued evolution of pipe wire in fedora and wire plumber as the session
+
+696
+00:39:05,480 --> 00:39:13,400
+manager so in fedora 34 we got pipe wire and under the hood it was kind of just using some
+
+697
+00:39:13,400 --> 00:39:18,760
+some default hard coded logic but pipe wire can do a lot more than that and so what wire
+
+698
+00:39:18,760 --> 00:39:24,560
+plumber is is it's a session manager that's going to enable future customizing that we
+
+699
+00:39:24,560 --> 00:39:27,840
+might use here in the studio of routing audio and setting things up in a very particular
+
+700
+00:39:27,840 --> 00:39:32,560
+way eventually there'll be things that sit on top of wire plumber there's some graphical
+
+701
+00:39:32,560 --> 00:39:38,680
+applications in the works right now one called hell VM I think that is a GTK patch bay it
+
+702
+00:39:38,680 --> 00:39:43,080
+really actually kind of replicates the patch bay of the early days of the music industry
+
+703
+00:39:43,080 --> 00:39:47,040
+where you're taking a wire from one device and you're running it to another device and
+
+704
+00:39:47,040 --> 00:39:50,920
+that's in the works right now and underneath that will be wire plumber and you'll be able
+
+705
+00:39:50,920 --> 00:39:55,920
+to save different sessions so you could maybe have like this is my jitzy meeting session
+
+706
+00:39:55,920 --> 00:40:00,800
+where my audio comes from my microphone and I also am taking audio from my other browser
+
+707
+00:40:00,800 --> 00:40:05,800
+so maybe like you have Firefox as your second browser like I do you could have a wire plumber
+
+708
+00:40:05,800 --> 00:40:12,820
+session that brings audio from your USB microphone and from Firefox and sends it in as an input
+
+709
+00:40:12,820 --> 00:40:17,240
+device that you have selected in your video meeting so you could play audio from your
+
+710
+00:40:17,240 --> 00:40:21,960
+web browser into the meeting or from VLC it's it's going to give you this kind of flexibility
+
+711
+00:40:21,960 --> 00:40:25,800
+so when you hear us talk about pipe wire and you hear us mention wire plumber the session
+
+712
+00:40:25,800 --> 00:40:29,560
+manager what you're going to get as an end user for you never going to do audio production
+
+713
+00:40:29,560 --> 00:40:34,560
+is you're going to get that kind of flexibility you can do a you know a VoIP call with somebody
+
+714
+00:40:34,560 --> 00:40:37,860
+and route audio in there and have your own soundboard if you want and have your own wacky
+
+715
+00:40:37,860 --> 00:40:43,340
+zoo thing or maybe you want to screen share your web browser and you want to play a presentation
+
+716
+00:40:43,340 --> 00:40:46,440
+and you want to capture the audio from that as well now you're going to be able to do
+
+717
+00:40:46,440 --> 00:40:52,400
+all that kind of stuff and what wire plumber does is it lays down the session manager piece
+
+718
+00:40:52,400 --> 00:40:56,560
+of this that's going to manage how this stuff works Wes am I explaining this appropriately
+
+719
+00:40:56,560 --> 00:41:00,560
+yeah I mean I think so because I feel like I'm kind of not doing a very good job explaining
+
+720
+00:41:00,560 --> 00:41:04,400
+it wire plumber replaces the you know some of the stuff that was built into pipe wire
+
+721
+00:41:04,400 --> 00:41:09,400
+by default that was kind of a just a simple bare bones version and but you can think about
+
+722
+00:41:09,400 --> 00:41:12,920
+you know pipe wire has all these facilities but you kind of have to make actual configurations
+
+723
+00:41:12,920 --> 00:41:17,500
+of those actual sessions actual arrangements of everything and you need something that
+
+724
+00:41:17,500 --> 00:41:21,520
+can help manage that and provide tools for other things to interact with it and that's
+
+725
+00:41:21,520 --> 00:41:25,960
+basically the layer where wire plumber fits so yeah as an end user unless you get into
+
+726
+00:41:25,960 --> 00:41:29,980
+the details of pipe wire you probably won't care about this but this is one of those pieces
+
+727
+00:41:29,980 --> 00:41:33,760
+I mean like I play around with pipe wire all the time building it from source I hadn't
+
+728
+00:41:33,760 --> 00:41:37,560
+set up wire plumber I was still using the other stuff this is like the area where fedora
+
+729
+00:41:37,560 --> 00:41:41,380
+is taking these disparate pieces and really thinking about it and building something more
+
+730
+00:41:41,380 --> 00:41:45,820
+coherent together yeah I'm looking forward to it Neil give me an idea of what we're going
+
+731
+00:41:45,820 --> 00:41:48,560
+to get down the road in the future like wire plumber is going to enable a lot more than
+
+732
+00:41:48,560 --> 00:41:52,440
+we have today but I don't think I'm giving it justice here the biggest thing you want
+
+733
+00:41:52,440 --> 00:41:57,100
+to think about when it comes to wire plumber and pipe wire is that what pipe wire actually
+
+734
+00:41:57,100 --> 00:42:02,580
+does is quite a lot more than what people see right now so pipe wire can manage audio
+
+735
+00:42:02,580 --> 00:42:07,400
+sources and audio syncs we're all familiar with that part we introduced that in 34 and
+
+736
+00:42:07,400 --> 00:42:11,000
+the other part that it has that we've had for quite a light longer but we've just really
+
+737
+00:42:11,000 --> 00:42:16,420
+not talked about it is the fact that can manage video sources and video syncs so this means
+
+738
+00:42:16,420 --> 00:42:22,140
+for example if you do a screen share through the pipe wire portal api to redirect an application
+
+739
+00:42:22,140 --> 00:42:27,360
+or whatever like you know how that apex rdp window fx i for remote fx thing that windows
+
+740
+00:42:27,360 --> 00:42:31,400
+has you can do something similar with this and the cool bit is because wire plumber is
+
+741
+00:42:31,400 --> 00:42:36,860
+a session manager for pipe wire that can manage sync sources and sites you can do programmatic
+
+742
+00:42:36,860 --> 00:42:42,580
+redirection of those things too so you can do things like orchestrate the connecting
+
+743
+00:42:42,580 --> 00:42:47,480
+of various different syncs and sources for video as well as audio from various sources
+
+744
+00:42:47,480 --> 00:42:53,200
+like a camera if they're going through lib camera into pipe wire out or a screen share
+
+745
+00:42:53,200 --> 00:42:57,580
+or an application share or any of these other things like for example you were talking earlier
+
+746
+00:42:57,580 --> 00:43:02,680
+about remote desktop through rdp and yes it does use pipe wire underneath pipe wire and
+
+747
+00:43:02,680 --> 00:43:06,520
+wire plumber contribute to supporting the ability to do these sorts of things in the
+
+748
+00:43:06,520 --> 00:43:11,000
+future if there's interest and development around this you could also see things like
+
+749
+00:43:11,000 --> 00:43:18,440
+an implementation of something like windows's remote effects which does you can do per application
+
+750
+00:43:18,440 --> 00:43:24,400
+shares and screen sharing or replication on like remote connections to applications you
+
+751
+00:43:24,400 --> 00:43:28,520
+know like you have a more powerful server computer running gnome on it with the application
+
+752
+00:43:28,520 --> 00:43:32,440
+running there and then you could screen share the application itself back to a weaker thin
+
+753
+00:43:32,440 --> 00:43:36,560
+client those kinds of things become possible there's all kinds of interesting things that
+
+754
+00:43:36,560 --> 00:43:43,000
+you can do for vdi use cases for instructor cases for screen shares for video conferencing
+
+755
+00:43:43,000 --> 00:43:50,960
+for music production for concerts for whatever you want when it comes to av there's a pipe
+
+756
+00:43:50,960 --> 00:43:57,840
+wire pipeline in there i love the sound of that and we're going just a little bit at
+
+757
+00:43:57,840 --> 00:44:01,760
+a time but overall when you look at other initiatives in the past i think i'm pretty
+
+758
+00:44:01,760 --> 00:44:06,260
+happy with the with the rate of progression there is a known bug right now some people
+
+759
+00:44:06,260 --> 00:44:11,040
+have no sound after they upgrade we'll have a link about that in the notes essentially
+
+760
+00:44:11,040 --> 00:44:15,280
+maybe for some reason wire plumber didn't start appropriately so if you have that problem
+
+761
+00:44:15,280 --> 00:44:19,160
+after you upgrade there is a note about it it's a known problem and a note on how to
+
+762
+00:44:19,160 --> 00:44:23,240
+just quickly start it up it's not that bad i guess i lied you should know about wire
+
+763
+00:44:23,240 --> 00:44:29,080
+plumber yeah maybe so so i did the upgrade on that fedora 34 install on my thinkpad
+
+764
+00:44:29,080 --> 00:44:33,080
+and overall things went really smooth you know it really didn't work as expected were
+
+765
+00:44:33,080 --> 00:44:37,820
+a few gnome extensions a lot of them actually have updated for 41 that's nice to see but
+
+766
+00:44:37,820 --> 00:44:44,180
+not all of them so you know you're gonna get that if you upgrade on day one but and i'm
+
+767
+00:44:44,180 --> 00:44:50,440
+really happy to see this if you have that new gnome extensions app when you log in for
+
+768
+00:44:50,440 --> 00:44:55,480
+the first time to gnome 41 on your recently upgraded fedora session or whatever it might
+
+769
+00:44:55,480 --> 00:45:01,080
+be in the future maybe it's a bunt or debian or whatever arch um that extensions app will
+
+770
+00:45:01,080 --> 00:45:06,040
+give you a notification that says hey man some of your extensions have updates and aren't
+
+771
+00:45:06,040 --> 00:45:10,240
+loaded and if you click it it launches the extensions app and that extensions app gives
+
+772
+00:45:10,240 --> 00:45:15,240
+you an overview of which extensions have been disabled which ones have updates again and
+
+773
+00:45:15,240 --> 00:45:19,520
+then it puts a banner along the bottom of the application that says the next time you
+
+774
+00:45:19,520 --> 00:45:23,740
+log in i'm gonna update some of your extensions for you would you like to log out now and
+
+775
+00:45:23,740 --> 00:45:28,200
+you hit that and it logs you out you log back in they're up to date and if they're compatible
+
+776
+00:45:28,200 --> 00:45:33,380
+they're up and going my doc extension for example hasn't been updated my tray icons
+
+777
+00:45:33,380 --> 00:45:38,560
+i had tray icons reloaded that hasn't been updated yet but anything that's pretty essential
+
+778
+00:45:38,560 --> 00:45:42,280
+to the use of gnome shell for me that's been updated which is a pretty minimal set now
+
+779
+00:45:42,280 --> 00:45:47,200
+and then i have like a nice to have set so that's good i mean outside of that really
+
+780
+00:45:47,200 --> 00:45:52,880
+no issue i haven't tried rdp yet but all of my apps work i think flat pack's doing a fair
+
+781
+00:45:52,880 --> 00:45:57,240
+amount of the heavy lifting there a dream of containerized applications alive in fedora
+
+782
+00:45:57,240 --> 00:46:03,560
+35 yeah and i think it's i think it's a good use case for things like slack and discord
+
+783
+00:46:03,560 --> 00:46:07,800
+and element and all the other there's a few other ones that are electron base that i have
+
+784
+00:46:07,800 --> 00:46:12,080
+to have open and you know shipping them as flat packs kind of makes sense i kind of like
+
+785
+00:46:12,080 --> 00:46:17,560
+having them sandboxed as well and so that just all goes really smooth works pretty well
+
+786
+00:46:17,560 --> 00:46:23,040
+for me but i didn't have quite the same experience brent did because i think brent you tried
+
+787
+00:46:23,040 --> 00:46:28,180
+out the plasma spin right yeah we were talking about you know last week talking about which
+
+788
+00:46:28,180 --> 00:46:33,400
+one i should try and we kind of went back and forth you said oh you got to try the gnome
+
+789
+00:46:33,400 --> 00:46:37,760
+implementation because it's fabulous obviously you're a big fan of it i actually decided
+
+790
+00:46:37,760 --> 00:46:44,560
+to try the kde spin because i'm super familiar with kde and i have to say that i hardly spent
+
+791
+00:46:44,560 --> 00:46:50,260
+any time in modern gnome so i thought i don't want it to be so different of an experience
+
+792
+00:46:50,260 --> 00:46:56,000
+that i'm not really focusing on the usability of it or the distribution itself so i decided
+
+793
+00:46:56,000 --> 00:47:03,640
+to try the kde spin and as some context i will admit neil that i haven't used fedora
+
+794
+00:47:03,640 --> 00:47:09,260
+for more than like a few minutes ever so this was my chance to really dive in and and chris
+
+795
+00:47:09,260 --> 00:47:15,360
+has been basically talking really positively about it for a few years now so i thought
+
+796
+00:47:15,360 --> 00:47:23,760
+okay now's my chance so if you want to find uh what i ran which was fedora 34 five's pre-release
+
+797
+00:47:23,760 --> 00:47:29,040
+the kde spin it's actually a little confusing to find uh if you go to fedora project.org
+
+798
+00:47:29,040 --> 00:47:34,880
+it just kind of redirects you to the main releases so you have to go to spins.fedora
+
+799
+00:47:34,880 --> 00:47:39,720
+project.org i found that as a someone who wasn't that familiar with fedora to be kind
+
+800
+00:47:39,720 --> 00:47:46,440
+of confusing to find and i tried it on some bare metal i had a have a thinkpad x240 that
+
+801
+00:47:46,440 --> 00:47:52,960
+i guess i found in my basement that i wasn't using and so i decided to uh throw that on
+
+802
+00:47:52,960 --> 00:48:00,740
+a usb and give it a go directly on an SSD i didn't know anything about fedora so i did
+
+803
+00:48:00,740 --> 00:48:06,760
+dive into the docs first which i think is probably a good idea um one the most uh worrisome
+
+804
+00:48:06,760 --> 00:48:12,720
+thing was about how to update packages i know it used rpms but i didn't quite know how to
+
+805
+00:48:12,720 --> 00:48:19,280
+go about doing that and i loved the documentation it was good enough like it went into enough
+
+806
+00:48:19,280 --> 00:48:22,800
+detail to get you where you wanted to go or i should say get me where i wanted to go with
+
+807
+00:48:22,800 --> 00:48:28,440
+my level of um knowledge about linux and stuff but it wasn't so exhaustive that it was hard
+
+808
+00:48:28,440 --> 00:48:33,240
+to find what i needed so kudos there for whoever's writing the documentation i really really
+
+809
+00:48:33,240 --> 00:48:41,080
+appreciated it i also uh here's a skill testing question for you chris and us um do you know
+
+810
+00:48:41,080 --> 00:48:49,920
+what dnf actually stands for oh man yes i do but now i've forgotten now that you asked
+
+811
+00:48:49,920 --> 00:48:54,480
+i feel like i could like stall and be like well you know it was uh inspired by yum which
+
+812
+00:48:54,480 --> 00:48:59,680
+was the yellow dog update manager isn't it like the dandafied package manager or something
+
+813
+00:48:59,680 --> 00:49:04,840
+like that right yeah i chuckled there and so i thought okay the door is gonna be fun
+
+814
+00:49:04,840 --> 00:49:08,560
+i really appreciate this and i know yum has a lot of history and i don't really know it
+
+815
+00:49:08,560 --> 00:49:16,200
+that well but i've heard a lot of good things about dnf so use the kd live disk and uh usually
+
+816
+00:49:16,200 --> 00:49:21,680
+my typical method to do this is i have my main laptop in front of me and then i have
+
+817
+00:49:21,680 --> 00:49:26,360
+some friend's laptop or family member or some laptop i'm playing with and i like to use
+
+818
+00:49:26,360 --> 00:49:32,920
+my main system and just do a vnc session over to that other system so i have the keyboard
+
+819
+00:49:32,920 --> 00:49:37,440
+that i'm used to and all of the programs and i can look up you know notes in my regular
+
+820
+00:49:37,440 --> 00:49:44,920
+applications and from the live disk uh that didn't really work for me and i was sort of
+
+821
+00:49:44,920 --> 00:49:50,200
+i was like okay well it presented a black screen i was like okay this is likely a wayland
+
+822
+00:49:50,200 --> 00:49:56,760
+thing because i knew that was an issue in the past so i can do without that so i continued
+
+823
+00:49:56,760 --> 00:50:01,020
+with the anaconda installer and i know a lot of people say it's kind of clumsy and stuff
+
+824
+00:50:01,020 --> 00:50:06,280
+and i thought it was fine it was actually kind of nice and it was pretty visual which
+
+825
+00:50:06,280 --> 00:50:12,780
+i appreciated uh i did notice there's encryption as an option disk encryption which i love
+
+826
+00:50:12,780 --> 00:50:16,080
+and i always put that on laptops because i do a lot of traveling and stuff so that was
+
+827
+00:50:16,080 --> 00:50:21,360
+a really important thing for me another thing i appreciated was that it told me my password
+
+828
+00:50:21,360 --> 00:50:28,040
+was awful by doing a dictionary word check which is such a small little thing but i think
+
+829
+00:50:28,040 --> 00:50:32,320
+for new users chris like you're suggesting for family and stuff that's actually really
+
+830
+00:50:32,320 --> 00:50:36,960
+nice um i was using a terrible password because i didn't care to you know it's just a testing
+
+831
+00:50:36,960 --> 00:50:41,360
+machine but um that was actually a really nice thing that i think everyone should have
+
+832
+00:50:41,360 --> 00:50:47,360
+so uh there was one question or a warning that i didn't understand and i'm gonna read
+
+833
+00:50:47,360 --> 00:50:53,360
+it to you guys and even on mumble i want you to try to figure out what it means so this
+
+834
+00:50:53,360 --> 00:50:59,480
+was in the encryption section so i was encrypting doing some disencryption and it said warning
+
+835
+00:50:59,480 --> 00:51:03,880
+you won't be able to switch between keyboard layouts from the default ones when you decrypt
+
+836
+00:51:03,880 --> 00:51:10,960
+your disk after install so what are they actually trying to communicate there okay okay you
+
+837
+00:51:10,960 --> 00:51:20,560
+won't be able to switch between keyboard layouts when you decrypt your disks after install
+
+838
+00:51:20,560 --> 00:51:25,360
+i think i know what this is okay what are they saying wimpy if you've used special
+
+839
+00:51:25,360 --> 00:51:34,480
+characters in your encryption passphrase using say a french canadian keyboard and then try
+
+840
+00:51:34,480 --> 00:51:39,600
+to decrypt that using a u.s english keyboard those special characters are not going to
+
+841
+00:51:39,600 --> 00:51:45,480
+align it's got to be it he's got it and i have run into this previously and i think
+
+842
+00:51:45,480 --> 00:51:50,880
+anyone who's spent enough time with decrypting disks at boot you will eventually run into
+
+843
+00:51:50,880 --> 00:51:56,960
+this but anyways i thought that was worded a little confusingly maybe visually it's a
+
+844
+00:51:56,960 --> 00:52:01,280
+bit different than than that but anyways it all worked fine and it only took about eight
+
+845
+00:52:01,280 --> 00:52:07,600
+minutes to install which was really uh lovely actually but that's where things started going
+
+846
+00:52:07,600 --> 00:52:14,720
+poorly for me on the first boot you get the background of fedora and i am a visual person
+
+847
+00:52:14,720 --> 00:52:19,160
+and i thought the background they chose which is not a technical thing but i thought it's
+
+848
+00:52:19,160 --> 00:52:28,200
+like this teal almost like seafoam green pool reflections photograph i believe and it just
+
+849
+00:52:28,200 --> 00:52:35,140
+made me feel a little queasy i think guys what was your take on that with all due respect
+
+850
+00:52:35,140 --> 00:52:42,240
+to the to the art team yeah because i often like what they do um literally on every single
+
+851
+00:52:42,240 --> 00:52:46,640
+install of fedora 35 i've done the very very first thing i did was change the background
+
+852
+00:52:46,640 --> 00:52:51,720
+i find it kind of jarring i know west did you have that i bet if anybody's gonna be
+
+853
+00:52:51,720 --> 00:52:55,840
+chill about it no i had to say i had the same reaction i've really liked some past ones
+
+854
+00:52:55,840 --> 00:53:01,640
+i was trying to give it an open mind but now that this default background is i mean i generally
+
+855
+00:53:01,640 --> 00:53:06,800
+don't bring it up but yeah i i agree i first impressions are important right yeah doesn't
+
+856
+00:53:06,800 --> 00:53:12,160
+speak to the rest of the release yeah yeah so then i thought okay well i'm gonna try
+
+857
+00:53:12,160 --> 00:53:16,040
+you know i've installed it i'm gonna i'm gonna try this vnc thing again because i really
+
+858
+00:53:16,040 --> 00:53:24,440
+want to use that um so i'm used to using the krfb which is a kde um i guess vnc server
+
+859
+00:53:24,440 --> 00:53:29,080
+uh has worked amazingly for me in the last several years um and i went to use the menu
+
+860
+00:53:29,080 --> 00:53:34,920
+launcher and it just didn't do anything and i thought oh that's odd i'll just ignore that
+
+861
+00:53:34,920 --> 00:53:40,040
+for now and actually now that i'm thinking about vnc maybe it's a wayland issue and i
+
+862
+00:53:40,040 --> 00:53:47,040
+i knew that uh so maybe i'll try x11 so i logged out and uh logged into x11 and the
+
+863
+00:53:47,040 --> 00:53:52,560
+krfb menu launcher worked fine um and then i tried to connect to vnc from my other laptop
+
+864
+00:53:52,560 --> 00:54:03,080
+and uh that just crashed krfb oh so i certainly wasn't going to use my preferred vnc methods
+
+865
+00:54:03,080 --> 00:54:10,760
+yeah i'm sorry brad i'm so sorry yeah so i decided to unplug my main laptop you know
+
+866
+00:54:10,760 --> 00:54:15,960
+from all of my stuff and switch the two and just focus on the fedora stuff which is fine
+
+867
+00:54:15,960 --> 00:54:20,840
+so i thought okay well the next thing i like to do typically on a system is play with some
+
+868
+00:54:20,840 --> 00:54:27,800
+of the uh you know install some minor things like htop and i don't know sometimes you have
+
+869
+00:54:27,800 --> 00:54:33,720
+to install ssh server and stuff like that so i'm going to do these um basic applications
+
+870
+00:54:33,720 --> 00:54:39,280
+that i like having so dnf is the first time i use it fair enough uh but it's super simple
+
+871
+00:54:39,280 --> 00:54:43,160
+so i just did dnf install htop that simple because i wanted to see okay what's it going
+
+872
+00:54:43,160 --> 00:54:49,740
+to do how's it going to work and it started downloading a package but it wasn't very descriptive
+
+873
+00:54:49,740 --> 00:54:54,400
+and then it just kept going and going and i thought okay htop i know is very tiny what's
+
+874
+00:54:54,400 --> 00:55:01,440
+going on over here um and so the description it gave was fedora 35 x86 64 and that's it
+
+875
+00:55:01,440 --> 00:55:07,320
+and it was just downloading it downloaded 61 megs of stuff and i was quite confused
+
+876
+00:55:07,320 --> 00:55:13,040
+because i knew that was unlikely wow where are you seeing the 61 megabytes if you've
+
+877
+00:55:13,040 --> 00:55:17,840
+used apt or most other you know it lists a package on the left and then gives you a progress
+
+878
+00:55:17,840 --> 00:55:22,000
+bar of how much is downloaded on the right hand side it gives you the total download
+
+879
+00:55:22,000 --> 00:55:26,480
+or how much time is going to you know be left in your download fair enough i don't have
+
+880
+00:55:26,480 --> 00:55:30,520
+a great internet connection here so 61 megs actually was kind of depressing here's what
+
+881
+00:55:30,520 --> 00:55:34,600
+i'm wondering you know because when you are on fedora brent for the and you install something
+
+882
+00:55:34,600 --> 00:55:40,400
+using dnf for the first time if you haven't first updated the repositories it will do
+
+883
+00:55:40,400 --> 00:55:43,520
+that for you automatically because that's actually one of the things that drives me
+
+884
+00:55:43,520 --> 00:55:47,060
+crazy about apt is it will actually let you go ahead and install something even though
+
+885
+00:55:47,060 --> 00:55:50,240
+it's looking at all old versions of the packages because you haven't updated the repositories
+
+886
+00:55:50,240 --> 00:55:54,880
+yet so what dnf will do is it will say okay now actually i have to first refresh the repositories
+
+887
+00:55:54,880 --> 00:55:59,280
+but on a new install it might be pulling that stuff down for a long time and because you
+
+888
+00:55:59,280 --> 00:56:03,360
+know i notice it takes forever to update the repos when i'm on a bad connection too and
+
+889
+00:56:03,360 --> 00:56:08,880
+that and because dnf does do that so frequently it makes the overall experience feel kind
+
+890
+00:56:08,880 --> 00:56:15,400
+of slow you know i think that's a great insight and i can't remember and my notes aren't good
+
+891
+00:56:15,400 --> 00:56:22,160
+enough to tell me if i did update um sort of the indexes beforehand i typically do because
+
+892
+00:56:22,160 --> 00:56:26,440
+that's my process with apt and this seemed like a very easy translation from one to the
+
+893
+00:56:26,440 --> 00:56:30,960
+other um but i kind of wish it just described that a little bit better it was a bit cryptic
+
+894
+00:56:30,960 --> 00:56:36,720
+to me yeah yeah after it continued sort of doing a bunch of stuff it did eventually change
+
+895
+00:56:36,720 --> 00:56:45,960
+that to suggest fedora 34 x86 64 updates but even that was kind of cryptic and so i didn't
+
+896
+00:56:45,960 --> 00:56:51,480
+love it but anyways it did ask me about downloading htop so after you wait for all of the refresh
+
+897
+00:56:51,480 --> 00:56:58,160
+of the repos and all the dependencies to be met you get your 170 kilobyte application
+
+898
+00:56:58,160 --> 00:57:04,880
+yeah that's that is sometimes the dnf experience so after all of that i decided okay well i
+
+899
+00:57:04,880 --> 00:57:08,200
+know i want to try wayland because i haven't tried it that much so i'm gonna i'm gonna
+
+900
+00:57:08,200 --> 00:57:14,040
+log out and go back and um when i logged in back to the wayland session krfb decided to
+
+901
+00:57:14,040 --> 00:57:19,640
+crash again just on login so i knew that wasn't gonna be any hope i did decide to change the
+
+902
+00:57:19,640 --> 00:57:26,600
+desktop as you guys did but i ran it immediately into some weird issues uh i was changing the
+
+903
+00:57:26,600 --> 00:57:33,400
+wallpaper and the apply button never appeared so i couldn't actually make that change commit
+
+904
+00:57:33,400 --> 00:57:38,560
+and like that's such a small weird basic thing and it made me really worried actually about
+
+905
+00:57:38,560 --> 00:57:42,120
+all of the other things i was gonna want to try because it's like one of the simplest
+
+906
+00:57:42,120 --> 00:57:47,000
+things and so i had to quit the settings application come back and then it worked but it was like
+
+907
+00:57:47,000 --> 00:57:53,160
+okay well what else am i gonna run into um so i decided to do a system update because
+
+908
+00:57:53,160 --> 00:57:58,400
+i knew okay well i'm on i'm on a pre-release and i downloaded a few days ago maybe some
+
+909
+00:57:58,400 --> 00:58:03,840
+people have you know i knew the release was going to be today but immediately i typed
+
+910
+00:58:03,840 --> 00:58:08,080
+dnf upgrade and it gave me a little bit of information it said there's a problem with
+
+911
+00:58:08,080 --> 00:58:14,420
+some of your packages so i hadn't done any updates yet and already there was some conflicts
+
+912
+00:58:14,420 --> 00:58:21,080
+that specifically being a kwin common requires kd decorations conflict it said it was trying
+
+913
+00:58:21,080 --> 00:58:28,960
+it cannot install 523 and 522 at the same time and literally this was a brand new system
+
+914
+00:58:28,960 --> 00:58:35,400
+i hadn't done a single thing so that too worried me because what was gonna happen next i bet
+
+915
+00:58:35,400 --> 00:58:40,560
+you got caught right in the switch over to the newer version of plasma perhaps that's
+
+916
+00:58:40,560 --> 00:58:44,920
+definitely a beta thing that couldn't what can happen sometimes although it's not common
+
+917
+00:58:44,920 --> 00:58:49,360
+is some of the packages land but not all of the packages land for the next version of
+
+918
+00:58:49,360 --> 00:58:54,240
+plasma that could potentially be what happened there right and and now that we explore this
+
+919
+00:58:54,240 --> 00:59:01,120
+here i'm seeing how this likely led to all of the other issues i ran into so i updated
+
+920
+00:59:01,120 --> 00:59:07,200
+the whole system that way and rebooted and then things just things just did not work
+
+921
+00:59:07,200 --> 00:59:14,240
+like abysmally did not function properly oh no i hate to say that because i was so excited
+
+922
+00:59:14,240 --> 00:59:19,800
+about this but upon reboot i tried to log into wayland and i just got this login loop
+
+923
+00:59:19,800 --> 00:59:27,360
+and it never ever would log into the desktop so i was like okay i know i can try the x11
+
+924
+00:59:27,360 --> 00:59:32,600
+session so i did manage to get logged into the x11 session and i thought okay i'm gonna
+
+925
+00:59:32,600 --> 00:59:36,200
+get some work done so i plugged in my external monitor and this was the beginning of the
+
+926
+00:59:36,200 --> 00:59:44,120
+end the super key on my keyboard didn't even open the menu which is really frustrating
+
+927
+00:59:44,120 --> 00:59:50,360
+and then the taskbar was on one monitor but then the menu when i clicked on it appeared
+
+928
+00:59:50,360 --> 00:59:56,680
+on the other monitor and none of the window controls were available on any of the windows
+
+929
+00:59:56,680 --> 01:00:02,280
+which is probably that conflict that i ran into uh because it had to do with kd decorations
+
+930
+01:00:02,280 --> 01:00:09,400
+so that's likely the issue but then i thought okay well it's been 12 hours and it's release
+
+931
+01:00:09,400 --> 01:00:14,920
+day etc etc maybe i'll just bring up a terminal and try to like update again and maybe some
+
+932
+01:00:14,920 --> 01:00:19,640
+of these things will be resolved and so i you know control alt t to bring up a terminal
+
+933
+01:00:19,640 --> 01:00:26,920
+and i literally got only the toolbar functions i did not get a terminal i did not get window
+
+934
+01:00:26,920 --> 01:00:32,320
+decorations to move things around so i it was just that was the point where i said i
+
+935
+01:00:32,320 --> 01:00:36,500
+can't go on that i can't there's nothing i can do i can't even troubleshoot this thing
+
+936
+01:00:36,500 --> 01:00:42,960
+is like uh so i had to give up and that made me really really sad oh no there's a lot to
+
+937
+01:00:42,960 --> 01:00:47,960
+this and there's several i think really important lessons here and one of them is this is why
+
+938
+01:00:47,960 --> 01:00:53,480
+betas are not like for production use fair enough there was a warning sticker on it but
+
+939
+01:00:53,480 --> 01:00:57,240
+still oh yeah and we know that right when we're going into this we have we always have
+
+940
+01:00:57,240 --> 01:01:02,560
+that in the back of our mind we know that in fact you know like if if you were to install
+
+941
+01:01:02,560 --> 01:01:06,280
+today and had these problems i'd say okay well it's time to start you know making out
+
+942
+01:01:06,280 --> 01:01:11,080
+some bug reports but i think what you got caught in is a beta transition that does happen
+
+943
+01:01:11,080 --> 01:01:14,880
+but i think that's a good thing for people to know listening to this that if if if say
+
+944
+01:01:14,880 --> 01:01:19,000
+someone is basing their impressions on that they got to give it a little bit uh and this
+
+945
+01:01:19,000 --> 01:01:23,200
+goes back to what i was saying about if you caught this say six months in you you installed
+
+946
+01:01:23,200 --> 01:01:29,240
+fedora 35 in six months i bet you this entire experience would be smooth as butter for you
+
+947
+01:01:29,240 --> 01:01:32,680
+all that stuff's completely worked out and that's where i think it makes that that's
+
+948
+01:01:32,680 --> 01:01:36,980
+where it's really in a sweet spot it's in a special kind of place it's in a special
+
+949
+01:01:36,980 --> 01:01:41,880
+sweet spot for desktop linux six months into its release cycle and right now it's still
+
+950
+01:01:41,880 --> 01:01:46,320
+early i think too one of the other things you probably got bit by is there was some
+
+951
+01:01:46,320 --> 01:01:51,760
+and i have a vague recollection one of the blocker bugs was related to something in plasma
+
+952
+01:01:51,760 --> 01:01:55,720
+and it was one of the things they had to fix right before release and it may have may have
+
+953
+01:01:55,720 --> 01:01:59,680
+been this conflict i looked at some of the common bugs and didn't see any of those but
+
+954
+01:01:59,680 --> 01:02:04,280
+maybe that is just for the main release not the spins and i think you're right like i
+
+955
+01:02:04,280 --> 01:02:10,080
+liked the experience errors aside enough to give it another try after you know maybe in
+
+956
+01:02:10,080 --> 01:02:13,360
+a few months wouldn't that be an interesting thing to do is do a follow-up review with
+
+957
+01:02:13,360 --> 01:02:17,560
+it in a bit and try it again and see what it's like well how about we do that okay all
+
+958
+01:02:17,560 --> 01:02:21,900
+right we do that but one thing that i worried about and maybe that will change my perspective
+
+959
+01:02:21,900 --> 01:02:29,560
+in a few months is how distributions treat their you know this is this is an official
+
+960
+01:02:29,560 --> 01:02:37,600
+spin and it seemed pretty officially busted like maybe i'm one of the only people who
+
+961
+01:02:37,600 --> 01:02:43,440
+ran into that but i i really hope that the next test in you know a few months is very
+
+962
+01:02:43,440 --> 01:02:49,640
+different because i worry that the spins don't get the attention that the main release does
+
+963
+01:02:49,640 --> 01:02:55,200
+the plasma spin has been on a on a trajectory of becoming more and more serious for the
+
+964
+01:02:55,200 --> 01:03:02,480
+fedora project like now for example a a serious bug in the plasma spin is a blocker for the
+
+965
+01:03:02,480 --> 01:03:06,880
+entire fedora project right that means that they're not going to release the gnome version
+
+966
+01:03:06,880 --> 01:03:10,200
+if something's wrong in the plasma version so they are they are taking it very serious
+
+967
+01:03:10,200 --> 01:03:14,160
+now but and they might they might push back on this but i'd kind of argue that wasn't
+
+968
+01:03:14,160 --> 01:03:19,600
+always the mindset uh but i think what you have here is sometimes very late in the in
+
+969
+01:03:19,600 --> 01:03:22,800
+the phase they have to fix something and that was something they were working on but we'll
+
+970
+01:03:22,800 --> 01:03:26,840
+do the follow-up and we'll see how it is in a little bit and you know when at some time
+
+971
+01:03:26,840 --> 01:03:31,080
+one of these days i'll get you to try out my gnome setup the way i have it and see if
+
+972
+01:03:31,080 --> 01:03:34,640
+you like it yeah i could use it to her i'd appreciate that oh yeah maybe you you bake
+
+973
+01:03:34,640 --> 01:03:39,680
+him an image you just ship it over there brent flashes it on tries it chris's way could do
+
+974
+01:03:39,680 --> 01:03:44,000
+so mr pain you got your hands on fedora 35 would you try would you think yeah well i
+
+975
+01:03:44,000 --> 01:03:48,800
+played around with the uh you know the main gnome version a little bit but then i thought
+
+976
+01:03:48,800 --> 01:03:54,960
+i'd i'd go even more out there than brent i played with kina white oh yeah right there's
+
+977
+01:03:54,960 --> 01:04:01,400
+silver blue version that's plasma based yeah come on immutable desktops for everyone including
+
+978
+01:04:01,400 --> 01:04:05,360
+plasma and flat packs for days it's been a while you know i have played with silver blue
+
+979
+01:04:05,360 --> 01:04:11,160
+but it's been a while i was at 33 i don't think i tried it for 34 so it has been a little
+
+980
+01:04:11,160 --> 01:04:17,140
+bit but i i was pleasantly surprised now you know i love don't love anaconda but it does
+
+981
+01:04:17,140 --> 01:04:21,880
+work it works just fine did seem like the kina white install took a little bit longer
+
+982
+01:04:21,880 --> 01:04:29,240
+but other than that it felt just like a normal fedora install of course things get a little
+
+983
+01:04:29,240 --> 01:04:34,920
+bit more interesting when you have to do some updates or start messing with the file system
+
+984
+01:04:34,920 --> 01:04:41,740
+or packages or anything like that because it's immutable rpm os tree based system it's
+
+985
+01:04:41,740 --> 01:04:47,880
+it's really neat i i think this could be a great development workstation for me personally
+
+986
+01:04:47,880 --> 01:04:54,720
+as um you know someone who tinkers maybe a little too much with some of my systems there
+
+987
+01:04:54,720 --> 01:04:59,320
+probably be one too many roadblocks but but for like a software development workstation
+
+988
+01:04:59,320 --> 01:05:03,760
+admin workstation just getting work done where you don't have to do a ton of packages or
+
+989
+01:05:03,760 --> 01:05:09,140
+customizations or you're fine with doing most of your things in flat pack and toolbox it's
+
+990
+01:05:09,140 --> 01:05:13,920
+really nice i was impressed how well this just worked in the katie environment i mean
+
+991
+01:05:13,920 --> 01:05:20,040
+it's not perfect discovers lacking some support for really working with rpm os tree for instance
+
+992
+01:05:20,040 --> 01:05:24,120
+but the flat hub support and discover was really nice because i you know i can just
+
+993
+01:05:24,120 --> 01:05:29,440
+turn flip that on and i got everything i need it is uh encouraging to see that kino night
+
+994
+01:05:29,440 --> 01:05:34,600
+development because i don't know if it's necessary that silver blue and kino night be two separate
+
+995
+01:05:34,600 --> 01:05:40,440
+projects but i think you're you're never going to have silver blue that can support both
+
+996
+01:05:40,440 --> 01:05:46,640
+plasma and gnome unless kino night exists it has to kind of be the project that keeps
+
+997
+01:05:46,640 --> 01:05:51,040
+the plasma torch burning so that way that silver blue doesn't become just a gnome thing
+
+998
+01:05:51,040 --> 01:05:54,660
+yeah you need somewhere to organize the the effort of all the little details that need
+
+999
+01:05:54,660 --> 01:05:59,920
+to get changed or fixed or packaged to make it a good katie experience and the idea west
+
+1000
+01:05:59,920 --> 01:06:05,960
+of that i got a really rock solid workstation that has this os tree approach to very careful
+
+1001
+01:06:05,960 --> 01:06:13,280
+updates and that combined with something like plasma and you know butter fs potentially
+
+1002
+01:06:13,280 --> 01:06:18,040
+like i mean i'm really seeing some seriously awesome workstation potentials just around
+
+1003
+01:06:18,040 --> 01:06:21,360
+the corner in the future plus it comes with you know a bunch of the latest stuff like
+
+1004
+01:06:21,360 --> 01:06:25,560
+python 310 which just recently came out that's here like if you're using fedora you're up
+
+1005
+01:06:25,560 --> 01:06:30,000
+to date which which is you often want for development yeah all right well i'm glad you
+
+1006
+01:06:30,000 --> 01:06:33,480
+had a chance to kick the tires one question i have for you west and maybe chris you have
+
+1007
+01:06:33,480 --> 01:06:39,480
+some insights or someone in mumble is um why make this if they have silver blue why put
+
+1008
+01:06:39,480 --> 01:06:43,680
+some effort into something like this as well what's the what's the reasoning behind it
+
+1009
+01:06:43,680 --> 01:06:47,360
+i think it is mostly just right now silver blue has always kind of been built with a
+
+1010
+01:06:47,360 --> 01:06:51,480
+gnome first kind of perspective and so you do your software management through gnome
+
+1011
+01:06:51,480 --> 01:06:56,120
+software and it's kind of using that entire pipeline and there hasn't been a bit much
+
+1012
+01:06:56,120 --> 01:07:01,720
+focus on making sure that a system like silver blue will work with something like plasma although
+
+1013
+01:07:01,720 --> 01:07:07,560
+it should right but and that would be the time now to start validating that out and
+
+1014
+01:07:07,560 --> 01:07:12,720
+not years down the road when perhaps silver blue starts to become pushed as the predominant
+
+1015
+01:07:12,720 --> 01:07:17,880
+workstation spin maybe of fedora could happen yeah i mean these these big desktop environments
+
+1016
+01:07:17,880 --> 01:07:22,080
+really do have their hooks into a fair bit of how the system works and so yeah it ends
+
+1017
+01:07:22,080 --> 01:07:25,160
+up being that there are things you need to think about when you've so radically changed
+
+1018
+01:07:25,160 --> 01:07:29,860
+the system with these immutable variants so while we're talking about this a big thing
+
+1019
+01:07:29,860 --> 01:07:33,600
+that makes all of this work is a lot of your application all your applications right are
+
+1020
+01:07:33,600 --> 01:07:40,820
+flat packs and flat hub integration with gnome software landed for all the different versions
+
+1021
+01:07:40,820 --> 01:07:44,520
+of gnome that use it so including the just a standard workstation version but it's not
+
+1022
+01:07:44,520 --> 01:07:50,800
+like the full flat hub but it's pretty close but it's not full flat hub explain this yeah
+
+1023
+01:07:50,800 --> 01:07:55,660
+so i mean you can still of course enable flat hub as you always have you know by manually
+
+1024
+01:07:55,660 --> 01:08:03,240
+doing that but but now fedora's providing a filtered list of stuff from their own repository
+
+1025
+01:08:03,240 --> 01:08:07,560
+that they've sort of gone through and approved and made sure that doesn't cause them problems
+
+1026
+01:08:07,560 --> 01:08:11,560
+to include it's an interesting start and it means that that some of these applications
+
+1027
+01:08:11,560 --> 01:08:16,240
+that you might want are already there without having to do anything that's that's really
+
+1028
+01:08:16,240 --> 01:08:21,000
+nice for a new user yeah and of course they do have that filter public which we'll link
+
+1029
+01:08:21,000 --> 01:08:25,240
+to in the show notes if you're curious i was like well what are they filtering out uh it's
+
+1030
+01:08:25,240 --> 01:08:29,760
+in there there's nothing really all that surprising in fact it mostly just seems like obvious
+
+1031
+01:08:29,760 --> 01:08:33,760
+organizational stuff but it's nice to see them including the flat hub because flat hub
+
+1032
+01:08:33,760 --> 01:08:39,040
+has really grown uh it has if you haven't been over there in a while go pop it up in
+
+1033
+01:08:39,040 --> 01:08:42,880
+your browser flat hub.org and take a look at just like the new app section or something
+
+1034
+01:08:42,880 --> 01:08:48,880
+like that so having that built in to gnome software is a pretty solid experience and
+
+1035
+01:08:48,880 --> 01:08:53,520
+i'm glad they did it even if they have to take out some stuff for platform reasons or
+
+1036
+01:08:53,520 --> 01:08:58,840
+legal reasons or or whatever it might be and once you noted we've got butter fs on fedora
+
+1037
+01:08:58,840 --> 01:09:05,020
+cloud now that's good to see yeah right marches on go go a little butter fs go and nice to
+
+1038
+01:09:05,020 --> 01:09:09,960
+have if you are using um fedora cloud does seem like a good sort of polished release
+
+1039
+01:09:09,960 --> 01:09:13,920
+all around there's other stuff in this this release that we talked about like um making
+
+1040
+01:09:13,920 --> 01:09:17,940
+sure that user services are restarted after upgrades which is especially important when
+
+1041
+01:09:17,940 --> 01:09:21,740
+you're doing all kinds of audio stuff like pulse audio or pipeline running in the system
+
+1042
+01:09:21,740 --> 01:09:26,060
+d user level instead of at the system level they've also started shipping the power profiles
+
+1043
+01:09:26,060 --> 01:09:29,920
+daemon in fedora workstation enabling it by default and it's just those little things
+
+1044
+01:09:29,920 --> 01:09:34,200
+you know those little things that the distro is thinking about for you that make fedora
+
+1045
+01:09:34,200 --> 01:09:38,400
+you know a little more like a mainstream desktop and a little less like an arch setup yeah
+
+1046
+01:09:38,400 --> 01:09:43,720
+real quick this power profiles thing's interesting and a lot of us are going to have a different
+
+1047
+01:09:43,720 --> 01:09:49,320
+experience because the way it's integrated with gnome settings in your power area you're
+
+1048
+01:09:49,320 --> 01:09:53,480
+going to see different stuff depending on what your hardware supports and it's even
+
+1049
+01:09:53,480 --> 01:09:57,400
+integrated in with your thermal sensors and whatnot so for example if your laptop's running
+
+1050
+01:09:57,400 --> 01:10:01,840
+super hot it doesn't make high performance mode available it'll even have a little grayed
+
+1051
+01:10:01,840 --> 01:10:05,840
+out text that says we gotta wait here your laptop needs to cool down something to that
+
+1052
+01:10:05,840 --> 01:10:10,120
+effect but if your hardware doesn't support this stuff you see limited reduced options
+
+1053
+01:10:10,120 --> 01:10:15,240
+so they're only revealing stuff that your hardware has support for but it also means
+
+1054
+01:10:15,240 --> 01:10:18,900
+that a lot of us see different things and i know this is true because i've tried it
+
+1055
+01:10:18,900 --> 01:10:25,220
+out now on vms and several different physical boxes they're all different the thinkpad has
+
+1056
+01:10:25,220 --> 01:10:30,020
+the sweetest integration like i i think wes i sent you a screenshot where it's like high
+
+1057
+01:10:30,020 --> 01:10:35,920
+performance mode has been disabled while the laptop is in your lap what yeah it's impressive
+
+1058
+01:10:35,920 --> 01:10:40,680
+honestly i mean this also kind of speaks to the added challenge that these you know desktop
+
+1059
+01:10:40,680 --> 01:10:45,200
+environments linux distros have to to work on all kinds of hardware and make an interface
+
+1060
+01:10:45,200 --> 01:10:49,820
+that can work in all the situations so we have the link in the show notes to go download
+
+1061
+01:10:49,820 --> 01:10:54,160
+plus a link to some of the common problems people are hitting right now but we'd also
+
+1062
+01:10:54,160 --> 01:10:58,440
+love to hear your experience what you did to make things go smoother i'd also like to
+
+1063
+01:10:58,440 --> 01:11:02,440
+know what didn't work so we can put the word out head over to linux unplug dot com slash
+
+1064
+01:11:02,440 --> 01:11:08,340
+contact and fill us in on your experience and your tips and your tricks now we are kind
+
+1065
+01:11:08,340 --> 01:11:12,120
+of running out of time so we're gonna just do the pics really quick because we got something
+
+1066
+01:11:12,120 --> 01:11:18,280
+super cool i think wes found it it's a nintendo switch emulator and i gave it a go oh you
+
+1067
+01:11:18,280 --> 01:11:22,680
+did yeah you jinx i don't know how to say it but it's an experimental switch emulator
+
+1068
+01:11:22,680 --> 01:11:29,480
+written in c sharp it's in the a u r as you would expect uh and so i gave it a go on the
+
+1069
+01:11:29,480 --> 01:11:33,880
+arch box and um i immediately started getting error messages that i knew not what to do
+
+1070
+01:11:33,880 --> 01:11:38,660
+with it's something about some some file missing that you have to go get but they're being
+
+1071
+01:11:38,660 --> 01:11:44,240
+cagey about you anyways it is legitimate though and the gooey works and it promises
+
+1072
+01:11:44,240 --> 01:11:48,200
+pretty good compatibility and what's cool about this project and we have it linked in
+
+1073
+01:11:48,200 --> 01:11:54,960
+the show notes as i said um it is emulating the hardware really like accurately of the
+
+1074
+01:11:54,960 --> 01:11:59,320
+switch so game compatibility is good it's like pretending to be the right arm cpu and
+
+1075
+01:11:59,320 --> 01:12:04,840
+the right gpu and it's getting a lot of that right so even things like the newest metroid
+
+1076
+01:12:04,840 --> 01:12:10,040
+game that just came out appear to be working in it i kind of got to give it a go it recommends
+
+1077
+01:12:10,040 --> 01:12:13,680
+you have a system with at least like 8 or 16 gigs of ram which probably most of us do
+
+1078
+01:12:13,680 --> 01:12:17,640
+and you know some cpu yeah this is really neat and it looks like they've got a pretty
+
+1079
+01:12:17,640 --> 01:12:22,520
+nice website set up as well as a blog and i always find that the work that goes on behind
+
+1080
+01:12:22,520 --> 01:12:26,840
+the scenes to make this kind of stuff possible just fascinating it's worth worth worth a
+
+1081
+01:12:26,840 --> 01:12:30,640
+read i have to be honest when you linked it i was like oh another one of these huh you
+
+1082
+01:12:30,640 --> 01:12:36,560
+know how's that guy but then i wouldn't check it out and i'm like this looks legit and so
+
+1083
+01:12:36,560 --> 01:12:40,440
+i went the next step and gave it an install and i mean sure enough it installed and i
+
+1084
+01:12:40,440 --> 01:12:45,680
+got the gooey launch but then it just sort of uh it just sort of broke on us um all right
+
+1085
+01:12:45,680 --> 01:12:49,440
+we gotta wrap it up there because we're going kind of long uh i i'd love to have you join
+
+1086
+01:12:49,440 --> 01:12:53,960
+the love plug we do that on sunday every sunday at noon pacific in our mumble room you can
+
+1087
+01:12:53,960 --> 01:12:59,600
+get the time at jupyterbroadcasting.com calendar and remember it is time zone wonkiness because
+
+1088
+01:12:59,600 --> 01:13:04,840
+europe does the daylight savings now ahead of the u.s so keep that in mind that's why
+
+1089
+01:13:04,840 --> 01:13:09,120
+i just say go to the calendar page and you can get our mumble server details at linuxunplug.com
+
+1090
+01:13:09,120 --> 01:13:13,520
+mumble we'd love to have you join the love plug and then who knows maybe you got a tuesday
+
+1091
+01:13:13,520 --> 01:13:18,720
+sometime you can join us live because we do the show live on a tuesday see you next week
+
+1092
+01:13:18,720 --> 01:13:25,960
+same bat time same bat station yeah that's right noon pacific 3 pm eastern jblive.tv
+
+1093
+01:13:25,960 --> 01:13:31,840
+you got it you know it wes knows it linuxunplug.com slash matrix if you'd like to join our matrix
+
+1094
+01:13:31,840 --> 01:13:36,840
+community and we'll have links to everything we talked about today at linuxunplug.com slash
+
+1095
+01:13:36,840 --> 01:13:43,440
+four three zero including all kinds of extra goodies in there you never know you never know
+
+1096
+01:13:43,440 --> 01:13:47,400
+it's like we back it up with the links we got the documents to prove it it's all over
+
+1097
+01:13:47,400 --> 01:13:52,320
+there plus our contact page or subscribe the whole shebang and it's going to render in
+
+1098
+01:13:52,320 --> 01:13:56,440
+your web browser it's incredible thanks so much for joining us on this week's episode
+
+1099
+01:13:56,440 --> 01:14:23,640
+of the unplug program and we'll see you right back here next tuesday!
+
+1100
+01:14:26,640 --> 01:14:43,880
+all right way too long i declare there is no posho today posho's been cancelled we've got to
+
+1101
+01:14:43,880 --> 01:14:47,480
+cancel it what you're hearing right now this is not a posho don't think of it a posho we're not
+
+1102
+01:14:47,480 --> 01:14:52,200
+doing a posho it's not that we don't love you it's just that you know we don't want to kill joe
+
+1103
+01:14:52,200 --> 01:14:56,280
+so this isn't a posho there's no posho can i still have my dessert yeah of course i
+
+1104
+01:14:56,280 --> 01:14:57,160
+ice cream for everybody
+

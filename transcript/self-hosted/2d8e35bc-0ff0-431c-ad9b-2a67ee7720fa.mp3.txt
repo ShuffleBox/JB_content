@@ -1,0 +1,480 @@
+Coming up on the show today, Alex shocks me with his latest project, seriously.
+Then he lays down some quick fire picks.
+So get your notepad ready and then we'll discuss what's going on with OpenSense's
+WireGuard setup. I'm Chris.
+And I'm Alex, and this is Self Hosted.
+No, wait, the RV and Home Assistant podcast, episode 38.
+Thought I'd open today's show with a quick shout out to the Self Hosted subreddit.
+We had some love from you guys this week.
+Hello, hello. Hi, if you're listening.
+Hey, there. How's it going?
+It was pretty cool. Like someone tagged me in one of the threads who is on our Discord.
+And I don't know, it's just cool to see community come together like that.
+And we aren't like an official partner with the subreddit or anything,
+but I reached out to one of the mods or well, they reached out to me and we had a chat about
+a few things. We might have them on one of the shows in future.
+And it's sort of got my mind thinking about how we can involve the community a bit more.
+And, you know, getting random people on to talk about their setups and sort of figure out what
+containers people are running, how much storage they actually have, what the hardware underneath
+is, you know, maybe we could have a little 10, 15 minute segment every now and again with
+community members, like a community spotlight section.
+And you know what will end up happening is we'll get all these ideas from each other and we'll
+then all go off and build projects and get excited to do different stuff. That'd be awesome.
+People often accuse me of making them spend money. Well, it's not my fault.
+I can attest to that, actually. Yeah, I feel like that has definitely been the case.
+I mean, the thing is, is I love just getting ideas from the community in general. We get
+people to email into the show. But like you were saying, also over on on Reddit,
+there's some great ideas and our Discord. That's another spot where I see people
+kicking around stuff and often either either tried something and it and then tell us about it or are
+thinking about trying something and want our advice. That kind of stuff goes down in there
+all the time as well. My favorite thing about this show is that it's not just about
+my favorite stuff to read about is, well, there's two things. One is the stuff that works really
+well. And the other the other thing is things, you know, all the stuff that people try and then
+abandon for whatever reason. That's more often more interesting because that's what takes the
+time. That's what eats my time is trying stuff and failing and trying stuff and failing. And
+if I can community crowdsource that stuff, I'm in. Absolutely. There's always many ways
+to learn, like our friends over at a Cloud Guru. They are the leader in learning for the cloud,
+Linux and other modern tech skills. They have hundreds of courses, thousands of hands on labs.
+You can get certified, you can get hired, you can get learning at a cloud guru.com.
+Now, I've been doing a lot of travel the last few weeks back and forth to the hospital. And
+I've been needing to use a lot of hotspot data. And I came across this was on hack five,
+I think, actually, I came across just a really interesting little hack, little tip for anybody
+looking to do, you know, phone tethering, and try and bypass the the limits that people have
+that Verizon or AT&T and people like that set. Now you got my attention. Yeah, I'm sure I do,
+given that your house is on wheels. So the thing you can do is set something called a TTL time to
+live parameter. And this is apparently how the phone providers recognize whether you're on a
+laptop or a phone. That seems too easy, too good to be true. But I can confirm, having been streaming
+Netflix over 4G, 5G for the last month, that I went from it being unwatchable to being usable.
+So it does work. And there's a link in the show notes to a Reddit thread about this.
+This is fantastic. I absolutely have struggled with this. I've experimented with this myself.
+So by checking the TTL of the IP packets, they seem to be able to suss out the type of device
+that it is. But you can you can tweak that yourself, which is what this this guide walks
+you through. And there's other ways, too. I have found WireGuard to be an extremely successful
+way to get around carrier bandwidth shaping, which is really what's happening here is
+they're looking at your IP traffic, right? And they can see, OK, well, you're going to YouTube
+on port 443 or whatever it is. They can actually look at the traffic because it's all running
+over their gear. They have complete access to your traffic. And they have systems in place that will
+automatically force and in some cases in a really brute sort of lowbrow way. One of the ways AT&T
+will do this is they will just make YouTube smack up against a wall and try all of the different
+bitrates until YouTube, the servers, finally select a low enough bitrate. And then AT&T will
+allow the YouTube traffic to pass. And that's how they do it. Then you have others like T-Mobile
+who will actually re-encode your video traffic while it's in transit. Really? Yeah, there's
+different approaches. That's nuts. That sounds I mean, that's going to cost them a lot in CPU,
+surely nothing else. That may not be how they do it anymore either. They change as well. So that
+why I say today in early 2021 may not be how they do it at the end of 2021. But I have found. So
+what I do is I have a kind of a special sauce VPN. It's a bit of a proprietary solution from a vendor,
+but it bridges AT&T and Verizon. And the endpoint is a couple of Linode servers. And the carriers
+just have no idea what I'm doing when I do that. And that allows you to get around this, but it
+doesn't allow you to get around bandwidth limitations. So if you still have X amount,
+18 gigs a month and you can't go over that, it doesn't solve that problem. Are you on
+an unlimited plan? I am. Yes, my employer pays for it. So I don't really have to look at the bill,
+which is quite a nice position to be in. Oh, that is sweet. You mean really as a consumer,
+as an average consumer, it's pretty tricky to even get unlimited data to begin with,
+let alone get it for free. Well, I'm sure it's Verizon unlimited. So it's probably got all sorts
+of T's and C's. I think I get 30 gig of hotspot data and then the rest is throttled down to like
+600 kilobits or something like that. What this TTL parameter does is it basically gives you
+all of your data allowance that the T's and C's permit at full speed. That's effectively what
+this does. That is great. We will put a link to that in the show notes. It's going to be different
+per carrier, but that seems to work on Verizon. Now, have you been looking for a self-hosted
+file sync and sharing like web UI? This just came up actually within 24 hours and I don't
+really know what's good anymore. So I'm hoping you have a solution for me. Well, I was spinning
+up some stuff on Proxmox the other day and I had a VM and I didn't have Samba installed on my
+server because I'd literally just built it. I hadn't run the Ansible and I just needed one
+file. So I thought, why don't I find a web UI to browse my files? And I thought, well,
+I've got Nextcloud. I could just upload the zip file to Nextcloud. Oh, wait, I haven't deployed
+Docker yet. I haven't done all this stuff yet. So what I did was I ended up spending two hours
+to solve a five-minute problem by spinning up FileRun, which is a self-hosted file sync and
+sharing solution. It purports to install on any private Linux Mac or Windows server,
+but it will also support, you know, C-panel style PHP based type stuff as well. I've got
+it running out of a container, well four actually. So it uses the FileRun container itself. It uses
+Elasticsearch and something called Apache Ticker to do file indexing, as well as MariaDB or MySQL
+for a backend database. So it's not a super lightweight thing, but it is very pretty.
+It's very performant and it does exactly what it says on the tin.
+I don't really need the search. So I don't need all that overhead. What I really wanted was
+just browse my files, but this does have something I hadn't considered, but now looking at the
+feature list would be extremely useful. And that is it lets you send file requests to somebody.
+So I could send you a request, say, hey, Alex, send me that, you know, send me that batch of
+pictures or whatever. And then it would give you a way to send those to me. It's not like you send
+and receive files around the internet for your day job or anything, is it? Yeah, right. And so
+to actually be able to request something from someone just seems like it's a sort of an extra
+level of care for guests on the network. And then it also supports guest users too, which
+I also would need. So help me understand this. Is it creating its own document space and what you
+upload and put into it is what you see through the web UI, or does it let you browse existing folders
+and files on your server? So you're trying to compare it to a Nextcloud with that comment,
+I suppose. With Nextcloud, you end up sort of creating your own space within your file system,
+but this guy, file run, you just point it at a file share or an existing directory or a volume
+bind mount, in my case, with a container. And everything just showed up. I didn't have to
+change permissions. I didn't have to mess about with anything else. I've actually got it set to
+read only just because, well, I mean, the DNS that I have is exposed through traffic. So it's not
+going outside my LAN anyway, but you know, I feel like a web UI, it's a bit too easy to get a bit
+trigger happy sometimes. So it's read only for me. I just want to use it to download the odd file
+here and there, but it's very useful and no import is required. So yeah, very easy to get started.
+That is exactly what I was hoping for. It seems it also even has file versioning, if that's
+something that matters to you, and has a trash. So if you delete something, it'll first store them
+in there before it gets permanently erased. So you kind of have an escape hatch if you need it.
+All right. Yep. I'm going to deploy this, especially since it seems like you need to do,
+Alex, you got to send me your docker compose for me. Make it real easy for me.
+Yeah, but no, I'm going to give it a try. That's a great find. It's called, again, file run.
+So they do offer an enterprise version in case you see any prices or anything like that. It's free
+for up to 10 users for personal and family use, but they have paid versions for, you know, small
+businesses and an enterprise as well. So they have a means to make money. They have a business side.
+And that means it's probably going to stick around.
+Does use WebDAV though. I'm never mad keen on WebDAV, but that does mean you can do file
+syncing using, I think the next cloud client will talk to this.
+And if you're behind a corporate firewall too, it's just kind of nice to do everything
+over the web ports.
+I'll put a link to my compose snippet in the show notes. I did come across a new project
+called TermPad. I think it's termpad.io this week.
+All right. Let's take a look at this. TermPad, huh?
+Termpad.com. My apologies. And it's a very, very super simple. Like if you just create some text
+and then click save.
+Oh, that's what I'm seeing. Oh my gosh. It's a full screen, not a terminal per se,
+but it looks kind of like one. This is just a write space. It's neat.
+You know, like Docker containers come up with fake names. If you don't name them,
+like angry Torvalds or something.
+Yeah.
+It's funny. My mind went to angry Torvalds, isn't it? It's funny. Funny that.
+So the one I've just created for you was termpad.com slash awful wide eyed napkin,
+which is a really strange random generated name, but it does code syntax highlighting as well,
+just for super simple, you know, paste bin stuff. There's no database. It's all just open.
+So termpad.com is a hosted version, free. I don't know what happens to the data on that one,
+but you can self host it as well. There is a container, which we'll put a link to in the show
+notes. Kind of surprisingly useful. I love it. Okay. Let's see if you are two for two here,
+Alex. Tell me about tiny pin. We're going to be redoing our bathroom soon. So I was,
+I was looking across Pinterest the other day and it's just garbage. They make you sign in and do
+all this kind of nonsense about tracking what you're looking at. And I mean, it's kind of okay
+from a discovery point of view, but it's, it's also just garbage. I hate Pinterest. So I went
+on the look for something, you know, minimal to just share, you know, a little bit of a
+minimal to just share like a mood board almost. And I came across tiny pin. We'll put a link in
+the show notes of course. And this is a self-hosted minimalistic image collection board. Super simple.
+You can run it in a container and there isn't a lot else to say. It just does the job it's
+supposed to do, which I suppose is the praise that you want. And it's nice to see that they
+have Chrome extensions and through iOS shortcuts, there's a way you could add it to your share
+sheet as well. It seems that's handy. I don't see necessarily something in here for Android,
+but there probably is a means if you can think it up. I had a quick look at tiny pin just before
+the show and it is very minimal, but it does a good job of laying images out in different sizes
+in a very dynamically scalable way. So you can have a tablet size, you can have a full
+webpage version, or it can be on your phone. And it actually manages to sort of present the images
+in a unique way while also letting you get in there full screen. So I kind of, I think this is
+a nice little find. I don't quite grok how it's okay. Can you explain to me how it's sucking the
+images in and storing them? Cause that's the part I don't quite grok. No, I'm not sure it stores in
+the backend. It stores stuff in a data directory. So it's just a volume bind mount on the file
+system. Nothing too crazy, no database needed or anything like that. And you could go sniffing
+through there and back them up pretty easily if you needed to. Okay. Well we're two for two. I
+think that's a pretty good find. I think also the wifey would really love that one. That'd be a good
+one to add to the home server to impress her. I think now I want to see if you can be three for
+three on this one, Alex. Tell me about OpenSense 21.1. I vicariously OpenSense through you.
+Well, PFSense made a bit of a stink the other week by adding WireGuard support finally.
+And not to be outdone, the OpenSense project released 21.1, which is nicknamed Marvelous
+Meerkat. They say that it has new and improved firewall rules, NAT categories, better traffic
+graphs, all that kind of stuff. And they have a really small dig in their release notes at
+PFSense, which I really enjoyed, which says, for those wondering, the WireGuard plugin has
+been available on OpenSense since 2019 and receives continuous improvements by its maintainer.
+And that feature is unlikely to change.
+My eyes were immediately drawn to that in their release notes. I didn't realize PFSense had added
+WireGuard, but this is really good. Now we have it in both OpenSense and PFSense. Our WireGuard
+future has arrived. I'm just sad that it didn't make it into 2020 because my prediction was that
+PFSense would ship WireGuard. But I guess those BSD guys just shit when they're ready.
+No plans for you to go back, I assume? You're going to stick with the old OpenSense,
+I would imagine? OpenSense is kind of driving me crazy.
+Oh. There's a few reasons. Mostly to do with
+WireGuard, if I'm honest. I just think the implementation is...
+Maybe it's user error, okay? I will fully admit that I am not a network guy, but I spent,
+from the hospital, at least two or three weeks for maybe half an hour to an hour at a time,
+most days, trying to get WireGuard fully working. So I can connect in remotely, just fine.
+I can ping the firewall just fine. I can connect to the web UI of the firewall itself just fine.
+I can route traffic through my home internet connection just fine. But I can't access any
+hosts on my LAN, which kind of defeats the purpose for me. I don't necessarily really want to route
+my traffic through my house, but it's a nice benefit of WireGuard. What I wanted was to be
+able to access Proxmox or ESXi remotely and continue rebuilding my servers, which I've been
+doing for the last couple of months. And I've wasted... I don't even know how many hours trying
+to make this effing thing work. And I wrote the man page on WireGuard for OpenSense and I feel
+like a fraud because I just can't make it work. I wrote the book. I'm convinced at this point that
+there is a bug that I can't find. So I'm probably going to new compave my OpenSense install, which
+is... I don't want to do it, but I've wasted so much time and I'm convinced I've got all the
+firewall rules set up correctly that I don't see that I'm left with any other option. And so that
+then makes me think, well, if I'm going to new compave OpenSense, why don't I try ViOS or some
+other... I don't know. There's a million different options to try out there. Or I could just go
+whole hog and run CentOS streams and IP tables. Go full Westpain on it, is what you could do there.
+He does it home. Yeah, that WireGuard routing issue is tricky. He and I had to do some
+troubleshooting to get that working here at the studio. ViOS, I've heard the word ViOS
+I've heard the Discord talking about that recently. Is that a firewall platform?
+It is, yeah. It's Linux based, so not BSD. There's no web UI whatsoever, so far as I'm aware. I did
+try it once about a year ago for a few hours and the learning curve is real, so I gave up.
+The trouble is with learning a firewall is you go on the internet to Google stuff, don't you?
+But if your firewall's down, you have a hard time doing that. There are some things that are so
+mission critical that I just almost can't be bothered to change them because I know how much
+work it's going to be to learn a new thing and OpenSense is good enough. I do love the project.
+I think it's very stable. I never have to reboot the box. I never have to worry about updates or
+anything like that. But this WireGuard issue is kicking my ass, to be honest with you.
+I agree. It is a great product. It is a solid project and PFSense before it too. I also really
+like it. But I get you. I know what you mean. And sometimes it's really easy with WireGuard
+because something has it built in like some of the GI routers that we've talked about before.
+And sometimes it's something you've got to build up. I'm the guy that was trying to do WireGuard
+from behind a double carrier grade NAT to a Linode then down to the studio and I wanted to
+get to everything by its name. And I mean, that's quite the setup. Maybe we'll chat more about it
+sometime. What I did end up doing was I ended up looking at the Linux server WireGuard Docker image.
+Now this thing is slick AF. So you spin up the container, you do it in Docker compose,
+you name your peers just as an environment variable. So you can either say I want
+peers for, you know, so I want four peers and just deal with peers via a number. Or you can say
+peers, and then just put a space limited list. So you know, you put phone space, desktop space,
+server, whatever, as the environment variable, and it will go and generate all the config files for
+you. But here's the really cool bit. They've built in an alias into the container that will print out
+a QR code for each of those setups from a single line command. It's just slick, you know, after
+messing about with open sense for so long, and it's kind of older, less mature, I would say,
+implementation to come across the Linux server container was just a breath of fresh air.
+And so I ended up using our sponsor Linode. So you can use the coupon code Linode.com slash SSH.
+I ended up using our sponsor Linode to spin up a host dedicated to running this Linux server
+WireGuard container. And it just works really well. The performance is great. And I'm able to
+back this thing up. So I know that if anything happens, I've got the Linode backups. It just
+works really, really well. And whilst I was fiddling about with this container, I ran across
+a blog post from John Muchovech. I'm sorry, I probably butchered that name. The website link
+will be in the show notes, of course. And this is super cool. It lets you route specific containers
+through the WireGuard container as well. So you're able to use the Docker networking to potentially
+have multiple instances of WireGuard going to different places for different services,
+all on the same box. And it uses a parameter that is released as part of Docker Compose 3.8 schema
+of network mode service colon WireGuard to route the traffic through that container. So
+you could, for example, basically bind Nextcloud or any other service to listen only on that
+WireGuard server, just using one line of config in your Compose file. Super cool. And I love this
+kind of stuff. Linode.com slash SSH. Go there to get a $100 60 day credit towards a new account
+and go there to support the show. This is a great way to see what Linode can do. They're our cloud
+hosting provider. If it's back end infrastructure for the network, if it's a game server for
+my kids, or if it's a project we're working on for self hosted, we run it all on Linode.
+You have $100 here to work with. I mean, I want to be frank with you. You can do so much at Linode
+with that much credit. Check out some of their GPU systems. These are crazy. And in fact,
+Cloud Spectator Benchmarking, it's a group that goes around and tries the performance aspects of
+different cloud providers. They recently said that Linode has the fastest GPUs in the industry,
+outperforming AWS, Azure, Google. I mean, if you have any kind of image manipulation workload
+that you need to do and you just want to crank it out super fast, go to Linode.com slash SSH
+and get our $100 credit and use some of it for that. Image stuff is so cool right now because
+there's so many fun open source projects that you can play with and easily deploy on Linode.
+The entire stack, regardless of what kind of system you get, they all have super fast native
+SSDs, 40 gigabit connections into the hypervisors, and they have 11 data centers around the world.
+So there's probably something that's going to work for you, a client, a customer, etc.
+And additionally, they have all of this while being 30 to 50% less than AWS or Google. I mean,
+that's what's amazing. The fastest GPUs, crazy fast network connections. The reason why is they've
+been around since 2003. So they had a lot of time to figure out how to do this right. They have had
+a lot of time to get great deals, great network providers and connections. I mean, this is the
+benefit of being an independent cloud provider for as long as they have. They got a jumpstart
+on everybody else. And you can benefit now by going to Linode.com slash SSH and you can support
+this here show. Linode is really dedicated to offering the best Linux experience in the cloud.
+If it runs on Linux, you'll be able to run on Linode and be able to manage it easily with their
+cloud manager. Linode.com slash SSH. Thanks to Linode for sponsoring the self hosted program.
+And thanks to everybody who supports our show by visiting Linode.com slash SSH.
+What show is that? I mean, we we had accusations this week of being the Raspberry Pi and RV home
+assistant podcast. Well, it kind of goes that way sometimes. But I think it's a reflection of the
+trends of the time, man. Pi's come to a really good price point and performance. Low power is
+low power is more popular than ever. Also low noise, I'll point out. And Home Assistant is
+just blown up in the last three years. You know what's really going to annoy that commenter in
+particular is that I have been running Home Assistant on the Pi. So we're going to talk
+about the Pi for a little bit right now. For the last month, and it's been great the Pi 4.
+I found an old SSD in a drawer 120 gig SSD that's probably five years old. And I have from my
+shucking of easy stores, I have a USB to SATA converter. So I just reused that. So I'm up cycling,
+reducing e-waste, all that kind of good stuff, go me. And I put the Raspberry Pi Home Assistant
+image on there, expecting it to be, you know, I'm coming from an x86 platform. So whilst I move
+across from my Xeons to the Intel system and sort of redo things and move things around, I got fed up
+of my DNS stopping working all the time because I was running Adguard in a container. And I got
+fed up of Home Assistant not being up because it automates a lot more in my house than I really
+realize when it's not there. And I was expecting the Pi to be just a stop gap. I was expecting it
+to be good enough, but I was expecting to be ready to leave it after a few weeks. And I'm
+pleasantly surprised to report that I think it's fine for most people. Wow. I got to take all this
+in. This is a moment in the show. Episode 38, mark it down in the books, everybody. Wow. Wow.
+Because I feel like you always thought I was a little silly for doing it on the Pi. I did.
+I'll be honest. Yeah. I mean, the storage thing is still a problem. I don't like having an SSD
+with its ass hanging out on my desk with some random SATA to USB board connected up.
+And I'm not comfortable, if I'm being honest, with so much of what I depend on running over USB.
+Yeah. I don't like it.
+I agree totally. But the performance has been good. I mean, I don't do anything too crazy
+with image processing or anything like that through Home Assistant. I do that generally
+through Blue Iris, which is a dedicated box in my closet over there. And this leads us nicely into
+some follow-up. So a little while ago, I talked about doing or wrote about doing Intel GVT-G
+pass-through, which is virtual GPUs. So you can slice up the graphics card built into your CPU
+into a couple of slices, give Plex and QuickSync one slice, and then give Blue Iris and QuickSync
+another slice over there. And then there's still some left for the host at the same time with no
+PCIe GPUs required. That's like the Holy Grail for me. That was like the perfect setup.
+Unfortunately, it didn't work very well. Didn't work out very well.
+What happened?
+I was getting kernel panics with Proxmox. I was getting hung processes without kernel panics.
+So it was fine as long as I wasn't running Blue Iris. And I think the Windows Blue Iris load was
+just too much for the GVT-G stuff to handle. And I wrote a blog post about how to do it with
+Proxmox. And a lot of people have been pinging me about the performance and stuff like that. So
+this is unfortunately my update is to say that I have bought and sold an HP 290 in the last month
+because I was so happy it worked. And then the proof in the pudding turned out to be it wasn't.
+Good enough. So I've gone back to a dedicated Windows box for Blue Iris with QuickSync. And
+now my server is still the i5 8500 that I've purchased running Plex using QuickSync on that
+box with pass-through for the storage and that kind of stuff to a VM. So I'm running Plex on
+the host, but I'm still running most of my containers in a VM on that host with Proxmox.
+And a lot of people will think I'm mad for doing that, but I prefer doing it that way.
+Because it minimizes the number of reboots I need to do on the host.
+When you say you're running on the host, do you mean in a container or do you mean
+actually installed like a package?
+Plex is running in a container on top of Proxmox, a Docker container, not a LXC. I'm using LXC for
+stuff like AdGuard and a couple of other things like Bastion, SSH host and that kind of stuff.
+But for the most part, I like to try and keep the host as clean as possible to minimize host
+reboots, because when I reboot that server, it takes a lot of services out and it's a pain in
+the bum. So I'd rather not do that.
+And Proxmox, does it still give you a GUI to manage a Docker container pretty well?
+Like all that's just built into Proxmox?
+Not Docker, no. It does LXCs, but not Dockers.
+So did you get on the host like command line and install Docker?
+SSH, yeah. So Proxmox is built on top of Debian. And actually the route that I went to install
+Proxmox was a naked Debian install. And then you can install the Proxmox packages and repos on
+top of that. So it's just, you know, vanilla Debian with the Proxmox kernel effectively.
+It's not like free NAS where you start mucking about on the host OS and you could really screw
+stuff up. That's what's always put me off on these appliances.
+You could. I mean, it's Linux, but Proxmox isn't an appliance. It's an abstraction layer.
+So they do weird stuff with like networking and they put all the VM configs in, you know,
+bespoke places that are unique to Proxmox. And that's probably my biggest issue with Proxmox
+as a project, to be honest, is it's slightly esoteric. But once you learn those little
+foibles, does the job.
+Yeah, it doesn't seem like it's too bad. And you were able to get it working.
+So you kind of have a real, I mean, a bit of a hodgepodge right now.
+Sounds like you got like three different servers running in your house right now.
+I did. Yeah. So I predicated all of my buying and purchase decisions around this Intel GVTG
+stuff actually working. And it was only once it had been in production for a couple of weeks,
+I sort of really realized that, no, this isn't going to be reliable enough and I'm going to have
+to constantly keep poking and tending this thing. And so, yeah, going back to the HP 290 as a
+Windows box, the i5-8500 based system with PyKVM as my server. And then I've got a Homelab box as
+well, which currently is the dual Xeons, which I was running for the last two, three years
+with 128 gigs of RAM. And I'm going to use that as like a Homelab slash backup box. So I'll power
+it on minimum, I don't know, once a week, whatever. Have a couple of 10 terabyte hard drives in there
+and mirror my ZFS array with ZFS send or whatever. And then that'll be my onsite backup effectively.
+But what I'm thinking is that those dual Xeons are massive overkill for running OpenShift in
+my context of developing infrastructure at work, which is its primary use case.
+And so I'm thinking maybe I could get away with a knock or two for that role,
+or maybe I should just stop spending money and just use what I've got.
+Well, I think clearly you just haven't gotten the Py religion enough,
+because that just sounds like great uses for a bunch of pies.
+Oh, yeah.
+Because you also have a Py running now. You now have a Py running with Homestead,
+so it is a several systems.
+Yeah, I think so. I probably will take Home Assistant off the Py. I'll probably put it
+back on Proxmox because I've got NVMA storage in there. It's going to be more performant than the
+Py, particularly when you're loading lots of plugins like VS Code and the heavier stuff like
+Node-RED. You do notice a difference there.
+Yeah, or snapshots or updates.
+Yeah, updates for sure. It takes 10 or 15 minutes instead of five.
+So yeah, you do notice it's a less powerful system.
+But in terms of just day-to-day functionality of controlling your
+devices and automations, it does do the job just fine.
+Well, that's the thing about an automation, right? It just happens without me knowing
+how long it takes. If it takes eight milliseconds instead of four, I don't really care.
+No, and for me, in my particular use case, because in 2021, I think I will be off-grid
+more than I ever have been. Power matters more than ever. I've actually been condensing down.
+I'm now down to just two Pys, and I'm going to try to condense down to maybe just one
+Py or the Odra item. I'm not sure yet.
+The Py intervention that we staged appears to be working then.
+Yeah, it's funny. As I'm sort of scaling down, you're scaling up your Py usage. I think you'll
+be on the show soon. Tell me about more Py deployments you've done.
+You say that, but I was looking at the Odroid stuff, particularly after Home Assistant Blue
+came out. I was like, okay, well, this is the future of Home Assistant. I should just buy
+one of those and call it good. But they're $180? That's too much. Compared to what you can buy as
+a used Dell or a used HP system, the HP290 that's now running my Blue Iris was $140 shipped. For
+that, I got a 500 gig hard drive. I got eight gigabytes of RAM and a quick sync capable eighth
+gen Intel CPU with two PCIe slots. I can add an NVMe drive.
+X86 compatibility.
+Yeah, and X86 as well. I could add any eighth gen Intel CPU into there if for whatever reason
+the Celeron that's in there isn't good enough, which it is actually for the six cameras that I
+have with quick sync. I could add an NVMe drive in there. I could add more RAM. I can do PCIe slots
+and it was $140.
+It is too expensive then. The Odroid is just too expensive and it doesn't have the compatibility
+that the Raspberry Pi 4 does.
+I'm still feeling the pain from that Helios purchase. I still feel really almost burned
+by that because I thought ARM would be better by now. It's just a struggle. Whenever you're
+trying to do something, you'll always come across some edge case of the container you want to run
+doesn't have an image for the correct architecture, or some package isn't built for ARM,
+or it's not got quick sync. I know I keep going on about quick sync, but it is amazing.
+And for me, the price I pay of a few extra watts and a few extra liters of space in my house being
+used up is totally worth it for not having to futz around with ARM stuff for another year or
+two until it's ready.
+Yeah, I think that's a perfectly reasonable outlook. Even you make a good price argument.
+I think the reality is that if I could only choose between an x86 box or an Odroid type
+system for my home hosting, I would absolutely choose the x86 box every single time.
+There are kind of examples in the market though that show us where ARM is going. So I think this
+is going to be a solved problem. It really kind of demonstrates how it's all about implementation.
+You look at Apple with the M1, look what they're capable of doing with ARM, and then you look at,
+say, the Raspberry Pi Foundation and the different kind of scale of machines they can do with ARM
+and the ecosystem they've built around it now and the foundation that they have built around it.
+There are implementations that do it really well, and then their implementations are a little bit
+rough. And I think it's so nuanced, it's hard for consumers to understand the value differences
+there. And I think that's why you and I have been kind of chewing on this recently is because
+these are sort of the unspoken things that aren't necessarily specs that are bullet points on a
+web page. These are the more nuanced things that you learn over time when you use them in production.
+By using it, yeah. By trying to solve a particular problem and butting your head up against endless
+forum posts or, in some cases, because what you're trying to do, you might be the first
+trying to do it on ARM, there are no forum posts and good luck to you, you know.
+Well, our friends at a Cloud Guru want you to know about their Linux networking and troubleshooting
+course this month. This is something you may want to look into if you need the fundamentals or want
+to know more about tools and techniques or use cases to configure, manage and troubleshoot Linux
+in a networking context. By the end of their course, you'll feel comfortable in working with a
+large variety of networking tools and configurations to manage complex Linux networking
+implementations. It's at a Cloud Guru, and we will have a link in the show notes to go specifically
+to this course or go to a cloudguru.com.
+Continuing talking about the pie just to annoy that one specific Reddit commenter.
+I'm full troll mode today. We talked about backing up Home Assistant last time
+through a Google Drive plugin, and a little birdie tells me you tried it out at last.
+You talked me into it, you did. You and the audience, we got a couple of emails in about it too,
+and so I finally gave this Google Drive backup a try. It's an add-on specifically for Home Assistant,
+and this is a good example of why it's kind of nice to have the full supervised Home Assistant
+setup is it's easy to add repositories for this kind of stuff, and you're off to the races.
+And what it lets me do, and if you're not familiar, we talked about a little bit,
+is it lets you take your snapshots and send them up to Google Drive. Pretty simple, that's all it does.
+What I've learned now after using it for a little bit is it has a couple of nice built-in
+management features. It'll keep four snapshots locally, and then by default it'll keep four
+snapshots in Google Drive, but that is totally configurable. You can also have it automatically
+create the snapshots for you, which is probably a feature I needed more than I realized. I was only
+doing snapshots right before major events, but if you think about it, it could break at any time.
+Something could die. You need stuff that's more current. So I set this every three days at 2 a.m.
+to take a snapshot and then upload it to Google Drive. And what I really was impressed by is how
+it displays what snapshots are local only, what snapshots are on-drive, and just really easy
+options to manage it. And as you would expect, it's stupid easy to connect it to your Google
+account. It just uses all of Google's authorization stuff where you go through all the standard
+Google login screens, and it's set up and you're off to the races. I can't believe how easy it was,
+and now it's just hands-off. There's a little triangle as well that shows up to say,
+this snapshot will be deleted when I run the next backup set, just so that you know
+all right, that's my weekly snapshot falling off the end of the conveyor belt.
+I like this pairing with Duplicati, too. So this is how I'm still backing up any of my system level
+stuff. This has nothing to do with Raspberry Pi or Home Assistant. You could use this on any Linux
+box, and I really, really love it. Duplicati is what I use for off-siting my Docker compose files,
+my configuration files in general, etc config, any of those kinds of things that I think I would
+want to be able to restore if I were to reload a base system. I use Duplicati to off-site that
+system level stuff. So now I have this Home Assistant Google Drive paired for the snapshots,
+which is the application level stuff, and Duplicati for the system level stuff, and I feel
+like I probably have my backup more dialed in than I ever have right now. Are you not ever tempted to
+use, you know, Git to manage your config files? Because they are just text files. You've put that
+seed in my mind a little while ago, and I have been considering it. It's mostly just taking the
+time to set it up and bother, because what I have now kind of works, so I don't have like an impetus
+to replace it, but I know I probably should replace it before I have that impetus. I'm reminded of a
+conversation I had at my first developer job with one of the senior architects. I came in fresh out
+of my computer science degree, just a lad, saying, well, why don't we just rewrite this? Why don't
+we just rewrite that? I mean, this is stupid. This is really old. Why are we still running Java 5 and
+blah, blah, blah, blah, blah, blah. And he sort of sat me down, and it was over like lunch break.
+It wasn't like a super formal thing, but it was like, well, what you've got to realize, Alex,
+is that when you rewrite code, obviously there's a cost to rewriting the code. Someone has to pay
+that bill. The business, in air quotes, the business has to pay that bill. Some product
+manager somewhere has to sign off product owner and say, yes, I'm going to pay for this out of
+my budget and do that. All right. Okay, cool. What's the spec going to be? Well, at a minimum,
+it's got to be what it already does. But what the product owner is looking for is something extra.
+They want to add a new type of credit card that they can accept, or they want to add a new feature,
+whatever it might be. And so the bill for them to add a new feature to the existing pile of crap
+that's already there is 5% versus 105% of rewriting the entire code base, which could take
+multiple years, during which time you still have to innovate to keep ahead of your competition and
+patch and write code for the old code base. And you're just like, oh yeah, now I see why
+massive enterprises have code bases that are 30, 40 years old, that people are scared to touch
+because what they have just works and is a stinking cash cow. So the spec is the kind of
+code. The code is the spec. Why would anybody, if it ain't broke, don't fix it or just keep fixing
+the minimum viable fixes? What you call technical debt, they call an investment.
+It's very true. It's very true. Yeah, I've very much had that same arc over my career. I was
+the bull in the china shop. Let's come in and tear it all down and replace it with the new stuff guy.
+And towards the end, I was the guy being like, well, let's not replace it. Let's build on what
+we've got. But I feel like in some ways, you know, you learn how to do things better. And by the end,
+you should be able to build on on what you've done. But it's software is tricky like that.
+Sometimes it is better just to restart. And we see it a lot with the projects we use to self host.
+You'll see them either fork or you'll see them just sort of reboot completely with a little bit
+less features because that's the only way they could get it out the door. Well, we're just about
+done, I think. But we have more in the post show. If you are a member, you get a little extra show
+you can go to self hosted dot show slash s re if you'd like to become one. Not only do you support
+the show, but you do get a limited ad feed and that extra content out there. As always, you can
+get a self hosted dot show slash contact. That's the place to go to get in touch with us. And you
+can find me on Twitter at ironic badger. I'm there to add Chris LAS and the show is at self hosted
+chill. Don't forget the network at Jupiter signal and that was self hosted dot show slash 38

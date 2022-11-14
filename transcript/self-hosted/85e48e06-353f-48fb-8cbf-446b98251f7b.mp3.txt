@@ -1,0 +1,890 @@
+Well, we've got a special interview for episode 45 today.
+We're gonna have our guest coming up in just a moment.
+So I wanna thank our sponsor, A Cloud Guru.
+They are the leader in learning for the cloud,
+Linux and other modern tech skills.
+Hundreds of courses and thousands of hands-on labs.
+Get certified, get hired, get learning at acloudguru.com.
+So today, instead of a bunch of different segments,
+we're really kind of just doing one thing, Alex?
+We are indeed.
+Yes, we've got Paulus who is the founder
+of Home Assistant on the episode today.
+And Chris and I talked to him about all sorts of different subjects
+from how Home Assistant's becoming more turnkey ready
+through to the ESP Home acquisition.
+And there's a couple of interesting tip bits
+about the future in there as well.
+Well, I don't know if you remember,
+but you and I chatted back in 2017
+on a Linux action show special about Home Assistant
+what feels like a hundred years ago now.
+Yeah, no, I do remember.
+Well, I remember it was somebody from Jupiter broadcasting.
+I didn't realize it was you.
+Yeah, and man, have things come a long way.
+So thank you for joining us to catch us up on stuff.
+I am the happy owner of a Home Assistant Blue device.
+Love it.
+Awesome.
+I put the order in during the live stream,
+so I got it fairly early.
+And I got to say, months into it,
+the performance holds up compared to the Raspberry Pi 4.
+I think it is outperforming the Raspberry.
+I mean, it's a beast.
+The M2 is just like, it's amazing.
+So are there any plans for more expansions in that direction?
+Is that going to be a focus going forward?
+Because it really seems like a pretty sweet integration.
+Yeah, so there are definitely plans.
+Nothing to announce just yet.
+We realized with the M2 Plus,
+like we only made the case, right?
+So it's just a board.
+And when people think of home automation,
+they obviously think of like ZigBee or Z-Wave or Chip
+or Matter, whatever it's going to be called.
+And so that's something that we want to address.
+We want to include that as well.
+And I think the Home Assistant Blue
+was really like the ultimate race car,
+but it was not very accessible in that the price was not...
+The price was pretty steep for a device
+that also you needed to add like a ZigBee stick
+and these kind of things.
+So I think we are definitely going to look into something
+as a successor.
+Nothing to announce just yet,
+but it will also be hopefully lower priced
+and more capable out of the gate to be used for smart home.
+Yeah, I can absolutely see how that would be way simpler
+for new users to get into the space as well.
+Yeah, and I think when we look at these things,
+we don't just want to create a box that competes
+with like Philips Hue or anything, right?
+Like we're Home Assistant,
+so it needs to be kind of hackable, playful, open.
+Like it just needs just like the Odroid N2 Plus
+or the Home Assistant Blue.
+I mean, you can flash anything on it that you want, right?
+We're not interested in building a lockdown box
+that will just keep the users out.
+That is completely understandable,
+especially now having used one.
+But so what about guys like me
+who will always have a use case
+where I'm going to want to run it on a server?
+Like here at the studio,
+we have a server that's doing like 100 other things.
+And so running Home Assistant in a container
+is perfect for the use cases
+of just controlling studio lights.
+And we're not really using any integrations
+and stuff like that.
+How do you see that user base being addressed in the future?
+Right now, we have four installation types.
+We have the Home Assistant operating system.
+We have the Home Assistant supervised,
+the Home Assistant container,
+and then Home Assistant core,
+which is just like running it in Python yourself.
+And all the other three installation approaches
+all rely on containers.
+And so they all use the same image.
+So it's like the core technologies are all very similar.
+Yeah, it's all the same thing, really.
+The only one that's different is core
+because you maintain your own Python virtual environment.
+The other three are all Docker based.
+So it's all the same thing.
+So those four installation types
+are pretty much set in stone right now.
+I think that if you, in your studio,
+you can either run the container
+or you can run a virtual machine
+with a Home Assistant operating system.
+The benefit, of course, of the virtual machine
+is that you have one-click updates of Home Assistant.
+Well, with the container,
+it really depends on your container management software,
+which can be Unrate or Portainer or Synology or whatever.
+That software then has to do the update of the container.
+I think that's the only real difference.
+In the end, all of these containers,
+they're all run Alpine, they run Python,
+and we maintain that, right?
+So we have a big wheel server.
+We make sure that all the dependencies work and compiled
+and are just up to date and running.
+And that's just a big benefit as a user.
+And I think that moving forward,
+you just wanna run Home Assistant container,
+that will be possible.
+I see.
+So it's not like it's ever gonna go away,
+but you just feel like there's a lot of benefits
+to Home Assistant managing the entire stack
+because of all of the interdependencies.
+Yeah, I mean, there's just so many moving parts.
+I think that if you look at our requirements.txt,
+which is where we define the Python dependencies,
+it's like over a thousand, right?
+Because each integration comes with its own Python library,
+which is a requirement we made ourselves.
+So it's obviously our own guidelines.
+But the reason we always do this is that
+we want integrations to rely on an SDK.
+So an SDK is a Python package at the standalone
+that translates the protocol into Python objects.
+And that way, other Python projects,
+not just Home Assistant, can also use this package, right?
+So we don't want protocol-specific information
+inside Home Assistant because we wanna make sure
+that other Python-based home automation systems
+or just one-off scripts can use these protocols as well.
+Wow, so it kind of sounds like to me
+what you guys did as a team as you looked at the,
+kind of, if you will, the whole problem and you said,
+quite frankly, it is easier for us as a team
+to just do a whole OS than say,
+you must have considered, well, bless Ubuntu LTS
+as the supported Home Assistant platform.
+And anything else is DIY, but if you want our official way
+or our official image, it's all Ubuntu-based.
+Yeah, but the problem with that is that
+your virtual environment that runs Python
+is going to be, has to be maintained as well.
+So, I mean, this is, of course, how Home Assistant started.
+It was just a Python application
+that we distributed through PyPI.
+Sure.
+And people would run into, like, they would do pip upgrades.
+And then, of course, some people will upgrade
+from the last release.
+Some people will update from, like, six releases ago.
+And people got stuck all the time.
+And the way it works with our Docker containers
+is that we install all the Python dependencies
+fresh in each container.
+And so, when you update your container,
+all your old dependencies are thrown away.
+We make sure you have the latest and greatest
+and the dependencies all work together.
+And that way, it just works.
+Yeah, that makes sense.
+I could see how that also is just much more manageable
+and supportable by you guys as well.
+And I got to say, you know, on the blue,
+it's working really great.
+I kind of am, I'm a user of both use cases,
+just the core version and the whole OS stack.
+And I do really like the snapshots.
+I feel like the more recent updates that have also set it
+so you can have a snapshot right before you upgrade
+is brilliant.
+All that kind of stuff just keeps getting better.
+Yeah.
+And I think, you know, the features are really driven.
+You know, we look at the way people use Home Assistant
+and we look at the issues we see on our forums
+and our Discord.
+And then we just ask ourselves, like, why is this?
+What can we do to make it easier and better?
+And we just constantly try to, like, kind of tackle this.
+And, you know, we're really focused on making
+Home Assistant easier to use while still also,
+you know, making sure that our power users,
+of course, can do their things.
+And, you know, it's been really paying off.
+I think that, like, we launched Home Assistant analytics,
+like, a month ago, two months ago already, right?
+And I think, like, around, we didn't do much promo,
+but, like, 45,000 people have opted in.
+And you can actually see our operating system
+is, like, 65% of our users.
+Oh, okay.
+I mean, that was pretty unexpected.
+Like, we knew it was high.
+I think, you know, internally, we were like,
+ah, that's probably, like, 50%.
+But it's actually 65%.
+And I also understand it because it's just convenience, right?
+Like, if you want to be a system administrator at home,
+you can be, of course.
+But if you want to be, like, automating your home,
+you can be that, too.
+Linode.com slash SSH.
+Go there to get $100 in 60-day credit on your new account,
+and you support the self-hosted podcast.
+Linode is my playground to learn,
+and it can be yours, too, without $100 credit.
+And sure, maybe, ultimately,
+you decide to self-host something on your LAN.
+But every now and then, and that's more and more these days,
+there's a job that's really perfect out in the cloud
+on a service provider you can trust,
+and you have full control.
+That's one of the things I like about Linode
+is unlike entry-level hosting services,
+they don't try to lock you into their platform with gimmicks.
+Linode gives you full back-end access
+to customize and control your server to fit your needs.
+And their DNS manager allows you
+to easily switch your domain to your new server.
+You can manage SSL certificates with breeze
+and deploy applications with a single click
+or build the server up from scratch if you want.
+If you need a simple personal server for a blog or portfolio
+or maybe a game server,
+in fact, they make that really straightforward.
+Or maybe you want to set yourself up a next cloud server
+and sync your own files.
+Whatever the scale of your task or your business,
+or even when your app goes viral,
+Linode is going to reliably serve to millions of users.
+It can be just you and your friends and family,
+or it can be millions of users.
+And we've really put it to the test here
+at Jupiter Broadcasting.
+And like I say, it really is a fantastic playground
+to learn as well.
+And that $100 credit means you can play around
+with all kinds of different hardware
+and configuration stacks,
+which has been a massive advantage for me.
+Before I deploy something in production,
+I'll sometimes spin up a couple of versions of it
+on different stacks.
+Maybe this one's on NGINX and this one's on Apache.
+Maybe this one's on Ubuntu, maybe this one's on CentOS.
+I'll try them out and test them right there.
+And then I'll just keep the winner and destroy the others.
+That kind of flexibility and not having to mess around
+with some slow VM software on my laptop
+to test that stuff out, it's just brilliant.
+And then of course, there's the perk as a listener
+of supporting this here podcast too.
+And we use our S3 compatible object storage
+as the backend storage for our next cloud,
+which means we're not constantly managing disk space
+all the time.
+They've really got this stuff dialed in
+because they've been doing it since 2003.
+So I want you to go try it.
+So go to linode.com slash SSH.
+Go there, get that $100 in credit and support the show.
+linode.com slash SSH.
+Yeah, so I mean, Home Assistant's been headed down
+the more turnkey route for quite a while now.
+And I think hasOS is, or am I calling it the right thing?
+I'm still confused by the name change.
+It's been headed down the turnkey route for quite a while.
+What else do you have planned in that space?
+I mean, there's been a lot of work
+around automations recently,
+as well as some other aspects of the experience.
+So I think that our goal really like in the longer term
+is that we wanna make sure that a lot of people have access
+to having like great home automation at home
+that focuses on local control and privacy.
+And so having Home Assistant be accessible
+is important to us, but for example,
+we've also, the company behind Home Assistant,
+my company Nabucasa, we've also recently acquired ESPHome.
+ESPHome is a firmware for ESP devices that runs on a,
+which is a firmware that can run on a lot of products
+that come from China, like light switches, lights.
+And with ESPHome, we are also trying to make it easier
+for people to get access to devices that work locally
+and work private and work with Home Assistant.
+So yeah, our long-term goal is really just to make it
+accessible to everybody.
+And I think that launching hardware
+was a really obvious step.
+I feel that for a long time,
+I didn't wanna go down that route because logistics,
+just like all that stuff.
+But at the end of the day, we were looking at it
+and we were like, we've been working on making it
+so much easier to use.
+But then the first step of instructions is,
+download Azure, download this image
+and flash it to an SD card.
+And most people don't even know those words.
+Yeah, it's true.
+That has me thinking about something like,
+you know, the made for iPhone program?
+Yeah.
+It makes me think with ESPHome in particular,
+I know it's aimed primarily at hackers
+and people that wanna build and make and solder
+and all that kind of stuff.
+But it's got me thinking, it's acquisition of ESPHome,
+why isn't there a made for Home Assistant program?
+Well, I think that the main thing about making it
+a made for Home Assistant,
+is that we don't have an API ourselves, right?
+Like we always integrate with the other products.
+I did consider like starting one
+or like having like at least some certification
+and more official certification,
+but we see that there's not much interest in it
+in a way that like, you know,
+manufacturers will come to us and be like,
+well, what's your API, we'll integrate.
+And I'm always like, no, that's not what we want.
+We want you to create an open API.
+We will integrate with it,
+but other projects should also be able to allow
+to be integrated with it.
+And then we see a lot of companies be like,
+ah, that's not in our interest.
+Or, you know, we were talking to Ring
+because, you know, they wanted to say like,
+hey, can we get like a partnership going?
+And then we looked at it and the first step is sign NDA
+to make sure that you don't expose their APIs.
+And like, we're open source, this is not gonna happen.
+And the same thing happened to us with Sonos,
+who also was like, yeah, we wanna keep it to partners only.
+It's like, ah, okay, that doesn't work.
+Oh, that's super frustrating to hear that kind of stuff
+because some of those companies you listed,
+you know, Ring and Sonos,
+they're big players in this space.
+And that's kind of frustrating to hear
+that they're not compatible with an open source ethos yet.
+Well, their partnerships are not,
+but I mean, we still integrate with them, right?
+It's just less official because they still have APIs
+and people have been able to figure out those APIs.
+And so we will still integrate with them.
+It's just, if you are a partner,
+they will make sure it stays working
+or they will give you a heads up so you can adjust.
+And that's something we don't have, right?
+So we sometimes get caught off guard,
+like some brand will change an API,
+Home Assistant stops working,
+we have to update our code, ship a hotfix
+and it will work again.
+Which leads me nicely into my next question,
+which is about the velocity of change.
+Now, I've been using Home Assistant
+for a couple of years myself,
+so I've been through quite a few breaking config changes
+over that time.
+I feel like, and this is just anecdotal personal experience,
+that that experience has gotten better,
+that the pace of change hasn't decreased,
+but the amount of changes that break stuff,
+that has decreased significantly from my perspective.
+What things are you doing from a Home Assistant side
+to make that velocity of change more easy for people to handle?
+So the biggest change there, and this is actually,
+it started out with a policy change,
+and then it resulted also in code changes.
+So there's this thing called Convid flow.
+So through the UI, you can set up an integration.
+And what we said is that this is going to be mandatory
+moving forward.
+So it used to be that you could go into YAML,
+and then for example, let's say for your Philips Ubridge,
+you would say, this is the IP address.
+And then, well, Philips used maybe a bad example,
+because you would still have to press a button in the UI
+and it was storing some extra data.
+But for some things you have to like,
+here's the username, here's the password,
+username, password, and IP address of a device
+on my network.
+But then when the IP address would change,
+Home Assistant wouldn't work.
+And Home Assistant couldn't find the new IP address
+because you had it hard coded in your configuration files,
+and we're not changing your configuration files.
+And so those cases, we really had to handle through UI.
+We had to like say, hey, this is a temporary IP address,
+but we still have an identifier.
+So if your Chromecast changes IP address,
+we can still find it and we will set it up again,
+or your Shelly or whatever you have.
+And then we realized that,
+oh, actually a lot of our breaking changes
+is because people are adding support
+to having to like go from one device,
+support multiple devices, or these kinds of things.
+And so when we go for a config flow,
+Home Assistant is responsible for how it is written to disk.
+So Home Assistant knows exactly the configuration format.
+And if we have to change it,
+because we are going to support multiple devices,
+we can actually migrate that data
+because we own how it is stored.
+If it is a configuration file,
+and this is kind of silly,
+but we kind of programmed our way
+into like a corner we can get out of.
+Because if you look at configuration.yaml,
+we have all these advanced structures
+to break up your configuration files.
+There's packages with includes,
+include their names, include their list,
+and there's all these different types.
+And what that means is that Home Assistant
+cannot go update your configuration file anymore
+because it doesn't know where your configuration file is.
+We would have to reverse track all your includes,
+and then we need to find like a yaml writer
+that respects your comments
+and respects your indentations exactly how it was.
+And it's just, it's impossible.
+I think safe mode was a really good invention.
+Well, not invention, idea, right?
+Where Home Assistant still starts
+and then just goes back to a safe mode.
+Yeah, so safe mode was really driven by the blue, right?
+So we had the blue in mind
+and we were like, okay, we're gonna have a box.
+We're gonna sell this people,
+like it will actually allow more people to use Home Assistant
+that previously were not using Home Assistant.
+So how can we make sure that they can always boot
+and always have a UI?
+That shows you just how long it takes
+to develop a product
+because they were released a long time apart,
+those two things.
+Oh, yeah, yeah, yeah.
+I mean, it took us a year to make that case for the blue.
+So it's, I mean, a pandemic happened
+and like what other stuff,
+but yeah, it took us a year on all to just get a case.
+So I hope our next product will not take that long
+at least, I mean, we'll see, but yeah.
+Yeah, it is very tricky.
+It's fascinating though how thinking about
+from a developer perspective,
+how to ship something for an end user,
+we got a feature like that.
+I think that's kind of telling how created that use case.
+So I'm curious, let's shift gears to the personal side.
+If you do have some self-hosted services,
+what are you running on your LAN
+and roughly how much storage do you have
+on this quote unquote LAN?
+So I run Unrate at home
+and I made a server that must've been like
+six, seven, eight years ago or something.
+Like now it's six years.
+It's getting really old.
+It's like a core I5 still.
+And I think it takes up way too much power
+compared to what it does.
+You know, and I chose Unrate
+because this was during the beta phase of Unrate.
+So beta phase of Unrate 5.
+And Unrate 5 was where they introduced the Docker containers.
+So that was like almost kind of right away,
+I kind of shifted into like this perfect world
+of having all these containers at home.
+And so I'm actually still the maintainer
+of the Home Assistant core templates for Unrate.
+Love that.
+So that's how I used to run Home Assistant for a long time.
+I was like, I just have my container at home.
+And then I have like, I have Plex running
+and some other stuff.
+And then you had to go and make it a whole OS.
+No, I'm kidding.
+Yeah, I hear Plex in there.
+Interesting.
+What's that set up like?
+I mean, so I mainly use Plex
+because there's a bunch of that.
+So I'm from the Netherlands,
+but I live in the United States.
+And there's a bunch of content from the Netherlands
+that is geo-blocked.
+And so I cannot access it in the United States.
+So I have to jump on a VPN
+and download either stuff from YouTube
+or whatever.
+And then I also don't want my son
+to be on YouTube unsupervised.
+So that's also why I pull in some videos.
+And then I'll just have a Plex account for my son
+and he can kind of just browse through it.
+I do that same thing for my kids.
+Yep, exactly.
+It's a great use case for Plex.
+Well, that's it.
+And then how much storage roughly would you estimate?
+I think it's like eight terabytes.
+I just got some smart errors the other day.
+Two months ago, some CRC smart check error.
+So I just...
+But then, I mean, with Unrate,
+you have this parity disk.
+Your parity disk needs to be the same size
+or bigger than your biggest disk.
+And so my biggest disk were like four terabytes.
+And so it's like, wow,
+I should really update to like eight terabyte disks.
+And so I only updated my parity disk now.
+And that took like more than a week, right?
+Because you have to like pre-clear it
+and all that stuff.
+Yeah.
+And then I still have one disk
+that is like on riser FS.
+And I think they stopped using riser FS
+and they're using something else.
+And I was looking into, should I migrate this?
+And then I was like, no, this is just like, no.
+It's too much.
+It still kind of works.
+And so I actually only updated the parity disk.
+And then I've...
+The old parity disk I installed now as in my rate
+because there's only a couple of errors.
+And then I read online that like,
+ah, it's okay if you have a couple of errors.
+And that was already after I did my whole process.
+But of course, I mean...
+That just means it's time to start shopping.
+Yeah.
+Exactly. Yes.
+I'm waiting for some like deals, right?
+Because those disks are expensive.
+I was like, I use the Western Digital Red, I think.
+Are you familiar with shucking drives?
+Is that of any interest to you?
+What is that?
+So you buy a USB hard drive from Amazon
+or Best Buy or something.
+This is Alex's favorite thing to do.
+I'll show you.
+I've literally got one over here.
+It's just like it sounds.
+You grab the disk off Amazon
+and you shuck it out of the case.
+I paid for this Iron Wolf NAS Pro $170 for a 10 terabyte drive.
+Oh, wow.
+And all I had to do to get this was buy a USB enclosure drive
+and pop it out the USB enclosure.
+It took five minutes and it's a normal SATA drive.
+There's nothing special about it once you get it out of the case.
+If you look just on eBay, just for this drive on its own,
+I could sell this thing for $350.
+In fact, why don't I do that?
+There you go.
+You got to pay for that solar setup somehow.
+Yeah.
+So the shucking technique is Alex's favorite.
+Sometimes it requires a little more work than that,
+but it is a great way to get drives at a great price.
+Oh, that's a good tip.
+I heard you talking about solar, Alex.
+Yeah.
+We're actually working.
+We have an intern at Home Assistant.
+And well, he actually is an intern at Nabucasa,
+but he's working on Home Assistant stuff.
+And his focus right now is create a solution.
+How do we use Home Assistant to give the user insight
+into the energy usage and allow optimizing it?
+So, of course, Home Assistant has been always very focused on home control,
+home automation, and it's been our strength.
+History has not been our strength that much, right?
+Our database has been clunky and it's pretty shitty.
+So, I mean, we're actually changing this right now.
+So in the next release, it's going to be what we call statistics.
+And it's going to be a new table in our database.
+And it will take a snapshot every hour.
+It will analyze certain entities that you have.
+Right now, it's temperature and energy.
+We calculate the min, the max, the mean, the sum, all that stuff.
+And then the goal is to start generating dashboards on your energy usage
+and to show predictions and show comparing current period,
+current week to last week, these kind of things.
+Now, that second part is not going to be in the next release,
+but we're already going to start generating statistics in the next release.
+Sounds fantastic.
+And I'll tell you, the solar company that's doing my install,
+it's a local one in North Carolina.
+They want to charge me $800 for energy monitoring.
+So I'm using the, I think SolarEdge is the manufacturer of the panels.
+And they have a cloud API, which Home Assistant can poll every 15 minutes,
+I think, to get the data.
+But I'm like, it's in my house.
+Why do you need to go to the cloud to get this stuff?
+So I'm thinking I might get one of these Shelly energy monitors.
+And then with everything you've just said, I think I might be in business.
+No kidding, right?
+You know, Paul, I know too, I got to speak up for the van lifers out there.
+The Victron Venus system speaks MQTT.
+And so I know there's guys out there that are pulling that information
+into their Home Assistant setup as well.
+Yeah.
+And so we're really been looking at, or we have, I don't know if you,
+we tweeted it from the class tweeted like two weeks ago, I think.
+But he has already has a lot of paper mockups.
+And he's been like playing.
+I think he has interviewed like 20 different people.
+And he's been really focusing on, can we kind of gamify it?
+Where like, for example, if you know your yesterday's usage
+and we show your today's usage, can we tell you like, hey, tone it down a little?
+Because otherwise you're going to use more than like yesterday.
+I've actually had an idea.
+A friend of mine, I've just had my first kid, by the way.
+A friend of mine was telling me they were doing that,
+automating nap time, a light in the nursery with Home Assistant.
+You know, certain times if the light bulb's green,
+then the kids are allowed out of the room.
+And if it's red, they're not.
+I'm thinking we could play games with colored light bulbs
+and children at this point.
+That's where my brain's going.
+Oh, I do it.
+I do it.
+That's, you know, I train my kids with a series of light changes at night for bedtime
+and then noisemakers come on throughout the rig.
+It's real.
+It's brilliant.
+I can't wait to play with that.
+And gamifying, it feels like that's an idea that could be applied to a lot of things.
+As somebody who uses Home Assistant to manage an off-grid setup,
+I would love something around energy history
+and a gamification system that would encourage the family to maybe conserve energy.
+Because one of the things I did that really encouraged family adoption was
+we got a fire tablet and we just put Home Assistant up on it all the time.
+It's on the wall and it's always there so the kids can see what's going on.
+And once I did that, it like it clicked for everybody.
+So to get something up on that screen would, man,
+they just take my off-grid game to like the next level.
+Yeah, I think honestly just getting people inside in it is like step one.
+Then all of a sudden they start to realize it's like,
+oh, I can actually, you know, we can generate more energy than we use today.
+Let's go for it, right?
+I think that's going to be fun.
+So my last question, I think, before we let you go is about automations.
+This kind of goes back to the turnkey aspect, I suppose, and simplification.
+There's been a lot of work around making the YAML automation interface
+built into Home Assistant easier.
+But I always find myself for the more complex things reaching for Node-RED.
+And I wondered how you felt about people like me doing that.
+Do you want us to all be using YAML all the time or do you not really care?
+I don't really care.
+In fact, I think it's great that our APIs are so generous that you can get anything out
+that you can actually build Node-RED and do a full automation engine
+without being part of the Home Assistant integrations.
+And I think that, you know, each has their own.
+And I think because Node-RED exists, we don't have to make a lot of things ourselves, right?
+A lot of feature requests that would normally come to us are now,
+ah, I will just use Node-RED.
+And I just saw a pull request, I guess it's been like one and a half months ago,
+from the maintainer of the Node-RED Home Assistant integration,
+who makes the nodes for Node-RED.
+And I think he's been working on getting the triggers from the Home Assistant automation
+YAML into Node-RED as well.
+So we have a lot of triggers that are not very accessible yet,
+a lot of advanced triggers that are not accessible in Node-RED yet.
+But that would allow Node-RED to use anything that a normal YAML automation can,
+would be possible inside Node-RED, which I think is really cool because
+all of a sudden it makes Node-RED a lot more powerful or any other automation engine.
+And, you know, in the end, one way or the other, if you have like local control,
+local data, we succeed.
+Yeah, I totally agree.
+And I think my number of input booleans could use some spring cleaning.
+So I'm happy to hear that.
+ProvadoVPN.com slash SSH.
+That's P-R-I-V-A-D-O-V-P-N.com slash SSH.
+Go there to try out Provado for free and of course support the show.
+ProvadoVPN is a zero log VPN.
+That means there's no records of your activity.
+We looked into this for you guys and we wouldn't feature them unless it was this way.
+And even in the event of a legitimate authority requesting logs associated with your activity
+when connected to Provado, they got nothing to give.
+And even better, they're backed by Swiss privacy laws.
+In addition to having that strict zero log policy, ProvadoVPN is based in Switzerland.
+That means you're protected by the absolute strongest consumer privacy laws
+in the world.
+And Provado has the tech where it matters.
+They own and operate their own data centers and fiber lines.
+And the network is composed of hundreds of servers physically located in 45 countries
+and 58 cities around the world.
+What that means for you is you can connect in seconds and no matter what server you choose,
+you're going to get incredibly fast speeds every time you connect.
+ProvadoVPN's network was built from the ground up and fully optimized for lightning fast speed.
+So visit ProvadoVPN.com.ssh and try it out right now for free.
+The free account provides the same service level and unlimited speeds as the premium version,
+as well as 10 gigabytes a month of data transfer and access to the top 12 servers for one device.
+And all ProvadoVPN users get access to their dedicated team of customer support.
+It's 24 seven.
+And they also have an unlimited plan with hundreds of servers,
+P2P traffic support and more.
+So go check it all out at ProvadoVPN.com.ssh.
+So I mean, if you buy a Chromecast or whatever,
+then sometimes you have to like connect to an access point and then like your phone.
+And then sometimes it crashes and you're like lost and you don't know how to set up the Wi-Fi.
+So we're building a Bluetooth spec that is going to be built into ESP home.
+It's going to be built into the Home Assistant apps.
+So if you buy it, well, I mean, if eventually we hope you're going to be
+able to buy ESP home products.
+But if you build an ESP home product and you give it to your friend,
+they will just be able to go on with Bluetooth.
+And we even have a web Bluetooth SDK, so you can use like a Chrome browser
+to actually just set it up.
+Oh, that is cool.
+Yeah, right.
+And I mean, I think I really want like, you know, they're like on tindy.
+People are selling their creations.
+I just want like more of that because those products are way cooler.
+Like, it's just like, you know, we had the tech reader last year
+and there's like actually for the energy meters in the Netherlands,
+they actually have a protocol called P1.
+And we're going to have an ESP home based device somebody's building
+that like, you know, people can just plug it in and boom,
+all the energy data is available in Home Assistant.
+So I'm sure you do.
+But do you realize just how perfectly positioned you are to uniquely so to do this?
+No, no, definitely, definitely.
+It's because, you know, ESP home, like we acquired it.
+Maybe because like the original founder was like burned out and,
+but he was still getting like all these donations, right?
+So we couldn't really say, hey, we're going to hire somebody full time to make this great.
+So we acquired it from him.
+We have now Jesse working on a full time and like, you know, just we keep,
+you know, pumping out cool stuff.
+Yeah, a full time employee is going to, you know, they've got some time to fill.
+You know, it's, yeah, well, the thing is, because we're so big, like, you know,
+we are 13 people full time now.
+And yeah, thanks.
+Lucky 13.
+But the thing is, they work all over the place, right?
+Like we have the operating system guy, we have the supervisor people,
+we have the front end people.
+And so we're actually very thinly spread because there's just so much happening.
+For sure.
+Yeah, yeah, it's both a lot of people from when you started at one,
+but it's also not a lot of people for the scope of work there is out there.
+Exactly.
+Can you even imagine how many people, you know, a commercial entity,
+let's just hypothetically say you are owned by EA or some,
+some massive conglomerate like that, right?
+How many people would they employ to write a piece of software like Home Assistant?
+And it's just, to me, that speaks to the power of open source, right?
+I mean, we definitely couldn't, we couldn't have things in the world like Home Assistant
+without open source.
+So, no, I think so.
+I mean, there's just, you know, we, if you, we get people from like all over the place
+that are brilliant programmers, but they have their day jobs.
+And like, you know, it's, it's funny.
+We have a couple of people.
+One is a CEO of a company.
+The other is like a director of software engineering.
+So he's like a manager and like, they just don't get to code at work anymore, right?
+So they come home and they're like, well, yeah, absolutely.
+I agree.
+And also those sorts of people who have had a lot of training in programming and stuff
+like that in the past.
+They've got a lot that they can bring to the table, but their motivation might be sporadic
+and, you know, it's not really suitable to do a full-time job that way, but absolutely
+can contribute, you know, a couple of weeks worth of evenings of your brain to an open
+source project.
+Well, that, I mean, that's how our core was originally all on threads and like we had
+like deadlocks all the time.
+And then somebody came along who was, who works in Mozilla and he had a lot of Python
+experience.
+He made like pylons in the past and yeah, he, he rewrote our core to async and that's
+what we still run today.
+And that's why we're so fast.
+So that's just a random guy that came along.
+You know what else I love as well about the number of people you've just shared work
+from Nebuchadnezzar is the fact that that means that somebody like a Mozilla isn't
+needed to come out and buy you out to keep you sustainable.
+It's, it's a self-sustaining funding model you've created here.
+I think that's great too.
+No, it's been really great.
+I think, you know, we have no investors and no loans and these kind of stuff because it
+misaligns incentives, right?
+Just, you know, they want like return on investment.
+Yeah.
+I mean, it's, it's, it's working great so far.
+I mean, I expect as the pandemic like wheeze off that maybe people are spending less time
+at home, maybe spending less time on home assistance, who knows?
+But they might need remote access.
+That's you know, I mean, I, I happily, happily pay that because I think it's a, not only
+is it a fantastic service and I like how you are implementing it, but I also appreciate
+sort of the virtuous cycle of it incentivizes the company to make home assistance better,
+which just continues to drive more value to my subscription.
+And it, it's legitimately one of those arrangements that I happily pay.
+That's awesome.
+Yeah.
+Same.
+I don't really need it.
+I could quite happily set up my own reverse proxy with WireGuard and I used to, and then
+Nebu Kassek came along.
+That's the origin of the name, by the way, that, that word Nebu is, is quite unusual.
+So Nebu is, it was some God of the wisdom in some, somewhere in some religion or language.
+And so then we had like the word, yeah.
+Okay.
+I like it.
+And then we also have the URL, nebu.kassek, right?
+Cause that actually, we, we kind of set it on Nebu and then I was looking at domains
+and all of a sudden I said Nebu Kassek and I was like, that's it.
+So it's essentially comes down to Wise House.
+Is that a trade?
+That's great.
+That is good.
+Yeah.
+And now we're, we're waiting.
+Razer had a smartwatch called Nebu in 2015 or 16 or something.
+I was just waiting for their trademark to lapse and then maybe we can
+Get a little more, a little more mileage out of that name.
+That's great.
+I mean, I know, I know lawyers are, have a reputation, but can you confuse a house
+automation system and a watch?
+You know, smartwatches, smartwatches you can talk to nowadays.
+And so, yeah.
+Who wants to even worry about a fight?
+Why just, yeah.
+Yeah.
+But boss, thank you so much for joining us and updating in on these things.
+And also thank you and thanks to the team for making a piece of software
+that has improved my family's quality of life on a daily basis.
+I just, not much actually touches our lives in that way.
+So we're just really grateful for that too.
+Awesome.
+Well, you're welcome.
+So I hope you enjoyed that interview with Paulus.
+Now we're not going to actually do any feedback this week, just in the interest of time.
+But next episode, we're going to discuss the
+distributed file system question that Chris posed last week.
+We've had lots of feedback in the mailbag about that one.
+Oh, I can't wait to see what people have suggested.
+I feel like I'd be cheating if I read ahead, but now I kind of want to go in there and take a look.
+But I'll wait, I'll wait, I'll wait for the show.
+So that way my reaction is fresh.
+Awesome.
+Yeah.
+If you have any tips, selfhosted.show slash contact on how you could take advantage
+of the random amounts of free space on the hard drives all around your land.
+And thank you to our members at selfhosted.show slash SRE.
+You can support the show and become a member at selfhosted.show slash SRE.
+And you get a limited ad feed, full production, just a little bit tighter and cleaner.
+Extra content at the end of the show as well with a special members only post show.
+And thanks to our sponsor, a Cloud Guru.
+You can find them on social media everywhere.
+That's basically a social media site.
+They're just slash a Cloud Guru.
+That's really simple.
+And as always, you can find me over on Twitter at ironicbadger.
+And the show is selfhosted.show slash contact.
+Indeed.
+I'm over on the Twitter as well at Chris Ellis.
+And the podcast is over there too at self-hosted show for news and announcements.
+Thanks for listening everybody.
+That was self-hosted.show slash 45.

@@ -1,0 +1,999 @@
+NASA has announced they are mapping out plans for bigger, stronger, more capable Linux copters
+for future trips into space.
+One concept is the Mars Science Helicopter, advocated as a way to greatly expand the exploration
+zone on the Red Planet, including possibly deep dives into some caves.
+This is so great, and I think it clearly means Linux on Mars was a success, and I think that
+also means that obviously Linux is going to take over the solar system.
+Hello friends, and welcome back to your weekly Linux talk show.
+My name is Chris.
+My name is Wes.
+Hello Wes, are you applying for those Mars sysadmin jobs right now?
+Yeah, we'll see.
+Working on the old resume anyway.
+I mean, that's either the ultimate work from home job or the ultimate work on location
+job.
+I'm not sure.
+This episode is brought to you by the all new iCloud Guru, the leader in learning for
+the cloud, Linux, and other modern tech skills.
+They have hundreds of courses and thousands of hands-on labs, so go get certified.
+Get hired.
+Get learning at iCloudGuru.com.
+All right, well, so coming up on 4.14, we've got a lot.
+First of all, we've been building a new server, something that we're putting together for
+the road trip.
+It's a tracker.
+We've wanted to do this for a while, and we've done it with some commercial software in the
+past.
+This time we wanted to build it with all free software, a safe and secure open source self-tracking
+tool that you could use for yourself and your family and your friends, or we're going to
+use so you can find us on our JB reunion road trip.
+It has lots of features, including social groups and stuff like that, but we're using
+own tracks to do something a little specific to build something and we'll tell you about
+what we're creating and how we deployed it all and why we think that own tracks is a
+safe and secure way to track your location and control your data if you would like.
+On top of that, an old friend joins us on the show today to chat about how we handle
+things in the Linux news when they get a little awkward.
+Welcome back to the show, Michael.
+Thanks for having me.
+It's been a while.
+It has.
+It's been like years, so we're glad to have you here because in the last couple of weeks
+there's been some weird things in the news, and we thought maybe we'd go a little meta
+this week and talk about why we cover it and how we cover it.
+Oh yeah.
+I'm so excited about that.
+It's a little dicey this week.
+Past couple of weeks, really, if you think about it, because there's been a couple of
+these in a row, so it seems to actually have cranked up quite recently in the past year
+where we know we had, there's times we have downtime of drama for a year, none at all,
+and then all of a sudden now it doesn't seem like it's stopping.
+Ebs and flows.
+It just comes, it comes in these big waves of it, so we're going to dig into that today,
+but before we do that, I want to bring in our virtual lug to help us go through all
+of this.
+Let's give a very greetings virtual lug.
+Hello everybody.
+Good to have you in there today, Neil.
+In honor of our conversation in the post show, which is the post show for the members, I
+am installing Fedora rawhide KDE spin live during the show today.
+I don't know how to respond to this, Chris, except for what, you know, I had deep in on
+here and I have some follow up thoughts on deep in that I want to share in the feedback
+and I recently had Windows 11 on this laptop.
+I just feel like this laptop needs a real good purge, needs a clean slate, and so I'm
+going KDE spin Fedora rawhide on this ThinkPad X1.
+I'm going to see how it does.
+And you've got Neil signed up as your personal assistant.
+Should anything go wrong?
+Well, last week he told me it's going to be perfect and flawless, so I'm assuming that's
+not what I said.
+I'm pretty sure.
+Yeah, I'm pretty sure those are what you said.
+So by the end of the episode, I should find out who we, the install, I just kicked off
+the installation.
+It's at 18 percent right now.
+Also just because I apparently like the chaos, I'm running on battery too, because everybody
+knows.
+Yeah, everybody knows when you install your OS, you want to run on battery.
+That's what they tell you right at the start of the installation, right?
+What could go wrong?
+Chris, you just invited everything to go wrong.
+Yeah, I know.
+I know.
+I got good news.
+We've been chatting with friends in the Denver area and we're locking in what could potentially
+be a very awesome meetup location in Denver, which I will update our meetup page when we
+have all of the details locked in.
+So if you haven't signed up yet, we have two meetups that are scheduled.
+And then the idea is with this tracker that we're building, you can watch where LadyJupes
+is going.
+And if we're in your area, you can reach out to me on Telegram and maybe we can just meet
+up impromptu, just do a little mini meetup, but we'll get into that.
+It's all coming together this week.
+I'm really excited.
+It's all finally coming together and the technology to make it possible is all running on Linux
+and we'll tell you about that.
+But let's talk about this situation with the news.
+It really came up when the hoopla around Audacity broke out into the public starting back around
+in May when the Muse group awkwardly announced that they had acquired Audacity as you can
+in the open source world by essentially acquiring the IP rights and the copyright and paying
+off the developers.
+That had snowballed into a series of miscommunications and mishandling with Audacity's most passionate
+community over issues like the privacy policy, their CLA, their contributor agreement and
+other things around metric tracking that always strike a chord with people.
+They all came up relatively quickly when you consider that this all just kind of went down
+two months ago and these things have been revealed since then.
+And it can be awkward for us to cover some of these stories because there's a lot of
+drama that gets spun up in all of this, especially when you have Forks that launch and then 4chan
+gets involved and starts trolling people.
+But then not long before that, there was the Freenode situation which was immensely complex
+and an important story with nuggets of information at the core of it that you need to know but
+just draped in drama, completely wrapped in drama.
+And so we thought this week maybe we'd have a little meta-conversation with you the listener
+about how we view these types of stories, how and why we cover them and maybe a little
+bit of the logic behind what we hope to get conveyed to our audience when we actually
+kind of go into these stories that seem, at least on the surface, like they're loaded
+with a lot of personal feuding.
+And so that's why it was great to have Michael join us because those of you who used to listen
+to the show, you know Michael's been on the show before, but Michael also runs his own
+new weekly news podcast this week in Linux and of course is a co-host on the Destination
+Linux podcast and has been following these stories and he's had to consider how he wants
+to present this information to his audience and he's had to go through is this a story
+worth covering and make that call and make that decision and I'm sure there's been times
+Michael where you're like I'd just rather not talk about any of this because it's just
+so dramatic.
+There have been.
+There's sometimes over the years that these things have come out, there have been a couple
+times where I see how important is this to cover and if it is not important, if it's
+just drama that is for the sake of drama, well then I do my best to not talk about it.
+But if there's cases like the Freenode thing or the Audacity thing, you kind of have to
+consider the fact that there's no way you can't talk about it.
+So how do you handle that sort of topic becomes the issue on those weeks and the Audacity
+one is a really interesting one in this space because there's some validity to both sides
+and both arguments and you kind of need to balance how you present both sides without
+trying to – and also I give my opinion as well, so I don't – I want to make sure
+that my coverage is as balanced as possible while also providing my opinion and trying
+to express the overall encapsulation of the topic without doing it overboard.
+And this particular Audacity topic, I've covered it a couple of times on my show and
+this past episode when I said I wanted to do it in a very concise way and try to cover
+all the bases as quickly as possible and that turned out to be 20 minutes.
+So that didn't really happen.
+You know what else I was thinking about while you were saying that that's gotten trickier
+in the last few years.
+More social angles and social issues are working their way into free software news stories
+like I think of Linus or RMS.
+These are stories that have like a technical angle to them but they also have a social
+angle to them and that is not exactly why we got into tech in the first place to cover
+social stuff.
+Right.
+That's a good point.
+I think that we wanted to talk about the technology and the innovations that are happening and
+that happens a lot and it's really fun to talk about these things and also try to find
+new and exciting things that you might not have heard as an audience and present that
+to them.
+So trying to follow all of these things but there are times where the social aspect comes
+in and you kind of have to deal with it and sometimes I've dealt with it well, sometimes
+maybe not so much.
+I guess it depends.
+It does add an aspect that you have to dig through like something that Wes and I will
+find that we're doing a lot for Linux action news is just trying to read through threads
+of people going back and forth that are having a conversation.
+Somebody is yelling at somebody.
+The University of Minnesota kernel patch hole, you know, kerfuffle is a great example of
+going back and forth, mailing list and trying to build out a timeline of what's going on.
+Well, and you know, some of these facts you're getting or maybe facts with quotes around
+them, you know, they're coming from individual players who have their own agendas in whatever
+story you're trying to cover.
+And so you've got to kind of build your own model of how these actors view events so you
+can really try to understand at least what they're saying and what position they're coming
+from.
+Yeah, it seems to me there's also an inclination for certain outlets to go hard on the drama
+and really focus on that and turn it up to 11.
+And people have figured out how to game that in the in social media and with blogs and
+GitHub and all these ways that you can get your message out there.
+And I think of like the Freenode situation.
+Clearly it's a really complex issue.
+But something that we noticed and doesn't I think factors in is the folks that launched
+Libera chat were unusually organized.
+They clearly had a lot of premeditated maneuvers before they broke off from Freenode.
+Were they right in doing so?
+It seems in retrospect, yes, likely.
+But I felt like the audience needed to know that it seemed like the Libera chat folks
+had essentially pre-organized and were ready to go.
+And one of the most clear demonstrations of that was that they all had public statements
+and they all linked to each other's public statements and they created this cross reference
+of public statements that just blasted the narrative out there and really got their take
+on the situation miles out ahead of what the remaining Freenode staff could communicate.
+And that is an interesting element to a story that while it doesn't really change the facts
+on the ground, perhaps is still worth knowing.
+It's like trying to dig those nuggets out and try to identify that stuff.
+I think in the open source world matters just a little bit more because I think it's it
+creates these lasting stories that we tell ourselves.
+We tell ours like the story of what happened to Freenode and the story of what happened
+to Audacity will be spread around in comment sections and on podcasts now forever, for
+hereforth.
+Right.
+And so while that stuff is developing, I kind of feel like maybe we have a shot and I'm
+curious to know your thoughts on this, Michael.
+It's like I feel like maybe we have a shot on trying to participate in that initial conversation
+and try to get some of the initial history right.
+Oh, yeah, definitely.
+I think that's very interesting, especially when you're talking about the Freenode one
+and you're talking about the the kernel ban situation with the University of Minnesota.
+Those were topics that were very volatile, very quickly.
+And we're trying to balance the topics, whereas the Audacity has been happening over the course
+of a few a couple of months.
+So it's kind of built up and you can kind of you have more time to dig in, whereas the
+Freenode one was so quick.
+And there was, as you mentioned, it's really interesting that they had everything prepared
+to go in that sense, as well as all the server stuff was in two days of the potential announcement
+coming out.
+All of a sudden, everything's ready to go.
+So that does kind of create a, well, do we talk about it now or do we wait until we have
+time from the other people involved to see if do we have all the information or do we
+want to jump ahead of it?
+And with the case of Freenode, I think there was like a four or five day delay for them
+to give a reaction.
+And that kind of created a situation of like, I don't want to talk about it until I have
+both sides, because then otherwise it seems like I'm just pushing one agenda or one opinion.
+And that is a position that I don't ever want to be in, because I want to be the reporter.
+My job that I've chosen to do is provide the information, provide the news, and then if
+it's a dramatic news or a social kind of inflammatory news, then I want to cover it on as many sides
+as possible to make sure that at least it's a fair coverage.
+And then also, I'm going to put my opinion in there as well, because it's not just reporting,
+it's also like content in an entertainment fashion too.
+So when you do these kinds of topics, you kind of have to balance it.
+So I'm not sure exactly which one, one of these topics I waited until more information
+came out.
+And some topics in the past, I have chosen to jump ahead of it, and then that backfired
+before.
+So you kind of have to test the waters, so to speak.
+And it's made me a lot more cautious in terms of how I want to handle it every time I've
+done it.
+And it seems to be getting more and more frequent, which is an interesting kind of turn of events
+in the past year and a half, two years of what used to be very rare.
+Now it seems to be quite often.
+So I guess on the bright side, I get more practice for the shows.
+Yeah, what do you suppose has caused that, the heat's been turned up on these stories?
+People have more time to see what's happening versus the previous issues where the whole
+working from home thing and the quarantine of last year and those things, people having
+more time to pay attention.
+And I think that people are digging in more as well and finding these different things.
+Some of these topics would not have been found likely in a previous time period because they
+were a pull request or a mailing list posts or something like that, that not a lot of
+people are paying attention to.
+But because more people have more time to pay attention, they can dig in a little more.
+Something Wes and I talk about sometimes, and I'd like to know your thoughts on it too,
+is there's two audience in a sense out there.
+There is the audience that knows open source, they're free software users, they're Linux
+users, they understand this stuff, and they have a different set of priorities around
+privacy and metric collection.
+Let's take this Muse group stuff for example.
+You could argue that if say like an Apple news podcast was covering what the Muse group
+was doing with Audacity, they think it was great because now Audacity could be listed
+in the Mac app store.
+They think all these things that Audacity is happening to Audacity are great.
+I'm curious how that impacts how you think about this stuff because you've got Linux
+users and then you've got new people that are just discovering this ecosystem that might
+have a different perspective on these stories.
+Yeah, that's an interesting point.
+I think when it comes to these other communities looking into it, they're going to be looking
+at it from a much different light, as you said, and with the reactions that we have
+in this community and the open source community and those sorts of things, I think that there
+is a balance that we need to consider more often.
+I think that when it comes to these kind of reactions that are so bombastic of like how
+dare you even consider the possibility of telemetry, I've gone on record before that
+I think that telemetry is not bad automatically just to exist.
+You can do it properly.
+You can do it in an ethical way.
+You can even do opt-out in an ethical way.
+It depends on what kind of data you collect, how you collect it, and how you present it,
+and whether or not you ask permissions.
+There's some people in the community who see any form of telemetry whatsoever, even if
+it is the most minimal amount you can possibly get, and that is too much.
+I think that we see sometimes these topics in the case of Audacity or MuseGroup where
+they react so harshly so quickly that it kind of puts a negative bubble around it for the
+people in the different communities.
+They see it as like, oh, these people don't want to even consider, they don't want to
+be open-minded.
+Right.
+A lot of times, that's how the business unit on the other end of that reaction, I've had
+several guests that I've kept in touch with after they've announced a Linux product, and
+then they didn't package it right, or they didn't build it against the right library
+or whatever, and they get a lot of negative reaction, and they don't take it well.
+They don't try to listen for the signal in the noise and figure out what they need to
+address.
+Instead, they just sort of take it as an attack and a front.
+Kind of like the Witcher 2.
+They had a massive backlash because they had the audacity to use wine.
+How could they dare ship it?
+And of course, it was a fully tuned, fully tuned, and they had tested it.
+It wasn't just like its general random-ass build of wine.
+Yeah.
+And such an ironic turn of events is that the Witcher 2 does this, and they get so much
+backlash.
+Valve says, you know what?
+We're going to make a better wine.
+Yay!
+Now all these games run on the platform in the same way that the Witcher 2 did, and the
+perception is so different.
+I was thankful for the Witcher 2 work being done in the first place and also with the
+work for Proton, just to be clear.
+This is not a comparison to saying these are both bad.
+They're both great.
+Yeah.
+Whatever support you want to make Linux have support for Linux, continue to do so.
+The other thing that is kind of funny to see, and I see this a lot in the written press
+the most, is when projects announce that Flatpak is the future of software distribution, it's
+hailed as a remarkable achievement that should have happened already.
+And then when Canonical announces that Snaps are the future of software distribution, it's
+considered like, how could they?
+It's an overreach.
+It's Canonical trying to control the Linux landscape and application deployments on Linux,
+which maybe some of that's true, but it's just funny the different kind of reactions
+you see depending on the stories and how it sort of sets the tone for conversation in
+the community.
+I think that's very interesting as a point as well, because there's the case of the way
+that they are perceived is very different, but my favorite part about that particular
+thing, the Flatpak versus Snap, is when I've seen people say, how could Canonical do this
+when we already have Flatpaks?
+And then I have to point out, the first release of Snaps was a few weeks prior to Flatpaks.
+So that's not a thing that matters.
+And it doesn't really work out the way that a lot of people want to present it of saying
+they're doing a not-admitted here.
+And it's like, well, they were kind of first.
+Flatpaks have a different policy, and if you want to say, I like the policy system that
+Flatpaks handles better, fair enough.
+But that's not typically what is described in that particular situation.
+So I think it's really interesting that a lot of companies are choosing to go with Snaps,
+and I'm more than happy to say welcome to the community and welcome to the ecosystem.
+And other companies are picking Flatpak, and I'm actually kind of ecstatic when they choose
+Flatpaks.
+I think that there's a lot of value to the Flatpaks, and my preference is Flatpak.
+But personally, as long as it's on Linux, we're good.
+Yeah, that's exactly how I feel.
+Entirely agreed.
+I'm curious, Michael, looking to the future, I know when Chris and I are sort of putting
+together a Linux action news, there are repeatedly a similar set of written outlets that are
+doing a lot of the grunt work, covering things first, scraping through mail server logs,
+checking on discussions in GitHub and figuring out what's going on out there.
+And there are people like Michael Larable, in particular, Pharaonix, who are spending
+a lot of time to do this that enables a lot of great work on top of it that you and I
+and Chris are all doing.
+Seems like, I don't know how tenable that is.
+We're all depending on advertising revenue, and much like in regular journalism, I'm not
+sure they get enough credit.
+Oh, absolutely.
+That's why I started, every time I talk about a source that is a critical piece, I always
+promote the source, or I at least have a visual element saying this is where it's from, or
+in some cases, like the last episode of Twill, I talked about some stuff that OMG Ubuntu
+found from their forums and digging into that thing, and I'm going to absolutely say that's
+where it comes from.
+And I do think that a lot of times, even on other blogs where they don't really give credit
+or sometimes they'll give credit with the word source and a link, and I think that's
+the least you can do, but I think it is something that they should get a lot more credit than
+they do, and especially like a high five to Pharaonix because there's a lot of great content
+on that website.
+Yeah, I think he gets a hard time.
+Everybody's all Pharaonix and they roll their eyes, but man, that guy is publishing seven
+days a week.
+He's doing a lot of this stuff hands on himself.
+I think he might be a machine.
+I look at my list of RSS feeds because we're already going to subscribe to stuff, and you
+go like, okay, there's one from this website for this week, five from this website from
+this week, and you look at Pharaonix, okay, five from this day and every other day.
+Yeah, and that can be Saturday and Sunday sometimes.
+It just doesn't matter.
+So there are those resources.
+I've been thinking more about it too, like what could we do putting all of our resources
+together too to help generate new original reporting, and in a way we do it by interviewing
+projects and stuff like that.
+We both do our part, but I feel like there's probably even more, and I don't have an answer,
+but it's something that has been on my mind.
+It feels like with the whole lockdown COVID stuff, it was like a year and change to kind
+of rethink about events and what events to go to and what events I miss covering, and
+I kind of have, you know, maybe I'm kind of working out a new model of what events I might
+go to.
+Have you given thought to that?
+Yes, I have.
+In fact, when I previously did events, I would go to events and think, you know, can I justify
+the cost of going to these events and all these other things?
+And then, you know, when you have the case of the COVID thing happening, which is unprecedented
+experience that everybody has no expectations to what's going to happen.
+I had no forethought to think I'm going to miss conferences.
+So now when it starts back up, I mean, absolutely next year, I can guarantee you that my plan
+at least, maybe I can't promise it, but my plan is to be at every single one of the conferences
+I could physically go to.
+Hopefully we'll see you there.
+I mean, completely agreed, right?
+Yeah, just get back in the game again for sure.
+Oh yeah.
+Well, what do you say we continue this fun on Destination Linux?
+That sounds like a great idea.
+So how about this weekend?
+I'm in, I'll be there.
+So I'll be there on Sunday and you guys stream it live at dealinlive.com and of course we'll
+have links to this week in Linux and Destination Linux and Michael's profile in the show notes.
+Check that out and Michael's hang out and stick around with us if he can and we'll just
+keep chatting on stuff and feel free to jump in as we go through some of this.
+Yeah, for sure.
+All right, thanks for making it.
+linode.com slash unplugged.
+Go there to get $100 in credit for 60 days on your new account and of course, do I even
+need to say it?
+But of course you support the show, that's linode.com slash unplugged.
+Linode is our hosting provider.
+In fact, the project we built today, of course we built it on Linode and I actually really
+enjoy that process because it's a chance for Wes and I to talk about like, well, what's
+this thing going to do and do we want to deploy it on an existing Linux?
+We have some of these application servers that we've built that we'll just deploy containers
+on or do we want to have a dedicated system?
+And what I really appreciate about Linode is the pricing works such that whatever your
+style is, it's going to work for you and it ranges 30 to 50% cheaper than what the other
+cloud providers are offering and they have 11 data centers worldwide you can choose from
+and every single service, even if it's just like one $5 a month rig.
+But if you got like we have a lot now, they back it by the best customer service out there.
+They're just like winning awards all the time, it's impressive and they're available by phone
+or ticket.
+Every step of the way, Linode has focused on building a really good experience around
+running applications on Linux in the cloud.
+If it runs on Linux, it runs on Linode.
+In fact, I've even seen people run Windows on Linode because they give you that level
+of access to the metal if you want it, but they wrap it in a simple, clean, easy to use
+dashboard.
+So if you're not a pro or you've never set up a server in the cloud before, you're not
+going to get lost.
+You know, a few months ago I set up a sync thing server in the cloud.
+I was just talking to Joe about this this morning and I opted to go with a $5 a month
+up Linode just because I figured like, why not just throw a machine out that I can connect
+to a lot of disk?
+And so I did just that.
+I set up that machine and I just added it to my sync thing network.
+So I share all of my shares with that.
+And then from that, I share it with the additional systems and they all sync with each other
+and it kind of creates a peer to peer sync system that is much faster than just one server
+to one server.
+And I love that because what it means is during the day, I can have something here at the
+studio that syncs up to my Linode system.
+And then when I bring my system online in lady jupes, the files are coming both from
+the studio server now and from the Linode server and it loads up super, super fast.
+And because my cellular system in the RV is multi network, I can actually saturate multiple
+cellular provider connections simultaneously and Linode can send as much as I can take.
+And so I can move files and data around using sync thing transparently, which is one Linode
+up in the cloud.
+And there's all kinds of things you can experiment with.
+You can learn, you can test and you can deploy in production.
+So go get that $100 in 60 day credit at Linode.com slash unplug.
+Try this stuff out for yourself.
+Learn something, build something and support the show Linode.com slash unplugged.
+Now we do have a few things to clean up around here.
+Come on, Chris, you leave the studio like this.
+I know.
+I know.
+I don't know what that plate of wings is doing over there.
+I think it's still safe to eat.
+Oh, good.
+Cause I've had a few.
+Good.
+They were delicious.
+In the meantime, I want to remind you about our meetup page cause it's back.
+We're beginning to actually try to schedule things again.
+We'll see.
+But uh, go to, go to meetup.com slash Jupiter broadcasting for that.
+Also if you want to contact the show, you got some, some feedback or something you'd
+like us to cover.
+We'd love that.
+Linodeplug.com slash contact.
+And also I invite you to join our virtual lug.
+It happens every Sunday at noon Pacific.
+You can find your exact time at Jupiter broadcasting.com slash calendar.
+It just happens in our mumble room, in the lobby, people hanging out, talking about Linux
+or maybe you're outside grilling and you just want to jump on with some like-minded geeks.
+We invite you to join them and details for that mumble server.
+They're over at Linux unplug.com slash mumble.
+That's all going down every single dang Sunday.
+So join them and hang out and get geeky in our virtual lugs Sunday meeting.
+Now we decided to set up a tracker and we didn't want something that was running on
+a commercial service or routed through Google maps.
+We wanted something that used free software that we could self host and own tracks has
+been on our list to try for a while.
+We've taken a couple of passes at it.
+It allows you to track your own location and you can keep that completely private if you
+want and never share it with anyone and just use it for yourself.
+An example of why you might want to do that is automations.
+You can have things like lighting and whatnot respond to your location on own tracks.
+And what it does is it runs on your smartphone.
+In most cases there's an app that's in the play store in the Apple app store and every
+time your phone moves, what they call a significant distance, it connects to the server via whatever
+connectivity you have available and checks in with your location.
+And there's a couple of ways you can do that.
+One of them is MQTT.
+You can send it over MQTT or another one is HTTP, which you can probably guess what we
+went with and describe the setup that we decided to go with Wes with own tracks and the method
+and how we're hosting it.
+Yeah, well, of course we're using Docker because what we always do at this point and we're
+using a component of own tracks called the recorder application, and it's really lightweight
+and easy to get started with, which I like because I mean, the idea of having this data
+seems really nice.
+I'm one of the people that enjoyed knowing where I'd been in the past, just sort of reminiscing
+or keeping tracks or checking when when was I there.
+But I don't love the idea of Google having all of that.
+But if I have to stand up yet another database, well, I don't know.
+That's one more hurdle.
+So it was nice to see that this own tracks recorder, you don't really need much.
+There's a Docker compose file that you can get started with and then tweak to your needs
+stands up and it does have options for both MQTT and HTTP.
+And one nice thing about it is it can be an HTTP to MQTT bridge application and we'll
+get to that.
+But we basically got this started, expose the port to the internet, we're using traffic
+to proxy it and slap on some SSL, what you get out of the box is a nice little application
+that you can post updates over HTTP to just send some JSON, I think it's actually the
+same JSON payload that you would be sending over MQTT, but you just sort of configure
+which endpoint you send in your Android or iOS application.
+And then it's going to record it all locally, and to boot, serve up some geo JSON, or even
+render some open street map for you to track where you've been.
+So that geo JSON lets you pull that into other applications, like Home Assistant, or let
+you generate your own map if you maybe wanted to have something embedded on a website with
+a live tracker and you wanted to have a map that really was unique and fit the theme of
+your website, you could use this to generate the data for it.
+Or like Wes said, it'll build one for you using open street maps.
+And honestly, they look pretty good.
+Yeah, I think that's like more than enough for our purposes.
+But then of course, you know, if you want to go above and beyond, you've got the raw
+data, which is great.
+Yeah.
+And you can save it and just use it for I don't know, building charts and graphs of
+your travels, or you could use it to do what we want to accomplish, which is make a public
+tracker available that you can check in on.
+And here's what I'm thinking.
+And we're close to it, but we're not all the way there.
+And I'd love advice if anybody in the mumble room has any tips or ideas or anybody listening
+that would like to write in and give me some advice, linuxunplug.com slash contact.
+But I want to play with Hugo.
+I could use something else, but I've been thinking I should play with Hugo.
+I was picturing a small Hugo site that has this live tracker built into it.
+And on that page would also be information about the road trip and the meetup locations
+and maybe like a picture feed from pictures we've taken from the road trip.
+Something kind of simple.
+Oh, like a one stop shop sort of site that's all about this upcoming trip.
+I got the perfect domain for it.
+Are you ready?
+What did you get?
+Colony tracker.live.
+So I'm thinking like future trips and stuff, you know, track, track, colony tracker.
+I'm, Wes, I've been thinking more about it.
+You know, I've been thinking like, I feel like we should talk more about decent community
+interaction and how to be a good citizen in the Linux community and how to foster an environment
+of collaboration and turn down the heat.
+Help create the community we want to be a part of.
+I like it.
+Right.
+And I've been thinking the people that want to do that with us can be colony members.
+And so I've been, I've been just brewing on this idea.
+And so I like this idea of the colony tracker because I think a big part of this is going
+to be a big part of, I should say, to be specific of turning down the dial on the, on just the
+heat of conversation and just the tone I think will be when we get back in meet space and
+we have IRL bandwidth to interact with each other.
+I feel like there's going to be a pretty major shift because one of the main experiences
+I have had, and I know this is probably true for both Michael and Wes, is interacting with
+people in person, they become a friend for life.
+Interacting with people over the internet, I can be friends with them.
+It's nice.
+You know, I can like them a lot.
+I won't even think about that.
+I won't consider it like a relationship that lacks depth, but people I meet in person,
+I could end up being friends with for the rest of my life.
+We create really strong bonds.
+That's a really interesting point because I've had conversations and stuff.
+I've met people on IRC, met people on, you know, mumble or zoom or all kinds of places,
+but in person there is a lot more to it.
+And it's interesting because the reason I earlier said that I wanted to go to every
+conference is because the interaction of going to a lug and then like moving that lug to
+a virtual one because you have to, the vibe is so different that even though just the
+simplest, it's the same people, but for some reason that it's such a different experience
+so drastically that I agree that when you're doing it in person, you can, you can build
+a bond.
+It's much deeper.
+An in-person event, an in-person meeting, you know, even if it's just something simple,
+going out and having lunch, that's like a good, rich beer, like a really tasty beer
+like the CNX Tuesday and online events are like an O'Douls, like an alcohol free beer.
+It's like you get the, you get the essence of beer, you get the idea of beer, but it's
+not a beer.
+It doesn't taste like a beer quite, quite right.
+And you don't get buzzed.
+It's better than nothing, but it's not really meeting your need.
+And so the idea with this live tracker is not everybody can make it to Salt Lake City
+or Denver, but there is a lot of people in between those two locations.
+I'm leaving from the Seattle area and working my way out and my experience has always been
+people always want to know where you're at, what route you take in, and of course it's
+always changing when you're, anybody who does a lot of road trips, you know, things change.
+And so the live tracker, it sort of solves that problem.
+It gives people real time idea of where I'm at and then we can just do these micro meetups
+and just have in real life connections.
+Correct me if I'm wrong, but when the, when I used to be a part of JB, I remember there
+was a part where you had something like this before.
+Is this like a similar thing you're going to do?
+And if so, is there like an experience between like the software you use then versus now
+and like how it's interacted since the, you know, since the previous time?
+Yeah, right.
+Great question.
+Cause the previous iteration was based on this commercial truck tracking system called,
+this was the Rover tracker.
+Yeah, yeah.
+It was called like Lancy and Aaron.
+It's really designed for shipping companies who want to track their trucks.
+And so the nice thing about that is there's a hardware device that has its own cellular
+connection.
+And of course it's a crappy cellular connection, but they have its own and you can just stick
+it on your dash and it just runs and it just updates their maps.
+The problem is, as you would expect, it's some old clunky commercial product that has
+an expensive subscription and the map is antiquated and you can't really do much with it and you
+can't self host it.
+And so those were like, those, those are just like all the things that just kind of, I never
+liked about it, but it solved the core problem of, of location tracking in an embeddable
+map.
+But we wanted something this time around.
+Like if we're going to build it again, we wanted to self host it.
+We wanted to have no monthly subscription.
+And then what's really nice about own tracks is it, it gives a lot of different types of
+data output that we can use to automate and use for different things.
+So it provides like a very rich set of API options for you to pull information out of.
+And it's all controllable by what information gets shared and how it gets shared.
+And it's something that we can run privately.
+Like I don't mind if West sees all of my location data, right?
+But I wouldn't necessarily want that in maybe some commercial cloud service anymore.
+Like my, my, my preference has changed there.
+And then I like the idea too, of using that data to drive automations here at the studio.
+You turn on lights when I arrive, just even cycle the fans.
+Cause of course I've geeked out all the cooling I bought for the summer is all on smart plugs
+that are controlled by home assistant and all of that stuff could be automated when
+home assistant knows my location.
+Yeah.
+And that's where it's neat.
+The recorder app can act as like you, you can send HTTP updates from your phone and
+then it can publish those updates to an MQTT topic that then home assistant can be configured
+or open have a lot of these systems can be configured to read from and then pull in those
+updates.
+So we haven't actually tried that yet, but seems promising.
+It's very interesting.
+It sounds like you could take this and because it's with home assistant, you could do all
+sorts of stuff with this data.
+Like when you just get room somewhat close to your house, you could be like setting it
+up so that your thermostat turns on and make sure it's the pristine, perfect temperature
+or whatever, like those kinds of things.
+And it does seem like a very, I'm looking forward to seeing how it works out for you.
+I mean, I probably wouldn't do it myself because of effort, but it does sound very interesting.
+Well, you know, a lot of this I made West do.
+I always have to disclaim that, that, you know, a lot of the heavy lifting was done
+by West and you know, he's got a lot of other stuff going on too.
+It's not the only thing he's doing and he still does.
+He still gets it done.
+I just like seeing you turn your home into an experiment and then I get to see when it
+goes well and we all get to hear about when it goes very poorly.
+Fair, fair.
+So if anyone out in the community would like to help me build this colony tracker dot live
+page, I'd love to do it in Hugo and I'd love to work with somebody on that and mentor me.
+But if you want to build it with anything you want, as long as I don't care, I don't
+have to be involved.
+I don't have to go your way.
+But I'd love either some mentorship on building a site for this or if somebody has a passion
+that they could just crank something out and wants to help us create a page with some information,
+we could put some branding on there, you know, get a little information out there for everybody.
+Please contact me, Chris at Jupiter broadcasting dot com or use our contact page because I
+think that could be something really fun.
+And you know, it doesn't have to be Hugo.
+West knows behind the scenes for about six months.
+I keep trying to work Hugo into just about every episode.
+We've snuck into a few places here and there, but I don't think you've quite got it out
+of your system yet.
+No.
+And it's not a bad thing to plug in because Hugo is a very nice CMS.
+I think it's quite a good static site gen.
+The fact that you can do so much of it at the command line, like, you know, that really
+got me is like, I love that that you generate it at the command line and all of that.
+And there's a lot of great themes out there.
+It just seems like it's a pretty solid, like you said, CMS and then it regenerates super
+fast pages.
+Yeah, it's a static site generating CMS and it's there's other things that do very similar
+stuff.
+So I'd say it's probably in out of all of the hundreds that exist, I would put it maybe
+in the top three.
+I'm also very picky about these things.
+So I don't want to be like, oh, it's the best.
+So it's I'm just saying it's definitely up there for sure.
+But I think that there is a question that everybody is going to have to ask you about
+this data that you're doing with the colony tracker.
+And that is how much of it is going to Muse group?
+Yeah, I have to sign a CLA too.
+I don't understand why West was just really, really adamant that I signed the CLA.
+You didn't read it too closely.
+I'm glad of that.
+Now I just signed it.
+Yeah, that's true.
+That's true.
+I feel like the trick will be to turn it off when I don't want to be tracked off to remember
+to do that.
+But I was thinking the nice thing about having it on the Android phone is if we get this
+working, I could put the you know, my pixel in my pocket and go to the meetup.
+And then if people want to know where the meetup is, they just check the colony tracker
+and go there.
+So you have your like personal device and then your I want to be tracked device.
+I like it.
+Yeah.
+And I'll probably often just leave it in the RV and you can track us as we go and telegram
+me and we can set up something.
+But I figured if I wanted to go out to lunch and was totally cool with people showing up,
+I just take it with me and maybe just tweet or I don't know, I haven't figured that part
+out yet.
+Honestly, this is where YouTube would be a lot easier.
+Like if I was doing YouTube videos or something, I could just pop on my channel and say, Hey,
+I'm doing this.
+I've thought about that.
+That's a lot of work.
+That's a lot of work.
+Wes, get on it.
+Yeah.
+Wes.
+Seems like a good idea.
+All right.
+Well, you're going to have to give me a remote camera access.
+Linux dot entropy dot works.
+Use promo code love 13 and save 15 percent.
+You know, entropy is an industry leading mobile and web development studio based out of the
+UK.
+And they contacted me because they're listeners of the show and they have been building out
+clients around the world, including Mars Wrigley, Walmart, MediaCom, the Financial Times.
+And they want to reach out to the community members.
+It's not just about the big companies.
+They want to reach out to everyone and build a brand.
+They want to be known for building Flutter applications and developing applications for
+Linux, for the Mac, for Windows and even for the Web.
+You know, they run their whole shop on Linux.
+There are a bunch of Linux hardware geeks in particular.
+They love love playing around with that kind of stuff.
+And some of their team, some of their team, I've been told they hang out.
+They've got their distros of choice and that's where they they stay there.
+But there is absolutely like a distro hopper contingent on the team that's constantly jumping
+around and trying out the different distros.
+So they have a long standing connection back to the Linux community.
+A lot of their tooling is built around Ruby and of course, Flutter for mobile and the
+desktop.
+I mean, they they really are emphasizing when their clients come to them that, yes, we build
+for the Linux desktop.
+Would you like to build an app for the Linux desktop?
+And I love hearing that, you know, somebody has to push that forward.
+And they've pioneered some of the most complex Flutter apps that have ever really been built,
+including Flutter apps that have image recognition and machine learning built into them.
+And Entropy can rapidly build an app for iOS, Android and Windows and Mac OS.
+And yes, of course, the Linux desktop in essentially no time.
+They're already one of the global leaders in Flutter development with dozens of deployments
+in just the last year alone.
+I think we all see where this is going.
+It gives us an opportunity to find something that's better than Electron.
+It still delivers on that multi-platform delivery promise.
+And thankfully, it puts Linux right there at the front of the line with Canonical and
+Google backing that.
+There's a good shot that's going to be around for a while and that's going to go places.
+And I think Entropy sees that and they're ready to start building apps for people.
+Wes and I had an app idea for a Flutter app that takes advantage of PipeWire that just
+like can list the process IDs.
+You select the process ID and it can grab the audio using PipeWire.
+You could build that out in Flutter.
+It'd be a great app.
+In fact, Entropy would love to discuss any ideas you might have and just chat with you
+about the Linux desktop in general.
+Regardless if it moves forward into a project, they just love to get in touch and chat.
+That'd be an opportunity to geek out.
+So get started by going to linux.entropy.works, fill out the contact form, and use the promo
+code LUP13.
+You'll also save a little money when you do that if you do end up starting a project.
+There's never any pressure.
+They're always just happy to chat and discuss Linux and chat about Goofy Chris on the Unplugged
+program.
+They'll do that too.
+So go check them out and use promo code LUP13, linux.entropy.works.
+Well we've got some feedback.
+Michael Staggs over on Twitter tagged you wondering about the security of Deepin.
+He writes that, I know in the current political climate, China and security are both hot button
+issues, but I don't feel we can give Deepin a pass on security.
+It's so bad that the OpenSUSE audit team won't even audit their stuff anymore.
+Yeah, that's a shame.
+You know, so Michael, he tweeted me a couple of links to some bugs that are pretty concerning
+in Deepin.
+However, they're from 2019, and they're bugs on OpenSUSE's bug tracker, not on Deepin's.
+So it's entirely possible that that code isn't even being used or has been replaced, it's
+hard to say.
+But it is an interesting, you know, consideration.
+It's kind of off on its own island, and it could have its own particular security ramifications
+when you are creating your own new apps.
+I really, really, really wanted it to be like the distro I could recommend to new users
+because it's fresh and it's clean and it asks some great questions when you're setting it
+up that are simple and I think great questions to ask.
+And I thought, boy, wouldn't this be great, especially if they add Android app compatibility.
+But it is just too different.
+It's like running some crazy ass esoteric distro on your server and then, you know,
+walking away and expecting somebody else to pick it up.
+Like, I just can't in good faith say go for new users, deploy this unless you yourself
+are a Deepin user and you're helping them with it.
+Right.
+I mean, the farther away you step out of the mainstream, the more of that support burden
+you got to take on yourself.
+And especially if you're a new user, that's not really something you're capable of.
+I think what they're billing over there is really neat, but it's probably not the first
+distribution to recommend to new users.
+I spent about a week and a half with it.
+And so I decided now to wipe it off here.
+And I have put Fedora 34 on here.
+Let's see.
+I'm going to first boot right here, let's log in, see if Fedora rawhide.
+So I guess this is technically, I guess this is technically what Fedora 35, going to be
+Fedora 35 eventually.
+And I'm happy to report it looks like everything went good.
+The ThinkPad is now running rawhide with plasma.
+I want to see what version it is, though, because that's obviously all that matters
+here.
+That's the whole point of why you're doing this, right?
+It wasn't just for the freshest nano you could get.
+That's always a consideration.
+But I'll build it from source if I have to, whatever it takes to get the freshest nano.
+Whatever it takes.
+All right.
+So survey says I am on plasma 5.2.2.3.
+I'm happy with that.
+That's great.
+And I'm on Wayland.
+And it looks really good.
+It looks smooth.
+I think this is not a bad default to start with, at least.
+All right.
+Well, you just check back in after a couple of DNF updates.
+Yeah.
+Let's see how it goes.
+What could go wrong running rawhide on my laptop, right?
+One of the things I loved about when I switched to Fedora is that you can get the latest and
+greatest plasma without having to wait for the next release.
+It's not necessarily that that's coming to 35.
+That also might just come to 34 stable as soon as they're ready to take it out of rawhide.
+Generally, yes.
+However, the timing of things has worked out that the latest plasma isn't right.
+I mean, that was the whole thing that Neil convinced me of last week is that's where
+it all went sideways is the way the release windows are working out.
+It's going to be a long period of time.
+And so if you want fresh plasma, I knew it.
+Neil was to blame.
+Oh, it's totally Neil's fault with five twenty three.
+I know there's going to be a little bit of a little bit delay, but that, you know, I'm
+on five twenty two dot two and I'm like, I'm OK with that.
+Yeah.
+Yeah.
+Yeah.
+To be fair here, right?
+Like it's not like you're going to experience a huge gap because five twenty three itself
+doesn't even get branched from the development trees in plasma upstream until after Fedora
+Linux thirty five is branched downstream.
+So like the final release of plasma five twenty three doesn't happen until like I think it's
+a week or two weeks before Fedora Linux thirty five's GA, which is just too close to pull
+it in right away.
+And that just means that it'll get pulled in post GA and update like within two weeks
+or so afterwards.
+But if you are really feeling compelled to want the absolute latest and greatest, then
+Fedora Rawhide does, in fact, have it and we'll get it right away.
+But you take everything that goes with that, right?
+And that's that's really the core of it.
+Or you can use the the copper repos I mentioned earlier.
+One of our SIG members actually rebuilds everything from Rawhide for plasma for stable releases
+and you can activate those and do that.
+Man, you could have mentioned that before I installed Rawhide.
+I'm just saying.
+Well, Chris, I tried to tell you I tried.
+But you were you were on a kick was like, oh, yes.
+So is Rawhide any good?
+And you know me, I can't help it.
+I there's something wrong with me, dude.
+It's what drove me to Jen two years ago.
+It's still there.
+Well, you know, I have machines that run Rawhide because as a Fedora developer, like it makes
+some sense for me to at least have one or two that do it.
+And it's it's totally fine.
+Like I generally don't have issues with it these days, which sometimes can be kind of
+a disappointment.
+Yeah.
+Right.
+Yeah.
+But it works pretty well.
+Like the the major advantage of running Rawhide, at least from my perspective as someone who
+likes to help make the ecosystem better, is that you get the absolute latest Linux kernel
+in Mesa as they are coming and you can like before they're released.
+And so you can see how well it's working for your hardware.
+You can give feedback to the developers and they can actually do something useful about
+it to hopefully make it better sooner, because like by the time a release is out, like those
+merge windows have passed.
+And so it's it takes longer for fixes to come out.
+But if you're testing it as the get snapshots are landing in in Fedora or the RCS are landing
+in Fedora, Rawhide, then you have an opportunity to make sure that those things are fixed very
+quickly.
+It sounds like something I want to play with as well at this point.
+Now, I'm not typically the one who wants to like the bleeding edge kind of thing, but
+I do now.
+I do.
+Just don't do it on your production machine.
+You know, that's what I figured.
+Yeah, I'm not I'm not crazy enough to suggest that.
+Yeah.
+Meanwhile, my production systems are all on Ubuntu 18.04.
+It's pretty boring.
+I know.
+I know.
+All right.
+But with that, the cone of silence.
+Hey, Wes, come here for a second.
+Get in here.
+Is that you?
+The smell?
+I mean, yeah, I'm sorry about that.
+I'm surprised that hat fits in here.
+Jesus.
+Anyways, I wanted to let you know and I don't tell anybody else, but I know you've been
+wanting to up your credentials game.
+I know you.
+You talk about this all the time.
+You always want the latest certs.
+But our friends over to Cloud Guru have a course on Linux file sharing that helps you
+prepare for the LPIC two engineer exam.
+And in that course, they cover the basics, but also advanced configuration options for
+Samba and NFS.
+So I wanted to give you the link to this.
+I'll just put it in the show notes.
+I don't like I don't want to say it in the show because I don't want everybody to go
+get the certification and then, you know, take your job.
+Well, and it's a little embarrassing how bad I am at Samba can face.
+Right.
+I mean, yeah, because you can't just do test parm and get all the details.
+Anyways, I just thought you should maybe have the link.
+So I'll put it in the show notes.
+That's what I'll do.
+I'll put like in a cloud guru link in the show notes and then that'll take you to this
+Linux file sharing.
+Thank you.
+You're welcome.
+Just let's not mention it on the show.
+The cone of science.
+All right, well, that does bring us to the end of this week's episode.
+We'd love to hear from you.
+You can tweet us at Linux unplugged or go to Linux unplugged dot com slash contact.
+The whole network is at Jupiter signal over there.
+We do announcements, live streams, that kind of stuff.
+It's really kind of like our blow horn, but you can also send feedback at the Jupiter signal
+and we receive it there.
+Of course, there's lots of fantastic podcasts, including our sister show, Linux Action News,
+and the self hosted podcast over at Jupiter broadcasting dot com.
+Check out Linux Action News if you haven't.
+We've been discussing the audacity story from the very beginning over there.
+And last but not least, we'd love to have you join us live.
+We do this here podcast on a Tuesday.
+Join us at 12 p.m. Pacific, 3 p.m.
+Eastern.
+See you next week.
+Same bad time.
+Same bad station.
+Yes, make it a Linux Tuesday.
+Why not join the mumble room?
+Then you get a low latency audio stream.
+And the fun thing about that is if you're on Linux and you connect using mumble, the
+entire stack end to end is free software because we're doing it right here on Linux
+two using mumble.
+You connect, you get low latency, real time audio, and you're doing it all with free software.
+And it's also one of the best sounding ways to catch the show.
+That is at Linux unplugged dot com slash mumble and you just join us and hang out and then
+you're ready for the look plug too.
+It's kind of great.
+It's like a power move for the show.
+Thanks so much for joining us on this week's episode of the unplugged program.
+We're not going to see you here tomorrow.
+We won't see you the next day, but we will see you next Tuesday.
+I was enjoying a nice sea of this Tuesday, see you next Tuesday, one beer and I'm just
+totally scrambled now.
+It's like that thing really hits.
+We'll see you every Tuesday.
+Yeah, that's true.
+That's what I should say.
+You know, I still have that burn from the steam valve.
+Man, you know, I kind of expected this this rawhide thing to be kind of a train wreck.
+But man, you know, the default plasma setup after all, because I've just tried so many
+different desktop environments recently from Windows 11 to deepen to cosmic.
+And now to just throw plasma on rawhide on here.
+It's so simple and straightforward now.
+It's like plasma has become the just simple, obvious, straightforward UI.
+It's weird.
+Welcome to my side.
+This reminds me of a conversation we had like seven years ago or something.
+Yeah.
+Yeah.
+Well, you know, 40, 40 was compelling for a while, especially on a laptop.
+I really like where they're going.
+But then I read this.
+I read this great piece that Joey wrote for OMG Ubuntu about where the genome sees its
+future going.
+And I just looked at that and I thought, yeah, OK, that settles it for me.
+Plasma is the desktop environment for me.
+I am definitely and clearly and now it has been explained to me in multiple ways.
+I am not the target user for that desktop environment, and that's OK.

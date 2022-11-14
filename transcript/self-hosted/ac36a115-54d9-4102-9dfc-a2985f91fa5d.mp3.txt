@@ -1,0 +1,467 @@
+Coming up on self-hosted. I'm slow cooking some servers Alex has self-hosted some AI with a nasty gotcha and a damp basement
+I'm Chris and I'm Alex and this is self-hosted 22
+I've got a 13 pound brisket in my fridge the only man I know who has hooked his barbecue up to home assistant
+Almost almost so I bought a signals below or something now
+They make a couple of products and I wanted to try and get this particular one hooked up to home assistant
+They have another more expensive model, which does work with home assistant. And so this one I tried to decompile the APK and reverse-engineer the
+Firebase database calls that it's making but no luck haven't been able to get it working
+So I just have to cope with using their crappy app, which it's fine. No, it's no good
+but this needs to be an obvious priority clearly we need to have you set everything else aside and
+Get this working
+There's no other option. It's really nice. So when you want to cook a big piece of meat in this
+In the Kamado Joe you have to you know temperature is everything when you're coming to barbecue and
+Keeping a nice stable temperature to get that lovely smoky flavor. That's really important
+I had lessons from Carl, you know, so, you know, it's important, you know, we'll get to this
+But that's what I'm doing is I'm just slow cooking my raspberry pies in the RV
+I'm not it's not a thermal getaway issue. It's a it's a slow cooking and it plan
+I don't know what you're talking about. Ooh, could you use them to do sous-vide?
+You absolutely could you just put some meat in a bag in my server in my server booth and and let it go
+that is unless I have to
+Deploy my current fix which I'll tell you about shortly
+but one of the things I did for this road trip that I'm on down here in Texas enjoying myself some barbecue myself was
+shut down my
+shinobi
+Home camera system, so I have no recordings right now. Everything's just
+streaming into the wind I guess and
+Before I fire things back up
+I think you may be changing my mind on what software I go with because while shinobi did the job
+I kind of had issues with it over time. I'd have to reboot and for those of you not familiar shinobi is a
+Closed-circuit capturing application. It's a web-based app
+It's a little strange to use but it gives you an ability to pull in all these RTSP feeds and camera feeds into a single
+Application. I have a sense Alex. I have a sense you may have found something better
+I was watching a video by the hookup YouTube channel and he
+Really piqued my interest in blue iris now blue iris is paid software
+It's $75 for a proper license, so I'll just get that out out the way up front
+You know, it's not free like shinobi in terms of cost, but it is self-hosted
+It is self-hosted, but it's not open source either. So, you know, there's a couple of trade-offs to make
+it's running fully offline fully on my LAN, you know, it's a
+local NVR software and
+What really piqued my interest was he
+set up
+artificial intelligence
+motion detection really now
+This is super cool AI motion detection
+In other words, the software is aware of what's in the picture and it's using image recognition to make that determination
+Correct. So when I first watched the video, I thought there's no way this is all local
+He must be leveraging some kind of a cloud API
+sending these photos off, you know to who knows where and
+I'm not interested
+but then I watched the video and realized that he was using deep stack AI and deep stack you can run in a container on
+your LAN and
+so what this thing does is you submit a JPEG to it and then it will apply its
+What you call it? I don't know what
+object recognition because from what I could see in there, it seems like it can determine the difference between
+Faces dogs all kinds of common objects that would be in a camera feed
+There is a list of objects it can detect and you know a short list of useful ones is stuff like car truck bus
+Person dog bear that kind of thing bear
+Bear is on the list. That's good up in the Pacific Northwest. Trust me. It's just funny
+And so I thought this is gonna be really hard to get working, but I'll give it a stab
+I'll set aside an evening and I'll get going. So JDM who was on the last episode, you know, the server builds dotnet guy
+He hooked me up with one of those HP
+Z I
+Can't remember the model name a HP box anyway, and it cost me about $100 and in this thing
+it has a dual core seller on and
+And most importantly it supports Intel quicksync
+so this $90
+x86 system with 12 gigabytes of RAM and I bought a very cheap NVMe SSD. That's like
+60 gigs to put in there. So it was not booting off the spinning rust drive. It shipped with I
+Have an NVR system now that can support five cameras for $90
+Whoa, and how much storage like how long can you keep the footage with this? Did you have to add disk?
+Are you using the network storage? How is that part working? I have a USB 4 terabyte hard drive
+That's been sat in a drawer for about three years
+And I thought well may as well use it for something useful
+So I've just literally plugged in a USB hard drive into this desktop system
+There is room inside for a three and a half inch hard drive
+So I was kind of tempted to go and buy an easy store and throw it in there, but use what you got, right?
+Yeah, especially for something like this and then you could always build on it later
+well, we're talking about storage one of the things that impressed me when I was digging around and learning a little bit about blue iris and
+The hookups videos. He also mentions this it would seem that if your camera supports it
+You can do two types of video storage a low resolution
+maybe 15 frames a second 640 by
+You know 480 or whatever some really low-res video that you can store indefinitely forever
+You have that but then when the AI
+Detection kicks in and it notices something that is recognized
+It will flip over and keep a 4k copy or whatever your camera support of that particular moment in time
+So your stuff that has the action is in full glorious resolution
+And then your keep forever stuff is lower resolution and lower frame rate. Is that how you are using it with this box?
+Yeah, pretty much. They're called sub streams. So, you know, I have a 4k camera pointing at my driveway
+There's no reason to record 4k 24 7 that's just honestly stupid and a waste of energy
+but these cameras have hardware chips in them, which do the
+Video encoding in real time. So you actually get two streams out of this camera
+You get the 4k stream it can be either h264 or h265
+Which is great for file size and then you get a second sub stream as well
+which again comes out in h264 or 265 depending on what you set up and
+The resolution as you say of the sub stream. The second stream is much much lower
+So the SD stream is what we'll call the low-res stream. The SD stream is running pretty much all the time
+It has motion detection turned on so that's what's looking for motion in the frame. So
+What happens is motion is detected. It takes a JPEG still of that frame
+Sends that to the AI detection software
+The three pieces of software at work here. You've got blue iris
+You've got AI motion and then you've got deep stack. So deep stack is what does the image processing AI?
+motion is what reacts to the JPEGs coming in and sends the images off to deep stack and then
+Obviously blue iris is the CCTV NVR software. So AI motion
+Which is a small app which was written by someone the IP cam talk forums. I think his name is gentle pumpkin
+This app you can figure what you want the deep stack AI to be looking for
+so, you know cars bears trucks, etc, and
+Then once it detects a certain type of object in the frame, it will then and only then tell your
+Cameras to record the HD feed and you can set a pre record buffer of 5 10
+30 seconds if you want to so if you were sat there thinking oh, well
+Maybe it takes a bit of time for the images to process
+Am I not going to lose in the time it takes for that to happen up?
+Am I not going to lose the pizza guy coming down my driveway? No, you won't because you get the pre-record and it's all fine
+And it all just works, you know, that's the amazing thing about it. Is it just works. So
+one of the big things I missed after moving away from nest when I moved into this house early this year was
+You know that that really super simple interface of just swiping back through the timeline to see events and stuff like that
+And with blue iris, I have that again now and it's it's great. I've really missed it
+Yeah, there's a couple of cool modes for capturing stuff including what looks like a really nice UI for reviewing those motion events
+Pretty efficiently. Have you found that?
+Okay, I downloaded an app on my iPad that has been the best way to do that kind of stuff
+but one of the
+Better bits of blue iris is that it has a web interface so I can just log into you know
+IP address of HP server
+Colon port whatever and bring up the web interface and I have access through wire guard to my LAN
+Of course so I can just connect through a wire guard tunnel and do it that way wherever I am
+That that works really nicely, but I do have a bit of a confession to make about blue iris Chris
+It only runs on Windows
+Wait a minute, but doesn't the deep stack stuff run in a container on Linux? It does. It's a Windows Linux mix
+Yes. Yep. Well, I don't know if I want to deploy Windows just for that but at the same time
+It does look significantly better than shinobi. That's would you say maybe it's biggest downside for those that don't run?
+Oh, I mean, I don't know some people that it's not a big deal for sure. I'd say it's the biggest downside. Yeah
+the reason I ended up going that route in the end was
+Because of the fact that you want direct hardware
+Support for things like quicksync to make the the video transcoding or stuff like that
+You know not to CPU intensive
+You're gonna have a dedicated box for it. Anyway, let's say I wanted to put it on my server in the basement
+I would have either needed to buy a dedicated graphics card and pass that through to the Windows VM
+So that that can do the transcoding using envy ankle or whatever
+or I would need to buy a more modern CPU and put that in my server because I have
+Some old Xeons that don't have quicksync or I can spend 90 bucks put Windows on this thing and just forget about it
+Yeah, you did Windows 10. I have an old Windows 8
+Product key that I bought back in like 2013 or something
+And I just typed that in thinking this ain't gonna work and it did so, you know, I've got Windows 10 Pro for free
+I was getting pretty hyped, but that is a bummer. Yeah. Sorry about that
+Do you think deep stack would work with shinobi deep stack will work with anything that is a JPEG
+So all you need to feed to deep stack is
+an image
+Doesn't really matter what the problem is. The rest is shinobi
+It's a good it's a good app, but I just yeah
+I when it came time to reduce thermal load in the server booth. I thought yeah, this is one that has to go
+Well, there are a couple of others that perhaps you should try out, you know in the interest of science
+There's motion. I and zone minder. Yeah, I have looked at them. I
+Definitely need to give motion. I another fair shake zone minder
+I'm less impressed with but maybe it's improved recently. Yeah, I mean the worst thing about running Windows is that
+It's Windows and I don't really like running anywhere and I don't mean to come across as a you know
+A typical Linux kind of, you know, four legs good two legs bad sort of guy, but I just don't
+Feel the need to run it anywhere
+That said if I'm throwing it in a closet and forgetting about it the whole time
+Does it really matter probably not probably not no and if you were in the commercial space out in the you know
+real world with that at businesses running
+CCTV systems if they weren't appliances running Linux, they would be applications running on Windows boxes
+So you do see some of it out there in the real world? Yeah, there's nothing really better in the small to medium
+NVR space in my opinion. Yes, there's the unified thing
+But again, that's a proprietary ecosystem that you need to have their cloud key dream machine, whatever. They're calling it this week
+That's super expensive and the prices of their cameras are outrageous
+They might be good quality, but they are super duper expensive
+So, you know 70 bucks for blue iris supports up to 64 cameras and for me, obviously, I'm you know
+I'm only in the house. I'm not gonna get anywhere much much above 10, you know, and that's pushing it really, you know
+I bought one of those
+Doorbells, we had Morgan review a couple of weeks ago, but I bought the easy vis branded version of it
+Must say picture quality is fantastic on this thing and it plugged into blue iris. No problem with the RTSP feed
+So another vote for that doorbell really so who needs a ring when you can get an easy vis, huh?
+well an easy vis with a
+24-7 Windows box talking to a 24-7 Linux box running an artificial intelligence model to
+Decode your images apart from that. That's what we're all about here
+Right is taking something that is a commercial offering and enrolling it yourself
+And in this case you bought a commercial app to do it
+But you're still able to run it locally on premises, which I think is when it comes to video camera footage
+It's just so critical. I'm trading my time and effort for my data and convenience
+Yes, but this in particular is visual data of activities around your home and that to me
+Like yeah, I'll tell you like when I'm walking around in my house in the buck naked
+It crosses my mind when I see a camera out of the corner of my mind. I think to myself man
+I'm really glad that's not cloud connected right now
+Ain't no one gonna see that
+Right exactly just go ahead and delete that footage
+So easy vis is the maker of the doorbell you got and that does RTSP
+So you could in theory pull that into home assistant as well
+If you just wanted a Lovelace car just showing you the front door. Yep
+I can pull it into Lovelace and I do it works great. The the camera is like a weird like fisheye lens thing
+So that's kind of a trip getting used to that
+But I mean that's no big deal
+At least I can see whether those packages on my porch now without actually having to go and physically look
+Yeah, and I it sounds silly but when you're traveling like I am right now
+I have a camera at the studio at the door on the door and
+I love being able to just pull it up and check on it from time to time that particular camera, too
+I've intentionally made it possible for me to view when I'm away
+Yeah, I just love this at the studio that way when I get a package
+I know it's there and I can I can call up West I can say hey Wes
+Will you go grab that package for me?
+Now before you left you were really quite worried about the heat down in Texas, you know melting your pies
+How's that been? It has been tricky. In fact, I'd say it's been trickier than I
+Appreciated because it really starts with the solar system. I've gotten some good experience and I've learned a few tricks
+So I can run my air conditioning off of solar which feels like a hack
+It feels like a cheat code for nature
+But what I discovered when I'm running my air conditioners off of solar is when you invert
+That much of a load it generates a lot of heat
+so I'm already dealing with a heat issue in my server seat and now my electrical system is
+Struggling to stay cool as well. So the very system that powers the entire RV which I did not expect to be an issue
+But when you start inverting a huge load
+There's safety mechanisms that kick in when the gear reaches 110 Fahrenheit and it starts an auto shutdown procedure where certain things
+Ironically, it wasn't the air conditioner, but certain things start shutting off
+How much load does your AC unit pull in how when they're both going it's it's about 2,200 watts
+It varies that's the same as to what my entire house uses for AC
+Well when they're both going full bore and I really mean, you know, like it's 100 degrees out. It's hot
+It's hot. Yeah when it's Texas heat. Yeah
+If I run just one and it's not I don't have it on high, you know high power mode
+I think it's around 700 watts. Okay. Well, that's still a lot but not you know
+2000 plus it generates quite a bit of heat. So I've come up with a human solution to this problem
+I've trained the boy on which bays of the RV to go open to create some some venting
+Hey Dylan
+Ventilation bays go open the ventilation bays and he runs out so you have to do when you're stopped obviously can't do it going
+Down the road, so he runs out. He opens up the bays and I kick on the air conditioning
+I had visions of some Keanu Reeves style speed stuff of hanging out the window
+Yeah, I'm holding on to his feet. He's hanging down the side of the RV as we're going down the road. It's tricky
+It's trickier than I expected because the batteries are near the drivetrain and so the drivetrain gets hot plus it's 100 degrees outside
+So there's just a lot of thermal pressure on everything and the server seats
+very warm during the day if I don't get ready for this get ready for these numbers if I don't
+Implement a cooling solution for the server seat
+I have seen the temperature in that booth get as high as 97 degrees Fahrenheit for the ambient air temperature
+For all the components in there, so I've been following this very closely
+Of course, I'm bringing all this data into home assistant and then I'm reviewing it each day to kind of see how bad it got
+I now have like five of these
+six in one
+multi-sensor from
+Aotec AEO tech they're kind of expensive. They're like almost 60 bucks each, but they track light UV motion
+vibration temperature all that kind of stuff and it has a cool temperature sensor where it's actually like scanning using
+infrared
+So it actually it gets it's it's a really cool way to get ambient temperature and the pies themselves
+Start to throttle when they reach 80 degrees Celsius and they don't really
+Go above 85 degrees Celsius without shutting down
+Amazingly, they continue to function everything continues to work even transcoding and watching video
+All that stuff is still working and I have implemented another human solution here where I have tillin crack the booth
+he just he
+Removes the cover on the top of the booth and creates a little bit of airflow and that cools it down
+But then we have to seal it back up to turn it into a bed every single night
+So then if the temperature builds back up each day and then we crack it to cool it
+Have you thought about a vent in the side of the thing or something? Yeah, we're looking right now at ways to vent it
+It's tricky because it's wrapped in cloth and it would be really gaudy and it's also right as you enter the RV
+So if I put it right in the side of the booth, it'd just be right as you walk in you'd see it
+Very ugly. I am looking at other options. I've just got visions of Dylan going to sit down and you've been like, nope
+Sorry, son. You can't sit down today. The servers have got a breathe. It's a hot seat. Yeah
+It's so bad, so I ended up scouring the internet to find
+The various ways to take the temperature of a Raspberry Pi
+Because a lot of the built-in things like LM sensors that you would normally use on a Linux box
+They don't work on a Raspberry Pi
+I got a little script and I'll link the the details in it
+but essentially if if you just cat sys class thermal thermal zone zero slash temp if you just cat that file you'll get back a
+number and it'll be like
+54,530 and what that actually is is the temperature of your CPU. So when I ran it it was
+Fifty four thousand five hundred and thirty was the number that came back. Well, that is fifty four degrees Celsius fifty four point
+Five degrees Celsius and so I know that right now as we do this
+My pie is just a little under sixty degrees Celsius. So it's not in the dangerous throttling zone yet, and I just keep an eye on that
+Basically, I'm running it on the red line
+During this entire trip and I have a few ideas about relocating or using ventilate ventilation when I get back
+I mean, this is production mode, you know, the real solution here is just don't go to Texas in June. No kidding
+This was a non problem in the Pacific Northwest
+I'm only here for a few more days and then I'm making my way north again
+And it shouldn't be as much of an issue and then I think when I do eventually make it back to the Pacific Northwest
+And get to my home base. I will probably retool this setup
+And move it to a different spot that has ventilation because you had a spare Raspberry Pi ready to go and everything like that
+I did. Yep
+I was gonna be surprised if it was the pie that went first, you know
+Not a power supply or you know switch or something instead, but I think I think that's a very fair point
+In fact, that was the realization I had as the temperature started to rise as I realized
+Oh, you know, it's gonna pop first will be the power bricks or my firewall or my Wi-Fi
+That's what's gonna go first not the Raspberry Pi
+I mean if you look at you know, any Intel system these days, you know any Intel laptop
+They'll go up to 100 Celsius, you know almost instantly and so the I mean these things can cope
+I mean a pie isn't probably built to the same tolerances as a high-end Intel chip
+But you know these things can cope with some heat the circuit boards and stuff like that
+They're not they're not gonna melt or anything like that, but power supplies. They really really don't like heat
+Yeah, I'm a little nervous to be honest
+I have to give a hearty plug again for these AO tech multi sensors. I've talked about them on the show before
+They're not the cheapest z-wave temperature sensors. You can find out there, but I have these now
+I have one in my water bay. I have one in my electrical bay
+I have one in the bedroom one in the living room. I have one in the server booth
+I have one up front where I drive and I all of them
+flawlessly
+Report into home assistant and what is fantastic about them is you can run them with continuous power with with USB
+It's just you know, like super low voltage and then you get continuous one every second reporting if you'd like
+Or you can pop a like a Duracell lithium ion battery, you know those little removable lithium ions
+It has a spot for one of those you can pop in there and you can adjust the update interval by default when you run off
+Battery, it's much slower
+It's like every 15 minutes to save battery life and then the thing runs for like a year off one of those batteries
+Nice. I really like these things you do have to have z-wave, but they're just fantastic
+What I'm thinking is I'd love to put one under my deck or something outside that somewhere kind of vaguely sheltered
+Just to get you know an outdoor weather station going or something
+Are they suitable to go outside or are they indoor only?
+I mean, I wouldn't be surprised if you could but on their box now they think about it
+Does it does say indoor use only I don't know man
+I mean once you have the power in there and you seal it up
+It's they're pretty simple if you had it under your deck where it was out of the rain
+I think you'd probably be fine because I have two of them in my outside bays and one of them is my water bay
+Which is frequently exposed to the elements because I have incoming, you know hoses and stuff
+So you might be like get away with it cuz I'm I'm doing it
+Basically, it's pretty great and I just want to give them a hardy plug
+So I'll put it in the show notes. No, you know, I get no affiliate or anything like that
+But boy have they just worked really solid for me
+What I learned is you can use motion sensors for a lot of the things
+I was using cameras for for presence awareness and and automations. It's pretty great
+Well, particularly in your world where you know one footstep probably shakes the entire house
+Or at least I'm running kids, right?
+Like I I see a future where when several of these sensors are reading a certain vibration level. I just automate
+Something I I started playing with this for a brief period of time where if there has been motion or or not motion
+but vibration
+Disable all of the automatic lights and heater stuff because one of the tricks about home assistant going down the road
+Which I've been dealing with on this trip. It does not automatically update its location
+In fact, nothing does nobody builds these home products for a home that moves the echo product doesn't update Google stuff
+Doesn't auto update its location. You think you have a smart tube on your on your counter and it
+For the life of it still thinks I'm in Washington
+but also home assistant doesn't update its location automatically and
+Heaven forbid you've ever specified it via the YAML file because then you can't even update it in the web UI
+So I've had to go through and like every time zone change. I have to go through and fix that stuff
+So my automations for sunrise and sunset and all that still work, right? That really is a first-world problem, bro
+Yeah, who you tell it I know
+Doesn't mean doesn't mean I don't enjoy them, you know, it's it's these little challenges that kind of make this fun
+I mean, I know you you were kind of playing around with trying to get it right in your basement recently because you got a wet
+Basement. Yep, when we first moved in actually one of the first episodes where I was in this house
+Around the turn of this year. We talked a little bit about how I was monitoring the temperature and humidity in my basement
+now it's not a finished basement, but it's important to me because that's where my primary server, you know with the
+15 or whatever is
+13 spinning hard drives in is down there
+So, you know if it's you know, sitting at 90 plus percent humidity for a month. I want to know about it
+well, the rainy season has started here in Raleigh and
+unfortunately the
+Basement at Casa del Crech Mar is getting a little bit humid
+Got a wet basement
+How bad is it? Like when you say a little humid? Is it like yeah 90% plus?
+Oh, so there could be even moisture like collecting in areas and maybe mold starting to develop
+Yep, you can actually correlate in Grafana when I when I put some of the six month views into the discord
+I was talking with some of the guys in there about it and
+You could correlate storms
+with
+Spikes in humidity in my basement. Obviously is the ground around the house gets wet
+It's got to come up somewhere, which I just thought was super interesting
+And so I went on the Costco's website and bought a hundred and fifty dollar dumb
+Dehumidifier as in dumb as in it doesn't have any Wi-Fi enabled nonsense or anything like that
+And I've just thrown it down in the basement forgetting about it
+But I didn't really want it running 24 hours a day because it's quite loud
+It's directly underneath where my home offices so I could hear it through the floor. Oh, that's annoying
+Yeah, and so I just thought hmm. I've got the technology to solve this haven't I I found one of my tasmota smart plugs
+I wasn't using I
+Threw the dehumidifier on there and then I put a home assistant automation to run the dehumidifier between 7 p.m
+And 7 a.m. And that's worked great. Have you thought about getting a
+Sensor for humidity and then just running it when humidity is at a certain level
+that's how I know the basement was at 90 plus percent was because the
+The temperature sensor I have is one of those esp8 to 66 d1 minis connected to I think it's a dht22
+Which just monitor temperature and humidity that's all they do and that just reports back into the home assistant API
+I flash that one using ESP home a little while ago
+Which it just works really really reliably really really well. And so yes, you know in time. I will have the humidifier
+The dehumidifier, sorry, I will have that only come on. I mean it has its own
+Sensors built in once it detects the basement is you know, like 45% or whatever your target is
+It will shut itself off, but I also only want it running overnight when I'm not anywhere near it. So
+You know for me, I think
+That's the best of both worlds the dumb appliance has been made vaguely smart to fit my own personal requirements
+And then it uses its own thing inside itself to turn itself on only when needed. So hmm
+Yeah, that is a nice combo a way to use some of its built-in sensors
+I really whenever I can now and I'm buying something like a fan or a heater or a dehumidifier
+I just look for something that just has a dumb switch on
+That I can just leave in the on position and then really power cycle it with a smart switch. Mm-hmm
+Speaking of smart outlets some of the designers at github have obviously been a bit bored recently
+Oh, I got to admit I didn't realize they'd done a design change
+I mostly just interact with github from the command line
+So and also I don't think it's as bad on my screen because I'm on a laptop screen
+It's quite a subtle change, but it was I think the same day as Apple's keynote where they announced the big sir
+You know the the big design refresh with the rounded corners and the transparency and the magic
+yeah, then comes the github theme change and it's
+It's it's a very subtle change, but I use github every single day
+So for me, it's like one of the most important websites on the internet and I hate it. I just hate it
+there is
+the issues and the projects and the wiki thing the little bar above the repo is now over to the left and the releases tab has
+Moved from being a tab to being this weird
+Micro sidebar on the right and oh you're right. It's a fully adaptive website now and it I
+Mean, it's probably better in some ways. I'm just checking it out right now. Oh my goodness. You're right. Oh
+Hmm I kind of like it
+You really are an apple sheep well, no, it's just I'm on a smaller screen
+So it feels like it's a little tighter, but I could see if I was on a ginormous
+95 inch screen like you are it would be a lot of wasted space 95 darling. It's only 38
+Well, it's bigger than my 14-inch think bad, yeah, yeah
+So, I mean I do generally work on an ultra wide all day
+So I'm probably not the target market the designers had in mind
+When you move github to be, you know
+A third of my screen width or anything like that
+It looks like it always used to and for the most part the changes are largely
+Fine and benign
+But it's only when you start to get that wider screen where you've got elements all the way to the right and all the way
+To the left and in the middle. It's like guys it was fine before you've just made it worse
+You're taking a mouse road trip just to click on a UI element. Yeah, true now the good news is that
+That pushed me. I mean, it's just something I've been using kind of not super seriously for a while
+But in the last couple of weeks, I've taken it a bit more seriously and that's get tea get a yeah get tea
+I think get tea. I've always called it get tea a self-hosted. I want to say github clone
+That's probably not necessarily fair. Although it's very similar feature set to github
+They call it a community managed lightweight code hosting solution written in go and it's published under the MIT license
+It's really nice. It lets you mirror any public repositories that you want to so if you know
+You want to mirror every single thing you push to github locally just automatically
+Get tea will do that for you. It supports multiple organizations multiple users pull requests
+Forks all that kind of stuff, you know everything you're used to really with github
+Obviously the downside of self-hosting something like git is that you don't have the community that's there
+You know, I often think that when I see big projects moving to git lab even which is obviously a next level up from self
+hosting your own
+Git server again, so, you know just bear that in mind when you're making that choice. I think that's fair
+I think if you're a project that's trying to
+Draw in as many contributors as possible. You've really got to do the math on this
+However, if it's for yourself and some friends or for a work project
+I don't think there's any real downsides to it if you've got the storage and the means to keep it running
+I assume you probably deployed the container version of get tea. I do. Yes, and then it backs itself up to a ZFS
+Dataset which is now remotely replicated between my server and my other server in England
+I finally finished a six terabyte upload to England which took eight weeks
+How often were you checking in on that thing the trouble was
+Whenever I was uploading and my dad wanted to watch I player it kept buffering
+So I had to keep going in and turning it off and then I'd lose a night because I'd forget to turn it back on again
+Did he complain Alex? My my internet's just been so horrible. I don't know why yes, he did
+Sorry, dad. Did you say? Oh dad. Sorry about that. I
+Don't understand because so here's here's what I'm doing. I'm running from ZFS in my basement
+I'm doing a wire guard tunnel through my open sense router
+directly to the endpoint, which is a
+Ubuntu
+2004 LTS the box. I did the remote reinstall on a few episodes ago
+So if you want to know how long this uploads been going for go back to that episode
+And that was when I started the upload so it was a while ago
+Wow, he was having stuttering
+Downloading I player which is going to be a couple of megabits of most I would have thought
+Made let's say 10 and he has 300 something down and I have 35 meg up here with spectrum
+And it's like how can that possibly be causing buffering on his end? No kidding. You would think that your remote connection
+That's over a transcontinental link
+It wouldn't be able to mess up a download that he's doing this probably as near local as it gets
+And the only thing I could think of and this is just a pie-in-the-sky theory
+Is that there were too many connections open or something?
+But then it's going into a pf sense box at the other end which has you know a pretty large state table
+So it's not a cheap ISP router or anything like that, you know
+So I'm a bit stumped to it is as to what was causing it
+So if you have any ideas right in and let me know please. Yeah, that's tricky. It may not be a bandwidth issue
+It could be could be a device issue that was causing it but six terabytes
+I mean, I must feel good to have it all done now and backed up
+Yeah, and now I just do the incremental backups, you know
+I did my app data back up this morning and it took about 20 minutes instead of
+Six weeks. That was nice when you're self-hosting boy
+Have I learned this lesson recently that kind of peace of mind is necessary because you know when you're when you're deploying something like get
+to yourself
+You don't want to lose that data. That's gonna be really embarrassing and I am so grateful that the recent data loss I had
+the vast vast vast majority of it was all recovered even though my backups had broken because I had that data stored on another system which
+like you're doing now too and I
+Just really really got to double down on that. Like if you're gonna do this if you're gonna host this stuff yourself
+take the time because
+Boy, did I learn that one the hard way recently and that's even knowing this, you know
+Even having said this and preach this stuff over and over again, like it can still be an issue. So
+Congratulations, sir. That must be a nice piece of mind. It must feel good. Yep. Yep. Yep. Yep
+My grand vision is I'll have the the ZFS
+Replication at his house which will then itself replicate to the PI 8 gigabyte. I bought a couple of weeks ago at my sister's house
+So I'll have three full copies of everything. I care about in a ZFS reachable location
+On top of that. I have everything backed up to Google Drive that I care about and also Glacier
+So between those five different points, I think I have it covered. You're set unless it's a meteor strikes the earth
+Yeah, unless something takes out North America and Europe at the same time. I'm fine. I
+Think you probably have other problems at that point. Maybe maybe we'll see if you're lucky
+So thank you very much for listening. That was self-hosted 22. You can find the show at self-hosted show on Twitter
+And don't forget the discord self hosted show slash discord. Oh, yeah, it's really kicking up over there
+We've got over a thousand users these days. It's a it's a really great community. It is my social media platform now
+I mean, I'm still on Twitter at Chris last of course, but I've been really getting a lot out of discord
+So go check that out. We'd also like your emails your feedback your questions your ideas self hosted a show slash contact

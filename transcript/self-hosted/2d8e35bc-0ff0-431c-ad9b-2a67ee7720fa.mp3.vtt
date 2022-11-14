@@ -1,0 +1,1442 @@
+WEBVTT
+
+00:00.000 --> 00:04.080
+Coming up on the show today, Alex shocks me with his latest project, seriously.
+
+00:04.080 --> 00:07.120
+Then he lays down some quick fire picks.
+
+00:07.120 --> 00:12.000
+So get your notepad ready and then we'll discuss what's going on with OpenSense's
+
+00:12.000 --> 00:13.600
+WireGuard setup. I'm Chris.
+
+00:13.600 --> 00:15.920
+And I'm Alex, and this is Self Hosted.
+
+00:15.920 --> 00:19.840
+No, wait, the RV and Home Assistant podcast, episode 38.
+
+00:21.280 --> 00:24.800
+Thought I'd open today's show with a quick shout out to the Self Hosted subreddit.
+
+00:24.800 --> 00:26.960
+We had some love from you guys this week.
+
+00:26.960 --> 00:28.800
+Hello, hello. Hi, if you're listening.
+
+00:28.800 --> 00:30.320
+Hey, there. How's it going?
+
+00:30.320 --> 00:34.480
+It was pretty cool. Like someone tagged me in one of the threads who is on our Discord.
+
+00:34.480 --> 00:38.160
+And I don't know, it's just cool to see community come together like that.
+
+00:38.160 --> 00:41.920
+And we aren't like an official partner with the subreddit or anything,
+
+00:41.920 --> 00:46.000
+but I reached out to one of the mods or well, they reached out to me and we had a chat about
+
+00:46.720 --> 00:49.920
+a few things. We might have them on one of the shows in future.
+
+00:49.920 --> 00:54.320
+And it's sort of got my mind thinking about how we can involve the community a bit more.
+
+00:54.320 --> 01:00.240
+And, you know, getting random people on to talk about their setups and sort of figure out what
+
+01:00.240 --> 01:04.720
+containers people are running, how much storage they actually have, what the hardware underneath
+
+01:04.720 --> 01:08.720
+is, you know, maybe we could have a little 10, 15 minute segment every now and again with
+
+01:08.720 --> 01:11.280
+community members, like a community spotlight section.
+
+01:11.280 --> 01:14.400
+And you know what will end up happening is we'll get all these ideas from each other and we'll
+
+01:14.400 --> 01:18.720
+then all go off and build projects and get excited to do different stuff. That'd be awesome.
+
+01:18.720 --> 01:21.680
+People often accuse me of making them spend money. Well, it's not my fault.
+
+01:21.680 --> 01:26.960
+I can attest to that, actually. Yeah, I feel like that has definitely been the case.
+
+01:26.960 --> 01:31.440
+I mean, the thing is, is I love just getting ideas from the community in general. We get
+
+01:31.440 --> 01:34.480
+people to email into the show. But like you were saying, also over on on Reddit,
+
+01:34.480 --> 01:38.160
+there's some great ideas and our Discord. That's another spot where I see people
+
+01:38.160 --> 01:44.720
+kicking around stuff and often either either tried something and it and then tell us about it or are
+
+01:44.720 --> 01:47.360
+thinking about trying something and want our advice. That kind of stuff goes down in there
+
+01:47.360 --> 01:51.120
+all the time as well. My favorite thing about this show is that it's not just about
+
+01:51.120 --> 01:56.080
+my favorite stuff to read about is, well, there's two things. One is the stuff that works really
+
+01:56.080 --> 02:01.520
+well. And the other the other thing is things, you know, all the stuff that people try and then
+
+02:01.520 --> 02:08.080
+abandon for whatever reason. That's more often more interesting because that's what takes the
+
+02:08.080 --> 02:12.320
+time. That's what eats my time is trying stuff and failing and trying stuff and failing. And
+
+02:12.880 --> 02:19.200
+if I can community crowdsource that stuff, I'm in. Absolutely. There's always many ways
+
+02:19.200 --> 02:23.040
+to learn, like our friends over at a Cloud Guru. They are the leader in learning for the cloud,
+
+02:23.040 --> 02:28.080
+Linux and other modern tech skills. They have hundreds of courses, thousands of hands on labs.
+
+02:28.080 --> 02:31.840
+You can get certified, you can get hired, you can get learning at a cloud guru.com.
+
+02:32.400 --> 02:38.160
+Now, I've been doing a lot of travel the last few weeks back and forth to the hospital. And
+
+02:38.160 --> 02:42.240
+I've been needing to use a lot of hotspot data. And I came across this was on hack five,
+
+02:42.240 --> 02:47.120
+I think, actually, I came across just a really interesting little hack, little tip for anybody
+
+02:47.120 --> 02:54.400
+looking to do, you know, phone tethering, and try and bypass the the limits that people have
+
+02:54.400 --> 02:59.200
+that Verizon or AT&T and people like that set. Now you got my attention. Yeah, I'm sure I do,
+
+02:59.760 --> 03:04.880
+given that your house is on wheels. So the thing you can do is set something called a TTL time to
+
+03:04.880 --> 03:10.960
+live parameter. And this is apparently how the phone providers recognize whether you're on a
+
+03:10.960 --> 03:17.840
+laptop or a phone. That seems too easy, too good to be true. But I can confirm, having been streaming
+
+03:17.840 --> 03:26.240
+Netflix over 4G, 5G for the last month, that I went from it being unwatchable to being usable.
+
+03:26.240 --> 03:29.280
+So it does work. And there's a link in the show notes to a Reddit thread about this.
+
+03:29.280 --> 03:35.920
+This is fantastic. I absolutely have struggled with this. I've experimented with this myself.
+
+03:35.920 --> 03:41.120
+So by checking the TTL of the IP packets, they seem to be able to suss out the type of device
+
+03:41.120 --> 03:46.320
+that it is. But you can you can tweak that yourself, which is what this this guide walks
+
+03:46.320 --> 03:51.520
+you through. And there's other ways, too. I have found WireGuard to be an extremely successful
+
+03:51.520 --> 03:55.920
+way to get around carrier bandwidth shaping, which is really what's happening here is
+
+03:56.800 --> 04:01.280
+they're looking at your IP traffic, right? And they can see, OK, well, you're going to YouTube
+
+04:01.280 --> 04:04.800
+on port 443 or whatever it is. They can actually look at the traffic because it's all running
+
+04:04.800 --> 04:11.040
+over their gear. They have complete access to your traffic. And they have systems in place that will
+
+04:11.040 --> 04:18.640
+automatically force and in some cases in a really brute sort of lowbrow way. One of the ways AT&T
+
+04:18.640 --> 04:24.640
+will do this is they will just make YouTube smack up against a wall and try all of the different
+
+04:24.640 --> 04:32.080
+bitrates until YouTube, the servers, finally select a low enough bitrate. And then AT&T will
+
+04:32.080 --> 04:37.280
+allow the YouTube traffic to pass. And that's how they do it. Then you have others like T-Mobile
+
+04:37.280 --> 04:43.440
+who will actually re-encode your video traffic while it's in transit. Really? Yeah, there's
+
+04:43.440 --> 04:48.160
+different approaches. That's nuts. That sounds I mean, that's going to cost them a lot in CPU,
+
+04:48.160 --> 04:52.720
+surely nothing else. That may not be how they do it anymore either. They change as well. So that
+
+04:52.720 --> 04:59.040
+why I say today in early 2021 may not be how they do it at the end of 2021. But I have found. So
+
+04:59.040 --> 05:06.160
+what I do is I have a kind of a special sauce VPN. It's a bit of a proprietary solution from a vendor,
+
+05:06.160 --> 05:13.040
+but it bridges AT&T and Verizon. And the endpoint is a couple of Linode servers. And the carriers
+
+05:13.040 --> 05:17.680
+just have no idea what I'm doing when I do that. And that allows you to get around this, but it
+
+05:17.680 --> 05:22.160
+doesn't allow you to get around bandwidth limitations. So if you still have X amount,
+
+05:22.160 --> 05:25.600
+18 gigs a month and you can't go over that, it doesn't solve that problem. Are you on
+
+05:25.600 --> 05:30.560
+an unlimited plan? I am. Yes, my employer pays for it. So I don't really have to look at the bill,
+
+05:30.560 --> 05:36.400
+which is quite a nice position to be in. Oh, that is sweet. You mean really as a consumer,
+
+05:36.400 --> 05:40.080
+as an average consumer, it's pretty tricky to even get unlimited data to begin with,
+
+05:40.080 --> 05:45.600
+let alone get it for free. Well, I'm sure it's Verizon unlimited. So it's probably got all sorts
+
+05:45.600 --> 05:52.160
+of T's and C's. I think I get 30 gig of hotspot data and then the rest is throttled down to like
+
+05:52.160 --> 05:57.600
+600 kilobits or something like that. What this TTL parameter does is it basically gives you
+
+05:58.480 --> 06:04.880
+all of your data allowance that the T's and C's permit at full speed. That's effectively what
+
+06:04.880 --> 06:09.360
+this does. That is great. We will put a link to that in the show notes. It's going to be different
+
+06:09.360 --> 06:15.280
+per carrier, but that seems to work on Verizon. Now, have you been looking for a self-hosted
+
+06:15.280 --> 06:22.560
+file sync and sharing like web UI? This just came up actually within 24 hours and I don't
+
+06:22.560 --> 06:26.160
+really know what's good anymore. So I'm hoping you have a solution for me. Well, I was spinning
+
+06:26.160 --> 06:32.160
+up some stuff on Proxmox the other day and I had a VM and I didn't have Samba installed on my
+
+06:32.160 --> 06:36.800
+server because I'd literally just built it. I hadn't run the Ansible and I just needed one
+
+06:36.800 --> 06:41.920
+file. So I thought, why don't I find a web UI to browse my files? And I thought, well,
+
+06:41.920 --> 06:45.760
+I've got Nextcloud. I could just upload the zip file to Nextcloud. Oh, wait, I haven't deployed
+
+06:46.640 --> 06:52.560
+Docker yet. I haven't done all this stuff yet. So what I did was I ended up spending two hours
+
+06:52.560 --> 06:58.480
+to solve a five-minute problem by spinning up FileRun, which is a self-hosted file sync and
+
+06:58.480 --> 07:05.360
+sharing solution. It purports to install on any private Linux Mac or Windows server,
+
+07:05.360 --> 07:11.200
+but it will also support, you know, C-panel style PHP based type stuff as well. I've got
+
+07:11.200 --> 07:18.400
+it running out of a container, well four actually. So it uses the FileRun container itself. It uses
+
+07:18.400 --> 07:26.400
+Elasticsearch and something called Apache Ticker to do file indexing, as well as MariaDB or MySQL
+
+07:26.400 --> 07:31.760
+for a backend database. So it's not a super lightweight thing, but it is very pretty.
+
+07:31.760 --> 07:34.720
+It's very performant and it does exactly what it says on the tin.
+
+07:34.720 --> 07:39.280
+I don't really need the search. So I don't need all that overhead. What I really wanted was
+
+07:39.280 --> 07:44.480
+just browse my files, but this does have something I hadn't considered, but now looking at the
+
+07:44.480 --> 07:49.680
+feature list would be extremely useful. And that is it lets you send file requests to somebody.
+
+07:49.680 --> 07:54.720
+So I could send you a request, say, hey, Alex, send me that, you know, send me that batch of
+
+07:54.720 --> 07:58.800
+pictures or whatever. And then it would give you a way to send those to me. It's not like you send
+
+07:58.800 --> 08:02.880
+and receive files around the internet for your day job or anything, is it? Yeah, right. And so
+
+08:02.880 --> 08:07.200
+to actually be able to request something from someone just seems like it's a sort of an extra
+
+08:07.200 --> 08:11.840
+level of care for guests on the network. And then it also supports guest users too, which
+
+08:12.400 --> 08:18.560
+I also would need. So help me understand this. Is it creating its own document space and what you
+
+08:18.560 --> 08:23.680
+upload and put into it is what you see through the web UI, or does it let you browse existing folders
+
+08:23.680 --> 08:27.760
+and files on your server? So you're trying to compare it to a Nextcloud with that comment,
+
+08:27.760 --> 08:33.280
+I suppose. With Nextcloud, you end up sort of creating your own space within your file system,
+
+08:33.280 --> 08:39.360
+but this guy, file run, you just point it at a file share or an existing directory or a volume
+
+08:39.360 --> 08:44.000
+bind mount, in my case, with a container. And everything just showed up. I didn't have to
+
+08:44.000 --> 08:47.840
+change permissions. I didn't have to mess about with anything else. I've actually got it set to
+
+08:47.840 --> 08:54.240
+read only just because, well, I mean, the DNS that I have is exposed through traffic. So it's not
+
+08:54.240 --> 09:00.160
+going outside my LAN anyway, but you know, I feel like a web UI, it's a bit too easy to get a bit
+
+09:00.160 --> 09:04.880
+trigger happy sometimes. So it's read only for me. I just want to use it to download the odd file
+
+09:04.880 --> 09:11.520
+here and there, but it's very useful and no import is required. So yeah, very easy to get started.
+
+09:11.520 --> 09:15.840
+That is exactly what I was hoping for. It seems it also even has file versioning, if that's
+
+09:15.840 --> 09:20.160
+something that matters to you, and has a trash. So if you delete something, it'll first store them
+
+09:20.160 --> 09:24.320
+in there before it gets permanently erased. So you kind of have an escape hatch if you need it.
+
+09:24.320 --> 09:29.600
+All right. Yep. I'm going to deploy this, especially since it seems like you need to do,
+
+09:29.600 --> 09:32.320
+Alex, you got to send me your docker compose for me. Make it real easy for me.
+
+09:33.920 --> 09:38.000
+Yeah, but no, I'm going to give it a try. That's a great find. It's called, again, file run.
+
+09:38.000 --> 09:42.800
+So they do offer an enterprise version in case you see any prices or anything like that. It's free
+
+09:42.800 --> 09:47.920
+for up to 10 users for personal and family use, but they have paid versions for, you know, small
+
+09:47.920 --> 09:52.320
+businesses and an enterprise as well. So they have a means to make money. They have a business side.
+
+09:52.320 --> 09:54.480
+And that means it's probably going to stick around.
+
+09:54.480 --> 09:59.360
+Does use WebDAV though. I'm never mad keen on WebDAV, but that does mean you can do file
+
+09:59.360 --> 10:02.880
+syncing using, I think the next cloud client will talk to this.
+
+10:02.880 --> 10:06.720
+And if you're behind a corporate firewall too, it's just kind of nice to do everything
+
+10:06.720 --> 10:07.840
+over the web ports.
+
+10:07.840 --> 10:12.720
+I'll put a link to my compose snippet in the show notes. I did come across a new project
+
+10:12.720 --> 10:15.760
+called TermPad. I think it's termpad.io this week.
+
+10:15.760 --> 10:17.760
+All right. Let's take a look at this. TermPad, huh?
+
+10:17.760 --> 10:23.440
+Termpad.com. My apologies. And it's a very, very super simple. Like if you just create some text
+
+10:23.440 --> 10:24.800
+and then click save.
+
+10:24.800 --> 10:30.640
+Oh, that's what I'm seeing. Oh my gosh. It's a full screen, not a terminal per se,
+
+10:30.640 --> 10:34.720
+but it looks kind of like one. This is just a write space. It's neat.
+
+10:34.720 --> 10:37.760
+You know, like Docker containers come up with fake names. If you don't name them,
+
+10:37.760 --> 10:40.240
+like angry Torvalds or something.
+
+10:40.240 --> 10:41.760
+Yeah.
+
+10:41.760 --> 10:45.280
+It's funny. My mind went to angry Torvalds, isn't it? It's funny. Funny that.
+
+10:45.280 --> 10:50.080
+So the one I've just created for you was termpad.com slash awful wide eyed napkin,
+
+10:50.080 --> 10:56.960
+which is a really strange random generated name, but it does code syntax highlighting as well,
+
+10:56.960 --> 11:02.720
+just for super simple, you know, paste bin stuff. There's no database. It's all just open.
+
+11:02.720 --> 11:07.840
+So termpad.com is a hosted version, free. I don't know what happens to the data on that one,
+
+11:07.840 --> 11:11.840
+but you can self host it as well. There is a container, which we'll put a link to in the show
+
+11:11.840 --> 11:17.440
+notes. Kind of surprisingly useful. I love it. Okay. Let's see if you are two for two here,
+
+11:17.440 --> 11:21.520
+Alex. Tell me about tiny pin. We're going to be redoing our bathroom soon. So I was,
+
+11:21.520 --> 11:25.600
+I was looking across Pinterest the other day and it's just garbage. They make you sign in and do
+
+11:25.600 --> 11:30.000
+all this kind of nonsense about tracking what you're looking at. And I mean, it's kind of okay
+
+11:30.000 --> 11:35.600
+from a discovery point of view, but it's, it's also just garbage. I hate Pinterest. So I went
+
+11:35.600 --> 11:40.400
+on the look for something, you know, minimal to just share, you know, a little bit of a
+
+11:40.400 --> 11:45.120
+minimal to just share like a mood board almost. And I came across tiny pin. We'll put a link in
+
+11:45.120 --> 11:51.360
+the show notes of course. And this is a self-hosted minimalistic image collection board. Super simple.
+
+11:51.360 --> 11:56.240
+You can run it in a container and there isn't a lot else to say. It just does the job it's
+
+11:56.240 --> 11:59.840
+supposed to do, which I suppose is the praise that you want. And it's nice to see that they
+
+11:59.840 --> 12:04.800
+have Chrome extensions and through iOS shortcuts, there's a way you could add it to your share
+
+12:04.800 --> 12:09.200
+sheet as well. It seems that's handy. I don't see necessarily something in here for Android,
+
+12:09.200 --> 12:14.560
+but there probably is a means if you can think it up. I had a quick look at tiny pin just before
+
+12:14.560 --> 12:21.280
+the show and it is very minimal, but it does a good job of laying images out in different sizes
+
+12:21.280 --> 12:25.760
+in a very dynamically scalable way. So you can have a tablet size, you can have a full
+
+12:25.760 --> 12:30.480
+webpage version, or it can be on your phone. And it actually manages to sort of present the images
+
+12:30.480 --> 12:35.520
+in a unique way while also letting you get in there full screen. So I kind of, I think this is
+
+12:35.520 --> 12:39.120
+a nice little find. I don't quite grok how it's okay. Can you explain to me how it's sucking the
+
+12:39.120 --> 12:44.720
+images in and storing them? Cause that's the part I don't quite grok. No, I'm not sure it stores in
+
+12:44.720 --> 12:48.720
+the backend. It stores stuff in a data directory. So it's just a volume bind mount on the file
+
+12:48.720 --> 12:53.040
+system. Nothing too crazy, no database needed or anything like that. And you could go sniffing
+
+12:53.040 --> 12:57.120
+through there and back them up pretty easily if you needed to. Okay. Well we're two for two. I
+
+12:57.120 --> 13:00.480
+think that's a pretty good find. I think also the wifey would really love that one. That'd be a good
+
+13:00.480 --> 13:05.280
+one to add to the home server to impress her. I think now I want to see if you can be three for
+
+13:05.280 --> 13:11.280
+three on this one, Alex. Tell me about OpenSense 21.1. I vicariously OpenSense through you.
+
+13:12.560 --> 13:17.040
+Well, PFSense made a bit of a stink the other week by adding WireGuard support finally.
+
+13:17.760 --> 13:25.200
+And not to be outdone, the OpenSense project released 21.1, which is nicknamed Marvelous
+
+13:25.200 --> 13:31.840
+Meerkat. They say that it has new and improved firewall rules, NAT categories, better traffic
+
+13:31.840 --> 13:37.120
+graphs, all that kind of stuff. And they have a really small dig in their release notes at
+
+13:37.120 --> 13:42.080
+PFSense, which I really enjoyed, which says, for those wondering, the WireGuard plugin has
+
+13:42.080 --> 13:47.920
+been available on OpenSense since 2019 and receives continuous improvements by its maintainer.
+
+13:48.640 --> 13:50.240
+And that feature is unlikely to change.
+
+13:51.360 --> 13:56.880
+My eyes were immediately drawn to that in their release notes. I didn't realize PFSense had added
+
+13:56.880 --> 14:01.520
+WireGuard, but this is really good. Now we have it in both OpenSense and PFSense. Our WireGuard
+
+14:01.520 --> 14:07.520
+future has arrived. I'm just sad that it didn't make it into 2020 because my prediction was that
+
+14:07.520 --> 14:13.120
+PFSense would ship WireGuard. But I guess those BSD guys just shit when they're ready.
+
+14:13.680 --> 14:17.520
+No plans for you to go back, I assume? You're going to stick with the old OpenSense,
+
+14:17.520 --> 14:21.760
+I would imagine? OpenSense is kind of driving me crazy.
+
+14:21.760 --> 14:24.640
+Oh. There's a few reasons. Mostly to do with
+
+14:24.640 --> 14:27.680
+WireGuard, if I'm honest. I just think the implementation is...
+
+14:27.680 --> 14:35.440
+Maybe it's user error, okay? I will fully admit that I am not a network guy, but I spent,
+
+14:36.000 --> 14:41.120
+from the hospital, at least two or three weeks for maybe half an hour to an hour at a time,
+
+14:41.680 --> 14:47.840
+most days, trying to get WireGuard fully working. So I can connect in remotely, just fine.
+
+14:48.640 --> 14:54.960
+I can ping the firewall just fine. I can connect to the web UI of the firewall itself just fine.
+
+14:54.960 --> 14:59.680
+I can route traffic through my home internet connection just fine. But I can't access any
+
+14:59.680 --> 15:05.680
+hosts on my LAN, which kind of defeats the purpose for me. I don't necessarily really want to route
+
+15:05.680 --> 15:09.760
+my traffic through my house, but it's a nice benefit of WireGuard. What I wanted was to be
+
+15:09.760 --> 15:14.720
+able to access Proxmox or ESXi remotely and continue rebuilding my servers, which I've been
+
+15:14.720 --> 15:21.280
+doing for the last couple of months. And I've wasted... I don't even know how many hours trying
+
+15:21.280 --> 15:27.040
+to make this effing thing work. And I wrote the man page on WireGuard for OpenSense and I feel
+
+15:27.040 --> 15:33.200
+like a fraud because I just can't make it work. I wrote the book. I'm convinced at this point that
+
+15:33.200 --> 15:39.120
+there is a bug that I can't find. So I'm probably going to new compave my OpenSense install, which
+
+15:39.120 --> 15:43.840
+is... I don't want to do it, but I've wasted so much time and I'm convinced I've got all the
+
+15:43.840 --> 15:48.800
+firewall rules set up correctly that I don't see that I'm left with any other option. And so that
+
+15:48.800 --> 15:55.680
+then makes me think, well, if I'm going to new compave OpenSense, why don't I try ViOS or some
+
+15:55.680 --> 16:00.640
+other... I don't know. There's a million different options to try out there. Or I could just go
+
+16:00.640 --> 16:07.600
+whole hog and run CentOS streams and IP tables. Go full Westpain on it, is what you could do there.
+
+16:07.600 --> 16:12.080
+He does it home. Yeah, that WireGuard routing issue is tricky. He and I had to do some
+
+16:12.080 --> 16:18.240
+troubleshooting to get that working here at the studio. ViOS, I've heard the word ViOS
+
+16:18.240 --> 16:21.680
+I've heard the Discord talking about that recently. Is that a firewall platform?
+
+16:21.680 --> 16:27.840
+It is, yeah. It's Linux based, so not BSD. There's no web UI whatsoever, so far as I'm aware. I did
+
+16:27.840 --> 16:35.440
+try it once about a year ago for a few hours and the learning curve is real, so I gave up.
+
+16:37.200 --> 16:42.400
+The trouble is with learning a firewall is you go on the internet to Google stuff, don't you?
+
+16:42.400 --> 16:48.560
+But if your firewall's down, you have a hard time doing that. There are some things that are so
+
+16:48.560 --> 16:52.560
+mission critical that I just almost can't be bothered to change them because I know how much
+
+16:52.560 --> 16:58.160
+work it's going to be to learn a new thing and OpenSense is good enough. I do love the project.
+
+16:58.160 --> 17:04.080
+I think it's very stable. I never have to reboot the box. I never have to worry about updates or
+
+17:04.080 --> 17:08.160
+anything like that. But this WireGuard issue is kicking my ass, to be honest with you.
+
+17:08.160 --> 17:15.920
+I agree. It is a great product. It is a solid project and PFSense before it too. I also really
+
+17:15.920 --> 17:20.400
+like it. But I get you. I know what you mean. And sometimes it's really easy with WireGuard
+
+17:20.400 --> 17:25.280
+because something has it built in like some of the GI routers that we've talked about before.
+
+17:25.280 --> 17:30.160
+And sometimes it's something you've got to build up. I'm the guy that was trying to do WireGuard
+
+17:30.160 --> 17:35.600
+from behind a double carrier grade NAT to a Linode then down to the studio and I wanted to
+
+17:35.600 --> 17:40.320
+get to everything by its name. And I mean, that's quite the setup. Maybe we'll chat more about it
+
+17:40.320 --> 17:46.000
+sometime. What I did end up doing was I ended up looking at the Linux server WireGuard Docker image.
+
+17:46.720 --> 17:52.800
+Now this thing is slick AF. So you spin up the container, you do it in Docker compose,
+
+17:52.800 --> 17:57.120
+you name your peers just as an environment variable. So you can either say I want
+
+17:57.120 --> 18:03.520
+peers for, you know, so I want four peers and just deal with peers via a number. Or you can say
+
+18:03.520 --> 18:11.200
+peers, and then just put a space limited list. So you know, you put phone space, desktop space,
+
+18:11.200 --> 18:16.560
+server, whatever, as the environment variable, and it will go and generate all the config files for
+
+18:16.560 --> 18:22.960
+you. But here's the really cool bit. They've built in an alias into the container that will print out
+
+18:22.960 --> 18:29.440
+a QR code for each of those setups from a single line command. It's just slick, you know, after
+
+18:29.440 --> 18:36.640
+messing about with open sense for so long, and it's kind of older, less mature, I would say,
+
+18:36.640 --> 18:41.120
+implementation to come across the Linux server container was just a breath of fresh air.
+
+18:41.120 --> 18:47.040
+And so I ended up using our sponsor Linode. So you can use the coupon code Linode.com slash SSH.
+
+18:47.040 --> 18:52.480
+I ended up using our sponsor Linode to spin up a host dedicated to running this Linux server
+
+18:52.480 --> 18:58.000
+WireGuard container. And it just works really well. The performance is great. And I'm able to
+
+18:58.000 --> 19:02.400
+back this thing up. So I know that if anything happens, I've got the Linode backups. It just
+
+19:02.400 --> 19:06.880
+works really, really well. And whilst I was fiddling about with this container, I ran across
+
+19:06.880 --> 19:15.840
+a blog post from John Muchovech. I'm sorry, I probably butchered that name. The website link
+
+19:15.840 --> 19:22.960
+will be in the show notes, of course. And this is super cool. It lets you route specific containers
+
+19:22.960 --> 19:28.240
+through the WireGuard container as well. So you're able to use the Docker networking to potentially
+
+19:28.240 --> 19:32.880
+have multiple instances of WireGuard going to different places for different services,
+
+19:32.880 --> 19:41.200
+all on the same box. And it uses a parameter that is released as part of Docker Compose 3.8 schema
+
+19:41.760 --> 19:47.760
+of network mode service colon WireGuard to route the traffic through that container. So
+
+19:47.760 --> 19:53.440
+you could, for example, basically bind Nextcloud or any other service to listen only on that
+
+19:53.440 --> 19:59.760
+WireGuard server, just using one line of config in your Compose file. Super cool. And I love this
+
+19:59.760 --> 20:07.520
+kind of stuff. Linode.com slash SSH. Go there to get a $100 60 day credit towards a new account
+
+20:07.520 --> 20:12.400
+and go there to support the show. This is a great way to see what Linode can do. They're our cloud
+
+20:12.400 --> 20:16.880
+hosting provider. If it's back end infrastructure for the network, if it's a game server for
+
+20:16.880 --> 20:22.400
+my kids, or if it's a project we're working on for self hosted, we run it all on Linode.
+
+20:22.400 --> 20:27.200
+You have $100 here to work with. I mean, I want to be frank with you. You can do so much at Linode
+
+20:27.200 --> 20:33.040
+with that much credit. Check out some of their GPU systems. These are crazy. And in fact,
+
+20:33.040 --> 20:37.520
+Cloud Spectator Benchmarking, it's a group that goes around and tries the performance aspects of
+
+20:37.520 --> 20:44.000
+different cloud providers. They recently said that Linode has the fastest GPUs in the industry,
+
+20:44.000 --> 20:51.360
+outperforming AWS, Azure, Google. I mean, if you have any kind of image manipulation workload
+
+20:51.360 --> 20:56.560
+that you need to do and you just want to crank it out super fast, go to Linode.com slash SSH
+
+20:56.560 --> 21:02.400
+and get our $100 credit and use some of it for that. Image stuff is so cool right now because
+
+21:02.400 --> 21:06.800
+there's so many fun open source projects that you can play with and easily deploy on Linode.
+
+21:06.800 --> 21:11.280
+The entire stack, regardless of what kind of system you get, they all have super fast native
+
+21:11.280 --> 21:17.120
+SSDs, 40 gigabit connections into the hypervisors, and they have 11 data centers around the world.
+
+21:17.120 --> 21:21.680
+So there's probably something that's going to work for you, a client, a customer, etc.
+
+21:21.680 --> 21:28.960
+And additionally, they have all of this while being 30 to 50% less than AWS or Google. I mean,
+
+21:28.960 --> 21:33.760
+that's what's amazing. The fastest GPUs, crazy fast network connections. The reason why is they've
+
+21:33.760 --> 21:38.800
+been around since 2003. So they had a lot of time to figure out how to do this right. They have had
+
+21:38.800 --> 21:43.520
+a lot of time to get great deals, great network providers and connections. I mean, this is the
+
+21:43.520 --> 21:48.560
+benefit of being an independent cloud provider for as long as they have. They got a jumpstart
+
+21:48.560 --> 21:54.160
+on everybody else. And you can benefit now by going to Linode.com slash SSH and you can support
+
+21:54.160 --> 21:59.920
+this here show. Linode is really dedicated to offering the best Linux experience in the cloud.
+
+21:59.920 --> 22:04.000
+If it runs on Linux, you'll be able to run on Linode and be able to manage it easily with their
+
+22:04.000 --> 22:09.680
+cloud manager. Linode.com slash SSH. Thanks to Linode for sponsoring the self hosted program.
+
+22:09.680 --> 22:14.560
+And thanks to everybody who supports our show by visiting Linode.com slash SSH.
+
+22:16.560 --> 22:22.000
+What show is that? I mean, we we had accusations this week of being the Raspberry Pi and RV home
+
+22:22.000 --> 22:26.560
+assistant podcast. Well, it kind of goes that way sometimes. But I think it's a reflection of the
+
+22:26.560 --> 22:32.720
+trends of the time, man. Pi's come to a really good price point and performance. Low power is
+
+22:32.720 --> 22:39.200
+low power is more popular than ever. Also low noise, I'll point out. And Home Assistant is
+
+22:39.200 --> 22:43.120
+just blown up in the last three years. You know what's really going to annoy that commenter in
+
+22:43.120 --> 22:47.280
+particular is that I have been running Home Assistant on the Pi. So we're going to talk
+
+22:47.280 --> 22:52.240
+about the Pi for a little bit right now. For the last month, and it's been great the Pi 4.
+
+22:52.880 --> 23:00.480
+I found an old SSD in a drawer 120 gig SSD that's probably five years old. And I have from my
+
+23:00.480 --> 23:08.480
+shucking of easy stores, I have a USB to SATA converter. So I just reused that. So I'm up cycling,
+
+23:09.120 --> 23:16.400
+reducing e-waste, all that kind of good stuff, go me. And I put the Raspberry Pi Home Assistant
+
+23:16.400 --> 23:22.480
+image on there, expecting it to be, you know, I'm coming from an x86 platform. So whilst I move
+
+23:22.480 --> 23:27.680
+across from my Xeons to the Intel system and sort of redo things and move things around, I got fed up
+
+23:27.680 --> 23:32.880
+of my DNS stopping working all the time because I was running Adguard in a container. And I got
+
+23:32.880 --> 23:38.160
+fed up of Home Assistant not being up because it automates a lot more in my house than I really
+
+23:38.160 --> 23:45.200
+realize when it's not there. And I was expecting the Pi to be just a stop gap. I was expecting it
+
+23:45.200 --> 23:52.480
+to be good enough, but I was expecting to be ready to leave it after a few weeks. And I'm
+
+23:52.480 --> 23:58.880
+pleasantly surprised to report that I think it's fine for most people. Wow. I got to take all this
+
+23:58.880 --> 24:05.760
+in. This is a moment in the show. Episode 38, mark it down in the books, everybody. Wow. Wow.
+
+24:05.760 --> 24:09.440
+Because I feel like you always thought I was a little silly for doing it on the Pi. I did.
+
+24:09.440 --> 24:15.520
+I'll be honest. Yeah. I mean, the storage thing is still a problem. I don't like having an SSD
+
+24:15.520 --> 24:23.280
+with its ass hanging out on my desk with some random SATA to USB board connected up.
+
+24:23.280 --> 24:29.440
+And I'm not comfortable, if I'm being honest, with so much of what I depend on running over USB.
+
+24:29.440 --> 24:30.800
+Yeah. I don't like it.
+
+24:30.800 --> 24:35.280
+I agree totally. But the performance has been good. I mean, I don't do anything too crazy
+
+24:35.280 --> 24:38.960
+with image processing or anything like that through Home Assistant. I do that generally
+
+24:38.960 --> 24:45.360
+through Blue Iris, which is a dedicated box in my closet over there. And this leads us nicely into
+
+24:45.360 --> 24:53.040
+some follow-up. So a little while ago, I talked about doing or wrote about doing Intel GVT-G
+
+24:53.040 --> 24:59.200
+pass-through, which is virtual GPUs. So you can slice up the graphics card built into your CPU
+
+24:59.200 --> 25:04.960
+into a couple of slices, give Plex and QuickSync one slice, and then give Blue Iris and QuickSync
+
+25:04.960 --> 25:09.520
+another slice over there. And then there's still some left for the host at the same time with no
+
+25:09.520 --> 25:15.040
+PCIe GPUs required. That's like the Holy Grail for me. That was like the perfect setup.
+
+25:15.680 --> 25:19.600
+Unfortunately, it didn't work very well. Didn't work out very well.
+
+25:19.600 --> 25:20.160
+What happened?
+
+25:20.160 --> 25:28.480
+I was getting kernel panics with Proxmox. I was getting hung processes without kernel panics.
+
+25:28.480 --> 25:35.680
+So it was fine as long as I wasn't running Blue Iris. And I think the Windows Blue Iris load was
+
+25:35.680 --> 25:42.320
+just too much for the GVT-G stuff to handle. And I wrote a blog post about how to do it with
+
+25:42.320 --> 25:46.320
+Proxmox. And a lot of people have been pinging me about the performance and stuff like that. So
+
+25:47.040 --> 25:53.360
+this is unfortunately my update is to say that I have bought and sold an HP 290 in the last month
+
+25:53.360 --> 25:57.680
+because I was so happy it worked. And then the proof in the pudding turned out to be it wasn't.
+
+25:57.680 --> 26:04.320
+Good enough. So I've gone back to a dedicated Windows box for Blue Iris with QuickSync. And
+
+26:04.320 --> 26:11.120
+now my server is still the i5 8500 that I've purchased running Plex using QuickSync on that
+
+26:11.120 --> 26:17.840
+box with pass-through for the storage and that kind of stuff to a VM. So I'm running Plex on
+
+26:17.840 --> 26:22.720
+the host, but I'm still running most of my containers in a VM on that host with Proxmox.
+
+26:22.720 --> 26:27.440
+And a lot of people will think I'm mad for doing that, but I prefer doing it that way.
+
+26:27.440 --> 26:31.520
+Because it minimizes the number of reboots I need to do on the host.
+
+26:31.520 --> 26:34.160
+When you say you're running on the host, do you mean in a container or do you mean
+
+26:34.720 --> 26:36.080
+actually installed like a package?
+
+26:36.080 --> 26:43.040
+Plex is running in a container on top of Proxmox, a Docker container, not a LXC. I'm using LXC for
+
+26:43.040 --> 26:48.320
+stuff like AdGuard and a couple of other things like Bastion, SSH host and that kind of stuff.
+
+26:48.320 --> 26:54.000
+But for the most part, I like to try and keep the host as clean as possible to minimize host
+
+26:54.000 --> 26:58.720
+reboots, because when I reboot that server, it takes a lot of services out and it's a pain in
+
+26:58.720 --> 27:00.640
+the bum. So I'd rather not do that.
+
+27:00.640 --> 27:04.320
+And Proxmox, does it still give you a GUI to manage a Docker container pretty well?
+
+27:04.320 --> 27:06.400
+Like all that's just built into Proxmox?
+
+27:06.400 --> 27:09.440
+Not Docker, no. It does LXCs, but not Dockers.
+
+27:09.440 --> 27:13.840
+So did you get on the host like command line and install Docker?
+
+27:13.840 --> 27:19.600
+SSH, yeah. So Proxmox is built on top of Debian. And actually the route that I went to install
+
+27:19.600 --> 27:26.800
+Proxmox was a naked Debian install. And then you can install the Proxmox packages and repos on
+
+27:26.800 --> 27:32.400
+top of that. So it's just, you know, vanilla Debian with the Proxmox kernel effectively.
+
+27:32.400 --> 27:36.720
+It's not like free NAS where you start mucking about on the host OS and you could really screw
+
+27:36.720 --> 27:39.520
+stuff up. That's what's always put me off on these appliances.
+
+27:39.520 --> 27:45.120
+You could. I mean, it's Linux, but Proxmox isn't an appliance. It's an abstraction layer.
+
+27:45.120 --> 27:51.360
+So they do weird stuff with like networking and they put all the VM configs in, you know,
+
+27:51.360 --> 27:55.840
+bespoke places that are unique to Proxmox. And that's probably my biggest issue with Proxmox
+
+27:55.840 --> 28:00.880
+as a project, to be honest, is it's slightly esoteric. But once you learn those little
+
+28:01.600 --> 28:03.440
+foibles, does the job.
+
+28:04.000 --> 28:06.240
+Yeah, it doesn't seem like it's too bad. And you were able to get it working.
+
+28:06.960 --> 28:10.720
+So you kind of have a real, I mean, a bit of a hodgepodge right now.
+
+28:10.720 --> 28:14.720
+Sounds like you got like three different servers running in your house right now.
+
+28:14.720 --> 28:20.720
+I did. Yeah. So I predicated all of my buying and purchase decisions around this Intel GVTG
+
+28:20.720 --> 28:25.200
+stuff actually working. And it was only once it had been in production for a couple of weeks,
+
+28:25.200 --> 28:31.200
+I sort of really realized that, no, this isn't going to be reliable enough and I'm going to have
+
+28:31.200 --> 28:38.560
+to constantly keep poking and tending this thing. And so, yeah, going back to the HP 290 as a
+
+28:38.560 --> 28:48.160
+Windows box, the i5-8500 based system with PyKVM as my server. And then I've got a Homelab box as
+
+28:48.160 --> 28:52.000
+well, which currently is the dual Xeons, which I was running for the last two, three years
+
+28:52.720 --> 28:58.880
+with 128 gigs of RAM. And I'm going to use that as like a Homelab slash backup box. So I'll power
+
+28:58.880 --> 29:03.520
+it on minimum, I don't know, once a week, whatever. Have a couple of 10 terabyte hard drives in there
+
+29:03.520 --> 29:11.120
+and mirror my ZFS array with ZFS send or whatever. And then that'll be my onsite backup effectively.
+
+29:11.120 --> 29:18.640
+But what I'm thinking is that those dual Xeons are massive overkill for running OpenShift in
+
+29:18.640 --> 29:24.240
+my context of developing infrastructure at work, which is its primary use case.
+
+29:25.040 --> 29:28.880
+And so I'm thinking maybe I could get away with a knock or two for that role,
+
+29:28.880 --> 29:32.960
+or maybe I should just stop spending money and just use what I've got.
+
+29:32.960 --> 29:36.160
+Well, I think clearly you just haven't gotten the Py religion enough,
+
+29:36.160 --> 29:38.480
+because that just sounds like great uses for a bunch of pies.
+
+29:38.480 --> 29:40.480
+Oh, yeah.
+
+29:40.480 --> 29:43.120
+Because you also have a Py running now. You now have a Py running with Homestead,
+
+29:43.120 --> 29:44.640
+so it is a several systems.
+
+29:44.640 --> 29:50.880
+Yeah, I think so. I probably will take Home Assistant off the Py. I'll probably put it
+
+29:50.880 --> 29:56.000
+back on Proxmox because I've got NVMA storage in there. It's going to be more performant than the
+
+29:56.000 --> 30:00.480
+Py, particularly when you're loading lots of plugins like VS Code and the heavier stuff like
+
+30:00.480 --> 30:03.600
+Node-RED. You do notice a difference there.
+
+30:03.600 --> 30:05.520
+Yeah, or snapshots or updates.
+
+30:05.520 --> 30:11.280
+Yeah, updates for sure. It takes 10 or 15 minutes instead of five.
+
+30:11.280 --> 30:14.960
+So yeah, you do notice it's a less powerful system.
+
+30:15.520 --> 30:18.800
+But in terms of just day-to-day functionality of controlling your
+
+30:18.800 --> 30:22.480
+devices and automations, it does do the job just fine.
+
+30:22.480 --> 30:26.640
+Well, that's the thing about an automation, right? It just happens without me knowing
+
+30:26.640 --> 30:31.600
+how long it takes. If it takes eight milliseconds instead of four, I don't really care.
+
+30:32.640 --> 30:38.000
+No, and for me, in my particular use case, because in 2021, I think I will be off-grid
+
+30:38.560 --> 30:42.960
+more than I ever have been. Power matters more than ever. I've actually been condensing down.
+
+30:43.840 --> 30:48.480
+I'm now down to just two Pys, and I'm going to try to condense down to maybe just one
+
+30:48.480 --> 30:50.720
+Py or the Odra item. I'm not sure yet.
+
+30:50.720 --> 30:53.920
+The Py intervention that we staged appears to be working then.
+
+30:53.920 --> 30:57.680
+Yeah, it's funny. As I'm sort of scaling down, you're scaling up your Py usage. I think you'll
+
+30:57.680 --> 31:00.640
+be on the show soon. Tell me about more Py deployments you've done.
+
+31:01.520 --> 31:07.200
+You say that, but I was looking at the Odroid stuff, particularly after Home Assistant Blue
+
+31:07.200 --> 31:10.160
+came out. I was like, okay, well, this is the future of Home Assistant. I should just buy
+
+31:10.160 --> 31:19.520
+one of those and call it good. But they're $180? That's too much. Compared to what you can buy as
+
+31:19.520 --> 31:27.440
+a used Dell or a used HP system, the HP290 that's now running my Blue Iris was $140 shipped. For
+
+31:27.440 --> 31:33.680
+that, I got a 500 gig hard drive. I got eight gigabytes of RAM and a quick sync capable eighth
+
+31:33.680 --> 31:38.880
+gen Intel CPU with two PCIe slots. I can add an NVMe drive.
+
+31:38.880 --> 31:40.400
+X86 compatibility.
+
+31:40.400 --> 31:46.400
+Yeah, and X86 as well. I could add any eighth gen Intel CPU into there if for whatever reason
+
+31:46.400 --> 31:50.560
+the Celeron that's in there isn't good enough, which it is actually for the six cameras that I
+
+31:50.560 --> 31:58.000
+have with quick sync. I could add an NVMe drive in there. I could add more RAM. I can do PCIe slots
+
+31:58.000 --> 31:59.760
+and it was $140.
+
+31:59.760 --> 32:04.320
+It is too expensive then. The Odroid is just too expensive and it doesn't have the compatibility
+
+32:04.320 --> 32:05.920
+that the Raspberry Pi 4 does.
+
+32:05.920 --> 32:11.760
+I'm still feeling the pain from that Helios purchase. I still feel really almost burned
+
+32:11.760 --> 32:18.880
+by that because I thought ARM would be better by now. It's just a struggle. Whenever you're
+
+32:18.880 --> 32:24.800
+trying to do something, you'll always come across some edge case of the container you want to run
+
+32:24.800 --> 32:31.040
+doesn't have an image for the correct architecture, or some package isn't built for ARM,
+
+32:31.040 --> 32:35.360
+or it's not got quick sync. I know I keep going on about quick sync, but it is amazing.
+
+32:35.360 --> 32:42.560
+And for me, the price I pay of a few extra watts and a few extra liters of space in my house being
+
+32:42.560 --> 32:48.880
+used up is totally worth it for not having to futz around with ARM stuff for another year or
+
+32:48.880 --> 32:49.920
+two until it's ready.
+
+32:49.920 --> 32:55.280
+Yeah, I think that's a perfectly reasonable outlook. Even you make a good price argument.
+
+32:55.280 --> 33:02.400
+I think the reality is that if I could only choose between an x86 box or an Odroid type
+
+33:02.400 --> 33:06.640
+system for my home hosting, I would absolutely choose the x86 box every single time.
+
+33:07.200 --> 33:12.480
+There are kind of examples in the market though that show us where ARM is going. So I think this
+
+33:12.480 --> 33:18.480
+is going to be a solved problem. It really kind of demonstrates how it's all about implementation.
+
+33:18.480 --> 33:24.320
+You look at Apple with the M1, look what they're capable of doing with ARM, and then you look at,
+
+33:24.320 --> 33:29.280
+say, the Raspberry Pi Foundation and the different kind of scale of machines they can do with ARM
+
+33:29.280 --> 33:33.760
+and the ecosystem they've built around it now and the foundation that they have built around it.
+
+33:34.320 --> 33:38.320
+There are implementations that do it really well, and then their implementations are a little bit
+
+33:38.320 --> 33:43.520
+rough. And I think it's so nuanced, it's hard for consumers to understand the value differences
+
+33:43.520 --> 33:47.360
+there. And I think that's why you and I have been kind of chewing on this recently is because
+
+33:47.360 --> 33:52.160
+these are sort of the unspoken things that aren't necessarily specs that are bullet points on a
+
+33:52.160 --> 33:56.880
+web page. These are the more nuanced things that you learn over time when you use them in production.
+
+33:56.880 --> 34:03.920
+By using it, yeah. By trying to solve a particular problem and butting your head up against endless
+
+34:03.920 --> 34:09.520
+forum posts or, in some cases, because what you're trying to do, you might be the first
+
+34:09.520 --> 34:14.080
+trying to do it on ARM, there are no forum posts and good luck to you, you know.
+
+34:15.680 --> 34:19.760
+Well, our friends at a Cloud Guru want you to know about their Linux networking and troubleshooting
+
+34:19.760 --> 34:24.400
+course this month. This is something you may want to look into if you need the fundamentals or want
+
+34:24.400 --> 34:29.520
+to know more about tools and techniques or use cases to configure, manage and troubleshoot Linux
+
+34:29.520 --> 34:34.000
+in a networking context. By the end of their course, you'll feel comfortable in working with a
+
+34:34.000 --> 34:39.440
+large variety of networking tools and configurations to manage complex Linux networking
+
+34:39.440 --> 34:43.920
+implementations. It's at a Cloud Guru, and we will have a link in the show notes to go specifically
+
+34:43.920 --> 34:46.480
+to this course or go to a cloudguru.com.
+
+34:48.080 --> 34:52.480
+Continuing talking about the pie just to annoy that one specific Reddit commenter.
+
+34:52.480 --> 34:57.840
+I'm full troll mode today. We talked about backing up Home Assistant last time
+
+34:57.840 --> 35:03.680
+through a Google Drive plugin, and a little birdie tells me you tried it out at last.
+
+35:03.680 --> 35:08.400
+You talked me into it, you did. You and the audience, we got a couple of emails in about it too,
+
+35:08.400 --> 35:14.080
+and so I finally gave this Google Drive backup a try. It's an add-on specifically for Home Assistant,
+
+35:14.080 --> 35:18.800
+and this is a good example of why it's kind of nice to have the full supervised Home Assistant
+
+35:18.800 --> 35:23.120
+setup is it's easy to add repositories for this kind of stuff, and you're off to the races.
+
+35:23.680 --> 35:26.720
+And what it lets me do, and if you're not familiar, we talked about a little bit,
+
+35:26.720 --> 35:31.040
+is it lets you take your snapshots and send them up to Google Drive. Pretty simple, that's all it does.
+
+35:31.040 --> 35:36.640
+What I've learned now after using it for a little bit is it has a couple of nice built-in
+
+35:36.640 --> 35:41.200
+management features. It'll keep four snapshots locally, and then by default it'll keep four
+
+35:41.200 --> 35:47.120
+snapshots in Google Drive, but that is totally configurable. You can also have it automatically
+
+35:47.120 --> 35:53.760
+create the snapshots for you, which is probably a feature I needed more than I realized. I was only
+
+35:53.760 --> 35:58.560
+doing snapshots right before major events, but if you think about it, it could break at any time.
+
+35:59.120 --> 36:05.600
+Something could die. You need stuff that's more current. So I set this every three days at 2 a.m.
+
+36:05.600 --> 36:11.120
+to take a snapshot and then upload it to Google Drive. And what I really was impressed by is how
+
+36:11.120 --> 36:17.120
+it displays what snapshots are local only, what snapshots are on-drive, and just really easy
+
+36:17.120 --> 36:21.680
+options to manage it. And as you would expect, it's stupid easy to connect it to your Google
+
+36:21.680 --> 36:25.360
+account. It just uses all of Google's authorization stuff where you go through all the standard
+
+36:25.360 --> 36:30.240
+Google login screens, and it's set up and you're off to the races. I can't believe how easy it was,
+
+36:30.240 --> 36:34.160
+and now it's just hands-off. There's a little triangle as well that shows up to say,
+
+36:34.160 --> 36:39.440
+this snapshot will be deleted when I run the next backup set, just so that you know
+
+36:39.440 --> 36:42.960
+all right, that's my weekly snapshot falling off the end of the conveyor belt.
+
+36:42.960 --> 36:48.800
+I like this pairing with Duplicati, too. So this is how I'm still backing up any of my system level
+
+36:48.800 --> 36:52.880
+stuff. This has nothing to do with Raspberry Pi or Home Assistant. You could use this on any Linux
+
+36:52.880 --> 36:59.840
+box, and I really, really love it. Duplicati is what I use for off-siting my Docker compose files,
+
+36:59.840 --> 37:06.000
+my configuration files in general, etc config, any of those kinds of things that I think I would
+
+37:06.000 --> 37:11.840
+want to be able to restore if I were to reload a base system. I use Duplicati to off-site that
+
+37:11.840 --> 37:17.040
+system level stuff. So now I have this Home Assistant Google Drive paired for the snapshots,
+
+37:17.040 --> 37:22.000
+which is the application level stuff, and Duplicati for the system level stuff, and I feel
+
+37:22.000 --> 37:26.720
+like I probably have my backup more dialed in than I ever have right now. Are you not ever tempted to
+
+37:26.720 --> 37:32.320
+use, you know, Git to manage your config files? Because they are just text files. You've put that
+
+37:32.320 --> 37:38.160
+seed in my mind a little while ago, and I have been considering it. It's mostly just taking the
+
+37:38.160 --> 37:43.520
+time to set it up and bother, because what I have now kind of works, so I don't have like an impetus
+
+37:43.520 --> 37:50.080
+to replace it, but I know I probably should replace it before I have that impetus. I'm reminded of a
+
+37:50.080 --> 37:58.400
+conversation I had at my first developer job with one of the senior architects. I came in fresh out
+
+37:58.400 --> 38:05.040
+of my computer science degree, just a lad, saying, well, why don't we just rewrite this? Why don't
+
+38:05.040 --> 38:09.040
+we just rewrite that? I mean, this is stupid. This is really old. Why are we still running Java 5 and
+
+38:09.040 --> 38:13.040
+blah, blah, blah, blah, blah, blah. And he sort of sat me down, and it was over like lunch break.
+
+38:13.040 --> 38:16.960
+It wasn't like a super formal thing, but it was like, well, what you've got to realize, Alex,
+
+38:16.960 --> 38:24.160
+is that when you rewrite code, obviously there's a cost to rewriting the code. Someone has to pay
+
+38:24.160 --> 38:29.920
+that bill. The business, in air quotes, the business has to pay that bill. Some product
+
+38:29.920 --> 38:34.960
+manager somewhere has to sign off product owner and say, yes, I'm going to pay for this out of
+
+38:34.960 --> 38:42.160
+my budget and do that. All right. Okay, cool. What's the spec going to be? Well, at a minimum,
+
+38:42.160 --> 38:48.480
+it's got to be what it already does. But what the product owner is looking for is something extra.
+
+38:48.480 --> 38:54.800
+They want to add a new type of credit card that they can accept, or they want to add a new feature,
+
+38:54.800 --> 39:01.680
+whatever it might be. And so the bill for them to add a new feature to the existing pile of crap
+
+39:01.680 --> 39:11.040
+that's already there is 5% versus 105% of rewriting the entire code base, which could take
+
+39:11.040 --> 39:18.160
+multiple years, during which time you still have to innovate to keep ahead of your competition and
+
+39:18.160 --> 39:25.200
+patch and write code for the old code base. And you're just like, oh yeah, now I see why
+
+39:25.200 --> 39:33.120
+massive enterprises have code bases that are 30, 40 years old, that people are scared to touch
+
+39:33.120 --> 39:39.600
+because what they have just works and is a stinking cash cow. So the spec is the kind of
+
+39:39.600 --> 39:47.680
+code. The code is the spec. Why would anybody, if it ain't broke, don't fix it or just keep fixing
+
+39:48.240 --> 39:53.840
+the minimum viable fixes? What you call technical debt, they call an investment.
+
+39:55.120 --> 40:02.160
+It's very true. It's very true. Yeah, I've very much had that same arc over my career. I was
+
+40:02.720 --> 40:07.920
+the bull in the china shop. Let's come in and tear it all down and replace it with the new stuff guy.
+
+40:07.920 --> 40:13.520
+And towards the end, I was the guy being like, well, let's not replace it. Let's build on what
+
+40:13.520 --> 40:17.840
+we've got. But I feel like in some ways, you know, you learn how to do things better. And by the end,
+
+40:17.840 --> 40:22.480
+you should be able to build on on what you've done. But it's software is tricky like that.
+
+40:22.480 --> 40:26.080
+Sometimes it is better just to restart. And we see it a lot with the projects we use to self host.
+
+40:26.080 --> 40:30.720
+You'll see them either fork or you'll see them just sort of reboot completely with a little bit
+
+40:30.720 --> 40:34.800
+less features because that's the only way they could get it out the door. Well, we're just about
+
+40:34.800 --> 40:39.680
+done, I think. But we have more in the post show. If you are a member, you get a little extra show
+
+40:39.680 --> 40:44.560
+you can go to self hosted dot show slash s re if you'd like to become one. Not only do you support
+
+40:44.560 --> 40:49.680
+the show, but you do get a limited ad feed and that extra content out there. As always, you can
+
+40:49.680 --> 40:53.920
+get a self hosted dot show slash contact. That's the place to go to get in touch with us. And you
+
+40:53.920 --> 40:59.920
+can find me on Twitter at ironic badger. I'm there to add Chris LAS and the show is at self hosted
+
+40:59.920 --> 41:05.680
+chill. Don't forget the network at Jupiter signal and that was self hosted dot show slash 38
+

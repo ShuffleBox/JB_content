@@ -1,0 +1,382 @@
+Coming up on Self-Hosted 20, you're not a true self-hoster until you've lost your
+entire configuration at least once, right? I'll tell you my tale. Alex has done a deep dive in
+your best options for cloud backup, and we try to find the right Wi-Fi solution
+for a listener with a real challenge. I'm Chris. I'm Alex, and this is Self-Hosted.
+I'm so jealous of you going down at Austin. You're going to get some of that delicious
+Terry Black's barbecue, aren't you, and rub my face in it.
+Absolutely. I'm going to take pictures of it from all the best angles, and then I'm going to take
+it into a photo editor and like, you know, punch it up a little bit, and then I'm going to send
+it to you. On your Instagram story? And then I'll also make sure to just sort of
+capture my thoughts as I'm enjoying it and send that to you as an audio message.
+In detail. Yeah, okay. Yeah, it's going to be a good trip. It's going to be myself,
+the wife, and the three kids and the dog all loaded up in lady jupes. I've got now, after
+quite the experience, I have got 1.2 terabytes of media for offline consumption.
+That's quite a bit. Possibly more than you need.
+Yeah, yeah. I wish I would have realized that before I attempted to get it,
+because I might have saved myself a lot of trouble.
+So what did you get and how did you get it?
+Well, I wanted to just add more storage to my home setup. This was a
+set up. This was just an innocent voyage. One that I initially considered using Merger FS
+for because of your success with it. In fact, I even reread your blog post on the Perfect Media
+server. As I was considering doing this, I was reminded by a friendly member of our community
+that Butter FS has a very nice feature built into it that makes adding additional storage
+to a mount point super simple and adding mismatched drive sizes of all types is really easy.
+It really comes down to something as simple as like Butter FS, volume, add, then you specify
+the device and you specify the mount point. And with one command, you can take a brand new,
+perfectly formatted Butter FS disk and just add it to an existing mount point. And it just expands
+the storage available there. And then there's a balance command that'll spread the data across
+all the drives in the background, which you do have to do manually. If you don't run that
+command, it won't happen. But the idea is that you can kind of come along and just add additional
+storage and Butter FS add this volume to this mount point as much as you'd like, as long as
+you have appropriate data protections in place. Balancing is one of those things that I often
+think, yeah, I want that. But then you think about what it's doing and you're reading data
+from a bunch of disks and writing a data to a bunch of disks for what potential gain. So far
+as I see it with balancing, there's only risk. You're increasing wear and tear on the drives
+for what purpose? I think it's for my own personal, well, look at this, all my drives are at 65% now,
+as opposed to anything actually useful. What do you think?
+You're kind of spreading the load out in the sense of reads could potentially be faster if you had
+a controller that wasn't the USB bus. But say you had a pretty fast interface for these individual
+drives and then you spread the data out. When you're reading from multiple drives, you can
+potentially get some really fast read speeds. All valid if you're a data center. Yeah. Are
+you a data center? Nope, nope. I'm calling it my server cabinet at this point. Actually,
+I should say, Alex, I should back this up a couple of steps. I began a project because
+I put a sensor in the dinette where I have all the Raspberry Pis. I put a little Z-Wave sensor
+in there reporting back to Home Assistant. And when I started to see the temperatures
+that that little cabinet, if you'll allow it, was getting up to in the middle of the day when it's
+only 70 degrees. And here I'm going to Austin where it's going to be 100 degrees during the
+day while I'm there. And while I'm up in the Pacific Northwest, this thing's getting to about
+83 degrees. This is the inside of your dinette seat. Yeah. What I'm now calling my server cabinet.
+Server seat. Oh, server seat is great. Thank you. Yeah. So in the server seat, it's getting up to
+83 degrees. So what I realized I needed to do is I needed, first of all, I needed to check the
+thermals of the actual Raspberry Pis, which were high, but they're not dangerously high,
+but they were high. And then I needed to reduce hardware. I've been meaning to do this anyways.
+I wanted to shut down two of them and just reduce power draw and reduce heat output.
+So six minus two, that still leaves you with four Raspberry Pi 4s in there though, right?
+Not all of them are in the RV. I have a couple of Raspberry Pis here at the studio now too.
+Oh, okay. Okay. Yeah.
+So this was all an innocent goal, but in order to accomplish this,
+I needed to move some of my containers and all of my Plex media over to a different Raspberry Pi.
+This is where I started thinking I could take the drive that's attached to the pie. I'm shutting
+down, connect it to the Raspberry Pi I'm keeping and utilize merger FS to enjoy the storage across
+both these discs because I needed more than the terabyte that I had. That's that probably would
+have worked probably should have been the route I went, but it was not what I ended up doing.
+Instead, I got the wild idea. Now understand that it's, it's technically actually not that crazy,
+but I got the wild idea to convert the extended four file system on that drive. I was taking away
+from the pie. I was decommissioning and I would plug it into the new pie. And when I plugged it
+in before I mounted it, before I did anything in production, before I started up any containers,
+I converted it to butter FS. Now that isn't actually that crazy of a process.
+Unless you disconnect from your server in the middle of the conversion because it's too late
+at night and you are just an idiot. You're just a dumb idiot. You disconnect your SSH session
+while that session is running a butter FS convert and you didn't use screen or Tmux because you're
+a dumb idiot. Then, then you can really muck up your file system and be in a data loss situation,
+which is where I found myself. I've heard a lot of different situations in which data loss is
+possible with butter FS and your experiences is just adding to that list. Unfortunately,
+with merger FS, there's no configuration file. It's just a line in your FS tab. So to add a new
+disk, you have, you know, slash mount slash disk one, colon slash mount slash disk two,
+and that's it. It's done. It supports drives which already have files on them. It supports
+pretty much any underlying file system. There's no striping. There's no magic essentially. It's
+just merging files that live somewhere else in the fuse user space, like file layer, super simple,
+supports USB drives, hot plugging of stuff as well. And it just works, you know, I've been
+using it for throughout five years now, I think, and zero complaints. Not what you want to hear
+right now, I'm sure. Well, you know, it's I have a bias against that kind of stuff in user space.
+For me, this should all be kernel level stuff and file system level stuff like deep down in the OS,
+it should I look at the systems out there. Apple has a PFS BSD has ZFS and Linux for a built in
+file system that's supported at the kernel level, and also a decent candidate for low end hardware.
+Your options are narrowed down to butter FS. And I think when I looked at that volume add
+capability, and I thought the idea that I could add more storage like this with mismatched disks
+to this volume that I have my media on, and it will just perpetually grow. Well, that's sort of
+the drobo promise, I can now have a drobo like promise in a Raspberry Pi file server.
+And it'll be supported down at the OS level. And then just the other thing is,
+much like a ZFS does, I wanted a more robust file system that had a good set of user space tools
+to check my data and validate my data and take snapshots and do checksums. And I wanted to copy
+on right for certain things, but I wanted to disable copy on right for other things. And these
+were all features that butter FS gives me outside of the storage pooling. And so I opted even after
+I had to rebuild the system and restore data, I opted to go with butter FS again. So what's
+the lesson here then? I would have thought it would be don't use butter FS, but clearly you
+feel differently. Well, I mean, don't always do as Chris does the Raspberry Pis themselves are a bit
+of an experiment in using this platform for serious work. And I think in that vein, it needs
+to have a file system that's serious. I'm not butter FS biggest advocate, but I do think it
+does offer certain functionality, like SSD trim support that will add long term life to my storage
+and I'm hesitant to advocate for it. But I am interested in experimenting with it. I do think
+there was lessons learned in this. It may end up being ultimately don't use butter FS. I'm not
+willing to make that call yet, but I should have just taken a backup of everything before I started.
+We're going to talk about cloud backup storage in a moment and I'll talk about where mine
+really horribly failed me. But the bad was on me for not going there right before I started and
+taking a backup. I should have checked backups regardless, even if I didn't take one. I should
+have checked my backups before I started. And ultimately, I should have used screen or TMUX
+whenever I was doing something as critical as a file system conversion over an SSH session.
+Even if I had Ethernet, etc, etc, it doesn't matter. I should have been more cautious with
+that kind of thing. That's a sacred task you're performing. And I think if I hadn't been using
+my computer for other things, i.e. web browsing at the same time, I wouldn't have made that mistake.
+Yeah, you go into full details on Linux Unplug episode 355, a lot more detail than this actually
+about the mechanics of what you were doing and everything. But one of the things that you raised
+that just made my heart go out to you was you'd started taking notes and documentation and applying
+some craftsmanship to this stuff and you've effectively lost your entire configuration
+going back until March. Yeah, this is really a lesson learned and something that people maybe
+can think about for their own backup strategies. But you guys probably if you've been listening
+to the show recall that I had a whole series of markdown notes using a web front end. And I had
+smoke ping and sync thing and I had the speed the Libre speed test app and I had a couple of other
+little tools I used to just monitor things in the RV. And all of this was running on this Raspberry
+Pi and the configuration for all of that was being backed up with duplicati, which I love.
+And that was being saved off site with AES encryption to Google Drive because I've paid
+for a terabyte of Google Drive storage for a long time. And that was happening at 3 a.m.
+And that's one of those things where for months I check on it regularly. And every time I check on
+it. Yep, it was there. Good, good, good. And then I had this little job that said also then now save
+a copy off to Dropbox. Another, you know, just spread it across two cloud storage providers
+that I have storage on and it's AES encrypted locally so I'm good to go. And I stopped checking
+on it. Well back in March, beginning of March, my debit card expired. And the way Google works is
+you have to go back in and re-enable each service that you subscribe for. So I added payment for
+YouTube TV and YouTube Premium and I just kind of daftly assumed that my Google account now had the
+payment information and so billing would resume. That was a critical mistake that I made. So if
+you're using cloud storage, and we always talk about using the cloud carefully, well this was
+an area where I wasn't very clever. I have not really dug through my inbox to see if I have any
+alerts from Google. I may. But what ended up happening is I had nearly 900 gigs of storage
+on Google Drive and they had reverted me back to the free tier. So Alex, I was using like nearly
+880 gigs or 890 gigs out of 15 gigabytes. It's pretty impressive. So obviously Google Drive
+wasn't accepting any new files and that had been that way since March. So Duplicati had been failing
+and I actually never logged into Duplicati to check the logs there because it's gone. It's
+gone now. So my backups are only as good as of March, which is the bulk of my documentation,
+but not all of my documentation. When I immigrated, I had a very similar situation
+to the point where I now have a Todoist reminder once a month to go in and manually check on
+Duplicati. That's a good idea. I should do that too. A recurring reminder to just check in on
+the backups. Thanks. Five minutes. And what's also good about doing that is you can go in with
+Duplicati or say drone footage backup last ran yesterday took eight minutes, but I spotted today
+that my container app data back up to Google Drive took four hours last night. And I sort of think,
+huh, what's going on? So I went and looked at the ZFS data sets that I have. Turns out that
+music brains mirror is something like 15 or 20 gig a day. And obviously with copy on write,
+that space is being consistently used, you know, after snapshot after snapshot. So yeah,
+just something to watch out for if you are going to do that self hosted music brains mirror.
+Jeez, man. You know, you're not on fiber anymore. You know that, right? Yeah, I know.
+Yeah, I think maybe I was a little cavalier with using Google Drive. Not that there's really
+anything necessarily wrong with it, but I do not use Google Drive regularly. Like I have used
+services that utilize Google Drive and save data there, but I'm not a frequent drive user myself
+should be a last resort. Yeah. And so what ended up happening was I just didn't check it. And so
+I didn't notice for over a month and change that it wasn't it wasn't current that the subscription
+wasn't current. And then I only I only found out when I went to log in to go recover the backups.
+I think in retrospect, I probably should have used a better tool for me. And that would probably be
+something like backblaze. Although I know you kind of did a deep dive into the services recently. So
+maybe you'd recommend something else. But as I'm rebuilding, that's my top candidate right now.
+Yeah, backblaze looks pretty good. So yeah, let's let's break it down a little bit. There are two
+types of cloud backup strategies that you can adopt really. One is a service, you know,
+like backblaze or glacier or our sync.net. And the other is to use some tools that plug into
+generic storage providers like duplicati or restic. And so, you know, we've talked a little
+bit about duplicati just now, and we both use it plugged into Google Drive. Now, there is a hack
+over on the data hoarder subreddit, where if you have G suite for your domain, per user,
+officially in the T's and C's, there is a one terabyte per user limit to your Google Drive.
+But I have about three terabytes in mind, and it's been just fine for a year plus. If you get
+to five users officially, Google will remove that one terabyte per user cap, and everybody becomes
+unlimited. The nice thing here is that with the G suite thing and a single user on the domain,
+they don't enforce the one terabyte limit anyway. So effectively, I'm using 3.5 terabytes of one
+terabyte. So with one user, you're pretty much good to go, or with five or more users.
+It just works. And it works with rClone, which is another wonderful tool that lets you treat
+Google Drive effectively as a remote file system. Now, another tool, this one actually came onto
+my radar as part of the Home Lab OS review that we did. And this one's called restic. And again,
+the cost of this solution depends on the back end. So it supports local storage, SFTP, S3 endpoints,
+Google, et cetera, et cetera. I mean, the list is long for both duplicati and restic.
+But restic is a single, no dependency binary written in Go, which allows you to do backups
+with snapshots and tagging as well. It's all command line driven. I don't believe a web
+interface like there is for duplicati. So depends which floats your boat as to which one you prefer.
+I think they both have their pros and cons. Those are the two primary tools that I have looked into
+and are basically bring your own storage. But if you're looking for a service, somebody that's
+going to provide that storage for you, Backblaze is probably for most of us, home users, it's
+probably the big juggernaut in this space. Actually, when I went to their website earlier
+on my Linux desktop, it came up, hello, Linux user, do you want to go to our how to backup
+your server or backup your Linux machine page automatically, which I thought was kind of nice.
+And they recommend that you use something called duplicity, which is kind of similar to duplicati
+in name. And it took me a while to figure out they were actually two different tools.
+So duplicity is the tool that Backblaze recommend that you use to interface with this
+service from Linux. It's very appealing, you know, Backblaze is backup as a service, really.
+They have very simple pricing, $60 per year per computer, which led me to the obvious conclusion,
+given that I have a big NAS in my house. If I just back up all of my computers to my NAS,
+surely I can back up my NAS to Backblaze. And then I only have to pay the $60 and not, you know,
+five or six times $60 a year.
+Right. That's the model I think is appealing to me, especially with the big NAS here at the studio.
+That could be my local source of truth. And then using duplicity, which is, by the way,
+a great tool, because not only does this work Backblaze, but every single cloud storage you
+could conceive of, from Dropbox to FTP to even using IMAP as a storage back end. It's everything.
+IMAP. That's cool.
+It's just wild, isn't it? And it uses LibRsync for incremental archives. So it's essentially
+using Rsync to do the Delta and GnuPG to do the encryption. So it's pretty solid and it's
+sending up essentially encrypted TARs.
+That's very cool. Now, another service that I've used in the past, this one was from my mom,
+actually. She has a two bay Synology NAS that she stores all of her photos on, which lives under
+her stairs. And they have a plugin for Amazon's Glacier service, which is, there's some conjecture
+on the internet as to whether it's tape based or whether it's hard drive based, or whether it's
+robots pulling hard drives out of servers and storing them in different places. I have no idea
+how it actually works. All I know is it's very, very cheap for long term storage until, and this
+is where you have to be super duper careful with Glacier, the retrieval costs can be extremely
+steep. So that's just something to bear in mind. If you need that data quickly after a failure,
+Glacier might not be the best option for you. If you're willing to wait and download, I forget
+what the limits are exactly, but they have a daily limit of what you can download under a
+certain tier, like Amazon loves to nickel and dime people in their cloud services. It just
+silently works and gets on with the job as part of a Synology plugin. There are other ways to
+interface with Glacier as well. The final service that I wanted to mention, and it's an honorable
+mention because it's very expensive for mere mortals like us, is rsync.net. They base all of
+their storage, the advertiser is being built on top of ZFS. The main selling point here is that
+rsync.net has been around for a very long time. And whilst they're quite pricey at two cents per
+gigabyte per month, you can interface with it using rsync, obviously hence the name, or ZFS
+send and receive, or any other tool that you can pretty much think of that runs on the Linux
+command line. It's run by a bunch of extremely knowledgeable Linux-y people and comes very
+highly recommended whenever you look on rsysadmin or the more nerdy subreddits.
+I'm going to give a plug for Tarsnap for those of you who are truly paranoid. This is how Alan
+Jude backs up his taxes. He doesn't back up everything, but the stuff that is really important
+that isn't very large, but you want offsite, Tarsnap is the way to go. It's not the cheap
+but it is truly the one that has stood the test of time in terms of security. I'll put a link to
+that or it's tarsnap.com. That's like small scale offsite backup and you'll have to learn how to
+integrate with it because it is a little particular, but it might be the right fit for some
+of you for limited types of backups. All right, shall we follow up on the Home Assistant situation
+from last time? Yeah, I mean, I think they've listened. I think we can stand down from red
+alert and continue course because it appears the quote-unquote Home Assistant supervised method of
+putting Home Assistant with the supervisor on a generic Linux system via containers will be
+officially supported and documented. Hallelujah. Yeah, there are more name changes, but I think
+it's really great to see such a positive response to the community's feedback since our last
+episode. There is a blog post linked in the show notes, which covers all of the name changes. I
+picked up some changes in philosophy and how they're going to actually interface with the
+community moving forward instead of, I really felt like in the post that we talked about last week,
+the community was this big beast that they were trying to tame. Whereas in this post here, they're
+embracing it and I'm so happy to see that. I thought it was really great that they listened and
+yeah, great job Home Assistant. Yeah, I do recommend you go through and read the supported
+installation methods, even if it's just to learn the vernacular. Home Assistant now refers to the
+all-inclusive home automation system with their OS, either via VM or some other method. Home
+Assistant container is now the new name for Home Assistant core, which is just the core of Home
+Assistant running in a container. It does not have the supervised experience. It's a new name.
+It was previously Home Assistant core on Docker. It's now just Home Assistant container. And then
+there's Home Assistant supervised. That is the method previously known as has IO on generic
+Linux. It is now the full Home Assistant experience with supervisor on the regular Linux operating
+system, the method that Alex and I use and love. And then Home Assistant core is just running the
+application directly on Python on a Linux box. No container, no VM, it's just your Linux install
+running the Python application that is now known as Home Assistant core. But it's probably better
+to read everything because it'll sink in more. But now when you hear us refer to these things,
+that's what we're talking about. This is a little joke for the UK listeners. It's the
+Ronseal naming strategy does exactly what it says on the tin. Home Assistant container. You don't
+need to explain what that does. It just it's obvious. So great, great job. Home Assistant
+supervised. You know, I'm running it on a Linux box with containers and it's supervised. Easy.
+So yeah, Alex, I think overall I agree with you. I kind of have one thing to say about all of this
+and it's whoo. Yeah, thank goodness. Yeah, thank goodness. I was getting a little upset. Why don't
+we do a little wiki follow up? It's been a minute. It has. Yeah. Today we were watching the
+SpaceX launch get scrubbed, unfortunately. And whilst we were doing so, I was talking with
+somebody on the Discord about wikis and it came to my attention that we were talking about Tiddly
+Wiki and I was busy, you know, telling them just how much I love it. And we last talked about
+wikis on episode 12. And I wanted to just let you all know how much I love Tiddly Wiki after that
+time. It's fantastic. And I saw the long term review follow up. It seems that's great. Well,
+kind of. I mean, yeah. What? What? Three or four months in 2020. Three or four months feels like
+three or four years. But yeah, exactly. So you're still you're still in the love phase. Have you
+actually been using it on the regular then? I've been trying to use it whenever I start googling
+something more than two or three times. For example, my low power PF sense x86 build I talked
+about in the previous episode, I was constantly looking for that server builds.net forum post
+over and over and over. So I thought, why don't I just create a wiki entry, put the link in there,
+and then every time I need it, I just go to my wiki and find it. And then I can obviously include
+the content of that forum post in the wiki. So I don't even actually need to go to the forum
+anymore. It just speeds things up for me. No end. Yeah, it does. I've done that recently myself.
+That's how I did some of my documentation, but even just doing this rebuild, as I was reusing
+some of the same butter fs commands over and over again, I just started a new document up. All
+right, let's start documenting these commands I use frequently, because it's a little different
+over here in butter land, create a personalized ZFS cheat sheet. That's something I've done. And
+I was thinking about trying to make it public. But then there's an awful lot of stuff in there
+that is actually personal. And so unfortunately, I don't think I can really find a way without
+hosting a second, you know, sanitized wiki, which is just, it's a lot of work for me personally to
+do. We are still working on the wiki.selfhosted.show wiki. So if you're interested in contributing to
+that, head over to selfhosted.show slash discord. And, you know, you can talk to us about how to
+contribute. But going back to tiddly wiki a little bit, a couple of key plugins that have made it
+really great for me is spending the time to configure the table of contents plus the
+contents plugin as I would like it. And this is really for me, the key thing that makes tiddly
+wiki work so well for me personally. And I'm aware that you know, picking a wiki is like picking a
+pair of shoes. It's very personal type thing. I can't tell you what pair of shoes works for you,
+you just have to figure it out for yourself. But the reason I love tiddly wiki so much is that if
+I have an article, and let's take for example, something about home automation, flashing
+with Tasmota, for example, you could probably think of five or six different categories that
+that article could live in. It could live in home automation, it could live in Tasmota,
+it could live in Shelly's, IoT devices, whatever, right. And in a normal hierarchical note structure,
+you'd have to pick one and stick with it, or duplicate the article and put it in two or
+three different places. With tiddly wiki, I can set a tag on that tiddler, I hate that name,
+but I can set a tag on that tiddler. And it will show up automagically in those three or four
+different categories that I set in the table of contents. So it just works in the same way that
+my brain does. And I find that incredibly powerful. Jog my memory, Alex, are these all text files
+on the back end? Because through this whole catastrophe, I was so grateful that I had the
+original markdown files on my file system. So I could just use my built in OS search to look
+stuff up. I didn't have to use the app. Yes, they are. I am happy to report. There's a couple of
+different formats that tiddly wiki uses. One is markdown. If you use the markdown plugin,
+it just ends up as a regular dot MD file with a bit of front loaded, you know, metadata at the
+front. It's got five or six lines of metadata that tiddly wiki uses, but the actual content is
+completely, you know, unruined and untouched. It's vanilla markdown. And the nice thing about
+that is it means I can use tools in Emacs like deft, for example, or I can grip the files or I
+can open them in vim or I can, I can do whatever I want because it's just a plain text file.
+The only downside to that is it means adding images is still a little bit clunky. I have to
+add the image as a separate tiddler and then link to that tiddler from the one I'm writing.
+So it's a two or three step process instead of a one or two step process. That's the only negative
+I would say about tiddly wiki is images are a bit of a pain, but once they're in and you
+figure out the workflow, it's absolutely not a showstopper at all. So the other format that
+they use is a.tid file, a.tid file. And again, that's largely just plain text with a little bit
+of front loaded metadata in it. Well, thank you, Alex. I really like the idea of us doing
+long-term check-ins of different lengths as we try these things and coming back with our
+experience after having used them for a bit, because that's often a lot different than when
+you first implement something, but it sounds like it's working for you. So that's cool.
+Let's do a hashtag ask SSH. Mark from New Hampshire writes in with a question about
+wifi. He says a local charity are looking to outfit a property with solid wifi, both indoors
+and outdoors. My obvious go-to recommendation was Unifi, but tell us what else is there?
+Here are some requirements, and they're pretty extensive with some of them being pretty doable,
+some of them not. 300 foot radius, two feet thick external stone walls. There's a lot of
+information in here, Alex. There's some areas where there's some water. They'd like support
+for multiple networks and VLANs, so they can have a caretaker network, a sensor network,
+a public network. Of course, it's going to need DHCP, bandwidth throttling on the public network,
+and some external remote management would be a plus because can't always be on site to manage
+this thing. It's a tricky one. He asked me through the Discord server, what should I buy? And I
+thought to myself, this would make a perfect ask SSH because there's so many facets to this
+particular question. Some of the outbuildings don't have power, for example. So even running POE is
+going to be tricky because they're two or 300 feet away. So you'd have to dig a trench and bury it
+in a conduit and it's not really feasible. So what we were looking for in terms of an answer for this
+was if the answer is Unifi, which particular Unifi gear should they buy? Remember, this is a charity,
+so don't go crazy with super expensive enterprise gear. And if it isn't Unifi, what else is there
+that would fill these needs? So I think the price is an interesting one. I know that Young Chris
+would have reflashed some cheaper consumer routers off of eBay and distributed them around. I mean,
+I have done that and then use WDS as a network extender. Oh, yeah. Also try the trick of just
+buying a bunch of cheap, same exact routers and naming the SSIDs all the same and just distributing
+them sort of at the edge of each other's ranges. I have done that as well, but those are not
+centrally manageable. They're not going to give you multiple networks and VLANs. They're not going
+to give you, in some cases, bandwidth prioritization, although in some cases they actually will.
+So I think it's a question of how much Unifi gear to buy versus a total DIY Wi-Fi setup,
+which I just wouldn't recommend anymore. Or even these days, mesh. Is a mesh network a good idea?
+The cost there, though, that's what the trick is. And if you want a mesh network that really
+performs, your best route is to go with an Ethernet backhaul. That sounds like it's tricky
+in this scenario. Yeah, it's a historical reenactment society. And therefore, they have
+some requirements around stringing cables. Not very easy for them. If we were like Mythbusters
+or the top gear of self-hosting podcasts, maybe in 20 years, Alex, when everybody's watching,
+you know what I would love to try is taking extension cords and running them out at these
+events and putting power over Ethernet adapters on different ends of the extension cords and seeing
+if you could actually use an extension cord as essentially an Ethernet cable. Wouldn't that
+be a fun experiment? I bet you it wouldn't work. Haven't you just described Powerline?
+Yeah, exactly. Powerline Ethernet. Yes, I'm talking about it. But just take the extension
+cord and run it out to the yard with a Powerline Ethernet adapter on either side. It's the ugly
+uncle in this situation. Unfortunately for Mark, I don't believe that the remote buildings have
+any power. But that would be an interesting one. If Powerline was an option, that would solve
+something. When we get our self-hosted YouTube channel going, we'll do these kinds of experiments,
+right? Yeah. In the meantime, I do think because of that central management and the support from
+multiple networks, you're going to want APs that can have multiple SSIDs and probably have multiple
+channels. For example, one of the things I do with my guest networks is I just 2.4 those.
+IoT devices and public guest networks, just 2.4 and I reserve the higher bandwidths,
+the higher frequencies. All of my little ESP8266 boards only support 2.4 gigahertz, which helps.
+There's that too. I have a dedicated IoT SSID which only broadcasts on 2.4. So there's no
+question, right? All of these devices are on 2.4. I save the 5 gigahertz for the good stuff.
+I've got to be streaming my Plex at full bandwidth. That's exactly it. That's how I do it.
+And I make sure that the public network does not have any way to talk to the other networks. It
+just routes out to the internet and that is it. But I think to put a cap on Mark's question, I
+would look at trying to run power out to the barn and then use the barn as a redistribution point
+when you look at his setup here and try to just get it down to three APs with a controller. And
+I think you're probably going to just find that the Unifi products are the best for that. Let us
+know how it goes, Mark. In fact, if you have a question or maybe you have a suggestion for Mark,
+go to selfhosted.show slash contact or hit us up on Twitter with the hashtag ask SSH and we'll try
+to get it into a future show. We love doing those. Still trying to figure out what the
+other S stands for. Yeah, maybe they could tweet us and let us know. Give us a suggestion for that
+extra S. You know, while we were talking about merger FS today, Alex, I remembered that it was
+kind of a while ago, but there is an extra you did with the merger FS developer.
+Correct. That is extras.show slash 28 if you're interested in that. Myself, Brent and Drew sit
+down with Antonio, who's the developer, and we talk through the motivations behind creating
+merger FS along with a bunch of other stuff as well. So if you're interested in that one, extras.show
+slash 28. You can find me on Twitter at ironic badger. I'm at Chris LAS. The show is at self
+hosted show and the network is at Jupiter signal. That's a lot of Twitter handles.
+It's too many Twitter handles, Alex.
+We need to write a bot that will iterate over an array of Twitter handles for us and just
+spout it out on air.
+We need Twitter raid. That's what we need. Redundant array of Twitter handles.
+What does that even mean?
+And so thanks for listening, everyone. That was self hosted dot show slash 20.

@@ -1,0 +1,1104 @@
+There's one story I've seen going around more than any other this week, and it's the announcement
+of a new project that promises to create a Linux-compatible kernel completely written
+in Rust.
+The aim is not to replace Linux, but to create something written from scratch that aims to
+be ABI-compatible.
+In other words, it would support running unmodified Linux binaries.
+Wes, I think you're a little skeptical pants about this one.
+Oh, no.
+I don't know about that.
+I think what I like about this project is it's intentionally limited in scope.
+The project author is really just trying to make something that's Linux-compatible but
+that can run in a function-as-a-service runtime environment, actually using Firecracker VMs,
+also written in Rust.
+And so, you know, you don't have to worry about things like kernel crashes because it's
+not doing long-running workloads.
+That doesn't sound impossible, does it?
+I actually was thinking of this as more like a tiny VM environment host, our guest kind
+of a thing, or container runtime environment that's just this itty-bitty environment that's
+binary-compatible.
+But I liked that the motivation was the conversation around how could we use Rust in the Linux
+kernel?
+That kind of evolved into inspiration for this project to say, okay, well, let's take
+this all the way.
+And it seems like the exact kind of thing that Free Software lends itself to, where
+you can have just these, it's not, this isn't necessarily a fork, but you can have these
+side projects that may never really ship, may never go into production anywhere, may
+never even be a container runtime or a VM guest OS.
+But it can be an R&D factory for things that do actually make it in the mainline Linux
+kernel.
+Yeah, it teaches the person working on this, any contributors, and anyone along for the
+ride, you know, like, what does or doesn't work about doing it this way?
+And maybe it informs both future operating systems and the Rust language itself.
+Now, it is very, very early days.
+This isn't gonna, you know, this isn't gonna be like something you're gonna have some weird
+distro Frankenstein thing with, with this kernel, which I think is BSD licensed, like
+this isn't happening anytime soon.
+But I'll tell you what, if it does start to happen, we're gonna give it a go.
+Hello, friends, and welcome back to your weekly Linux talk show.
+My name is Chris.
+My name is Wes.
+And my name is Brent.
+Hello, you two.
+This episode is brought to you by the all new a cloud guru.
+You know, they are the leader in learning for the cloud Linux and other modern tech
+skills.
+They got hundreds of courses and 1000s of hands on labs get certified get hired get
+learning at a cloud guru.com Well, coming up on the show today, it's fedora 35 release
+day and we're making a whole theme out of it.
+We're gonna have a project check in with Matthew Miller.
+He's gonna tell us what's going on over there.
+We're then going to do our exit interview with fedora 34.
+We had an opportunity to give it a spin later in its lifecycle.
+And it's a totally different fedora.
+So I want to have that chat and then it's our review of fedora 35 will tell you what's
+new, what's different, what works, what doesn't work.
+And then we'll round out the show with some great emails, some pics, some follow up, you
+know, all that kind of stuff that we do.
+So before I go any further, I have to say time appropriate greetings, mumble room Hello
+virtual lug.
+Hello.
+Man, hello, everybody.
+It's nice to be back in the studio this week.
+Everything's back to normal.
+I'm no longer in the woods.
+I don't even think it's raining right now.
+You're right.
+It finally stopped.
+Oh, man, that's been nice, although it was raining on the drive in.
+So it's really only stopped while I'm in here.
+But that aside, I mean, the weather does suck, but I kind of have I kind of have an idea.
+Maybe this is stupid with with it getting close to the holidays and all of that.
+But there is an opportunity at the Museum of Flight here in the Seattle area to go see
+the new Mars rover and the Linux copter, you know, like their clones.
+They have a whole Mars set up right now at the Museum of Flight.
+And I thought, you know, maybe, maybe some in the audience might be interested in like
+a little micro meetup at the Museum of Flight where we go check this thing out.
+I don't know.
+What do you think?
+I'm in.
+All right.
+Sign me up.
+Yeah, you go.
+You go.
+I mean, we can't go to Mars yet.
+I don't I don't think Starship is ready.
+This seems like the next best thing.
+Yeah.
+Yeah.
+That would be nice one day to be able to go visit Mars and see the Linux copter.
+What a thought.
+I haven't really thought it all through yet, but here's what I do know.
+The copter and the rover will be there October 30th, so they're there now through April
+3rd, 2022.
+And I think maybe we should pick something in there sooner than later with the holidays.
+But let me know if you'd like to go and do a little micro meetup at the Museum of Flight
+Linux Unplugged dot com slash contact or the Jupiter broadcasting telegram group, Jupiter
+broadcasting dot com slash telegram or on Twitter at Chris Elias.
+Let me know if you'd be interested in a little hyper local meetup.
+I know this doesn't apply to ninety nine percent of you out there, but what an opportunity.
+I thought if some of us got together and went down there, Wes and I could bring our microphones,
+we could capture a little bit of it and we'd share it with you guys.
+So it kind of be like you went.
+But I don't really have any other details than that.
+I guess I've been back for what, two months and I'm jonesing for a meetup again already.
+I guess that's how long it takes to get back from the woods and I'm ready to see people.
+I guess that's a good thing.
+Well, I think it speaks well of our audience.
+Yeah.
+So let me know.
+Contact page is probably the best place.
+And once I hear from a few people, if I even hear from I'd say four or five people, really,
+it doesn't need to be a lot.
+It's just enough for like, you know, like a lunch crew so we can we can share all our
+fun learnings.
+Although I have to say, I'm a little upset because just about every week I get an email
+from somebody in the, quote unquote, Seattle area and I'm like, how come I've never met
+you?
+Why have you never been to anything we've done?
+Why don't you go to Linux Fest?
+Like there's a lot of people who listen in the West Coast area, secret Seattle JB fans
+out there.
+What are you doing?
+I think they're all hanging out with you downtown.
+That's what I think.
+And you guys just aren't sharing.
+But that's fine.
+That's fine.
+Well, I mean, we already had a crew.
+There's a lot to invite you.
+I'm so far away.
+You know, you got to wait like a half hour.
+Think of Levi.
+That's true.
+That's true.
+That is a good point.
+Well, this is our Fedora episode and we wanted to have a little project check in with Matthew
+Miller.
+He's the project leader, perhaps maybe better known as the real beefy miracle.
+Matthew, welcome back to Linux Unplugged.
+Hey, glad to be here.
+And thank you very much for taking the time to join us on release day.
+Yeah, absolutely.
+It's a little chaotic, but you know, I got some time.
+Well, we appreciate it.
+And we've been checking out the new release and I want to get there.
+But you know, trying out the last several releases of Fedora, I really felt like this
+trend picked up momentum in 33, then 34 brought us GNOME 40, now 35 is bringing us Wire Plumber
+and GNOME 41.
+Where I sit and having watched this stuff for a long time, I think there was a period
+of time where Ubuntu was really setting the tone for the desktop.
+And I feel like the transition of that baton has been completed with the last several releases
+of Fedora, and now it really feels to me like Fedora is leading the direction of future
+desktop Linux.
+And people are looking to the Fedora project to see what direction things are going in.
+And as a result of that, I think we're seeing some better traction with things like Wayland
+and PipeWire and the entire ecosystem is improving as a result of that.
+And I think it contributes to that momentum.
+And I'm curious if you see this from where you're sitting at in the project and what
+your, or maybe you think I'm wrong, but just what your observations are about this trend.
+I'll take it.
+I think people in Fedora have been working on these things for quite a long time, longer
+than that.
+I won't speak bad about the other Linux distributions at all.
+I'm going to try to just completely avoid the comparison.
+But I think it's often the case that we've had a hard time getting those out to users
+in a timely fashion.
+We struggled with meeting our own schedule for a while.
+And despite a one week delay this time, it's fine.
+We've really been meeting our six month schedules really reliably, which helps.
+And we've been doing a better job about kind of talking about the things we've done.
+There's been a lot of cases where people working in Fedora, people in the Red Hat desktop team
+like actually made stuff that ended up being headline features in other distros first.
+So we're actually getting it out and talking about it sooner.
+So I think that's part of it.
+I think that we generally have a lot of new positive growing enthusiasm and energy around
+Fedora as a project overall.
+And I think that reflects in what both the actual technical output of all the people
+working on it and just kind of all the polish around it that goes into making a release
+and then in delivering a good experience to everybody.
+So I'll get to my experience in a bit.
+But while we're on this kind of trend line here, I'm curious if you can fill in the details
+on how something like the following will work for Fedora.
+So I've been noticing that Red Hat's been making a lot of significant hires that are
+going to have a big impact on future desktop features at some point.
+You know, I mean, it's very early because they're just opening the positions.
+But I've recently seen positions open for HDR support on Linux.
+I've seen more positions open for improving 3D and Vulkan and video.
+I've seen hiring in all kinds of areas that are really like the low plumbing of desktop
+Linux.
+And the Red Hat hires, but that work that's going to be developed, that must be happening
+in Fedora.
+Is that correct?
+Actually, generally, that work, we try to make it happen as far upstream as possible
+because it's the right thing to do and it's less work for Red Hat really in the long run,
+even if it sometimes feels like harder work up front.
+So a lot of that work actually will go into the upstream projects and then kind of by
+its nature, but also because the same people are working on it, we then try and bring those
+things into Fedora as features pretty quickly and soon.
+And it obviously helps when it's the same person working on the thing in an upstream
+and in the project itself.
+So like the pipewire stuff, I think is a good example of that.
+I wonder if you felt like I did over the summer as I saw these positions.
+I counted it up for Linux Action News a few weeks ago and I think it was like seven new
+positions that have been opened and since then, there's like another position.
+So I think in total, it's like eight positions.
+It just keeps going.
+Yeah.
+I saw that as, you know, there's been a lot of talk of post IBM acquisition.
+What's it mean for Fedora?
+What's it mean for some of their free software contributions that contribute upstream and
+some of us worried it could mean like the bean counters are going to get involved and
+dial that stuff down and we're now several years into this now.
+And it seems like there's actually increasing investment in this stuff that doesn't directly
+translate to a rail product.
+I mean, I acknowledge there is rail workstation and all that, but you know, I'm getting that
+like it feels like this is this is the actual walk that is matching the talk.
+Yeah.
+Some of that I got a very carefully bracket with, like I can't speak to IBM business or
+anything.
+I have no idea, let alone like even even if I knew I couldn't.
+But actually, the case is, I don't even know.
+And my question really is about is, does this feel to you like the real kind of validation
+that there is going to be continued investment here from just a personal feeling?
+Yeah.
+So, right.
+So, yeah, I can speak as a person and an employee.
+I think, you know, a lot of us at Red Hat were worried about this acquisition, what
+would happen.
+But we were assured at the time that, you know, well, like that was really important
+to them and they wanted to continue to invest in it.
+It wasn't it was not an extract money thing.
+I think we kind of see some validation in the spin off of Kindle.
+I don't know how much big boring business news you follow, but that's happening like
+this week, which is like the IBM managed service stuff is basically going away.
+So Red Hat is going to be a bigger chunk of the new IBM than it ever was before.
+So it's really significant.
+So yeah, Red Hat real success is very important to the future of IBM.
+And I think we're seeing that borne out.
+Another thing that's going on here, there's actually a lot of these things you're seeing
+are desktop related technologies, but they're actually hires related to an automotive initiative,
+which you'll see automotive keywords and a lot of these hires as well.
+And I don't have a lot of the details on that, but it is connected into things that
+are, you know, useful on the desktop, but also useful in other contexts as well.
+And, you know, the more we can find things that tie all these things together, the more
+we all benefit.
+It's funny, Wes and I were just kind of remarking about that off air yesterday that even some
+of the work in the pipeline is about to enable AV in automotive Linux.
+Yeah, exactly.
+And then that benefits us all.
+So yeah, that's awesome.
+I'm down for that, right?
+Like I think that's actually been one of the low key brilliant things about desktop Linux
+that we underappreciate is how we have been able to leverage where the business is willing
+to invest to also enrich the desktop and benefit from that.
+It's just like the next level of shared infrastructure, right?
+The kernel is doing that and the desktop is trying to do that, too.
+Yeah.
+Maybe Fedora is the king at that, really.
+Yeah, I hope so.
+Yeah, I think so, maybe.
+So this is, okay, so this is release day of Fedora 35 and GNOME 41 is in here.
+Fedora is going to be out ahead with GNOME 41 for a while.
+But when you look at the release overall, Matthew, I'm kind of curious, just personally
+as a longtime Fedora user, what's jumping out to you?
+So yeah, on the desktop, I switched to it when the beta hit.
+So I have to remember back to what's new.
+But I really do feel like this is a really like a polished release and not in a bad way
+where GNOME 40 had a lot of changes and then there's a lot of things that are responding
+to people's feedback about that.
+Like one of the things that's a big change that I appreciate is there's a setting for
+the multi-monitor workspaces now that wasn't there originally.
+And also a lot of little things like that were looked at and addressed, I think like
+the new power settings, things like those are some nice things that kind of build on
+features in GNOME 40 before, so I'm glad to see those things.
+I think there's also a lot of exciting things going on in the project, like the Fedora Cloud
+work in group is really energized and I was looking at the Fedora Linux 34 statistics
+and we have something like 15% of Fedora systems are Fedora Cloud when you look at systems
+that are installed over a period of time.
+So we don't track individual systems, but we have a thing where systems by default will
+report in once a week just with a count me.
+And so we can tell if a system, and there's no UID or anything attached to it, so we can't
+actually tell which systems they are, but we can kind of get a difference between the
+number of systems that just show up once, like test systems and so on, or systems that
+show up beyond that.
+So of those test systems, 30% of them are Fedora Cloud and like another big chunk of
+them are Fedora Container, not surprising.
+So it's interesting to see like how much non-desktop use is going on in Fedora as well,
+which I think is important because, okay, I was talking about that Synergy and Synergy
+is a terrible business word, but just that like thing we get when we've got lots of
+different things working together in the same project.
+If we were to become just a desktop OS, it's kind of harder to get all of the investment
+from Red Hat, but from everybody who has all these different interests working together
+in one thing that lists everything.
+So I think it's exciting to see, even though the cloud stuff isn't desktop focused, I think
+it will help lift up desktop Fedora and just like the enthusiasm around desktop Fedora
+and GNOME and so on kind of helps, I think, support that enthusiasm around our cloud offering
+as well.
+That wouldn't even be there if the desktop weren't there and people were not paying attention
+to that.
+So I think it all works together really nicely.
+Well, you can see that maybe with cloud shipping, ButterFS as the default file system now, right?
+After kind of having proven itself over on the workstation.
+Yeah, yeah, great.
+Exactly that.
+That's exactly what I was thinking, Wes.
+I wonder if some of that adoption is because of that ButterFS switch.
+I've never really thought about it in the use case of like on a VPS, but I actually
+now that I'm working through that, I could actually see the logic.
+Just like the data integrity stuff, I appreciate that from my photo collection, right?
+Like I want to know if some bit rot flipped, like that's important.
+And you like the send receive stuff is pretty nice as well for server uses.
+Yep.
+So I just overall I just wanted to this isn't really a question so much as I just wanted
+to pass along how impressed I was at how complete the arm ISO felt.
+This is the first opportunity I've ever had to download an ISO image of a Fedora arm release.
+Usually it's like I get an image file and I flash that to an SD card and I've never
+really gone through like the complete process like I would for a real x86 computer is how
+I put it where I get an ISO image and I run through the actual installer and I installed
+it on a computer, but I had a chance to run it in an arm VM and I don't think people would
+in fact.
+In fact, now that I think about it, my son didn't even realize he was on arm Linux at
+people.
+You just wouldn't know.
+It feels like a very complete implementation and you maniacs have all kinds of architectures
+you support.
+When I go and look in the in those download folders, I'm just amazed at the amount of
+ISOs you must be spinning out.
+Yeah.
+If you have an S390 mainframe, IBM Z, we've got you covered.
+I know some people who have power system workstations, is it a laptop, the Talos system?
+I've never actually seen one, but yeah, what you were saying, this has actually been somewhat
+hard for Fedora because this has always been our aspiration.
+When we have another architecture, we want to make it an equal thing and make it, like
+you said, you don't need to know you're in a different architecture.
+You get the full, powerful, complete operating system.
+Some of this stuff where other distributions have been content to have specialized kernels
+and stripped down versions, which there's nothing wrong with that.
+It's just a different approach.
+Sometimes we've been behind because we're not able to get everything out so quickly
+because we want it to be so complete.
+But then the final result, when it gets there, is you have an amazing, fully functional operating
+system that you can know and understand and treat like something else.
+ARM is now, I think there's the RISC-V stuff, which is pretty interesting.
+I'm talking to a lot of people about that as an emerging architecture.
+I'm not going to pick any winners, but I find it really fascinating.
+It's basically an open hardware implementation, open source hardware, and there's a lot of
+enthusiasm around that.
+That's not an official Fedora architecture right now, but there are some unofficial builds
+of it, and we're looking at bringing that on maybe at least as a shadow architecture
+and then maybe official sometime in the next few years.
+I think that's pretty cool.
+That is really exciting.
+I love to hear that.
+I love that you just got your eye on it.
+Well, Matthew, will you please relay our congratulations and our gratitude to the entire Fedora community?
+They've created another fantastic release, and thank you for taking some time to come
+join us.
+Yeah, absolutely.
+And I'll be very interested in hearing what your experiences are.
+So I'm going to run off and do some other things, but I'm going to listen to that later
+when I get a chance.
+Thank you very much.
+Leno.com slash unplugged.
+Go there to get $100 in 60 day credit on a new account and you support the show, right?
+Just like saying, hey, thanks for supporting my favorite Linux podcast.
+It's really what makes this work is you guys go there and Linode is willing to offer you
+something pretty substantial in exchange.
+I mean, $100 that says go try it and go form a real opinion, right?
+Like they could give you $15 of credit.
+You could start to get a first impression, but they're giving you $100 to really go try
+this thing.
+They've been around for 18 years making this the best way to run applications on Linux.
+If it runs on Linux, you can run it on Linode.
+They are our infrastructure, and I suppose I could go get locked into one of the big
+huge hyperscalers who has a totally custom weird system.
+And I could just just spend money like crazy as people download podcasts, or I could go
+like buy some rack space somewhere and some colo, but I mean, that almost feels like caveman
+stuff.
+Like that's what we did back in the 90s, right?
+I mean, and when you look at Linode's pricing, it's 30 to 50% cheaper than any of those hyperscalers
+and you're going to get $100 from our offer to actually really try it out.
+It's a great way to try out new projects too as things come along.
+It's like my R&D place for sure.
+It's when you look at the invoice that comes in, like some months there's like all these
+weird R&D servers that come on the next month, they're all gone.
+And I'm just kind of messing around with stuff all the time.
+But I also noticed in the news today that Zoom announced the free versions of Zoom are
+going to get ads now, yay, ads in your Zoom meetings.
+And this is maybe just one of those windows of opportunity where you can say, hey, y'all,
+would you rather switch to something free that we can host ourselves and have control
+over?
+Because Linode's got a one click deployment for Jitsi.
+This could be your window of opportunity.
+You get the $100 credit, you deploy that thing, $100 means y'all could try that out for a
+while and not have to pay a dime.
+They also have lots of other one click deployments or you can go the whole DIY route.
+I mean, like nuke and pave and build up your own thing, like I have a crazy esoteric VPN
+distro for my PEP wave on Linode.
+My peplink router and it has this crazy combo LTE VPN.
+And of course, they have their own Linux distribution.
+Well, wouldn't you know it, Linode has so many great guides and tutorials, they've even
+got a guide on how to do that kind of thing.
+And they have super fast networking, incredibly fast rigs, they've just upgraded their MVME
+storage.
+They're just blazing fast and they support a lot of community projects.
+And they've made things like our Jupiter colony reunion road trip possible.
+I doubt that made them a ton of money, right?
+It's expensive to drive lady jips, but they wanted to make that community connection.
+They brought out their own people too.
+They were hanging out with us.
+It was pretty cool and it's pretty neat to see them do that kind of stuff.
+They don't have to do that kind of thing.
+So go sign up today and try it out.
+Linode.com slash unplugged get $100 in 60 day credit on your new account and your support
+in this here show Linode.com slash unplugged.
+All right, before we get to Fedora 35, all the hype, all the new things, let's conduct
+a Fedora 34 exit interview.
+This is something we'd like to do more of something like a chance to follow up on a
+distro a little later in its release cycle.
+And we should be clear about this too, just because 35 is out doesn't mean Fedora 34 is
+going anywhere.
+It's going to be with us for a bit longer.
+Actually the end of life is scheduled for May 17th, 2022.
+So let's see if you're a regular Fedora day to day user and you're not quite ready to
+try out 35, which just lands today.
+What's life like for you right now?
+Yeah, I recently had a chance to give Fedora 34 a go.
+And kind of like Matthew was saying, I never do this.
+I'm always trying out Fedora as it hits the beta cycle, that I really kind of get serious
+as it firms up and what you could kind of consider the RC phase.
+And then I'm always doing like fresh installs of the actual released version and I'm doing
+upgrades to the newly released version and I'm always kind of in that mode of Fedora's
+life cycle and I kind of live there.
+I almost never ever go back to a late stage distro, if you will, somehow you've moved
+on already.
+Yeah, I just don't normally have a reason to.
+But I've been thinking recently about how it'd be nice to move my son and then if that
+works for him, my daughters over to Fedora because then they'd be on what I'm using.
+I want to be able to recommend Fedora to friends and family, but I didn't feel like I could.
+And so I wanted to try giving a slightly older version a go and see if that changed my experience
+and what it might be for somebody who might have, like my son, a more gaming focused desktop
+setup.
+Yeah, that's a good question.
+Like what does the support life cycle of a Fedora family member actually look like?
+But beyond that, I think Fedora 34 in particular, it just had a lot of changes going on and
+something of an elephant in the room because when it landed, we were kind of still reassuring
+people that Fedora was OK after all the big CentOS news, plus GNOME 40 had just shipped
+and was brand new and had a ton of changes that were quite controversial.
+And we were switching to pipeline by default.
+And all of this was going to be the base for RHEL 9.
+I mean, it was just it was a lot of neat stuff and a lot to be excited about, but also a
+lot of stuff that had to be tested and maybe had some questions around it.
+Yeah.
+And so many like GNOME extensions were broken.
+PipeWire was causing issues for people that were joining like Zoom meetings.
+And so the question was, is what is this going to be like after things shake out?
+So we're six months into its life cycle now, pretty much right on the nose.
+And I did an update of a Fedora 34 install I did today, just a regular update.
+And yeah, sure enough, you know, there's still every few days fresh packages.
+In fact, I have to say, because they keep the kernel current and they keep pretty much
+everything else current, except for really they just iterate on the desktop environment.
+And up to date, Fedora 34 install right now, even as 35 releases, still feels quite modern
+in just about every way.
+But the thing that's kind of nice now is just about all the critical, if you will, for lack
+of a better term, GNOME extensions have caught up to GNOME 40 now.
+So the situation there is a lot better.
+And I noticed a significant improvement for third party software for Fedora 34.
+Like you can go find prepackaged RPMs for Fedora 34 for like a commercial application
+or a popular open source app, or they'll have their repository already updated.
+Yeah, exactly.
+All those things that you're kind of understanding when you're trying out the beta because of
+course they don't have support yet.
+And then, oh, yeah, eventually they do update.
+And the other thing too, Wes, is like a lot of the guides are just not all of them.
+Some of them are still horribly outdated, but a lot of guides have been refreshed for
+the new version of Fedora.
+And so by that point, six months into it, like if somebody is going to update their
+guide for Fedora, they've done it at that point.
+And that those all those things, they're like they remove paper cuts to switching.
+And I actually think a Fedora release six months into its release cycle is sort of sitting
+in a special sweet spot in the Linux ecosystem where it's got a lot of kinks worked out,
+especially if you grab fresh packages.
+It's got pretty good third party support and community support at that point.
+It's still because it's Fedora, a very modern install, and you've still got months of support.
+So you could just ride that for at least another six months and then upgrade to the next version
+that's now becoming the old version of Fedora.
+I think it makes a life a little easier and I think this is the one that's the version
+of Fedora, the one that's about six months into its life cycle that you can recommend.
+And I've teased people before that say, oh, wait a few months when you're looking at it
+for like a family machine.
+Just wait a release.
+That's what you're saying, huh?
+Yeah, right.
+Wait a release because each each release gets 13 months of support.
+So you got some buffer time for everything to kind of get worked out and they don't care
+if they're on the latest and greatest.
+That's just it.
+You're right.
+Most people don't care.
+I mean, we care, but it's not necessarily rational.
+Yeah.
+Yeah.
+Part of it's enthusiasm driven for sure.
+But you know, but it also means I could wait a little bit on my main machine, maybe three
+months after release, update a little bit before everybody, do a little checking around,
+see how things are going.
+You know, like there's I kind of I like this idea that maybe my main rig that I'm on, maybe
+three months into that final six months, I upgrade and I figure out what needs still
+to be fixed or what works fine.
+And then when the next release drops, I upgrade the kids machines.
+And then, of course, you've got you know, you've got stream in the mix, too.
+If you have something that might need to be even more stable than that down the road.
+Yeah, true.
+There that could be interesting.
+A sent us nine stream for a family, for family and friends, perhaps.
+But when we were trying this out, we wanted to give this an honest go like, can I give
+this to friends and family?
+And what I envisioned is bringing everybody to Fedora, put everybody on Fedora and put
+everyone on a tail scale network, which is a wire guard mesh VPN solution.
+All right.
+So you've got everyone there.
+You can access everyone machine just right over tail scale.
+That makes sense.
+Right.
+Super simple.
+And if they need support, I can SSH to their machine.
+But I wanted to go a little bit further than that.
+And I wanted to do remote desktop support.
+And I love Rust Desk, but Rust Desk is X11 only.
+No.
+And, you know, in Fedora 34 and in Fedora 35, on GNOME, the Wayland supports.
+It's really nice.
+It's you get a better experience now and I don't want to I don't want to go backwards
+for them.
+I know, right.
+Maybe in some ways.
+But when Wayland works, it works really well.
+Yeah, it's smooth as butter, but not butter, but butter.
+But so we were digging around.
+You and I were doing this, I think, after we did LAN one day.
+And we found that the recommended way to kind of do this now on Wayland with GNOME Shell
+is to use the RDP server that's built into GNOME Shell that I think uses pipewire and
+all this kind of stuff on the back end.
+But we discovered that it's not actually shipping yet.
+Some of the documentation talks about it like it exists, but it doesn't actually fully exist
+yet.
+Yeah.
+So, like, you might see this.
+You can enable the remote desktop stuff.
+But by default, it just exposes it over VNC.
+And we gave that a try.
+But it's a VNC.
+It's not going to be great over a remote network.
+But at some point they added via free RDP RDP support baked in as well.
+But yeah, there's just no.
+Because this is Linux, there's just nothing exposed graphically right now.
+And setting it up and enabling it and providing default credentials, well, there's a guide,
+but it's not exactly simple.
+It wasn't horribly bad.
+Like, I think we ended up pulling down a few things from GitHub and building them and then
+moving them around, right?
+Then maybe we had to start something with systemd.
+So there was some futzing.
+Yeah, you're right.
+We did have to.
+There's like a little script that's posted.
+We'll have it linked in the show notes that you got to compile and then that lets you
+configure like the credentials set up so that you can put a password on it and then you
+go in and modify with decomp some settings.
+And then I think, yeah, we just logged out, logged back in.
+It did work, though, at the end of the day, that that was the part that was pretty nice.
+It seemed decent.
+Oh, man, it worked really good.
+If you had the right RDP client, like we tried a couple of them and I wish I would have written
+down the one that didn't work very good.
+I want to say it was Romania, but I'm not sure.
+But if you got the right RDP client, like Microsoft's RDP client or there's there's
+like XRDP, there's a couple with the right settings.
+It's impressively high performance.
+It's much better than VNC.
+I think it was near real time because we had the laptop and we had the remote machine right
+next to each other.
+It was there's just a very, very slight lag, which makes me think that if I was supporting
+them over a remote link, it'd probably be fairly usable.
+Yeah, that's that's the test.
+But I just need this to work a little.
+And it would work for family support machine, I think.
+I think it would actually do the job.
+So the only problem is, and I haven't tested this yet, dang it.
+Now that I think about this, I wish I would have.
+I'm not sure if this is going to break when I go from GNOME 40 to GNOME 41.
+And I just did that on my machine that we we did this test set up on.
+So after the show, I'll see if RDP is still working on it.
+We've got some follow up to do.
+Yeah, I should have thought of that.
+I was just you know, I was so focused on getting the upgrade and so worried that it was going
+to break my Fedora 34 install, because as I was going through this little journey.
+To see if this was a usable setup.
+What I ended up with at the end of my Fedora 34 walk, if you will, is one of my all time
+favorite Linux installs.
+I really liked it.
+It doesn't happen very often anymore, but it became precious to me and I was worried
+that the upgrade would break it.
+I know that's how much I liked the 34 experience six months into its life cycle.
+I'd say I was impressed, but it felt early days when it released.
+But six months in, it became my favorite setup I've ever had on that ThinkPad.
+It really it really rocked.
+So yeah, I think this is a really capable family distro if you just give it a little
+bit for the community to catch up to it.
+As well, Fedora isn't as just crazy moving forward as Arch.
+It is fairly out there on the edge of things.
+So I don't know if this is just me being crazy, but Brian, I kind of actually feel like maybe
+we'll get into this in our review, but I kind of feel like this might be the perfect Fedora
+set up for you.
+Oh, tell me more.
+Why do you think that?
+Well, if somebody came to me like I have this, I have I always remember this conversation
+I had.
+There was this buddy of mine who was this big time PHP developer and he said, Chris,
+I am so frustrated with Linux.
+I just want to get my work done.
+And he said, I installed Ubuntu and I can't remember what it was.
+It was probably like eight, ten or something.
+It was a long time ago.
+And he said, you know, this isn't working.
+That isn't working.
+My PHP environment is broken and went on and on.
+And so I introduced him to the Ubuntu LTS model and I said, here's what you need to
+kind of whenever the LTS was kind of new.
+So I don't know how long ago this was.
+And I said, this is kind of what this is what you probably want to be running for your kind
+of workload.
+And Fedora doesn't offer anything like that.
+They don't have an LTS version.
+They have 13 months of support.
+And then, of course, there's sent off stream, but it's not really quite the same comparable
+desktop environment yet.
+But I think this this model that we're talking about here where you kind of you ride six
+months behind release is essentially as close to an LTS model as you're going to get with
+mainline Fedora, because the upgrade experience is pretty smooth and the reliability and community
+support is pretty high.
+So when you want to troubleshoot in the middle of the night, you can find a guide online
+and you can get it fixed instead of having to wait for somebody to, you know, like figure
+it out, who's still like maybe waiting for the bug report to come in.
+Right.
+Do you see what I'm saying?
+Like, it's those are all things I love for sure.
+Yeah.
+It's a more reliable target for the for if you wanted to be in the Fedora user land,
+but you wanted that kind of reliability, I think that's the target right there.
+Well, and to be fair, I do the same thing with the Ubuntu LTS right now.
+I wait a few I wait several months, actually, because the reality of how much engineering
+goes behind these things is that there's just inevitably some stuff that once you get it
+out to users, there's like thousands and thousands of users who find all these bugs and things.
+And then it's so three months later, six months later, of course, going to be more polished.
+So I think that's a good strategy for anybody who's risk averse.
+Maybe it's a good way to put it.
+Or the first job is that it's a work tool.
+The second job is that it's a tinker tool, right?
+Like my see my think a lot of times my ordering slightly different, like sometimes tinker
+tool is above work tool on some of my systems.
+But you don't have seven systems like I do, right?
+So you've got to you've got to narrow that focus a little bit more.
+So honest, what I'm saying is if you came to me, like we just met at an event and you
+and I didn't, you know, know each other and you said, Chris, what Linux should I use?
+I'm a photographer and I want to be very reliable and I have a lot of things going on right
+now and I need to be able to just open up my computer and have it work and perform well.
+I would today if you asked me that I'd say fedora 34.
+I don't think I'd say anything else.
+I'd say go get fedora 34 and bring it fully up to date.
+unpluggedcore.com want to support the show directly go to unpluggedcore.com and become
+a member you get the full live feed the very long version of the show if you'd like or
+you can get a nice cut down version with limited spots that Joe makes his full production you
+know it's got all the Joe quality it just a little bit shorter runtime which can be
+nice if you have a shorter commute but you also are supporting the show and on top of
+that you're going to get access to special promo codes when we have new merch if and
+when I'm not saying anything not announcing anything but I'm just saying if new things
+were in the works and they were going to be announced as a thank you to our members we
+offer discount codes so you can support the show get discount codes on new jb merch and
+of course you get access to the two feeds the live uncut feed or the fully produced
+shorter limited ad feed that's just a thank you for everyone out there who supports us
+at unpluggedcore.com okay I think we've stretched out long enough we got to talk about fedora
+35 it lands today and the way the fedora release cycle works is they kind of have some target
+weeks and they release when the blocking bugs have been fixed or a solution is in place
+it's not so much a date driven release as it is things aren't broken so we can ship
+release and I have to say I'm I'm actually completely fine with that model and we just
+kind of watch the bug tracker because it's all out in the open and you all can kind of
+just follow along and find out when they're gonna release and yeah you know we get it
+when it's ready why not yeah no rush and this version features gnome 41 which has been
+out for a little bit in fact it looks like gnome 41.1 is just about just about out and
+it includes in gnome 41 some improved power management options which we can touch on in
+a little bit also like Matthew was saying those new controls for how the virtual desktop
+layout I guess is how I'll say it works with virtual monitors and some more work on that
+RDP back end that we were talking about and I have to say the thing that I'm most excited
+about is the continued evolution of pipe wire in fedora and wire plumber as the session
+manager so in fedora 34 we got pipe wire and under the hood it was kind of just using some
+some default hard coded logic but pipe wire can do a lot more than that and so what wire
+plumber is is it's a session manager that's going to enable future customizing that we
+might use here in the studio of routing audio and setting things up in a very particular
+way eventually there'll be things that sit on top of wire plumber there's some graphical
+applications in the works right now one called hell VM I think that is a GTK patch bay it
+really actually kind of replicates the patch bay of the early days of the music industry
+where you're taking a wire from one device and you're running it to another device and
+that's in the works right now and underneath that will be wire plumber and you'll be able
+to save different sessions so you could maybe have like this is my jitzy meeting session
+where my audio comes from my microphone and I also am taking audio from my other browser
+so maybe like you have Firefox as your second browser like I do you could have a wire plumber
+session that brings audio from your USB microphone and from Firefox and sends it in as an input
+device that you have selected in your video meeting so you could play audio from your
+web browser into the meeting or from VLC it's it's going to give you this kind of flexibility
+so when you hear us talk about pipe wire and you hear us mention wire plumber the session
+manager what you're going to get as an end user for you never going to do audio production
+is you're going to get that kind of flexibility you can do a you know a VoIP call with somebody
+and route audio in there and have your own soundboard if you want and have your own wacky
+zoo thing or maybe you want to screen share your web browser and you want to play a presentation
+and you want to capture the audio from that as well now you're going to be able to do
+all that kind of stuff and what wire plumber does is it lays down the session manager piece
+of this that's going to manage how this stuff works Wes am I explaining this appropriately
+yeah I mean I think so because I feel like I'm kind of not doing a very good job explaining
+it wire plumber replaces the you know some of the stuff that was built into pipe wire
+by default that was kind of a just a simple bare bones version and but you can think about
+you know pipe wire has all these facilities but you kind of have to make actual configurations
+of those actual sessions actual arrangements of everything and you need something that
+can help manage that and provide tools for other things to interact with it and that's
+basically the layer where wire plumber fits so yeah as an end user unless you get into
+the details of pipe wire you probably won't care about this but this is one of those pieces
+I mean like I play around with pipe wire all the time building it from source I hadn't
+set up wire plumber I was still using the other stuff this is like the area where fedora
+is taking these disparate pieces and really thinking about it and building something more
+coherent together yeah I'm looking forward to it Neil give me an idea of what we're going
+to get down the road in the future like wire plumber is going to enable a lot more than
+we have today but I don't think I'm giving it justice here the biggest thing you want
+to think about when it comes to wire plumber and pipe wire is that what pipe wire actually
+does is quite a lot more than what people see right now so pipe wire can manage audio
+sources and audio syncs we're all familiar with that part we introduced that in 34 and
+the other part that it has that we've had for quite a light longer but we've just really
+not talked about it is the fact that can manage video sources and video syncs so this means
+for example if you do a screen share through the pipe wire portal api to redirect an application
+or whatever like you know how that apex rdp window fx i for remote fx thing that windows
+has you can do something similar with this and the cool bit is because wire plumber is
+a session manager for pipe wire that can manage sync sources and sites you can do programmatic
+redirection of those things too so you can do things like orchestrate the connecting
+of various different syncs and sources for video as well as audio from various sources
+like a camera if they're going through lib camera into pipe wire out or a screen share
+or an application share or any of these other things like for example you were talking earlier
+about remote desktop through rdp and yes it does use pipe wire underneath pipe wire and
+wire plumber contribute to supporting the ability to do these sorts of things in the
+future if there's interest and development around this you could also see things like
+an implementation of something like windows's remote effects which does you can do per application
+shares and screen sharing or replication on like remote connections to applications you
+know like you have a more powerful server computer running gnome on it with the application
+running there and then you could screen share the application itself back to a weaker thin
+client those kinds of things become possible there's all kinds of interesting things that
+you can do for vdi use cases for instructor cases for screen shares for video conferencing
+for music production for concerts for whatever you want when it comes to av there's a pipe
+wire pipeline in there i love the sound of that and we're going just a little bit at
+a time but overall when you look at other initiatives in the past i think i'm pretty
+happy with the with the rate of progression there is a known bug right now some people
+have no sound after they upgrade we'll have a link about that in the notes essentially
+maybe for some reason wire plumber didn't start appropriately so if you have that problem
+after you upgrade there is a note about it it's a known problem and a note on how to
+just quickly start it up it's not that bad i guess i lied you should know about wire
+plumber yeah maybe so so i did the upgrade on that fedora 34 install on my thinkpad
+and overall things went really smooth you know it really didn't work as expected were
+a few gnome extensions a lot of them actually have updated for 41 that's nice to see but
+not all of them so you know you're gonna get that if you upgrade on day one but and i'm
+really happy to see this if you have that new gnome extensions app when you log in for
+the first time to gnome 41 on your recently upgraded fedora session or whatever it might
+be in the future maybe it's a bunt or debian or whatever arch um that extensions app will
+give you a notification that says hey man some of your extensions have updates and aren't
+loaded and if you click it it launches the extensions app and that extensions app gives
+you an overview of which extensions have been disabled which ones have updates again and
+then it puts a banner along the bottom of the application that says the next time you
+log in i'm gonna update some of your extensions for you would you like to log out now and
+you hit that and it logs you out you log back in they're up to date and if they're compatible
+they're up and going my doc extension for example hasn't been updated my tray icons
+i had tray icons reloaded that hasn't been updated yet but anything that's pretty essential
+to the use of gnome shell for me that's been updated which is a pretty minimal set now
+and then i have like a nice to have set so that's good i mean outside of that really
+no issue i haven't tried rdp yet but all of my apps work i think flat pack's doing a fair
+amount of the heavy lifting there a dream of containerized applications alive in fedora
+35 yeah and i think it's i think it's a good use case for things like slack and discord
+and element and all the other there's a few other ones that are electron base that i have
+to have open and you know shipping them as flat packs kind of makes sense i kind of like
+having them sandboxed as well and so that just all goes really smooth works pretty well
+for me but i didn't have quite the same experience brent did because i think brent you tried
+out the plasma spin right yeah we were talking about you know last week talking about which
+one i should try and we kind of went back and forth you said oh you got to try the gnome
+implementation because it's fabulous obviously you're a big fan of it i actually decided
+to try the kde spin because i'm super familiar with kde and i have to say that i hardly spent
+any time in modern gnome so i thought i don't want it to be so different of an experience
+that i'm not really focusing on the usability of it or the distribution itself so i decided
+to try the kde spin and as some context i will admit neil that i haven't used fedora
+for more than like a few minutes ever so this was my chance to really dive in and and chris
+has been basically talking really positively about it for a few years now so i thought
+okay now's my chance so if you want to find uh what i ran which was fedora 34 five's pre-release
+the kde spin it's actually a little confusing to find uh if you go to fedora project.org
+it just kind of redirects you to the main releases so you have to go to spins.fedora
+project.org i found that as a someone who wasn't that familiar with fedora to be kind
+of confusing to find and i tried it on some bare metal i had a have a thinkpad x240 that
+i guess i found in my basement that i wasn't using and so i decided to uh throw that on
+a usb and give it a go directly on an SSD i didn't know anything about fedora so i did
+dive into the docs first which i think is probably a good idea um one the most uh worrisome
+thing was about how to update packages i know it used rpms but i didn't quite know how to
+go about doing that and i loved the documentation it was good enough like it went into enough
+detail to get you where you wanted to go or i should say get me where i wanted to go with
+my level of um knowledge about linux and stuff but it wasn't so exhaustive that it was hard
+to find what i needed so kudos there for whoever's writing the documentation i really really
+appreciated it i also uh here's a skill testing question for you chris and us um do you know
+what dnf actually stands for oh man yes i do but now i've forgotten now that you asked
+i feel like i could like stall and be like well you know it was uh inspired by yum which
+was the yellow dog update manager isn't it like the dandafied package manager or something
+like that right yeah i chuckled there and so i thought okay the door is gonna be fun
+i really appreciate this and i know yum has a lot of history and i don't really know it
+that well but i've heard a lot of good things about dnf so use the kd live disk and uh usually
+my typical method to do this is i have my main laptop in front of me and then i have
+some friend's laptop or family member or some laptop i'm playing with and i like to use
+my main system and just do a vnc session over to that other system so i have the keyboard
+that i'm used to and all of the programs and i can look up you know notes in my regular
+applications and from the live disk uh that didn't really work for me and i was sort of
+i was like okay well it presented a black screen i was like okay this is likely a wayland
+thing because i knew that was an issue in the past so i can do without that so i continued
+with the anaconda installer and i know a lot of people say it's kind of clumsy and stuff
+and i thought it was fine it was actually kind of nice and it was pretty visual which
+i appreciated uh i did notice there's encryption as an option disk encryption which i love
+and i always put that on laptops because i do a lot of traveling and stuff so that was
+a really important thing for me another thing i appreciated was that it told me my password
+was awful by doing a dictionary word check which is such a small little thing but i think
+for new users chris like you're suggesting for family and stuff that's actually really
+nice um i was using a terrible password because i didn't care to you know it's just a testing
+machine but um that was actually a really nice thing that i think everyone should have
+so uh there was one question or a warning that i didn't understand and i'm gonna read
+it to you guys and even on mumble i want you to try to figure out what it means so this
+was in the encryption section so i was encrypting doing some disencryption and it said warning
+you won't be able to switch between keyboard layouts from the default ones when you decrypt
+your disk after install so what are they actually trying to communicate there okay okay you
+won't be able to switch between keyboard layouts when you decrypt your disks after install
+i think i know what this is okay what are they saying wimpy if you've used special
+characters in your encryption passphrase using say a french canadian keyboard and then try
+to decrypt that using a u.s english keyboard those special characters are not going to
+align it's got to be it he's got it and i have run into this previously and i think
+anyone who's spent enough time with decrypting disks at boot you will eventually run into
+this but anyways i thought that was worded a little confusingly maybe visually it's a
+bit different than than that but anyways it all worked fine and it only took about eight
+minutes to install which was really uh lovely actually but that's where things started going
+poorly for me on the first boot you get the background of fedora and i am a visual person
+and i thought the background they chose which is not a technical thing but i thought it's
+like this teal almost like seafoam green pool reflections photograph i believe and it just
+made me feel a little queasy i think guys what was your take on that with all due respect
+to the to the art team yeah because i often like what they do um literally on every single
+install of fedora 35 i've done the very very first thing i did was change the background
+i find it kind of jarring i know west did you have that i bet if anybody's gonna be
+chill about it no i had to say i had the same reaction i've really liked some past ones
+i was trying to give it an open mind but now that this default background is i mean i generally
+don't bring it up but yeah i i agree i first impressions are important right yeah doesn't
+speak to the rest of the release yeah yeah so then i thought okay well i'm gonna try
+you know i've installed it i'm gonna i'm gonna try this vnc thing again because i really
+want to use that um so i'm used to using the krfb which is a kde um i guess vnc server
+uh has worked amazingly for me in the last several years um and i went to use the menu
+launcher and it just didn't do anything and i thought oh that's odd i'll just ignore that
+for now and actually now that i'm thinking about vnc maybe it's a wayland issue and i
+i knew that uh so maybe i'll try x11 so i logged out and uh logged into x11 and the
+krfb menu launcher worked fine um and then i tried to connect to vnc from my other laptop
+and uh that just crashed krfb oh so i certainly wasn't going to use my preferred vnc methods
+yeah i'm sorry brad i'm so sorry yeah so i decided to unplug my main laptop you know
+from all of my stuff and switch the two and just focus on the fedora stuff which is fine
+so i thought okay well the next thing i like to do typically on a system is play with some
+of the uh you know install some minor things like htop and i don't know sometimes you have
+to install ssh server and stuff like that so i'm going to do these um basic applications
+that i like having so dnf is the first time i use it fair enough uh but it's super simple
+so i just did dnf install htop that simple because i wanted to see okay what's it going
+to do how's it going to work and it started downloading a package but it wasn't very descriptive
+and then it just kept going and going and i thought okay htop i know is very tiny what's
+going on over here um and so the description it gave was fedora 35 x86 64 and that's it
+and it was just downloading it downloaded 61 megs of stuff and i was quite confused
+because i knew that was unlikely wow where are you seeing the 61 megabytes if you've
+used apt or most other you know it lists a package on the left and then gives you a progress
+bar of how much is downloaded on the right hand side it gives you the total download
+or how much time is going to you know be left in your download fair enough i don't have
+a great internet connection here so 61 megs actually was kind of depressing here's what
+i'm wondering you know because when you are on fedora brent for the and you install something
+using dnf for the first time if you haven't first updated the repositories it will do
+that for you automatically because that's actually one of the things that drives me
+crazy about apt is it will actually let you go ahead and install something even though
+it's looking at all old versions of the packages because you haven't updated the repositories
+yet so what dnf will do is it will say okay now actually i have to first refresh the repositories
+but on a new install it might be pulling that stuff down for a long time and because you
+know i notice it takes forever to update the repos when i'm on a bad connection too and
+that and because dnf does do that so frequently it makes the overall experience feel kind
+of slow you know i think that's a great insight and i can't remember and my notes aren't good
+enough to tell me if i did update um sort of the indexes beforehand i typically do because
+that's my process with apt and this seemed like a very easy translation from one to the
+other um but i kind of wish it just described that a little bit better it was a bit cryptic
+to me yeah yeah after it continued sort of doing a bunch of stuff it did eventually change
+that to suggest fedora 34 x86 64 updates but even that was kind of cryptic and so i didn't
+love it but anyways it did ask me about downloading htop so after you wait for all of the refresh
+of the repos and all the dependencies to be met you get your 170 kilobyte application
+yeah that's that is sometimes the dnf experience so after all of that i decided okay well i
+know i want to try wayland because i haven't tried it that much so i'm gonna i'm gonna
+log out and go back and um when i logged in back to the wayland session krfb decided to
+crash again just on login so i knew that wasn't gonna be any hope i did decide to change the
+desktop as you guys did but i ran it immediately into some weird issues uh i was changing the
+wallpaper and the apply button never appeared so i couldn't actually make that change commit
+and like that's such a small weird basic thing and it made me really worried actually about
+all of the other things i was gonna want to try because it's like one of the simplest
+things and so i had to quit the settings application come back and then it worked but it was like
+okay well what else am i gonna run into um so i decided to do a system update because
+i knew okay well i'm on i'm on a pre-release and i downloaded a few days ago maybe some
+people have you know i knew the release was going to be today but immediately i typed
+dnf upgrade and it gave me a little bit of information it said there's a problem with
+some of your packages so i hadn't done any updates yet and already there was some conflicts
+that specifically being a kwin common requires kd decorations conflict it said it was trying
+it cannot install 523 and 522 at the same time and literally this was a brand new system
+i hadn't done a single thing so that too worried me because what was gonna happen next i bet
+you got caught right in the switch over to the newer version of plasma perhaps that's
+definitely a beta thing that couldn't what can happen sometimes although it's not common
+is some of the packages land but not all of the packages land for the next version of
+plasma that could potentially be what happened there right and and now that we explore this
+here i'm seeing how this likely led to all of the other issues i ran into so i updated
+the whole system that way and rebooted and then things just things just did not work
+like abysmally did not function properly oh no i hate to say that because i was so excited
+about this but upon reboot i tried to log into wayland and i just got this login loop
+and it never ever would log into the desktop so i was like okay i know i can try the x11
+session so i did manage to get logged into the x11 session and i thought okay i'm gonna
+get some work done so i plugged in my external monitor and this was the beginning of the
+end the super key on my keyboard didn't even open the menu which is really frustrating
+and then the taskbar was on one monitor but then the menu when i clicked on it appeared
+on the other monitor and none of the window controls were available on any of the windows
+which is probably that conflict that i ran into uh because it had to do with kd decorations
+so that's likely the issue but then i thought okay well it's been 12 hours and it's release
+day etc etc maybe i'll just bring up a terminal and try to like update again and maybe some
+of these things will be resolved and so i you know control alt t to bring up a terminal
+and i literally got only the toolbar functions i did not get a terminal i did not get window
+decorations to move things around so i it was just that was the point where i said i
+can't go on that i can't there's nothing i can do i can't even troubleshoot this thing
+is like uh so i had to give up and that made me really really sad oh no there's a lot to
+this and there's several i think really important lessons here and one of them is this is why
+betas are not like for production use fair enough there was a warning sticker on it but
+still oh yeah and we know that right when we're going into this we have we always have
+that in the back of our mind we know that in fact you know like if if you were to install
+today and had these problems i'd say okay well it's time to start you know making out
+some bug reports but i think what you got caught in is a beta transition that does happen
+but i think that's a good thing for people to know listening to this that if if if say
+someone is basing their impressions on that they got to give it a little bit uh and this
+goes back to what i was saying about if you caught this say six months in you you installed
+fedora 35 in six months i bet you this entire experience would be smooth as butter for you
+all that stuff's completely worked out and that's where i think it makes that that's
+where it's really in a sweet spot it's in a special kind of place it's in a special
+sweet spot for desktop linux six months into its release cycle and right now it's still
+early i think too one of the other things you probably got bit by is there was some
+and i have a vague recollection one of the blocker bugs was related to something in plasma
+and it was one of the things they had to fix right before release and it may have may have
+been this conflict i looked at some of the common bugs and didn't see any of those but
+maybe that is just for the main release not the spins and i think you're right like i
+liked the experience errors aside enough to give it another try after you know maybe in
+a few months wouldn't that be an interesting thing to do is do a follow-up review with
+it in a bit and try it again and see what it's like well how about we do that okay all
+right we do that but one thing that i worried about and maybe that will change my perspective
+in a few months is how distributions treat their you know this is this is an official
+spin and it seemed pretty officially busted like maybe i'm one of the only people who
+ran into that but i i really hope that the next test in you know a few months is very
+different because i worry that the spins don't get the attention that the main release does
+the plasma spin has been on a on a trajectory of becoming more and more serious for the
+fedora project like now for example a a serious bug in the plasma spin is a blocker for the
+entire fedora project right that means that they're not going to release the gnome version
+if something's wrong in the plasma version so they are they are taking it very serious
+now but and they might they might push back on this but i'd kind of argue that wasn't
+always the mindset uh but i think what you have here is sometimes very late in the in
+the phase they have to fix something and that was something they were working on but we'll
+do the follow-up and we'll see how it is in a little bit and you know when at some time
+one of these days i'll get you to try out my gnome setup the way i have it and see if
+you like it yeah i could use it to her i'd appreciate that oh yeah maybe you you bake
+him an image you just ship it over there brent flashes it on tries it chris's way could do
+so mr pain you got your hands on fedora 35 would you try would you think yeah well i
+played around with the uh you know the main gnome version a little bit but then i thought
+i'd i'd go even more out there than brent i played with kina white oh yeah right there's
+silver blue version that's plasma based yeah come on immutable desktops for everyone including
+plasma and flat packs for days it's been a while you know i have played with silver blue
+but it's been a while i was at 33 i don't think i tried it for 34 so it has been a little
+bit but i i was pleasantly surprised now you know i love don't love anaconda but it does
+work it works just fine did seem like the kina white install took a little bit longer
+but other than that it felt just like a normal fedora install of course things get a little
+bit more interesting when you have to do some updates or start messing with the file system
+or packages or anything like that because it's immutable rpm os tree based system it's
+it's really neat i i think this could be a great development workstation for me personally
+as um you know someone who tinkers maybe a little too much with some of my systems there
+probably be one too many roadblocks but but for like a software development workstation
+admin workstation just getting work done where you don't have to do a ton of packages or
+customizations or you're fine with doing most of your things in flat pack and toolbox it's
+really nice i was impressed how well this just worked in the katie environment i mean
+it's not perfect discovers lacking some support for really working with rpm os tree for instance
+but the flat hub support and discover was really nice because i you know i can just
+turn flip that on and i got everything i need it is uh encouraging to see that kino night
+development because i don't know if it's necessary that silver blue and kino night be two separate
+projects but i think you're you're never going to have silver blue that can support both
+plasma and gnome unless kino night exists it has to kind of be the project that keeps
+the plasma torch burning so that way that silver blue doesn't become just a gnome thing
+yeah you need somewhere to organize the the effort of all the little details that need
+to get changed or fixed or packaged to make it a good katie experience and the idea west
+of that i got a really rock solid workstation that has this os tree approach to very careful
+updates and that combined with something like plasma and you know butter fs potentially
+like i mean i'm really seeing some seriously awesome workstation potentials just around
+the corner in the future plus it comes with you know a bunch of the latest stuff like
+python 310 which just recently came out that's here like if you're using fedora you're up
+to date which which is you often want for development yeah all right well i'm glad you
+had a chance to kick the tires one question i have for you west and maybe chris you have
+some insights or someone in mumble is um why make this if they have silver blue why put
+some effort into something like this as well what's the what's the reasoning behind it
+i think it is mostly just right now silver blue has always kind of been built with a
+gnome first kind of perspective and so you do your software management through gnome
+software and it's kind of using that entire pipeline and there hasn't been a bit much
+focus on making sure that a system like silver blue will work with something like plasma although
+it should right but and that would be the time now to start validating that out and
+not years down the road when perhaps silver blue starts to become pushed as the predominant
+workstation spin maybe of fedora could happen yeah i mean these these big desktop environments
+really do have their hooks into a fair bit of how the system works and so yeah it ends
+up being that there are things you need to think about when you've so radically changed
+the system with these immutable variants so while we're talking about this a big thing
+that makes all of this work is a lot of your application all your applications right are
+flat packs and flat hub integration with gnome software landed for all the different versions
+of gnome that use it so including the just a standard workstation version but it's not
+like the full flat hub but it's pretty close but it's not full flat hub explain this yeah
+so i mean you can still of course enable flat hub as you always have you know by manually
+doing that but but now fedora's providing a filtered list of stuff from their own repository
+that they've sort of gone through and approved and made sure that doesn't cause them problems
+to include it's an interesting start and it means that that some of these applications
+that you might want are already there without having to do anything that's that's really
+nice for a new user yeah and of course they do have that filter public which we'll link
+to in the show notes if you're curious i was like well what are they filtering out uh it's
+in there there's nothing really all that surprising in fact it mostly just seems like obvious
+organizational stuff but it's nice to see them including the flat hub because flat hub
+has really grown uh it has if you haven't been over there in a while go pop it up in
+your browser flat hub.org and take a look at just like the new app section or something
+like that so having that built in to gnome software is a pretty solid experience and
+i'm glad they did it even if they have to take out some stuff for platform reasons or
+legal reasons or or whatever it might be and once you noted we've got butter fs on fedora
+cloud now that's good to see yeah right marches on go go a little butter fs go and nice to
+have if you are using um fedora cloud does seem like a good sort of polished release
+all around there's other stuff in this this release that we talked about like um making
+sure that user services are restarted after upgrades which is especially important when
+you're doing all kinds of audio stuff like pulse audio or pipeline running in the system
+d user level instead of at the system level they've also started shipping the power profiles
+daemon in fedora workstation enabling it by default and it's just those little things
+you know those little things that the distro is thinking about for you that make fedora
+you know a little more like a mainstream desktop and a little less like an arch setup yeah
+real quick this power profiles thing's interesting and a lot of us are going to have a different
+experience because the way it's integrated with gnome settings in your power area you're
+going to see different stuff depending on what your hardware supports and it's even
+integrated in with your thermal sensors and whatnot so for example if your laptop's running
+super hot it doesn't make high performance mode available it'll even have a little grayed
+out text that says we gotta wait here your laptop needs to cool down something to that
+effect but if your hardware doesn't support this stuff you see limited reduced options
+so they're only revealing stuff that your hardware has support for but it also means
+that a lot of us see different things and i know this is true because i've tried it
+out now on vms and several different physical boxes they're all different the thinkpad has
+the sweetest integration like i i think wes i sent you a screenshot where it's like high
+performance mode has been disabled while the laptop is in your lap what yeah it's impressive
+honestly i mean this also kind of speaks to the added challenge that these you know desktop
+environments linux distros have to to work on all kinds of hardware and make an interface
+that can work in all the situations so we have the link in the show notes to go download
+plus a link to some of the common problems people are hitting right now but we'd also
+love to hear your experience what you did to make things go smoother i'd also like to
+know what didn't work so we can put the word out head over to linux unplug dot com slash
+contact and fill us in on your experience and your tips and your tricks now we are kind
+of running out of time so we're gonna just do the pics really quick because we got something
+super cool i think wes found it it's a nintendo switch emulator and i gave it a go oh you
+did yeah you jinx i don't know how to say it but it's an experimental switch emulator
+written in c sharp it's in the a u r as you would expect uh and so i gave it a go on the
+arch box and um i immediately started getting error messages that i knew not what to do
+with it's something about some some file missing that you have to go get but they're being
+cagey about you anyways it is legitimate though and the gooey works and it promises
+pretty good compatibility and what's cool about this project and we have it linked in
+the show notes as i said um it is emulating the hardware really like accurately of the
+switch so game compatibility is good it's like pretending to be the right arm cpu and
+the right gpu and it's getting a lot of that right so even things like the newest metroid
+game that just came out appear to be working in it i kind of got to give it a go it recommends
+you have a system with at least like 8 or 16 gigs of ram which probably most of us do
+and you know some cpu yeah this is really neat and it looks like they've got a pretty
+nice website set up as well as a blog and i always find that the work that goes on behind
+the scenes to make this kind of stuff possible just fascinating it's worth worth worth a
+read i have to be honest when you linked it i was like oh another one of these huh you
+know how's that guy but then i wouldn't check it out and i'm like this looks legit and so
+i went the next step and gave it an install and i mean sure enough it installed and i
+got the gooey launch but then it just sort of uh it just sort of broke on us um all right
+we gotta wrap it up there because we're going kind of long uh i i'd love to have you join
+the love plug we do that on sunday every sunday at noon pacific in our mumble room you can
+get the time at jupyterbroadcasting.com calendar and remember it is time zone wonkiness because
+europe does the daylight savings now ahead of the u.s so keep that in mind that's why
+i just say go to the calendar page and you can get our mumble server details at linuxunplug.com
+mumble we'd love to have you join the love plug and then who knows maybe you got a tuesday
+sometime you can join us live because we do the show live on a tuesday see you next week
+same bat time same bat station yeah that's right noon pacific 3 pm eastern jblive.tv
+you got it you know it wes knows it linuxunplug.com slash matrix if you'd like to join our matrix
+community and we'll have links to everything we talked about today at linuxunplug.com slash
+four three zero including all kinds of extra goodies in there you never know you never know
+it's like we back it up with the links we got the documents to prove it it's all over
+there plus our contact page or subscribe the whole shebang and it's going to render in
+your web browser it's incredible thanks so much for joining us on this week's episode
+of the unplug program and we'll see you right back here next tuesday!
+all right way too long i declare there is no posho today posho's been cancelled we've got to
+cancel it what you're hearing right now this is not a posho don't think of it a posho we're not
+doing a posho it's not that we don't love you it's just that you know we don't want to kill joe
+so this isn't a posho there's no posho can i still have my dessert yeah of course i
+ice cream for everybody

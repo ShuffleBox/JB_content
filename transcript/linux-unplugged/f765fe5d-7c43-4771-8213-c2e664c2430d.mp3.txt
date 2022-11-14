@@ -1,0 +1,962 @@
+In the meantime, I should probably get my computer here started up.
+Let's see, let's start up my... There we go.
+Yep.
+It's just the most reliable choice for the live stream.
+No, Chris. No, just no.
+Hello, friends, and welcome back to your weekly Linux talk show.
+My name is Chris.
+My name is Wes.
+Hello, Wes.
+This episode is brought to you by the all new A Cloud Guru.
+You know, they are the leader in cloud Linux and other modern tech skills, hundreds of
+courses and thousands of hands on labs.
+So go get certified, get hired and get learning at a cloud guru.com.
+Well, coming up on this episode, we're going to make good on a promise to you.
+Tim Kenam, the Mars helicopter operations lead at NASA's Jet Propulsion Laboratory joins
+us again on the show.
+He's been living on Mars time and they have had successful flights.
+They have, well, they have made history, but not everything went perfect.
+So he's going to join us today and he's going to get really technical about what broke,
+how they fixed it and some of the awesome like action movie kind of workarounds they
+had to do to get that thing flying again.
+And then after that, we're going to come clean about a service.
+It's time to retire here on the show.
+When we launched here on the podcast and towards the end of this episode, find out which project
+of ours is just not really worked out the way we thought it would.
+So we're going to have an exit interview and we'll find out what didn't work.
+But before all of that, before we get into any of that, we got to bring in our virtual
+Linux users group.
+So time appropriate greetings, Mumble Room.
+Hello, hello.
+Hello.
+Hello.
+Hello.
+Hello.
+Thank you for making it.
+This is going to be our last live stream for the next few weeks just because we're traveling.
+There will still be shows in the feeds.
+We'll have more details about that in a little bit, but I'm really glad you guys could make
+it because I'm going to miss you guys.
+This is something we do every single Tuesday.
+So then to not do it for a few weeks is just going to feel really weird.
+So each one of you has a special place in my heart.
+And if you'd like to join our show live, we do it typically on Tuesdays.
+So this is your heads up.
+Maybe like in a few weeks, like say, oh, I don't know, June 8th, come on back here and
+hang out with us at jblive.tv on a Tuesday.
+We have all of the information at jupyterbroadcasting.com slash calendar.
+Really there's no excuse anymore, right?
+Because you've got these upcoming weeks to get your audio set up, tuned, tweaked, maybe
+practice with the lup lug, and then you'll be ready to join the live stream when we're
+back.
+And let's be honest, Wes, put in your PTO request so that way you can come hang out,
+you know, or slide the lunch hour.
+Good idea.
+I also want to let everybody know that our friends at a cloud guru have a Linux system
+maintenance course.
+This is a course that's designed to give you the knowledge and utilities needed to just
+maintain a Linux box.
+So you get started with getting programs installed and set up, but then they have sections that
+cover backups and which directories you should consider when you're backing up the utilities
+to create backups, how you can use physical medias if that's your jam.
+And then it kind of ends with automating some of the communication and also how you can
+communicate with other users on your Linux box.
+It's a standalone Linux system maintenance course, but I also wanted to mention it because
+it's part of the path towards the LPIC 2.0.1 exam.
+So if you are getting your cert on, or you just want to maintain a box, we'll have a
+link to this in the show notes because it is kind of a long URL, but we'll have that
+in the notes and you can go check out their Linux system maintenance course, which probably
+everybody could benefit from because a lot of the stuff I've self taught so you can go
+check that out.
+So let's not delay, actually, I think, you know, this is usually the time in the show
+where we would do news.
+But realistically, what is bigger than making history with Linux on Mars?
+So we were really thrilled that Tim could come back and join us.
+As I mentioned, he is the Mars helicopter operations lead at NASA's JPL.
+And he was on the show in early March, right, Wes?
+Yeah, early March in LUP 396.
+But a lot has happened since then.
+I mean, we were kind of looking forward to heard about the successful landing, but there
+hadn't yet been any flights.
+Yep.
+He joined us earlier.
+And we started by talking about getting off of Mars time, which he had just been living
+on.
+Tim, welcome back to the show.
+It's great to have you.
+It's been amazing to watch five successful flights on the surface of Mars.
+Yeah, it's been extremely exciting.
+It's performed beautifully, even beyond our expectations in many ways.
+So I think, right, you were on Mars time for a bit and now that's wrapped up.
+How was that?
+It's very different.
+I mean, it's very stressful on your schedule because you're walking close to an hour every
+day right through the night.
+And it actually happened at the most stressful time when we were trying to debug the hardware
+issue that we found on the surface of Mars.
+So I was actually hopping between Mars time and Earth time because I was in the lab debugging
+the issue that we saw.
+And then we would hop on, if you will, metaphorically hop onto the helicopter in the middle of the
+night and try some experiments to see if the fix we were trying worked.
+So it was a very stressful time and a very, but at the same time we came through it and
+we were able to fly.
+So that was very cool.
+Hopefully you're catching up on sleep now.
+Yes, for sure.
+That issue that you ran into, that was what delayed the first flight, right?
+Can you give us some details on what happened?
+Yeah, absolutely.
+I don't know if you're familiar with what the concept of a hardware watchdog is, but
+it's a hardware function, if you will, that monitors a CPU or a processor and the software
+running on it.
+It's a form of a dead man switch.
+Remember those movies where the bad guy would hold the switch in his hand and if he got
+shot by the police, it would open up and he would blow up, right?
+So watchdog timers are a form of a dead man switch that's used very commonly in embedded
+software to make sure that the processor is behaving.
+So if you're in a safety critical function or very timing critical function and for some
+reason the software or the processor goes off in the weeds, a watchdog will stop that
+processor from doing something bad or reset it.
+And the helicopter hardware has a watchdog timer and the way the watchdog would work
+is once the software is booted up, it gives it one second to boot up.
+This is on the flight controller, which is the microcontroller, not the main Linux processor
+that we've spent a lot of time talking about, but the microcontroller.
+Some of those hardened ingredients you mentioned.
+Right.
+And so it gives it about a second to boot up and then it looks for essentially a special
+code that we send it, we send the hardware.
+There's two codes we have to send alternating, you can call it A and B where in computer
+ease, the B is the one's compliment of A. So that makes it so the software has to do
+something deliberate.
+It flips all the bits of the A pattern to do the B pattern and then flips all the bits
+of the B pattern to go back to the A pattern.
+And so the design with the hardware was that the software has to send these alternating
+A and B patterns every cycle on that microcontroller, which is two milliseconds.
+That's the duration of the cycle, very short cycle.
+So at the end of that one second window, the FPGA, that's a field programmable gate array.
+It's a form of programmable hardware that's very popular amongst embedded designers.
+If you have like hardware, which is all the individual components on a board, but then
+you have these field programmable gate arrays, which allows a hardware designer to design
+in specific functions into the hardware.
+And as long as that hardware is still on the ground, you can plug in a cable and update
+the hardware design without having to fabricate new chips or anything like that.
+So it's very popular among hardware designers.
+And so the software boots up and starts sending the A, then the B, then the A, then the B.
+So depending on how long it takes for the software to boot up at the end of that one
+second window, that hardware would see either the A pattern or the B pattern.
+Does that make sense?
+Yep.
+I'm following you.
+And according to the design, the hardware was supposed to accept either A or B. And
+we found out once we got on Mars that the hardware actually required that you send A
+first.
+Oh, wow.
+And over time, as the hardware has settled in, if you will, and each hardware has its
+own clock that can run slightly slower or slightly faster, that's what clocks the processor.
+And over time, the boot time of that microcontroller drifted such that on Earth, for the most part,
+all through our testing, it just happened to send the A pattern.
+But then when we get to Mars, go figure, it decides that it's going to boot up either
+slightly slower or slightly faster.
+And the first pattern that the hardware saw was the B pattern.
+This is probably not the kind of incident you expected.
+I would imagine you thought some sort of physical damage might happen or something might get
+jarred loose.
+I bet you weren't expecting something like this.
+So how did you even start the research process on that?
+It totally came out of the blue.
+It's very interesting, but this is not atypical for a project that you sweat and you stress
+and you lose sleep over things that you think are going to be a big deal.
+And they don't end up being a big deal, but something comes completely out of the blue
+and smacks you in the side of the head.
+And this is really what happened.
+And we basically just opened up the FPGA code itself.
+They have simulations they can run on the FPGA hardware, and they're able to reproduce
+the case where the software boots up slightly faster or slightly slower and sends the B
+code to the hardware instead of the A.
+Wow.
+Good thing that simulator is accurate.
+Yeah.
+It's a nanosecond accurate simulator.
+So we were burning the midnight oil.
+We were up many, many days, 15 hours a day just trying to dig through and find out what
+happened.
+And once we had nailed it, even though it's on Mars, there's always a maxim that once
+you can reproduce it and nail it, you have a pretty darn good chance of fixing it.
+It's the ones that are really hard are the intermittent ones that happen once in a while.
+So it's hard to reproduce.
+But after about a day of just intense study and simulation, the hardware designers and
+I were actually able to figure out what was going on.
+Then we had to come up with a solution.
+We actually found, if you will, a hardware hack to get around it.
+There's really two solutions.
+One would be use the existing software and find some way to get it to fix itself, if
+you will.
+Or the second alternative is a software update, where we change the software so that it in
+essence sends both the A and the B pattern every cycle instead of every other cycle.
+And so the hardware sees the A pattern first and then the B pattern, and then it's happy.
+So there was a relatively easy software fix.
+You say relatively easy in the code change there, but I don't know the prospect of updating
+remotely that seems a little dicey, right?
+Yes.
+So getting it to Mars is the challenge.
+And we did it.
+I mean, we did the software change.
+So we were trying to develop these two paths in parallel.
+So you can probably understand why this was a very stressful time because at the same
+time I was debugging the issue in the hardware with the hardware team.
+I was also making a software update and testing it on the rover that we have in what they
+call the Mars Yard at JPL, which is a replica of the rover on Mars, because there's a whole
+set of procedures we had to develop in the space of 24 to 48 hours, all these procedures
+for updating the software on the helicopter and test them.
+And so I was doing all that in parallel.
+My wife was getting very nervous because I was so stressed about it.
+I wasn't eating that much.
+And because there's all these eyes on it at all levels up to NASA wanting to know how
+we were going to fix this.
+And so it was definitely one of those Apollo 13 moments.
+And so we got the software tested.
+It's actually the software update is sitting on the rover if we decide to use it.
+But we actually found a fairly clever workaround on the vehicle itself that did not require
+the software update.
+So that's got to be the safer route then.
+Yes.
+And it actually shortened the time because we had this very limited window.
+We could do this experiment on Mars and time was ticking.
+And based on my own estimates, based on all the times it would take to transfer the software
+to the helicopter and then retest it, we would probably lose at least a week.
+What is it using to communicate back to the rover, the helicopter?
+Is it a Wi-Fi network?
+Is it something else?
+Well, you're going to laugh at this.
+It's a Zigbee radio.
+No way.
+No kidding.
+Yeah, it's the same radio people use in their IoT devices in their home.
+And we have one on the helicopter and then the helicopter has an instrument payload on
+the rover called the base station.
+So they both have these radios and they talk to each other.
+That's how we communicate back and forth.
+Wow.
+But what we figured out was on the helicopter, I mentioned a software update.
+We had built in from the beginning the ability to update the software on this microcontroller.
+We actually did it many times when we were testing because we do some testing.
+We'd say, oops, we need to correct that issue in the code or try this different approach.
+And so we would update that microcontroller.
+So one thing you don't want to have happen is as you're updating, right, you're writing
+to the flash on the microcontroller, which takes a certain amount of time.
+You don't want the hardware saying, hey, you forgot to stroke my watchdog, so I'm going
+to shut you down.
+Right.
+That would be bad.
+Please leave your Mars helicopter plugged in while your system is updating.
+Exactly.
+And so we had a special, we call it the patch mode in the FPGA where when you put it in
+this patch mode, it would disable this watchdog check for as long as you're in that mode.
+And then when you would exit that mode after you were done patching, the hardware would
+look again for those watchdog transactions that I mentioned, the A and the B.
+So we found out in our lab at JPL that the timing is, there's all kinds of charts and
+things that would probably be boring you, but we actually did a whole bunch of analysis
+and we found out the timing was just right, that if you exited this patch mode, it would
+actually make it so that that A transaction will line up about 85% of the time and it
+would work.
+We're like, wow, how do you like that?
+Right.
+And so in essence, we have these software back doors because that's what software people
+like to do.
+And we have these commands that are already on the helicopter that allow us to poke into
+the hardware directly and change that mode to be in this patch mode, and then we can
+exit it.
+So normally when we're doing patching on the software, it's a much higher level function.
+You send a command that says, I want to write this file to the flash on the microcontroller
+and the software executes at a high level to do that.
+And obviously we didn't want to update the software.
+We just wanted to put it into this mode temporarily and pull it back out.
+Does that make sense?
+Just to adjust the timing to kind of get these cycles between the two systems more in sync.
+Yeah, to kind of force it to go in and out of this mode.
+And as we found out in the lab that when it exited this mode, serendipitously 85% of the
+time, it would be happy with that AB pattern.
+That's excellent.
+Very clever.
+So every sequence that we run, every command set that we run now during a flight, it has
+those transactions in there to basically hotwire this hardware mode to force it in and out
+so that we can fly.
+And we did have one flight, we had flight four that canceled because we just caught
+the timing wrong.
+I was going to ask you about that.
+I was wondering.
+Okay.
+Yeah.
+The fourth flight on April 29th, right?
+Yes, that's right.
+So that's a case when the timing was just off slightly and when we exited that mode,
+it didn't work.
+And so the sequence failed out safely and we just ran it the next day and it worked.
+Wow.
+I love hearing clever solutions like that that avoid the greater risk of remotely flashing
+the copter.
+There are a bunch of Star Wars nerds on the project.
+And if you look on Twitter, on the JPL Twitter feed, on May the 4th, we had the helicopter
+send out a May the 4th be with you message back to Earth.
+So that was kind of fun.
+But we have sort of a running funny meme for that workaround that we found to get the helicopter
+to fly.
+And that is the scene when Han Solo is trying to get away in the Millennium Falcon and he
+walks in and the Millennium Falcon won't start.
+So he turned around and he smacks the panel and everything lights up and he can go.
+That's kind of what we're doing on the helicopter every flight.
+Hey, if that's what it takes, it's still making history.
+So what then has worked better than expected?
+Like what were you maybe very concerned about that turned out to be a non-issue or something
+you didn't consider that's just gone fantastic?
+Well, we were really sweating the energy story because the helicopter is small relative to
+the size of something like the Rover.
+So it's difficult to model the energy, meaning how much energy the solar panel will absorb
+and fill the batteries, how much heat leakage there is out of the helicopter and how much
+it will expend overnight keeping the helicopter warm because we have to keep the batteries
+warm overnight or else they can go into a deep freeze and then the helicopter is done.
+And so we were really, we were spending a lot of time trying to figure out what this
+model would tell us.
+And the model was pretty pessimistic and it said, you're kind of borderline on energy.
+And so we were coming up with all these contingencies about, well, how can we do it at a different
+time of day?
+Maybe we can only do one flight because that will exhaust the battery and it won't keep
+us awake at night.
+And as it turned out, we dropped on the surface and then the next day when we talked to it,
+the batteries were bouncing off 95%.
+Wow.
+We were like, this is fantastic.
+And basically, you know, the battery health has been great.
+There's been even some days when we wake it up at noon and it's sitting right at a hundred
+percent.
+It's fully charged by noon.
+And what that really allowed us to do was to extend the maximum time that we could fly.
+We had been advertising, and you may remember this from the first time I spoke to you that
+we had been advertising that we could fly up to 90 seconds because past that, we didn't
+know if we would have enough energy left after we landed to keep the helicopter warm through
+the night.
+When we had so much energy, we basically took the limit up to two minutes of flying.
+And that's what allowed us to do this flight number four, where we went 130 meters to the
+south and then back.
+That's essentially two and a half football fields in one single flight.
+And that was a pretty epic trip.
+And all kinds of great things came out of that trip.
+We were able to scout the landing location for flight number five, which is where we
+are right now, and get some really, really good imaging on the way of the surface.
+We actually used our black and white camera and took on the order of 60 pictures as we
+were flying towards scouting, you know, scouting towards the landing location.
+And we got a whole ton of pictures right as we approached the landing site.
+And we were able to take a bunch of color pictures.
+And when we went back to the north again and landed, we still had really good energy.
+We were sitting at, I want to say around 60 to 70 percent.
+Amazing.
+That's got to be beyond your expectations.
+Yeah, we were just elated at that because it opens up so many possibilities.
+And it seems like we're just energy rich, which that we just didn't expect.
+So what about the Linux systems?
+You know, last time we kind of talked about the journey it took to get Linux involved
+at JPL and onto this copter, and we were talking before about some of the, you know, the hardware
+and low level software details, but how, you know, you're talking about the images.
+How has the Linux stack actually done?
+Well, the processor and Linux have done very well.
+We tripped over one thing that's it's kind of funny, you know, in a way, we have a command
+on the helicopter that if we want to list all the files in a particular directory, it
+takes each file in the directory, and it gives us the size and the name, but then it also
+computes what's called a checksum.
+And basically it's sort of like MD5, if you're familiar with that utility on Linux, it gives
+you a code that says, you know, this is what the, this is a check of the, of the actual
+binary itself.
+And we found out that on some of the larger files, it would take sufficiently long to
+compute that checksum that on one, actually two different days on Mars, we actually tripped
+the, remember I talked to you about the watchdog on that microcontroller, well, there's actually
+another one that's watching the Linux processor, the Qualcomm ARM processor that has a 30 or
+a three second expiration.
+And apparently the time it took to read those files and compute that checksum was just,
+it locked up the Linux kernel just long enough that it tripped that watchdog.
+And we ended up getting the processor reset.
+And so that was one of those moments where we're looking at the data on the ground and
+we're, we see about 50 files into the listing and all of a sudden the helicopter goes off
+the air and we're like, that's not good.
+But you know, the way we designed it, we always set the alarm clocks for the next day before
+we do anything else.
+And so the helicopter just came back the next day, just fine.
+But there was about a 24 hour period there where we were like, yeah, we know that's the
+design, but it also just kind of vanished and we hope it comes back.
+That's a long time to wait for the next log time.
+Even though you know, that's how it's built.
+That's gotta be weird.
+Yes.
+And I was kind of joking with one of my coworkers, one of the other engineers on the project.
+And I said, that would be a little embarrassing if the helicopter went down in history as
+being killed by LS, you know what I mean?
+I hope this is sort of a success story for future experiments that might use Linux.
+But that wouldn't have been, if that was the case.
+Yeah.
+And it was, it's not Linux's fault per se, it's just doing what it likes to do, which
+is, you know, when it does file accesses, it's not a real time operating system.
+So it says, okay, you want me to go walk through this huge file, I'm just going to grab the
+kernel for that time.
+Yeah.
+And the watchdog did its job.
+Yeah, exactly.
+It was one of those things you discover.
+I remember there was a very senior manager, JPL, who's been doing projects for years and
+years and years.
+And coming into these projects, I always assumed there was this ironclad requirement that you
+exactly know every single thing that a spacecraft is going to do once it gets where you want
+it to go.
+And he said very plainly in a meeting, he says, well, you know, when you get to a location,
+you start to discover the personality of a particular spacecraft.
+You can't test every single scenario on Earth the way you would encounter it because you're
+not on Mars, or you're not at Saturn, or you're not orbiting Jupiter or something like that.
+You really start to discover over the time what the personality of a particular spacecraft
+is and the things you have to avoid, the things that you thought were going to go wrong and
+didn't.
+And then, like I said, the things you didn't even have any idea would go wrong, but did.
+And so really, we've been learning the personality of the helicopter as it's been sitting there
+on the surface of Mars.
+And we just learned don't use that command because as I said, it's not the fault of Linux.
+It's just a feature, if you will, that on a normal desktop would not be a big deal.
+But we have this watchdog watching over us.
+So ironically, what we ended up doing was we do have yet another backdoor on the software
+that allows us to execute a command on the shell as if you were sitting there at the
+Linux prompt and typing something.
+So you can run pretty much anything on the helicopter you want.
+And what it does is it takes the standard output of that command and puts it into a
+log file that then you can transfer back to Earth and see what actually happened.
+So what we did is after we tripped over that particular behavior, we actually switched
+to doing LS, actually running LS.
+One shell command slowly at a time.
+Yeah, we just we found out that because LS was running and we put it on a different core
+on the processor, right, we directed it to a different core.
+We can do that with this command.
+We can say run on the third core as opposed to the first core and we can direct it.
+We basically since then have been doing LS on those directories and then running the
+MD5 command on those same directories to use the sizes of the files that were generated
+during the flight to estimate data volume that the rover has to downlink to Earth and
+how long it will take because it takes a certain amount of time to transfer from the helicopter
+back to the rover and so on and so forth.
+So we needed those sizes.
+So we basically just switched to using LS.
+Core utils to the rescue.
+I'm kind of taken aback by the fact that you are actively essentially using the shell on
+this copter on the planet of Mars from Earth.
+That's just incredible to me.
+Yeah, and it gets even better in that we do spend a lot of time with the helicopter up
+transferring these large logs and images from the helicopter back to the base station that
+I've mentioned on the rover over the radio and then subsequently transferring those files
+from the base station of the helicopter.
+And because those files are large, it takes a significant amount of time to transfer those
+on each hop from the helicopter to the base station, the base station to the rover.
+It consumes significant amount of time.
+And so once we started using the shell command, we just said to ourselves, why don't we just
+try compressing these files and see what happens?
+And we did some experiments here on Earth and the good old fashioned bzip2 utility,
+you may be familiar with it on Linux.
+We basically do bzip-k because we don't want to delete the original files.
+And we take all these log files and we compress them into bzip files and then we transfer
+those and that actually shaved probably 30 to 45 minutes off of each hop from the helicopter
+to the base station and the base station to the rover.
+It significantly cut back our transfer time just because we just compressed them by running
+this utility on the command line on the helicopter.
+And how are they transferring between copter to rover and up?
+Is it is it some proprietary sync solution?
+Is it SCP?
+I mean, what is going on there?
+It's an old fashioned serial UART.
+I don't know if you're familiar with that.
+Remember the serial ports from the 90s and the 80s?
+They essentially have one of those on steroids.
+You know that the signaling is very robust so that you don't get noise in the rover that
+can interfere.
+But it's relatively slow by modern standards.
+It's a hundred and fifteen kbaud connection between the base station and the rover.
+For those of you played around with modems in the past, right?
+You remember how you have these standard speeds of serial ports based on the 8080 PC back
+in what, 1982?
+They just kept them kept these standard speeds for 40 years.
+So they set up these connections between the rover and the base station.
+And so we initiate a transfer across that serial line, that UART line from the base
+station to the rover.
+And so the rover then takes that data and stores it in the form of its own internal
+files.
+And then whenever the next pass, the spacecraft pass, when the spacecraft goes overhead, they
+relay those files up to the spacecraft and back to Earth.
+So when we're actually looking at our data, we're seeing a bunch of these binary files
+on storage on the ground, and we just run our tools to decode them back into the data
+that we got from the helicopter.
+Wow, that is really impressive.
+What's next for our little helicopter here?
+And what's next for you?
+I mean, you're off Mars time now, right?
+Yeah, although Mars time is sort of aligned with Earth time because it circles around.
+But after a certain point, the rover projects, they realize that the human cost of just always
+going to Mars time, it just wrecks people's schedules and they get more and more tired
+and more and more prone to make mistakes.
+Somebody think of the humans.
+Right.
+So what they do is for the first part of the project, this is very common for Mars projects.
+Everybody's on Mars time because they want to make sure the vehicle is working and stable
+and doing what it's supposed to be doing.
+And then they go to these kind of a modified schedule where when Mars time is in the middle
+of the night Earth time, when humans don't want to be up and doing things, they'll take
+one day on Earth and they'll schedule two Mars days, they'll do two things at once,
+and then they can process it during the day when humans are awake.
+So the shift kind of slides from early in the morning Earth time to later in the afternoon
+and into the evening Earth time.
+So it's still sliding, but it slides during the Earth day.
+It doesn't go through the night anymore.
+It's a little nicer on your schedule.
+Yes.
+So they're able to juggle and not be as hard on engineers doing it.
+But because Mars is cycling, every three weeks or so, it's working its way through a normal
+Earth day and you can get, if you will, results the same day that you do an activity.
+So Mars is kind of in that mode right now where it's about three or four hours behind
+us, if you will.
+And so we're able to get the data and look at it on a more normal human scale.
+But we did finish our 30 Sol experiment and we met all of our requirements.
+Our original promise was we would do these three canonical flights and we pretty much
+nailed them.
+They were great.
+And we always said that flight four and five would be more adventuresome flights based
+on what we discovered in the first three and we did exactly that.
+So we're able to check the box and say, yeah, we did it and we did it in spades.
+And we met our criteria and we got all the data that we want from those flights for future
+projects to use to design their own particular missions.
+And really validate that this is a worthwhile investment.
+Yeah.
+So we switched modes, if you will.
+The first 30 Sols were, it's a technology demo.
+We're just trying to see if we can fly on Mars.
+It's really what we're trying to show.
+Was this even possible?
+Yeah, exactly.
+Nobody knew if we could do it.
+I mean, that's the bottom line.
+A lot of people were skeptical.
+Yeah, well, it's very nice that you had a chamber, you know, but you had a cable.
+You don't know what it's going to do when it gets there and so on and so forth.
+And we, it just nailed it.
+Our chief pilot was looking at plots of altitude and position and rates and all that.
+And he says, if I had looked at this six months ago, I would have said it was from our simulation,
+not from Mars.
+It was so close.
+We were just shaking our heads.
+It's another one of those things that we thought might bite us, but never did.
+We were worried about wind tossing us around.
+We were worried about, you know, the performance of the flight system not being what we expected,
+but it was just dead on.
+And we also got these pretty glorious color pictures as we were loft, you know, we were
+up at five meters.
+That has to feel like real tangible, you know, something you could take away from all of
+this work is that that copter is up there forever now, but you have these pictures.
+That's real tangible proof that you were successful in this.
+Yeah.
+And the pictures came out really great.
+And if you, if you go to the JPL website for the Mars helicopter, there's all these great
+color pictures that we took and you can even see in one of them, this very cool.
+You can see in one of them, cause it's sort of fish either you can see the edges curve
+and we actually caught perseverance in one of our pictures.
+It was off in the distance watching us with its camera and you could just see it at the
+corner.
+So there's actually this really cool picture where we're looking South when we're on that
+flight three, when we're flying to the North and we're taking pictures sort of as we're
+flying backwards and you can see in one shot, you can see the Rover off to the left.
+You can see the helicopter landing spot in the middle.
+And then to the right, you can actually see the place where the Rover landed.
+It still has the blast marks from the rockets as they were landing.
+You can look in the picture and you can see this scoured, these two scoured circles where
+the rocket blasts scoured all the surface clean, just as the Rover was landing.
+You get this great picture of everything all at once.
+And so I'd encourage everybody to go look at that one picture.
+If you look around, you can see it.
+But that really proved that we can actually fly and it works.
+And the Rover project saw these colour pictures and they were just like, wow, these are really
+good pictures.
+And so they said, you know, since the helicopter is doing so well, we're going to actually
+propose this extended mission, if you will.
+And it's really an operations experiment.
+You can use that term where we're switching from just seeing if we can fly and surviving
+to, well, let's try to fly around and act as a scout.
+So we'll fly longer distances, we'll fly over more challenging terrain, we'll take pictures
+and we'll bring them back down to Earth and we'll say, you know, how could a potential
+Rover mission or other mission use these pictures?
+And the Rover team doesn't need us as a scout.
+They never did.
+But they're still going to opportunistically look at these pictures and see, hey, maybe
+there's something over there.
+Interesting.
+Yeah, it's valuable data for them.
+Yeah.
+So the idea is that we're going to start looking at, we haven't fully planned all the flights
+yet, but we're going to start looking at these more distant features and locations to fly
+over there and get some good shots with the colour camera and, you know, bring them back
+and see how well they can be used by people to figure out, hey, there's a cool feature
+there.
+But we aren't going at the same cadence we did because during April, they dubbed the
+month of ingenuity where we pretty much were the whole show.
+The Rover was prioritized to work with us to get flights every few days to get the data
+between that.
+And they're actually moving on to their own mission, which is to start to explore that
+southern area.
+It actually helped because originally their plan was to do a sprint away from the landing
+zone to get to what they call the Delta, which is where all these interesting geological
+features are.
+But they've decided in the meantime that they want to poke around to the south of where
+they landed and look at some interesting stuff they've discovered down there up close.
+So they, since they were loitering, if you will, down in that southern area for a while,
+they said, well, why don't, you know, we're not going to drive away from the helicopter
+for a while.
+So why don't you guys do this operational experiment?
+You won't fly as often.
+We're flying probably once every two to three weeks instead of every four or five days,
+it'll be more intermittent and they're deprioritizing our data.
+Like for instance, for flight five, we're just starting to get the data down from the
+vehicle because they're prioritizing their own science instruments, which we're totally
+fine with that.
+This whole thing is a bonus for us.
+We're living within the new paradigm, which is let us do our own thing.
+Maybe not as often while you're doing your thing on the rover side and see what we can
+get out of it.
+So we're going to probably be flying every, as I said, every few weeks and seeing how
+well it works potentially through the summer.
+Usually you pick up and move to essentially where the rover is going to be going to.
+Cause you would, I would imagine you have to stay within communications range.
+Yes, we will stay relatively within communication range.
+We found out that the, that's the other thing that we were worried about was we didn't know
+what the radio performance would be.
+We were worried that obstructions would get in the way that we'd have what they call a
+multi-path where the radio waves bounce off things and cause interference with itself.
+And what we found is the radio is performing beautifully.
+It's almost amazing.
+We actually keep a counter on the helicopter of how many packets were dropped.
+So the helicopter attempts to send a radio packet to the base station and it's, if for
+some reason it doesn't work, it tries again, it tries up to three times.
+And during, I think it was flight five, we received our first single counter that said
+that we had dropped a single packet.
+So it's kind of mind boggling that over the entire project up to flight five, we didn't
+drop a single radio packet.
+Doing better than my wifi at home.
+That's the truth.
+It's kind of ironic that there was a couple of times when the internet connection failed
+at home and I was, we were doing operations, talking to the helicopter on Mars through
+my iPhone hotspot and the radio on Mars is working great, but not evidently my internet
+connection.
+Oh wow.
+Infrastructure is hard.
+Yeah, that is just, it's such an incredible story and it feels like it's a technology
+success.
+It's a human success and it's just been also a historic event to witness and I just, I
+have so much gratitude and just want to say so much congratulations to you and the team.
+Just remarkable what's happened here and I really appreciate you running down just some
+of that with us.
+I feel like I could talk about this with you for the entire day, but I know at some point
+we have to bring it to an end, so Tim, thank you for joining us and updating us on that
+little Linux Copter.
+You're quite welcome and it's been great talking with you guys.
+It's always good to talk to people who are space geeks like ourselves because we really
+are space geeks living the space geek dream, right?
+If you think about it, flying a helicopter on Mars, how many people will get to do that?
+And so having me as a kid from a small town, being able to do something like this, it's
+still hard to process sometimes that we're going to go down in history with people like
+the Pathfinder, the Voyagers, all these different amazing historical spacecraft and projects
+and we get to take our place in that group that it's not a pride thing for me.
+It's just a sense of amazement that I get to do something like this.
+Linode.com slash unplugged.
+Go there to get $100 in credit for 60 days on a new account and of course you support
+the show.
+$100 in credit, well that lets you see why Linode is our hosting provider for everything
+we've built in the last couple of years.
+Linode's infrastructure is solid, it's flexible and you can focus on your project, not your
+infrastructure.
+You get 11 data centers to choose from around the world and every service level, every Linode,
+every data center is just backed by the best customer support in the business and man,
+when that matters, it really makes all of the difference.
+And at every step of the way since 2003, Linode has asked themselves how they can use Linux
+to accomplish their next task.
+I know how that feels.
+They have built on Linux in brilliant ways and they've contributed back to the Linux
+community in a lot of brilliant ways too.
+I love that their dedication to the platform is baked into their product and that's long
+time Linuxers, that's a term.
+You can really see it.
+That's special when you're using a product and you can kind of notice that the company
+behind it truly loves Linux.
+I love picking up on those things and a few months ago, just as an example of how sometimes
+I'll randomly use Linode for my own personal stuff, I wanted a cloud-based component to
+my SyncThing setup because I like to sync between the studio and I like to sync to the
+lady juke's RV and one sync server to another sync server, it works but it's kind of slow.
+I want like more transfer so you can tweak SyncThing and you can really open up the flood
+gates if you bring in another sync node.
+So that's what I did.
+That's what I used a $5 Linode for and now I kind of use it to do a couple other things
+like jump posts and stuff but you know SyncThing, it's great.
+It's a great open source project and it just transparently is moving my data at the file
+system layer.
+I don't even notice it.
+It feels like I have a network wide file system and Linode is so fast and so reliable that
+I move a ridiculously impressive amount of data that I'm kind of embarrassed to say and
+they do it just with no fuss.
+So head over to linode.com slash unplugged.
+Get that $100 in credit for yourself.
+Go see what it can do.
+Go try this stuff out.
+Go build something and you know maybe learn something.
+There's a lot of ways to host but there's no company like Linode.
+Go see why we choose Linode every single time at linode.com slash unplugged.
+You know Wes we have a few things to get to this week because we're going to be traveling
+over the next couple of weeks and off the air so we have some details we should probably
+cover.
+You know we still need to find the keys to these chains.
+I don't know if we're going to be able to leave the studio.
+Yeah you know these podcast locks they're pretty tough.
+So for the next two weeks we won't be live.
+We do have some great content lined up and then we'll be back in studio all chained up
+on June 8th.
+In the feeds next week our AMA episode comes out and it was a lot of fun to record.
+We did it with the LUP plug this last weekend and I think you're really going to enjoy it.
+I was surprised at how great it turns out and you still have a chance to get your questions
+in go to asklup.com or use the standard contact form at linuxunplugged.com slash contact.
+The LUP plug will continue on while we are traveling though every Sunday noon Pacific.
+That's in our mumble room.
+We have mumble information on our website and we have our calendar to get the live time
+or the plug time at Jupiterbroadcasting.com slash calendar.
+Oh I should have mentioned this earlier.
+I made a thing.
+I made a thing and I want to share it with you guys.
+I made like a five dollar Linux can fly sticker to celebrate this incredible milestone that
+Linux is flying on the surface of Mars.
+The first rotocopter flight on another planet was made possible by Linux and free software.
+And look at how cute this is bold brave on the surface of Mars.
+I made this myself Wes.
+What do you think?
+Are you impressed?
+It is it's the rotocopter on a stylized version of Mars in a cut sticker.
+So it's what do you call that kind of it's like a die cut sticker.
+So it's got into the wings of the rotocopter or the blades.
+It actually extends a little bit out so it's not a perfect circle and it really gives it
+a really nice 3D depth effect.
+Yep.
+That's just five bucks.
+So JB makes like probably a dollar eighty.
+But if you're a member if you're a core contributor you can use the same promo code I gave you
+a couple of weeks ago and it will take 15 percent off even this.
+And it's at Jupiter Garage dot com and you can grab the Linux flies on Mars sticker that
+I made myself.
+I'm very proud of it.
+And I totally ordered a couple myself because I want them around the studio.
+This is every time I look at the sticker I'm going to think Linux and free software flew
+on the fricken surface of Mars.
+It's pretty awesome.
+So I wanted I wanted I wanted a way to celebrate it and I thought why not make it available
+for everybody at Jupiter Garage dot com.
+So go check that out.
+And I won't be mentioning it again because we're traveling and the shows are already
+recorded so you just got to remember yourself I suppose.
+And last but not least I'll mention the telegram will still be popping in there from time to
+time even when the shows are pre-recorded and they're not live will still pop in there
+Jupiter broadcasting dot com slash telegram.
+OK so it's time for an exit interview with PeerTube.
+It has been great.
+We are so excited about the future of this project but we have some problems.
+And so we have decided to make the tough choice about decommissioning the Jupiter broadcasting
+PeerTube instance that we set up in episode 388 of the show so a little while ago.
+Not something we do often or necessarily take lightly.
+No no we generally don't.
+We generally just keep it running and support it.
+You know we we also want to this is really about refining the scope of software and services
+that we maintain and not overdoing it and keeping what limited time we have invested
+in the right areas.
+And part of me just wanted to keep this going and just kind of experiment with it.
+But I've been getting feedback about it and there's kind of this public perception that
+if it's if it's online it should be a little bit more than it is.
+So I have put up a longer explanation of our decision at Jupiter.Tube if you'd like to read
+about this put just really kind of short though I think PeerTube is and should be the future
+of decentralized video on the web.
+There are other platforms out there right now but PeerTube is a pure peer to peer play
+with no silly cryptocurrency that's going to be a problem for them down the road.
+It's just a YouTube in a box that you can install yourself.
+And I think it is good to go today for open source projects like like a distribution or
+a community event that maybe wants to do a little live streaming and then make their
+talks available online.
+I think personally PeerTube is there and so this is not taking away from any of that.
+It is an incredible piece of software and they only recently rolled out live stream
+support and we were both very impressed with what they've done there.
+Oh yeah.
+There are still some issues for our use case but just to add that at all in a in a project
+like that including I mean initially web torrent support and then now they've got a new peer
+to peer HLS based system that's fancy and they've got some really clever tricks with
+FFmpeg in the back end which you know we love.
+They do have some great great out of the box features that just make getting set up really
+simple if you just want to pull in a few videos like an import feature from Twitch or really
+anything that YouTube DL supports which is crazy fancy.
+Really it comes down to when you're using it at scale on an ongoing basis for like you
+know four or five shows plus two or three or four live streams and a team of more than
+a handful of people and you start adding all these things together and it's kind of unclear
+how you scale multiple shows across multiple channels.
+Do you set up an account for every single show and like a network account for live streams
+and then personal accounts for each staff member who's going to be on there and interacting
+with the comments and interacting with their shows.
+It just becomes an incredible amount to manage but it also becomes kind of cumbersome to
+automate because there's like all of these little we have to go create this account do
+this instead of just like an API that we can use to to just upload video productions as
+our automation system completes them.
+The live stream support is really solid but it's still a little tricky to use especially
+if you want to have your live stream auto publish after you're done if for any reason
+during a live stream if you drop PeerTube will not allow you to reconnect to that stream
+and for some intermediate services like Restreamio when that kind of lockout happens they just
+mark the entire RTMP feed as always bad you have to go delete the integration and reset
+it up which is disastrous during a live stream.
+And then really and this was what I was worried about when we started there's no great way
+to mass import right so they have great ways to import maybe a YouTube playlist or you
+just want to pop in a link or something easy but if you have a whole SFTP server full of
+backlog and catalog it just doesn't even support that what we will what we would love to be
+able to do is like some kind of directory import we could we could we could point it
+at a at an FTP or SFTP URL or whatever it was maybe a text file in there that has some
+of the metadata like name and description and then have it import 400 videos so that
+way we could do a mass migration but they don't have anything like that there's no RSS
+feed import either which would be really nice so that while the video import options are
+good today they're just not as expanded as we need and so since it doesn't address all
+of these use cases and we've also seen kind of a fade in adoption as people have kind
+of went back to YouTube and Twitch we're gonna just take this moment to hit pause on it we're
+gonna take it private we're gonna continue to have it installed and upgrade it and test
+it privately and then when we think it's gotten to a point where we can support it fully and
+and like go all in like just really go all in where we we publish every single show we
+have channels that you can subscribe to if you just want this one show all of its tied
+into our automation system we figured out the storage issue because storage does become
+a problem even in our light testing we've already eaten up 30 gigs and we've only been
+publishing two shows so you know all those little things have to be worked out and then
+we're gonna make it public again and and try to go all in on it because I really do like
+it I think it is very good software I think it's one of the more exciting free software
+projects out there right now so it does hurt to not be able to just totally embrace it
+right now but I have to be realistic about what our what our abilities are as a small
+team and so what I've done is I've put together a page that goes into some more detail specifically
+I talk about how I think they can maybe defeat the network effect that YouTube has and I
+tried to link to the previous coverage of that I could find which looks like four previous
+shows and I gave timecode links to those segments if you'd like to hear our past kind of discovery
+of PeerTube to implementation of PeerTube and now to this phase for now and that'll all
+be up at Jupiter dot tube I think we just found ourselves in a sort of awkward spot
+of you not not being all in finding some rough edges that we weren't really prepared to necessarily
+deal with or wait for the project to get to in time and we we liked it so much that yeah
+if we're gonna use it we want to do it right we want to go all in we want to be able to
+have it as a as a firm foundation for the future of Jupiter broadcasting which would
+be really nice I mean it would be really nice to know like here's a spot we can put stuff
+it doesn't matter if YouTube's gonna choose to demonetize it or censor it or take it down
+for some other dumb reason we've got our own accessible catalog in a way that's a lot more
+useful than some of the back you know the archive systems we have now but to do that's
+gonna take a lot of work right it's gonna take investment and I think we have to evaluate
+you know when the right time is to expend that energy but I am looking forward to continue
+to play with it and already since we started using it they've updated and made a lot of
+nice improvements and I'm sure that's going to continue mail route dotnet slash Linux
+go try out mail route today and get 10% off the lifetime of your account and start with
+a 30-day free trial no credit card required how great is that support the show and try
+out a service that is going to make email a lot better for you for 24 years mail route
+is focused on its core competence providing cutting-edge email security that's mail route
+dotnet slash Linux we're using mail route for the new Jupiter colony mail server and
+mail route can protect your mail server with a suite of services designed to remove spam
+viruses and my favorite aspect prevent downtime and I know that sometimes it can be tricky
+with your ISP perhaps they're blocking certain ports or trying to play tricky with your email
+or maybe for some reason your server ended up on a blacklist and so it's not getting
+email anymore it's just gone into the black hole yeah I hate that and I've had to help
+clients fight that problem too I've deployed mail route for my clients in the past and
+now I'm using mail route today and I want you to try it out at mail route dotnet slash
+Linux it solves that downtime problem if you need maintenance or maybe you just have an
+outage they will queue email up for you and then when your email server comes back online
+they forward it right on they were the first to build an email filtering service back in
+1997 and that's what they've been doing since they provide one-click migrations for both
+office 365 and Google G suite and they have very simple onboarding realistically for any
+mail server it's just you change a couple domain records you add a couple of settings
+in the mail route service then you're good to go and you're getting real-time logs you're
+getting they're filtering and you also get critical compliance for federal government
+contractors and others that have to meet CMMC compliance so go check that out as well because
+that can be a huge plus your account also includes controls to stop spam and phishing
+attempts and viruses and get a whole heads up on all of that when you need it mail route
+is there for you and they'll make email better so try out mail route today and get 10% off
+the lifetime of your account and start with a 30-day free trial by visiting mail route
+dot net slash Linux protect your server protect your business and just make email better with
+mail route mail route dot net slash Linux we have a really great pick for those that
+want super high quality music but want to host it themselves and are looking for something
+to take them music off their server and get it on their desktop or maybe their mobile
+client we have got a couple of great picks and this wasn't even inspired by the fact
+that another music service announced their quote-unquote lossless audio streaming which
+is all fine and good but I got I got a library full of flags with yeah exactly they might
+have some things that that online service doesn't have for sure but how are you easily
+gonna get access to them because not everything's happy with a flag file so there's a couple
+of pretty well-known home media hosting software packages we talk about them pretty frequently
+on this show and on self-hosted thing top of list is plex and jellyfin so let's start
+with plex here this is how I'm solving this problem today and it's called plex amp plex
+amp is a mobile app for iOS and Android and they have a Linux desktop app image which
+I think is just like an electron app but it's kind of great that you can get it on your
+Linux desktop and it is a dedicated app just for streaming music from plex it doesn't see
+the other aspects of your plex library it looks like somebody created a dedicated music
+app that just happens to use plex and it's beautiful it's it's clean and it's really
+solid has a lot of nice features and I can even use it to play audio books off of my
+plex server so that's plex amp and you can get it for mobile devices or over on app image
+hub they have an app image of plex amp as well that's really nice and it does look beautiful
+now for us jellyfin folk there's fin amp which looks relatively new and it's a little harder
+to find it does support Android and iOS but it's not on the play store or the app store
+you can find it in fdroid or build it yourself for iOS sounds like those things are coming
+down the road I like that you got to work for it a little bit although I think we should
+just make a sub pick right here fdroid we've mentioned it a dozen times on the show but
+it's it's so important that on Android a alternative app store remain viable and I feel like just
+as a vote for alternative app stores we should all have fdroid installed on our Android devices
+and then you do get some great apps like fin amp f-i-n-a-m-p so you do have to have the
+media server component for both of these running on your server this is kind of assuming you've
+already done that but if you have this kind of just plugs right in and if you haven't
+you really should because it's great to have your media automatically organized and available
+and all kinds of devices and streamable to friends and family it just feels super cool
+and it can often be the gateway drug into even more self-hosting so go check out the
+links we have in the show notes at linuxonplug.com slash 406 for that also a shout out to one
+password who has formally announced one password for Linux their password manager and it has
+some cool details and they wrote up a blog post that goes into some of it and it is filled
+with all the buzzwords you could hope for yes including our favorite rust you don't
+say you'd almost think we plan it that way well maybe that's why we're talking about
+it no no what's really nice here is to see them excited about Linux and actually they
+took the opportunity of developing Linux support to build the new cross-platform foundation
+for the rest of their apps I don't think they've actually updated them yet but sounds like
+that's the plan yeah the front end is like a mix of web technologies TypeScript and react
+is in there and including web assembly yeah yeah and then they as they put it west they
+bundle it all together using electron that allows them to integrate deeply with the operating
+system but before you go electron it's kind of rad because it's that acts as a front end
+client to this like 99% rust back end they diagram the whole thing in this welcome Linux
+to the one password family blog post where they even share pictures of the team with
+their Ubuntu boxes like building the prototype apps and demoing it to each other it's all
+kinds of adorable and while I'm very happy these days with Bitwarden I have fond memories
+of one password but more importantly one password is more and more widely used in the enterprise
+so this now means that an enterprise provided solution I've had an employer in the past
+who just gave everyone a one password account as part of their security practices and now
+that means Linux users can participate in that yeah you're no longer stuck to the web
+client and I just thought it was cool to see them sort of knowingly talk about a lot of
+the features out of the box like all the integrations with things like GNOME and KDE and the system
+tray and clipboards and key rings and wallets now a lot of that stuff is made possible with
+with electron but you can tell that they know that there are boxes here that they should
+check off and that's impressive to me like this is not a lazy Linux port they've put
+in a lot of time here yeah they really have very nice to see it thank you to our core
+contributors at unplugged core.com as a ongoing thank you I should say we give you two feeds
+the limited ad feed nice tight and ready to go and the longer all mistakes all screw ups
+full live stream feed has a second option you pick which one works best for you and
+don't forget to use your special promo code to get 15% off the new Linux flies on Mars
+sticker which will be available for a little while and I won't be giving you any more heads
+up or reminders because this is the last live show we're recording for a while but you can
+find it over Jupiter garage.com and then use your special member promo to get 15% off and
+thank you to our members who make this possible thank you to a cloud guru to they sponsor
+the show and you can find them on social media they're just slash a cloud guru just about
+everywhere that is actually a social media page if you want more West pain go check out
+Linux action news he's over there helping me break down the news that matters every
+single week like a champ that's right like a news ninja he just sort of swings into the
+studio on a Sunday lands in his chair and starts breaking it down you know it's kind
+of impressive and I'd say join us live you know but we won't be here next week but come
+back on June 8th see you next week same bad time same bad station only we'll see in two
+weeks you know I can't travel back in time and get him to change it what do you expect
+that guy's probably I mean I hate to say it but he's probably not alive I know you were
+thinking it I was thinking it too so what do you want me to do I can't do anything about
+it it is a little awkward it's a weird way to go out but you know that is what it is
+links to everything we talked about today at Linux unplug calm all kinds of links over
+there our matrix server our mumble server all of it so go check that out it'll help
+you get even more out of the show when we're not on the air but we really appreciate you
+listening or streaming or being a member or whatever it might be and we'll see you right
+back here next Tuesday
+now we should be clear that contractually when Chris says see you next Tuesday next
+Tuesday means the next Tuesday we're here and not the next calendar Tuesday well I just
+think it just means the feet you know like we'll see in the feet you know because honestly
+the shows that we did while we're off the air turned out you don't miss it

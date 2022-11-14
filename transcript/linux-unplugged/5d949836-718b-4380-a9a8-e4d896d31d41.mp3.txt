@@ -1,0 +1,1630 @@
+So I wasn't even going to share this with you guys.
+I'd seen this on the web, and we were
+talking about pre-show material.
+But the most interesting part about this new TCP bug
+is the fact that Netflix discovered it.
+Yeah, I wasn't really too into it, except for that part.
+That is kind of, I guess I'm just sort of getting exhausted
+on these.
+But it's sort of like a new version of The Ping of Death.
+Yeah, kind of.
+I mean, you get some misconfigured TCP packets sent
+your way, and in just the right case on an unpatched kernel,
+well, you might actually have a full blown kernel panic.
+So those are always unfortunate.
+Obviously, that can lead to a denial of service attack
+when all your boxes are crashed.
+Yeah, and that's not great.
+I think the impact has been a bit lessened
+because most serious boxes in production out there
+are behind various types of load balancers or other gateways.
+And many of those, typically this is not a protocol flaw.
+This is a flaw in Linux's implementation of the TCP stack.
+And FreeBSD is also affected.
+There's several other variants that aren't panics.
+They're just slowdowns.
+Did you guys catch its name?
+Sack Panic.
+Sack Panic.
+I like it.
+This is Linux Unplugged, episode 306 for June 18, 2019.
+Hello there, and welcome to Linux Unplugged,
+your weekly Linux talk show that's getting its way
+into the 300s.
+Feels weird, Wes.
+It sure does.
+Feels weird.
+Like, this show can't be 300 episodes long.
+We're just hanging out.
+We must be doing something right.
+I don't know about that.
+Or very, very wrong.
+We're just very persistent.
+We're just very persistent.
+Well, coming up on this week's episode,
+we have some community news.
+But we decided to do something you should never do this week.
+We decided to live swap out a FreeNAS
+system to Fedora, which we're calling
+from FreeNAS to Fedora our journey of live swapping
+a production system with a failed disk.
+We went out into the Jupyter broadcasting server room,
+brought our recording equipment, and documented our journey.
+Not only that, we changed the whole darn network
+here at the studio.
+It's amazing we're here at all.
+Yeah, we really did.
+We ripped out the whole network, re-IPed everything,
+and still managed to put a show together.
+We actually had a lot of fun doing it.
+We'll tell you about that in a little bit.
+But before we go any further, got to say hello to Cheesy.
+Hey, Chees.
+Hey, what's going on?
+Oh, you know, doing a podcast, hanging out.
+Yeah, you guys have been hard at work
+with that stuff for the last couple of days, too.
+Yep, we got everything back up and on just in time
+to say time-appropriate greetings, virtual lug.
+Hello, Mumble Room.
+Good morning.
+Hello.
+Hello.
+Good morning.
+Hello.
+Hello.
+Hello, Brent, and Bruce, and Byte, and Neil, and MiniMech,
+and Sean, and TechMav.
+It's nice to have you all there as we go along.
+And we start out with some community news.
+And the big item that caught my attention,
+there's many things we could talk about.
+This has been another one of those weeks
+where it's sort of like what we didn't put in the show
+is almost as important as what we put in the show.
+And I just thought, let's start with talking
+about initial benchmarks of Microsoft's new WSL 2.
+We're already starting to see it shipped
+for the people that are subscribed to the Insiders
+build if you really want to play with it.
+Yeah.
+And under some benchmarks, this is, of course,
+according to Michael Eberle over at Ferronix,
+he's been testing the subsystem.
+And in not all instances is it actually faster.
+It is in some, like with I-O.
+Yeah, right.
+So it has improved I-O. And that was
+one of the big justifications for this whole re-architecture
+of the subsystem.
+It just wasn't cutting it before.
+But unfortunately, in some other areas, we're not so lucky.
+Yeah, looking at the benchmarks here,
+there is certain kinds of workloads
+where it's significantly even slower than WSL 1
+and obviously slower than bare metal.
+He compared it to 1804 bare metal and clear Linux bare metal.
+And all of the benchmarks, as he always has,
+are linked over on his site if you want to check them out.
+I think it just means it's not the Linux killer
+that everybody worries about.
+It's just a practical tool to get your work done.
+And there are already some interesting use cases for it,
+Docker just posted a massive write-up
+that we read so you don't have to.
+And they write, Microsoft gave us an early build of the WSL 2
+so that we could evaluate the technology
+and see how it fit with our product.
+And then we could give them our feedback about what's missing
+or even broken.
+We started prototyping different approaches.
+And we're now ready to share a little bit
+about what's coming in the next few months.
+Docker Desktop Future.
+Yeah, that's the title of this section.
+OK, so before they had a Hyper-V based VM,
+and that's going to be replaced by what they're calling
+a WSL 2 integration package.
+Which is still based on Hyper-V VM,
+but it's like a different, more optimized new version.
+Yeah, exactly.
+So it provides all the same features
+as the current Docker desktop VM.
+So you can do Kubernetes, you can do proxy configuration,
+you can access the Docker daemon from Windows,
+and all sorts of bind mounts, all the usual Docker
+sort of stuff.
+In the past, that was it.
+You couldn't really mess with the underlying VM.
+You couldn't run additional stuff in the Linux OS
+that was running inside of it.
+With the WSL 2 integration, you'll
+still experience all the niceties you have from Windows.
+But you can run additional Linux programs inside,
+and they can also talk to Docker.
+So you can have the same Docker API running from a daemon,
+running on a Hyper-V VM, using WSL 2, all unified together.
+And they write, and a good example, a use case for this
+is, a lot of your scripts that you've written on the Linux
+side can just now be used, or on the Windows side
+can be used to manage the Linux boxes, vice versa.
+They also have a nice example of using Visual Studio Code
+with that remote connector setup.
+So you can go remote into WSL 2, and then use the Docker daemon
+inside, build Docker containers, run them,
+and then still manage it all from Windows.
+That's nice and tidy for those Windows developers that never
+want to be bothered with dirtying themselves,
+actually installing real Linux.
+Now they can use the days of having to manually configure
+VirtualBox with NFS shares over the net.
+Now they'll just use a Visual Studio Code remote to WSL.
+Then package all up in a Docker container.
+Good to go.
+Microsoft loves Linux, don't you, though?
+Good to go.
+Good to go.
+Never had to actually touch real Linux at all.
+That's crazy.
+It hurts so much.
+I don't know.
+I don't know.
+It's all about making Linux a bit of a runtime.
+I'm all for it.
+So while we're talking about Docker containers
+and universally running applications,
+just a quick update from our friends at Canonical
+that work on snaps.
+First of all, they have new distro-branded landing pages.
+So that way, if you're on Mint, or you're on Arch, or Fedora,
+whatever it might be, they'll now
+have specific instructions on how
+to get up and going with some copy pasta
+if you choose, which looks pretty nice, pretty simple.
+I thought it was a little strange to me
+the way they sort of branched it out per package, you know?
+Yeah.
+Because most of the time, there's
+not that much different, right?
+You kind of, once you've got everything bootstrapped.
+Now I get it when you want to land,
+like maybe you're trying to install your first snap,
+and so everything's there, right there on that page
+for the application that brought you there.
+True.
+But it just kind of felt weird.
+It's like, well, how do you install that?
+Like, don't I just use the snap command line wherever I am?
+Yeah.
+Yeah, once you've got that part done, yeah, you're right.
+We'll have to ask.
+Maybe there's somebody who might know.
+Maybe we'll have to ask him.
+Now, while we're talking about snaps,
+there's another part to the story
+that I think is a good heads up for those of you that
+are Ubuntu desktop users.
+In 1910 right now, in testing, they're
+calling for some feedback on shipping the Chromium browser
+as a snap.
+They're transitioning from a deb to a snap for the browser.
+And they're working on migrating your profile,
+the Chrome driver stuff, so that way
+they can have video acceleration.
+There's several elements to this that
+need to be banged on by end users,
+including just general desktop browser integration.
+Sounds great, though.
+I mean, I think it's a good fit.
+You think so?
+I mean, I already run, like when I run Firefox,
+I install it manually under my home directory.
+Browsers move fast.
+Yeah.
+Plus, sandboxing is not a bad idea.
+The browser is a dangerous environment.
+Chrome already has its own sandboxing.
+It does.
+But you're right.
+I do agree that the browser is a good candidate for software
+that you can update sort of independently
+from the operating system.
+And when you look at like an LTS,
+it makes even more sense potentially.
+And they don't have that many capabilities, right?
+Like they don't need to reach super far into your file system
+and go crazy places.
+So I think it would mesh well with the abilities
+that SnapD already has to give access when needed.
+Here's what we've got to do.
+You know what we've got to do?
+We've got to phone a friend, like millionaire style
+right now.
+We'll call up a friend who might know about Snap packages,
+and we'll ask Wes's question.
+So, Popey, are you there?
+Oh, hello.
+Hi.
+Go ahead, Wes.
+You have 20 seconds.
+What was the motivation between the structure
+of the distro-specific pages on the Snap,
+not one per OS at the top level, but for every package?
+Very good.
+You got it.
+Because the goal is that a normal person who's
+looking to install Spotify doesn't
+want to know lots of stuff.
+They want to know, how do I get Spotify on the distro
+that I'm on?
+And the focus for those pages is tell them
+exactly what they need to know to get
+that application on the distro that they've chosen,
+and nothing more.
+Maybe a little bit extra if they scroll down the bottom.
+But the distro-specific stuff is really
+catering to those people who like
+to follow blog posts that say, how to do this one thing?
+And it tells them how to do that one thing,
+and then they get out of there.
+That's all self-contained.
+So the first experience they land on, they got everything.
+That makes sense.
+Mr. Wimper, it's nice to see you here this evening.
+Hello, sir.
+Good evening.
+Hi, Wimpy.
+How are you?
+Very well.
+Surprisingly, still jet lagged.
+But other than that, fine.
+I'm not surprised.
+With as much traveling as you've done,
+it's got to catch up.
+Eventually, it's going to catch up to you, right?
+Yeah.
+This is the week it catches up, apparently.
+So the Atari VCS is going on sale for pre-order right now
+for $250.
+It's going to be a AMD Ryzen R1000 SoC design.
+And this is coming out of details at E3 this week.
+What do we think, Wimpy?
+Are you skeptical of this box?
+Or is it not a waste of my IndieGoGo money?
+I'm very skeptical.
+I'm sorry you've wasted your money.
+You think so?
+I'm kind of excited it's going to be a Ryzen box, because I'm
+such a fanboy these days.
+Yeah.
+Is this past due yet?
+Is it on time, or is it delayed?
+It is delayed, yes.
+It was delayed.
+They delayed it a little bit ago because they
+said they're going to move to the AMD A1 CPU and a Ryzen
+processor.
+And so that added delay to the process.
+But that seems like it might be worth it.
+Yeah, I don't know.
+It seems like a lot of money for what it is.
+Yeah, yeah.
+Well, $250 isn't bad for the base price.
+But to get something good that'll do 4K or something
+like that, you start getting close to $800.
+Plus, you get the look of the thing.
+Ooh, black walnut.
+Yeah, that's true.
+It's got that nice retro look.
+I do kind of like it.
+Well, I just wanted to give everybody
+an update that they are now taking pre-orders,
+and they're talking about it at E3.
+And they're saying, well, they're not really
+saying specifically when it's going to ship,
+but it looks like it will be this year.
+If they're taking pre-orders, does that
+mean they're fulfilling backers' pledges at the moment?
+That's a great question, Wimpy.
+That's a great question.
+Ponzi.
+Wow.
+Wow.
+Have they shown any footage of any of the games
+on the console yet?
+There may be some from E3.
+I haven't really gone spelunking.
+Poby, I'm curious.
+If you were going to bet on one, the Librem 5 or the Atari VCS,
+you had to pick one.
+Which one would you put your money on right now?
+Oh, man.
+Atari VCS.
+Why would you do that to me?
+Well, so the price point of the Atari VCS
+is not remotely attractive to me.
+I think I could probably go and dig
+in the deserts of California and find
+all the necessary Atari VCS cartridges
+I want to for less than $250.
+But I'd say the Atari VCS.
+All right.
+What about you, Wes?
+I got to agree.
+I mean.
+OK.
+All right, well, obviously I've put my money on the VCS.
+It just seems like an easier target to hit.
+Yeah.
+Yeah.
+Plus, you can load other OSes on there,
+including they even say Windows now.
+And if I could put Kodi on there,
+it's only a little bit more than I paid for the Nvidia Shield.
+So it's not great.
+We'll see.
+Do you still use your Nvidia Shield?
+The heck out of it.
+Yeah, I have two of them.
+Still use them every day.
+Oh, I have three of them.
+Have you hooked up Steam?
+I have done the GeForce streaming,
+but I have not done any Steam streaming.
+What's that like?
+So this weekend, because I've only ever played the Android
+games, because that's all my daughter's been interested in.
+But I was going to go back and relook at GeForce now.
+And then I noticed that a bunch of the games you see in there
+all have Steam written underneath.
+And the very first time you click on that,
+it stands up a Steam on Windows install on their grid
+computing platform.
+And you sign in with your Steam credentials,
+and it then installs the game that you've just selected.
+And you run that over the Shield.
+So that has become my new most favorite thing.
+That's incredible.
+And how would you say the performance and latency
+and responsiveness and all that is?
+Well, I'm fortunate in that I've got
+a reasonable amount of bandwidth.
+And I've always been impressed by the lack of apparent latency
+that exists on the Shield over that whole GeForce
+now streaming solution.
+So for me, it's great.
+I mean, the screen I have in the front room is very old.
+So it's a 720p screen.
+So it's not very high resolution.
+And for that resolution, it's fantastic.
+It's a lot of fun.
+I'll have to look into that.
+That sounds really neat.
+Are you streaming that over wired or wireless connection?
+Wired.
+So in the front room, that's got a direct line
+to the router, which is in the same room.
+And then that goes out over the fiber.
+Good setup.
+Yeah, I have the one in the studio living room wired too
+for that very reason.
+Who needs a stadium when you've already got that set up?
+No kidding.
+No kidding.
+I've pre-ordered Stadia as well though.
+Yeah, did you?
+Did you do the founders?
+Yep.
+Yeah.
+I did it as well because first, I
+want to be able to talk about it here on the show, number one.
+But number two is it could give me
+the ability to run a fully open source stack and have gaming.
+All Intel graphics, for example, but still have gaming.
+Yeah, absolutely.
+And if that makes my workstation more stable,
+I'd actually pay a monthly fee for that.
+Yeah, I've been impressed with what
+the Shield has been able to offer me.
+And I was interested to see, well,
+what can Google do in this space?
+I'm not buying into the platform necessarily,
+but the only way I'll know for sure is by finding out.
+And so I've pre-ordered, and I should
+be looking forward to trying it out later in the year.
+Yeah, if it sucks, I'll say it.
+So I don't have any reason to.
+Absolutely.
+I don't have any reason to.
+Nope.
+Yeah.
+No, I'm just going to try it out.
+And it does seem like if anybody would
+need the technological background
+and infrastructure to pull this off,
+it would probably be Google.
+They've got the scale.
+And they've got motivation too.
+So let's talk about something that I'd say
+was probably the number one submitted, quote, unquote,
+story to the show this week.
+People are like, hey, did you see this Chris Christie?
+And I appreciate that.
+I actually kind of like to know what people are tracking.
+And this was Linus Tech Tips' video on the System76 Thalia,
+which they titled, A Really Weird PC,
+The System76 Thalia Review.
+It is currently, as we record this episode,
+trending at number 44 on all of YouTube.
+It has over a million views.
+That's a big deal.
+That sort of makes Emma's weight in customs
+when she was hand delivering this.
+That was quite a journey for her.
+Yeah, she told that story on the show if you've missed it.
+She's been out.
+Rumor has it she got hurt.
+We'll have to talk to her about that when she comes back.
+We miss you Emma, we miss you.
+Now let's talk about their review.
+So Linus Tech Tips, we'll link to the entire video.
+It's an 11 minute video.
+We're just gonna play a couple of clips for you.
+And it starts with the unboxing as many YouTube videos do.
+So let's take a closer look at the box.
+Once you get it out of the shockingly nerdy packaging,
+the most striking features of the Thalia
+are its wood green finish
+and it's tantalizing silver power button
+and accompanying white LED ring.
+There's no sign of any front IO
+to disrupt the clean design language they've gone with,
+which means it's beautiful,
+but also means unfortunately that we're stuck
+with what we've got on the rear.
+And back here is interesting.
+So more of that clean at any cost approach.
+The IO is cut directly out of the chassis.
+That means no simple motherboard upgrade.
+Although again, it does make for an uninterrupted
+premium look that really screams Apple.
+Even though when we pop the hood with these thumb screws,
+we can see that this is clearly
+a standard PC motherboard on the inside.
+That power button is very legit.
+It's just great.
+Yeah, I want to push it right now.
+I have a fun story.
+So when we went and toured the factory,
+I didn't say anything and nobody prompted me.
+I just walked up and I started pushing the power button
+of the demo unit that was unplugged.
+So it was, you know, it wasn't hurting it.
+And I just had this, I made this very satisfying, like nice.
+And Carl, you know, the CEO, he was listening.
+He was perched, wanted to see my reaction
+because that power button is a particular point of pride
+for them.
+And so I liked that they honed in on that.
+They do mention that the back plate is fixed,
+although I think a motivated person
+probably cut it open, but that's, you know, overall,
+like it starts like kind of positive.
+You're like, wow, this is pretty balanced so far.
+As a non Linux user,
+I want to poke around Pop OS a little bit.
+Oh, now here we go to Pop OS.
+How are they going to do this?
+You first boot, it is super easy to encrypt your data.
+Just enter a password and reboot.
+That is pretty neat.
+Then when you come back,
+you're given the opportunity to set up your online accounts
+for integration into the OS,
+including access to your Google Drive cloud storage
+right in the file manager.
+Now we've actually seen Pop OS before
+in our gaming on Linux update video.
+And they continue,
+and then we're gonna talk a little more about Pop OS,
+but they continue.
+One of its major departures from its parent Ubuntu
+is Pop Shop, a ridiculously easy to use app store.
+So it's actually ported over from elementary OS,
+but with one key value add.
+System 76 curates their own packages.
+So if you ever need something basic,
+like Steam for gaming or the latest Nvidia drivers,
+it's just a click away.
+Actually, for your graphics drivers,
+it's easier than updating them on Windows.
+Now, a couple of things strike me about this video,
+because there's even more talking about Pop OS,
+is Pop OS isn't going anywhere.
+It's not going away.
+It's here now for the long haul.
+And I'm curious to hear what your reaction, Poby,
+that is to that comparison of the parent operating system,
+I believe as they put it, right?
+The parent project or something like that.
+What's your reaction?
+I don't know what to say.
+I mean, every derivative of Ubuntu,
+which Pop OS is, has something that stands themselves apart
+from Ubuntu.
+Otherwise, there will be no point installing it, right?
+And so their USP for Pop OS is the design language
+they've used on the desktop
+and simplicity of installing applications.
+And we can learn from that.
+And certainly you'll have noticed very recently,
+we've talked about how it will be integrating
+the Nvidia driver installer directly during the install.
+So we've certainly learned
+that that's a thing people really, really want,
+and we should probably do that.
+So, you know, we've learned something there.
+That's great.
+Wimby, when I heard that,
+when they were talking specifically about the Pop Shop,
+the thing that crossed my mind is,
+I wonder what their reaction would be
+to something like the software boutique
+that Ubuntu MATE has that comes up
+and has an extensive list of curated software.
+What are your thoughts when you hear that?
+It seems like you guys really hit on something
+pretty important to users a while ago now.
+Yeah, I'm really proud of what we did
+with the software boutique.
+I think we switched things up a little bit,
+but I'm not sure what someone like Linux Tech Tips
+would make of that,
+because they're kind of accustomed to it, right?
+If you go into any of the stores,
+you have a full catalog of software in front of you.
+You know, that's not been a problem.
+In recent years, you know, you've got the Windows Store,
+you've got the Mac OS Store,
+you've got the equivalents on mobile.
+It's novel to us on Linux
+because we didn't used to have that ease of installation,
+and we do now.
+So I don't know how much that would resonate really.
+Okay, fair enough actually, good point.
+I suppose it is sort of become just expected.
+You'd notice it more if it wasn't there.
+Yeah, maybe.
+I still really appreciate it.
+They did touch on the open nature of the hardware as well.
+The case and all of its accompanying bits and pieces,
+open source, just like the operating system.
+So there's literally a GitHub page
+with the CAD files for everything that you see here,
+and for its bigger brothers,
+the Thelio Major and Thelio Massive.
+But what impresses me overall about their entire coverage
+is, again, it's really well shot,
+it's really well written,
+you should watch the entire video,
+but they seem fairly balanced.
+They also point out, you know,
+the entire thing is an open source.
+Now, that's not to say that every component
+in the system is open source.
+The motherboard, CPU, RAM, video card, storage devices,
+and power supply are all proprietary in design
+with the IP owned by the individual companies
+that made them.
+As it is, I mean, that's just how it works.
+System76 will open a source as much as they can.
+And they touched on something
+that we've been trying to figure out internally,
+because Wes is co-host on Coda Radio,
+Michael Dominic picked up a Thelio station,
+and was unable to use it for podcasting
+because of fan noise.
+And it's something-
+We noticed it right away.
+He's been experimenting with,
+and they may have come onto something that Linus Tech Tips.
+What we can also see in here
+is they've done a pretty bang up job
+with the cable management,
+helped significantly by the generous real estate
+provided under the main fascia,
+which doesn't attempt to seal the computer
+so much as it conceals.
+There is a bit of concern from our end
+about dust accumulation through the side panels
+and the potential for noise to sneak out
+from under the chassis using the air gap as an echo chamber.
+Unfortunately, sure enough,
+it does get a little loud
+when the fans are running full tilt,
+and it's not just whooshing air noise,
+something that we generally don't complain about.
+Rather, it's a kind of droning whine
+that's a little bit harder to tune out.
+Honestly, I think a Noctua or a Be Quiet fan swap
+would help tremendously here.
+That's a particularly challenging problem, though,
+if that is just down to the case design,
+if it's kind of making sound channels on the side,
+because it's such a gorgeous case.
+It's gonna take them a while to iterate on that.
+So that could be why they've struggled
+to have a super great response to the fan noise issue,
+in my opinion, that's of course just my opinion.
+Yeah, it is so pretty, it'd be such a shame
+to have to go stick it in the closet somewhere
+and not get to admire it on your desk.
+Yeah, and so they also get to the price,
+because you could build yourself a cheaper system,
+or you could go buy a mass produced system that's cheaper,
+and I think they did a decent job on honing in
+on what kind of makes them special.
+While the operating system itself may be free,
+System76 does have paid staff
+that actively develop their OS,
+and that's to say nothing of the user support commitments
+that come along with that.
+Perhaps most crucially, though,
+the Thelio chassis manufacturer and final assembly
+are both done in Colorado by a team that's about our size,
+so no mass production.
+System76 says they want to improve
+the situation in the future,
+but for now, it means that the costs add up really quickly.
+The team that's about our size,
+which is kind of, that's poignant.
+And then last but not least, they wrap it up.
+You're paying for the case, US manufacturer,
+operating system development,
+and support from a small team of enthusiasts.
+Now, whether the design and concept
+of a well-integrated Linux desktop
+is enough to make you pay the extra,
+that's a choice I'll leave to you.
+But overall, we think it's really cool
+and a huge step in the right direction.
+It's pretty good coverage for System76,
+and it's good coverage for Pop!OS, too.
+So we have ourselves another major desktop container.
+I mean, they'll get there.
+They're not there yet, but they're gonna get there.
+It does make me feel a little bit better
+about Mike's situation,
+because he was having a heck of a time trying to fix it.
+It's nice to know, you know,
+it's unfortunately a common problem.
+Maybe run it with the case off.
+I don't know.
+But good for them.
+But weren't they also raving about Pop!OS
+in one of their videos just recently,
+where they were talking about gaming and stuff?
+Yeah, it's a lot of coverage for Pop!OS.
+And I appreciate it.
+I think I initially was very, very critical of Pop!OS.
+I still, I would love, what I would love,
+is if Pop!OS was just a series of scripts or repositories
+that you would add to a vanilla install of Ubuntu
+that would make it pop,
+and that would add a couple of things or whatever.
+I feel like we already have too many distros,
+but of course, you know what, I'm an old fart.
+So of course I feel like that,
+because I've seen, in my time,
+I've seen so many distros come and go.
+However, there is apparently
+a pretty, an interested market in this distribution,
+and I give them credit for cultivating that
+and for adding some value to the OS,
+like you hear people constantly talk about the install
+or the encryption, the pop store,
+the theme, these are all things that matter.
+And credit to System76 for nailing those things.
+And truth be told, they're just getting started, really.
+So I feel, even though I started
+fairly critical of the distribution,
+and I still don't really see myself running anytime soon,
+but I could, I could see myself in the future
+if I went back to GNOME.
+I'd probably give it a try.
+It is interesting to see them actually,
+I think there was some wonder
+about how far they were gonna take this.
+Was it gonna just be sort of glorified,
+a few scripts on top, a custom theme?
+But it seems like as they've had time
+to develop it more out, they're actively working on it.
+So it will be a long time project.
+We're gonna see more updates,
+and they're gonna continue to ship it.
+She was stuck all day, Emma, in customs,
+trying to get that machine to them.
+She hand delivered that machine,
+and then just had to walk away
+and hope that the review went well.
+And that was weeks ago, that was back during Linux Fest
+that she did that.
+She did that during Linux Fest and did that.
+And now here we are quite a while later,
+and that just got posted.
+That kind of shows you their time window there,
+but that's a lot of weeks of her sitting around wondering,
+was it worth it?
+Or did I just screw up?
+And I think it was.
+I think it was, yeah.
+It's number 44 on all of YouTube right now.
+That's a significant thing.
+A tiny little Linux shop.
+Yeah, I hope they get some sales out of it.
+Absolutely.
+All right, you know what we need to do?
+We gotta do that housekeeping.
+We gotta clean it up in here.
+Yeah, we gotta clean up a little bit.
+There's a few things to touch on this week.
+First of all, first of all, I should mention,
+we don't say this often enough,
+but Linux Academy is hiring for remote positions right now,
+including a Linux training architect,
+a machine learning training architect,
+a Python development training architect,
+but also an Angular developer,
+a full stack Node.js developer,
+and Ruby on Rails developers,
+multiple Ruby on Rails developers.
+Those are full-time remote positions,
+full benefits, everything.
+There's also a position open in the lab platform.
+There's a few things happening there
+that are pretty interesting.
+So if you haven't gone to linuxacademy.com
+slash careers in a while,
+I really suggest you do it
+because there is some great positions open right now.
+And I want to pass that along to you
+because if you're in our audience,
+you kind of have like a leg up in the process.
+If you tell them I heard about it on Linux Unplugged,
+that's gonna probably move you to the top of the stack.
+Oh!
+Yeah, that's a big deal
+because that means you're actually interested in this stuff.
+I want to also mention the Friday stream this week.
+We played Who Wants to be a Millionaire?
+It was Wes versus Ange.
+I don't want to give it away, but it was tense.
+She's a tough competition right there.
+Tough competition.
+Fridaystream.com slash seven.
+It's a really good one.
+That was a really fun one.
+And then last but not least here in the old housekeeping,
+we have a big batch of study group videos
+that just got posted.
+In the show notes,
+I have a link to the playlist on YouTube.
+This is Linux Permissions 101.
+I think it is seven videos, I think, or six videos.
+Yeah, we've got it down
+to just sort of bite-sized components you can handle.
+And it's really everything you've ever wanted to know
+about Linux Permissions.
+So nice.
+It starts at the very basics and then works its way up.
+And then by the end, you're doing really cool stuff
+with ACLs and with UMass and set UIDs.
+It's a good series of videos, six parts.
+Each is consumable.
+And we'll have a link to that in the show notes.
+Just something we do to give back.
+We have a lot of great opportunities.
+We talk not only with training architects at Linux Academy,
+but Elle is a networking machine.
+And she goes out to events all the time.
+And she meets people who are great presenters
+who want to share their knowledge with our community,
+their listeners often.
+And so that's where a lot of this has come from,
+is people that Elle has met.
+She's our ambassador.
+Yeah, she goes down, connects with these people,
+and then brings them on to do a seminar or a webinar really.
+And then we release it for free.
+Because we're all about it.
+We're all about it.
+So check that out.
+We'll have a link, linuxunplug.com slash, what is this, 306?
+306.
+linuxunplug.com slash 306.
+All right, Mr. Payne, that abbreviated housekeeping
+this week.
+So we're going to talk about something you should never do.
+Don't do it.
+We just wanted to have something that
+was more familiar to us.
+We had a problem to solve.
+And truthfully, we felt a little inadequate with the BSD.
+And we had work to get done.
+So Wes and I headed out to the Jupyter broadcasting server
+room.
+We're out here in the studio server room, AKA the garage,
+to do something that you should never do.
+Don't do what we're about to do.
+We're going to take our perfectly functional, totally
+fine, FreeNAS server, and we're going
+to rip out the FreeNAS part and put Fedora 30 server in.
+Yeah, you heard that right, Fedora 30.
+Then we're going to try to import ZFS pools that Alan
+created under FreeNAS into Fedora
+after we get the ZFS support installed.
+I know this sounds ridiculous.
+Non-standard, maybe?
+There's a couple of motivating factors, if you will.
+Number one, this is a killer super micro server
+with two six-core Xeon processors and 64 gigs of RAM.
+And it's just sitting here doing nothing but FreeNAS.
+Right.
+Right now, it's just storage.
+And I mean, that's great and arguably probably
+the way you should do it.
+But why are we going to let this server go to waste?
+It's just if you're using that much power
+and you've got to make all this noise, let's put it to work.
+So there is one other consideration.
+We've also run into an issue where a couple of times
+we need to do some repairs.
+And Wes and I are just not FreeBSD guys.
+Surprise, surprise.
+We're Linux guys.
+And so we have a disk issue.
+We need to swap out a disk and get a new disk online.
+And quite frankly, we're just more comfortable
+with the Linux command line.
+And I think this is actually kind of an important thing.
+When you put something in production,
+you need to know how to use it, not maybe be so dependent
+on, say, Alan Jude.
+All right, we're rebooting.
+We've just maybe completed installation.
+Yeah, you're going to pop out the thumb drive.
+So we use the Fedora server image, which is pretty nice.
+Network install.
+Yeah, the net install server image.
+So it pulls down the packages from the repository
+and gives you some options.
+In fact, it might be the way I install Fedora from now on.
+I mean, honestly, what?
+That took all of 15 minutes once we got it set up and going?
+It was a tiny image, well, 600 megabytes.
+And then you could choose all of the desktops
+if you want, from Zubuntu to Cinnamon,
+or just the minimal installs.
+It gives you an option.
+And then it's off to the races.
+So we'll boot up.
+And then I think mission one is make sure our Fedora install
+is sane and then get ZFS support installed.
+And then we've got to go see about importing this pool.
+All right, well, it's our first boot.
+We'll be back in a moment.
+I don't know why, but I just haven't
+used a net install version of a distro ISO in, like, 10 years.
+I mean, it just feels like it's been forever.
+That's the only way I'm doing it from now on.
+Seriously, it was so great.
+First of all, way quicker to download.
+Oh, yeah, very nice.
+And Anaconda has this screen that you don't normally
+see when you get the live desktop version
+or when you get a specific spin.
+You don't see this screen that comes up.
+And the screen that comes up is the choice
+you can install any of the spins of the desktops
+right there from Anaconda.
+So you can use this as a base ISO for a Fedora server,
+for a Fedora desktop.
+Yeah, I think we were both pretty impressed.
+It was a surprisingly smooth installation.
+I was.
+I'm not normally an Anaconda fan.
+No, and I'm normally not impressed by Grub.
+I was impressed at Grub.
+So Grub just came up on the first boot.
+And one of the things I immediately noticed
+is we're already on kernel 5.1, which
+does confirm that the net install pulls down
+the latest packages.
+That's also nice.
+Fresh Linux.
+And one of the sort of interesting little side
+anecdotes about this setup is we're connected to.
+It's kind of a rickety setup.
+The keyboard is a old Mac mechanical keyboard
+because it's just the only one I had laying around
+that I'm not using.
+It's actually not that bad.
+No, it's not.
+Certainly better than modern Mac keyboards.
+It's just the control and alt and stuff
+is a little different.
+And then it's connected to the very first LCD screen
+I ever bought back in like 2000, 2001,
+which I've just held onto all this time.
+But there we are.
+And look at that.
+It does say web console.
+So this does.
+Cockpit is already up and running.
+All right, I'm going to give it a log in.
+You ready?
+All right.
+Yeah, there we go.
+We're in.
+All right, well, let's root around.
+Oh, look at all them disks.
+So it does see the disk.
+Yep, OK.
+Yeah, we're off to the races.
+Good.
+So now what we need to do is we need
+to get kernel development packages installed.
+And then we have to get the ZFS on Linux official GPG
+key installed and the repository installed.
+And then we can get this going.
+So why don't we take a few minutes?
+We'll do that, and then we'll come back.
+I wasn't sure, like, would it be in this weird, funky state
+because we had a bad disk.
+I was sort of like, OK, great.
+Yeah, we got Fedora installed.
+Great.
+Yeah, it can physically see the hard drives.
+Who cares?
+We've got to get ZFS working.
+Well, it turns out we'll have links in the show notes.
+That's pretty easy to do.
+The ZFS on Linux upstream project
+makes it all possible by putting a repo up,
+by putting keys up, and then by putting documentation up
+on how to do it.
+No time at all.
+Yeah, it was really, it was one of the fastest
+parts of the whole setup was actually
+getting ZFS working on Fedora.
+It was completely painless.
+But I wanted to know if we were going to actually
+be able to import that pool since it was created
+with an entirely different operating system using
+a entirely different fork, or at least much older fork,
+of ZFS.
+And of course, we had that degraded disk as well,
+or that dead disk.
+We had a degraded pool as well.
+We just got done installing all of the ZFS packages
+from the ZFS on Linux project.
+You've done the import command.
+How has it gone?
+What's happened?
+We've got our data.
+Now, there is one issue we're going
+to have to solve right off the bat, and that's
+setting the mount point because it's
+defaulting to just the name of the pool
+right under the root directory.
+Previously, it had been under mount.
+So we're going to have to tweak that a little bit
+as we set up the rest of the stuff,
+get things like NFS or SMB set up.
+But otherwise, I mean, it imported with no errors.
+That's pretty great.
+So we went from a up-to-date FreeNAS install
+and replaced that with Fedora 30 server, installed the ZFS
+modules, and we're just picking right up where we left off.
+One command in, and here we are.
+And I would imagine that, I don't know for sure,
+but I would figure that Fedora 30 could likely
+be using a newer version of ZFS since we just
+got the repository from the project directly.
+I bet you're right.
+And it's still fine.
+It still worked.
+Well, we'll solve that mount issue,
+and then it's just a matter of standing up all the services
+again.
+So there was, I guess, a polite way
+to say this is a unique heritage of this FreeNAS box.
+You have to appreciate some background
+before we continue here.
+Blessed soul Alan Jude was out for Linux Fest Northwest
+and, like a Canadian gentleman, went out there
+and completely set up this killer box.
+It's got two Intel Xeons that are six cores each that
+supports all of the virtualization stuff
+that you'd want.
+And then it's got, what, 13 disks in it maybe?
+Yeah, I think so.
+Something like that, a mix of different sizes,
+probably the smallest being six terabytes.
+And then it has 64 gigabytes of RAM, some contributed by Alan,
+some contributed by a TechSnap listener.
+And it's just this monster of a system
+we're not doing anything with.
+And I looked at this and I thought, gosh,
+if this was running Linux, I would be more comfortable
+with actually deploying containers on this thing
+and running other pieces of software on this.
+But when Alan set it up, he had set it up really
+to only ever be a back-end storage
+box with a fairly complicated ZFS layout.
+As you would imagine, he sub-volumed everything.
+And there's also kind of a funky, like, swap partition
+that went across all the disks for the FreeNAS itself.
+So there's, like, some weird space allocated to that.
+And then we had this mount issue.
+Yeah, I mean, we just had to get it configured.
+And FreeNAS had a sort of non-standard setup.
+And it had been a mix of Alan administering things
+on the FreeBSD command line and some of the FreeNAS defaults,
+especially because this had actually
+been a regular FreeNAS from IX Systems
+that we then ported over to this new box.
+So it was something of a hybrid monster.
+Yeah, it had gone from a FreeNAS mini
+into a super microchassis, which then Alan reconfigured it
+from there.
+And then we, from there, have converted it into a Fedora box.
+But in the process, we sort of redid some things
+to sort of align to how we kind of do things now,
+including how we sort of set up the way the disk is set up
+for the OS and whatnot.
+So we had to do some stuff, tweak some of the mount point
+settings and play with that.
+There was also one other gotcha that we ran into that took us
+a little bit to figure out.
+I'll tell you about that after this part, though.
+Fast forward a few more hours.
+We have a pretty happy Fedora server right now.
+And it's come down to the task of replacing that failed disk.
+This is actually what started the entire process.
+Yeah, this was the whole point.
+This is the reason we started mucking around
+with the FreeNAS system at all.
+I mean, formerly FreeNAS system, of course.
+Yeah, yeah.
+Now it's FakeNAS.
+That's what we're calling it.
+So what step are you about to take right now?
+All right, we've already removed and replaced physically
+the failed disk with our new replacement desk.
+And we've applied the same partitioning structure
+that was on the previous desk.
+Now we actually just need to replace it in the pool.
+Right now, it's configured in a mirror setup.
+So really, we're just going to put it in.
+And CFS gets to copy all the data from the one existing
+drive, and we will have two back in parity.
+All right, let's fire it off.
+This is the moment.
+Oh, I love watching all the disk light up.
+That's my favorite part.
+It's like a Christmas tree.
+It's done.
+Well, at least it's returned us the command line.
+Resilver in progress.
+Ah.
+Isn't that great?
+I just love the ZFS management commands.
+ZPool status just shows you always
+exactly what you want to know.
+Yeah, you can see the state is currently unavailable,
+but it's working.
+It tells you what it was.
+And then I guess we'll have to go in
+and we'll have to pull that one that's labeled as degraded
+once we have this finished.
+No, this will do it.
+So that's going to replace it, and then it
+should be healthfully online as soon
+as that replacement's finished.
+Well, let's toss to future us and see what happened.
+Of course, this bad disk was the reason we even started.
+So where is it at now?
+Is it still resilvering?
+It takes forever.
+Yes, it is.
+We're getting there 98% done, so it'll be done hopefully today.
+Yeah, that particular disk is a Western Digital Red,
+so it's not super fast.
+And it's 6 terabytes, so it's going
+to take a while to resilver.
+There was two curveballs we hit that I was not expecting.
+The first one is not too surprising, really,
+in retrospect.
+That is, we were installing to a USB device that sits on a USB
+header inside the case.
+This is something IX Systems does,
+your OS is on a solid state.
+I think it was, what, 16 gigabytes?
+No, that one was four.
+That was one of the difficulties of our initial replacement
+technique.
+I didn't realize we were, oh, jeez, yeah.
+So we tried to get Fedora Server, which we actually
+still got.
+Totally worked just fine.
+We got it within the four gigs on this little solid state USB
+device.
+The problem was, A, we were really low on space
+after we started installing a few packages,
+and B, it got like two megs a second write performance.
+Ouch.
+It was really bad.
+So checking the key signatures on packages
+would just take forever.
+So we started just digging around the studio.
+Because we have some equipment around here,
+we thought, we must have an SSD somewhere.
+So we dig around here and actually
+could not find a spare SSD anywhere in the studio.
+I guess that's good.
+Means we're not wasting it.
+Yeah, we don't have utilization here.
+But I remembered we had an old Hackintosh
+that towards the very end of its production line,
+we put a 10,000 RPM, 320 gigabyte drive in it.
+And then it only ran for like a couple of months,
+and then we shut the system down.
+And we converted off of it.
+So I went in, I tore that machine open,
+grabbed that disk out of the old Hackintosh,
+and we kind of MacGyvered it into the FreeNAS box.
+And so now we gave Fedora a 320 gigabyte, 10,000 RPM spinning
+disk to work with.
+But the system's really set up, and the data's
+all across the RAID or the array.
+So if the OS drive were to pop at some point in the future,
+we'd have to reload it, but we wouldn't lose any data.
+So we had that problem, took a little bit of MacGyvering
+to solve that, because we needed some Molex power adapters
+to convert to SATA.
+And that wasn't so bad.
+The one that really threw me for a twist
+was we ran into essentially this issue.
+And this is, again, I don't fully understand it.
+So if you do, please feel free to write in
+at linuxunplug.com slash contact and correct me.
+But I couldn't use traditional NFS
+to share out the ZFS volumes.
+It would essentially stop at a mount point.
+If you had sub-volumes that were mounted,
+it would essentially stop at that mount point.
+And it took us a little while to kind of root around.
+And it even turns out that ZFS itself
+has some NFS provisions built in.
+And I was completely lost when it came to this aspect.
+Yeah, so we ended up using the ZFS stuff.
+You can just sort of set a property on your data set,
+and then you may have to remount it.
+I'm not clear on that exact particular.
+But after that's done, it just shows up as an export list,
+and you can mount it.
+So we've got not everything's restored yet.
+But I mean, we just need a few more commands,
+and we'll have all your shares back.
+Yeah, yeah.
+So that was kind of funny, because the way it works
+is I would mount the NFS share, and the directory structure
+would be there.
+But then I would get to the bottom level
+where it was actually going into a sub-volume,
+and it would just be empty, which
+is where all the shows would be, or all the pictures would be.
+So I'd have the directory structure,
+but none of the data.
+It's like, what happened?
+Such a tease.
+Did we lose it?
+But we got it going.
+We got it going, and it seems to be working pretty well.
+And now, what we're going to do with this rig
+is just have it run some local services.
+We're in the process of finally replacing Dropbox,
+and we're going to run some virtual machines on this.
+And all of the main applications will run inside a container.
+So the host operating system will be fairly unhinged
+from future upgrades and stuff.
+It'll be unimpeded, or whatever I'm trying to say.
+What am I trying to say?
+We just wanted to worry about it.
+Yeah, we're not.
+Most of our stuff will be running in containers.
+This is not a bunch of apps and packages
+we're going to have to worry about.
+It's going to be a pretty clean base.
+It's not that much data.
+Yeah.
+Not impaired.
+Yeah, not impaired, whatever.
+Not entangled, I don't know.
+Not in long-term software commitments.
+And then we're also going to set up WireGuard on that sucker,
+so the host can get remote WireGuard services in
+if they want to remotely control the mixer, things like that.
+So that'll be on there.
+It's already pretty nice.
+Just got NetData installed before the show,
+so I can watch as all the data is shuffling around
+as it's resilvering, which is great.
+It's pretty nice to have.
+It feels like what I was, I'm such a nerd.
+God, I was laying in bed talking to Hadea about the server.
+I can't even believe I just.
+Something tells me she's used to this.
+And I was like, babe, you know, it's like I went out there
+and found out we had a sports car in the garage.
+And I thought it was like this little four-cylinder commuter.
+Because we kind of forgot about the only, like, I mean,
+I think you logged in for some reason
+and happened to see the little blinking red light
+on the Freenaz console, right?
+Telling us like there might have been.
+Otherwise, we just didn't think about it.
+Sat there and ran.
+It did its purpose really well.
+I am kind of a believer in overbuilding your storage,
+so that's what I did there.
+But looking back at it, 64 gigs of RAM,
+two six-core Xeon processors.
+The thing's just begging to do more.
+And not that I couldn't do it with FreeBSD or Freenaz.
+Absolutely, we could have.
+But I know how to do it with Linux.
+It's just faster.
+And we don't, I mean, we're not touching the system every day.
+So it's nice to have something that's easy
+and we don't have to relook up a bunch of man pages every time.
+Yeah.
+So we'll probably, well, eventually, I
+imagine we'll spin up whatever our sync solution is
+in a container.
+We'll spin up a couple of other items
+that I use internally for like processing news
+and whatnot in containers.
+And I'll move some of the things that I
+have on the workstations in the studio now onto that server.
+So that's what sort of the, and I'll just
+do that gradually over time, probably
+with some of the more urgent stuff.
+And then I'll, like the syncing thing.
+Because this new Dropbox has got to go.
+This is just the final straw.
+Dropbox has just crossed the line with this Electron stuff.
+I will say it really did cement just why CFS is a great choice.
+We could just port operating systems
+and hardly had to think about it.
+It's not that many other ways that we could have done this
+and get all the other benefits.
+It's a pretty dramatic switch.
+We went from FreeBSD base with an old version of ZFS
+to Fedora 30 with the absolute most recent version
+on the most absolute recent Linux kernel.
+Some would call us crazy.
+Yeah, I've just really been enjoying Fedora 30.
+You know, it's.
+I would say, I mean, it honestly did feel vindicated.
+It's hard to explain, but I feel like the whole process
+was surprisingly pleasant because we run into several other issues.
+All the stuff relating to Fedora and Fedora 30 server was great.
+And that cockpit was up.
+We've already done a bunch through that,
+which was lovely as we were still trying to get everything set up
+and only had console access.
+It's just been a dream.
+Really, I couldn't really ask for any more.
+And it's funny because I've been running Fedora on the base
+and then like Ubuntu in the containers and in the VMs.
+That's just been my setup recently.
+It's just been working really well for me.
+And other people, different setups work.
+But it reminded me of, I think it was right
+when I first started listening to Jupiter broadcasting.
+And it was before I'd ever used Fedora on the desktop.
+I had, I think it was a Fedora 14, 15 on the server.
+And it was one of my first and favorite Linux servers.
+So it's nice to come home.
+Yeah.
+All right, Neil, I'm curious what you think.
+I know you work a lot in the Red Hat space with ZFS.
+Are we crazy?
+Well, first of all, I thought that was really cool what you just said.
+You were slightly crazy, but it was the good kind of crazy.
+So I was OK with it.
+I told Wes, I said, Wes, you know, I think we're officially
+top gearing this thing right now.
+I don't know, that other one was a pretty top gear event, too.
+But with ZFS on Linux specifically, I think,
+I'm not completely certain on this, that the kernel can't
+see all the subvolumes.
+So when it tries to evaluate all the things
+that it exports through NFS, they won't work properly.
+So that's why you need to use the ZFS built-in.
+NFS share NFS feature on Linux.
+In FreeBSD and other places, I think
+it's all more tightly integrated so they can just do it normally.
+And that makes sense, because when we switched over to that,
+it did start working.
+It just worked, yeah.
+So now, it's not like ZFS has like their own implementation of NFS.
+They're working with the kernel, right?
+I can't answer that question confidently,
+because it's been a long time since I've looked at that code.
+That's just crazy to me.
+That ZFS is huge.
+That's massive.
+And the fact that ZFS works the same way everywhere
+is more of a testament to how much of an outsider file system
+it is in most operating systems.
+So it's developed very independently.
+Right.
+It comes with a bunch of extra stuff
+so that it doesn't have to rely on what may or may not be there.
+Right.
+So a lot of these kinds of things have also
+been relevant in macOS, for example,
+because you can't really poke all the things the same way
+that you can in FreeBSD and whatnot.
+Yeah, it gave me a confidence.
+It made me feel like, well, in the future,
+if Fedora doesn't work out and we want to go to Ubuntu LTS,
+I'm not going to have any problem getting my data.
+It's just going to connect and import just fine.
+It gave me a good sense of my data is safe.
+Yeah.
+And in respect to ZOL and all of these things,
+Fedora and, of course, CentOS and RHEL
+are first class test targets for ZFS on Linux.
+So if it doesn't work in Fedora, it is pretty much a blocker,
+because that is a problem.
+Yeah, it was dead easy to set up, too.
+It really couldn't have been easier.
+Yeah, so making sure it works in CentOS and RHEL,
+because, of course, enterprise people who want to use ZFS,
+that matters.
+But also using it in Fedora, that matters quite a fair bit,
+especially since Fedora is very close to upstream
+and the upstream kernels and stuff like that.
+So it's a very big important point for that.
+And to be clear, we went with Extended 4
+on the root partition for the OS.
+So the Fedora install is running on Extended 4,
+and it is using a DKMS module to get ZFS working.
+Yeah, well, I would have called you actually insane
+if you had put ZFS on a root file system.
+Yeah, we had some limit, some limit.
+Don't think we didn't think about it.
+I mean, it was a listed option.
+We just didn't choose it.
+Don't do it.
+Don't do it.
+I'm just going to say this right now.
+I have done it enough times.
+Don't do it.
+Unless you are running on CentOS where
+you can use a precompiled kernel module that
+works against the kernel API, it gets really unsafe very
+easily.
+Yeah.
+Well, I'm just thrilled myself because I just
+feel like I got a new tool to get work done.
+Not that it wasn't always there, and I couldn't have done it,
+but now I'm actually going to use it.
+Yes, right.
+And we were running some stuff on a personal workstation
+of yours or other random machines,
+so it's nice to have a proper place for it.
+Yes, exactly.
+So let me know if you think I'm crazy,
+linuxunplug.com slash contact.
+But before we get out of here, I want
+to do just a couple of picks.
+Right off the top, I got a couple command line
+applications I love this week.
+Speaking of command line love, speaking
+of command line love, you should check out the Ubuntu podcast.
+Do it.
+And send them your ideas for command line applications.
+Add Ubuntu podcast on the Twitters.
+Here's a couple, guys.
+You know what?
+You are welcome to share these.
+I share these with the Ubuntu podcast if you want them.
+Because these are so good, everybody's
+going to want these ones.
+RGA is our first one.
+It's like grep, but for PDFs, e-books, office documents,
+zip files, tar.gz, et cetera.
+You can grep even docx files, SQLite files, MKV files,
+MP4 files.
+Oh, yeah, all the things.
+It's rip grep for everything or anything, something like that.
+It's based off rip grep, which if you haven't used,
+you really should.
+Ah, OK, rip grep for everything.
+Yeah, it's like a Rust implemented alternative grep
+that's just super fast.
+They've wrapped this here.
+Wait, wait, wait, did you say rust?
+Oh, yeah, of course, of course it is.
+Of course.
+Actually, I mean, the burnt sushi, the author
+is a fascinating human with some really interesting stuff,
+particularly about the implementation of how
+the search engine algorithms work in something like grep.
+So if you want to learn more, it's
+not only a great implementation, it's a good learning
+opportunity as well.
+So this wraps that and lets it search in stuff like PDFs,
+SQLite, all the things that you've been missing.
+That could be really nice, to tell you the truth.
+All right, so maybe searching things isn't your thing.
+And since they're Rust, they're just each a little binary
+you have to download, so no worries
+about a complicated text.
+Is there a way we could put that in a snap?
+Yep.
+All right.
+Now, I love the fish shell, talk about it all the time.
+I always encourage people to check it out.
+The thing I love about the fish shell
+is it does autocompletion for frequent commands.
+But it's not perfect, because sometimes you
+have different variations on commands,
+or sometimes you have just commands
+you only use very infrequently.
+Wouldn't it be nice if you could bookmark commands
+like you do URLs?
+Well, friends, that's where Marker comes in.
+It is a nice little application for your terminal
+that lets you bookmark commands or entire command templates.
+And here's the best part.
+It lets you easily retrieve them with a real-time fuzzy language
+matcher.
+So you kind of just get in the ballpark
+of what you're looking for.
+It has a nice UI on the command line, again.
+But it gives you a UI to select easily which command you wanted,
+and then it'll execute it for you.
+I could see this being really nice, too.
+Maybe you have a team of sys admins,
+and you have a shared toolkit for working with applications.
+Oh, totally.
+That's a great.
+That would be a great use.
+This is something I'm going to have to play with.
+Yeah, you just need Python, like a semi-recent version
+of Python, and Bash or Zshell.
+And it'll work on Linux or Mac OS.
+So there you go.
+It's called Marker.
+We'll have a link in the show notes for that, too,
+which I feel like that'd be pretty handy for somebody
+like me to have something like that on the server
+that we just set up.
+That's actually what I was saying.
+I was like, oh, man, I could make you some defaults
+for maybe a complicated little command or Python.
+Something I do like once every six months.
+Yeah, exactly.
+You know, when the server has to have something done to it
+or whatnot.
+So anyways, check those out.
+When we say the show notes, of course,
+we mean in your podcast player or over at linuxunplug.com
+slash 306.
+Each episode is just slash right there.
+Easy to find, easy to get to.
+Mr. Payne, is there anything else
+we need to mention before we get out of here?
+No, I don't think so.
+All right.
+OK.
+Easy peasy.
+All right.
+Cheesy, is there anything we need to cover before we leave?
+You got anything for us?
+Check out the new Telegram sticker pack.
+Yeah.
+Oh, it's so good.
+Yep.
+Or if you're not in the Telegram group, why not?
+You go to broadcasting.com slash telegram.
+That's right.
+You should be.
+You should be.
+All right.
+Very good.
+Thank you, Mr. Bacon.
+Now, I also want to thank all of you for listening.
+I appreciate every single one of you.
+You're the most important.
+No offense, Jase, but they are.
+They are.
+All of you.
+This show has done so well over the years.
+We really just are so thankful for every single one of you
+for listening.
+So thank you so much.
+Thank you for subscribing.
+Appreciate that.
+That's really great.
+We have a great community out there.
+Thank you so much for tuning this week's episode
+of the Unplugged program.
+You are welcome, invited, and encouraged
+to join us live next Tuesday over at jvlive.tv.
+Get that time at jupiterbroadcasting.com
+slash calendar.
+And of course, linuxunplugged.com slash subscribe
+for the cleaned up, released version every Tuesday.
+Thank you guys for listening.
+Bye.
+Bye.
+Bye.
+Bye.
+Bye.
+Bye.
+Bye.
+Bye.
+Bye.
+Bye.
+Yay!
+I know I'm biased and I'm probably supposed to say this but we really have
+the best audience it's incredible it really is and that's what's been so like
+this has been the season of events where we've been traveling a lot in fact we're
+about to travel again and just really the best freaking audience ever like
+friends for life a number of incredible people at me and just continue to me
+yeah it is wild it's great it's the best part of the job so thank you everybody
+JBtoddles, JBtoddles, thank you to that Mumble Room for making it too really good to
+have all you guys here jeez what are you talking about what's the matter no I'm
+just saying I'm just saying after we get off the show I think I might hang
+around on the jump on the old mums oh yeah oh yeah oh I got you so I got you
+doing posts a little post hang up look plug mmm I like it yeah right you're
+already suited up you got your microphone on yeah oh yeah you know it
+all right JBtoddles.com let's go grab our title otherwise we'll all take your
+voting rights away mmm so poppy how's the old feedback been on the distro
+specific snap pages yeah other than getting for incorrectly using the
+fedora go oh oh I noticed I was trying not to be mean about it or anything I
+just said hey can you fix it please you know what I think it's a good idea I
+like it I like it too you know but jeez you know you can't please the entire
+in a poppy if you did it'd be a miracle worker hey I thought it was good I
+didn't say anything awful about it that sentence is it's pretty solid I like
+that has my audio gone funny again every now and then I think it's just packet
+loss weird I mean from my side it's been everyone's been kind of cutting out a
+little bit which has been odd because that doesn't normally happen
+Leonard oh man that poor guy dude I'm not even talking to you from my Linux
+machine right now because I'm hiding in a conference room are you are you
+permitted to say that I think I think you have to like get clearance or
+something poppy already knows this from the times that I've met him at various
+events mainly snap sprints but I was in one OS I was gonna say I've never
+actually seen him run Linux oh no no no at the the rally two years ago I think
+the one in New York the whole time I brought my Linux laptop with me Noah
+saw it and so did a couple of other people I have witnesses now hold on now
+we're not we're not we're not come on we don't we don't we don't know a shame we
+got a call for an end of this the tribalism you know like I feel like I
+should walk around be like my name is Chris I'm a Linux user and I also have
+an iPad you know like I have to just come I have to come holding your iPad so
+they'll see I have to come clean about it I don't know no more down with the
+tribal you see at home I have a MacBook I have I have numerous Linux machines
+running all many different distros here's where I think it has validity
+though like I think if you work in free software and open source or in that
+space like then that should be your primary stack that should be your main
+stack because that's your area but it would be ignorant not to ever try a
+Windows or Mac because then you would have zero insights into how very popular
+very commercial very successful commercial operating systems yeah you
+have to what you have to do that

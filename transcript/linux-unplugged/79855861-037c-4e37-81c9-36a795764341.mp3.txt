@@ -1,0 +1,932 @@
+OK, so we have some pretty spooky audio.
+All right, I'm going to play this.
+This is a real thing observed by scientists.
+See if you can figure out what it is while you're listening.
+All right, Brent or Alex, do you have a guess as to what we're listening to?
+Well, I have a guess.
+I don't know that I know what it is, but it sounds to me like, let's say you're in Miami
+right now and you might be at the, you know, the racetrack where they have the boats sitting
+in the false water.
+If you were underwater watching watching the race, that's what it would sound like.
+Hmm.
+Right.
+Because not only is today Mother's Day, but it's also Formula One day.
+So happy Mother's Day, everybody.
+But go ahead.
+What do you think it is, Alex?
+I think it sounds a bit like plate reverb where they have the big metal plate in like
+the basement of a recording studio, and that's how they create reverb.
+I like that idea.
+I think that makes it a lot less spooky.
+When you find out what it is, it's extremely creepy.
+This is the sonifications from a black hole that NASA has observed.
+Right, Wes?
+Yeah, that's right.
+The black hole at the center of the Perseus galaxy cluster.
+That's what it sounds like.
+And it sounds like to me, thousands, maybe millions or billions of souls.
+This is so cool because, OK, there's a lot of different sonifications, right, where you
+take some data and you map it to sound.
+But this is actually measuring pressure waves in hot gas in this galaxy cluster.
+It's actually sound.
+It's just, you know, 57 octaves below middle C.
+Hello, friends, and welcome back to your weekly Linux talk show.
+My name is Chris.
+My name is Wes.
+My name is Brent.
+My name is Alex.
+Hello, gentlemen.
+I love these episodes.
+It's one of these weeks where I can't tell you what we're about to talk about.
+I got no idea.
+We're each bringing a topic to the show and we're going to find out live with you what
+each of us has to say.
+But then, of course, we'll get into the traditional steaks and eggs and sides, I guess.
+Hey, I brought biscuits.
+Great.
+You know, I was hoping.
+But all I have over here is cider.
+Anyways.
+Are they sous-vided biscuits?
+They are.
+Are they sous-vided biscuits, really, we'll find out.
+And then, of course, along with them biscuits, we'll have picks, some boasts, and a whole
+lot more.
+Well, let's just get right into it.
+Wes, what did you bring to class today?
+I thought I'd revisit a tool that I've been playing with more again, but I used to use
+a lot.
+And that's Canonical's LexD.
+Oh, yeah.
+Obviously, we use containers for basically all the things here.
+But most of the time, we're running something like Podman or Docker.
+I was thinking back on this, and it was when 1604 first came out, if you remember those
+heady days, and Canonical had just started shipping ZFS.
+Just built in, no fuss, no DKMS, like you just got ZFS.
+I wanted to play with that because, you know, I dabble with ZFS, but mostly like from Freeness
+on a free BSD system or similar.
+So I rented a dedicated server, you know, had a couple of TB of storage, had a couple
+of hard drives, nothing super fancy, but it was enough to start playing with like a, you
+know, physical system I didn't have to run in my actual home lab.
+And I got it all set up, had ZFS, had LexD on top, it was routed up with IPv6.
+And it was really neat because it was almost like running my own little VPS setup because
+you could just spin up all these like system containers, which is one of the things that
+LexD does that's a little bit different than Docker, you know, it's almost like a virtual
+machine, but it uses all the cool container tech.
+And so I could spin up Bastion hosts, I could spin up whatever OS I wanted to play with.
+It was a great way to just run like the latest version of Arch on a server.
+What do you mean when you say it's almost like a virtual machine, like does it have
+virtual devices?
+What do you mean by that?
+At least the way that you see containers run a lot, at least with the docker is these sort
+of application containers, you know, where it's focused on one particular piece, right?
+It's I'm running this process, a single thing, it's all, you know, declarative, you set it
+out.
+LexD runs what they call system containers, which is pretty much just like what you might
+be used to when you run a full Linux operating system.
+So it starts up system D, you can run multiple processes, but it isn't a virtual machine.
+It's you know, it's using the container technology of, you know, C groups and namespaces and
+that sort of thing to isolate it.
+So you get all the nice bare metal performance, there's no overhead involved, but it's designed
+to work as if you have a full system access.
+Now this isn't for anything, it's not to compete necessarily with docker, I find it has a particular
+sweet spot in the home lab for times where you don't need to scale things arbitrarily
+horizontally.
+Your end goal with this, it's not that how you're going to run the system, but you want
+to be able to run multiple things and have a nice REST API on top to orchestrate it.
+So how does the kernel model work with this, Wes, with containers, like typical like docker
+containers, you would have one kernel shared amongst multiple processes with LexD.
+How does that work?
+Yeah, same thing.
+So that in the container model, you get the host kernel in that case, I haven't really
+used it for a while.
+And it's been in the back of my mind, but it just hasn't been the thing that I've been
+playing with.
+We covered last month, LexD 5.0 in Linux action news.
+And that's what kind of triggered me to think I should play with this again, because one
+of the things they've added now is they also do virtual machines.
+So you can do system containers, if you know you're okay with relying on the host kernel,
+you want that density or just you know, that if that works for you.
+But you now have basically feature parity on the VM side, including stuff like migrations
+and snapshots, also clustering.
+And they've added this whole overlay virtual networking.
+It's powered by OVN, which then sits on top of like open vSwitch.
+Okay, so this is like the networking layer.
+So you've got this overlay network on top, but it can do some pretty wild stuff, including
+if you've got like nice a nice Nick, like a Mellanox Nick can do offload hardware offload.
+So it gets processed.
+No, cool.
+It can also talk BGP.
+So you can, you can spin up new containers or virtual machines.
+And it will do all the BGP peer with your routers and announce them.
+So you don't have to worry about like, dealing with any of those routes, man, this seems
+like really nice.
+If you're an organization using this, and you just want to spin up some infrastructure
+real quick.
+That's great.
+I wonder how deep we could take that rabbit hole, could we put Docker inside an LXD, and
+then run libver inside the Docker that's inside the LXD.
+So use that to run Docker inside the libver.
+You see where I'm going?
+Like how deep does the rabbit hole go here?
+I think we have to find out I know it does at least support running itself inside of
+itself because they've got to try it online and that's what it does.
+That'd be fun.
+That's a little inception right there.
+That's pretty great.
+And so my question to you is, are you looking at moving any workloads over to this?
+I think I'm going to dabble, you know, I don't know.
+It doesn't fit every use case and, you know, at work and I'm already quite comfortable
+with both with Docker and dabbling with Podman.
+But you know, it takes a different approach where sort of the, you know, the Docker and
+Podman doing a lot of it kind of breaks things out and you're kind of assembling it or maybe
+you're going to go run it on Kubernetes or Swarm or some other, you know, system doesn't
+really care.
+You get the pieces and you can go put it together.
+LexD it's almost like ZFS in a sense where it presents more of a holistic, like I can
+set this up on a server and it's going to go figure out all these things, including
+fancy PCI pass through.
+It's got all kinds of acceleration if you want.
+So I think if you had some hardware and you wanted to get, you know, just wanted to manage
+that and you maybe weren't a particular fan of say the libvert API, which I'm really not,
+LexD might be an interesting thing to try.
+I wondered, Wes, do you remember why past Wes got less interested and let this technology
+fade for you?
+That was a time where I was kind of just running more things.
+Maybe I was a less busy version of myself or it was just, you know, containerization
+was new.
+Virtual machines were new.
+I was also at a stage in my career where those were things that I was learning for the first
+time.
+Not quite the first, but you know, kind of first really trying to both learn them so
+I could apply them at work, which we hadn't quite migrated that far.
+So I was trying to, you know, get on the cutting edge.
+I'm not running as many things these days.
+I've tried to minimalize some of my personal infrastructure just to keep things simple,
+especially I've just moved a lot in the past few years.
+So I haven't wanted a big home lab that I've been dragging around.
+And there is the employability of having a really solid understanding of Docker because
+that is such a normal standard deployment now in the business world.
+So if you're looking to build out like an employable skillset, I mean, not that LexD
+isn't used widely, but Docker is probably more widely used.
+As we've shown for better or worse, you can get quite far with, you know, just a Docker
+compose file these days.
+There's a lot of community momentum behind that.
+But I think if you wanted to get more complicated or perhaps, you know, your VPS bill was getting
+high and you wanted to like get a couple of bigger boxes that you were going to handle
+on your own or something like that, you know, there's a lot of use cases where I just hadn't
+really thought about LexD.
+You know, I wonder if we're not going to discover a theme accidentally.
+I almost can sense it because my story is about figuring out maybe I'm not using the
+right tool for the job.
+Your story is about the right tool for the for the job.
+Mine definitely is.
+Is it?
+All right, Brent.
+So, all right.
+OK, here we go.
+So tell us, Brent, what's been going on for you this week?
+Well, as listeners might remember, I'm still sitting here with Alex.
+Yeah, he's still here, people.
+Will he ever leave?
+Send us your feedback.
+Raleigh's awful nice.
+Alex has got a great place.
+They're both very nice people.
+You know, so I can understand, Brent.
+I can understand.
+I'd probably be in the same.
+I'd probably be there if I were you, too.
+You know, just before the show, he did make me an account on his Mac.
+So.
+Wow.
+It finally happened.
+You got a you got a local account.
+That is a big step.
+Probably means he expects you to come back to.
+Yeah, I think he probably wants me to do a bunch of projects, it seems.
+So being here has been a real opportunity because I've been able to sort of tap into
+Alex's expertise a little bit and learn some things that I've had in mind for the last
+few years, and this might be quite topical after our NixOS challenge.
+Turns out Alex knows a thing or two about Ansible, and one of the main things I wanted
+to learn while I was here was sinking my teeth into that a little bit and to see the differences
+that I could at least grok so far between Ansible's advantages and those of NixOS, for
+instance.
+And I gotta say, it's been super fun.
+For the last few days, Alex and I have been sort of diving in.
+I think I'm pretty lucky because he's got all the shortcuts.
+He basically said in a day and a half, he showed me everything he's learned in five
+years.
+So, right.
+It's like you got sent to one of those expert courses, you know, you're at you're at the
+Ansible boot camp, basically, except one on one.
+Yeah.
+And it's been a real treat.
+I gotta say thank you, Alex.
+I mean, that's the thing about Ansible that I always thought in the in the early days
+was the learning curve is actually quite short.
+And the complexity can ramp as quickly or as slowly as you need it to.
+Like the basics of just installing a package or something like that.
+We did that in, what, an hour or two?
+Yeah, I think once you sort of describe the main structure underneath, installing packages
+are super simple, which is really similar to the NixOS process.
+Like wrapping your head around the concepts is kind of a big part of the hard part.
+While you were doing that, did you have moments where you felt like, oh, this seems like a
+lot of work to get something kind of fairly basic done?
+I think had I not had the NixOS challenge that we did last month, I would have certainly
+thought that.
+But knowing that the work you put in has many advantages and is a real investment, then
+it made looking at Ansible just make a lot of sense from that perspective.
+I think probably the biggest thing that we struggled with, certainly me as the air quotes
+instructor struggled with, was Ansible is a collection of a lot of little files all
+glued together to build this configuration management structure.
+I kind of struggled explaining, well, you need this directory, and then you need this
+one, and then you need that.
+I do open source all of my code on my GitHub at ironicbadger, if anybody's interested.
+The number of times it said, well, if you look at my code on GitHub.
+That repo is used to deploy all of my personal infrastructure, and that's Ansible as I understand
+it.
+In my defense, that's kind of like my living and breathing encyclopedia.
+Alex, you touched on something that I found a little bit more difficult compared to NixOS,
+for instance.
+In NixOS, you can start with just a Nix config that has a default location.
+One of the things with Ansible that you sort of have to get over a little bit is there's
+a directory structure and expected files in certain places and an equally thick nomenclature
+to go with the naming of those files and those, I don't want to say roles because that's actually
+one of the names of something and don't want to confuse people too much, but that nomenclature
+was a little tricky, and I think you saw me struggle with that.
+Yeah, so there's a lot of domain specific language to learn, so you got to learn what
+a playbook is, what a role is, what a task is.
+Those are the three basic fundamental building blocks, and once you've got your head around
+how those three different things kind of link together, I saw your progress kind of skyrocket,
+and you went from how does this connect to that to being, oh, well, I just do this.
+That's exciting.
+Yeah, when it all clicks.
+It's been fun, and Alex discovered a reason for me to also use some other pieces of software,
+which was really great.
+I think Proxmox was a thing that you threw me at to get a VM going so that we can play
+on this.
+Second mention of the show this week.
+Yeah, because we could use snapshots on Proxmox because the VM storage is just backed by ZFS,
+so it's really easy just to create a snapshot and run some Ansible, break some things, and
+then roll back the snapshot.
+This has been a really, really good sesh for you at Alex's place because you got your first
+hands-on with the Raspberry Pi, which we talked about in Office Hours 3.
+You've now got your first taste of Ansible and Proxmox, like Brent, this is major milestone
+stuff.
+Yeah, I got to say, it feels like a whole new world has opened up for me in a way.
+The reason I wanted to bring that as my topic today was I hope I can encourage some other
+people to even sink their teeth in a little bit and feel some of that excitement, especially
+those who have joined us in the NixOS challenge because I feel like that was a part of the
+conversation that came up often was, hey, what's the difference between the two?
+Which one's more suited for me?
+And I think it's worth diving in even just for an afternoon or something and seeing what
+it might be able to do.
+So I want to take a sidebar conversation that you and I had off air and bring it into this
+conversation because I think it applies.
+And that was, you were talking about how you had just deployed Umbral for yourself and
+you felt like it didn't really work well with this new Ansible paradigm where you're kind
+of prescribing a system because Umbral itself is essentially a small little orchestration
+system in a box.
+But I think what we realized there is there's a fundamental shift perhaps in the way you
+look at how to build things now.
+Can you expand on that a little bit?
+It's true.
+Yeah.
+So to give a little context, the last time you and I, Chris, talked about Umbral, I believe
+is here on the Linux Unplugged actually, it was maybe a month or two ago.
+Which I should say is like this, you can set it up yourself as a self-hosting platform
+to install lots of really awesome self-hosting apps and it's a Bitcoin node, although I guess
+they're going to make that optional in the future.
+It's a platform that sort of showcases some premier self-hosting apps and it manages all
+of it as Docker containers with its UI.
+So it itself is a platform in a sense.
+Yeah.
+And it can also manage a few Docker containers for you in sort of their, I don't know, Umbral
+store if you will, which is actually really nice for people running this, I don't know,
+on a Pi or something like that who don't necessarily have that much Docker experience.
+So that's kind of neat.
+So back then I sort of installed it, I think we did it in a VPS, Chris, do you remember?
+Probably yeah.
+Probably on Linode.
+Yeah.
+And I kind of followed their documentation, you know, note for note.
+This time around, I thought, Alex and I are playing with this Ansible stuff.
+Maybe this is a nice way I can just sort of integrate that into Ansible and have a little
+tiny project to, you know, learn a thing or two outside of having Alex help me.
+So you know, got up nice and early this morning to do that.
+And I did discover a difference in how I understand how software is delivered.
+Help me maybe explain it if I don't get it quite right, Chris, but it seemed to me that
+Umbral, the way it's been packaged, you know, it uses Docker under the hood, but it kind
+of tries to obfuscate that for me a little bit.
+The way they package it is for those who don't necessarily have that expertise or that experience
+with some of this containerization, you know, tool, toolkits, and they're trying to make
+it as simple as possible.
+You know, their default is to run this on a pie.
+They have a pie image, which they call, I think they call it an Umbral OS, something
+like that.
+That's really great because you can kind of get up and running with the defaults pretty
+quickly.
+What I discovered trying to integrate this into my Ansible setup, the way Ansible works
+is that you can use a few, Alex, help me with the wording here, but you can use a few modules
+that are predefined in sort of the underlying Python code to do tasks that are really common.
+So let's just say you want to install htop while there's a package module that will just
+sort of know how to handle things.
+So you just pass it a few little variables like the package you want.
+I want htop and what state you want it in.
+I want it to be present and then it just goes and figures out the rest.
+What I ran into trying to get Umbral into my Ansible sort of setup was that they want
+you to just kind of curl a script and most of what you do with Umbral is based on scripting
+that they've included when you download, you know, their tarball.
+And that's great because it's super simple to get up and running just by running one
+script.
+You don't necessarily understand the underlying technology in there.
+Exactly.
+Yeah.
+But I was trying to use it as a way to understand the underlying technology, which I think is
+going a little bit outside of what they were hoping someone would do.
+You kind of jumped to a hundred, too, right?
+Like you're getting started with this thing.
+You chose a system that's like fighting against you and not designed to play nice with exactly.
+So what you really what you've really come across, but now from the other side of it,
+is the difference between something that's designed for consumer use and something that's
+designed for production grade use and not that Umbral can't be used in production.
+I mean, I'm using it in production and I like that because this is a one off isolated system
+that isn't part of the overall JB infrastructure or anything like that.
+I like that Umbral manages and orchestrates all of this for me.
+I didn't use their OS, but I'm running some of their scripts.
+I could also see a future where like this probably is not likely, but say we had a future
+where boosts were representing like a third of our revenue or something like that.
+Well, then I would probably want to migrate that to an infrastructure that was a lot more
+managed and a lot more reproducible because it would be a real serious endeavor, right?
+Like right now, I'm in the very early, very early stages where beta testing, all of that
+kind of stuff.
+It's a couple of years down the road before I really expect this to really gain traction.
+And so it's not a quote unquote production grade setup yet.
+And you know, some people probably would probably say that's not a great idea, but it has the
+advantage of letting you get started fast.
+Yeah, I would say Chris, when you and I in January wanted to play with this when I was
+at the studio, we were able to relatively quickly get up and started with it.
+I think most of our time was spent understanding all the concepts around it, but getting the
+software up and running was super straightforward, wasn't it?
+I find it interesting how the Umbral project provide all these scripts and they're essentially
+an opinionated set of scripts that say this is how we think the world should be.
+And Chris, I know that you with Home Assistant don't like it when they do that.
+So what's different with Umbral versus Home Assistant?
+Well, the key difference is they did let me deploy my own OS.
+So I am managing the OS the way I traditionally manage an Ubuntu base, right?
+So I still am applying all of that at that layer.
+And then the stuff that runs in the container with the orchestration script, I just let
+them manage.
+But the underlying OS and storage and all of that is under my control.
+Linode.com slash unplugged.
+Linode makes it simple, affordable and accessible to deploy and manage a system for yourself,
+or maybe for your customers in the cloud.
+And they do it at a better price and better performance in those large hyperscalers that
+have just endless options and want to basically lock you into their platform.
+Linode is how we run everything that we've built in the cloud for the last few years.
+And you can tell when you use it, if you're a long time Linux user, you can smell this
+kind of stuff.
+You can tell they love Linux.
+That's where the whole inspiration for the product came from.
+They started 19 years ago when this stuff was just getting baked into the kernel.
+They learned along the way that customer support is critical.
+So they've invested in having the best support in the business.
+And this is probably the number one signal I get back from the audience.
+Number two is definitely performance.
+But I often hear like that because somebody just like had some sort of disaster happen,
+they blew something up or I don't know.
+And they contact me like, you wouldn't believe how they saved me.
+And they stayed on the phone.
+It was the first person that answered.
+But on top of that, they really just have some of the best options.
+And they have 11 data centers for you to choose from.
+Each one is screaming fast because they are their own ISP.
+They've invested in MVME storage.
+They've invested in Epic AMD processors.
+So they've really, really made sure these things perform.
+And then they have a bunch of great backend features like firewalls and object storage
+and a powerful DNS manager, Kubernetes and Terraform support, and of course Ansible support.
+So they really, really make it a compelling option if you're doing infrastructure as code.
+And along those lines, and I'll put a link in the show note, they have released a white
+paper, I guess you could call it as such.
+It's really an ebook, I guess.
+It's about infrastructure as code.
+And it goes through things like Terraform, Ansible, Puppet, Chef, and Salt.
+And it kind of explains all of it through the entire book.
+And it gives you a sense of what each technology is about and how it might fit into what you
+do.
+It's just a really good resource.
+And I've mentioned it on one other show, and I got really great feedback from the audience
+on it.
+So go check the show notes for that.
+Or you can just Google Linode infrastructure as code ebook, and you'll see what I'm talking
+about.
+But go get $100.
+Go kick the tires.
+Go build something.
+Go learn something.
+It's a great opportunity.
+And they have a bunch of one-click app deployments too.
+You can get things like a Minecraft server, Nextcloud, GitLab, lots of stuff, one click.
+Go check it out.
+Linode.com slash unplugged.
+One question I did run into coming back to Ansible was how to install non-repo software.
+Because the way Ansible, at least I understand, is the straightforward method for installing
+software uses your auto-detected distributions package manager to install software.
+And one of the questions I ran into pretty quickly was, well, how do I install software?
+What's not in the package manager's repos?
+And Alex, you had a pretty good answer that I think is worth sharing.
+There's a few ways.
+And you're quite right.
+The default package module will auto-detect whether it's running on YUM or DNF or APT
+or YAST or Pacman, whatever it might be.
+And that's one of the beauties of Ansible versus, say, the Nix approach, is it transposes
+across Linux as a whole, the entire ecosystem, pretty much.
+Where Nix OS is, they have their own packaging system that you're pulling software from.
+And you learn the Nix OS thing, and you now know Nix OS.
+But if you get a new job at somewhere that's running Suzy, you've got to learn Suzy now.
+So that's one of the key things.
+But coming back to your question, there's a few different ways.
+Ansible has the concept of Ansible Galaxy, which is a bit like Docker Hub.
+So you specify a remote repo, a remote source that you can pull in.
+In the case of your question originally last night, it was Docker.
+How do I install Docker?
+You can pull Docker from your repo in your package manager.
+But quite often, the version of Docker that's in there is out of date or it's not packaged
+very well or it has a weird name.
+And so what I tend to do is I tend to rely on Ansible Galaxy roles for that.
+And Jeff Geerling, who was on Self-Hosted a little while ago, he writes a metric S ton
+of different roles that he uploads to Ansible Galaxy.
+One of them is Docker.
+And so you can reuse Jeff's expertise to install those sorts of packages by specifying a couple
+of lines in your Ansible, and I do mean only a couple, which is geerling-guide.docker.
+Install that role from Ansible Galaxy and just magically Docker will be installed.
+Yeah, it is sort of magic.
+And you can do that for a bunch of other services.
+Tailscale was another one that we did.
+So we went away on Ansible Galaxy and found a role that installs Tailscale.
+And it actually did some really neat stuff.
+We ended up having to go and grab an authentication key from the Tailscale admin console.
+And two minutes later, not only was Tailscale installed, but also this role had authenticated
+that server with my Tailscale account without me even really realizing that's what it was
+doing.
+And I just found that really cool.
+I'm reusing this Tailscale expert's knowledge that I didn't even know I could do that.
+Yeah, they're like these little, as far as I understand it so far in my little mental
+model, they're like templates to use in your Ansible roles.
+And you asked me a question last night about how do I know that these Galaxy roles are
+safe to run.
+The beauty of all of them is that they're all open source.
+So the Jeff Geerling stuff, for example, if you go to Ansible Galaxy and search for Jeff
+Geerling, there's a GitHub repo link in every single Galaxy role.
+You can go and look at the code.
+And one of the things I truly love about Ansible over any other configuration management software
+is that it executes tasks in a linear fashion.
+So if you write task one, do this, task two, do that, it won't try and be clever and cute
+and do these things in the order that it thinks is the most sensible.
+It will execute them like a bash script would, line one, then line two, then line three.
+And so it's very easy to understand that this task happens here, and then it does this.
+And for me, as a layman at the beginning when I was learning Ansible, I found that so helpful
+because there's a whole extra layer of complexity that I don't have to wade through.
+And in terms of reading open source code, we often say this in the community of, I'll
+just go and audit the code.
+It's open source, go audit it, and you'll be fine.
+But with Ansible, you actually can.
+You can see that this five line task does this, this five line task does that.
+Yeah, it's quite human readable, I would say.
+Yeah, for sure.
+And for me, that's one of the huge, huge benefits of it.
+So you've got code reuse out of the box, that's a massive DevOps checkbox facilitated there.
+You've also then inadvertently created a source of truth, which is your source code repository,
+which you then should be putting into Git or something like that to manage the version
+controlling there.
+The only real pitfall really is if you start using Ansible and then decide, oh, I just
+want to quickly install a package on the command line natively, like, you know, want to do
+sudo apt-get install htop, right?
+And you don't put that then into your Ansible repo.
+And if you do that over a week, you've got a very small amount of configuration drift.
+If you do that over a month, it gets a bit bigger, but very quickly after a year or so,
+you end up in the way the fact that your desired state in Ansible is nowhere near what reality
+is on that server.
+And so once you commit to doing it with configuration management, you've really got to go all in
+and try and do it completely forever that way.
+I've been really enjoying this journey and I hope to continue it.
+Oh, right.
+I go now.
+I go now and I just realized that my topic is encrypted in the show notes again.
+I like to do that.
+Create a little problem for yourself, eh?
+I have, but...
+Do you remember the password?
+No, but you know what I have is I have this handy little app right here.
+It's a Rust app and it will basically encrypt text as AES, whatever you choose.
+I chose 8-bit AES.
+I love security.
+I don't really care, but I thought I'd start with a story that was sent in to me by a whole
+bunch of you out there and it's about something I haven't talked about very much and it's
+one of my absolute favorite Linux boxes, my little Starlink Dishy.
+And there is this week a new announcement for Starlink owners about a portability option
+coming.
+So you can now take your Starlink with you, you're not locked to the region that you signed
+up for.
+And I had noticed they were beta testing this because I got bit by this region availability
+thing.
+I moved out of my region.
+Oh no.
+Set up at a new place.
+Just no internet.
+And there was no capacity for me.
+But then a couple of days later, it just started working.
+And the thing about the Starlink setup is if you use their app with their router, you
+can open up the app and go into debug mode.
+You'd like this, Wes.
+You go in there and it just tells you like all the raw log information that the little
+Dishy has.
+And I could be wrong, but I think there's either one or two different Linux boxes inside
+that little Dish that talks to the satellites.
+And you can see what it's doing.
+And in there, there was this little flag about portability or roaming or something like that
+that had flipped to true.
+And it turns out they were beta testing this and I was benefiting for free.
+And now they're rolling out for a $20 add on.
+I had that.
+I mean, so many people sent that in to me and it is really cool.
+But unfortunately, I got a bit of a tale to tell you.
+You see, I was packing up my Starlink the other day.
+Yeah, that's right, Wes.
+I don't like how this starts.
+No, it's not good.
+You see, I was getting ready for our trip out into the woods.
+I put little Dishy into stow mode, as they call it, and I packed it up.
+And a few days ago, i.e. Friday, I decided it was time to hook it up, get some additional
+tubes into the home because we needed more internets, little kids, you know.
+I get it all set up, I put it out in the grass field, I power it up because it's on a smart
+plug.
+This is one of the ways I control it during the night is I sometimes turn it off and it
+just sort of sat there limp, dead, never looking up at the stars, never asking what else is
+out there.
+Can I be more than just what I am?
+It just sits there limp in stow mode.
+And I'm watching the app and all of a sudden this little red air comes up and it says Starlink
+motors are stuck.
+And I walk up to it and I can hear like a weird buzzing, but nothing else is happening.
+I rebooted.
+I mean, I went through.
+Oh, no.
+I probably went through six hours of trying to get this thing to come back to life, just
+like refusing to accept my harsh reality.
+I mean, I was bummed, bummed, Wes, crushed, because, you know, you go from cellular to
+Starlink and it's a pretty big upgrade.
+And I was so crushed.
+And so I just refused to accept.
+I thought maybe I could move it just right and get the motor.
+What if I smash it a bit or jiggle it or toss it up in the air?
+Plus, this is the round dishy, which is reportedly overbuilt and more robust and has more antennae
+in it.
+So you broke the strong one?
+Yeah.
+And the new square one, which is smaller, is supposedly not quite as robust.
+It's more like...
+Quite svelte.
+Yeah, it is smaller.
+That is nice.
+So I opened up a support ticket and now I understand why Starlink business is five hundred
+dollars a month and the number one feature is prioritize support because I have heard
+nothing back.
+One automated reply and that's it, right?
+And I'm trying to get all my ducks in a row.
+I'm trying to like pre-upload the debug info, but I look like an idiot because when you
+use the app, it has like this copy debug info option.
+Really handy, I thought.
+I'll get a jump on this because in the debug info, it clearly shows that the motors aren't
+working, right?
+And it shows that it's not obstructed otherwise.
+It's incredible what it knows about itself, actually.
+It's remarkable when you hit copy in the app.
+It just seems to be copying the debug info for the app and the router, but not the Dishy.
+So I realize that.
+I'm like, oh, my bad.
+So I re-upload it again thinking, well, this time I was to captured it.
+Nope.
+So now I have two tickets where I have like bad debug info in there and I look like a
+total new.
+But so I've done like three responses to this ticket and I've heard nothing back yet.
+I can kind of take a guess because I've been in this this spot before.
+I can kind of guess where the satellites are like during the day.
+So I kind of like, you know, like weekend at Bernie's style, kind of like positioned
+it in the direction of the satellites or like, you know, if you're old enough, you might
+remember like having to tune in rabbit ears on your television.
+Yeah, I would do.
+I'm doing that trying to point this thing up into space.
+Right.
+And it gets a bit of a connection.
+And so I can download stuff for a bit and I'm getting like 100 megabit connection and
+everything's good.
+But then as the satellites move, it doesn't adjust and I lose connection.
+You might need like a home assistant integration that can automate retuning.
+I need like a motor.
+I looked into like used dishes, but they go for like a thousand bucks on eBay.
+And it's not even clear how you even associate that with your account because these dishes,
+you know, they connect to your account like a fifth support ticket for that.
+Yeah, I'm going to definitely support tickets so I can get like temporary connection.
+But then I lose it.
+But I've heard like when when support does engage with you, it tends to be really good.
+But I was looking at the option.
+So they have this ridiculous five hundred dollars a month Starlink service that they're
+going to roll out.
+Have you seen this?
+It's their business version.
+And supposedly it's a more robust antenna and you get more like 300 megabits instead
+of like one hundred and fifty megabits.
+It's nice about the same latency.
+OK, but the number one feature they list on their support and I it dawned on me right
+now, like I could almost see the utility of it for the business because without I realize
+without Starlink, I'm S.O.L. on remote broadcasts, really, or I go back to cellular, which was
+always so horrible.
+It could be pretty great, you know, like if you drug it with you into the studio studio
+has Internet outages.
+That'd be a solid backup.
+Sometimes I mean, it's just I can't justify the price now.
+But if I canceled all my all my cellular data plans, which I have three different cellular
+data plans, I'd probably almost pay for it.
+Connectivity is a big deal, right?
+I mean, this is what my whole job's online.
+So when I'm broadcasting remotely, which I'm going to be in a couple of weeks because I'm
+taking Jups in to get it ready for a summer road trip, I'm going to need to do, I think,
+at least Coder from southern Oregon.
+And I was planning to rely on Starlink to do that.
+And I don't really know what happened.
+I'm thinking either it fell or something in transport, like I tried to set it, but it's
+in a storage base.
+I couldn't see what happened.
+Right.
+But I just took it out and it wasn't working.
+I guess would be the snails got in there again.
+Might have been there were there were a surprising amount of snails living in the in the pole.
+But when I took it down, I looked in the pole and there's like a half a dozen snails all
+over the thing.
+The good news is that it seems like SpaceX is serious about supporting hashtag vanlifers
+and RVs.
+In fact, Elon Musk tweeted that Starlink is awesome for RVs camping or any activity away
+from cities.
+Yeah, I mean, it definitely is right.
+So I would describe it as life changing.
+I really would.
+I mean, imagine going somewhere where there is nobody around for a dozen miles.
+You don't have any other connectivity.
+And you put this little dish up in a field and you're getting 150 megabits down.
+I can't I can't even with that.
+It's and it's, you know, sometimes 20 milliseconds or so, which is fine for VoIP and stuff.
+It works.
+I'd love lower, but it gets the job done.
+So it really is a life changing kind of thing.
+And I just am always, always happy to see use cases like this for Linux, too.
+Like that's always in the back of my mind that I'm using Linux to talk to space.
+Now that I've gone through this experience, I can kind of see, like, say I was doing the
+shows out of the RV on the regular and not out of the studio.
+I think I'd see I could see the logic in getting a business grade tool, right?
+Using the right tool for the job kind of thing, you know, in the meantime, I'm hoping to get
+a good support experience.
+If anybody at Starlink is listening, look up my ticket for me, help a brother out.
+He's been waiting a couple of days.
+I'd really like to get connected back to the Internet again.
+Bitwarden.com slash Linux.
+Get started with a free trial for teams or enterprise or even a personal plan at Bitwarden.com
+slash Linux.
+Bitwarden is the easiest way for an individual or a business to store, share and sync all
+kinds of sensitive data.
+We use it here for our passwords, of course, and we love that Bitwarden is open source.
+It's trusted by millions in their community.
+And of course, businesses are using it worldwide.
+Our business, Jupiter Broadcasting uses it.
+It's a really handy way to work with teams of people when you have common resources you
+need to sign into.
+And that's really where the password hygiene can fall down.
+And now recently, Bitwarden has also rolled out username generators, which, man, oh, man,
+I can't believe I hadn't thought of this earlier.
+So now not only will each one of my sign ins for these different services I use, especially
+when it's not like a public profile, it's just something I'm using to manage an account
+or something like that.
+I'm not sure why I was ever using the same username for all of them.
+And if your email provider supports it, like Gmail, where you can do the plus in the address,
+Bitwarden figures that out, too.
+And it will support that.
+The username generator is such a great idea.
+And then you save it all in Bitwarden.
+Using a good password manager to keep different passwords for different websites is probably
+one of the number one things you can do for your security online.
+You know, it takes sometimes a hard lesson to figure it out, but I bet a lot of you already
+know this.
+If there's somebody out there who's maybe doing things a little less than ideal, point
+them to bitwarden.com slash Linux.
+Get them started.
+And then for our community, one of the things that gives us peace of mind is that if you
+want, you can self-host.
+I've opted to use a Bitwarden cloud.
+I feel like they're probably going to do a better job of managing that than I will.
+But I know some of you out there just prefer to run it all on your own infrastructure.
+I like that Bitwarden gives you that flexibility.
+And then I think the other thing that's key to it is that there's actually a really large
+active community on their forum and on Reddit to help with all that kind of stuff.
+So you're not just off on an island by yourself either.
+It's really nice and it gives me the confidence to use Bitwarden and it gives me the confidence
+to recommend it to our audience.
+So go get started for free at bitwarden.com slash Linux.
+That's a great way to get started, make your online security better, and you support the
+show and recommend it to somebody who needs this advice.
+You know they're out there, bitwarden.com slash Linux.
+Majid wrote in and he pleaded with us, could you read my feedback on your lovely show?
+That would make my year.
+So I thought we could do that.
+And there's also a question here.
+If you are in contact with the NixOS devs, could you ask how accessibility is going with
+the installation?
+I'm blind and would like to try out NixOS and the NixOS challenge if possible.
+All right, we'll put feelers out there and if we hear anything back, we'll relay it here
+on the show.
+That's a great question.
+And I wonder too if, and maybe somebody could let me know for my own edification, is this
+something that a VM software could help solve, like a VM that supports screen reading?
+I wonder too there.
+I don't really understand how that works.
+So I'd love to know for my own education if that is indeed in the works and if there is
+another solution our listener could employ.
+And now it is time for Le Boost.
+Our first boost is from the Golden Dragon with 4500 sats.
+How'd this Linux time machine get here?
+Oh well, on my journey, I would have stuck out the pain points I had in college with
+my Wi-Fi drivers not working and just figured it out.
+Back then, I didn't have the same patience I have now and that would have made all the
+difference.
+I love the idea that the audience took this idea of the time machine and sent us a few
+of their own ideas.
+Marcel wrote in with a similar kind of theme for 2000 sats.
+He said, I wish I could say my biggest Linux regret was rising i3 gaps instead of paying
+attention to my undergrad classes.
+Probably my biggest regret was not learning NixOS and Docker back when those things were
+just coming out.
+Thanks for taking us along on the time machine.
+It was fun.
+Another great boost came in from the Muzo 2000 sats.
+Thank you very much.
+Regarding ARM hardware, there are the SBBR and EBBR specifications that are supported
+by recent single board computers and ARM server hardware, which allows generic ISO images
+to be booted on compliant hardware.
+Been listening since early 2020.
+Keep up the great work.
+Well, thank you.
+The amazing rain sent in a boost and caught us.
+Did you guys announce the results of the Nix server poll?
+So in our NixOS challenge results, we asked the audience if we should consider nuking
+and paving our local server setup here, going from OpenSUSE Tumbleweed as the base OS and
+going for more like a Proxmox Nix kind of setup.
+I'm feeling nervous.
+So we did get the results and we had almost 300 respondents, which I've actually found
+even that low can still be representative.
+I think people didn't vote on it as much because it was buried in what was our most show notes
+we had ever had for links.
+Of course.
+So we asked, should we use NixOS as our cloud and local server OS going forward?
+And with 57.44% of the vote, the audience said, yes, keep us posted with 42% of the
+vote going to stick with SUSE.
+It was a 57% vote for yes.
+Go with Nix.
+That feels like a really close result.
+Yeah, I don't know.
+Should we do both?
+What do you think, Wes?
+How do you how do you feel about this, Wes?
+I think we have some work to do.
+I could see also kind of having our cake and eating it too.
+Like if we do VMs.
+Wait, you brought cake?
+I should have.
+I should have said that.
+But if we did VMs, we could do Nix base and then open SUSE tumbleweed VMs or something,
+right?
+Like there's still maybe a role for tumbleweed here, right?
+All right.
+We install open SUSE and then we install LexD and then we run Nix.
+Right.
+This again, this election is being called into question.
+You see, we had some meddling with the last election.
+There was lizard meddling and now it is called into doubt this election.
+I don't know what to do.
+We'll have to keep you posted because clearly we have not figured out this controversy yet.
+We should never have left Arch.
+You know what?
+Maybe that's the lesson.
+All right.
+Our last boost 1200 SATs from the Computer Guy.
+I absolutely love the shows.
+They inspired me to revive my own podcast.
+Oh, that's great.
+JB is my favorite thing to tune into online.
+Well, thank you, the Computer Guy.
+Also thank you to some boosts from the Spherical Cow.
+He sent a couple of thank you boosts.
+We also have a few of you out there that are streaming in SATs while you listen.
+Of course, thank you to our members.
+We are actually working on boosts for the member feed because that's a frequently requested
+feature, but we have to build out a lot of other infrastructure first.
+So it's not going to be anytime soon, but it is on our radar.
+We are detailing out like those new website plans, things that will be new member features,
+stuff that we're building out over the summer.
+We are detailing that out in office hours.hair, starting with episode three and then kind
+of doing it fortnightly from there.
+So join in.
+Listen to that if you're curious about where all that's going.
+We have a pic.
+I think you found this one, Wes.
+Yeah, but you, you tried it out.
+I think it's called Liar Bird.
+It's a voice changing app, simple and powerful voice changer for Linux written in GTK three,
+and it takes your microphone input, whatever it might be, and then it creates a virtual
+output that you can record in any app that you use to record your audio.
+And the idea is that it's supposed to make you sound kind of, kind of fun.
+You can make yourself sound like you're on a sketchy radio connection from far away.
+And it has like a Darth Vader mode and it has a gender changer mode and it has like
+a megaphone mode, just random stuff like that.
+And it's a nice looking app, simple.
+You didn't try the Darth Vader mode?
+Oh, I tried them all.
+I just could have, you know, I didn't want to be obnoxious with all of the different
+clips, but yeah, before the show we were playing around quite a bit.
+It's fun.
+If you've got a great pic idea or something that you're like, why have these guys never
+talked about X on the show, send it in to us.
+Go to linuxunplug.com slash contact.
+We got the contact form there.
+And of course you can always boost it in by getting a new podcast app at newpodcastapps.com.
+And the great thing about those apps is it's not just boosts, it's the entire podcasting
+2.0 spec.
+And the more people that use those apps, the more podcasts will adopt things like transcripts
+and chapters, embedded image and all kinds of nice things that podcasting has needed
+for a long time.
+So go get a new podcast app at newpodcastapps.com.
+And of course you can always grab linuxactionnews.com in one of those apps.
+Well at least Linux Action News podcast at linuxactionnews.com.
+I think that's how it works.
+Anyways, it's our weekly news podcast, and if you're not getting that, then you're missing
+out on what's going on in the world of Linux.
+And we welcome you to join us live.
+Come on in.
+Wes sets up some chips and dip for the live members.
+They're virtual chips and dip.
+Could you imagine sending out chips to everybody?
+We don't want to make a mess.
+Maybe when we make it big time, big time, we'll send out chips to everybody.
+But in the meantime, you get some virtual chips and dip when you come over to jblive.tv.
+We do it on noon, around noon, right around noon or we start getting started.
+Sometimes there's virtual tacos.
+Sometimes there are indeed.
+And you can hang out in our chat room or our mumble room and participate here in this podcast.
+We like it when you do that.
+That's real great.
+We also just like it when you listen in the chair with a friend, just like all that kind
+of stuff.
+We should also mention, Chris, I think we're recording in a new office hours this week,
+aren't we?
+It'll be live on Tuesday, Brent.
+All right.
+Noon air.
+All right.
+Noon air again.
+That's right.
+Yeah.
+Yeah.
+Let's let's let's talk website stuff.
+Let's talk project stuff.
+Let's talk podcast stuff.
+All of that on Tuesday, office hours.
+The mumble room will be open as well.
+See you next week.
+Same bat time.
+Same bat station.
+In the meantime, links to what we talked about today at Linux Unplugged dot com slash four
+five seven.
+Let's see.
+You can go find.
+Where are you on Twitter, Wes?
+At Wes Payne.
+Yeah.
+There you go.
+The network's at Jupiter Signaled.
+Catch more Alex on the self-hosted podcast at self-hosted dot show.
+And I think that's all the plugin we have.
+I'll just spend the last few seconds thanking you for listening.
+If you've written in or thinking about it, do it.
+It's a big part of the show.
+It helps us think of what you want to hear.
+Make a new pop.
+Make new show content.
+All that stuff.
+It's really useful.
+We like your feedback.
+We're making the show for you.
+Yeah.
+Linux Unplugged dot com slash content.
+All right.
+Thanks for being here.
+We'll be right back here next week.

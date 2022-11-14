@@ -1,0 +1,2432 @@
+WEBVTT
+
+00:00.000 --> 00:05.680
+Coming up on Self Hosted 14, Wendell's back, he joins us and we talk about the perfect low power
+
+00:05.680 --> 00:12.880
+home server, some great ideas for a firewall, and why Alex has orange knobs all over his office.
+
+00:12.880 --> 00:13.680
+I'm Chris.
+
+00:13.680 --> 00:14.640
+And I'm Alex.
+
+00:14.640 --> 00:16.160
+And this is Self Hosted 14.
+
+00:17.440 --> 00:18.880
+Welcome back to Self Hosted.
+
+00:18.880 --> 00:20.480
+It's great to be here with episode 14.
+
+00:20.480 --> 00:22.480
+And Alex, we have a special one today.
+
+00:22.480 --> 00:23.200
+Another one.
+
+00:23.200 --> 00:23.920
+I know.
+
+00:23.920 --> 00:25.440
+Another special episode.
+
+00:25.440 --> 00:27.280
+I feel like every episode is special.
+
+00:27.280 --> 00:30.160
+It's like I used to say every show was a big show, but now they're not as long.
+
+00:30.160 --> 00:31.760
+So now they're just special shows.
+
+00:31.760 --> 00:34.800
+But this one really is because Wendell is joining us.
+
+00:34.800 --> 00:36.960
+He was on episode one and we knew we'd want to have him back.
+
+00:36.960 --> 00:39.200
+So Wendell, welcome back to the Self Hosted podcast.
+
+00:39.760 --> 00:40.640
+How's it going?
+
+00:40.640 --> 00:45.680
+I've been following the show and it's very, there are so many people that are like, yes,
+
+00:45.680 --> 00:46.320
+self hosted.
+
+00:48.160 --> 00:52.160
+Before we start, Alex, we had something we had to cut from last week's episode.
+
+00:52.880 --> 00:54.400
+Do you want to just maybe start with that?
+
+00:54.400 --> 00:58.000
+A little tip you had with, I think it was SSH Shuttle or SSH Shuttle.
+
+00:58.560 --> 01:00.320
+SSH Shuttle is one of those tools.
+
+01:00.320 --> 01:02.720
+I've used it for several years now.
+
+01:02.720 --> 01:09.520
+And obviously this predates WireGuard being a thing and it lets me tunnel traffic over
+
+01:09.520 --> 01:14.000
+SSH and essentially creates a poor man's VPN over SSH.
+
+01:14.640 --> 01:19.920
+So I used to use it a lot when I worked in a bank and they had a very restrictive outbound
+
+01:19.920 --> 01:21.440
+SSH policy.
+
+01:21.440 --> 01:26.960
+So I used to use that in conjunction with Corkscrew out on port 443 to make all my traffic
+
+01:26.960 --> 01:31.040
+look like what was SSL traffic.
+
+01:31.040 --> 01:37.120
+And then I could route all my DNS through that tunnel as well and get to any website
+
+01:37.120 --> 01:37.620
+I wanted.
+
+01:38.400 --> 01:43.440
+The point for me being was I could actually get to my homeland very easily that way.
+
+01:43.440 --> 01:49.120
+I wasn't really too worried about going to silly sites at work, but yeah, it's a tool
+
+01:49.120 --> 01:50.320
+that I've used for many years.
+
+01:50.320 --> 01:55.760
+And I've had a blog post sat in drafts for what must be four years at this point.
+
+01:55.760 --> 01:56.800
+And I looked at it.
+
+01:56.800 --> 02:00.560
+I sat at Nashville airport last week and I thought, you know what?
+
+02:00.560 --> 02:02.240
+I need to publish this post.
+
+02:02.240 --> 02:03.600
+So here we go.
+
+02:03.600 --> 02:04.320
+Good.
+
+02:04.320 --> 02:07.200
+We'll link that up in the old show notes.
+
+02:07.200 --> 02:07.680
+That's a great tool.
+
+02:07.680 --> 02:09.280
+I might actually play around with that myself.
+
+02:09.280 --> 02:10.240
+So thank you.
+
+02:10.240 --> 02:10.960
+It's really nice.
+
+02:10.960 --> 02:13.360
+I use it a lot for Red Hat stuff.
+
+02:13.360 --> 02:18.400
+We have an internal VPN that we have to connect to and I have a droplet that's running that's
+
+02:18.400 --> 02:20.400
+perma connected to that VPN.
+
+02:20.400 --> 02:25.440
+And so when I want to route traffic through the internal VPN to view the intranet or whatever,
+
+02:26.320 --> 02:32.080
+I have a bash alias that routes all my traffic for those few minutes through the tunnel and
+
+02:32.080 --> 02:34.160
+then through the droplet into Red Hat.
+
+02:34.160 --> 02:35.440
+And it works really nicely.
+
+02:35.440 --> 02:36.240
+That's a great tip.
+
+02:36.240 --> 02:37.840
+That's something I'm going to check out.
+
+02:37.840 --> 02:40.880
+Now, I had a realization this week that I wanted to share with you guys.
+
+02:40.880 --> 02:42.720
+Curious if this happens to you.
+
+02:42.720 --> 02:47.920
+So at home, I have several Raspberry Pi 4s that I set up doing various different jobs.
+
+02:47.920 --> 02:52.960
+I think I've talked about it quite a bit on the show, but I had a realization that the
+
+02:52.960 --> 02:56.080
+details of how I set it all up are already beginning to fade.
+
+02:56.640 --> 02:59.360
+Do you have this happen where you just you go all out on something?
+
+02:59.360 --> 03:01.920
+It's like a passion project and then the details fade away.
+
+03:03.200 --> 03:04.240
+I'll give you one better.
+
+03:04.240 --> 03:08.080
+You go all out on a passion project and then you're like, oh, wait.
+
+03:08.080 --> 03:10.960
+And then this just random thought occurs to you.
+
+03:10.960 --> 03:15.120
+And then it's like, I know instead of putting this in the wiring closet with everything
+
+03:15.120 --> 03:19.040
+else, I'll put it here and then you open up that cabinet and there's already one there.
+
+03:19.040 --> 03:20.560
+And it's like, did I already do this and forget?
+
+03:25.200 --> 03:28.800
+I don't think that's ever happened to me that I've forgotten a piece of hardware exists.
+
+03:28.800 --> 03:32.320
+But I could, you know, having been to your place, I can imagine that that's happened
+
+03:32.960 --> 03:34.080
+once or twice.
+
+03:34.080 --> 03:37.680
+Yeah, it's sort of a reminder that you're kind of predictable in a sense because I've
+
+03:37.680 --> 03:41.280
+also done that with like, oh, I need to save something on the computer and I'll download
+
+03:41.280 --> 03:44.800
+a PDF and I'll go to put it in a very specific place so that way I can get to it later.
+
+03:44.800 --> 03:48.640
+And I'll open the directory and the PDF is already there and I've already done it.
+
+03:48.640 --> 03:50.400
+I just completely forgot that.
+
+03:50.400 --> 03:51.360
+Yeah, that's where I'm at.
+
+03:51.360 --> 03:52.960
+And I did do some documentation.
+
+03:54.080 --> 04:00.400
+So I'm not totally out in the woods, but I'm looking at it now and I'm thinking, I wish
+
+04:00.400 --> 04:04.400
+I would have done this through some sort of automated deployment because the scenario
+
+04:04.400 --> 04:08.400
+I now fear is I've become super dependent on this hardware.
+
+04:09.200 --> 04:11.680
+And I'm just concerned about hardware failure.
+
+04:11.680 --> 04:16.800
+And if there's a hardware failure because they are Raspberry Pis, they are swappable.
+
+04:16.800 --> 04:21.440
+So in theory, I could just take a dead one out, put a full who even cares what's wrong,
+
+04:21.440 --> 04:21.920
+right?
+
+04:21.920 --> 04:26.960
+Just buy an extra one, swap out the dead one, put in a good one and then have something
+
+04:27.600 --> 04:31.200
+reset it up completely as per some system.
+
+04:31.200 --> 04:32.240
+And I just haven't done that.
+
+04:32.240 --> 04:33.440
+And now I'm regretting it.
+
+04:33.440 --> 04:35.760
+Yeah, that's why that's where I am right now.
+
+04:35.760 --> 04:40.640
+I've got the four gig Raspberry Pi with the POE hat with the fixed USB-C power and all
+
+04:40.640 --> 04:42.560
+of that. And it's like, yes, finally.
+
+04:42.560 --> 04:47.600
+And I've been experimenting with the watchdog thing for about the last six months or so,
+
+04:47.600 --> 04:48.960
+like six or eight months.
+
+04:48.960 --> 04:50.880
+And the watchdog thing works really well.
+
+04:50.880 --> 04:55.360
+But you can also ethernet boot the Raspberry Pi.
+
+04:55.360 --> 04:58.800
+And so it's like, do I even need storage for the Raspberry Pi at this point?
+
+04:58.800 --> 05:00.560
+Because that's another point of failure.
+
+05:00.560 --> 05:04.400
+And maybe I can just be like, no, this Mac address boots and has this hat attached to
+
+05:04.400 --> 05:04.960
+it.
+
+05:04.960 --> 05:07.200
+And I can just sort of go from there.
+
+05:07.200 --> 05:09.280
+Do you still need the SD card for that, though?
+
+05:09.280 --> 05:10.960
+Even for pixie booting?
+
+05:10.960 --> 05:14.720
+You might just for like the bootloader or whatever.
+
+05:14.720 --> 05:16.240
+There's nothing actually stored.
+
+05:16.240 --> 05:22.320
+Like you wouldn't need to do anything, although it may be able to load from the EEPROM because
+
+05:22.320 --> 05:25.840
+some of the documentation online is like, oh, there's an EEPROM that blah, blah, blah.
+
+05:25.840 --> 05:27.120
+And it's like, does that actually work?
+
+05:27.120 --> 05:27.600
+I don't know.
+
+05:27.600 --> 05:28.720
+I haven't gotten there yet.
+
+05:28.720 --> 05:30.160
+Can I trace back a little bit?
+
+05:30.160 --> 05:31.920
+What's the watchdog thing?
+
+05:31.920 --> 05:36.720
+On the Raspberry Pi, you can load a kernel module that if you don't poke the watchdog
+
+05:36.720 --> 05:40.000
+every 10 seconds, it will hard reset the Raspberry Pi.
+
+05:40.000 --> 05:44.640
+So if the Raspberry Pi locks up or has some sort of hardware failure or overheats or something,
+
+05:44.640 --> 05:46.880
+it will just reset itself.
+
+05:46.880 --> 05:50.720
+And that's not going to cause any issues with the SD card corrupting itself or?
+
+05:50.720 --> 05:52.320
+Well, that's why I want a PXE boot.
+
+05:52.320 --> 05:53.200
+Ah, yes.
+
+05:53.200 --> 05:53.760
+Yep.
+
+05:53.760 --> 05:58.720
+If not PXE boot, the SD card should be completely read only, maybe mechanically read only.
+
+05:58.720 --> 06:01.680
+And just a super, super, super minimal boot environment.
+
+06:01.680 --> 06:03.920
+Although there's the security consideration with that.
+
+06:03.920 --> 06:08.000
+But I'd rather just completely raw boot and deal with it from there.
+
+06:08.000 --> 06:08.320
+Right.
+
+06:08.320 --> 06:12.320
+And then you could just have another SD card standing by if that one were to die for some
+
+06:12.320 --> 06:12.720
+reason.
+
+06:12.720 --> 06:16.080
+Just if it's such a minimal boot environment, doesn't need to do much.
+
+06:16.080 --> 06:19.280
+But how do I do all of this?
+
+06:19.280 --> 06:21.360
+Like, what is too much for a home project?
+
+06:21.360 --> 06:24.960
+I don't want to create another monster that within six months, I'll forget how it's set
+
+06:24.960 --> 06:25.200
+up.
+
+06:25.200 --> 06:26.400
+That's what I'm worried about.
+
+06:26.400 --> 06:28.960
+That's where I am, too, because it's like, I don't know.
+
+06:28.960 --> 06:32.560
+For me, most of the Raspberry Pi stuff is just information logging and monitoring in
+
+06:32.560 --> 06:35.440
+a tiny, tiny little bit of control.
+
+06:35.440 --> 06:39.360
+So like, you know, the amazing Grafana dashboard that's like, this is what the boiler is doing.
+
+06:39.360 --> 06:40.080
+This is the pressure.
+
+06:40.080 --> 06:41.200
+And this is the thing over time.
+
+06:41.200 --> 06:42.640
+And this is the other stuff that's happening.
+
+06:43.440 --> 06:45.360
+Yeah, it's not the end of the world if you lose it.
+
+06:45.360 --> 06:48.400
+What do you guys tend to use for that kind of thing?
+
+06:48.400 --> 06:49.680
+Like config management?
+
+06:49.680 --> 06:55.120
+You know, my personal flavor is Ansible and mixed with a bit of Terraform sometimes.
+
+06:55.760 --> 06:56.880
+What do you use?
+
+06:56.880 --> 06:58.560
+Ansible mostly.
+
+06:58.560 --> 07:05.840
+Although, there are a few scripts that are just a bash script piped into SSH with keys.
+
+07:05.840 --> 07:06.880
+That's my setup.
+
+07:06.880 --> 07:08.480
+That's me over here.
+
+07:08.480 --> 07:10.480
+I don't think there's anything wrong with that, really.
+
+07:10.480 --> 07:15.200
+I mean, if you're being a super elite hacker, like Popey last week was giving me a hard
+
+07:15.200 --> 07:17.600
+time that I'm an elite hacker because I like IRC.
+
+07:19.600 --> 07:20.640
+No, I don't think that's true.
+
+07:20.640 --> 07:22.560
+But I think bash scripts do have their place.
+
+07:22.560 --> 07:27.360
+And coming back to your point, Chris, sometimes if you build a complex house of cards that
+
+07:27.360 --> 07:30.160
+you don't fully understand, you then don't touch it.
+
+07:30.160 --> 07:37.520
+So the magic bullet to making config management work for me is that you have to ensure every
+
+07:37.520 --> 07:42.480
+change you make to a system is made through that config management tool.
+
+07:42.480 --> 07:46.720
+So if you want to install just one package, you add that to your dictionary of packages
+
+07:46.720 --> 07:51.040
+or whatever, run Ansible, and it goes and installs that one package.
+
+07:51.040 --> 07:54.080
+I'm going to explain Ansible very briefly for those that aren't familiar with it.
+
+07:54.080 --> 08:02.160
+It's an SSH-based tool that is a declarative state type tool.
+
+08:02.160 --> 08:04.320
+So you say, I want my system to look like this.
+
+08:04.880 --> 08:06.080
+I want it to have these packages.
+
+08:06.080 --> 08:08.880
+I want Samba config to look like this, et cetera.
+
+08:08.880 --> 08:10.720
+You run the Ansible playbook command.
+
+08:11.840 --> 08:15.760
+It SSHs out to all of your different hosts and does all of the stuff based on what's
+
+08:15.760 --> 08:16.800
+in the playbooks.
+
+08:16.800 --> 08:21.440
+Once the playbooks have executed, the host state should match what is declared in the
+
+08:21.440 --> 08:24.720
+playbook, hence the declarative state name.
+
+08:25.520 --> 08:32.560
+And so if you let that config drift on those nodes from the declared state in the infrastructure
+
+08:32.560 --> 08:37.440
+as code type playbooks that you've written, you end up with this config drift between
+
+08:37.440 --> 08:42.640
+the two and it becomes really hard quite quickly to reconcile those differences unless you're
+
+08:42.640 --> 08:43.920
+quite strict about it.
+
+08:44.480 --> 08:50.000
+Even things like just minor point upgrades to the underlying distro can cause a problem
+
+08:50.000 --> 08:52.480
+and then it's like, oh, I didn't really want to spend three hours troubleshooting this
+
+08:52.480 --> 08:53.040
+today.
+
+08:53.040 --> 08:55.440
+Yeah, that's a thing as that happens.
+
+08:55.440 --> 08:56.320
+So what are you thinking, Chris?
+
+08:56.320 --> 08:58.240
+You want to do that for your pies now?
+
+08:58.240 --> 09:01.040
+Yeah, although I am worried that's a bit much.
+
+09:01.040 --> 09:01.840
+But is it?
+
+09:01.840 --> 09:05.040
+So here's what my alternative is, is like an image-based approach.
+
+09:05.040 --> 09:08.400
+Once a month, I pull out the SD cards and it's very manual.
+
+09:08.400 --> 09:09.840
+So it's very unlikely, isn't it?
+
+09:09.840 --> 09:12.800
+I mean, even just saying it out loud, I started to think it's a bad idea, but that's what
+
+09:12.800 --> 09:18.640
+I was thinking was just images and then Duplicati gets the config data.
+
+09:18.640 --> 09:24.480
+Offsite and the actual large data is stored on a spinning disk, or actually it's a solid
+
+09:24.480 --> 09:26.240
+state disk, not an SD card.
+
+09:26.960 --> 09:30.160
+So the OS really just has to get back to base.
+
+09:30.960 --> 09:37.360
+Then I could pull down the latest containers, restore the configs with Duplicati, but it's
+
+09:37.360 --> 09:38.320
+a lot of manual work.
+
+09:38.320 --> 09:39.920
+That's probably a good couple of hours.
+
+09:40.560 --> 09:45.920
+And that's it for me, like containers have changed how disposable my hosts are.
+
+09:45.920 --> 09:50.480
+I don't really care if my host dies because all my data lives on some persistent storage
+
+09:50.480 --> 09:53.600
+somewhere else and the application is separated from it.
+
+09:53.600 --> 09:57.600
+So, yeah, I almost, yeah, I don't know.
+
+09:57.600 --> 10:01.520
+And I don't know what point I should pull the eject lever and just say, OK, I have to
+
+10:01.520 --> 10:04.480
+go to some massive management system or if I just...
+
+10:04.480 --> 10:06.400
+Ansible is not a massive management system.
+
+10:06.400 --> 10:09.680
+I think if you've never used it before, there is this kind of fog.
+
+10:09.680 --> 10:14.400
+Yeah, but it's like half a day's effort, I think, to, you know, demist the fog.
+
+10:14.400 --> 10:16.960
+Oh, really?
+
+10:16.960 --> 10:18.880
+Yeah, I'll give you some help.
+
+10:18.880 --> 10:20.880
+All right, then that might be the route I want to go.
+
+10:20.880 --> 10:22.000
+If you think it's not...
+
+10:22.000 --> 10:22.640
+See, that's kind of...
+
+10:22.640 --> 10:25.840
+I just didn't want to have to bite off like a whole new thing, but I actually don't mind
+
+10:25.840 --> 10:27.040
+picking up something new, really.
+
+10:27.040 --> 10:29.920
+If it's not so bad, I could do it.
+
+10:29.920 --> 10:33.280
+Now, let's talk about hardware whilst we have Mr. Wendell with us.
+
+10:34.480 --> 10:38.080
+One of your recent videos was all about the new Fractal case.
+
+10:38.080 --> 10:41.520
+They've gone in a really interesting way, really interesting direction.
+
+10:41.520 --> 10:47.600
+Yeah, well, it's the Fractal Define 7 XL and the 7.
+
+10:47.600 --> 10:50.080
+And the 7 XL, I wasn't expecting to like it.
+
+10:50.080 --> 10:51.920
+It's just a giant tower case.
+
+10:51.920 --> 10:53.840
+I wasn't expecting to like it as much as I did.
+
+10:53.840 --> 10:56.960
+But it was like, man, this case would be perfect if it had wheels.
+
+10:57.600 --> 10:58.800
+It's like, is there a wheels option?
+
+10:58.800 --> 10:59.520
+And they're like, no.
+
+10:59.520 --> 11:02.240
+And it's like, wait, I have a 3D printer.
+
+11:02.240 --> 11:03.120
+I can fix this.
+
+11:04.480 --> 11:07.280
+So I 3D printed my own adapters for the feet.
+
+11:07.280 --> 11:09.120
+And so I went through a couple iterations.
+
+11:09.120 --> 11:11.360
+Like, this is like an early iteration.
+
+11:11.360 --> 11:14.480
+But it sort of centers the wheel actually on the screw.
+
+11:15.360 --> 11:18.160
+Because I thought that would be a little mechanically stronger.
+
+11:18.160 --> 11:22.880
+But it turns out sort of this like saddle thing is a better approach.
+
+11:22.880 --> 11:27.840
+And then I ended up 3D printing a donut shaped hole in the foot
+
+11:27.840 --> 11:29.920
+so that you can feed a zip tie through it.
+
+11:29.920 --> 11:31.760
+And the whole thing will go inside the case.
+
+11:31.760 --> 11:35.360
+And you can screw and zip tie the foot to the case.
+
+11:35.360 --> 11:38.560
+And then you've got the wheel that will go in like this.
+
+11:38.560 --> 11:41.440
+And so you can have a really nice case on wheels.
+
+11:41.440 --> 11:46.240
+That just looks like an office chair caster, like a roller blade wheel or something.
+
+11:46.240 --> 11:49.840
+Yeah, that's literally this is like you can order these on Amazon.
+
+11:49.840 --> 11:52.800
+So like if you have hardwood floors, you're not supposed to use office
+
+11:52.800 --> 11:55.040
+chair casters on hardwood floors because it'll wear a hole in it.
+
+11:55.040 --> 11:56.400
+You get these.
+
+11:56.400 --> 11:57.760
+And that's literally what this is.
+
+11:57.760 --> 12:02.240
+It's just an office chair caster that goes in there.
+
+12:02.240 --> 12:04.400
+And then this screws into the bottom of the fractal case.
+
+12:04.400 --> 12:09.600
+And then you have a pretty nice full tower case that's really heavy and will roll around.
+
+12:09.600 --> 12:14.960
+Now, is there a way you could figure out a reason to charge $400 for those wheels?
+
+12:14.960 --> 12:18.240
+Because I knew you were going to go there.
+
+12:18.240 --> 12:22.560
+No, it's like $35 on Amazon and like a dollar of plastic.
+
+12:22.560 --> 12:28.800
+So hmm, OK, also 3D printed an M.2 hot swap.
+
+12:28.800 --> 12:34.880
+So like not really hot swap, but like for like a U.2 device and so you just zip tie
+
+12:34.880 --> 12:40.720
+the connector in the end here and then the U.2 two and a half inch NVMe SSD just slides in.
+
+12:40.720 --> 12:43.840
+And so I've got these laying in the bottom of the case as well.
+
+12:43.840 --> 12:47.840
+And so it's like, oh, I need to pop in a different Linux distro or whatever.
+
+12:47.840 --> 12:51.600
+I'll just pop out my main hard drive and pop in a new hard drive and it's PCIe connected
+
+12:51.600 --> 12:53.200
+and it's out of the way and it's nice.
+
+12:53.200 --> 12:54.560
+That is great.
+
+12:54.560 --> 13:00.160
+And these are those wonderful Intel, what, four terabyte SSDs that you found?
+
+13:00.160 --> 13:01.680
+Yeah, they're on eBay, right?
+
+13:01.680 --> 13:02.960
+Yeah, I bought a few of those.
+
+13:02.960 --> 13:07.840
+They're hard to get now, but yeah, yeah, it turns out they're they're kind of nice.
+
+13:07.840 --> 13:12.880
+And this has got standard two and a half inch drive, like screw holes in it.
+
+13:12.880 --> 13:16.400
+So you just screw this in the same way that you would a two and a half inch drive.
+
+13:16.400 --> 13:18.160
+And it's a lot taller, obviously.
+
+13:18.160 --> 13:20.320
+Doesn't that look like a TIE fighter to you, Chris?
+
+13:20.320 --> 13:21.200
+Yeah, I could.
+
+13:21.200 --> 13:22.320
+That's a good way to describe it.
+
+13:22.320 --> 13:25.520
+Yeah, visualize a TIE fighter, folks, and that's kind of what it looks like.
+
+13:25.520 --> 13:26.320
+That's a great idea.
+
+13:26.880 --> 13:27.760
+I got to get one.
+
+13:27.760 --> 13:34.160
+Yeah, I think zip ties are really underrated in kind of low, low budget things like this.
+
+13:34.160 --> 13:36.160
+I use them for all my drones and stuff.
+
+13:36.160 --> 13:38.960
+They're a major mechanical component of the Prusa 3D printers.
+
+13:39.520 --> 13:40.480
+Yes, they are.
+
+13:40.480 --> 13:42.320
+Yeah, yeah, I have two sat behind me.
+
+13:42.320 --> 13:44.400
+I have one of the minis and the i3.
+
+13:45.120 --> 13:45.760
+I love it.
+
+13:45.760 --> 13:47.040
+Yeah, that's what these were printed on.
+
+13:47.040 --> 13:47.440
+It works.
+
+13:47.440 --> 13:49.520
+It works really well for what it is.
+
+13:49.520 --> 13:52.720
+So slight tangent about 3D printing for a moment.
+
+13:53.600 --> 13:55.360
+How did you get into 3D printing?
+
+13:56.080 --> 13:57.920
+I needed to make things that didn't exist.
+
+13:58.640 --> 14:03.280
+When I got a 3D printer, it was very early in the MakerBot days when they were open source
+
+14:03.280 --> 14:05.760
+and you could kind of get it out of the laser cut wood.
+
+14:05.760 --> 14:09.120
+And the first 3D printer that I had was basically made out of laser printer parts
+
+14:09.120 --> 14:10.960
+because it was like, oh, step promoters, laser printer.
+
+14:10.960 --> 14:11.460
+Yeah.
+
+14:12.240 --> 14:15.360
+I thought that I would be doing a lot more creative stuff with it because I was pretty
+
+14:15.360 --> 14:19.440
+good with AutoCAD because I had some experience with CNC machining.
+
+14:19.440 --> 14:21.280
+Are you still using AutoCAD now?
+
+14:21.280 --> 14:22.160
+No, no.
+
+14:23.040 --> 14:27.040
+I made these with just Tinkercad, which is infuriating because it doesn't give you a
+
+14:27.040 --> 14:28.320
+CLI interface.
+
+14:28.320 --> 14:32.640
+With AutoCAD, it sort of taught me to just not even use the mouse, to just visualize
+
+14:32.640 --> 14:34.960
+the part that I wanted to build and start typing coordinates.
+
+14:35.840 --> 14:39.920
+Because using the calipers and doing the CNC thing, and that works brilliantly with AutoCAD
+
+14:39.920 --> 14:40.720
+when you're going to do that.
+
+14:40.720 --> 14:44.160
+But if you need to use the mouse, it's not good.
+
+14:44.160 --> 14:50.560
+90% of what I make in the 3D printer is parts for something that I've lost or something
+
+14:50.560 --> 14:51.280
+to fix something.
+
+14:51.920 --> 14:56.000
+So I've got a bookshelf, I've got a bunch of bookshelves that have adjustable shelves
+
+14:56.000 --> 14:59.200
+and sometimes I'll put tall things in and so I'll take a shelf out and then I'll rearrange
+
+14:59.200 --> 15:01.760
+and then it's like, OK, I need to put that shelf back in and the little plastic things
+
+15:01.760 --> 15:02.720
+are gone.
+
+15:02.720 --> 15:06.720
+And they're not just pegs, they're like the ones that the shelf snaps into it.
+
+15:06.720 --> 15:11.200
+And so I have about seven different models of those and it's like, oh, time to rearrange
+
+15:11.200 --> 15:11.680
+the shelf.
+
+15:11.680 --> 15:15.840
+I'll just go and 3D print some more clips and that's just what I do.
+
+15:16.480 --> 15:19.680
+Right next to me here, I have a pair of Ikea Lack tables.
+
+15:20.240 --> 15:24.560
+I'm going to point them on the webcam to you both and they are stacked together with two
+
+15:24.560 --> 15:29.280
+or no, well, obviously four, one for each leg, 3D printed things with a couple of screws
+
+15:29.280 --> 15:30.080
+and it is brilliant.
+
+15:30.080 --> 15:34.960
+And then my 3D printer station behind me, you can see all the orange, everything orange
+
+15:34.960 --> 15:39.680
+is 3D printed and designed in, I use Fusion 360, which...
+
+15:39.680 --> 15:42.640
+Oh yeah, the hobby license for that is nice.
+
+15:42.640 --> 15:44.320
+The hobby license only lasts a year.
+
+15:44.320 --> 15:47.520
+It's the education license that's in perpetuity.
+
+15:47.520 --> 15:48.960
+So you've got to be careful with that.
+
+15:48.960 --> 15:54.240
+But it's annoying because it tethers me to windows and I've got Adobe stuff and Fusion
+
+15:54.240 --> 15:59.120
+360 that tethers me to windows, which gives me an excuse to do PCI pass through, but I'd
+
+15:59.120 --> 16:00.080
+really rather not have to.
+
+16:02.960 --> 16:04.400
+You know, it could be worse.
+
+16:04.400 --> 16:06.880
+Yeah, at least it works, Alex.
+
+16:06.880 --> 16:07.600
+For the most part.
+
+16:07.600 --> 16:11.280
+It's funny you say anything orange was 3D printed.
+
+16:11.280 --> 16:14.240
+There's just your whole office is covered in orange little things everywhere.
+
+16:15.120 --> 16:16.560
+You put it all together.
+
+16:16.560 --> 16:17.680
+Yeah, kind of is.
+
+16:18.800 --> 16:24.400
+I've got a few videos that are coming out and the first one is on something called the
+
+16:24.400 --> 16:29.760
+Iron Fireman and I think I'm going to take an old thermostat because it's literally,
+
+16:29.760 --> 16:33.520
+it's a coal loader for the boiler, but the thermostat part of it still works, but it's
+
+16:33.520 --> 16:37.360
+mercury switch on a spring, so it's not super sensitive.
+
+16:37.360 --> 16:38.800
+I think I'm going to retrofit that.
+
+16:38.800 --> 16:42.880
+Did you see the Hackaday mod that was the rotary dial cell phone?
+
+16:43.600 --> 16:49.520
+I'm going to try to take a Raspberry Pi W and shove it inside this thermostat and modernize
+
+16:49.520 --> 16:52.560
+it and 3D print all the stuff to make it actually kind of nice.
+
+16:53.200 --> 17:01.360
+But there's a tiny, tiny little OLED SPI screen that is just about as wide as the thermostat
+
+17:01.360 --> 17:06.720
+and it is taking every fiber of my being to resist having some kind of a thing to where
+
+17:06.720 --> 17:11.120
+when you get close there's a proximity or something and a servo causes the screen to
+
+17:11.120 --> 17:12.320
+lift out of the thermostat.
+
+17:13.440 --> 17:18.880
+But it's so anachronistic because it's just a brass cover with some knobs for setting
+
+17:18.880 --> 17:22.160
+day and night temperature, but it's like you get close to it and I want an OLED screen
+
+17:22.160 --> 17:27.680
+to just pop up out of it and then powered from a piece of Cat 6 or something and that
+
+17:27.680 --> 17:28.720
+would be amazing.
+
+17:28.720 --> 17:29.920
+That would be really great.
+
+17:29.920 --> 17:30.720
+I want that too.
+
+17:33.360 --> 17:34.720
+That does sound awesome.
+
+17:34.720 --> 17:35.840
+I want that.
+
+17:35.840 --> 17:41.280
+Well, I kind of have a hardware question that's a bit of a conundrum, so maybe I could pick
+
+17:41.280 --> 17:42.400
+both your brains on this one.
+
+17:43.120 --> 17:48.960
+I think my next piece of hardware for my home setup, it's got to be my edge device, my
+
+17:48.960 --> 17:49.440
+firewall.
+
+17:49.440 --> 17:52.080
+So right now I have that GL, what's it called?
+
+17:52.080 --> 17:56.560
+The GL Net, those little tiny routers, Alex, that we've talked about before on the show?
+
+17:56.560 --> 18:01.200
+Yeah, the new version that we mentioned, I forget what episode it was, like two or three
+
+18:01.200 --> 18:02.720
+or something, the Slates.
+
+18:02.720 --> 18:03.840
+Yes, the Slates.
+
+18:03.840 --> 18:04.720
+That's it.
+
+18:04.720 --> 18:10.720
+Which I really like because it has a great UI that lets you switch between multiple upstream
+
+18:10.720 --> 18:11.440
+network options.
+
+18:11.440 --> 18:16.480
+So MiFi, Wi-Fi, Cat 5, whatever, you can just switch between them through their GUI.
+
+18:16.480 --> 18:19.200
+But if you don't like that, you can drop under the hood and it's got a nice Linux command
+
+18:19.200 --> 18:20.720
+line and it works pretty well.
+
+18:20.720 --> 18:23.760
+But it's very appliance based.
+
+18:23.760 --> 18:25.280
+It's not very flexible.
+
+18:25.280 --> 18:30.640
+And the number one issue I have with it is although it touts some level of WireGuard
+
+18:30.640 --> 18:33.280
+support, there doesn't seem to be quite what I want.
+
+18:33.280 --> 18:38.720
+So I'm thinking about building, I don't know anymore if I should go with OpenSense or
+
+18:38.720 --> 18:44.400
+PFSense, but I'm thinking about building a new edge device that also has WireGuard support
+
+18:44.400 --> 18:48.640
+that would allow me to select multiple networks from different options at different times.
+
+18:49.440 --> 18:51.760
+But let me keep all of the devices behind the LAN.
+
+18:52.800 --> 18:56.480
+You know, they stay the same, their IPs don't change.
+
+18:56.480 --> 19:00.320
+And that the edge device needs to provide DNS for the LAN so I can resolve all the LAN
+
+19:00.320 --> 19:01.120
+devices by name.
+
+19:01.120 --> 19:06.800
+Those basic kinds of things, so obviously DHCP, DNS, I'd even like to provide NTP for
+
+19:06.800 --> 19:07.520
+the home network.
+
+19:08.000 --> 19:13.920
+But some of the key things I'd want is low power if possible, low noise is a requirement
+
+19:13.920 --> 19:15.920
+and even fanless would be ideal.
+
+19:16.560 --> 19:18.160
+Is this a thing that exists?
+
+19:18.640 --> 19:22.240
+I would probably, it's not fanless, but it's a lot of horsepower.
+
+19:22.240 --> 19:28.720
+I'd probably go with like the Ryzen Embedded, which is probably like way, way, way extreme
+
+19:28.720 --> 19:30.320
+maximum overkill for your needs.
+
+19:30.320 --> 19:33.520
+But you can spin up microcontainers and microservices.
+
+19:33.520 --> 19:38.080
+Like you can start with PFSense, but then you can expand that into a full free BSD
+
+19:38.080 --> 19:42.240
+installation, but maintain the PFSense GUI, because that will give you containers.
+
+19:42.240 --> 19:46.320
+And then you can start running jails and then inside the jail you can start running Docker
+
+19:46.320 --> 19:47.440
+and stuff like that.
+
+19:47.440 --> 19:51.760
+Because I've been experimenting with modifying PFSense to be able to better support things
+
+19:51.760 --> 19:53.920
+like LAN cache for steam caching.
+
+19:53.920 --> 19:54.420
+Yes.
+
+19:54.420 --> 20:03.780
+So like I did this work with Dr. Ian Cutress at Anandtech and the Chinese servers.
+
+20:03.780 --> 20:07.940
+And so like these are, you know, sort of the forbidden technology.
+
+20:08.740 --> 20:11.620
+It's like, this is, you know, don't do business with these companies, blah, blah, blah.
+
+20:11.620 --> 20:13.220
+But it's like, I must explore the technology.
+
+20:13.700 --> 20:16.020
+And so that's on a secure network.
+
+20:16.020 --> 20:21.700
+And the way that works is there's a PFSense machine that has a VPN connection and all
+
+20:21.700 --> 20:24.580
+of the traffic is tunneled, but it's also logged.
+
+20:24.580 --> 20:27.140
+So like every packet in and out is logged.
+
+20:27.140 --> 20:30.820
+And it doesn't matter what protocol it is, because sometimes you can hide things in non-IP
+
+20:30.820 --> 20:33.140
+protocol stuff because people always forget about that.
+
+20:33.620 --> 20:37.940
+Or, you know, like weird, like, oh, this looks like one of those really weird, you know,
+
+20:37.940 --> 20:40.500
+like IGMP packets and it's completely benign.
+
+20:40.500 --> 20:43.060
+And it's like, oh, no, this is actually a way to exfiltrate data.
+
+20:43.060 --> 20:45.140
+Yeah, it's like, yeah, it's not good.
+
+20:45.140 --> 20:50.420
+So I've got a fairly elaborate setup on PFSense where it has, you know, the LAN interface
+
+20:50.420 --> 20:55.220
+and then it has like the red zone and then it has, you know, a bunch of other interfaces
+
+20:55.220 --> 20:56.500
+and a couple of VLANs.
+
+20:56.500 --> 21:01.540
+And there's more stuff running on PFSense than you normally would for things like packet
+
+21:01.540 --> 21:04.980
+capture and analysis and IDS.
+
+21:04.980 --> 21:09.460
+And those things chew up a fair bit of horsepower.
+
+21:10.100 --> 21:14.260
+A really super inexpensive option are those ultra small form factor DELs.
+
+21:14.260 --> 21:16.740
+Like you can get, you know, a Haswell or Ivy Bridge.
+
+21:16.740 --> 21:20.420
+I mean, Intel mitigations aside, but you can get Intel, you can get like the Ivy Bridge
+
+21:20.420 --> 21:25.460
+or Haswell micro form factor DELs now for like a hundred bucks and throw in eight or
+
+21:25.460 --> 21:26.500
+16 gigs of RAM in those.
+
+21:26.500 --> 21:30.820
+And they're not fanless, but they're whisper quiet, at least until one of the fans die.
+
+21:30.820 --> 21:34.180
+Throw in a quad port NIC and you can do a lot with that.
+
+21:34.180 --> 21:35.380
+That's a great suggestion.
+
+21:35.380 --> 21:38.340
+Yeah, as long as it's fairly quiet, really, that's probably fine.
+
+21:38.340 --> 21:41.620
+And you can also just, you know, roll straight Linux on it if you want.
+
+21:41.620 --> 21:42.660
+That's an option.
+
+21:42.660 --> 21:44.580
+And not bother with the whole PFSense stuff.
+
+21:44.580 --> 21:50.580
+Yeah, that has also crossed my mind is just do a Linux box and then just roll bind, do
+
+21:50.580 --> 21:52.900
+wire guard by hand, set up DHCP.
+
+21:52.900 --> 21:58.180
+It's in fact, roll Linux box and maybe put PyHole on there to just make a few things
+
+21:58.180 --> 21:59.300
+easy in a container.
+
+21:59.300 --> 22:01.060
+Yeah, like having the whole thing.
+
+22:01.060 --> 22:04.580
+That's that's where I'm going is like not even doing very much on the host at all.
+
+22:04.580 --> 22:06.500
+Literally everything is container.
+
+22:06.500 --> 22:12.580
+Everything is, you know, Docker compose or Ansible or whatever.
+
+22:12.580 --> 22:15.220
+And if those containers all live on one machine, great.
+
+22:15.220 --> 22:19.220
+And if those containers need to be split up across a couple of different machines, great.
+
+22:19.220 --> 22:25.860
+But all of it sort of works together because like the PyHole and the LAN cache for Steam
+
+22:25.860 --> 22:30.580
+game caching and other game caching and all of that, all of that magic depends on DNS.
+
+22:30.580 --> 22:33.780
+Plus, you also want the DNS experience to be like the most amazing thing ever, because
+
+22:33.780 --> 22:37.620
+if your local DNS resolver is garbage, your whole Internet experience is going to feel
+
+22:37.620 --> 22:38.660
+like garbage.
+
+22:38.660 --> 22:43.060
+So you want that to be as good and fast as possible, and maybe it's worth having a premium
+
+22:43.060 --> 22:44.260
+device for that.
+
+22:44.260 --> 22:45.780
+That is very good point.
+
+22:45.780 --> 22:49.540
+Can you talk a little more about the steam cache aspect and how it requires DNS?
+
+22:49.540 --> 22:51.940
+Because that's something I definitely want to get set up.
+
+22:51.940 --> 22:56.340
+It's been on my to do list for a long time, and so I'm curious what I'll need to accommodate
+
+22:56.340 --> 22:57.940
+DNS wise to enable it.
+
+22:57.940 --> 23:03.940
+There's a GitHub repository for LAN cache that sort of goes into detail with everything,
+
+23:03.940 --> 23:11.300
+but Steam will do a DNS lookup for a record that is expected to be rewritten by your ISP
+
+23:11.300 --> 23:14.180
+or local provider or whatever, and you can just do it yourself.
+
+23:14.180 --> 23:19.300
+And it does not depend on HTTPS, there's no encryption, nothing like that.
+
+23:19.300 --> 23:24.900
+And so if you rewrite that DNS request and you have a corresponding web server that can
+
+23:24.900 --> 23:29.700
+proxy requests, then Steam is designed to work with the caching system.
+
+23:29.700 --> 23:34.900
+It's just normally it's like your ISP that's going to be doing the caching, but in this
+
+23:34.900 --> 23:36.820
+case it's you that's going to be doing the caching.
+
+23:36.820 --> 23:41.700
+And generally that's true with Blizzard and Activision and a bunch of other games.
+
+23:41.700 --> 23:46.260
+Sometimes HTTPS becomes a problem because they'll forget and they'll enable required
+
+23:46.260 --> 23:52.900
+HTTPS, and so any HTTPS traffic that you have is proxied but not cached because it's encrypted,
+
+23:52.900 --> 23:56.980
+and that encryption is sort of temporal, so it might be able to cache it, but then if
+
+23:56.980 --> 24:00.420
+it goes to playback that cache later, it's sort of nonsensical at that point in time,
+
+24:00.420 --> 24:05.540
+so the fact that it was cached encrypted data doesn't really help you.
+
+24:05.540 --> 24:09.020
+But most game providers will let you do that, and Windows Update is the same way.
+
+24:09.020 --> 24:13.620
+It manages its own integrity checking, so it doesn't need HTTPS, and so you can get
+
+24:13.620 --> 24:16.980
+your Windows updates if you have Windows machines on your network or your family has Windows
+
+24:16.980 --> 24:18.580
+machines or whatever.
+
+24:18.580 --> 24:25.220
+Same thing with repositories, so our local, the same container that is doing Steam caching,
+
+24:25.220 --> 24:29.220
+also with DNS magic, we're caching Debian and Fedora.
+
+24:29.220 --> 24:32.340
+And so it's just completely transparent, and it's like it's going to download the package
+
+24:32.340 --> 24:36.260
+and it's going to do its own integrity checking on the package, even though the connection's
+
+24:36.260 --> 24:40.940
+not encrypted, but because the connection's not encrypted, I can have that local cache.
+
+24:40.940 --> 24:43.540
+And so it's like, oh, it's time to update Debian.
+
+24:43.540 --> 24:46.000
+Oh, that's happening at a gigabit per second.
+
+24:46.000 --> 24:47.000
+That's nice.
+
+24:47.000 --> 24:48.340
+Yeah, really.
+
+24:48.340 --> 24:51.140
+Have you tried it with Ubuntu, or is it just Debian proper?
+
+24:51.140 --> 24:55.100
+No, yeah, no, you can totally do it with Ubuntu, you can totally do it with any other distro
+
+24:55.100 --> 25:02.060
+where you can set up an HTTP non-S mirror, and then that URL will be cached if you do
+
+25:02.060 --> 25:03.060
+some DNS magic.
+
+25:03.060 --> 25:04.060
+Guys, that sounds nice.
+
+25:04.060 --> 25:08.220
+Yeah, I definitely want to do the Steam cache one, because there are times when I'm on a
+
+25:08.220 --> 25:13.700
+MiFi, it's just so brutal, it's so bad, and I just think to myself, why haven't I set
+
+25:13.700 --> 25:15.180
+that Steam cache up yet?
+
+25:15.180 --> 25:18.900
+And that would be a good reason to have an Edge device with a little more horsepower,
+
+25:18.900 --> 25:20.380
+is to do kind of that stuff.
+
+25:20.380 --> 25:27.100
+Asrock has a, it's like the Desk Mini A320, I think.
+
+25:27.100 --> 25:34.900
+It's an APU, but it's got two 3.5 inch bays, and I really, really want to add an M.2 SSD
+
+25:34.900 --> 25:38.860
+and two 4 terabyte mechanical hard drives to that, so that it's like a cheap system.
+
+25:38.860 --> 25:42.340
+And that could be my travel cache system, because I find myself in the same situation
+
+25:42.340 --> 25:46.900
+a lot of the time, where I'm somewhere, and maybe I'm going to go to Computex, and maybe
+
+25:46.900 --> 25:51.540
+I want to do hardware testing in my hotel room, but the hotel room connection is garbage,
+
+25:51.540 --> 25:55.860
+and I need terabytes and terabytes of Fire Strike and games and crap like that.
+
+25:55.860 --> 25:59.900
+What if I could plug the hardware or laptop or whatever it is I'm testing in with a local
+
+25:59.900 --> 26:04.100
+connection, and I've got my little six inch cube of information, basically, and it's just
+
+26:04.100 --> 26:07.900
+shoving all of the information that I could possibly ever need onto the machine to be
+
+26:07.900 --> 26:10.900
+tested at wire speed, and then I don't have to worry about it.
+
+26:10.900 --> 26:11.900
+That's glorious.
+
+26:11.900 --> 26:12.900
+I love that idea.
+
+26:12.900 --> 26:15.900
+I'm making a project list over here, Alex.
+
+26:15.900 --> 26:18.900
+I've got a list of stuff I'm writing down over here.
+
+26:18.900 --> 26:19.900
+All right, I'm going to do that.
+
+26:19.900 --> 26:24.140
+You can add that to the pile of shame.
+
+26:24.140 --> 26:26.900
+The things I'll do one day.
+
+26:26.900 --> 26:30.340
+I was watching a video, I think it was Jay's Two Cent, where we went behind the scenes
+
+26:30.340 --> 26:35.100
+at one of these massive LAN parties, where he was talking with the networking team about
+
+26:35.100 --> 26:41.580
+how they ran fiber to each row of people doing LAN, and they had the LAN cache there, and
+
+26:41.580 --> 26:44.980
+that was really interesting, because he was talking about, I think it was Origin that
+
+26:44.980 --> 26:50.340
+uses HTTPS, which meant that they couldn't cache that one particular vendor.
+
+26:50.340 --> 26:52.900
+There have been a lot of complaints for that.
+
+26:52.900 --> 26:57.820
+I think that was Kane and Max CFM, and those guys for Dreamhack, because Kane does a lot
+
+26:57.820 --> 27:03.780
+of work for Dreamhack, and they get the world record on the LAN cache speed.
+
+27:03.780 --> 27:09.220
+It was 45 or 55 gigabytes per second, I think, or was it gigabit?
+
+27:09.220 --> 27:10.820
+It might have been gigabit.
+
+27:10.820 --> 27:11.820
+It was fast.
+
+27:11.820 --> 27:13.620
+It was insanely fast.
+
+27:13.620 --> 27:19.980
+Even Linus's mega, crazy, super SSD server might struggle going much faster than that.
+
+27:19.980 --> 27:24.460
+Wendell, you said something in there earlier that I thought would be worth touching on.
+
+27:24.460 --> 27:28.460
+Sounds like you're doing sort of my approach of minimum viable Linux for the host OS.
+
+27:28.460 --> 27:34.300
+It's just a really base install for your system, and then everything's either VM or containers?
+
+27:34.300 --> 27:38.060
+Yeah, because repeatability, and ain't nobody got time for that.
+
+27:38.060 --> 27:39.540
+Yeah, no kidding, right?
+
+27:39.540 --> 27:40.540
+I know.
+
+27:40.540 --> 27:47.060
+Well, and also, it's less to update, it's less to break, it's less security attack surface.
+
+27:47.060 --> 27:48.560
+There's a lot of benefits to it.
+
+27:48.560 --> 27:52.100
+The one thing that drives me insane about Docker containers is they never have good
+
+27:52.100 --> 27:55.940
+internal log management, and you will need that for incident response.
+
+27:55.940 --> 28:02.020
+So I usually have things on the Docker side of it for Docker Compose.
+
+28:02.020 --> 28:05.420
+It's like, okay, I'm just going to go ahead and map those directories to the host, but
+
+28:05.420 --> 28:09.700
+I'm also actually going to bother with log shipping to a machine on the network that's
+
+28:09.700 --> 28:13.180
+super hardened, just so that there's a logging device.
+
+28:13.180 --> 28:16.900
+And then it's like, hey, I'm not getting a heartbeat from this machine, but I started
+
+28:16.900 --> 28:19.940
+getting emails, like something may, and it's, you know, a lot of the time it's just that
+
+28:19.940 --> 28:24.300
+machine locked up or the power went out and the battery on the other thing is lasting
+
+28:24.300 --> 28:25.420
+a little bit longer.
+
+28:25.420 --> 28:30.100
+But that's a great thing to do with the Raspberry Pi as well, because it's not x86.
+
+28:30.100 --> 28:36.660
+So like the ScriptKitty binary exploit is like, oh, it's Raspberry Pi.
+
+28:36.660 --> 28:40.380
+You can't just, you know, upload a binary and ELF binary to it and have it actually
+
+28:40.380 --> 28:41.380
+work correctly.
+
+28:41.380 --> 28:42.380
+Right.
+
+28:42.380 --> 28:46.660
+And the fact that you can, you know, store the logs or export the logs or send it to
+
+28:46.660 --> 28:51.020
+something else or just have it stored there on that device, then it's like, it's nice
+
+28:51.020 --> 28:54.540
+because it's just right there on a separate device and it's hard to sort of compromise
+
+28:54.540 --> 28:56.420
+that and everything else.
+
+28:56.420 --> 28:58.220
+So let's get to a little bit of feedback.
+
+28:58.220 --> 29:00.060
+I have an email here from Ian.
+
+29:00.060 --> 29:04.180
+Thanks for writing in, Ian at Ask SSH.
+
+29:04.180 --> 29:08.920
+It's to do with hardware and he would like to know with all the AMD hardware releases
+
+29:08.920 --> 29:14.520
+right now, it's kind of hard to keep track of what is good for a low power server.
+
+29:14.520 --> 29:19.660
+What would you recommend as the best bang for budget AMD based system right now for
+
+29:19.660 --> 29:22.220
+a 24 seven based system?
+
+29:22.220 --> 29:26.260
+Best bang for the buck is probably the Ryzen 1600 AF.
+
+29:26.260 --> 29:33.820
+If you can find it, it's like 89 bucks and it's technically a 2600 because the 1600 on
+
+29:33.820 --> 29:39.420
+the old process sold so well, they're like, eh, we'll call it 1600 AF and it's a little
+
+29:39.420 --> 29:45.620
+slower than a 2600 so it didn't quite make the cut for a 2600 but it is essentially 2600
+
+29:45.620 --> 29:51.780
+and that CPU is incredible, an incredible, you know, bang for the buck because it's basically
+
+29:51.780 --> 29:53.540
+a 2000 series Ryzen.
+
+29:53.540 --> 29:55.340
+Where does that fit broadly speaking?
+
+29:55.340 --> 29:58.660
+I'm fairly familiar with the Intel lineup.
+
+29:58.660 --> 30:02.580
+What's the Intel kind of comparative chip there?
+
+30:02.580 --> 30:06.300
+Probably one of the Xeon E3s but it's actually going to be faster than just about all of
+
+30:06.300 --> 30:08.300
+the Xeon E3s that are available.
+
+30:08.300 --> 30:10.300
+Is that in single or multi-thread?
+
+30:10.300 --> 30:12.460
+Single thread is going to be close.
+
+30:12.460 --> 30:14.540
+It might slightly favor Intel.
+
+30:14.540 --> 30:19.940
+If you want to beat Intel in single thread with that Xeon E3, you could go with the Ryzen
+
+30:19.940 --> 30:28.140
+5 3600 and that's going to be a six core and that will handily outperform any Xeon E3 available
+
+30:28.140 --> 30:29.140
+today.
+
+30:29.140 --> 30:33.740
+Back to Ian's question, he's talking about the 24 by 7 piece.
+
+30:33.740 --> 30:36.540
+What's the sort of idle energy draw on these things?
+
+30:36.540 --> 30:39.600
+It depends on the motherboard and it depends on the implementation.
+
+30:39.600 --> 30:44.120
+If you go like super, super, super low power, which actually is a little tricky to do on
+
+30:44.120 --> 30:49.140
+Ryzen because you have to have a power supply that properly supports C6 and some power supplies
+
+30:49.140 --> 30:54.540
+that advertise the C6 deep sleep don't actually support the C6 deep sleep and some power supplies
+
+30:54.540 --> 31:00.160
+implement the C6 deep sleep as turn on this big old bank of resistors just to keep things
+
+31:00.160 --> 31:05.900
+ready in case the system wakes up, which generates heat so it doesn't actually consume less power.
+
+31:05.900 --> 31:09.780
+You got to really look at the power graph because it's like, oh, it's 80 plus gold or
+
+31:09.780 --> 31:11.700
+it's 80 plus bronze or it's 80 plus platinum.
+
+31:11.700 --> 31:18.640
+When you start playing with the 1% power utilization, that power efficiency goes to like 50% or 30%.
+
+31:18.640 --> 31:23.100
+So like literally half the energy that you're burning just goes to idle.
+
+31:23.100 --> 31:27.940
+DC to DC converters in that case might actually be a better choice, like one of the micro
+
+31:27.940 --> 31:32.380
+power supplies if you really, really want to be super frugal on the power, but it also
+
+31:32.380 --> 31:37.460
+depends a lot on the motherboard in terms of like the actual CPU itself.
+
+31:37.460 --> 31:42.300
+It's on the order of like one or two Watts per core while on the 3000 series plus whatever
+
+31:42.300 --> 31:44.220
+the IO die is using.
+
+31:44.220 --> 31:48.940
+So like the CPU itself in its lowest power state can be around like four or five Watts,
+
+31:48.940 --> 31:52.820
+maybe less than that, but it really depends on the rest of the system.
+
+31:52.820 --> 31:53.820
+Wow.
+
+31:53.820 --> 31:55.100
+That's like Raspberry Pi level.
+
+31:55.100 --> 31:56.100
+Yeah.
+
+31:56.100 --> 31:57.100
+Well, it's not doing anything.
+
+31:57.100 --> 31:58.100
+So I mean,
+
+31:58.100 --> 32:02.700
+Yeah, no, but my Xeons downstairs are doing nothing and they're sucking down 150 Watts
+
+32:02.700 --> 32:03.700
+each.
+
+32:03.700 --> 32:04.700
+Thank you very much.
+
+32:04.700 --> 32:08.140
+Your power usage is not going to be five Watts at the wall, no matter what you do, it's just
+
+32:08.140 --> 32:12.300
+that the power usage is going to be dominated by everything else in the system other than
+
+32:12.300 --> 32:13.300
+the CPU.
+
+32:13.300 --> 32:14.300
+Sure.
+
+32:14.300 --> 32:17.540
+So just keeping the NVMe on standby is going to be five Watts.
+
+32:17.540 --> 32:19.020
+Oh, that's good to know.
+
+32:19.020 --> 32:20.740
+I didn't know that.
+
+32:20.740 --> 32:23.660
+And now a logical question to follow that, and this one's from me.
+
+32:23.660 --> 32:26.340
+What sort of motherboards would we be looking at?
+
+32:26.340 --> 32:27.820
+Is there anything with IPMI?
+
+32:27.820 --> 32:28.820
+Yes.
+
+32:28.820 --> 32:29.820
+ASRock.
+
+32:29.820 --> 32:30.820
+ASRock rack.
+
+32:30.820 --> 32:31.820
+Thank you.
+
+32:31.820 --> 32:34.140
+They have an X470 and X570 board.
+
+32:34.140 --> 32:40.100
+The X470 board has dual Intel 10 gig optional and you don't really pay that much more like
+
+32:40.100 --> 32:45.580
+the board plus a 10 gig card, you know, is like 350, 300, 350, something like that.
+
+32:45.580 --> 32:48.420
+And so three to $400 for that board.
+
+32:48.420 --> 32:49.420
+It's great.
+
+32:49.420 --> 32:54.140
+It's got the AST 2500, same exact thing that you'd have in a server.
+
+32:54.140 --> 33:00.100
+Full RAM, full VGA implementation and with the American mega trends flavored implementation
+
+33:00.100 --> 33:01.100
+of the IPMI.
+
+33:01.100 --> 33:07.380
+It's got all the features, the watchdog, SSH access, command line, the whole nine yards,
+
+33:07.380 --> 33:11.580
+but it's an AM4 platform and they just came out with the X570 version, but I haven't been
+
+33:11.580 --> 33:12.740
+able to source it.
+
+33:12.740 --> 33:16.420
+I think it's a little more, I think it's like on the order of $600 and I think that's just
+
+33:16.420 --> 33:20.720
+an availability issue, not like an actual expected end user cost.
+
+33:20.720 --> 33:27.900
+But the 470 version is totally fine unless you need PCIe 4 or even more PCIe bandwidth.
+
+33:27.900 --> 33:30.980
+I assume those boards require DDR4, do they?
+
+33:30.980 --> 33:31.980
+Yeah.
+
+33:31.980 --> 33:32.980
+Yep.
+
+33:32.980 --> 33:33.980
+Yep.
+
+33:33.980 --> 33:34.980
+Okay.
+
+33:34.980 --> 33:35.980
+Good to know.
+
+33:35.980 --> 33:39.620
+So what a total system is going to cost you 400 for the board, a hundred ish for the CPU
+
+33:39.620 --> 33:42.780
+and then what 150 for 32 gigs of RAM?
+
+33:42.780 --> 33:44.660
+You can get unbuffered UDIMs.
+
+33:44.660 --> 33:49.740
+So I'd probably budget closer to 200 for the RAM and get unbuffered ECC.
+
+33:49.740 --> 33:50.740
+Okay.
+
+33:50.740 --> 33:51.740
+That's not bad though.
+
+33:51.740 --> 33:53.300
+That's a lot of performance for that money.
+
+33:53.300 --> 33:54.940
+And that would be a solid box.
+
+33:54.940 --> 33:55.940
+Yeah.
+
+33:55.940 --> 33:58.380
+And I think your idle current consumption on that, if you've got a good power supply,
+
+33:58.380 --> 34:00.500
+would probably be around 65 Watts.
+
+34:00.500 --> 34:01.500
+That's not bad at all.
+
+34:01.500 --> 34:02.500
+Very good.
+
+34:02.500 --> 34:03.500
+Yeah.
+
+34:03.500 --> 34:04.500
+All right.
+
+34:04.500 --> 34:05.500
+I want to go build one of those.
+
+34:05.500 --> 34:06.500
+So that's good.
+
+34:06.500 --> 34:07.500
+Add that to the pile.
+
+34:07.500 --> 34:08.500
+Yeah.
+
+34:08.500 --> 34:10.900
+Add that to the list of shame.
+
+34:10.900 --> 34:16.480
+I can give you a poor man's IPMI and that is a serial port.
+
+34:16.480 --> 34:18.420
+So here's the project for you.
+
+34:18.420 --> 34:20.740
+Maybe we can do a video on this because I already got all the stuff to do this.
+
+34:20.740 --> 34:22.220
+I just got to document it.
+
+34:22.220 --> 34:23.220
+Okay.
+
+34:23.220 --> 34:28.780
+So Raspberry Pi zero or regular Raspberry Pi if you want.
+
+34:28.780 --> 34:39.120
+The GPIO pin is wired into reset RS232 is connected to the RS232 on the host machine.
+
+34:39.120 --> 34:42.980
+The Raspberry Pi is available on a separate network or the same network depending on whatever
+
+34:42.980 --> 34:43.980
+you want to do.
+
+34:43.980 --> 34:50.380
+So the Raspberry Pi has enough wherewithal to reset the machine and it will at least
+
+34:50.380 --> 34:51.680
+get you to grub.
+
+34:51.680 --> 34:56.760
+So you can get grub on the serial terminal and do whatever you need to do as far as manipulating
+
+34:56.760 --> 34:58.540
+or booting the machine.
+
+34:58.540 --> 35:00.180
+That's a really great idea.
+
+35:00.180 --> 35:01.780
+Can you mount ISOs that way?
+
+35:01.780 --> 35:03.300
+Is that a thing you can do?
+
+35:03.300 --> 35:06.520
+If you wanted to do ISOs, you can't do ISOs over the serial port.
+
+35:06.520 --> 35:10.600
+What you do there is you put a USB stick in your computer that already has everything
+
+35:10.600 --> 35:16.420
+that you need to recover or if your motherboard has like one of those onboard micro SD cards.
+
+35:16.420 --> 35:20.540
+Not bootable, but you put that or bootable if you want, but you put that in there that
+
+35:20.540 --> 35:27.700
+has that stuff that you need on it already and then you hardwire the BIOS to only boot
+
+35:27.700 --> 35:30.760
+from the built-in hard drive and not consider other options.
+
+35:30.760 --> 35:35.800
+And then from the grub prompt, you can specify the other partition on the USB stick and use
+
+35:35.800 --> 35:37.060
+that as a recovery.
+
+35:37.060 --> 35:38.060
+I can see it now.
+
+35:38.060 --> 35:40.860
+I'm ringing my wife when I'm at work.
+
+35:40.860 --> 35:43.580
+Hey, wife, I've forgotten to plug my USB stick in.
+
+35:43.580 --> 35:46.020
+Please go and plug it in.
+
+35:46.020 --> 35:47.020
+Thank you.
+
+35:47.020 --> 35:51.860
+Yeah, it's not as good as an ASPEED 2500, but for, you know, $15, it's not bad.
+
+35:51.860 --> 35:54.820
+And it retrofits to any board with a serial port.
+
+35:54.820 --> 35:55.820
+Yeah.
+
+35:55.820 --> 35:56.820
+Yeah, you should do a video on that.
+
+35:56.820 --> 35:58.380
+I think people would love that.
+
+35:58.380 --> 35:59.380
+That's a great idea.
+
+35:59.380 --> 36:01.420
+Alex, is there anything else on our list today?
+
+36:01.420 --> 36:05.660
+Well, when we went to see you, Wendell, I swear you talked a little bit about a Bluetooth
+
+36:05.660 --> 36:08.660
+low-energy presence detection beacon.
+
+36:08.660 --> 36:09.660
+I finished that.
+
+36:09.660 --> 36:12.300
+There's a write-up of that on the forum and I haven't released the video, but probably
+
+36:12.300 --> 36:14.960
+by the time this is out, I will have released it.
+
+36:14.960 --> 36:19.260
+Forgetfulness is the only reason that I haven't released it, but that's on the Linux channel
+
+36:19.260 --> 36:21.340
+and there's a write-up on the forum.
+
+36:21.340 --> 36:25.100
+It's Bluetooth low-energy presence detection for like your house or whatever.
+
+36:25.100 --> 36:29.580
+And this is really the only Internet of Things stuff that I get into that is like genuinely
+
+36:29.580 --> 36:33.940
+like super useful because it's like, okay, if I'm in the workshop, I want some certain
+
+36:33.940 --> 36:39.060
+things to happen automatically, and if I leave the workshop and go into the house, whatever,
+
+36:39.060 --> 36:43.860
+and the Wi-Fi is not good enough, and Wi-Fi also is like, oh, I'm outside, and it's like,
+
+36:43.860 --> 36:44.860
+you're inside.
+
+36:44.860 --> 36:47.380
+It's like, I'm really not, but okay, that's fine.
+
+36:47.380 --> 36:52.120
+So it would be nice if when I'm outside, the outside lights are on, and if I'm inside,
+
+36:52.120 --> 36:54.660
+it doesn't care about the state of the outside lights.
+
+36:54.660 --> 36:56.620
+So the logic there is very simple.
+
+36:56.620 --> 37:02.100
+It's like if outside and outside lights are not on, turn on outside lights, but if inside
+
+37:02.100 --> 37:04.260
+don't care about outside lights.
+
+37:04.260 --> 37:05.260
+If they're on, leave them on.
+
+37:05.260 --> 37:10.560
+If they're off, turn them off, or leave them off, but don't mess with the state of it.
+
+37:10.560 --> 37:13.920
+If I transition from inside to outside, turn them on.
+
+37:13.920 --> 37:17.500
+If I transition from not there to outside, turn them on.
+
+37:17.500 --> 37:23.120
+If I transition from not there to inside, it's probably fine to leave them alone.
+
+37:23.120 --> 37:29.160
+So Bluetooth low-energy works better for that in my experience than Wi-Fi and pretty much
+
+37:29.160 --> 37:31.240
+every other technology that I've tried.
+
+37:31.240 --> 37:34.460
+And so are you just carrying your phone in your pocket and it's picking that up, or do
+
+37:34.460 --> 37:35.460
+you carry a special...
+
+37:35.460 --> 37:36.460
+No, just...
+
+37:36.460 --> 37:37.980
+There's no special tiles or anything you need to carry?
+
+37:37.980 --> 37:39.100
+No, you can.
+
+37:39.100 --> 37:42.980
+The tiles do actually work a little better than the phone because sometimes the phone
+
+37:42.980 --> 37:48.540
+puts the Bluetooth thing to sleep to save power, but generally the phone works fine.
+
+37:48.540 --> 37:52.300
+They do track people going through shopping centers and shopping malls and stuff using
+
+37:52.300 --> 37:54.220
+these Bluetooth beacons.
+
+37:54.220 --> 37:56.820
+Cruise ships use a lot of them as well, airports.
+
+37:56.820 --> 38:00.900
+So this stuff is being used commercially, so we may as well make use of it at home,
+
+38:00.900 --> 38:01.900
+right?
+
+38:01.900 --> 38:02.900
+Yeah.
+
+38:02.900 --> 38:03.900
+And you can combine stuff like that.
+
+38:03.900 --> 38:07.300
+I love the idea of it being Bluetooth LE because you're right, that is going to work better
+
+38:07.300 --> 38:09.800
+than Wi-Fi and you can put it all around your house.
+
+38:09.800 --> 38:14.140
+The other thing that I've done around the studio, I've got one that I'll show it to
+
+38:14.140 --> 38:15.140
+you guys.
+
+38:15.140 --> 38:16.500
+It's right here.
+
+38:16.500 --> 38:23.900
+I have these little NFC tags around the studio and when I go into an area, I put my phone
+
+38:23.900 --> 38:28.340
+on that NFC tag and then it triggers a Home Assistant automation for me for that area.
+
+38:28.340 --> 38:33.220
+I like the idea of supplementing location awareness from Bluetooth with these tags too
+
+38:33.220 --> 38:34.900
+for manual overrides and whatnot.
+
+38:34.900 --> 38:38.980
+I just want to put one in my mailbox to know when the mailman comes.
+
+38:38.980 --> 38:42.740
+When you start to think in terms of Bluetooth low energy tags or even just QR codes, like
+
+38:42.740 --> 38:47.460
+printed QR codes, suppose that there was no effort at all involved.
+
+38:47.460 --> 38:51.060
+It's like I'm in the kitchen, it's like, oh, it's grocery shopping day, what all do I need?
+
+38:51.060 --> 38:54.120
+You just open the pantry and there's a sticker on the inside of the door.
+
+38:54.120 --> 38:59.220
+If you can effortlessly take out your phone, hey phone, it's grocery store day, but the
+
+38:59.220 --> 39:03.720
+abbreviated way to say, hey phone, it's grocery store day, not even tapping an icon or finding
+
+39:03.720 --> 39:08.020
+the app among the thousands and thousands of apps on the phone with the completely stupid
+
+39:08.020 --> 39:11.460
+user interface of scroll, scroll, scroll, scroll, scroll.
+
+39:11.460 --> 39:16.100
+It's just like I've opened the pantry, phone, look at this, it's like, oh, it must be grocery
+
+39:16.100 --> 39:17.100
+day.
+
+39:17.100 --> 39:20.340
+Correct phone, let's go down the checklist of things that I usually buy.
+
+39:20.340 --> 39:25.940
+Yeah, the one that I just did recently is I exit out the studio, I tap that with the
+
+39:25.940 --> 39:32.540
+phone and it sends a text message to the wife with an estimated time of arrival and then
+
+39:32.540 --> 39:36.420
+it waits five minutes and then it brings up Waze and my podcast player.
+
+39:36.420 --> 39:37.420
+And that's just all.
+
+39:37.420 --> 39:41.540
+So that way I'm down the road and I'm clear of the Wi-Fi network so I don't have to wait
+
+39:41.540 --> 39:45.820
+for the phone to figure out the Wi-Fi network versus LTE network, I'm clear of that and
+
+39:45.820 --> 39:49.820
+then those other apps open up and they have a data connection and it kicks off just fine.
+
+39:49.820 --> 39:53.380
+Imagine a Bluetooth low energy beacon when you're sitting at your couch in front of your
+
+39:53.380 --> 39:58.180
+big screen TV and you just touch your phone to the thing and then you're in Plex and it's
+
+39:58.180 --> 40:02.120
+like not only are you in Plex, but you're in Plex controlling the giant TV.
+
+40:02.120 --> 40:06.100
+You didn't have to fiddle with finding the app and cast to this and the other thing,
+
+40:06.100 --> 40:07.860
+it literally is just, it knows.
+
+40:07.860 --> 40:10.060
+Damn you Wendell.
+
+40:10.060 --> 40:14.620
+I haven't done that, I've tried to set that up and it turns out that's actually kind of
+
+40:14.620 --> 40:18.940
+a hard problem, but that's because we're using rocks and sticks to try to bang out these
+
+40:18.940 --> 40:25.500
+human interfaces and we really need somebody to come along and just set all this garbage
+
+40:25.500 --> 40:27.500
+on fire and start over.
+
+40:27.500 --> 40:32.580
+Yeah, it does feel a lot like a stone age sometimes, like we humans are still the critical
+
+40:32.580 --> 40:36.740
+translation layer and sometimes not so perfect.
+
+40:36.740 --> 40:40.900
+I although think we have a theme here gentlemen and it's essentially automate whatever you
+
+40:40.900 --> 40:43.220
+can really, that's what the theme is here.
+
+40:43.220 --> 40:45.700
+Yeah, has been throughout the show I guess, hasn't it?
+
+40:45.700 --> 40:50.860
+The subtext of that for me is can you do this in such a way that it is unlikely to bother
+
+40:50.860 --> 40:54.380
+you at least for years and years into the future?
+
+40:54.380 --> 40:59.780
+Like can I set this thing up so that it works and is largely automated and I just don't
+
+40:59.780 --> 41:02.420
+have to worry about it anymore?
+
+41:02.420 --> 41:08.360
+And I could see at some point, because the Amazon grocery delivery thing in my area has
+
+41:08.360 --> 41:14.580
+gotten to the point where I really want to take some time off and build an interface
+
+41:14.580 --> 41:20.140
+for like a Kroger, Walmart, and Meyer, and Amazon and just have them all fighting with
+
+41:20.140 --> 41:22.980
+each other for my API grocery list.
+
+41:22.980 --> 41:26.100
+And I don't want to buy everything from the API because I really do like to walk around
+
+41:26.100 --> 41:30.680
+the produce section and the bakery and like hand pick a few things.
+
+41:30.680 --> 41:36.480
+But in terms of like grocery procurement, I would really like to have an application
+
+41:36.480 --> 41:42.820
+that is, hey, if you buy two extra cartons of Charmin this week, it's going to be 15%
+
+41:42.820 --> 41:47.460
+less overall and it's like, great, make it so AI that's handling that for me.
+
+41:47.460 --> 41:48.460
+Yes.
+
+41:48.460 --> 41:49.460
+I would love that.
+
+41:49.460 --> 41:50.460
+Yeah.
+
+41:50.460 --> 41:51.740
+I just have all of that be handled.
+
+41:51.740 --> 41:56.260
+But the fact that you have three different grocery APIs that you can interface with,
+
+41:56.260 --> 41:57.500
+you literally can leverage that.
+
+41:57.500 --> 42:00.740
+And if enough people do that, it's going to be a race to the bottom and it's going to
+
+42:00.740 --> 42:02.820
+be glorious in terms of pricing.
+
+42:02.820 --> 42:07.700
+Probably bad in terms of local businesses, but probably good in terms of consumer pricing.
+
+42:07.700 --> 42:09.820
+Should we approve Wendell's time off request for that?
+
+42:09.820 --> 42:10.820
+Yeah, I'll approve that.
+
+42:10.820 --> 42:11.820
+Yeah.
+
+42:11.820 --> 42:14.420
+As long as we get early access.
+
+42:14.420 --> 42:18.300
+Well, that's probably it for us today, isn't it, Alex?
+
+42:18.300 --> 42:19.660
+Yeah, I think so.
+
+42:19.660 --> 42:20.760
+So thanks very much for listening.
+
+42:20.760 --> 42:23.380
+You can find us on Twitter at self-hosted show.
+
+42:23.380 --> 42:28.020
+And of course, self-hosted.show is the website, self-hosted.show slash subscribe for all the
+
+42:28.020 --> 42:30.120
+ways to get new episodes.
+
+42:30.120 --> 42:32.860
+And Wendell, give the people a way to catch what you do.
+
+42:32.860 --> 42:36.460
+Youtube.com slash level one techs or level one techs.com.
+
+42:36.460 --> 42:42.220
+And definitely, I'm looking for volunteers to build the AI hotel from Altered Carbon.
+
+42:42.220 --> 42:47.580
+I've got two Tesla V100s we can load into that AI and so it's just start doing all this
+
+42:47.580 --> 42:48.580
+stuff for us.
+
+42:48.580 --> 42:49.580
+And it's like, great, sounds good.
+
+42:49.580 --> 42:50.580
+Let's do it.
+
+42:50.580 --> 42:51.580
+Of course you are.
+
+42:51.580 --> 42:52.580
+Why wouldn't you be looking to do that?
+
+42:52.580 --> 42:55.580
+I think it's a great idea.
+
+42:55.580 --> 42:59.780
+Yeah, do go and check those forums out over on the level one techs site.
+
+42:59.780 --> 43:03.720
+They are a font of wonderful, wonderful information.
+
+43:03.720 --> 43:07.540
+And if nothing else, you can 3D print feet that you can't use on anything except fractal
+
+43:07.540 --> 43:08.540
+cases.
+
+43:08.540 --> 43:09.540
+And so thanks for listening.
+
+43:09.540 --> 43:36.140
+That was self-hosted episode 14.
+

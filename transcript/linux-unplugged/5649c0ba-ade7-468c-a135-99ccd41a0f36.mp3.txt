@@ -1,0 +1,1707 @@
+There hasn't been a version since March 11th, 2017,
+but today, well, a couple days ago,
+WindowMaker 0.95.9 was released.
+And you remember Next, that Next desktop?
+Yeah, I mean, from ages ago, before Apple got good?
+Yeah.
+Gigi, you were just shopping Next boxes, weren't you?
+Yeah, so I was, after reading the new update
+for WindowMaker, which, when are they gonna hit 1.0?
+That's gonna be an amazing release.
+But I was looking at old Next machines
+and $800 on eBay for a full Next station right now.
+Did you catch the age or the vintage of that machine?
+1991 was the release date of that machine.
+25 megahertz, Motorola 80, I forgot the exact CPU,
+but yeah, 25 megahertz.
+25 megahertz.
+Originally sold for $5,000.
+That's a steal of a deal, man.
+I think you gotta get it.
+I wonder if you could run Linux on that thing.
+Oh, hello, friends, and welcome into your weekly Linux talk
+show.
+My name is Chris.
+My name is Wes.
+Hey there, Wes.
+Hello.
+We have a really fun episode today.
+We're hanging out with some killers, some memory killers.
+So you've probably heard the term out of memory manager,
+and you've probably also heard that Linux isn't always
+that great in a low memory situation.
+And you might wonder why, because one
+of the very first things I learned about Linux
+is that kernel will start to kill processes to survive,
+and I thought that was so cool.
+But it seems like it's used so sparingly.
+And if you're on the desktop and you run out of memory,
+you get in a 10% memory zone, you'll
+notice that your desktop just starts to thrash
+and sometimes never really fully recovers until you reboot.
+Yeah, I've certainly been there, right?
+You see the mouse move every once in a while,
+but ultimately you just have to hold the power button down.
+And you're thinking, I'm sitting here
+on a supercomputer-grade operating system,
+and this is happening.
+What the heck?
+Well, one of the first projects to try to solve this
+will be Fedora, on the desktop at least.
+There's lots of solutions, but Fedora
+is one of the first distros to ship something
+enabled by default. It's called Early Out of Memory Manager,
+and we'll talk about it in a little bit.
+And we've set up two boxes, a Fedora 31 box and a Fedora 32
+preview box.
+We're going to slam them into low memory conditions,
+absolutely punish them, and we'll
+show you how Fedora 32 handles that situation a lot
+better than 31 does.
+It's kind of exciting.
+You like this?
+This is a real-world improvement,
+and the nice part is it's all enabled by default in 32,
+so you don't have to do anything.
+Nope.
+And so I loaded up a 31 machine over here.
+Wes has a 32 machine over there.
+We've come up with the same way to stress them at the same time,
+and then it'll just be a versus, and we'll
+see how 32 and 31 compare.
+I know which one I'd rather have.
+That'll be in a little bit.
+We'll also have some community news and some housekeeping,
+but before we get to any of that,
+I'm going to say hello to Alex and Cheezy.
+How are you guys doing?
+Hello, internet friends.
+How are you?
+Hello, hello.
+I forgot my water, Wes.
+Wes, I forgot.
+Wes, will you do me a favor and grab my water?
+Thank you.
+And while you do that, I will say
+time-appropriate greetings, Virtual Lug.
+Hello, Mumble Room.
+Hello, Mumble Room.
+Hey, hey.
+Hello.
+Bienvenido.
+Hello.
+Hello.
+I hope you stay.
+Got it in there.
+We got 21 people on air today, and 35 people total.
+We'll sum up in the Quiet Listening.
+Thank you, Wes.
+I got to drink the water during the show,
+or else my mouth sounds really annoying,
+and then people have to listen to me smacking my lips.
+And Joe will complain.
+There's that, too.
+All right, well, before we get to abusing our Fedora installs,
+let's cover some community news.
+Besides WindowMaker, there are other things happening.
+Microsoft has announced essentially its own version
+of SE Linux.
+You're probably familiar with the LSM, the Linux Security
+Module.
+You have things like AppArmor, SE Linux.
+And there's others, actually, I wasn't really aware of.
+But like everything in Linux.
+Once you make it a module, people
+are going to write modules.
+And there's multiple versions of something.
+So Microsoft's is named the Integrity Policy Enforcement,
+or IPE for short, as they like to say.
+And it is indeed a full-fledged LSM,
+which is an optional add-on for Linux kernels.
+It's not necessarily mandatory.
+It's if you want these security features.
+According to the docs just released on Monday,
+IPE is Microsoft's attempt to solve the code integrity
+problem for Linux.
+Mostly because they deploy a whole bunch of Linux on Azure,
+they want to make sure it's secure.
+Go figure.
+So on Linux systems where IPE is enabled,
+system administrators can create a list of binaries
+that are allowed to execute.
+And then they can add verification attributes
+to the kernel that can check each binary before allowing
+it to run.
+Little things it needs to make sure of per binary.
+And if the binary has been altered by an attacker,
+well, then IPE can just block the execution
+of that malicious code altogether.
+If that sounds like a lot of hoops to jump through,
+well, Microsoft says IPE is not intended
+for general purpose computing.
+The IPE LSM, say that twice, was designed
+for a very specific use case where security is paramount.
+And administrators need to be in full control
+of what runs on their systems.
+And that's where you want to start
+monitoring every single executable that runs.
+Examples of this include things like embedded systems, maybe
+like your network firewall running in Azure,
+or Linux servers running strict and immutable configurations
+where you need to verify and make sure really
+that nothing changes once you've deployed it.
+I have pretty good faith that Microsoft could pull something
+like this off overall.
+And like SE Linux, they have a permissive mode
+and an enforce mode.
+So you could put it in permissive, log what breaks,
+and then try to fix that before you turn it on.
+I'm curious to what just your off the top reaction
+is to Microsoft creating essentially an SE Linux
+alternative.
+Yeah, it's interesting to see them working at scale
+like this.
+I mean, they have a lot of experience with enterprises
+and also working with governments
+where you have a lot of strict controls
+that you have to meet.
+Clearly, none of the other systems
+allowed them to really target exactly the certain use cases
+and scenarios that they had.
+So it's kind of great to see them contributing this backup
+in a way that surely other systems are
+going to be able to use.
+Right.
+I'm going to go with that.
+But I really don't know what to make of it.
+I hate the not invented here stuff.
+But at the same time, I have faith
+that Microsoft is probably pretty
+familiar with their deployment scenarios
+and deems this necessary.
+And they're not going to just go off and create something
+that's not necessary.
+And I mean, we already had multiple versions
+right of Map Armor and SE Linux.
+So you weren't really going to get your one true tool anyway.
+I took a kind of a quick look at what
+IPE is designed around.
+It seems to be very much oriented around.
+Your system essentially has to be immutable.
+It has to be paired with something like DM Verity.
+It has a lot of specific things that
+are very useful for embedded devices and things like that.
+But I also think that this is likely
+going to be structured as what's known as a minor LSM that
+can be stacked on top of a so-called major LSM,
+like SE Linux, for example, is a major LSM.
+So in the LSM framework, there are
+limited stacking capabilities.
+I know that Canonical has been pushing very hard for making
+what are so-called major LSMs to stack,
+like App Armor and SE Linux stacking on each other,
+aside of the complexity disaster that I personally
+think that will cause.
+And I also don't think anyone is going to reasonably be OK
+with such a configuration ever existing in production
+because it would make it a total nightmare to debug and analyze.
+Minor LSM stacking on top of major LSMs
+is actually quite common, like Yama on top of SE Linux
+or SMAC or App Armor and things like that.
+So I think we will see that things that
+need to exist within the LSM framework that support
+very specific use cases, if they aren't considered quote unquote
+major and are considered complementary to the major LSMs,
+which at this point are SE Linux, App Armor, and SMAC,
+we'll probably see this be used actually
+in more than just the embedded space.
+It seems like a pretty streamlined, minimal approach
+right now as well.
+So you could see adoption there.
+I want to just bring up another story that is probably somewhat
+applicable to our audience.
+This isn't getting a lot of coverage.
+It's getting covered in a couple of places.
+I'm hoping WRT has a pretty important security advisory.
+Essentially, the short version is
+there was a flaw that caused the package manager to ignore
+the SHA256 checksums embedded in the signed repository index.
+In other words, effectively bypassing
+integrity checking of the downloaded.ipk artifacts.
+Not good.
+Obviously, very easy for an attacker
+to exploit that if they could just put up a bogus package.
+So worth an update.
+Now I wanted to bring it up here because I'm
+curious if the Mumba Room or Cheese or Alex or yourself,
+Wes, if you guys are still using OpenWRT,
+if you're using something else, is OpenWRT still the project
+to go with for these kind of jobs?
+Somebody want to educate me because just kind of re-looking
+at my setup at home.
+And I would love to have a Linux operating system
+that I could put on a piece of hardware.
+So I'd love to not have to run a full-fledged machine
+if I can avoid it.
+And I'd just like to have a dynamic DNS server.
+I'd like to have a little firewall capability.
+I'd love to have a WireGuard VPN UI.
+Is OpenWRT the way to go?
+The juggernaut in this space is PFSense.
+And I think most people will kind of make that trade-off
+that, OK, it's not Linux.
+It's BSD instead, based on.
+But it's been the go-to for people
+looking to solve that and scratch that itch
+that you've just mentioned.
+You want something that's open source,
+is free, is really flexible, has all the power
+of the enterprise, can do multiple WANs.
+It can do dynamic DNS.
+Now, PFSense can't yet do WireGuard,
+which actually about two months ago
+led me to switch to something called OpenSense.
+There was a whole bunch of licensing drama,
+which Wes and Jim covered in great detail on TechSnap
+around PFSense, which led OpenSense
+to come into existence.
+And I've actually found it to be quite a nice little upgrade.
+I think we'll talk more about that on self-hosted, too,
+because I will try that one.
+There are various similar sort of solutions based on Linux,
+like IPFire is one that comes to mind.
+But I just roll myself on Linux.
+I know you know how to run DNS mask,
+so you can get a lot of that stuff
+if you're willing to set up the config files yourself.
+So legitimately have been considering that.
+It's less work than you think.
+I know a lot of people that just have
+a bunch of random IP tables rules on their Linux box,
+and then they say, yeah, that's good enough to be my firewall.
+Personally, I don't object to having a firewall with a UI
+so I can see what is easily available
+and what isn't available.
+But Brent and I actually recorded an extras not long ago
+talking about his setup and how you separate Wi-Fi
+from the firewall, all that kind of stuff.
+And he's still running, I think, Tomato
+as a version of DDWRT on some 10-year-old embedded thing.
+So something that Alex and I want
+to focus on for a couple of episodes in Self-Hosted,
+starting with next week's episode,
+is some of the basics of fundamental good networking,
+fundamentally getting good, strong Wi-Fi
+throughout your entire place, that kind of stuff.
+So check out Self-Hosted for that.
+Now, Colonel, you're a daily driver, if you'll allow it,
+of OpenWRT?
+Yeah, so I run the OpenWRT for friends and family,
+because trying to slot in an actual real router
+or something like a PF Sense scares the dickens out of them.
+They want that little consumer-grade all-in-one unit.
+And so for them, I put that on there
+because it's more secure and easier
+to manage than half a dozen different types of web
+UIs and all this other.
+And they just like it better.
+One of the things that I think you have to consider
+is that a lot of these smaller devices and less power-hungry
+devices are going to be running an embedded OpenWRT, DDWRT
+tomato or various different projects out there.
+In fact, the GL Inet Slate that you have runs OpenWRT
+and, as you know, has WireGuard built in.
+The GL Inet, I think it's the MT300 that I have,
+it's the baby brother to yours, also runs OpenWRT.
+And a lot of the Netgear Nighthawk routers
+support OpenWRT straight down the box.
+Oh, really?
+I didn't know that.
+I think it's one of those things that depends on the level
+of security.
+I mean, the way that I've always felt about it
+is that if you really want all the configurations, everything
+at your fingertips, then go with PFSense.
+If you want something that's a little more consumer-grade
+nicer generally than your manufacturer's UI,
+then go with something like OpenWRT.
+And you get a slew of packages.
+There's a ton of stuff available there.
+I mean, if you wanted to set up an IRC server on your router,
+you could.
+Well, like you said, I have it on the Slate.
+And I really just think it's the perfect spot for OpenWRT
+because they have provided a bit of a skin average user
+GUI that just shows you if you're on a Wi-Fi connection,
+if you're on a Wi-Fi, if you're repeating LAN.
+Because it's kind of designed as a travel router
+that you'd take with you to a hotel or something.
+And so it has a really nice GUI that just gives you
+that status and where you can program
+what the button on the side of the case does.
+And you can give it all these kinds of functions
+like initiate and close a WireGuard VPN
+by just clicking a button on the side of the case.
+You can assign it to a function, which is neat.
+Then they have the advanced UI, where you can actually
+manage interfaces and see data about what's being transferred.
+And then on top of that, you can also terminal into it.
+They have a web UI, or you can just turn on SSH.
+And then, yeah, you're essentially on a Linux system.
+It does feel limited.
+It does feel like I would like something
+a little more advanced.
+But at the same time, I was concerned
+I would not be able to use the Slate
+as a full-time, quote unquote, router.
+But it has been totally fine.
+And OpenWRT works great on there.
+But it's a very unmanaged version of it.
+It's not something I'm maintaining, really,
+other than just doing OEM updates.
+So is that something that you use primarily
+for LadyJuice connections when you're on the road, or like?
+All the time.
+It's always it picks and chooses between the best.
+Sometimes I have to coax it.
+It could be a little better at that.
+But at my home base, I have an ethernet connection.
+And then when I'm on the road, I'm
+either on Wi-Fi or some Wi-Fi somewhere.
+And I can pick and choose between them.
+But what's nice is the LAN IPs, everything behind the net
+always stays the same.
+Nice and simple.
+It's just the external connection that changes.
+And the devices on the LAN are none the smarter.
+What I like that you can toggle features super easily.
+So if you wanted to, say, do DNS over TLS or something
+like that, it's literally just flick a switch in the UI,
+and you're off and running that.
+So it's great.
+It does make that really easy.
+And it was really easy to just sort of get in there
+and turn off the DNS stuff when I wanted to go with PyHole.
+All that's very simple.
+One thing I want you to investigate,
+this is self-hosted show research,
+but one thing I want to investigate
+is site-to-site WireGuard VPNs from the slate
+to an OpenSense instance.
+Now, I used OpenVPN from PFSense to PFSense
+for a couple of years, and that worked really, really well.
+I haven't yet managed to have two OpenSense systems
+to do a site-to-site.
+So I'd be curious to get your take on that, Chris.
+Wonder how it would do that behind the double-grade net,
+the double-enterprise-grade carrier-grade net.
+Maybe if I had a droplet in between that
+did like the go-between, so I WireGuard out from the RV
+behind the double-carrier-grade net
+into the digital ocean droplet,
+and then the digital ocean droplet connects
+into the other land that I'm bridging to.
+I don't know, there's probably a way I could do it.
+Some sort of network tomfoolery.
+We'll figure it out.
+We did deep dive at one time,
+and that double net really is a complicator
+for that kind of stuff.
+It's just tricky.
+Sometimes it works when you're lucky.
+It's gosh-darn tricky.
+Even software that's designed to get around double nets
+still sometimes with that double-carrier-grade net
+still has issues.
+That's how you gotta say it, too.
+All right, it's time for a little housekeeping here
+on the old Unplugged podcast.
+Keep things fresh, keep you informed on what's going on.
+You know, you gotta clean yourself from time to time
+for you guys, you know.
+First and foremost, check out the recent Brunch with Brent.
+Daniel Foray, the founder of Elementary OS,
+sits down with Brent for brunch,
+and it was a really great Linux origin story.
+It's fantastic, so definitely go check that out.
+You can find that at extras.show.
+Slash 68, is it, Wes?
+I'm gonna say 68.
+Going once, yes, got it right.
+Ha ha ha, pretty great.
+You know, rumor has it, there's a lot of great brunches now.
+You could probably just go there
+and click on that brunch tag and see them all.
+That sounds like a nice way, yeah.
+You know you wanna escape the world outside?
+Have some brunch, just continuous brunch
+for several days in a row.
+I liked it so much I slapped my leg.
+I went, yeah, slapping my leg, Wes.
+Yee-haw, woo, woo.
+Now you know we do this here show live.
+We've got a great mumble room,
+and we're all hanging out here
+having ourselves a virtual lug, and you can be part of it.
+If you're like me, you're not actually making it to a lug.
+You know it'd probably be good for you,
+but you're not going, you know.
+Sometimes they're not near.
+Sometimes you got a couple options
+and you're still not going.
+Like Wes and I, we have options and we still don't go.
+We should go.
+About twice a year, I might go to one.
+But usually it's not one that's in my neighborhood.
+So it's, anyways, I'm getting off.
+I had too many Red Bulls.
+Lugs can be hard.
+It is, that's what I'm trying to say.
+When you have to meet in meet space
+because you gotta like take the time and get there.
+And here we are, look at this.
+We're hanging out with 37 other Linux users right now.
+37 other Linux users.
+And the thing is is we're all chatting
+in between the shows.
+You know like maybe we had to take a break
+a couple of minutes ago
+because we got disconnected from a couple of people.
+So we're just chatting.
+I mean, you could be part of that.
+It really is, it's great.
+It's good for the Linux soul.
+We do this show live, jblive.tv on Tuesdays, 2 p.m.
+Nope, it's been a little while.
+Noon, Pacific.
+But you can get that converted
+at jupiterbroadcasting.com slash calendar.
+You can also find that Mumble Room info
+if you just go Google search Jupiter Colony Mumble.
+Or if you get in the IRC room, you can do Bang Mumble.
+That makes it easy.
+I just mentioned that because we'd love to see you.
+Also, the conversation continues after the show
+at jupiterbroadcasting.com slash telegram.
+How we doing on numbers there, cheese?
+Do we get, we're over 1,700 now?
+Yeah, we're like 1,736 I think was the last.
+No, it's slowed, it's slowed.
+It slowed a little bit, but 1,700 people.
+I've never asked the number.
+I've never cared.
+But then I got this stupid idea of getting it to 2,000.
+And now I care.
+It's stuck in your head.
+It's dumb.
+We will get there.
+You're not gonna hear me stop complaining about it
+till it gets to 2,000.
+So let's just get it over with.
+Please, for my sake.
+Jupiterbroadcasting.com slash telegram.
+Get over there and get involved.
+You know, you get links to stuff, you know?
+You can talk to Wes Payne in there probably,
+you know, if he's around.
+Sure can.
+Just make sure you add him at really weird times.
+You're welcome, Wes.
+All right, that's all the house.
+I'm gonna get out of there
+before I wreck somebody else's day.
+Don't, don't add Wes at weird times.
+So I'm feeling a little silly
+because I just love this idea,
+thanks to Carl who suggested it in the post show last week.
+And that was just punishing the heck out of Fedora 32
+and seeing how it handles it differently
+than a Linux system in the past.
+Now, as you know, there is this out of memory manager
+that we've talked about, the OOM.
+And there's different, well, you may not know this part
+because I didn't know all of this until recently.
+There's many out of memory managers
+out there on the market.
+One created by Facebook, others created by other folks,
+ones that may be better for the desktop long-term.
+But easy, I'm sorry, early OOM
+is a very easy one to implement.
+So that's an easy way to remember that
+because early OOM is kind of a simple,
+straightforward out of memory manager
+that lives in user space versus kernel space.
+And that's a pretty significant differentiator
+because the kernel memory space killer,
+I don't know if I'm properly giving it
+full characterization, but it sort of has a bad reputation
+and it doesn't really get invoked
+until your system is already wrecked.
+Yeah, I mean, we've talked before on the show
+about Facebook's efforts.
+They actually have their own daemon to do this
+in user space and added some pressure stall metrics
+to the kernel to help that work.
+Early OOM does not take advantage of that,
+but it has a similar goal.
+It's basically, as Facebook acknowledged
+when they released their version,
+the in-kernel solution, it works sometimes,
+but we've all seen those situations.
+They've seen the situations where you have a live lock
+and your system, it is technically still doing work.
+It's swapping stuff back and forth from disk,
+but you're not gonna get anywhere.
+Yeah, we'll do a live demonstration in a moment.
+But the way early OOM or OOM works
+is if both your RAM and swap go below 10% free,
+then early OOM issues a SIG term to the process
+with the largest OOM score.
+So this must be something that the kernel is watching
+or that this is always watching the background
+and it's assigning certain weights to processes.
+Yeah, and you can also influence that
+both in the kernel version
+and then early OOM has its own config file.
+So if you wanna change that from 10% to maybe 5%
+or something like that,
+you can tune it separately for both RAM and swap.
+Yeah, now this is turned on by default now in Fedora 32,
+only for the workstation version.
+The other spins, you could turn it on.
+It's in the repo and it's just a,
+essentially a command to turn it on.
+And there are other options out there.
+So when Fedora 32 does release,
+you'll probably hear conversations about,
+well, why didn't they go with no hang?
+That's early OOM on steroids
+and it's got all these cool features or OOM or OOM,
+or why didn't they use the Facebook backed one?
+That's got the Facebook pockets.
+It's gonna be the most well-developed and financed one.
+So there'll be some debate
+about why they went with early OOM.
+But I think the simplest way to understand it
+is it's just very simple, it's stable, it's tiny,
+it's written in C,
+which is a good choice for like embedded systems
+that might have low memory.
+And it has a small set of dependencies
+and can work with much older kernels
+than a lot of these other killers.
+Yeah, I mean, so Facebook's the OMD,
+theirs looks very flexible.
+You can write plugins that execute your own custom code
+with hooks into the daemon
+to really configure how you want precise control
+over this application.
+That sounds like it would work really well
+for an application that you're designing
+and custom hosting yourself,
+but for a wide array of desktop uses.
+I mean, when I've been playing with it,
+the config file is just a few lines
+and it's basically just specifying the command line options.
+The system dunit file is very nicely documented
+and also sort of explains what's going on.
+So it'll take anyone who needs to mess with it
+all of a few minutes
+to understand exactly what's happening.
+I think if I was looking towards the future
+and I'm thinking about like the ultimate Linux workstation OS,
+it's something that has built-in snapshots
+and it's something that has one of these
+early memory killers.
+But I wonder if maybe my perfect scenario
+wouldn't be No Hang.
+Not only is it nice and configurable,
+but it seems like its real goal
+is to sort of preemptively keep your system responsive.
+So it sort of kicks in even sooner and a little smarter
+of following a certain rule set.
+I think maybe that's the one that's a little more tuned
+for the desktop as well.
+Whereas early OOM is O-O-M,
+I just try to cover my bases,
+is also perfectly I'd say usable on the server as well.
+It's a little brutal, it's a little hard handed,
+but it's usable on the server as well.
+So let's try it.
+You wanna try it?
+Ooh.
+Mm-hmm.
+Yeah, well, I figured it'd be fun
+to actually experiment with it
+and see what the differences are.
+So what Wes and I did here
+to try to keep a low memory situation,
+there's a few ways you can play with this,
+is we have set up identical VMs.
+He's running Fedora 32,
+the latest preview or beta, whatever.
+Is it actually beta yet?
+It is beta.
+Oh, is it?
+Good, perfect.
+Thanks, Carl.
+This is fun because both Ubuntu 20.04 and Fedora 32
+are really close
+and they both have really cool new features.
+So I think this is one of the reasons
+we wanted to dive into this right now
+because you could obviously do an entire episode on this.
+So what we did is we set up identical VMs in KVM
+and each assigned exactly eight gigabytes of RAM
+and otherwise pretty basic installs,
+fully up to date on both sides.
+We have three terminal windows open under Gnome Shell.
+I'm using Gnome Shell Classic.
+So are you on Gnome Shell Classic as well?
+Okay, that's one thing I didn't think to check.
+So we're both on Gnome Shell Classic.
+I have Firefox open with NetData running,
+as does Wes, and three terminals.
+So what we're gonna do,
+it turns out it is so easy to thrash a Linux box.
+It is so easy.
+What we're gonna do is we're just gonna simply
+tail slash dev slash zero.
+And that will fill up memory pretty quickly,
+depending on how much memory you have.
+If you have a system with like 64 gigs of RAM,
+it'll take a little while.
+If you don't, if you're like me
+and you only have eight gigs of RAM,
+it goes pretty quick.
+Sure does.
+So now what we're going to observe when we run this
+is how these two different systems react.
+Will either one of them remain usable
+in a low memory condition and how will they perform?
+So I'm on 31, Wes is on 32.
+Do you have your tail dev zero ready, sir?
+Yeah, let's do it.
+All right, you ready?
+Three, two, one, go.
+Okay, my memory usage is,
+I'm watching a NetData, it's climbing quickly.
+Oh boy.
+I also have top running.
+We both have top going up and I just maxed out.
+Wow, that went quick.
+Are you still running over there?
+I was just at the top.
+Okay, it looks like my NetData metrics
+are going a little slow, but I can-
+My Firefox is totally frozen.
+Okay, and my thing is killed.
+So it just terminated the tail command.
+Really?
+Yep, and I'm seeing here in the early OOM logs
+that you can configure it so it'll print out
+all the metrics it sees and it just went,
+oh, nothing's left.
+Everything's frozen.
+My system is totally locked up.
+Every terminal window is locked up,
+Firefox is locked up.
+Well, I think I'm just going to get some work done.
+I mean, while you're, you know.
+Wow, that's a significant,
+yeah, you can use Firefox right now?
+Yeah, well, I mean, my-
+What's your memory usage?
+My tail command, it just all dropped back down.
+Mine is unmodable now.
+Even my terminals have frozen.
+Top is frozen, everything's frozen.
+You weren't trying to use that system, were you, Chris?
+Wow.
+Is it going to come back?
+This is a pretty significant difference.
+Imagine like on a Raspberry Pi
+where you've only got two or four gigs of RAM, right?
+Because this is just eight gigs.
+That's not an uncommon amount of RAM.
+I just did it again.
+And it seems to just sort of replicate the same behavior.
+You just lapped me?
+He just lapped me?
+Wow, it's totally locked up.
+Now imagine if I had set this limit, you know,
+like to like 1% for your, or less,
+then you might get into a similar situation
+where you could live lock.
+So you probably-
+Shouldn't my kernel killer kick in now though?
+Sometimes.
+It's interesting because we've actually run this test
+before and usually the kernel killer does kick in now.
+We, in our prep, we ran through this
+and a couple of different takes to make it reproducible.
+And usually by now, ah, there it goes.
+Here we go.
+All my terminal process,
+all three terminal windows were just killed.
+And now Firefox is starting to come back to life.
+So that's another difference.
+Oh, it's sluggish.
+In my case, all of my terminals stayed open.
+Oh my God, one, 1000, two,
+three seconds for a tab to open.
+Oh man, it is brutal.
+It's picking up now.
+It's starting to pick up.
+It's acting a little better now.
+Oh man, it's still sluggish.
+It's taking a solid second for those tabs to close.
+So-
+This system is thrashed.
+For me, it was just the tail command that got killed.
+So all the rest of my terminals stayed open
+and I can still see the logs.
+Wow.
+Wow.
+Yeah, for me, it killed all my terminal windows.
+It didn't just go for the tail command.
+It just, it just was brutal.
+That's a significant difference.
+You can actually turn that on in 31 and 30 as well.
+It's, you don't have to wait for 32.
+Yeah, it's already, it's already packaged.
+You can find it on Debian systems as well.
+It's really easy to get going.
+I wonder if there will be instructions
+on how to get that working on 2004
+and other distros like Manjaro.
+I mean, it must be simple, right, to get it set up.
+There's probably an ArchWiki on it.
+That is really significant.
+You could have probably run that a whole other time too.
+You just didn't do it right away,
+but you probably could have lapped me three times.
+I think so.
+And your system, and that's the other thing is
+not only does it recover quicker,
+but it's more responsive when it does recover.
+You know, there was still some sluggishness
+just after it got killed as the system
+was sort of catching up and it looked like net data
+maybe lost some of its data or at least dropped its caches
+to be nice to the system under pressure.
+Yeah, look at this.
+I have a gap in my, in my metrics log.
+Starting at 12.50 and going to almost 12.50, 3.30.
+So for about three minutes there.
+Yeah, okay, so I have a little gap,
+but it's a much smaller gap.
+I have a three and a half minute gap in my logging.
+How long was your gap?
+Do you still have it on your chart there?
+I was like 10 seconds.
+Really?
+That shows you the difference right there.
+It's, that's, huh.
+That's a fun little experiment.
+I think, I think we are looking at such an awesome
+Linux desktop future when you look at the speed
+at which Manjaro is humming along now
+and how solid Ubuntu has been.
+And now with Wimpy at the lead of the desktop there,
+like, you know, that's going in good directions.
+2004 integrating snapshots is fantastic.
+Fedora 32 integrating not only the latest
+gnome shell improvements, but also this cool little trick
+is going to make it a really solid workstation.
+All of these are just getting to be such good workstation
+OSs, which is what I really care about.
+Well, it's these exact sort of corner cases, you know,
+as we saw the kernel killer does eventually work.
+And you don't get into this sort of situation every day.
+It's nice that we've reached the level where this is,
+these are the problems that we can work on now
+because we have solid foundations underneath
+and can, you know, add a little more levels of polish.
+Well, and imagine that scenario on the server for a moment.
+You know, your server is essentially unresponsive
+that entire time.
+That's, that's horrible.
+Yeah, and that's where some of the options
+that you'll find too for either preferring to kill programs
+or to totally not kill programs might be especially useful
+if you're like, well, don't ever kill my logging program,
+but yeah, you can shoot this application
+that we have to reboot sometimes.
+It seems the Red Hat developer, Chris Murphy,
+was the proponent to include this early gnome killer
+in Fedora 32.
+And that's one killer I can get behind, you know?
+I had a whole intro that I was going to do
+that was such a bad joke, I dropped it.
+But I was, I'm going to tell you now that I've, you know.
+Lay it on me.
+Today we make nice with a killer.
+No, not Hans Reiser.
+Ha!
+Too soon or are we good?
+Is that okay now?
+I can't ever tell.
+I think you should, you need to use some Reiser FS.
+Yeah, I should.
+It's probably great.
+I'm not sure that was funny even five years ago.
+Damn it, Alex.
+Millions of unread users are really upset
+with you about now.
+Hey, I used Reiser FS on a bank check imaging system
+back in the day because you needed a file system
+that was really good with small files,
+lots of small files, and I believe I needed support
+for extended attributes.
+So that's how I both got going with Reiser FS and XFS.
+Back in the day, back in the day.
+So we will have links for all the stuff
+about the different out of memory managers,
+including ones that I think are pretty cool.
+Maybe a little more server focused.
+Yeah, I would give No Hang and Try
+if you just want to go try one of these out
+because it also has desktop notifications integrated,
+which you can also get for early OOM.
+It looks like you might need another component there.
+Oh yeah, that's something we didn't even touch on,
+but that's something they're looking at
+is giving you a notification mechanism via your desktop
+to say, hey, I just had to go kill something
+in the background.
+It does make a journal entry.
+And so you could actually just look at the journal
+for that stuff.
+But if you're not looking at your journal,
+which you're probably not, it's nice to get a notification.
+Good old D-Bus.
+Well, it's just one of those like first class
+sort of entities where you should tell the user
+what's going on with their system.
+That's a good point.
+That's a good point.
+So if you don't have the desktop application,
+you have to refer to the logs to see what was killed.
+And if you're running on a low memory box
+and say you're trying to, I don't know,
+edit video and encode video,
+and it's eating up all your RAM,
+is it by default just going to kill the tasks
+that's eating up the most RAM
+like it did with the tail command?
+How does it pick which app or which process to kill
+whenever you're running these out of memory errors?
+I don't remember the exact particular,
+so I could be wrong about this,
+but I believe it works off of determining
+the memory pressure through PSI
+along with the OOM score that is associated with it.
+It also takes into account priorities.
+If you set a priority for a process ID,
+it does take that into account as well.
+You can, however, configure early OOM
+to have different specific priorities,
+or like, for example, if you're doing video encoding
+and you know that's intensive and you don't want it to die,
+you can have early OOM try very hard to ignore it
+and try to do something else
+to relieve the pressure as needed.
+We went a lot back and forth
+in the workstation working group
+about how to configure this and how to deal with this.
+I know that we had to implement
+in the configuration workaround specifically for Chrome
+because Chrome does somewhat bad things
+for how it sets up its child processes.
+But yeah, so the exact details, not sure,
+but I think that kind of gives you the gist of it.
+And also one last thing, Chris.
+Chris Murphy, who's actually doing this,
+who suggested all this
+and kind of leads the workstation working group,
+he does not work for Red Hat.
+That's a different Chris Murphy.
+Oh, then I emailed the wrong guy.
+Yeah, you probably did.
+Oh, well, there you go.
+It's hard tracking people down online.
+Sometimes you get it wrong.
+Well, hopefully Chris Murphy will pass my email along.
+I was also curious,
+is this going to be implemented into Fedora server
+when it rolls out as well?
+Because I could definitely see this being useful on,
+like Chris was saying, low-end servers,
+a droplet with limited resources.
+I personally wanted to.
+The problem was that we kind of ran out of time
+in terms of turning this into like a full,
+all Fedora edition system-wide change.
+It's pretty simple to enable though.
+It is simple to enable.
+Honestly, my suggestion is,
+if you want to see this in Fedora server,
+drop an email or something
+to the Fedora server working group
+to let them know that you're interested in this.
+And that, like,
+cause the main reason it didn't get done
+was that there was nobody from this server,
+nobody on the server team
+particularly expressed any interest
+cause they didn't hear of anybody who wanted it.
+So, I mean, I obviously believe
+that it would be useful across all the variants.
+Wouldn't something maybe like Facebook's OOMD
+make more sense?
+Because that's really kind of designed for data centers.
+That was some of the argument as well.
+Some of the issue with using Facebook's OOMD
+or O-O-M-D or whatever,
+is that it is a lot more aggressive than early OOM.
+And depending on what type of workloads
+you put into a server,
+that may not be great.
+That being said,
+one of the other reasons why we didn't do OOMD
+is because it's in the process
+of being reworked completely.
+One of the, they're working with the SystemD folks upstream
+to re-implement it as a service
+that's more tightly integrated
+with SystemD service management facilities.
+Facebook themselves heavily leveraged this
+and their contributors to SystemD upstream,
+as well as into the Fedora project.
+So they're working on making this
+a more comprehensive solution,
+better integrated with the service management capabilities
+within SystemD and exposing a better interface
+for desktops and other things to take advantage of it.
+And if that pans out the way that we all hope it does,
+we'll probably see within my guess is about a year or so,
+we will look at transitioning from early OOM to that.
+We're not there yet,
+but I think it's fascinating that this development,
+there's these parallel solutions and development
+to make Linux handle low memory solutions better,
+or situations I should say.
+And the thing that's interesting about them,
+and this is where my mind was going,
+is that they're user space, right?
+They're all user space solutions,
+but there definitely seems to be a need here.
+And I think we just demonstrated
+there's a real benefit on the desktop.
+Yeah, absolutely.
+But you could easily see how that
+would apply to the server too.
+Yeah, I mean, the end of it was that we all just gave up
+waiting for the kernel to solve the problem.
+So, I mean, if you really, really look at it,
+all of this is just a way to try to make
+the kernel OOM behavior happen more deterministically,
+more repeatably, more reliably,
+and more in a manner that a user expects.
+And potentially maybe as if you have a user space solution,
+then maybe the kernel one can be,
+it's okay that it's so much more conservative
+and heavy handed because it's kind of a backup.
+It's a parachute to your glider.
+Exactly.
+Maybe, we'll see.
+I could say, and that would be,
+and the thing that's nice about the user space one,
+although it's so Linux to have multiple solutions
+to do the same thing.
+I'm sure other operating systems,
+they just have one and they just implement it.
+At the same time, it's clear that there's nice uses for it.
+Like OMD or UMD from Facebook is great for the server,
+but NoHang looks like it's gonna be
+a lot better for the desktop.
+And there are different use cases there.
+And so it's so perfectly Linux
+that there are multiple ones,
+but we'll get to some common ground.
+There'll probably be some easy way
+to swap these all out too, right?
+Well, yeah, I mean, they're just a single binary
+and oftentimes that run.
+So just stop the service, start the service to the new one.
+It's a user space thing.
+Exactly.
+It's a very powerful user space thing,
+but yeah, I think it's fascinating.
+And I might always now run a desktop with one, I think.
+I think that's my takeaway from this.
+It's a little bit of a paradigm shift in that sense
+is why not?
+Why not?
+I mean, would you implement it on your,
+say if you were to go back into your Neon installer?
+Yeah, I think so.
+I mean, you might need to do a little tuning perhaps
+if you have some applications that are memory hogs
+and end up getting killed, but that's easy to do.
+Like it probably might not make as much sense
+on the OBS machine.
+And we also don't see those problems there.
+So it probably does make more sense to write it
+for a machine where you've got
+perhaps a little more dynamic workload,
+where you do see large changes in how much RAM is used,
+like a web browser.
+Yeah, and specifically my laptop.
+Yeah.
+With three electron apps open and.
+At least.
+Yeah, it's on a good day.
+So there is one other case
+where you might want to think about
+for using early OOM or any other user space
+out of memory management solution.
+It's if you know that you're doing a workload
+which dynamically spawns lots of threads
+and those threads can at any given time spike
+and use lots of memory
+and you don't really have a good way
+of immediately dealing with that
+or otherwise controlling it within the application itself.
+So for example,
+if you are dynamically letting video encoders
+just run wild on your computer,
+that's probably an avenue where you,
+if you cannot do any control in the application itself,
+which thankfully most of them let you,
+that is something where early OOM would benefit.
+But another is if you're compiling code,
+killing threads for out of control compilations
+doesn't necessarily bring down the whole compilation process.
+In most cases, it causes it to reschedule them
+or do something different.
+So, you know, it depends,
+but like when you consider these workloads,
+you also have to consider, you know,
+what is the modeling for how these processes
+and how the memory allocation is going to go.
+Right, and what are the consequences
+for things getting killed
+in terms of how that work can continue?
+For sure.
+Yes, absolutely.
+Yeah, that is definitely the other side
+to this double-edged sword.
+I think that's what makes it so interesting
+to see it as a new default too,
+is sort of the workstation team saying
+this works well enough that let's push it out.
+Yeah, and I think you'll see other distributions
+pick it up, especially the ones
+that want to be seen as performance focused.
+Well, I could see this, you know,
+the out of memory killer along with immutable systems,
+you know, all kind of coming together under one umbrella
+to maybe form the next, you know,
+the next season of Linux distros and stuff,
+you know, like what Silverblue is doing now
+and being able to stack OOM right on top of that
+would be, you know, a nice little...
+All running on Wayland backed by flat pack
+or app images or snaps, it's happening.
+And the IRC XMN has a point about mobile devices
+and yeah, I kind of want this for Android already.
+Funny you should mention all of that.
+So Silverblue, the goal with this
+is like combined with low memory monitor and early OOM,
+I believe that in the very near future,
+Silverblue will also have this functionality active
+and more tightly integrated.
+And because of some of the stuff
+that's going on in the flat pack side,
+it can be slightly more intelligent
+than your average application
+about handling memory pressure situations.
+Oh, and as far as Android goes, they already do this.
+That's really one of the reasons
+why there's been a lot of impetus
+towards trying to fix this for desktop Linux
+is because every other platform,
+including the Android one already has something set up.
+Well, that's the advantage to a unified focused
+sort of sprint based, like we're gonna focus on this
+and this and this and yeah,
+the Mac does similar things, Windows does similar things.
+Mini Mac though had a question that I bet
+is on the mind of a lot of listeners.
+So I wanted to let you jump in.
+Thank you.
+My question was how is swap involved in all this?
+I mean, we're talking about a ROM now,
+but we all have a little small swap partition.
+Yeah, and I think there was some thought
+in the design of this when it comes to swap
+is it looks at your RAM and your swap.
+And if they're less than 10% free
+or if they're around that range,
+that's when it'll generally kick in.
+But one, I think Wes and correct me if I'm wrong,
+but I think one of the tunables is you can say,
+start sooner than 10% swap
+because if I'm using that much swap,
+then my system is already thrashing
+way more than I would like it to be.
+Yep, yeah, you can tune both of those separately.
+Yeah, so you could go in there and say,
+you know what, once I'm at 50% swap, start getting crazy.
+Now that would probably be too much,
+but by default, once your free swap goes below 10%,
+that's when it starts kicking in
+for both your swap and your RAM by default.
+And part of the reason for setting that way
+is that there are some people who are either putting anemic
+or no swap at all,
+and so we need to cover those grounds as well.
+And people who have anemic swap,
+this can cause interesting side effects.
+So that's why we consider both free RAM and swap together
+to make sure that we don't kick in unnecessarily aggressively.
+Yeah, this is an example where sometimes
+just blasting defaults and not letting the user change it
+has some advantages because then you know
+what their configuration is for things like swap.
+You know it's exactly the amount of RAM
+or maybe the distribution policy is 20% of the amount of RAM
+or something, you just always know what that number is.
+But this is a power user workstation OS
+and we can tweak those things, thankfully.
+Well, that's what I was just thinking
+because with Android, I'm not very satisfied
+with the version there because it seems
+I have more stalls on Android
+than I have on my Linux laptop.
+So I want more knobs.
+Yeah, very good point.
+Yeah, very good point.
+And I think it's gonna be there for you, Wes.
+I think you will be able to.
+Like I say, I mean, this changes everything
+for me going forward.
+I will forever going forward on my Linux boxes.
+I mean, I'm gonna go start after the show installing it.
+And now it's gonna be one of the things
+like along with tweaking my fonts
+and installing themes, Wes, and getting extensions,
+I'll be installing an early memory out of memory killer
+because that's how I roll.
+That's pretty cool.
+And I'm glad to see it getting turned on.
+Now we'll see where it goes from here.
+All right, now how about a couple of pics?
+Not just one, but two pics.
+Yes, please.
+The first one, new shell.
+It's a new type of shell.
+Okay, all right, I'm gonna admit it.
+I didn't put this one in,
+so I hadn't really looked at this.
+This looks pretty great.
+You'll be pretty pleased to hear
+that it's written in Rust, so.
+What, what?
+What was that, Wes?
+Yeah, that's right, it's written in Rust.
+Oh my gosh.
+Yes, yes.
+Yes, it is hammer time.
+Very good.
+It's got all kinds of smart support
+for different formats and natively understand things
+like XML, JSON, INI files, other configuration files.
+And as you will see, if you visit their website,
+when you run just the average old LS command,
+instead of getting the normal sort of pure text LS output,
+you get a lovely little table.
+And new shell has a bunch of built-ins
+to help you sort with that.
+So instead of having to use flags to LS to configure,
+like I only want to see things
+that are this new or whatever,
+you just sort of pipe it and say,
+well, when the date is after this.
+Oh, Wes, this is really cool.
+Oh, I love what it does with PS and LS.
+Oh my gosh, that, oh, that's so nice.
+So it's basically making mcurses tables,
+just a UI to just outline the data easier to see.
+Well, but you can also interact with that data.
+So you can filter on the different things.
+You can load a JSON document into the exact same table
+and use all the same tools to interact with it
+and pipe it back out again
+to traditional command line programs.
+It's definitely, as I admit,
+inspired by things like PowerShell, right?
+That have these sort of rich objects behind the scenes.
+And it's almost like a little subdomain
+that you get with this rich capability in this new shell,
+while still having access
+to a somewhat traditional command line experience
+to go do all the rest of the programs
+that might not be supported by, you know,
+what the additional superpowers.
+Stay a while and listen.
+And now one more.
+And you know, this one's a hot market one
+because it's just got a launchpad page.
+Does it not have a homepage?
+What's the matter with this thing?
+It doesn't, I wasn't able to find one.
+There might be one out there, but I wasn't able to find it.
+All right, so tell me about Timekeeper Next.
+So Timekeeper, Time KPR, which it was originally known as,
+and then they changed the name a few times,
+and now it's Timekeeper Next,
+essentially allows you, you know, everyone's at home right now
+and their kids are using their computers.
+And likely, if you're listening to the show,
+your kid is using a Linux-based computer.
+You can install Timekeeper through a PPA currently.
+It's also in the Arch repos,
+but you can install a Timekeeper to keep track
+of the time used on these desktop environments
+on the computer for any other user on the system.
+So say your kids log in and you want to allow them
+to log in and use the machine through the certain hours,
+or if you want to maybe allow them to use the machine,
+they can't use it past midnight until 8 a.m. in the morning,
+and then you only want them to have three hours
+of computer access for the day.
+You can set all this up on a per-user basis.
+So it's a nice little way to kind of, you know,
+keep your kids off of the computer a little bit
+while you're stuck at home.
+Yeah, or yourself.
+Yeah, absolutely.
+Honestly, I have a hard time.
+Just in the last couple of days,
+well, really yesterday and today,
+I'm trying to get myself to move more
+because I used to have this mindset
+that I would just sit down and marathon a day
+and just work, work, work, work, work, work, work, work,
+all day long.
+Yeah, it doesn't work.
+Oh my God, like I get sore all over
+in places I didn't know you would get sore.
+Serious, like it's bad, so.
+The sitting sore.
+Yeah, well, and it's really, it's in my shoulders,
+in my elbows, and in my wrists.
+It's just getting, I'm getting like RSI, essentially,
+is I think of what it is.
+And so I gotta move around more.
+And so something like that to help me just practice that
+is always good.
+So that's timekeeper next.
+Yeah, I think for me, I would be tempted
+just to go in and flip the switch and turn it off, though.
+Yeah, I know.
+If I was administrating it myself,
+like it would have to be something like
+I wasn't able to get in and turn off myself, you know?
+I don't use like any of the digital wellbeing stuff
+on my phone.
+Here's the thing, you just change your root password
+when you're drunk.
+Get it all configured.
+That is the best idea I've ever heard.
+That's a Westpain pro tip right there.
+Yeah, no doubt.
+Yes, it is hammer time.
+Hey, does anybody know if you can run OpenSense on ARM
+hardware, like the Pine 64?
+Because I think that'd make a, I was just thinking
+about our firewall segment.
+They did make a PF Sense box that was ARM-based.
+From my understanding, it wasn't super great.
+It was kind of limited on the throughput side.
+Like you couldn't saturate the gigabit connections.
+But yes, from my understanding,
+there is already ARM hardware out there
+running PF Sense and OpenSense.
+I could sniff around.
+We'll see.
+Alex says he can do a low-power cheap setup,
+so I'm waiting to see, but I'm just trying to think.
+Yeah, 100 bucks.
+100 bucks are used, I'm going to write a blog post
+before the next self-hosted episode.
+100 bucks, and you'll build an x86 system
+that draws about 15 watts.
+Okay, all right.
+Okay, you got me with that, because I was going to say
+my entire setup right now draws like 50 watts,
+and I am so stinking proud of that.
+That includes router, Wi-Fi, and switch, and now four Pi.
+So it might be actually, I haven't actually checked it
+since I added the fourth Pi, so.
+But I'm going to shut down one of them, so it won't matter.
+Yeah, I am, so.
+You know who else is running a super inexpensive
+and low-powered PF sense box is our buddy Tyler Condulo.
+He runs a, I think it's a Wyze thin client.
+Oh yeah.
+As a PF sense box, yeah.
+Wow, that's wild.
+I remember those old boxes.
+All right, well, I just have a quick disclaimer,
+really quick, but I just want to get it out there.
+Alex and I have decided together
+that we're going to take things to the next level
+in our self-hosted relationship,
+and we have launched a Discord server.
+I think you need the hallelujah.
+Now, okay.
+A beautiful baby server.
+Now listen, if you don't use Discord already,
+don't sign up on our account.
+We're not trying to convert anyone to use Discord.
+We're making a community there for people that use it,
+selfhosted.show slash Discord.
+I want to get the word out there,
+because I know some of you already have Discord accounts
+and you want to use it.
+And something that Alex and I have talked about on the show
+is trying to strike these balances from time to time.
+We obviously lean towards hosting it yourself,
+and we're very aware of ways we could do that
+from IRC to Matrix.
+But Discord is where the community is.
+And so for the people that are there,
+we have created a Discord server.
+And Alex, do you have any other thoughts
+you want to add to that?
+Well, for some people, it's just like crazy
+that the self-hosted show is using Discord.
+I know, we're a pair of heathens, aren't we?
+We knew that was coming though,
+within 20 minutes of launching it.
+It just boils down to pragmatism in the end.
+I've written a blog post to try and outline
+some of our thoughts in a bit more detail
+as to how we came to that decision.
+So blog.katyz.me is the first post on there at the moment.
+And yeah, there'll be a link in the show notes.
+It's a truly contentious issue.
+It's why we're still on IRC for this show,
+even though I think we'd probably have
+maybe a thousand people in there if we were on Discord.
+And you know, it's interesting
+because it's just really, it's the audience.
+I launched a Discord server for Unfilter recently.
+It was like two weeks ago.
+It took until this weekend, like two days ago.
+Somebody said, hey, how come we're doing this on Discord?
+But when we launched it for self-hosted,
+it was within 20 minutes of launching it
+that somebody said, what?
+All about those expectations.
+Yeah, and we're totally aware of that.
+And that's something we'll address in self-hosted
+if you check out self-hosted.
+And also, if you start and go through our early episodes,
+like we had one with Wendell very early on,
+we really kind of get into our rationale there
+about when it's absolutely vital to self-host
+versus when you can make a compromise.
+And I think that's important even just for Linux users.
+It's not just a self-hosting thing.
+It's also a software thing.
+Linux isn't always the right solution.
+Sometimes.
+Now, it's true.
+And I think when you judge someone for using Windows
+or for Mac OS, in a way, what you're actually doing
+is you're judging them for choosing something
+that you did not choose.
+You're sort of projecting a moral value onto them.
+And then you're judging them for that projection
+of a moral value that they never subscribed to.
+And it's a complicated thing to judge people
+for what they use because you're essentially shaming them
+in your head or publicly for choosing something
+you didn't choose.
+And that is a slippery slope.
+Well, and you know, it's rare that you actually understand
+the complete context of all of those choices
+that other people are making.
+Yeah, very typical because it's very hard to, you know.
+You may not understand them for your own choices.
+Yeah, sometimes.
+So I agree.
+I think it's sometimes very, very likely
+that Linux is gonna do a great job,
+but it's not always the right tool.
+And we shouldn't judge people for not using it.
+I happen to like it a lot, but it's fine if you don't.
+Really.
+I stumbled into a conversation thread
+on YouTube and on Reddit over the weekend
+where somebody was being outed for running Windows
+who was supposed to be like a Linux developer.
+And they were outed for using Windows 10.
+And I just felt like it was, like it's sort of old now.
+It's like we kind of moved past all that.
+It seems like it's one of those things
+that people like to just hang on.
+And I get being a purist,
+but in that same vein, I think it's always just right
+to use the tool that's good for the job,
+that's perfect for the job, you know.
+And when a lot of us came to this,
+I mean, before you learned about licenses
+and all of these things,
+or maybe you came into computers
+before the open source and free software movements,
+computers are tools to do things.
+We're excited about playing with them and using them.
+And yes, I think for a lot of us,
+once you discover open source and free software,
+you're like, okay, this makes sense.
+This is how we should try to be doing things for computers.
+It's just a natural fit,
+but there's still a whole bunch of tools out there
+that are very useful in a huge range of fields.
+And they're still great.
+Yeah, well said.
+It's funny because while we look at things like Fedora 32,
+and we talk about Ubuntu 20.04,
+it doesn't seem like I have this view,
+but I truly do see this as sort of a post-distro show.
+Like it's all great.
+It's all good.
+And it's just different kinds of good
+for different use cases.
+Like this show can get into Mint.
+I can put myself in that head space
+and I can appreciate things like time shift
+and the way the updates are labeled out
+or I can get myself in the head space of,
+even we tried out Regolith recently.
+I was like, actually kind of like this.
+I get it.
+And it's because when you step back and you remove
+that sort of like, well, it should be like
+this kind of thing.
+And you just roll with kind of the awesome software
+that it is.
+It sort of doesn't really make sense
+to have these different camps and tribes
+in different distros,
+cause they're all using the same upstream stuff.
+They're all struggling with the same problems.
+And often in almost, not all, but in a lot of cases,
+maybe the majority of cases, behind the scenes,
+the developers chat with each other.
+They work on multiple projects.
+It's not uncommon for them to work on several.
+Especially in the open source world, right?
+Where there's all these shared fundamentals.
+Neil, what are the different distributions
+you contribute to on a regular basis?
+Oh boy, let's see.
+Primarily I'm involved in Fedora and OpenSUSE,
+but I also work in Magia, OpenMandriva.
+A little tiny sliver in Debian.
+I've got a little bit more than a sliver in Ubuntu.
+I used to work on a couple of other distributions
+like Unity and a few other,
+Unity Linux and a couple of others.
+I have done a little bit in Alpine, some in Void.
+There was a little bit of time
+where I was working with the Exervo people.
+But Neil, some of those are competitors with Fedora,
+you madman.
+I'm sorry to break your heart, Chris, but for the most part,
+all of us talk to each other and work with each other fairly often.
+Some more than others.
+There are some that like to live on their little islands.
+But in general, at least within the larger distro communities,
+to a great extent,
+we do talk to each other and work with each other on common problems.
+It's common software.
+That's why the tribalism between the distros,
+I think is sort of silly and that's why I call this a post-distro show
+in that sense.
+And I apply that same logic to judging people for other tools that they use.
+I just don't think it really makes a lot of sense.
+I do find a certain important moral value in free software,
+but I don't need to have somebody else subscribe to that same moral value.
+And just like I happen to like the Linux flavors I like,
+but there's such a range and variety of different distros and Linux users
+that it's fine.
+Yeah, we just celebrate that.
+We're all using the same stuff.
+What is the purpose of this show of JB in general of what we're doing here?
+It's to further the open source agenda, isn't it?
+Absolutely.
+Free software rules the world.
+Yeah, and to help others find it and be part of a community.
+And sometimes, to quote the orange one in the chat,
+sometimes it's about using the best tool rather than the right tool.
+Yeah, and I think Linux is the right tool for a lot of jobs.
+And that's what we talk about here.
+And for a lot of us, it's sufficient that it's all you need.
+I had a great chat with Neil about Pagoo, a GitLab alternative.
+We just dedicated an extras to that that came out this morning.
+It's 14 minutes long, so it's just a quick one.
+Extras.show slash 69.
+If you are curious about a self-hosted GitLab alternative
+that few projects are involved with these days, some less than before,
+and then, of course, the free software is rolling out,
+it's GitLab-like solution that we based on.
+Pagoo?
+Prager?
+Pagger.
+Pagger.
+Troll.
+Oh, am I trolling again?
+Sometimes I do that.
+All right, well, go find more of my work at chrislast.com.
+Go find more of Wes at wespain.
+And of course, at techsnap.systems.
+What else should we plug?
+At Cheese Bacon?
+Is that your handle cheese?
+Yeah, that's me on the Twitter, at Cheese Bacon.
+There you go.
+And of course, you can find us in the Telegram as well.
+We'd love to have you join us live on Tuesday.
+Get that converted at jupiterbroadcasting.com slash
+calendar.
+And you can always jump in that IRC.
+It's irc.geekshed.net pound jupiterbroadcasting.
+You don't want us to switch to Discord.
+Use the IRC.
+It's real easy.
+Just go to jblive.tv to get the stream and IRC embedded right there.
+Boom.
+See you next Tuesday.
+Bye.
+Unplugged program.
+All right, jbtitles.com.
+Cool, bro.
+Is the bot working?
+Let's check.
+I rebooted it earlier.
+You snuck in there and rebooted it before we started.
+Good thinking.
+You know, you just got to reboot the bot.
+You know what we need is a bot command that reboots itself.
+Metabot.
+Yeah, a master bot.
+We need to start porting JBot to Discord right away.
+It's not a horrible idea, actually.
+Ideally, though, in the same crippled format.
+We don't want to improve it too much.
+Right, absolutely.
+Something you have to kill from time to time.
+It's troublesome personality.
+What I think is interesting, too, is that, you know,
+this talk about Discord and tools and so on and so forth,
+we all know that Discord's using open source technologies
+under the hood.
+Oh, yeah.
+They're written in Elixir.
+Yeah, well, and you know, their servers
+are all on the back end.
+I know that's so true for so many services.
+It's a tricky line there.
+So first, I actually would have been
+real interested if you guys had decided
+to do like a JB network matrix to replace Geek Shed.
+But one thing I know, I mean, I think
+it'd be way more successful than the IRC server is.
+But when it comes to things like Discord and Slack
+and all of those, like, they're all proprietary solutions.
+And I'm kind of stuck having to use them for various reasons
+and like whatever.
+Like, I grit my teeth and deal with it.
+But the thing that annoys me more
+is the fact that they're so bad at contributing back
+to the community.
+Like, they build lots of stuff.
+They clearly do.
+They build really innovative things.
+But they don't, to some degree, share the wealth back
+to the community to help build bigger and better solutions.
+And that's the part that I get more annoyed
+about more than anything else.
+Hmm.
+Hmm.
+That's what I say there.
+That doesn't sound good.
+Until those engineers move on to another job with the skills
+they picked up at Discord and build something else better,
+maybe this time it will be open.
+Who knows?
+Possibly.
+Possibly.
+That's what I always hope for.
+Well, I certainly picked up most of my skills
+working on software that will never see the light of day
+publicly for companies that are obviously
+paying me money to do so.
+And here I am contributing.
+So it does happen.
+Just maybe not quite in the ways we hope.
+I would say you probably also picked up
+a lot of hardware skills when you worked at the Apple store.
+And now you're building home-assisted controlled
+devices.
+So we all kind of come full circle.
+Alex, tell me about the printing factory
+you've turned into over there.
+Oh, my god.
+I'm so bored of 3D printing.
+I've printed nearly 300 face shields for medical workers
+over the last seven days.
+Ooh, very nice.
+That's great, though.
+About $500 in donations and lots and lots
+of folks in local nursing homes and hospitals and stuff.
+Very, very grateful.
+So I'll be so happy when the big molds come online
+and I can stop.
+But for now, I think it's a valuable public service.
+Do people come by and pick them up,
+or do you have to deliver them?
+Yep.
+All hours of the day, I have given out
+batches of 20 or 30 at a time.
+They cost about $0.50 to make each.
+And people generally seem to be donating about $1 each
+to cover filament costs and electric and time
+and that sort of stuff.
+So it's been really great to see the community pull together.
+That is really neat.
+I'll drop the link to the blog post you wrote there, Alex.
+I jumped on it, too, and had been printing them and was lucky
+enough that the school donated their filament
+from their 3D printer that's on the fritz
+and also donated a ton of transparency sheets
+for the actual face shield part.
+But if anyone out there is interested,
+I'd know, Neil, you have a 3D printer.
+Jump on it.
+You know what?
+You guys just earned a taco.
+Good job.
+Yes.

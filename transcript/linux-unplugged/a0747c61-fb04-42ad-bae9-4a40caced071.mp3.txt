@@ -1,0 +1,680 @@
+Wes Payne, have you put everything in the upright position and fastened your seat belts?
+Standing by for liftoff.
+All right, you have a copy of our flight path there, I believe.
+Was I supposed to print that out at home?
+I think you should, because these tablets, they only have a 15-minute battery life on the show, it's longer than that, so...
+Yeah, well, that's what I get for standardizing our Microsoft surfaces, that's for sure.
+Hello, friends, and welcome back to your weekly Linux talk show. My name is Chris.
+My name is Wes.
+Pew, pew, pew! Hello, Wes. Wes, is that a sweater with the arms cut off?
+I prefer to think of it as a vest with big aspirations.
+Good call. This episode is brought to you by the all-new Cloud Guru, the leader in learning for the cloud, Linux, and other modern tech skills.
+Hundreds of courses, thousands of hands-on labs, get certified, get hired, get learning at a cloudguru.com.
+Well, coming up on 402, we're going to chat about the new Ubuntu release that comes out this week.
+And yes, it is part two of Don't Do As We Say.
+But, you know, we're building our own email server because everybody tells you don't build email, don't host your own email.
+And we thought, let's host our own email.
+Let's do the right thing and run our own mail server out on the web today and then just see what goes wrong and tell you about it.
+We're going to run a mail server so you don't have to.
+And today is part two.
+If you missed some of the initial decision making we were doing, that's in episode 401.
+But this episode, we've built our own mail server.
+We're going to share the details on what worked and what hasn't worked, how far we've gotten.
+Plus, we'll have a really useful pick later on in the show, a garage sale update as well, which is fantastic.
+But first, we got to say holler to our hall of experts.
+Time appropriate greetings, Mumble Room.
+Hello, hello, hello.
+Also in there, you'll hear the voice of Monica, the new Ubuntu community representative.
+I think this is the first time you've been on the show since the job, Monica, but I can't keep track because I know it's been a bit now.
+Actually, first time ever.
+I tried to join the chat room last year, but we had audio difficulties, so made it back.
+Good. Well, I'm very glad to have you here today.
+Thank you for joining us.
+We have a lot to talk about, but Wes and I, before the show started, realized that we have a make good to make on the show.
+It's something that we haven't been keeping up with, and the longer we put it off, the longer we run the risk of things getting real bad.
+So Wes Payne, are you ready to update our Arch server?
+I guess so. How's it looking right now?
+This looks like a big in.
+It's been way too long.
+You know, we've had a lot going on.
+We were we were brewing our beer.
+We had episode 400 come up and then this idea to build a mail server.
+It took our eye off of our main server for a while.
+And I know it's been literally since the last time we did this on the show, I think.
+So, yeah, it's going to be so many downloads.
+It could make our stream unstable.
+Well, let's hope not. OK, OK.
+Actually, it's not too bad because, you know, package compression these days, it's like 800, 900 megs to download.
+Installed size is almost four gigs, but it's a net difference of 50 megs or so.
+But what stood out to me, we're definitely getting a new LTS kernel.
+So that doesn't happen every time.
+And we're finally rolling on up to an LTS kernel that has WireGuard.
+So we're replacing the WireGuard LTS package that we still had installed with just the kernel.
+Hopefully that goes well because I'm using WireGuard to remotely administer the server right now.
+OK, so this is one of those updates where we get a new kernel, which means it's going to mess with CFS.
+Oh, there's new CFS, too. Don't worry. For sure.
+So now also we're going to mess with WireGuard, which could fundamentally knock out your ability to solve this problem.
+Should this particular update go sideways and to make it more fun, we're going to do it live while we're recording a podcast.
+So our focus is not exactly on the task at hand.
+Do I have that all straight? You weren't planning on using the server today, right?
+Oh, man, Wes, not a good time for the server to go out on a production day.
+We really got to figure out a better way to do this.
+You know what we got to do is record these off air on another day. That'd be too easy.
+All right. Are you ready to pull the trigger? Standing by for S.Y.U.
+All right. Hit it off, my friend. Hit it off. Let's see how it does. And away we go.
+So we'll come back to that, you know, because that's going to have to download and it's going to have to build kernel modules and stuff.
+So you just keep an eye on it out of the corner of your eye and just let me know when we need to come back to it.
+But in the meantime, you and I have gone Ubuntu 21.04 Spelunking, which is coming out as we record this week.
+Ubuntu 21.04 will be the 24th release of the distro.
+It is on track for a April 22nd, 2021 release.
+And there is notable aspects, some of which is actually what is not shipping in 21.04, some of which is what is shipping in 21.04.
+And there's even kind of some historic shifts and reversals in this release.
+And there's so many different areas to get into.
+I think, Wes, we should kind of start with like the fact that the big elephant in the room is there's no GNOME 40 in this release.
+Yeah, we probably have to talk about it just because we've spent so much time gushing over GNOME 40 recently.
+But it's a big change and there wasn't that much time to really get this into the release.
+It's going to have to happen before the next LTS, of course, but not this time around.
+Although a lot of the actual individual applications have been updated to their GNOME 40 versions, just not the shell and a bunch of other major components like that.
+Yeah, like GTK4, which is a bit unfortunate because GTK4 is part of the performance story with the new GNOME 40.
+There's a lot of accelerated Vulkan rendering in GTK4, which makes things even snappier.
+And I think it's also notable and maybe people just haven't quite connected the dots.
+It's probably in the back of their minds and they just hadn't really thought about this because it's been so long.
+But Ubuntu started as one of its hallmark features is being in kind of sync with GNOME releases.
+And so it was sort of like one of the great things was you had this curated Debian experience that came out with new GNOME releases.
+And that right there in itself was kind of novel back in the day.
+You know, only one male client. How do they do it?
+Whoa.
+Every new GNOME release, you can get it kind of right away in Ubuntu.
+Wow, this is such a great idea.
+And so, you know, for those of us who've been around for a while, it is kind of noteworthy to see them skip the 40 release.
+I think it's understandable though, you know, that when you look at the way the release cycles landed,
+I don't think there's much more to it than just that's just not how things worked out technically.
+Right. But just the nature of the changes in 40 and how much things have shifted
+and that you've kind of got these two big distros between, you know, Fedora 34 coming out soon and this release of Ubuntu.
+It almost makes it feel a little bit fragmented.
+And then you've got whatever's going on in the pop universe with Cosmic.
+There's a lot happening right now.
+It's going to be curious to see how this all shakes up in the next, you know, six months or a year or so.
+Yeah, or put another way, Wes, it's like the differences between the heavy hitting GNOME desktops have never been different with this current release cycle.
+Yeah, I don't know if that's what I thought when Ubuntu, you know, first announced that they were going back on GNOME.
+I don't know. I would have thought we'd ended up here.
+Right. Yeah, good point. Yeah, that's very true.
+But it's not like it's it's not like it's GNOME 3.3.8 from like nine months ago, right?
+This is a maintained, updated patched version.
+If you look at the output that the Ubuntu team puts on their discourse for like their what I've done this week kind of quick capture that they put on there,
+you'll see there's tons of work that goes into this GNOME 3.3.8 release.
+It's got a lot of patches and fixes and tweaks and performance that has been put into it.
+So it's a it's a really refined version of GNOME 3.3.8 in that sense.
+And, you know, you can you can really feel it.
+I mean, I've been playing with GNOME 40 a bunch on this on this ThinkPad Intel stack and 3.3.8.
+I mean, it didn't it did not noticeably feel like a regression from that.
+I was impressed with just how snappy things were.
+And we're going to mention real soon here about some changes around Wayland, right?
+Yep. That combined to make it just a really solid desktop experience.
+Well, that's a big part of the game there, isn't it?
+Is now defaulting to Wayland and getting that out in Ubuntu user's hands before the next LTS.
+And if you've got the right hardware, like you're on a you're on an Intel chipset or something like that for your video or an AMD chipset, it just sings on Wayland.
+It does. And you notice it right from the start, from the login screen, you know, with you just type in your password and your desktop pops up smooth.
+No flickering, no display resets of old. It's nice.
+Did you note any changes in the Raspberry Pi architecture support?
+Because I know that's an area that they've been putting work into every single release.
+Yeah, I've not actually tried it, but sounds like under Wayland, there is support for acceleration on the Pi now, which that's that's kind of crucial.
+I got to try that. That sounds awesome. That could really make that Pi desktop experience just feel a little bit smoother.
+The other kind of notable change with 2104 is now the home folders are private by default, probably something that I assumed was done a long time ago,
+but didn't really appreciate the fact that that wasn't the case until I saw this release note that this is changing.
+You better update the studio machine so you can stop snooping on my files.
+I just had no idea. They say it's for like, you know, so that way people could collaborate and work together on the same box.
+And they feel like the risk was sort of reasonable if you have physical access already.
+But wow. OK, that's that's changed.
+This also, it's nice to see a chip with a pretty modern kernel Linux 5.11.
+Ironically, Linux 5.12 is scheduled for release this weekend, which Wes and I will cover in Linux Action News.
+But it's still it's still pretty relatively modern.
+Yeah, you know, there's a bunch of stuff around memory management improvements, fsync improvements, butter fs performance improvements.
+It's a solid kernel for sure.
+I've been seeing people report that they will enable dark theme by default.
+But I have now done I just did a fresh install last night to see if this changed.
+And it's not using the dark theme by default.
+It's it's using something in the middle. I don't know what they call it, but it's I don't know.
+I've seen that reported. But on my installation, it's still the light theme.
+Well, something to check back with. Perhaps next week after the official release, you've still got time.
+Still got at least a couple of days, two days as we record.
+You know, it's funny as you use these distros, Fedora 34 is very much in the same phase right now.
+It really slows down at a certain point when you're mid cycle of these distro releases.
+It's like package updates like crazy all the time.
+Stuff's coming down constantly.
+Not always in step. You know, the libraries move out from under the app and things break for a little while until your next update six hours later.
+Absolutely. You're riding that that beta wave and sometimes you crash.
+And then you get to this phase where you're like a week out from the release and stuff and it's just everything slows down.
+There's still a few things coming in every now and then, but especially in the Fedora land, things really have slowed down.
+I'm still getting a few updates on the Ubuntu land, but it is funny to watch that just to see it kind of stabilize out.
+They kind of get to a point where they've done a lot of the fixes and you can see, OK, this is just about the final thing.
+And as of right now, at least it looks like Firefox 87 is in the mix, not 88, which was just released recently.
+But I could see them updating that after the fact.
+I will say Firefox 87 is also still a good Firefox release.
+Yes, 88 did just come out and it's new and shiny.
+But one thing I was kind of appreciating after playing with some of the Fedora betas is just that the Ubuntu release feels like it has had a little more integration work done on it.
+You kind of feel it's all tweaked, like Firefox just looks good.
+It's all integrated in with the desktop.
+It feels clean and GTK and just pops up very minimal, loads super fast.
+Everything was very snappy.
+And I didn't if I hadn't already played a little bit with Firefox 88 on a different machine, I would have not known I was behind a little.
+Yeah, I think that's fair.
+You know, and then you also did a little digging into the Docker support here because I was wondering, I said, hey, Wes, can you find out if this thing is supporting C Group's version two yet?
+Because they made that flip on Fedora a little while ago.
+What did you find?
+No, not yet.
+You do get a version of Docker and Container D that supports C Group's V2.
+So if you want to turn it on yourself, that should just work.
+OK, but it turns out this is being discussed by the team.
+Don't worry, but Snap D is not yet ready for V2 to be enabled by default.
+So not happening this time around, but it should be in by 2110.
+Oh, it's a Snap thing that's holding it up.
+Isn't that funny?
+Yeah, LXD, they've already got support figured out for that.
+So not a problem there.
+And of course, Docker has finally done that as well.
+But hey, containerization happens all over the place.
+And it's a big difference between V1 and V2.
+Well, kind of going back to your point about integration, how you feel like it's a more integrated experience, perhaps this is the flip side of integration.
+I don't know if that makes sense.
+Well, yeah, with integration comes dependency.
+Right.
+Yeah, right.
+I mean, to make all of this happen, and you've got the Snap Store, you've got snaps integrated and depended upon.
+And that means you can't necessarily roll without bringing everything with you.
+Yeah.
+The Kubuntu release is shipping with Plasma 5.21, which is a fantastic release of Plasma.
+I did not get a chance yet to try out Kubuntu.
+But I do want to try to give more time to the Plasma variants when we talk about distros, because it sure is a great desktop option.
+And you get all the nice things you like about your favorite distro base, but with the Plasma desktop experience.
+Well, and with Plasma, there's a lot to configure.
+So there's a lot to appreciate about someone who's done that configuration for you.
+Oh, also, Wes, you know, before we get off of 2104, it's worth noting to enable some of the Wayland support.
+It actually does ship with PipeWire, but it's not using it as the sound server, but it's there in case applications need it.
+Yeah, right.
+For like screen recording and sharing all that fancy media plumbing that they've done.
+If only I'd noticed that before I built PipeWire from source and overwrote it on my test install.
+Yep, and you Active Directory users will be happy to see some improved integration support there.
+Access with GPOs is enabled now and works out of the box.
+So if you got them group policy, son, well, Ubuntu 2104 has got your back.
+And with the 5.11 kernel, that means you get the version of Linux that has the ButterFS performance and data recovery improvements we talked about not too long ago,
+as well as better memory management that reduces swapping, which is great for us SSD users.
+So it's a good kernel under the hood.
+Yeah, it is just kind of a nice release.
+I will say, and I think it's clear in what we've been talking about right now, is there's a little bit of a shadow, maybe is the right word, of Fedora 34 coming out, which has more radical changes in it.
+But I appreciated that I could just sort of sit down, very little time, kind of just get Flathub installed, honestly, because I'm, I don't know, right now I'm all in on Flatpaks for some reason.
+But get Flathub installed, install some of my applications, configure things out, and I've been working for the past couple of days on the pre-release 2104.
+And no, it wasn't radical, but part of that was really nice because it still felt like an improvement, it still felt faster, it felt really clean, it felt modern.
+I had things like PipeWire, I had modern applications, a modern version of Firefox, modern toolkits and frameworks under the hood.
+But it just felt like the next and latest, greatest, you know, sort of Ubuntu GNOME experience, and it meant I didn't have to adapt at all.
+Everything I wanted to do could just happen, but I still felt like I was keeping up with the Linux desktop experience.
+That's a good way to summarize it, Wes, and I think I concur exactly with your thoughts.
+And I think it makes me look forward to that October version where you're going to have Wayland, you're probably going to have PipeWire, maybe you're going to have GNOME Shell 41 or 40.5.
+All the things that didn't make it into this release but need to make it in before the next LTS, that should be an interesting fall release, I think.
+Yeah, I think so too. So we're going to keep an eye out on that.
+But of course, in the meantime, it's almost Fedora 34 time. So Wes and I will give you our thoughts on Fedora 34, which which we have quite an extensive list of things to cover on that beyond just, of course, the desktop shell.
+There's a lot more to talk about, too. All right, Wes, how's that our server doing?
+Well, the main updates are complete and now we're working through the AUR. Actually, we're getting a yay update right now.
+No, it's not crucial. But hey, I want to be complete.
+What? AUR updates? Oh, my God, you're killing me.
+I know. It's going to be a little bit longer. This is almost done. And then we're going to we're going to get the latest ZFS installed and try a reboot.
+Linode.com slash unplugged. Go there to get a one hundred dollars, 60 day credit towards a new account. And of course, you go there to support the show. Linode is simple and fast and an easy way to get server infrastructure if you need it for yourself personally or you need something that's going to make the total back end for your company's massive, massive e-commerce website.
+I mean, Linode can do it all. And they're the largest independent cloud computing provider. And that really registers with me. And they make it easy to get whatever you want to make online and create your own personal space on the Internet, no matter what your skill level is.
+They'll help your ideas come to life on the Web. And if you run into any trouble, they have absolutely amazing twenty four seven customer support by phone or by ticket.
+And they're really going to work with you to solve your problems. They also have a lot of documentation as well. Lots of tutorials. It's something I probably should talk about more because there's so many different great ones on there.
+And I actually even came across some while we were setting up our email server recently. And it was it's they're written really well and clean and easy to process.
+And they give you the confidence to put some of the stuff in production, which I think is really nice. Their dashboard helps with that, too.
+Their cloud dashboard is clean, it's professional, it's powerful. But then, like, you can hit a few buttons sometimes and they poops up the slides up and boom, there's like the nitty gritty details you need for managing your Linux box.
+Linode's great with that kind of stuff. They also have an S3 compatible object storage, which we find all kinds of uses for.
+And once you wrap your head around what it can do, you're going to find a ton of uses for it as well. And to help you manage these systems, they have cloud firewalls, they have simple one click application deployments.
+If you want to get something up and running and you don't want to spend all day building it, or maybe you just want a nice base level to start from, they've got some of those, too.
+They have some that help you go through pre-securing them and getting everything every lockdown.
+And it's like a nice base system to start from. It's just a one click deployment.
+And of course, they have dedicated GPU systems, dedicated CPU systems with AMD EPYC CPU processors that just kick the snot out of all of the other hosting providers.
+And then they have crazy fast networking, 11 data centers around the world. I mean, you can see why we use them for everything in JB 3.0.
+And that's where we're building our mail server as well. So go check them out for yourself and see what they can do.
+Go to linode.com slash unplugged. You go there, get your $100 60 day credit on your new account and you support the show. That's linode.com slash unplugged.
+Confirming that we have EVRs from Ingenuity. Ingenuity is reporting having performed spin up, takeoff, climb, hover, descent, landing, touchdown and spin down.
+And altimeter data confirms that Ingenuity has performed its first flight, the first flight of a powered aircraft on another planet.
+The little Linux powered helicopter has flown and it is also the first time man has flown what they call a rotorcraft on an alien planet.
+And I guess the team even put a little piece of the Wright Brothers airplane inside the craft.
+I don't remember, nobody told us that, but I read that over the weekend.
+Yeah, isn't that cute? They're even naming the little airstrip there after the Wright Brothers.
+Wow. Humans have done it and Linux played a significant role in making it possible.
+What episode was it, Wes, where we had the operations lead on to tell us about how open source helps the thing fly itself?
+Episode 396, how Linux got to Mars, where we had Tim Canham on to share all the nerdy details.
+And boy, we're going to have to try to get him back because I want to know all the details about how this actually happened.
+I mean, did you see that video?
+Yeah, that video was fantastic. And that was also done using open source software.
+And you can hear the team when they, I just grabbed that moment when they when they see the video come back,
+that was encoded with FFmpeg and then sent back to them via the rover to the satellite, to the deep space communications network,
+back down to the engineers. They waited a long 13 minutes for this moment.
+I got to tear up the contingency speech, which I never practiced, but I was going to read.
+So yes, explain what we just saw with the Perseverance image.
+So the Perseverance image is showing us grounded at first. It's actually a video, which is great.
+It's grounded at first and then shows us hovering our three meters above the Martian surface and then touching back down.
+It's amazing. Brilliant. Everyone is super excited.
+So I would say it's a success.
+We can now say that human beings have flown a rotorcraft on another planet.
+It's a major milestone for human beings, but it also feels like this is a significant production proof for Linux in future space operations.
+Like this is a milestone for Linux.
+Yeah, I mean, right. This was kind of the extra craft where they had a little more leeway to experiment with new systems,
+things that weren't traditional and that you wouldn't really want to risk the main, you know, multimillion dollar rover on.
+But it seems like it's going about as well as we could expect.
+I mean, there were some delays and some caution to get this right, but so far it looks like it's kind of a smashing success.
+Although would we expect anything less of our dear Linux?
+Well, imagine if it hadn't gone well, because there were some nights where I think that thing had to endure negative 130 degrees Celsius.
+And when you listen to some of the engineers that they felt pretty confident about the actual flight parts,
+you know, between their actual equations and modeling and simulations that they'd done.
+But I think the computer systems and the hardware and the ruggedization necessary to survive on the rover,
+getting detached, making it by itself on the Martian surface through all those temperature changes.
+That was one of the bigger parts up in the air.
+So it really is a trial by fire and ice.
+I can't help but just feel like we are witnessing a significant moment in Linux's history when Linux was responsible or helped play a role,
+I should say, in enabling flight for the first time on an alien world with a rotorcraft.
+And if that just won't be used as an example in the future, when people are thinking about building autonomous flying vehicles or other robots,
+they'll have to look at this and go, well, they ran Linux on the machine that was on Mars,
+and they had to look at the limitations they had to deal with there.
+And it's just like it's like a case example in front of the entire world.
+Yes, exactly. Right. There's other autonomous flying craft being planned by NASA.
+And you've got to imagine with the efforts to return to the moon or just even all the private efforts between Blue Origin and SpaceX,
+both of whom seem to be leveraging Linux, at least in some of their systems, that things are looking bright for Linux taking over the galaxy.
+Well, a few things we want to touch on in the housekeeping, if you have not checked out Linux Action News,
+we got to hear this week's episode because Wes and I went hands on with the new cosmic work that they're doing for Pop OS.
+We built it ourselves and just wanted to get very early days impressions. And we cover those thoughts in Linux Action News,
+but in kind of a like only Linux Action News news does style.
+We also reached out to Carl at System 76 and got comments and quotes on their long term plans,
+intentions regarding fork, etc. And we incorporate that coverage into the story as well.
+And also we cover VMware being spun out from Dell.
+And in that story, we go out and find audio of Michael Dell saying the exact opposite of what he says now that they're spinning off VMware.
+And so we're always kind of watching for that kind of stuff, too.
+It's it's what makes that show special.
+And if you're not checking out Linux Action News, you really should, because there's some good stuff going in there.
+And it's just a snapshot of the news stories happening in the open source and Linux world that you need to know about and stuff that we're not necessarily covering in this here show.
+At the same time, we are recording that there Linux Action News to get ready for your Monday morning commute.
+Our virtual lug has assembled themselves in our lobby, in our mumble room, and the lug lug is going down.
+It starts at noon Pacific. You can get it converted to your local time at Jupiter broadcasting dot com slash calendar and hang out with the lug lug.
+Talk with fellow like minded Linux users or even the work through issues or share a project you're working on.
+There's a lot in there. It's a lot happening.
+And it's a great group to really good people.
+And sometimes it's nice to have a social network that is interested in the same things you are that isn't like on Twitter, right?
+It's voice. It's low key. It's just a chat.
+It's real people. It's real people.
+So go check out that.
+We'll have that on the calendar and all those goodies there, as well as you'll find our contact information there.
+And our primary resource for this year podcast is our website at Linux unplug dot com.
+Links to our mumble room, our matrix server, how to get into all of that stuff.
+It's all linked up at Linux unplug dot com, including our contact form.
+So go over there to find all of that.
+And that, Mr. Payne, concludes our housekeeping.
+So really, probably maybe one of the worst ideas we could have come up with was hosting our own email server.
+And yet here we are.
+We're doing it so you don't have to just like we're doing our arch server so you don't have to is very much the same line of punishing thinking.
+Yeah. Why is it all the projects I try to avoid in my personal life somehow show up on the show?
+Yeah. Isn't that funny? Isn't that funny?
+This felt like one of them, too, didn't it?
+Like this was this one was a whopper.
+This has been one of those things.
+I mean, I honestly wasn't that interested in doing at least for my personal infrastructure.
+I was happy to outsource that, happy to not deal with it.
+But here we are. Yeah.
+Well, we wanted to see what it was like in 2021 to do this, because if you think about it, it's sort of quaint that SMTP is just this open protocol.
+And you can just send mail between other SMTP servers.
+And IMAP is just this open protocol that anybody can use.
+Like when you think about how social networks are constructed or how all of these service providers build their communications platform,
+the idea that any rando can come along using any random selection of server software they want and participate in this network of email servers almost feels novel these days.
+I don't have to do some sort of complicated OAuth with one of my Google identities to send a Gmail user a message.
+It legitimately felt strange when you and I started sending email in and out from this new server.
+But we'll get to that because we have a ton to talk about.
+And I felt building this like we had a lot of pressure to document this thing because this is definitely one of those projects that you build.
+And then a year, year and a half later, you come back to troubleshoot while people are depending on the service and you really can't remember anything about it.
+You're right. Why? Why is no one getting mail?
+Yeah, so it really kind of got all blown up because the first route we took after all of the really good suggestions we got to try mail in a box was mail in a box.
+So we went with mail in a box and I deployed an Ubuntu 1804 server as required by mail in a box.
+Wouldn't be my first choice. Actually, my first choice would have been a 21 or I mean, sorry, a 2004 server.
+Look at you getting ahead of yourself. I know. Right.
+But, you know, that's what the script wants because they do a lot of custom installation.
+So I knew I had to follow what they wanted. It's not a big compromise either.
+You know, it's fine. So we did that and I got the script loaded on the machine and I ran it and I was really impressed.
+It was it asked me a few questions. It really easy to walk and walked me through everything.
+And I hit enter and let it run. And then I sat back and I watched as maybe thousands of packages were installed on my server.
+Tons of configuration alterations to all kinds of services and set up just like you'd expect it to do.
+Did a great job. Did exactly what I wanted flawlessly. And it just wasn't for me.
+I got all done. I got everything set up and we started getting ready to go with it.
+And I started talking to Wes and I said, I'm not feeling really comfortable with this.
+You really weren't. Honestly, I was kind of surprised because I mean, you're a classic sys admin kind of guy, right?
+You lived through that era of complicated Debian boxes hosting everything. And that's that's kind of what this felt like.
+Yeah. And I went into it thinking, well, it's on Linode. I can take a snapshot of it, you know, so it's not a big deal.
+I can manage it really easily. It's got it's going to have backups.
+We weren't planning to run anything else on the box. It wasn't going to be, you know, a multiplex server anyway.
+No, but I couldn't help but feel like I just wasn't comfortable putting into production a system that didn't have the server software isolated from the host OS.
+And I'm kind of done playing that game where I have to tiptoe around my OS updates just so that way I don't break my custom server.
+And the idea of deploying yet another box like that is completely unappealing to me.
+And so we thought about it a little bit because we knew it was going to work for our needs and it would be even easier than anything else we were going to do.
+But at the end of a long discussion, I just said, let's kill it and let's go with something that doesn't spew all over my system.
+Listen to yourself. You're saying you don't trust not running containers in production.
+When it comes to something I really care about, I want to have my applications totally isolated from my host operating system.
+And when we decided to change routes here, we ended up rebasing the Linode on CentOS Stream 8.
+So now we have an opportunity to not only run our own mail server, but now we're also going to have a CentOS 8 stream machine in production that's doing a production workload with people out in the real world using it.
+And we'll be able to get a real snapshot of what CentOS Stream is like.
+And it's not that 1804 wouldn't have done the job, but if I got to pick my OS, that's what I wanted to pick for this go around.
+And when we containerized this job, it meant that we could do CentOS 8 and we could keep it rolling with stream and just keep those updates going.
+And our mail application and all of its dependencies isn't going to be harassed by a system update.
+And so I think it must have been you, Wes, that found this Docker mail server, full stack, but yet kind of simple mail setup that we ended up using.
+We'll link in the show notes.
+Yeah, it looked like there were a couple of options, but I was really impressed with the docs associated with this project.
+And it kind of had everything we want.
+Now, maybe not everything we wanted.
+It didn't have web mail built in.
+That's something we can get to later.
+But other than that, I mean, I think we were impressed with just all the stuff crammed into this container.
+Yeah, really, man, I mean, it has like Clam AV doing the antivirus.
+And I think it uses spam assassin to do the spam stuff.
+And it's got fail to ban in there to help with security.
+And it also uses some kind of fancy newer authentication stuff for email standards.
+And of course, it fit.
+I mean, just actually getting it deployed.
+The first thing that we did was download the compose template they had set up for us and then a couple of files to configure stuff, you know, set up what our domain was, what the host name was.
+A couple of options for how we wanted inbound and outbound mail to get going.
+And then it was just a Docker compose up dash D.
+And that fit really nicely with how basically the rest of the JV infrared exists right now.
+Yeah, and I realized that I've just sort of crossed this threshold where I'm more comfortable with my production workloads being containerized in this way.
+I don't know if it's any better than just running a script when it comes to understanding how all of this works.
+And if you have a VM that you could dedicate to mail in a box and you are comfortable with it, just kind of owning that install.
+It just makes that Ubuntu 1804 machine into an email server appliance, essentially.
+And if you like that arrangement, I think mail in a box would still be a really good way to go.
+And then you'd also get the webmail, like Wes is saying, we don't have a webmail solution.
+And that's the part of if you look at our whole setup that's still missing.
+And honestly, for what we're thinking about using this for, I was kind of thinking about maybe just not doing webmail.
+Maybe we don't need it, huh?
+People warned us away from Squirrel Mail.
+They've had lots of problems, especially with the, you know, how everybody uses formatted HTML email now.
+And RoundQ doesn't really seem to be doing it for people anymore.
+And we didn't get a lot of other great suggestions in for email webmail servers.
+But I'd still like a few ideas because we could theoretically just kind of slide something into this setup.
+Yeah, that's the other nice part about having this setup with with docker is we don't have to worry about what's the support on 1804 for whatever, you know, solution we needed to get.
+We don't have to try to ram that in there or set up a separate box.
+We can just add in a container of whatever system if we do decide on having one.
+And so this Docker mail server container setup that we went with it, they made really good choices that we probably would have made ourselves.
+They're using postfix for the SMTP stuff.
+Dove caught for the IMAP with LDAP authentication, spam assassin, like I mentioned, clam AV, these fetch mail in there and also works with let's encrypt to get the SSL stuff all set up and going with that's nice, too.
+And then on this, I don't really understand much West, but you might have a little more insight.
+They've also included like a setup script.
+I think use you use outside the container to set up accounts and stuff inside the container.
+Yeah, yeah. So like, it's got a config file, you kind of tell it like, what did you end up naming the container and place nicely with compose.
+So there's not actually too much in the script itself, which is nice, but it makes it super simple to add stuff like aliases or users.
+So literally, you know, you download stuff, you configure a few environmental variables with your specific parameters, which really not not a bunch of complicated like security options or anything just like what's your host name?
+What's the email domain that you're you're using for this?
+Docker compose up dash D and then they have their setup dot sh script, which lets you immediately start adding users, you know, here's Chris at the address.
+It also handles some other things like if you're setting up DK, I am that's a command away right there.
+And then it's already set up the mounts for you so that the the key that you need to set up and add to DNS that's just available right on the host system for you already easy to get.
+It was just a really accessible way to start.
+I didn't have to know how to configure post fakes or anything else to get it started.
+Setup that is H really was our best friend.
+And so in the end, we had to kind of make to make everything work like open DK, I am and other stuff, we ended up creating a DNS text record, which had a key in it, we ended up creating MX records, obviously.
+And what other DNS modifications that I don't recall, did we make?
+Yeah, it is definitely a bit of a DNS adventure, right?
+So we've got our, our actual domain Jupiter colony.com. And then we've got the address of the mail server itself, which is on a subdomain.
+So that's mail dot Jupiter colony.com.
+So we had to configure the MX records right so that it when you looked up, how do I send mail to Jupiter colony.com, it knows to go point to either mail dot Jupiter colony.com.
+Or we have another piece in here, which we'll get to in a minute.
+So we had to set up MX records. And then the docs did a really nice guide for doing extras.
+Now, you don't have to do these extras.
+But these are extra pieces that help authenticate you secure things and make other third parties like Outlook or Gmail a little more satisfied that you're sending secure email and willing to not send those emails directly to the spam folder.
+So things like SPF DKM, or D mark, and the docs have some examples of all of those, they've got some helpers, like it just generates DKM the keys for you.
+So you just go copy that there was a little bit of an issue in our case, because we are using hover for DNS for this particular domain.
+And don't ask the domains are all over the place. It's just how it goes when you have a lot of domain names, right?
+And you've been around forever buying domains, I can't help myself.
+So they had some limitation. And there's a bunch of guides out there for like, you have this big DKM key, and how do you split it up?
+And if you're using Google DNS, or route 53, using GoDaddy, like, what's the proper way?
+I couldn't find anything specific for hover. Thankfully, with the setup.sh script, it was easy to configure it to use a shorter key.
+So it just went with a 1024 bit key instead of a 2048. Okay, maybe not ideal, but it meant that that fit in the size of the text record that hover was willing to let us to define.
+And it meant we could just move right along with the project. And that was one of the little signs of like, using this in anger that kind of made me think, this could actually stick around, this could last, there's enough configurability.
+I didn't, again, I didn't have to go learn to override actual config files of these underlying daemons. There's enough stuff in the porcelain layer. That was really nice.
+Yeah, good point. It makes you confident that when a situation comes up down the road, it's going to have the flexibility to work with us. And as you can tell, like, so I got this stuff only so far.
+And then Wes came in with some of the final details, like I just, I kind of got stuck when hover wouldn't allow the longer key in there. I was like, I don't know what to do.
+But Wes just dug in a little bit deeper and got it solved. So thank you for doing that, Wes. You did a killer job.
+So what we're going to do is we're going to open up the mail server eventually to, at first, to a specific set of people who help us run our community.
+And then we're going to widen it out from there as we get more testing done on it. But Weidmann, you had a suggestion for something we could do to help with authentication.
+Yes, so what a lot of mail servers do to verify that it isn't spam that is being sent is they ping and trace back the server it's being sent from.
+And that is where also DNS comes in with the correct records and that your server is open for that request, because if your server bounces those requests, you could end up in a blacklist.
+Yes. So this is the area that has always given me the biggest hesitation for hosting my own mail server is that experience with fighting blacklists.
+Well, and you don't want to get in the point where you start relying on this thing, right? And then suddenly, for some reason, this important email you didn't get, or you can't send, you can't reply to your landlord about this, why the water's not working, you know, whatever it is, it's that one random thing, you are busy that day.
+And you just suddenly you're in the horrible part of self hosting, and you're like, why did I do this?
+Yeah, and so there are those steps you can take that help with reduce and mitigate that. But honestly, these are that that is the primary issue, because I have been in that position where I was responsible for a mail server that many people were using.
+And it was a fight that I just could not win. And it involved just re servering, re IPing, it was a real nightmare. And then it happened to me again, for somebody else, I was helping, and I just never wanted to live through that again.
+And when you combine the absolute total security vector, and attack surface that an email server is, because there's so many scripts out there that are scanning for SMTP and IMAP, that, you know, the moment a common mail server like postfix has a vulnerability, kitty scripts are updated to find it, it's a it's a real risk.
+And you need to take your security a lot more seriously. And so that's why I reached out to mail route. And that's why mail route is a sponsor of today's episode. mail route.net slash Linux, go there and get 10% off the lifetime of your account and start with a 30 day free trial.
+No credit card required. 100% honest with you guys. This is how we're doing it. We're going to run our system through mail route and any system I was going to host today that runs email. I would run it through mail route and then I would lock down my config to only accept and send email to and from mail route and mail route has been doing this for 24 years.
+They have focused on one core competence and that is providing cutting edge email security. mail route protects your mail server with a suite of services designed to remove spam, remove viruses, and help mitigate and prevent debilitating downtime.
+And sometimes it's tricky with your ISP if you want to self host or maybe your server was wrongfully put on a blacklist like happened to me before. mail route solves those kinds of problems too. And admins, you're looking to reduce your attack surface, you could use mail route for that. It helps with security, speed uptime, it streamlines your workflow, all of that is crucial for well functioning and secure email and mail route solves all of those problems.
+That's why we're using it. And mail routes team was the first to do anything like this back in 1997. And they've been focused on this thing exclusively. So they really haven't figured out and you guys know how much I respect that and think that matters.
+And now, they have a lot of easy migration services in the age of cloud email. If you'd like to put this in front of Office 365, or Google G Suite, they have really simple, straightforward one click migrations now. And of course, they have API level integration that you can just use yourself. And you can port your directly in and out to create accounts if you want.
+There's no need to duplicate any workload to activate mail routes protection, we just have it active on anything that comes to our mail server. It was really simple to set up, we point our MX record to mail route, and then mail route points to our mail server. And that keeps our mail server safe and it keeps it behind mail route.
+That's really nice. But something else we got that we didn't really appreciate at first, but now we really love is mail routes real time logs. Because as we were setting up the server, we could log into the mail route dashboard and see what was coming and going from another perspective outside our server, which was immensely useful.
+And then you get granular controls to stop spam and phishing attempts and viruses and ransomware and malware, all the stuff you'd expect. But the number one reason I loved it when I was deploying this for clients forever ago, because this is it right here. Number one reason I would deploy this for my clients, you can queue up mail on mail route for up to 15 days or whenever you release the hold.
+That's huge. That's perfect for covering an outage. If your server goes down, mail route will start queuing it for you. If you need to give yourself a window to do maintenance, you hit the queue button, you don't lose any email, it queues up at mail route. And then if you're self hosting, that's the steam valve release you need to actually make this doable.
+So try mail route today and get 10% off the lifetime of your account and get a 30 day free trial by visiting mail route dot net slash Linux. Protect your business, protect your email server. Mail route makes life better and you can support the show at mail route dot net slash Linux.
+All right, Westpain, are you ready for a check in on that dang arch server?
+We've updated everything. CFS utils and module recompiled for the 510 kernel. Yeah, that's right. 510 now instead of 5.4. And we've rebooted. So I rebooted while you were talking over there. And we've just come back up. I'm waiting for WireGuard to reestablish. I did sneakily establish myself a second backdoor into the studio.
+So I do see that it's pinging on the network again. So if it doesn't come back up, I'll go check on that. But I'm hoping any second now those containers will be spinning back up and I'll be back in.
+All right, Wes, we will come back to it and see.
+I'm thinking maybe I should get a ping going over here, but if you've already got a backdoor onto the network, I guess then you might as well. Yeah, I mean, I just want to know, you know, I just I just want to know.
+OK, so anyways, moving on. We'll just we'll just let that sit and see how it goes. We have a pick this week that frees you from the tyranny of cloud hosted proprietary services.
+So that way you can build your own empire and be your own tyrannical leader of your own cloud services.
+Calendary. You're familiar with this service, Calendary? Somebody will send you a link and say, here's my calendar. You go on there and find yourself something that works real good and then we'll set up a meeting. Oh, right. As a way to like figure out disparate calendars.
+Where do we have something in common and we can actually chat? It's actually kind of useful.
+I've actually used this with guests before where I'm like, here's here's a list of available times, you know, find something that works for yourself.
+We've used this sometimes when chatting with other open source projects out there. They'll use this. And now we have a way we can host this ourselves. It's called I'm going to say Caldenzo.
+I think you nailed it. You think so? I'm getting better, aren't I? I feel like I'm reading these days, Wes, like a good boy.
+I mean, don't get ahead of yourself. But this time, this time you got it.
+I might I might, you know, by the time I hit my 40s, I might be reading like a like a proper gentleman. But this is a self-hosted solution that solves this problem that Calendary solves.
+That makes it much simpler for people to find times that work together and you just run it yourself.
+And it's really simple to get started. And, you know, one more thing. You don't have to rely on a proprietary service or pay a subscription for.
+So I have a link for that at Linux Unplugged dot com slash four zero two. Well, why?
+Wes scrambles to get our our server back online. Which is out in our garage.
+I'm going to give you guys a garage sale update. By the way, I don't plan on doing this every episode because it's definitely a balance of keeping you guys updated on big picture JB business stuff, which I know kind of at least at the meta level you're going to care about.
+But I also want to keep the show on topic. So just for a little bit longer, while this is all still new and I'm kind of in the early learning stages, there will just be a little bit of stuff I need to communicate with you guys from time to time and share some of the lessons I'm learning to, which I thought.
+There's probably value in that and kind of documenting this process, help other content creators or maybe free software projects learn how to do custom hand curated fulfillment.
+And that's something I'm taking baby steps approach to right now. And it's a whole other kind of learning and business. But wow.
+So last week I announced Jupiter Garage dot com. And geez, have I been blown away?
+I just I did it because I wanted to learn how to do custom swag and, you know, a merchandiser, just, you know, a general ability to send item X to audience member Y and just figure out how to do that kind of fulfillment.
+And the idea came from when I tried to, like a jackass, sell a Koda radio rope just out of nowhere.
+And I learned really the hard way that selling and shipping internationally is way more tricky than my American conceptions would have had it to believe.
+So I learned that. And around that same time, I kind of realized that the studio had become buried in retro swag and retired gear.
+As we kind of went independent again, we kind of just sucked in everything we had from different places and it's all been piled up here and stuffed in different boxes and crates and stuff.
+And I wanted to get that out while learning how to do this fulfillment thing. And so instead of just letting that stuff sit around and be wasted, I thought, well, we could find new homes for this previously loved gear and give it to a home in the audience.
+Like, how cool is that? Like something we use to make these shows that's still perfectly usable, we just might have outgrown it, could be used and used for a long time by an audience member.
+And it seemed like a good way to figure out how to do this fulfillment in a low risk, kind of minimal managed quantities way.
+And I started that last week and everything sold out.
+Wow.
+It's just crazy. Like then midweek, I launched another batch of swag bags and they sold out within like 15 minutes.
+You guys are just so awesome. And it has been every single one of those orders has been a learning experience.
+And I've made a custom postcard, just a quick thank you.
+I love 400 special edition, little thank you note from me that I've put in each one of those. And you know what, I realized, Wes, I'm going to get a little emotional here. But, you know, we just we haven't been able to go out.
+We haven't been able to see the audience in a long time. No, no, we have not.
+And this was like a real way to connect with people again, like in a way I just didn't expect.
+That's not why I did this. But like we're writing notes and I'm recognizing names. And it's like all of a sudden, like the audience is real again.
+It was pretty great. And then to have everything just sell so fast was like, well, maybe I said the price is too low.
+But I mean, it was really kind of like, wow, you know, it just like seemed like something the audience was into.
+And it was and we got everything that was ordered, everything that's been ordered since last episode.
+I'm very proud of this because this is what we were trying to master has either shipped out or is just waiting on printing and shipping within days.
+Like the robe was such a struggle, like the robe still hasn't finished manufacturing and shipping yet.
+And taking everything I learned and now applying it to this, we're already we're lapping the robe already.
+And it's just been awesome. It's a major milestone for me and the business and JB.
+And so everything that was so since everything got sold out, we're restocking.
+We've landed on a nice mix, too, because we've done we found a really good partner to work with for some automated fulfillment.
+So we have some brand new we have a brand new T-shirt. We have a brand new hat that's actually going to be really popular because I put the bearded tux logo, which I think looks awesome.
+That's that tux we started using after we wrapped up Linux action show, put that on a T-shirt to put that on some nice, comfy joggers.
+And those are being fulfilled by a by a partner and they're doing just a great job turning that around.
+And then we have like custom garage sale items and we're turning those around at the same time.
+We're firing on all cylinders. And it sounds like maybe some of the hosts on the network might want to start putting a couple of their items.
+Like Alex has a couple of really high end pieces of gear, one in particular that I think people would love to see go in the store.
+So that's going to you know, we're talking about figuring that out.
+I put a new kind of I'd say low key polo in there, too, for people that are going back to work or already back at work.
+It's classy and totally work safe, but it has a nice low key rocket on there.
+And and last night I put on a couple of more last challenge coins. We're almost out, but those are up.
+I also I think I still have one more pine board up for sale on there.
+And then Thursday of this week, April 22nd, the day that 2104 comes out, the free NAS mini will be going up for sale.
+I have had a lot of people ping me directly and ask for this just to sell them directly.
+I'm just going to make it for sale at Jupiter Garage dot com on Thursday.
+I'm also putting up I think eight left rando retro swag bags that are going to be on sale.
+They're still on the sale price for fifteen dollars. All that's going to be going on there.
+I'm going to kind of ramp down how much I talk about it on the show, but our intention is just kind of keep putting that stuff on and let you know from time to time.
+The retro swag bags are great because you never know what you're going to get in there and you're going to get a note.
+You're going to get you're going to get some swag. You're going to get some great stuff that we're not making anymore.
+All of that's up on the store at Jupiter Garage dot com.
+And thank you, everybody who went and checked it out and placed an order or got themselves a T-shirt or the joggers.
+Seriously, those are the ones to get, I think. So go check it out.
+I am humbled. And I had myself a whole emotional experience when I realized how badly I miss connecting directly with the audience and how satisfying this is.
+And we're still going we still got more gear. And my intention isn't to make a ton of money off this stuff.
+My intention is just to get it out of here and make room for new give you guys something at a great price.
+And when we kind of get past just just kind of clearing stuff out and we start putting new stuff on there and the prices reflect that a little bit, I'm going to bake in discounts for our members.
+So if you're supporting us as a core contributor, you'll just get a discount that you can apply for anything in the garage right now.
+There's just literally I mean, you'll see when you go there, there's the prices are stupid low because honestly, this stuff to me has just been sitting and I'm looking at it going even if I make 25, 30, 100 bucks off of this thing that's worth 800 bucks.
+You know, at least it's not sitting around getting wasted anymore. So Jupiter Garage dot com.
+Oh, the last challenge coins are sold out. Those are going quick. And I've got a very small batch left. So I will have to raise the prices on that just because there's just so few left.
+The laws of supply and demand.
+It's pretty neat. You know, the first last challenge coin that I put up back for sale sold in three minutes.
+If people are really people are into it and it's pretty cool.
+It's it's actually one of the neatest things I've ever done from a new business challenge, which is one of the reasons I'm kind of talking about it here on the show, because I've kind of been doing this podcast thing for a while.
+And, you know, kind of got it down. And this has been the first thing that had to kind of bootstrap.
+And I hope when we're done, Jupiter Broadcasting has the coolest, uniqueness, merchandise and items.
+And also one of the kind of benefits is if we're putting stuff that we've used before up on in the garage sale, you know, it's going to be compatible with Linux, too.
+And if it's not, well, we tell you because we were testing all this stuff.
+And that's kind of great, too, because the audience knows like, hey, there's something that these guys are taking care of.
+It runs it runs with a Linux box and I can get it at a great price.
+And every now and then stuff will just come available and we'll let you know.
+So Thursday, the free NAS mini goes up and then there will be other storage related items that come down the road.
+It's not the only NAS that will be in the garage sale.
+So if you miss out on the free NAS mini, there may be a couple of other NASs that end up end up in the garage sale.
+All right, Wes. How are we doing?
+I've got good news and I've got bad news.
+OK. All right. Should I SSH into it or should I just wait for you to reveal?
+That's up to you. See if you can find out. What do you think? What's happening with that server of ours?
+All right. I'm going to go take a look right now.
+Oh, OK. Huh. Hmm. Well, I see Plex is running and Pi-Hole is running.
+All right. Looks like the containers are up. All right.
+Looks like the ZFS storage is mounted. Yep. I see the Levi mount. It's up and running.
+Hmm. You're saying there's something wrong with this box. All right. We had one casualty.
+So we're back online. We had a pretty big kernel bump right at 5.4 to 5.10.
+But as I thought, the one tricky bit here was the change to WireGuard.
+So our subspace container is currently restarting.
+In our defense, this is one of the pieces of the current stack I think we're looking to replace.
+You know, subspace was pretty cool. It prevented a nice like gooey atmosphere to configure WireGuard.
+But we've covered some recent stuff in the picks that seemed a little better, a little more minimal for our needs.
+And subspace hasn't been developed for a bit, but it kept working. So we kept using it.
+It actually mounts the WG binary in from the host.
+And now it's complaining about something about glibc versions. And it's it's a little unhappy.
+I think we can work around it or just, you know, redo it if we need to.
+But I don't know, man. I think we could nix it. Boy, I'm looking at the log right now. It sure is complaining an awful lot.
+I think we could nix it because we found that other script that worked kind of better for managing our WireGuard keys anyways.
+Yeah, we didn't really need to do it. We just wanted an easy way when, you know, one of us forgets it to reset it or add a new device.
+Or issue one to somebody who needs to get remote access or something like that.
+I mean, it was nice for like, hey, X person needs remote access to the studio today.
+Can you give them the WireGuard key? And that was great. But I think there's other tools we could use.
+And, you know, this sort of is a good reminder that not all containerized server software is completely invulnerable from OS updates, as just demonstrated by Nebula.
+Although this one in particular is hooking into system components.
+So, yeah, this one's a little more tied to the host than most.
+Yeah, more tied than most. That's for sure. Thank you to our unplugged core contributors.
+Unpluggedcore.com. You keep this show independent, help us reduce the ad loader. Let me be picky.
+You know, like, seriously, I went out and I sought out mail route because I knew that's what we were going to use to make me feel safe and secure about using a mail server in production.
+And I get to be picky about those sponsors. And so I appreciate you make that possible, too. And that matters a lot.
+That changes the game in a big way. But you also as a thank you get access to two feeds, a limited ad version of the show, same full production.
+All of Joe's touches, just limited ads. And then you also have the option for the feed that has everything.
+Every time we make a mistake, the live show, you know, we're getting in, we're saying hello to everybody, we're getting assembled.
+The conversations we have after the show that should have been in the show, all of that stuff is in the second feed.
+And it's basically a whole extra show. And that's available to our members who support the show.
+So thank you, everybody who does that at unpluggedcore.com. Here's a taco for you.
+Well, we got through an episode with a live arch server update with only a small casualty, because like you said, we were actually kind of done with Nebula anyways.
+So I think overall, I'm going to consider it a B plus, Wes. I think it's a B plus update and I'm happy with it.
+And we were bound to experience some pain, right? Honestly, this has kind of gone better than either of us expected.
+And part of the deal with a rolling release is, you know, you will have paper cuts.
+But in theory, and we'll find out as we keep going here, we'll deal with these sort of one at a time as they come up instead of all at once when we had to rebase this thing to the next version of Sentos.
+Yeah. And I want to remind you, if the hosting your own stuff like the email server or the calendar topics is of an interest to you, we have a show that focuses solely on self hosting at self hosted dot show.
+You can go listen to Alex and I go on about kinds of stuff, including my rad off grid setup that I just basically use all the time.
+Now, it was a lot of fun to build and it turned out to be a great project. All that's documented self hosted dot show.
+If you do the Twitter thing, you can follow this show at Linux unplugged.
+The network is at Jupiter signal and there's an entire network of podcasts over at Jupiter broadcasting dot com.
+If you work in the tech industry, though, don't miss Linux Action News.
+That's my hot tip for you. That's when I think just pop that in Monday morning on your way to work.
+Get everything you need to know in the world of Linux.
+And then if you want to hang out with us live, maybe join our chat room or join our mumble room.
+We'll do that on a Tuesday. We do that Tuesdays at 12 p.m. Pacific, 3 p.m.
+Eastern. See you next week. Same bad time, same bad station.
+That's right. Keep the Linux rolling and join us live.
+Links to everything we talked about today, how to contact us, that mumble we talk about all the time.
+If you want to enter the matrix, it's all over there. Linux unplugged dot com.
+Things we specifically talked about today. Good question.
+That's at Linux unplugged dot com slash four zero two.
+Westpain right now, as I say this, is making all of the links pretty just for you.
+Lots of good info over there. Just for you. No one else.
+That's right. He does that for you. We do that for you.
+Thanks for joining us. You are the special sauce.
+You're so delicious. And we'll see you right back here next Tuesday.
+So anybody running Pop OS Cosmic right now? Anybody on the cosmic sauce?
+Is that even possible? I didn't even see the code dropping yet.
+Oh, yeah. Oh, yeah. Well, that's what I've done. Oh, yeah, that's possible.
+OK. They even got some build in their PPA.
+This is what I love about being able to do, quote unquote, journalism for free software is if the codes out there and you know how you got the skills, you can go build it for yourself and talk about it.
+So that's what we just did. And you know what? Here's my quick take.
+Although I go in a lot more detail on Linux action news individually, each component, you're like, oh, OK, that's not that's not much.
+But when you bring it all together with the tiling window manager extension, with some of their multi monitor window extension, with the dock and with the pop theme, when you kind of arrange it all, it actually does feel pretty substantial.
+Not like super different than Gnome, but definitely a differentiator that's going to make pop stand out.
+And if you were to try to reproduce the same setup on another distro, which you totally could, you just wouldn't quite have that same experience because you kind of need all of the pieces working together with that with that look to really make it cosmic.
+And that's what I was struck with, because when I built it, I kind of Weston, I bolted this. We kind of built it up component by component. So you get one thing work in the next thing and then and then you literally go turn the extensions on one by one and you can kind of see how it changes your desktop.
+And that is fascinating. And their dock appears to be at least right now based on the Ubuntu dock, which is based on the dash to dock extension.
+I'm not surprised, Chris, that I could have told you this much in the sense that like when you put the extensions together and you have it out of the box like that, it creates an experience that's actually worth using, right?
+Like, this is sort of the pitch I've been making for, I don't know, a couple of years now when we talk about the door workstation and Fedora KDE.
+But you can do it's not like we hide what we do or anything of that sort. But the value comes from us putting it together and making it available to you and giving you a solid experience that you can work from that you can trust will stay working.
+And like cosmic does the same thing. And I have all the confidence of the world that Carl is going to make cosmic work great on Fedora as well, because he did it for the other pop session stuff, too, when it first rolled out.
+I know he's already spoken to them and they're interested in having cosmic available in Fedora. So that'll be a thing eventually.
+But I hadn't checked it out mostly because like as soon as the announcement went out, I went and looked at the at the GitHub and there was nothing there.
+And it's like, oh, OK, well, I'll check back later. It was a really kind of educational experience because you start with all the obviously right.
+You start with the dependency. So you start with a PPA and you kind of add. So so West and I took two different routes. The route I decided to take just to see if it was possible was I did it on a 2104 install.
+It was already set up and good to go. And then I added like their PPA's and stuff and kind of watched an Ubuntu machine as I installed each layer transform into a pop machine.
+And it was fascinating because when you add their PPA and then if you have a totally up to date 2104, which is very fresh, right?
+Totally up to date 2104 system. And then you add their PPA. There's quite a bit of software that gets updated.
+There's a lot of things they swap in and swap out and they have like, you know, their name attached to the package name.
+And they've done just a small little tweak here. So you get all that stuff installed.
+Then you get all the extension stuff installed, then you get all the theme stuff installed, and then you kind of bring it all up and bring it online. And boom, all of a sudden I was on a pop OS machine that's based on 2104.
+This is basically how anything gets put together. Like, you know, if you look at, for example, what we're doing in Fedora KDE with Fedora 34, we're introducing a breeze twilight based default, right?
+So that means that we change the color scheme for the bottom, but we also have to have the wallpaper set up. Then we also have to make sure the fonts are configured correctly.
+And you can install these packages, you can do these settings yourself, you can even see how it's assembled and you can replicate the experience.
+And when you do that, you understand what work it actually took to put it together.
+But the end of the day, what people actually like to see is the experience laid out to them all at once, because when a lot of times people like the experience when it feels more magical, like when it feels more just, oh, it's just there and it's just amazing.
+It's a little less magical when you build it all up yourself and install each component.
+Right. And some people, particularly experts, certain experts, like I've certainly seen other people do this, they kind of trivialize the effort because it's like, oh, yeah, yeah, I can throw this extension Y here and this extension Z here.
+I can throw this color palette option A over here and whatnot. And I'll get something that looks like it or acts like it. But that's not the point, right?
+If that was the point, then a lot of this wouldn't be happening in the first place. The point of it is to provide not necessarily differentiate user experience.
+So I think it certainly does provide that as a byproduct of these things, but provides a user experience that satisfies the needs of the people that are using it.
+My final kind of like takeaway from it was it's in a pretty good shape today. And so by the time most people are going to get their hands on it, it's going to be June. And I don't really I'm not suggesting people should go build this out yet.
+I would if I were most people listening to this out there, I would wait for a beta. System 76 at some point will do a beta.
+I'd jump in at that point. They're probably not even ready for all the feedback that would come if people went and built this themselves.
+But we got curious, you know, so we wanted to check it out. But my kind of overall takeaway is I can see where they're going with it. And it's in good shape already for the little bit. I did use it.
+So I imagine by June, they're going to have a pretty solid. I was just happy Cosmic didn't turn into an actual desktop fork.
+Yeah, it's gotten some people some like a YouTuber who kind of did it like really early when the story first came out, like on Friday or Saturday, he did a video and he called it a fork in his video.
+And I think that's a little unfortunate. It's nice to see that my friends in podcasting land and other places are getting it correct and not calling it a fork.
+But I have seen I've seen a couple of I've seen a couple of people in the area of coverage that have called it a fork.
+And I think that's a little unfortunate because it's not what it is.
+Well, the whole thing is a bit nebulous, really, because I mean, are you going to call it it's kind of referred to as like a new desktop or desktop environment or experience?
+Like what do you really say? Because it's it's almost more an intention than it is.
+Like because right now it's just a set of packages and tweaks and extensions, right?
+Like it's not whether or not you consider it separate is like kind of on in the minds of the creators at this point.
+Right. Well, then that question becomes where is the line for a Linux distro?
+Yeah. Is every distro a fork of Linux because they take a kernel version and they stick with that and they rev on it for a few years?
+Is is it LTS in a rail, a fork or or, you know, so it's like, where is that line?
+And right now what they're doing is they're just maintaining a set of extensions and they're upstreaming what they're doing so far.
+And you would you and I proved West is you can start with a stock gnome install and you can convert it still over without having to like rebuild gnome shell or anything like that.
+There's always a possibility that that will happen because I'm sure you remember this, Chris.
+But for a lot of those that don't know, cinnamon started out this way, too.
+The spices that eventually became the aspects of the cinnamon shell were originally extensions on gnome shell.
+And then it turned and the amount of effort it took to extend gnome shell to do what they wanted turned out to be more difficult than just changing gnome shell.
+And so they forked it. Well, and I haven't I've tried not to really make this comparison because I think it could have some negative connotations.
+But I don't mean it in a negative way. But in a way, I wonder if we are witnessing the creation of 2021 version of what meant Linux would be because they're kind of making their own thing.
+They're going to go their own way on a few stuff. They're adding their own custom code. They're making some technical modifications.
+They've swapped out the installer. They're kind of creating their own desktop experience.
+A little more geared to some of the random like proprietary ish things, you know, whether it's media or games.
+Right. That's a great point. And, you know, when you install this PPA and you watch all these updates go by, you see stuff that will remind you of the things that meant used to be known for, like adding those codecs and making a little more hardware enablement here or there to a package in not necessarily a negative way.
+But it very much reminded me of the early kind of value propositions of Linux Mint, but built on a much more modern technology stack with obviously a larger team behind it with a different purpose and a different goal.
+But very reminiscent of some of those early essential ideas.

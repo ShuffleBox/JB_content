@@ -1,0 +1,905 @@
+Did you ride the school bus as a kid, Wes?
+Yeah, I did.
+I mean, well, until I got kicked off, anyway.
+You got kicked off the school bus?
+What'd you do?
+Alright, well, let's say you're a young'un in high school, you're getting excited, learning
+about technology and electronics, and someone tells you you can make a taser out of a disposable
+camera.
+Wait a minute, you brought a taser on the bus, Wes?
+Yeah, turns out the school district wasn't so keen on that.
+Hello, friends, and welcome back to your weekly Linux talk show.
+My name is Chris.
+My name is Wes.
+Wes, is that a giant plate of scrambled eggs?
+Extra maple syrup.
+Nice!
+This episode's brought to you by a cloud guru, the leader in hands-on learning.
+The only way to learn a new skill is by doing.
+That's why ACG provides hands-on labs for cloud Linux servers and much more.
+Go get your hands cloudy at a cloud guru dot com.
+Coming up on the show today, I'm going to chat with Aaron Bakley, who built a home out
+of a school bus, and then he took it to the next level and automated all kinds of things
+on this bus using Linux and Home Assistant.
+It's an incredible journey of learning things from scratch and taking one challenge after
+another and building something incredible that the whole family gets to enjoy.
+And it gets really, really geeky.
+And you guys know I'm a big fan of road trips, and I have a lot of automation in my RV, Lady
+Joops.
+So this is a great chat, and it's amazing to hear how somebody can kind of come into
+Linux and discover these things through the avenue of building a project like this for
+their home, for their family, and all of that.
+So there's just some really kind of geeky stuff we get into.
+So we thought maybe we should define some terms.
+All right.
+First up, hardware, Victron.
+That's a power inverter, charge controller, basically the unit that's the brains of the
+electrical system and keeping everything going.
+Yeah, in fact, the same exact gear I have in Lady Jupiter.
+So it was really neat to listen to Aaron talk about how he's using the Linux system that
+runs inside there to get extra information.
+But we'll get to that.
+And that's called the Victron Venus, right?
+That's the tiny little Linux box that takes data from the Victron itself.
+Yep.
+Very cool.
+There's also Shelly or Shelly.cloud, which is a maker of a range of small IoT products
+that you can use to turn non-smart devices into smart devices.
+Think things like physical controls that reflect in software and a whole lot more.
+Yeah, you'll hear us talk about how he can use some of those in his build.
+And then there's the whole like software aspect of it, some services that we talk about that
+run on Linux.
+Yeah, there's MQTT, which is the Message Queuing Telemetry Transport.
+And it's a lightweight pub-sub network protocol that transports messages between devices,
+sort of like the underpinning of the whole network that lets your various IoT gadgets
+and systems that monitor them all talk together.
+And the last bit of jargon you need here is Node-RED, which is a web-based visual development
+tool that you can use to create JavaScript functions and tie complex automations together
+between hardware, software, and basically everything on your network.
+Recently, Aaron joined Chris to tell him about his Linux and home automation journey.
+And they start with how Home Assistant changed everything.
+Let's get into Home Assistant because I was googling around trying to figure out ways
+I could bring in power information into Home Assistant and just even for display purposes,
+but maybe even for automation triggering.
+And you can see how this can be applicable to somebody who lives in a house that has
+solar or maybe has a battery wall or something like that, or just wants to have a smaller
+environmental impact.
+I've always dreamed about pulling all that information and getting the state of charge
+of my batteries.
+How much solar is coming in?
+How much power are we using right now?
+And this seems like a real journey you went down, and you must have had to familiarize
+yourself with Home Assistant.
+You had to familiarize yourself with how all the Victron equipment communicates and then
+how they bring that over the network, and I'm guessing you probably also had to teach
+yourself MQTT in this process.
+Yes.
+Can you tell me a little bit about this journey?
+This is...
+Don't forget RS-485 and CAN bus as well.
+So yeah, they've got a couple things.
+So Device Bus over RS-485 and CAN bus also came into play.
+Okay, so how did you get started with Home Assistant?
+Was it to solve a particular problem that involved the electrical system or was it something
+else entirely?
+So in the Victron world, they have a thing called VRM.
+If you Google VRM world, it's kind of a really interesting thing.
+My bus, I won't tell you where it's at, but you can find it.
+It's this graphical 3D map of the world, and you can zoom in on people that have decided
+to share the information about their Victron installations on the world.
+It's pretty cool.
+And so Victron internally, they have a thing called the Venus OS.
+It's like an open source version of Linux kind of distro that goes with it.
+This is the reason I went with Victron equipment.
+It's actually...
+I looked at a lot of different vendors for power infrastructure, for solar controllers
+and inverters and things like that.
+But many of them had semi-documented API interfaces or not really at all, or just closed loop
+like plug it in and trust us, it'll work.
+There's your firmware upgrade that is a black box that might add more features.
+I don't know.
+Versus I'm looking at the Victron stuff and it's kind of all over the place.
+But as I'm digging through it, I'm like, oh my God, there's a reason it's all over the
+place is because they're actually allowing their software to be not installed or anything.
+So they're like, go ahead and install Venus OS on a Raspberry Pi, not their own embedded
+thing.
+Oh, I had no idea.
+So at the time I bought the Venus GX, which was the product that they were using, and
+it's the system integrator.
+They've got CAN bus interfaces and their proprietary serial bus interface, ethernet, Wi-Fi, things
+like that, and their software.
+So the idea is you buy a Victron inverter or a solar controller and you plug their cables,
+the appropriate cable into this box, and it just renders a little display that shows the
+status on it.
+So it shows like the battery and the inverter state and the charge and battery percentage
+and stuff like that.
+It's all kind of a plug and play kind of deal.
+And I was like, man, you know, $350 is a lot of money for that thing.
+So I'm like, well, I can get a Raspberry Pi for 40 bucks and their software's right there.
+And they're even releasing an image that you can just install on an SD card and it works.
+And lo and behold, I put it on there and it booted up and I'm like, wow, this is pretty
+cool.
+I ended up putting a GitHub gist on my travels through that.
+And this is at the time I was discovering this, I hadn't even finished the installation
+of the Victron equipment in the bus.
+I had just finished the battery.
+I knew this was the direction I was going.
+So I was just kind of researching.
+There was stuff that was taking forever to ship and real life was going by and things
+like that.
+And I couldn't work on it all the time.
+So I kind of spent some research time looking that up.
+After a while, I ended up buying Cantact, it's called Cantact Cannibal is the name of
+it.
+It's a little CAN bus interface.
+It's just like open source hardware kind of deal, USB plugged it into that.
+You say it was the Cantact Cannibal.
+Is that what it was?
+Yeah.
+Cannibal.
+Not cannibal like you eat things, but Cannibal, C-A-N-A-B-L-E.
+Just a neat little dingus of a USB CAN bus interface.
+Okay.
+Started loading up the software and digging through because Victron uses D-Bus for messaging
+on everything inside of their devices.
+And so there's just all this stuff hanging off of device trees and started kind of putting
+in my equivalent stack.
+I got a RTC real time clock hat that had digital analog converters and some optocouple decoupled
+contactor controls for like relays and stuff.
+And then I got just one diagnostic style USB Victron, proprietary Victron interface to
+plug into it that normally plug in in your laptop.
+But it just, if you plug it into the Raspberry Pi, their OS detected the device and kind
+of worked.
+So when I started adding up the cost of all these individual components, what I realized
+is that I'm now about the same price as just buying a Venus GX.
+And now I've got sort of a Frankenstein comp side with 201 project sitting in here that's
+controlling thousands of dollars of equipment and we're depending on it to work all the
+time.
+And I'm like, I just, I couldn't get behind that.
+So I just went and bought their actual device, which has been a fantastic little box ever
+since.
+It's nice to be able to play around with the Raspberry Pi though.
+You know, it gave you the confidence to make that purchase.
+Exactly.
+And I think that was a very shrewd marketing thing on their side because I can still just
+open up on their production device.
+I can get a root console and I can make changes to the operating system.
+I can make a thermal changes that get wiped during a firmware update.
+Firmware update actually is, if I'm using air quotes, there is actually just a reload
+of the disk partition on the, on the little device, or there's a persistent partition
+that you can load modifications to that persists across updates of it.
+So you can write custom code and modifications to this thing in Python or whatever you can
+fit on the thing and it stays there.
+So you can write permanent upgrade and changes to these things and change them how you want.
+And if it can talk over ethernet or USB, there you go.
+You got your extension to this device.
+So it's very extendable.
+So anyway, after kind of going through that process, I started using that device.
+I just got it installed with the rest of the Victron equipment and I just kind of left
+it at that.
+So we drove and traveled and things like that.
+And about a year in, I was a little dissatisfied over the fact that I had to stay connected
+to the internet to publish internet to VRM.
+I knew this conceptually at the time, but I didn't know the details, but there's an
+MQTT mosquito broker sitting on the Venus that's running that collects all this information
+from D-Bus that's published onto it from their software.
+Victron is shipping essentially that thing that you installed as a Linux box with MQTT
+running on it?
+Yeah.
+Wow.
+It's got mosquito on it.
+And what it's doing is it's a broker that's connecting to VRM and VRM is just a giant
+cloud mosquito broker.
+And they do some magic on the back end to put your data in one spot.
+And if you have a device, it doesn't matter if it's a Raspberry Pi or whatever, if it's
+running the Victron stuff and can authenticate against VRM, you get a free account and you
+get like six months of data storage for that.
+Since the data is sparsely populated up there, when the VRM, the local device pushes the
+data up through mosquito, you get the resolution of whatever it's publishing.
+So you get some pretty great detail on that.
+So you get every sensor and every aspect that it's collecting is pushed up to VRM and stored
+there.
+I thought that was super neat.
+And that's what I had been using the whole time, like from when we pushed off and sold
+the house and started doing things.
+If I wanted to see the status of solar or power or whatever, batteries, that's how I
+just went to VRM and looked at it.
+So for the benefit of the audience at a really high level, what kind of information is in
+these stats?
+Every temperature sensor, the amperage and voltage of your system on both the AC side,
+the inverter side, the input side, like what's the voltage coming in?
+What's the battery voltage?
+What's the watts computed?
+What's your actual location?
+If you have a GPS plugged into this thing, it'll save that any type of alarms or failures
+that are going on.
+So if you set some boundaries about what is going on or the status is degraded, example
+is I have a smart battery controller, it's made by REC BMS.
+It talks to the Victron and its protocol and format over CAN bus.
+If there is a failure or something going on, a cell imbalance or whatever, the REC BMS
+system will publish that on the line and then the Victron unit picks up that alarm and forwards
+it on to VRM.
+And so then I would get an email that the battery is bad or is having a problem, something
+like that.
+I find it fascinating because it's like this hidden functionality exists in my rig that
+I have yet to really tap into.
+Really in small ways, I've glanced it, but what kind of things can you do once you start
+collecting this information?
+It's fairly limited.
+I would say that it's in many ways is geared towards an installer that manages several
+installations because you can track and monitor lots of installations.
+That was my impression is that maybe you go to a specialist and they set up a high end
+customer and then that customer has a problem.
+They can pull up this portal on their end and get their client's information like draw
+battery issues, temperature stuff.
+Yeah.
+And not only that, you can reverse HTTP.
+It basically holds a connection so I can get to the user interface, the little buttons
+that you can push to control and configure things through VRM.
+So anywhere in the world, if I load their client either on a web page or the software
+goes on a phone, I can then remote control that GX if it has an internet connection,
+the Venus or the C-SERBO or they got a couple of different lines now.
+So you can configure and control it.
+The warning is, is you'd never hook up your device to something that you can accidentally
+push the power to turn it off because if you do that now it doesn't come back on because
+you just turned it off remotely.
+So don't do that.
+Yeah.
+So a lot of monitoring history, things like that.
+You can set like thresholds for alarms on any of the sensors if you want that kind of
+stuff.
+It's pretty good for that.
+But it requires an internet connection and that's where getting this data into home assistant
+seems extremely appealing.
+That's actually the exact conclusion I came to as I want to have this remotely.
+I like the fact that it ships it up and it wasn't an ever a problem with the amount of
+data going out.
+It was more like sometimes it is the net reception.
+I'd be parked in somewhere and I guess it's terrible reception.
+And I didn't want to lose the data because I'm kind of a data nerd and I didn't want
+to see big gaps of zero.
+The Venus devices can only cache it for so long.
+I think it's like 12 or so hours before it starts discarding old data.
+And you have those graphs on a dashboard.
+You don't want them to look bad.
+No, they can't look bad otherwise it's like, what are you?
+So what I ended up doing was Victron has a published page help doc on how to get the
+MQTT data out of there.
+You have to do this.
+It's not just a pub sub thing.
+It's actually have to send a keep alive to a specific branch of device off of it based
+on the serial number of your machine.
+Easy to do relatively.
+I ended up making a keep alive that ran inside of node red.
+It was like a two node node.
+It was pretty simple to build and that way it just pinged it every 15 or 20 seconds and
+then it would, it's funny.
+So if you had like MQTT Explorer, it was the tool I use and you pointed it at the end point
+for this thing after you enabled the ability to see it in the UI, it shows nothing.
+And then you ping it once and then suddenly there's like hundreds of, if you just subscribe
+to all to star everything on it, there's like hundreds of parameters that show up on this
+thing and MQTT Explorer is like, holy crap, is it like this giant list that's like thousands
+of items inside of it, literally thousands.
+And then if you stop the keep alive, it all just evaporates because it all disappears
+because of the way MQTT is telling it to discard its last will and testament messages, it says
+go away.
+And so yeah, once I published that, I'm like, well, okay, what am I going to keep?
+And then, so what I noticed is that it didn't matter if I subscribed to the whole thing.
+It's kind of this giant warehouse of parameters I could dig through.
+Many of them I didn't care about, but as I started setting up sensors in home, so I'm
+getting ahead of myself.
+So home assistant, I was like, okay, so this is the platform I'm going to play with and
+quickly realized like the learning curve for home assistant was don't run it on an SD card.
+Yes, right.
+That was step number one because you'll burn a hole right through it.
+Are you on a pie?
+Yeah.
+So I'm on a pie.
+And then the production one, I'll just, I know we don't have video on the final thing,
+but I have it out of the bus right now because I'm kind of redoing it.
+I alluded to that.
+So this is the whole deal.
+You can see there's a, this is a metal housing for a pie with a space for an SD card or I'm
+sorry, an SSD in there.
+Yeah.
+So there's an SSD drive in this.
+So you can see the little bridge SSD bridge right there going through it.
+So this thing is a 12 volt, the 12 volt box.
+So it just runs off of the 12 volt subsystem on the vehicle.
+What is that called?
+I want that.
+That one's like the old crappy one.
+Oh really?
+Here's the cooler better one, which I'm actually building for my house.
+So since then, that's a whole other story.
+We've, we've got a home base now.
+This is the desk pie pro and it's far, far better desk than the other box.
+The first one is like an Amazon special.
+This one is like you buy it from desk pie pro store.
+If you see this cover on the front, this is actually a plexiglass cover on the front.
+So it allows RF to come out of the box.
+The metal box RF is killed from it.
+Like Bluetooth and wifi are extremely attenuated.
+Whereas this one works totally fine.
+There's a sidecar inside of this that redirects the position.
+If you note, it's got full sized ports along the back.
+Yeah.
+This is, this is a PI four cause that's usually it's the micro HDMI, right?
+And it has the GPIO pins in the back like, like a port.
+Yeah, it's great.
+So if you want it to, you could just get a big old header cable, ribbon cable and just
+kind of shove it on there.
+And so that is called the desk PI pro I'll have to look that up.
+It's a good little kit.
+Yeah.
+All of my home assistant stuff in my, in my bus is it's, which is, it's just a class ARV.
+It's not actually a bus, uh, is all on PI fours and they're just in a, um, the flick
+case, which is great, but you know, that is, that's a step above right there.
+It's cool.
+It's a nice little desktop unit.
+There's also some other units that are, um, din rail components.
+So if you looked in the build on the bus, I heavily invested in din rail for, for all
+of the electrical components and I just didn't have the space to stick, stick it in there
+without getting another enclosure.
+And so I ended up with just a, you know, the metal box I did.
+If I were to rebuild this whole thing again, I might integrate it even tighter.
+Yeah.
+That's kind of what I've been wondering too.
+I've been, I've been thinking a lot about that recently.
+Okay.
+So you have a PI four with home assistant running on it and you've decided this is your
+platform.
+Did you start to integrate other aspects of the bus into home assistant to give us an
+idea of what's, what's in there, what home assistance is aware of and what it's doing.
+So the first thing that happened was, um, after connecting Victron, uh, I hooked up
+my air conditioning to it.
+So you have the mini split heads.
+They're made by, um, gree, G R E E and, uh, they have a little wifi module.
+And I think the wifi module that they sell is made to connect to call back to some home
+base in China and then serve up a phone app on your thing.
+Somebody figured out by using wire shark and some other tools, they figured out the line
+protocol for it based on the size and shape of the little dingus that plugs into the head.
+I guarantee it's an ESP 32 on a little board that has some proprietary connector for their
+stuff.
+Right.
+So these people took it apart, figured out the off protocol, figured out how to provision
+it so you can just set, you use curl to send a special magic, uh, Jason string to the thing
+to configure it for your wifi network.
+And then it's connected.
+And so home assistant has a, um, add on for that to directly control it as a climate module.
+And I'll tell you what, when I got that thing going and it presented a thermostat with heating,
+cooling, dehumidify fan speeds, all this stuff, I was like, man, that's, that was pretty great.
+That was a cool day that I did that.
+Yeah, no kidding.
+Gosh, that's so great.
+And then it's right there in home assistant available for automation.
+Yeah.
+And cause before we were just using the remotes.
+And so sometimes it was like, where'd the remote go, you know, like a caveman.
+So no longer chasing the remotes down.
+We could do it from the phone, like on our phones and stuff.
+And that was kind of the beginning of the iteration of the user interface for home assistant,
+because you know, you gotta, you'd be real careful about what type of tabs to present
+what and things from there.
+I started adding like more information from the Victron, like tank levels.
+So at, for a while Victron didn't support anything really good on the sensors.
+They only supported like a US style resistance and a European style resistance sender in
+there.
+Neither of them worked for the propane system.
+And I had like this capacitive reading sensor system that was like, okay, but it wouldn't
+really compatible.
+It didn't give a good information.
+So they finally went through a feature update on the Venus that allowed you to do abstract
+resistance values for your tank senders.
+So then it was, I knew it was going to happen eventually.
+I just assumed at some point somebody would get tired of it and push an update that actually
+worked.
+I started crying and posting requests for features and stuff as well.
+So maybe I helped push that over a little bit.
+I'd like to think it worked.
+Yeah.
+And so I got water levels for freshen and gray and, and then propane levels came later.
+I know pretty crazy stuff.
+One of the things I started building in was like a waste tank.
+So if the waste tank's too high and there's still fresh water, it turns off the pump now.
+So the pump will cut out so you don't overflow your waste and back into the floor of the
+shower drain, for example.
+That's so sweet.
+As a father, I totally understand why you did that.
+Yeah.
+Same goes for like the washing machine stuff.
+Sometimes the washing machine would suck the water dry and you're sitting there.
+Why is the water, why is the wash not going?
+Well, it's because we ran out of water.
+Right.
+And the pump's sitting there pulling up from an empty tank.
+Yeah.
+And it's like sucking an empty tank.
+Oh yeah.
+Yeah.
+So like, why did it do that?
+Oh, that's why.
+That got to a point to where I realized the value in this and I got an old Amazon tablet,
+reflashed it with a lineage OS.
+There's a couple of different like, um, apps that you can install that help you enable
+you to make a kiosk mode sort of deal on it.
+And so just open the webpage for home assistant and kiosk mode.
+And suddenly the kids were able to see that when one of my daughters, she was really excited
+because she could see the power because if you have maybe not perfect awesome son coming
+in and it's kind of so, so you kind of have to judge the number of laundry loads you can
+do.
+Not just that.
+You really kind of have to have the whole family on the same page.
+Can, is this a day you can leave the TV on or do we need to make sure if we're done,
+we turn the TV off right away.
+Like getting everybody understanding that is tricky when you're off grid.
+Surprisingly, if we're not running the air conditioning, everything else, you have infinite
+power.
+Yeah.
+It's like a rounding error at that point.
+The TV could run 24 seven, 600 amp hours over here.
+Yeah.
+But I have to imagine a display at least helps the family understand this is where we're
+at.
+This is what we can do today.
+Yeah.
+And it was really cool cause they got excited about it and they're like, can I do wash?
+And I'm like, well, what's it say over there?
+And they do the thing and then like looking at the, I was like, Oh, I can do it.
+And I was like, yeah.
+And it was just, it was cool to watch them get involved with something that I had basically
+been my own, the dad project for a long time to sort of let me know where things are at
+because I have to then make the announcement, the grievous announcement, okay, we've got
+to pack up cause you gotta go get water cause it's a surprise.
+And instead it's no longer a surprise and we can plan.
+And that made a big difference.
+Absolutely.
+And I imagine, you know, cause I've done the same thing.
+I have a fire tablet actually just upgraded it last week.
+Fire tablet mounted about midway in our rig and the family really took to the automation
+a lot more and all of the other smart devices when there was a dashboard they could use
+and you know, they, they had feedback and I, I made a lot of tweaks to the dashboard
+based on their feedback.
+I imagine you probably did something similar.
+Oh yeah.
+Yeah.
+And I would kind of just watch, I'd be like watching them poke at it and I'm like, you
+see them sort of clicking around and I was like, well, I probably should remove that
+because it's a little too much information about stuff.
+Or maybe they wanted to see this cause they'd ask, how do I know what X is?
+I'm like, oh, here, let me show that kind of thing.
+That was sort of a learning curve.
+It kind of, it got static enough to where it really served our purposes.
+The next level after that was honestly, I started digging into note, well actually sort
+of simultaneously with like getting Grafana in there and a real SQL database to serve
+the, the, the history and Influx DB for tracking the metrics locally.
+Influx DB was the, was really the big turning point for collecting the Victron stuff locally.
+I was only still collecting stuff I'd configured sensors for in home assistant.
+I wasn't picking up every single crazy turn of events that happened through the Victron.
+I didn't need it, but it's still quite a bit of data.
+It gives you a lot of more information.
+Are you, are you running that and home assistant on the PI?
+Yeah.
+I went with not just the home assistant version that is just installed standalone.
+It's actually this Docker style container where if you just do the add-ons for those,
+cause there's add-ons in the store for those things with the has IO implementation, it
+just sets itself up and becomes a Docker container.
+And so you can just run the thing as long as you have persistent config, you're good.
+Same with node red and some of these other tools.
+There were some slight tweaks to some of the Docker config files to be able to allow egressive
+traffic out of some of them, but nothing major that I had to change.
+What happened though, is that I started collecting interesting trends.
+So I would start competing, I would make fake sensors based on other sensors, based on historical
+running averages and things like that.
+And those then became the sensor feeds for doing things inside of a node red, which were
+things like power is trending this way.
+The prediction is that we will reach the zero more power available for things at this date
+and time.
+So try scaling back the temperature of the air conditioning by one degree every five
+minutes until you don't get that.
+So basically want to see that trend flatten out to just a balanced average.
+So there were some soft end points to configuring air conditioning and power and stuff like
+the air conditioning, cause the biggest deal that would scale back AC if there was limited
+power sort of thing.
+So that meant a little discomfort, but it also meant our power didn't go out.
+That really seems like things, again, manufacturers should be actually just building into the
+rigs at this point, but that's a great example.
+I was thinking about doing the reverse for heating up here in the Pacific Northwest.
+They should.
+That wasn't actually a thing that I got later.
+If you're in a mobile vehicle heating with propane directly in your, in your vehicle,
+like some of these schoolies and stuff I've seen, they do that.
+It's terrible.
+It introduces lots of moisture.
+A propane furnace is typical RV fare.
+Great.
+It gives dry heat, but you've got to have a lot of propane to do that.
+I had a lot of propane, but I dedicated it specifically to the stove oven and the hot
+water heater.
+So I went with diesel heaters instead.
+So there's this cheap Chinese aftermarket diesel heaters.
+You can get Amazon places like that.
+They're about $250 or so, and a five kilowatt heater is $250.
+So that's like what, 18,000 BTU or something like that.
+They consume like a gallon of fuel every 24 hours at that output.
+And if you're really running five kilowatts of output, you'll cook yourself right out
+of a 40 foot vehicle.
+Yeah.
+Did you say multiples?
+Did you buy multiples?
+So I got two, one up in the front, one in the back.
+Yeah.
+I bet it cooks.
+The one was good enough.
+But what I found was that to control the moisture on the single pane glass of the windshield
+and things, I really needed to heat up the front too.
+Those have a little Chinese controller in there.
+That's good enough.
+It's got a timer.
+You can push the on and off button, set your set temp, but there's no integration with
+that.
+So there's this guy named Ray, Ray something, Ray, I can't remember his last name.
+It's a product called Afterburner and he's this Australian chap who has been building
+these boxes and they're super cool.
+They have a little, they're built, they're kind of based around ESP 32.
+He supports the firmware update.
+They got a web interface, MQTT, all that good stuff.
+And so configure that to just publish their status into the device tree as well.
+So this MQTT tree that's being held on the mosquito broker on the home assistant is collecting
+a whole crapload of stuff.
+We got all the Victron stuff.
+We got the air conditioning.
+We got status about all the pumps and switches and valves and things for the plumbing and
+stuff in the vehicle.
+We got the heater controls.
+We have just position, date, time, all that good stuff that's sitting there.
+So there's just this wealth of data to start building a bunch of logic into things.
+So one of the modes I had set up was a collaborative agreement between the air conditioning and
+the heaters.
+If the humidity, oh, that was the other thing.
+So Shelly got into play on the mix on this.
+So the Shelly HTs, the little spherical deals, you can get a 12-volt adapter for those.
+So those are screwed in.
+So they're persistently powered instead of off a battery.
+And then I also got some Shelly RGBW controllers for lighting so we could control lights and
+stuff from the same deal.
+So your typical home assistant kind of stuff, lighting and environmental monitoring.
+So the Shellys, when they would pick up that the humidity was climbing to the moon, when
+you're winter in somewhere that's cold and wet and raining, very easy to pick up lots
+of humidity.
+It sounds crazy to run your air conditioner, but in a car, one of the most effective ways
+to reduce your humidity in the vehicle to keep it from fogging up is to run the heat
+and the air conditioning simultaneously.
+You mobilize the moisture with the heat, and then you condense it and extract it with the
+cold coils of the AC.
+So Node-RED would then coordinate the Chinese heaters with the GREE air conditioning system
+because if you use the dehumidify mode in the GREE system, it wasn't really effective
+on its own because it was just pumping out cold.
+You need to heat it too.
+And so between those two, you'd set the GREE to dehumidify and it was below a certain temperature
+outside and inside.
+There's some settings there.
+It would kick on the heaters to help it out.
+That was a huge comfort thing.
+Yeah.
+Did you ever have a situation where you were in a low power scenario and some of these
+systems are kicking in and draining you even faster and you look at the percentage of power
+left, you're like, oh, what?
+What happened here?
+No, I don't think I've really encountered that.
+No.
+You and your infinite power.
+Yeah.
+The funny thing is that some of the best power situations can honestly be if it's sunny in
+winter time because you don't have to heat or you don't have to cool, I mean.
+Yeah.
+And really, if the sun's out, a bus heats up.
+Well, kind of.
+I mean, we don't mind.
+We have quite a bit of insulation.
+We have like three inches of insulation all the way around, so it stays fairly consistent.
+If it's air temperature, it definitely heats up though eventually.
+The air exchange will happen.
+And you have six, I don't think we've actually said, you have six people living in this.
+Right.
+So it makes a big difference in a lot of ways with humidity and with temperature.
+Yeah.
+Four kids, two dogs, a cat, my wife and I, and then I'm sitting up in the front in my
+office which is one of the chairs with a fold-out monitor and computer and everything.
+So I'm running a real desktop PC, not just like a laptop usually, and talking on the
+internet with work calls and doing all the stuff that people do on a mobile remote thing
+there.
+Right.
+So now you're rebuilding, it sounds like.
+You've had the opportunity to set up a home base and can kind of redo some of this stuff.
+What are you going to change?
+What are you tweaking in the next build?
+I've been always sort of light on understanding how Docker works and Kubernetes and deploying
+things and reliably redeploying configurations and stuff.
+So I have been experimenting a lot with virtual machines and running Home Assistant just on
+a machine because it's frankly kind of a pain in the butt to cycle back and forth between
+keyboards and monitors on an actual physical Raspberry Pi.
+The fundamentals are the same.
+So for me, it's been learning about how to control my Docker environments, how to revision
+control them, how to keep all my configs in play and working and hopefully with Home Assistant
+finally getting to version one, I don't know if you've seen their version numbering has
+changed in the last.
+Now it's date based.
+Yeah, it's date based.
+And so it's like, I feel like they're, they've turned a corner in like maturity on things
+and the API isn't changing, not retiring so much stuff.
+Stuff seems to be consistent for longer periods of time and I feel like I can kind of trust
+that more now.
+Are you doing any Home Assistant in your home base?
+I am.
+I have a little extra buck, the DeskPi Pro, I can turn my sprinkler system on from that.
+It's pretty great.
+That is.
+I picked up some furnace controls for the house.
+So I have my heat HVAC is now controlled through it.
+Very straightforward.
+Now I picked up Shelly, the AC clamp meters that they have.
+So you got split phase clamp meter powering.
+So that's showing up actually in the mail, I'm just going to hook it up and wire that
+to main.
+And you clamp it around the mains on it, so it's not, you have some power, but that's
+about it.
+And then that way I can get some status on that and just sort of see what's going on.
+Yeah.
+And that'll be nice if you do hit the road or when you do hit the road again, you can
+keep an eye on home too.
+Yeah.
+Yeah.
+Actually my wife just snuck it around the corner here.
+You can see what it looks like.
+This is the, here's the clamp meter, one of the clamp meters for it.
+So it's, you can see kind of the size of it going on here.
+So this will clamp around a 120 amp leg of your power panel.
+That's kind of like what the Victron stuff is sort of giving me in those spaces.
+You can derive a lot of the other information from just knowing the amps going through something
+if you know the voltages.
+Does a house feel like a bigger problem domain?
+Because that's, that's how I felt is I was sort of motivated because a rig I could wrap
+my head around the entire thing from the ground up.
+Without a house, it felt like I don't know where to start.
+I don't know why I had it.
+I just had a different approach.
+I think after going through the process of going on the bus and having to make things
+small, effective and efficient, the house is easy.
+It's like cake because you know, there's lots of space.
+It doesn't go down the road.
+It doesn't drive down the road.
+It stays in one place.
+When you come back to it, it's still there.
+It's very stable in a weird way compared to a bus.
+Yes.
+So it's in a lot of ways, it's almost like reverse now I can use the house as an incubator
+for ideas and practice this and fine tune this better.
+We're really looking forward to getting back out on the road and, and doing some trips.
+You know, it's not like we're going to go for just a week, we'll probably go for longer
+than that.
+Hopefully my work being full remote allows me to do that and then I'll be able to run
+out with another iteration of this whole home assistant process again and hopefully then
+take what I've learned from pushing it on the bus to make it easy to recycle that concept
+back to the house and make the house re rebuildable, right?
+I love your idea of, of trying things at home, experimenting with things and then road testing
+them.
+Yeah.
+One of the most important lessons I've learned with all of this is that it's really easy
+to start acquiring a whole lot of nerd knobs to play with.
+It's like you plug in a few things and suddenly you have data galore everywhere and it's really
+easy to lose sight of the, of the goal here is to make your life easier.
+Sure it can be your hobby to, to just swim like Scrooge McDuck does in the money bin
+full of coins of data everywhere and doing every in all of the possibilities.
+But I find I, I will get lost in the possibilities when the reality is I don't really need to
+do that.
+And everything you add, every feature you add, this is a, the classic software development
+corundum everywhere is that too many features.
+Some of just for self hosting, the more you build, the more you have to maintain.
+Yeah.
+And, and I think that's been my, um, balance right now.
+So I left the hardest thing for last, which is to make it easier to scale and rebuild
+and redeploy.
+And so that's what I'm really working on right now.
+Well, Aaron, I, uh, I look forward to following your adventures in the future.
+And if you're ever in the Pacific Northwest, let me know.
+Absolutely.
+Yeah.
+Keep track of us on our Instagram.
+You'll probably see things here and there.
+And uh, it was really fun kind of getting a chance to dive into this a bit more details
+Linode.com slash unplugged.
+Go there to get $100 in credit for a 60 days on your new account.
+And you support the show.
+Linode is our hosting provider for everything we've built for JB 3.0 and everything I've
+personally built for the last couple of years.
+Linode's infrastructure is solid and flexible.
+And the nice thing is you can focus on your work, not on infrastructure problems.
+You get 11 data centers around the world to choose from.
+Every machine has super fast SSDs.
+Every system is backed by their awesome customer support, the best in the business.
+I often talk about Linode in terms of hosting like a server, but they also have object storage,
+which we use the crab out of here at Jupiter broadcasting.
+A really handy tool is when you combine the Linode command line tool that just uses their
+fantastic API with the object storage.
+So I'll have like a JPEG on my hard drive that I want to link to somebody.
+I have this link command, like all set up already in fish.
+So where I can create a file or I can delete a file or I can upload a file and market as
+public and then generate a URL for it and then bring it back to my clipboard.
+And then I can just paste that URL into a chat.
+It feels like magic.
+And then just recently I was experimenting with static websites to do like a single purpose,
+like a status page that gives you just information if a service is down.
+And I'm experimenting with just running those directly out of object storage.
+It's so awesome.
+It feels like I figured out some kind of hack to host web pages without a web server in
+front of it that are just super fast and static.
+Like why is this just not a thing more people are doing?
+You know, there's really a lot you can play with.
+They have an impressive set of applications you can just one click deploy from entire
+stacks of web servers to game servers and everything.
+And the pricing is ridiculously great.
+They've really been able to hone in and do this right so they can charge a really reasonable
+price.
+I mean, 30 to 50 percent less than big cloud there over at AWS or Google.
+And you get a real nice balance of technology and price for that sweet price to performance
+ratio that really nobody else gets right.
+Linode's really special that way.
+So go check them out, support the show and see what I've been saying.
+Well, before we go today, we've got one extra little surprise AMA question to throw in here.
+DeckBot from Indiana writes, what can you and your host tell us about being Internet
+famous?
+The pros and the cons.
+If you could send an earlier version of yourself one markdown document of advice about podcasting
+and Internet fame, what would be on that doc and to what date would you send it?
+He flatters us, Wes.
+You know, he flatters us.
+No kidding.
+The only time Wes and I would be considered Internet famous is when we are at an open
+source event and then everybody kind of knows who we are generally.
+Not everybody, but a lot of people.
+It helps if there's like a big Jupiter broadcasting logo somewhere.
+The funniest thing actually is a lot of people have to hear us talk first before they realize
+it's us.
+And that's kind of, man, if that's not a sweet spot, it really is.
+It's adorable.
+Yeah.
+And outside of that, we don't really have to worry about it.
+And when I'm at a community event, I'm there to see people.
+So it's great that people want to come up and say hi is one of the things I love about
+this niche.
+You know, if we were if we were doing, I don't know, the expanse podcast and it was huge
+because that's my secret dream, an expanse podcast, then it would be kind of it would
+suck to go out because I'm kind of I'm kind of an introvert when I'm on.
+I'm on.
+But when I'm off, you better not make me be on and then I don't like it.
+But I like this question about sending ourselves a markdown document with advice about podcasting
+and Internet fame.
+I think I know I think I know two answers for myself.
+Do you have anything that you would tell past West?
+Yeah, I think I think two things.
+It would be I would send it maybe like 2010 era, I think.
+And one would just be I mean, I always liked podcasts, I was a podcast listener, but I
+don't know up and up until I you know, got involved with Jupiter broadcasting.
+I don't think I ever really considered that I would be making podcasts, I would want to
+put that little, you know, that little worm in past West's ear to think that might be
+a creative outlet that you would really enjoy.
+I mean, between the actual content itself and learning all about audio and the hardware
+we get to play with, it's been fantastic and clearly it's on my list of things I nerd out
+about now.
+But the other one, the other one would be prepare yourself for the work because there's
+a lot more that goes into it than I would have ever considered.
+Yeah, but then would you just scare past West off with that second part?
+Well, that's why I thought they might be a nice combo.
+You know, you're going to really like this, but it's going to be a lot of work.
+Yeah.
+So that way, when it's those times, it is a lot of work.
+You're like, no, no, I remember future me said this is going to be worth it.
+Exactly.
+Yeah, it'd be like that little motivator.
+That's that's interesting.
+I think if I could send myself a letter, it would be pretty generic, other than it would
+say, come up with one way that really works for you, for everyone to get a hold of you
+and only ever talk about that one way.
+Remain extremely consistent about that one way, because it kills me when I get notes.
+I just get notes on all these any platform that has a messaging aspect.
+So every social media platform, Reddit, YouTube, everything.
+There's messages in there.
+And I go in there and I get messages from people are like, how come you're not responding
+to me?
+And or I'll get I'll get an email from somebody says, I've been trying to get a hold of you
+for three weeks.
+I just feel so bad about that, because I just can't keep up with the platforms.
+You're like, I legitimately had no idea.
+Yeah.
+And it comes up, it comes up, you know, a couple times a week, at least.
+So I would love to be able to send past Chris a note that just says be super consistent
+about how people should get a hold of you.
+And I don't really know what that way would be.
+It's definitely not email, though.
+Yeah, I mean, it is for the shows, like if you want to get something into the show, the
+contact forms are the best way those come in via email.
+So like for show content, that's really good.
+I mean, email, you know, Wes, actually, as I get to be an old man who's grumpy with social
+media, I kind of think, you know, emails great.
+So you've evolved on this because I was just thinking of you, you know, sort of talking
+about the the horrendous size of your inbox and how hopeless of a situation it was.
+Oh, I do absolutely hate email.
+I have to schedule time on Monday for a project that I don't even know what it's going to
+be.
+But every Monday, I get something in my inbox that action that morning I have to take action
+on.
+And I have to spend a couple of hours that morning.
+Sort of your blocked out Monday morning surprise time.
+I have to because there is no social, like clear expectations on email.
+And so people wake up Monday morning, and they got an agenda, and they want to get some
+stuff done.
+And they either need something from me or information from me or an answer from me.
+And that ends up in my inbox.
+They need it now.
+Yeah.
+And they because they otherwise they can't go on with their thing.
+So I would I would be very clear about communication.
+And then the other thing I think I'd say to my past self is don't do the RMS interview
+that I did years ago.
+The whole thing was just kind of a wild last minute thing that just sort of came up.
+It was a crazy opportunity just two things lined up.
+But I just had rolled out of bed.
+And it was like my third night with a CPAP machine.
+I just got in a CPAP.
+And I had not slept because it wasn't working well for me at the time.
+And you can see in the video if you look maybe you'll see like marks on my face, red spots
+on my face.
+Those are my CPAP straps.
+The interview was like at 5am because of where RMS was in the world at the time.
+And so it was a lot.
+And I don't think I had time to even think about what we were doing or what I wanted
+to ask RMS about.
+And I don't like the way it went.
+But I suppose that's for you know, the the history of the internet because there's a
+lot of interviews that I think really do hold up and that still are good to listen to.
+So I think I have out I've outnumbered the bad but I would have just said just don't
+do it.
+It's interesting and maybe unexpected at first sort of tip that it's easy to get caught up
+with, you know, the excitement of like, oh, I have the potential of this interview.
+This is an opportunity.
+And it feels like why would you say no, but it's it's worth trying to carefully think
+about when you can.
+Yeah, I'd have to you know, I could do a few markdown bullet points, you know, just
+boop, boop, boop.
+Don't do it for these reasons.
+You'll thank me later.
+Yeah, and, you know, maybe warn myself about a few co-hosts here and there.
+But I think that would have been it really.
+It's just a communication thing.
+And then maybe don't do the RMS thing.
+And part of me, though, doesn't want to change anything because it's pretty great that we
+get to do this.
+And it's pretty the community we've built and that has stuck with us over the years
+is really, I think, the best of the best out there.
+And we're just we're incredibly humbled by that.
+And so if like if I tweak any of that stuff, it's like maybe you warning yourself off accidentally
+like things just might not have turned out the same.
+Right.
+Whatever pain you have suffered, it was worth it since you're here.
+That's right.
+All right.
+If you want to watch those back live, we're back on June 8th on Tuesdays.
+Go over to JBLav.TV at noon Pacific, 3 p.m.
+Eastern, or get it converted to your time at Jupiter Broadcasting dot com slash calendar.
+Hey, don't forget to we have the Linux flies on Mars sticker that I made myself over at
+Jupiter Garage dot com for just a little bit longer.
+And you can pick it up.
+And every time you look at it, you'll think to yourself, Linux made history.
+Linux is flying on Mars.
+I also the other thing I like about the stickers, I think Linux runs on more planets than Windows.
+And I like that, too.
+You can follow the show on Twitter at Linux Unplugged for like announcements and stuff.
+The whole podcast network is at Jupiter Syctal.
+And we have a whole range of great shows, a lot more self hosted topics and Linux action
+news as well.
+All of that at Jupiter Broadcasting dot com.
+So don't miss those shows.
+They're a great companion to this here show.
+Hope to see you live next week.
+But otherwise, thanks for downloading and we'll see you right back here next Tuesday.

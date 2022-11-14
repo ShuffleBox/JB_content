@@ -1,0 +1,3844 @@
+1
+00:00:00,000 --> 00:00:09,640
+This episode is probably going to sound like hell because there's really no way to remove rain from a recording like this because it's it's a variable rain.
+
+2
+00:00:09,640 --> 00:00:13,200
+We are in just the middle of what they call a bomb cyclone.
+
+3
+00:00:13,280 --> 00:00:18,100
+We're actually the tail end of it now and it has been dumping just for days.
+
+4
+00:00:18,100 --> 00:00:22,420
+We've had a literal atmospheric river over the Pacific Northwest for days.
+
+5
+00:00:23,000 --> 00:00:28,400
+There's no way for me to record without some kind of weather sound, especially because I'm out in the woods.
+
+6
+00:00:28,400 --> 00:00:31,400
+And it's kind of a special out-in-the-woods trip too.
+
+7
+00:00:31,400 --> 00:00:33,400
+Hey Chris, did you do a rain dance at all?
+
+8
+00:00:33,400 --> 00:00:37,400
+My podcast dance and my rain dance are kind of the same dance.
+
+9
+00:00:37,400 --> 00:00:40,400
+I'm not very good at it and I think that must have been what happened.
+
+10
+00:00:40,400 --> 00:00:42,400
+I think it might be time for you to try the other one.
+
+11
+00:00:50,400 --> 00:00:54,400
+Hello friends and welcome back to your weekly Linux talk show.
+
+12
+00:00:54,400 --> 00:00:55,400
+My name is Chris.
+
+13
+00:00:55,400 --> 00:00:56,400
+My name is Wes.
+
+14
+00:00:56,400 --> 00:00:57,400
+And my name is Brent.
+
+15
+00:00:57,400 --> 00:00:58,400
+Hello, gentlemen.
+
+16
+00:00:58,400 --> 00:01:02,400
+This episode is brought to you by a cloud guru, the leader in learning for the cloud, Linux and other modern tech skills.
+
+17
+00:01:02,400 --> 00:01:05,400
+Hundreds of courses, thousands of hands on labs.
+
+18
+00:01:05,400 --> 00:01:09,400
+Get certified, get hired, get learning at a cloud guru dot com.
+
+19
+00:01:09,400 --> 00:01:11,400
+Well, this show is going to be an interesting one.
+
+20
+00:01:11,400 --> 00:01:13,400
+It could just be a total disaster.
+
+21
+00:01:13,400 --> 00:01:22,400
+And we are all going to find out together live because there's a lot of technology that's brand new layered on top of this episode.
+
+22
+00:01:22,400 --> 00:01:36,400
+Starting in front of me, we've got a Fedora 35 workstation wired up with pipewire that is routing audio between myself, Wes, Brent, the mumble room, OBS, all of it happening in a rather fragile setup.
+
+23
+00:01:36,400 --> 00:01:48,400
+But what's even more exciting, that is connected to a Starlink dish, which is broadcasting this to the world via space.
+
+24
+00:01:48,400 --> 00:02:05,400
+And the entire pipeline from my broadcast machine to the dish, to the satellites, to the ground stations that receive the signal, to even the systems that bridge the ground systems to the Internet all run Linux.
+
+25
+00:02:05,400 --> 00:02:14,400
+I had a great opportunity to learn a little bit about how Starlink is set up, just scratch the surface kind of details, but fascinating nonetheless.
+
+26
+00:02:14,400 --> 00:02:20,400
+So we're going to share those Linux details about Starlink today and I'm going to give you a review of my impressions.
+
+27
+00:02:20,400 --> 00:02:24,400
+I have been out in the woods during this crazy storm.
+
+28
+00:02:24,400 --> 00:02:29,400
+This today will be the fourth day I got out here and of course had to find the right spot.
+
+29
+00:02:29,400 --> 00:02:34,400
+Took me a little while, had to navigate around because I needed a good shot of the sky.
+
+30
+00:02:34,400 --> 00:02:43,400
+I got Starlink going and I've been monitoring everything from its performance, its latency, even the power draw because I'm running all of this off grid.
+
+31
+00:02:43,400 --> 00:02:45,400
+So we're going to talk about that in the show today.
+
+32
+00:02:45,400 --> 00:02:53,400
+Of course, we've got some community news, some Ubuntu concerns we want to share with you, some pics, some feedback and a lot more.
+
+33
+00:02:53,400 --> 00:02:58,400
+So before we go any further, let's say time appropriate greetings to our virtual lug.
+
+34
+00:02:58,400 --> 00:03:01,400
+Hello, mumble room. Hello.
+
+35
+00:03:01,400 --> 00:03:06,400
+Hello. I don't have the little counter for mumble, so I actually don't have the count today, but thank you for making it.
+
+36
+00:03:06,400 --> 00:03:08,400
+Welcome in over Starlink.
+
+37
+00:03:08,400 --> 00:03:19,400
+Please excuse any kind of weird hiccups because not only is there a storm going on right now and I'm broadcasting from space, I'm pushing this thing.
+
+38
+00:03:19,400 --> 00:03:23,400
+We have two different remote audio feeds for Wes and Brent.
+
+39
+00:03:23,400 --> 00:03:25,400
+We have the audio feed for mumble.
+
+40
+00:03:25,400 --> 00:03:30,400
+Plus, we have every device in my RV that's connecting and communicating to the Internet.
+
+41
+00:03:30,400 --> 00:03:36,400
+And I'm live streaming to multiple endpoints via OBS.
+
+42
+00:03:36,400 --> 00:03:42,400
+So if you you can just imagine that is a lot of send and receive happening over this dish right now.
+
+43
+00:03:42,400 --> 00:03:48,400
+It's a very precarious setup, not to mention the software is technically in an unreleased state still.
+
+44
+00:03:48,400 --> 00:03:52,400
+So please excuse any oddities, but this is a real try it.
+
+45
+00:03:52,400 --> 00:03:58,400
+We're doing this by the seat of our pants episode to really put the technology in production and see how it holds up.
+
+46
+00:03:58,400 --> 00:04:01,400
+So it's going to be a real make it or break it kind of thing.
+
+47
+00:04:01,400 --> 00:04:03,400
+And that in itself will be part of the review.
+
+48
+00:04:03,400 --> 00:04:13,400
+But we recently had a review on the show and Brent West and I were talking about this after the show and we felt like maybe something didn't go very well.
+
+49
+00:04:13,400 --> 00:04:14,400
+We didn't handle it quite right.
+
+50
+00:04:14,400 --> 00:04:17,400
+Maybe actually maybe that's not the right way to put it.
+
+51
+00:04:17,400 --> 00:04:20,400
+I think the right way to put it is we didn't have our eye on something.
+
+52
+00:04:20,400 --> 00:04:25,400
+Yeah, Chris, you mentioned that you wanted to make good on how we touched on it last time.
+
+53
+00:04:25,400 --> 00:04:37,400
+Yeah, this is awkward because we looked at the upcoming back then this was weeks ago, we looked at the upcoming Ubuntu release and we thought 2110 looks pretty standard on the main version.
+
+54
+00:04:37,400 --> 00:04:40,400
+And we just thought, OK, it's not a big release.
+
+55
+00:04:40,400 --> 00:04:44,400
+It's got a few notable things, but it's not this standard version isn't blowing us away.
+
+56
+00:04:44,400 --> 00:04:50,400
+And as you might recall, we therefore decided that maybe we'd give the flavors a shot for this release.
+
+57
+00:04:50,400 --> 00:04:53,400
+Chris was over on Monte and I chose Kubuntu.
+
+58
+00:04:53,400 --> 00:04:57,400
+Yeah, and that was nice. You know, I think we liked both of them quite a bit.
+
+59
+00:04:57,400 --> 00:05:00,400
+Good versions of the desktop environments for both of them as well.
+
+60
+00:05:00,400 --> 00:05:03,400
+I think you and I both liked that quite a bit.
+
+61
+00:05:03,400 --> 00:05:09,400
+But frankly, we we didn't really pay much attention to the main release.
+
+62
+00:05:09,400 --> 00:05:15,400
+I had spun it up briefly, tried it, didn't really pay much attention other than just to check out the genome experience.
+
+63
+00:05:15,400 --> 00:05:23,400
+And then after the show, I had an opportunity to use it a little more, just not really even in a review mode, just using the main version of Ubuntu.
+
+64
+00:05:23,400 --> 00:05:28,400
+And I realized we missed an opportunity, but like kind of in a bad way.
+
+65
+00:05:28,400 --> 00:05:34,400
+And this isn't an Ubuntu bashing session because I love Ubuntu and I'm very grateful for the work Canonical does there.
+
+66
+00:05:34,400 --> 00:05:40,400
+But it is out of all of the versions of Ubuntu that I've ever reviewed, which is literally all of them.
+
+67
+00:05:40,400 --> 00:05:48,400
+It's not even like a it's not even like a humble break. It's just a fact of I've reviewed literally every release of Ubuntu ever in some podcasts at some point.
+
+68
+00:05:48,400 --> 00:05:57,400
+And so I've spent time with each one of them comparing and contrasting them to the previous versions and 2110 disappoints.
+
+69
+00:05:57,400 --> 00:06:02,400
+And I'm worried about a general fade here that we're seeing. And this isn't a bash session.
+
+70
+00:06:02,400 --> 00:06:06,400
+This is like as a community, let's align our expectations.
+
+71
+00:06:06,400 --> 00:06:12,400
+And I want to I want to chat this with you guys, just sort of hash this out here in a moment. But let me tell you what I'm seeing.
+
+72
+00:06:12,400 --> 00:06:16,400
+I'd like to know if people in the room are seeing some of this stuff, too. So take me in a bit.
+
+73
+00:06:16,400 --> 00:06:22,400
+But to start with what I've seen, the main version of Ubuntu is just on the surface.
+
+74
+00:06:22,400 --> 00:06:29,400
+It feels a little underwhelming. The GNOME 40 integration, which we waited for, still feels a bit unfinished, to be honest with you.
+
+75
+00:06:29,400 --> 00:06:41,400
+Beyond the dock, which they've added back in there and the Uru theme, there doesn't really seem to be much integration that's happened that really kind of warranted punting the release like this of GNOME.
+
+76
+00:06:41,400 --> 00:06:46,400
+And the Uru theme is actually created by a community outside of canonical.
+
+77
+00:06:46,400 --> 00:06:52,400
+So that isn't I mean, I'm sure there's some work inside canonical to coordinate that. And that's awesome. Thank you for doing that.
+
+78
+00:06:52,400 --> 00:06:59,400
+But it seems like even like the biggest piece for GNOME 40, which was the theme, wasn't really done by canonical staff.
+
+79
+00:06:59,400 --> 00:07:02,400
+And it just seems like a real minimum effort kind of thing, Wes.
+
+80
+00:07:02,400 --> 00:07:09,400
+Yeah, you're just kind of wondering how much work was really spent here. And what does that say about where canonical's focus is?
+
+81
+00:07:09,400 --> 00:07:13,400
+Yeah, it's like maybe not enough staff kind of a thing.
+
+82
+00:07:13,400 --> 00:07:24,400
+It was rough, too, because I didn't really appreciate the difference between the DEB and the SNAP of Firefox in the flavors because the flavors chose to, like in the case of Kubuntu, just ship the DEB.
+
+83
+00:07:24,400 --> 00:07:32,400
+But using it for a bit, I was actually pretty disappointed in the implementation. And this isn't a SNAP bash either, because I think universal software is great.
+
+84
+00:07:32,400 --> 00:07:34,400
+And I think you were pretty hopeful, right?
+
+85
+00:07:34,400 --> 00:07:43,400
+I mean, we kind of touched on how both canonical and Mozilla had put some work in here to try to make Firefox as a SNAP a good experience. But that's why it's important to touch on it.
+
+86
+00:07:43,400 --> 00:07:47,400
+We did cover that aspect of it. But the actual usage of it was disappointing.
+
+87
+00:07:47,400 --> 00:07:55,400
+The launch time is slower. Even on relatively high performance systems, it takes longer to launch than you'd think.
+
+88
+00:07:55,400 --> 00:07:58,400
+And the stability was less than ideal.
+
+89
+00:07:58,400 --> 00:08:05,400
+So we've also had emails in that have told us that certain hardware products they use for their company login systems don't work with the SNAP.
+
+90
+00:08:05,400 --> 00:08:19,400
+That's kind of unfortunate. But for me, before Starlink, I was on LTE and I'm downloading an ISO image and I'm sitting there for 45 minutes and I'm watching this slowly trickle over my cellular connection as the providers will allow me to have it.
+
+91
+00:08:19,400 --> 00:08:23,400
+And just desperate for it to finish because I've got to go. I don't have a lot more time.
+
+92
+00:08:23,400 --> 00:08:27,400
+Five minutes left on this download. I'm doing nothing in Firefox.
+
+93
+00:08:27,400 --> 00:08:32,400
+It's sitting on the new tab page and I have the download menu open so I can watch the progress of the download.
+
+94
+00:08:32,400 --> 00:08:36,400
+And I haven't touched the machine. I'm even not even I'm chatting on a different computer.
+
+95
+00:08:36,400 --> 00:08:42,400
+I'm just watching the Firefox download like you should never do, you know, watching a pot try to boil kind of thing.
+
+96
+00:08:42,400 --> 00:08:49,400
+Five minutes left. No one's touching the machine and Firefox just insta crashes.
+
+97
+00:08:49,400 --> 00:08:57,400
+Just boom, gone. And of course, I could resume the download, but it went back like 40 percent.
+
+98
+00:08:57,400 --> 00:09:02,400
+So it added like another 25 minutes to the download. And I couldn't I couldn't make any sense of it.
+
+99
+00:09:02,400 --> 00:09:07,400
+And that's just the worst experience. And the thing that really got me upset.
+
+100
+00:09:07,400 --> 00:09:14,400
+Was I realized, holy shit, this would have been just that could have just accomplished the same exact goal.
+
+101
+00:09:14,400 --> 00:09:19,400
+If they just use the flat pack and that wouldn't have been a worse user experience.
+
+102
+00:09:19,400 --> 00:09:23,400
+And that's really frustrating because I do appreciate what they're trying to accomplish.
+
+103
+00:09:23,400 --> 00:09:27,400
+And I don't know if the flat pack has the same collaboration that the snap does.
+
+104
+00:09:27,400 --> 00:09:37,400
+It may very well may not. I don't know. But I do know it would have been a better user experience for me because I've had experience with that and it launches right away and it doesn't crash on me.
+
+105
+00:09:37,400 --> 00:09:45,400
+And just that realization that they chose to do this snap effort and they've created a worse experience for me now.
+
+106
+00:09:45,400 --> 00:09:51,400
+When the flat pack could have worked, even though it's not their tech, I appreciate that, but it could have worked and it would have been a better experience.
+
+107
+00:09:51,400 --> 00:09:58,400
+And it's those kinds of little compromises that I think have become pervasive throughout the Ubuntu experience.
+
+108
+00:09:58,400 --> 00:10:06,400
+Gnome 40 instead of 41. And what we got was an updated theme and a doc. And it's not it's not really feeling all of that complete.
+
+109
+00:10:06,400 --> 00:10:22,400
+But beyond just my experience, when I look out into the Internet to see what others is, other than the trashing it's getting on YouTube, the real ones seem to be there was a major data loss bug in the upgrade process for users of ZFS.
+
+110
+00:10:22,400 --> 00:10:25,400
+Surprise, surprise. Hey, that's me.
+
+111
+00:10:25,400 --> 00:10:39,400
+Some people when they upgraded to 2110 had their ZFS file system irreparably corrupted. It was noted in the release notes, but only after two thousand eight hundred and eight words.
+
+112
+00:10:39,400 --> 00:10:45,400
+And then the internal response, perhaps even more damning, was rather messy.
+
+113
+00:10:45,400 --> 00:10:53,400
+When you look at the history of the bug, it seems initially, from what I can tell, it got assigned to a staffer who didn't even work at Canonical.
+
+114
+00:10:53,400 --> 00:10:56,400
+And then it got moved around and it did eventually get fixed.
+
+115
+00:10:56,400 --> 00:11:02,400
+But this is a frickin data loss bug. And it just seemed like nobody was behind the wheel over there.
+
+116
+00:11:02,400 --> 00:11:09,400
+I'm hurting over this because Ubuntu was our was a shining beacon on the hill of desktop usability.
+
+117
+00:11:09,400 --> 00:11:20,400
+And what 2110 represents is is it's boring at best and disappointing at worst.
+
+118
+00:11:20,400 --> 00:11:31,400
+And I'm not sure what that signifies, but I have a sense it means we need to realign our expectations of what we are getting as a desktop product out of Canonical.
+
+119
+00:11:31,400 --> 00:11:39,400
+So here's my question to the class. And Brian, I'd like to start with you and I'd like to open up to the Mumble Room and then Weston, I'll close it up.
+
+120
+00:11:39,400 --> 00:11:41,400
+But does Canonical need to be doing more?
+
+121
+00:11:41,400 --> 00:11:51,400
+Is this sort of minimum viable desktop that is usable by OEMs that can be rebased with flavors that provides you a fairly consistent experience?
+
+122
+00:11:51,400 --> 00:11:57,400
+Is that enough? Because maybe what's really Ubuntu's advantage now is vendor application support and community support.
+
+123
+00:11:57,400 --> 00:12:04,400
+And Canonical doesn't necessarily need to be pushing the edge with PipeWire and GNOME 41 and dedicating more staff to this.
+
+124
+00:12:04,400 --> 00:12:07,400
+Brent, what do you think? Is is it me that's the problem here?
+
+125
+00:12:07,400 --> 00:12:16,400
+Well, I don't think Canonical is necessarily interested in being like the cutting edge of technology anymore for desktop users on a whole.
+
+126
+00:12:16,400 --> 00:12:20,400
+They are doing some some cool things to, you know, try to push the envelope.
+
+127
+00:12:20,400 --> 00:12:34,400
+But I wonder, you know, Hopi has come on here so many times in the past saying that the number of users of sort of the vanilla Ubuntu desktop is really impressive.
+
+128
+00:12:34,400 --> 00:12:42,400
+I don't think he ever shared numbers, but I just remember sort of cementing that into my mind that, oh, yeah, it's way more than we probably think.
+
+129
+00:12:42,400 --> 00:12:55,400
+So to see that desktop experience start to disappoint in many more ways than one and to do some experiments like the Firefox snap, but not to clearly not to have tested it enough.
+
+130
+00:12:55,400 --> 00:13:04,400
+It feels, like you said, really unfortunate. And I have tons of respect for people on the Ubuntu desktop team. We know a lot of them.
+
+131
+00:13:04,400 --> 00:13:12,400
+And I think they're going through a hard time and it shows. And I think that's really unfortunate, really.
+
+132
+00:13:12,400 --> 00:13:18,400
+Minimac, this is the time right now with this release to work out these kind of kinks, I suppose.
+
+133
+00:13:18,400 --> 00:13:31,400
+Yeah, I'm a long time Ubuntu user and the last version before the next LTS was always the version where they introduced the big system changes to be able to test them.
+
+134
+00:13:31,400 --> 00:13:38,400
+So I was quite amazed that Pipewire didn't really make it into the default distribution. It is available.
+
+135
+00:13:38,400 --> 00:13:44,400
+You can switch to it, but it's not enabled as default. And when it comes to GNOME, I don't know.
+
+136
+00:13:44,400 --> 00:13:53,400
+There are a lot of changes coming to now, and I have the feeling that they haven't really decided what version of GNOME they will use in 2204.
+
+137
+00:13:53,400 --> 00:13:57,400
+So a lot of thinking and work going on there, I think.
+
+138
+00:13:57,400 --> 00:14:03,400
+So, Neil, I think part of this is there's two different users of Ubuntu. There's the LTS users, there's the interim users.
+
+139
+00:14:03,400 --> 00:14:08,400
+But Minimac touches on a good point there. There isn't a lot that's being tried in this release.
+
+140
+00:14:08,400 --> 00:14:16,400
+We're probably not going to get GNOME 41 or 42 in the LTS version. We might not get Pipewire by default. Wayland probably won't land by default.
+
+141
+00:14:16,400 --> 00:14:23,400
+More and more things are kind of falling behind, and I worry that ultimately will make the LTS desktop less appealing. What do you think of that?
+
+142
+00:14:23,400 --> 00:14:29,400
+Wayland by default actually happened in 2104. So props to them. They actually did finally start doing it.
+
+143
+00:14:29,400 --> 00:14:38,400
+But the larger point I think we've kind of forgotten is that Ubuntu wasn't about LTS or fast-moving or any of those things.
+
+144
+00:14:38,400 --> 00:14:47,400
+What Ubuntu started out as, and I think this release as it is kind of exemplifies it better than any other release in the past,
+
+145
+00:14:47,400 --> 00:14:54,400
+is it is taking a snapshot of Debian SID and rebranding it and cutting it for a release.
+
+146
+00:14:54,400 --> 00:15:04,400
+Now, I'm not trivializing that. Saying that as a simple statement, that doesn't make it a simple task. It is very difficult to do that kind of stuff.
+
+147
+00:15:04,400 --> 00:15:15,400
+But that is essentially what the original goal of Ubuntu was, was to take Debian and throw some spit shine on it,
+
+148
+00:15:15,400 --> 00:15:24,400
+replace some of the creaky pearl stuff with more useful user-intuitive Python tools and do a regular cadence of releases
+
+149
+00:15:24,400 --> 00:15:32,400
+so people could see how the Debian distribution was evolving because Debian releases very slowly.
+
+150
+00:15:32,400 --> 00:15:41,400
+This is the goal. And I think when you look at what's going on in Ubuntu 2110, it shows, right?
+
+151
+00:15:41,400 --> 00:15:50,400
+It's taking what's in Debian SID, it is applying the Ubuntu Delta of branding and other customizations, and it is shipping that.
+
+152
+00:15:50,400 --> 00:15:58,400
+The Firefox snap versus Flatpak, that's a different discussion for another time.
+
+153
+00:15:58,400 --> 00:16:09,400
+But I think people are going to be increasingly disappointed in Ubuntu as it goes back and goes to its roots of being essentially that.
+
+154
+00:16:09,400 --> 00:16:20,400
+And in the past, they deviated a lot more from that during the Unity days and the early days around investing in infrastructure stuff and things like that.
+
+155
+00:16:20,400 --> 00:16:34,400
+At this point, it is just enough desktop built on top with some spit and shine and customizations to reflect the Ubuntu brand to ship and deliver.
+
+156
+00:16:34,400 --> 00:16:35,400
+That's what it is.
+
+157
+00:16:35,400 --> 00:16:41,400
+Wes, I like to look at a lot of these things through the lens of the enterprise market and the server market.
+
+158
+00:16:41,400 --> 00:16:50,400
+And I wonder if maybe this isn't just a clever strategy that leaves enthusiasts like me kind of disappointed, but is actually a keen move on Canonical's part.
+
+159
+00:16:50,400 --> 00:17:00,400
+They're building a product that still brings value to their server product because it's a platform developers can use to make sure applications work great on Ubuntu.
+
+160
+00:17:00,400 --> 00:17:11,400
+Without 200 people working on staff to build this thing, is that maybe the appropriate way to look at this is how does it serve the server market or do you think broader than that?
+
+161
+00:17:11,400 --> 00:17:14,400
+Well, I mean, you have to at least consider that, right?
+
+162
+00:17:14,400 --> 00:17:19,400
+I mean, resources get allocated at the end of the day where it makes sense for the business.
+
+163
+00:17:19,400 --> 00:17:30,400
+And it's just kind of strange to see a shift where I always felt that with the Ubuntu desktop, it might not be the shiniest, it might not have as new things as Fedora or what I could get in Arch and assemble myself.
+
+164
+00:17:30,400 --> 00:17:41,400
+But I could get really close to something approaching the state of the art in the most user friendly or close to that that you could get in the Linux world.
+
+165
+00:17:41,400 --> 00:17:50,400
+And having that slip. Yeah, it does. It does seem like it might echo where some of the leadership and the resources are being directed at Canonical.
+
+166
+00:17:50,400 --> 00:17:56,400
+And I don't think they're slipping away on the server side of things. They've got to just be putting those resources over there.
+
+167
+00:17:56,400 --> 00:18:11,400
+And can you really blame them if a lot of the technology stack now is at least sponsored in part by Red Hat? They're probably their largest competitor, right?
+
+168
+00:18:11,400 --> 00:18:16,400
+The GNOME stack, the system D stack. I mean, they would argue, oh, we're not Red Hat projects, but they're influenced and they're sponsored.
+
+169
+00:18:16,400 --> 00:18:19,400
+I mean, it seems that seems maybe semi-fair to say.
+
+170
+00:18:19,400 --> 00:18:29,400
+And so at least I could see that perspective from Canonical and I could see kind of the idea of just sort of, all right, we'll just go with the flow.
+
+171
+00:18:29,400 --> 00:18:36,400
+And I mean, they've been burned, right? I mean, there's that whole mobile saga. There's Mir, there's Unity.
+
+172
+00:18:36,400 --> 00:18:39,400
+There's a lot of interesting things that they've tried and have advanced.
+
+173
+00:18:39,400 --> 00:18:47,400
+And maybe there's a feeling of not quite getting enough out of all those efforts to really keep putting in that kind of above and beyond labor.
+
+174
+00:18:47,400 --> 00:18:50,400
+Yeah, maybe I've got it all wrong. We'll see.
+
+175
+00:18:50,400 --> 00:18:55,400
+You know, at the end of the day, it still makes a pretty damn good desktop, especially when you buy it with a piece of hardware.
+
+176
+00:18:55,400 --> 00:19:02,400
+And what really struck me was just I guess I expected more from that Firefox snap experience.
+
+177
+00:19:02,400 --> 00:19:10,400
+I was pretty shocked when not only not only was it having problems for me, but if you look at just about every review out there, there's complaints about it.
+
+178
+00:19:10,400 --> 00:19:17,400
+But then we started getting emails from people that said, you know, I can't get logged in now to my company's web app when I work from home.
+
+179
+00:19:17,400 --> 00:19:20,400
+I thought, well, that's why you don't upgrade your work machine.
+
+180
+00:19:20,400 --> 00:19:24,400
+That's why you stick with the LTS on the work machine.
+
+181
+00:19:24,400 --> 00:19:26,400
+But, you know, at the end of the day, it's pretty easy.
+
+182
+00:19:26,400 --> 00:19:33,400
+It's still you can still get the deb of it, of course, or you can just go get the tar file from from Mozilla or, as you say, the flat back.
+
+183
+00:19:33,400 --> 00:19:35,400
+Yeah, that works pretty good.
+
+184
+00:19:35,400 --> 00:19:44,400
+So something else I use as a flat pack is element and you might recall element. They're the makers of the probably the most popular matrix chat app.
+
+185
+00:19:44,400 --> 00:19:49,400
+And this next story almost seems like too good to be true for a guy like me.
+
+186
+00:19:49,400 --> 00:19:53,400
+The team behind element today announced element one.
+
+187
+00:19:53,400 --> 00:20:03,400
+They're pitching it as a complete messaging package that bridges WhatsApp, Signal and Telegram via their hosted service for just five dollars a month.
+
+188
+00:20:03,400 --> 00:20:07,400
+Whoa. I mean, OK, you could make all this stuff work before, right?
+
+189
+00:20:07,400 --> 00:20:14,400
+Obviously, you can host your own bridges or if you're an enterprise or someone paying for like, you know, managing a whole server and team accounts, that kind of thing.
+
+190
+00:20:14,400 --> 00:20:21,400
+This was possible. But this is kind of a new offering just to users like you and me.
+
+191
+00:20:21,400 --> 00:20:26,400
+Now, they say that there's unlimited usage with some, quote, fair usage limits.
+
+192
+00:20:26,400 --> 00:20:30,400
+But for their part, hopefully these are, quote, generous.
+
+193
+00:20:30,400 --> 00:20:34,400
+Yeah, it seems like maybe that is just a ban, like automated spamming and stuff.
+
+194
+00:20:34,400 --> 00:20:38,400
+So if you trigger like some serious thresholds, then it's no longer unlimited.
+
+195
+00:20:38,400 --> 00:20:40,400
+But they didn't really come out with any specifics there.
+
+196
+00:20:40,400 --> 00:20:47,400
+You know, Chris, when you brought this to my attention, I thought it was kind of amazing and something I've been waiting for for a long time.
+
+197
+00:20:47,400 --> 00:20:57,400
+I don't know if you feel this way, but having eight different chat applications feels a little daunting to me and how it brings together stuff that we already use is great,
+
+198
+00:20:57,400 --> 00:21:02,400
+especially from a place that we seem to have been loving for the last little bit.
+
+199
+00:21:02,400 --> 00:21:05,400
+So it feels like there's a lot of promise there.
+
+200
+00:21:05,400 --> 00:21:15,400
+And for someone like me who doesn't want to, like, tinker to try to get all this stuff working, it's a nice, reasonable, at least for me, fee to put all the hard parts together for you.
+
+201
+00:21:15,400 --> 00:21:20,400
+But I did see one caveat about the end to end encryption.
+
+202
+00:21:20,400 --> 00:21:28,400
+It seems like for now, the chat services you bridge to has a broken end to end connection.
+
+203
+00:21:28,400 --> 00:21:30,400
+So I know they're working on that.
+
+204
+00:21:30,400 --> 00:21:35,400
+As we know, end to end encryption is not the easiest thing, especially with various services.
+
+205
+00:21:35,400 --> 00:21:38,400
+So I'm interested to see where that'll come.
+
+206
+00:21:38,400 --> 00:21:46,400
+They do write that the bridges operate in elements trusted EMS environment with no content scanning or data mining.
+
+207
+00:21:46,400 --> 00:21:51,400
+But currently, bridged conversations are not stored and encrypted in matrix.
+
+208
+00:21:51,400 --> 00:21:54,400
+So that's something to consider and to watch out for in the future.
+
+209
+00:21:54,400 --> 00:21:58,400
+I appreciate them making that disclosure up front.
+
+210
+00:21:58,400 --> 00:22:02,400
+And that is a pretty big limiting factor for a lot of people, I would imagine.
+
+211
+00:22:02,400 --> 00:22:08,400
+I'm not a signal user, but if I used signal, I would imagine I'd be doing so specifically for the security aspects of it.
+
+212
+00:22:08,400 --> 00:22:09,400
+That would concern me.
+
+213
+00:22:09,400 --> 00:22:16,400
+I am a heavy telegram user, and I have never used telegram for its encryption or privacy.
+
+214
+00:22:16,400 --> 00:22:17,400
+Now, it's just a great chat client.
+
+215
+00:22:17,400 --> 00:22:19,400
+That's the thing that's appealing, right?
+
+216
+00:22:19,400 --> 00:22:20,400
+Yeah, totally.
+
+217
+00:22:20,400 --> 00:22:23,400
+I mean, I expect the encryption to be compromised or will be compromised one day.
+
+218
+00:22:23,400 --> 00:22:24,400
+I'd love it not to be.
+
+219
+00:22:24,400 --> 00:22:27,400
+I expect friends to keep our conversations private.
+
+220
+00:22:27,400 --> 00:22:30,400
+But I don't I do not rely on the encryption.
+
+221
+00:22:30,400 --> 00:22:32,400
+There's also another aspect here.
+
+222
+00:22:32,400 --> 00:22:42,400
+It's interesting to see how EMS and Element and the folks behind Element and Matrix are trying to find paths towards sustainability.
+
+223
+00:22:42,400 --> 00:22:45,400
+And maybe this kind of level is enough, right?
+
+224
+00:22:45,400 --> 00:22:49,400
+That $5 a month might be enough to actually entice people to do it.
+
+225
+00:22:49,400 --> 00:22:50,400
+Is that too much?
+
+226
+00:22:50,400 --> 00:22:51,400
+It's close.
+
+227
+00:22:51,400 --> 00:22:52,400
+It's pretty close.
+
+228
+00:22:52,400 --> 00:22:54,400
+I think it's like the right price for a user.
+
+229
+00:22:54,400 --> 00:22:56,400
+I think that's why they priced it there.
+
+230
+00:22:56,400 --> 00:22:59,400
+It is the right price for something I'd be willing to try.
+
+231
+00:22:59,400 --> 00:23:03,400
+However, you and I have hands-on experience running a Matrix server.
+
+232
+00:23:03,400 --> 00:23:10,400
+And I don't think if we charge the listeners, if we charge each user of the Matrix server $5 a month,
+
+233
+00:23:10,400 --> 00:23:13,400
+I don't think it would cover the run cost of the Matrix server.
+
+234
+00:23:13,400 --> 00:23:15,400
+And we have a smaller Matrix server than they do.
+
+235
+00:23:15,400 --> 00:23:18,400
+You know, that may be true.
+
+236
+00:23:18,400 --> 00:23:21,400
+I've got to hope they're better admins than we are, though.
+
+237
+00:23:23,400 --> 00:23:25,400
+lino.com slash unplugged.
+
+238
+00:23:25,400 --> 00:23:30,400
+Go there to get $100 in 60-day credit on a new account and you go there to support this here show.
+
+239
+00:23:30,400 --> 00:23:32,400
+Linode's where you can host everything.
+
+240
+00:23:32,400 --> 00:23:37,400
+They're 30% to 50% less than the major hypervisors out there that are just going to try to lock you into their platforms.
+
+241
+00:23:37,400 --> 00:23:40,400
+And they've been around for 18 years before AWS even started.
+
+242
+00:23:40,400 --> 00:23:44,400
+So they're really, really dialed in on how to do this.
+
+243
+00:23:44,400 --> 00:23:46,400
+That's why I run all kinds of stuff up on Linode.
+
+244
+00:23:46,400 --> 00:23:51,400
+Every single show we do is powered by a show doc.
+
+245
+00:23:51,400 --> 00:23:56,400
+Everything we're going to talk about, the links we collect, if somebody contributes a new link suggestion during the show,
+
+246
+00:23:56,400 --> 00:23:58,400
+we collect it all in our show doc.
+
+247
+00:23:58,400 --> 00:24:01,400
+It's like the master doc for our show.
+
+248
+00:24:01,400 --> 00:24:04,400
+And every single one of those is composed on a Linode.
+
+249
+00:24:04,400 --> 00:24:10,400
+We use HedgeDoc hosted up on Linode to get collaborative real-time Markdown editing.
+
+250
+00:24:10,400 --> 00:24:14,400
+It's like Google Docs, but for Markdown and modern and clean looking.
+
+251
+00:24:14,400 --> 00:24:16,400
+And you can host it yourself.
+
+252
+00:24:16,400 --> 00:24:18,400
+And we love running this kind of stuff on Linode.
+
+253
+00:24:18,400 --> 00:24:21,400
+These tools that make producing these shows possible.
+
+254
+00:24:21,400 --> 00:24:26,400
+And you could do for your projects, for your business, or maybe you just want a place to put a blog online.
+
+255
+00:24:26,400 --> 00:24:28,400
+It all is so straightforward with Linode.
+
+256
+00:24:28,400 --> 00:24:32,400
+And with that $100, that's them saying, we really want you to try this.
+
+257
+00:24:32,400 --> 00:24:34,400
+It's not just like a fly-by-night thing.
+
+258
+00:24:34,400 --> 00:24:38,400
+Like $100 is really something you can use to try out the service.
+
+259
+00:24:38,400 --> 00:24:40,400
+That's confidence on Linode's part.
+
+260
+00:24:40,400 --> 00:24:43,400
+And their mission remains unchanged since the day they began.
+
+261
+00:24:43,400 --> 00:24:47,400
+Make cloud computing simple, affordable, and accessible to all.
+
+262
+00:24:47,400 --> 00:24:48,400
+That's it.
+
+263
+00:24:48,400 --> 00:24:49,400
+It's easy to understand.
+
+264
+00:24:49,400 --> 00:24:50,400
+It's straightforward.
+
+265
+00:24:50,400 --> 00:24:53,400
+And I think it jives a lot with the mission of Linux.
+
+266
+00:24:53,400 --> 00:24:58,400
+They also are really good about staying in tune with what the community likes because they're part of the community.
+
+267
+00:24:58,400 --> 00:24:59,400
+Right?
+
+268
+00:24:59,400 --> 00:25:01,400
+They got into this stuff because they're passionate.
+
+269
+00:25:01,400 --> 00:25:04,400
+That's why they started Linode is because they saw where Linux was going.
+
+270
+00:25:04,400 --> 00:25:06,400
+They played with the technology.
+
+271
+00:25:06,400 --> 00:25:08,400
+I can really click with that.
+
+272
+00:25:08,400 --> 00:25:11,400
+I totally understand following your passion and starting a business around that.
+
+273
+00:25:11,400 --> 00:25:13,400
+And I think it's been their secret sauce.
+
+274
+00:25:13,400 --> 00:25:15,400
+You see it in the documentation.
+
+275
+00:25:15,400 --> 00:25:23,400
+The things that they write up like how to install custom Linux distros or host Plex using object storage for essentially unlimited Plex storage.
+
+276
+00:25:23,400 --> 00:25:26,400
+All these kinds of things that they don't have to do.
+
+277
+00:25:26,400 --> 00:25:30,400
+But they focus on that stuff because they want to include everybody.
+
+278
+00:25:30,400 --> 00:25:33,400
+Not just the people like me that are trying to run their business infrastructure.
+
+279
+00:25:33,400 --> 00:25:34,400
+But anyone.
+
+280
+00:25:34,400 --> 00:25:36,400
+And the pricing reflects that too.
+
+281
+00:25:36,400 --> 00:25:38,400
+And then the additional services on top of that.
+
+282
+00:25:38,400 --> 00:25:43,400
+Like cloud firewalls, DDoS protection, VLAN support, and S3 compatible object storage.
+
+283
+00:25:43,400 --> 00:25:44,400
+And a lot more.
+
+284
+00:25:44,400 --> 00:25:47,400
+But really, just go try it for yourself.
+
+285
+00:25:47,400 --> 00:25:49,400
+Go use that $100.
+
+286
+00:25:49,400 --> 00:25:50,400
+Go see what you can do.
+
+287
+00:25:50,400 --> 00:25:52,400
+Go kick the tires as they used to say.
+
+288
+00:25:52,400 --> 00:25:55,400
+Just go to linode.com slash unplug.
+
+289
+00:25:55,400 --> 00:25:56,400
+Go there to support the show.
+
+290
+00:25:56,400 --> 00:26:00,400
+It's like saying, hey, thank you Linode for supporting my favorite Linux podcast.
+
+291
+00:26:00,400 --> 00:26:04,400
+And you get $100 if you sign up with a new account for 60 days.
+
+292
+00:26:04,400 --> 00:26:06,400
+Try out their super fast networking.
+
+293
+00:26:06,400 --> 00:26:10,400
+Maybe even play around with some of the more advanced features like their Kubernetes or Terraform support.
+
+294
+00:26:10,400 --> 00:26:16,400
+Or just set yourself up a box to do like an SSH jump host like I've done.
+
+295
+00:26:16,400 --> 00:26:18,400
+This is something too I recommend.
+
+296
+00:26:18,400 --> 00:26:20,400
+Give yourself like a support system in the cloud.
+
+297
+00:26:20,400 --> 00:26:21,400
+It's got your tools.
+
+298
+00:26:21,400 --> 00:26:24,400
+Maybe you have some jump hosts set up to there.
+
+299
+00:26:24,400 --> 00:26:27,400
+Something that if you get to that box, you can support your friends and family.
+
+300
+00:26:27,400 --> 00:26:29,400
+Or maybe your work machine or whatever it is.
+
+301
+00:26:29,400 --> 00:26:31,400
+Oh man, it makes life great.
+
+302
+00:26:31,400 --> 00:26:32,400
+Go try it out.
+
+303
+00:26:32,400 --> 00:26:34,400
+Linode.com slash unplugged.
+
+304
+00:26:34,400 --> 00:26:37,400
+This is actually the perfect time other than the storm.
+
+305
+00:26:37,400 --> 00:26:40,400
+But the storm has been going on for days to record this.
+
+306
+00:26:40,400 --> 00:26:48,400
+Because if we would have recorded this on the first day I set up Starlink, I'd be just gushing.
+
+307
+00:26:48,400 --> 00:26:49,400
+Right?
+
+308
+00:26:49,400 --> 00:26:50,400
+I'd be elated.
+
+309
+00:26:50,400 --> 00:26:54,400
+I would be just going on about how amazing it is.
+
+310
+00:26:54,400 --> 00:26:58,400
+And to their credit, Starlink couldn't be easier to set up.
+
+311
+00:26:58,400 --> 00:27:01,400
+Everything you need comes in the box already wired together.
+
+312
+00:27:01,400 --> 00:27:04,400
+So you don't have to figure out even where the ethernet cables plug in.
+
+313
+00:27:04,400 --> 00:27:05,400
+It's already all plugged in.
+
+314
+00:27:05,400 --> 00:27:07,400
+And they have color coded things.
+
+315
+00:27:07,400 --> 00:27:10,400
+So the dish cable is gray.
+
+316
+00:27:10,400 --> 00:27:13,400
+That goes into the gray end of the POE injector.
+
+317
+00:27:13,400 --> 00:27:15,400
+The LAN side is white.
+
+318
+00:27:15,400 --> 00:27:16,400
+So the plugs are white.
+
+319
+00:27:16,400 --> 00:27:17,400
+The cables are white.
+
+320
+00:27:17,400 --> 00:27:20,400
+Everything's color matched in that regard to make it super straightforward.
+
+321
+00:27:20,400 --> 00:27:22,400
+So I set up their router.
+
+322
+00:27:22,400 --> 00:27:25,400
+And I set up their dish.
+
+323
+00:27:25,400 --> 00:27:28,400
+And for about 15 minutes it sort of sorted itself out.
+
+324
+00:27:28,400 --> 00:27:31,400
+And I was getting like 40 megabits.
+
+325
+00:27:31,400 --> 00:27:33,400
+I'm like, oh, you know, 40 megabits.
+
+326
+00:27:33,400 --> 00:27:37,400
+Then once it sort of had settled, I did another speed test.
+
+327
+00:27:37,400 --> 00:27:41,400
+And I got 240 megabits on that test.
+
+328
+00:27:41,400 --> 00:27:42,400
+Whoa.
+
+329
+00:27:42,400 --> 00:27:43,400
+Remarkable.
+
+330
+00:27:43,400 --> 00:27:44,400
+Yeah.
+
+331
+00:27:44,400 --> 00:27:47,400
+And you know, you have to get a good clear shot of the sky.
+
+332
+00:27:47,400 --> 00:27:50,400
+But their app makes this really easy to do.
+
+333
+00:27:50,400 --> 00:27:53,400
+You fire up the app and you say, I want to check this area.
+
+334
+00:27:53,400 --> 00:27:56,400
+And they have like an augmented reality app.
+
+335
+00:27:56,400 --> 00:27:59,400
+And they have like an augmented reality checker
+
+336
+00:27:59,400 --> 00:28:04,400
+that gives you a really clear indicator of where you still need to scan.
+
+337
+00:28:04,400 --> 00:28:06,400
+Then it maps out the whole area.
+
+338
+00:28:06,400 --> 00:28:09,400
+And then it's got some data models on the app.
+
+339
+00:28:09,400 --> 00:28:11,400
+And if it's your first time ever running it,
+
+340
+00:28:11,400 --> 00:28:13,400
+it actually takes a little bit to generate it.
+
+341
+00:28:13,400 --> 00:28:15,400
+But once you've run it once, it generates much faster.
+
+342
+00:28:15,400 --> 00:28:19,400
+And it analyzes the image you just captured
+
+343
+00:28:19,400 --> 00:28:23,400
+and tells you if the Starlink dish will have any trouble connecting to the sky.
+
+344
+00:28:23,400 --> 00:28:24,400
+Oh, that's great.
+
+345
+00:28:24,400 --> 00:28:25,400
+Yeah.
+
+346
+00:28:25,400 --> 00:28:27,400
+So you imagine like you're trying to set up in a new area
+
+347
+00:28:27,400 --> 00:28:29,400
+and you've got no idea if this is going to work or not.
+
+348
+00:28:29,400 --> 00:28:31,400
+It's so awesome.
+
+349
+00:28:31,400 --> 00:28:33,400
+That app, they nailed that.
+
+350
+00:28:33,400 --> 00:28:37,400
+And I noticed that their router that they ship,
+
+351
+00:28:37,400 --> 00:28:40,400
+which is a nice slick looking custom unit.
+
+352
+00:28:40,400 --> 00:28:43,400
+And I later found out, we'll get into this more,
+
+353
+00:28:43,400 --> 00:28:46,400
+but it uses a custom version of OpenWRT.
+
+354
+00:28:46,400 --> 00:28:47,400
+So it's a little Linux box.
+
+355
+00:28:47,400 --> 00:28:48,400
+Oh.
+
+356
+00:28:48,400 --> 00:28:49,400
+But this is a good point, right?
+
+357
+00:28:49,400 --> 00:28:54,400
+Like this is ISP, but of course, you know, us Linux nerds here,
+
+358
+00:28:54,400 --> 00:28:55,400
+we don't know the pieces.
+
+359
+00:28:55,400 --> 00:28:56,400
+Is there bridge mode?
+
+360
+00:28:56,400 --> 00:29:00,400
+How does it actually work to get you an IP and talking to Starlink?
+
+361
+00:29:00,400 --> 00:29:01,400
+Oh, gosh, it's interesting.
+
+362
+00:29:01,400 --> 00:29:03,400
+And it's so cool.
+
+363
+00:29:03,400 --> 00:29:04,400
+So they have an AUX port.
+
+364
+00:29:04,400 --> 00:29:07,400
+Obviously, it comes with Wi-Fi and it's a little AP.
+
+365
+00:29:07,400 --> 00:29:11,400
+But they got an AUX port on this thing that you can plug your router into
+
+366
+00:29:11,400 --> 00:29:13,400
+and get an Ethernet connection.
+
+367
+00:29:13,400 --> 00:29:17,400
+But it turns out, and I really hope they never change this,
+
+368
+00:29:17,400 --> 00:29:18,400
+it goes a step further.
+
+369
+00:29:18,400 --> 00:29:23,400
+Impressively, the little dishy McDish face that connects up to space
+
+370
+00:29:23,400 --> 00:29:29,400
+actually has a very powerful custom SpaceX silicon Linux box in there.
+
+371
+00:29:29,400 --> 00:29:33,400
+And everything you need to get connected to space is in the dish.
+
+372
+00:29:33,400 --> 00:29:37,400
+If you have a solid LAN setup like probably a lot of our listeners do
+
+373
+00:29:37,400 --> 00:29:39,400
+with a router you already like
+
+374
+00:29:39,400 --> 00:29:42,400
+and Wi-Fi access points that you already want to use,
+
+375
+00:29:42,400 --> 00:29:46,400
+you can take the router out of the picture altogether.
+
+376
+00:29:46,400 --> 00:29:47,400
+Oh, that's great.
+
+377
+00:29:47,400 --> 00:29:50,400
+And so I have gone directly from the back of the dish
+
+378
+00:29:50,400 --> 00:29:52,400
+into my Peplink router.
+
+379
+00:29:52,400 --> 00:29:55,400
+And now I manage it like I do my three LTE connections.
+
+380
+00:29:55,400 --> 00:29:59,400
+It's just one of the connections now in my setup.
+
+381
+00:29:59,400 --> 00:30:01,400
+I am so grateful because that router is nice.
+
+382
+00:30:01,400 --> 00:30:05,400
+And if you didn't have something, you know, you were setting up from scratch,
+
+383
+00:30:05,400 --> 00:30:08,400
+that would probably be one of the best ISP routers you're going to ever get.
+
+384
+00:30:08,400 --> 00:30:09,400
+It's powerful.
+
+385
+00:30:09,400 --> 00:30:11,400
+It's got OpenWRT on there.
+
+386
+00:30:11,400 --> 00:30:15,400
+And it's got a good little powerful access point chip in it.
+
+387
+00:30:15,400 --> 00:30:18,400
+But for me, I have invested years in a LAN setup
+
+388
+00:30:18,400 --> 00:30:23,400
+that is very custom tailored to my mobile needs.
+
+389
+00:30:23,400 --> 00:30:26,400
+And so the ability to go directly from the back of the dish
+
+390
+00:30:26,400 --> 00:30:29,400
+into the PoE injector and then into my router means
+
+391
+00:30:29,400 --> 00:30:33,400
+that the work I've invested into this setup to allow me to be mobile
+
+392
+00:30:33,400 --> 00:30:35,400
+and work from the road is not wasted.
+
+393
+00:30:35,400 --> 00:30:38,400
+It's just applied to the Starlink now.
+
+394
+00:30:38,400 --> 00:30:41,400
+And I really am very happy about that.
+
+395
+00:30:41,400 --> 00:30:47,400
+And I am extremely impressed by the capabilities of this little dish
+
+396
+00:30:47,400 --> 00:30:51,400
+because it's passing through the DHCP information and everything like that.
+
+397
+00:30:51,400 --> 00:30:54,400
+And it is using, I believe, the Linux system in there
+
+398
+00:30:54,400 --> 00:30:57,400
+is using their patched version of U-Boot,
+
+399
+00:30:57,400 --> 00:30:59,400
+which they put all of this stuff upstream.
+
+400
+00:30:59,400 --> 00:31:03,400
+We'll have a link to their Space Exploration Technologies GitHub
+
+401
+00:31:03,400 --> 00:31:07,400
+that has all of their patches for OpenWRT.
+
+402
+00:31:07,400 --> 00:31:10,400
+It has their patches for their precision time protocol
+
+403
+00:31:10,400 --> 00:31:14,400
+that they're using on the satellites, which is an open source time protocol.
+
+404
+00:31:14,400 --> 00:31:17,400
+They're using that on the Linux boxes in space to keep time.
+
+405
+00:31:17,400 --> 00:31:20,400
+They've done some patches. That's upstream on their GitHub.
+
+406
+00:31:20,400 --> 00:31:21,400
+It's really great.
+
+407
+00:31:21,400 --> 00:31:26,400
+The full stack from the router they ship you, the dish itself,
+
+408
+00:31:26,400 --> 00:31:29,400
+the satellite it connects to, the ground stations,
+
+409
+00:31:29,400 --> 00:31:34,400
+the ISP peer stations are all Linux from top to bottom.
+
+410
+00:31:34,400 --> 00:31:38,400
+And, of course, the development systems at Starlink's office in SpaceX,
+
+411
+00:31:38,400 --> 00:31:40,400
+also Linux.
+
+412
+00:31:40,400 --> 00:31:41,400
+And get this, Wes.
+
+413
+00:31:41,400 --> 00:31:45,400
+I got a few details about this, and you can suss out even more stuff
+
+414
+00:31:45,400 --> 00:31:47,400
+in the AMAs I'll have linked in the show notes.
+
+415
+00:31:47,400 --> 00:31:53,400
+But they deploy a full software stack refresh,
+
+416
+00:31:53,400 --> 00:31:56,400
+a full, like the Linux OS and everything,
+
+417
+00:31:56,400 --> 00:31:58,400
+to all of the satellites in orbit once a week.
+
+418
+00:31:58,400 --> 00:32:01,400
+Oh, wow. That's impressive.
+
+419
+00:32:01,400 --> 00:32:03,400
+Could you imagine?
+
+420
+00:32:03,400 --> 00:32:07,400
+And they're using their own custom chips up on the satellites.
+
+421
+00:32:07,400 --> 00:32:11,400
+They have a patched version of the Linux kernel, so it does preempt RT
+
+422
+00:32:11,400 --> 00:32:13,400
+because everything needs to be real time up in space.
+
+423
+00:32:13,400 --> 00:32:15,400
+Indeed.
+
+424
+00:32:15,400 --> 00:32:19,400
+And so they're submitting their patches up for that, too.
+
+425
+00:32:19,400 --> 00:32:22,400
+The connection itself is pretty good and solid.
+
+426
+00:32:22,400 --> 00:32:25,400
+I'd say on average I'm seeing, with good clearance,
+
+427
+00:32:25,400 --> 00:32:28,400
+about 140, 150 megabits.
+
+428
+00:32:28,400 --> 00:32:35,400
+I get ping times between 20 milliseconds and 45, 50 milliseconds.
+
+429
+00:32:35,400 --> 00:32:37,400
+I'm getting 54 right now.
+
+430
+00:32:37,400 --> 00:32:42,400
+But for me, this enabled a new kind of off-grid working
+
+431
+00:32:42,400 --> 00:32:44,400
+that I've been doing now for the last few days.
+
+432
+00:32:44,400 --> 00:32:48,400
+Every show we've ever done on the road, remote,
+
+433
+00:32:48,400 --> 00:32:51,400
+if we've been at System76 with an Ethernet connection
+
+434
+00:32:51,400 --> 00:32:54,400
+or if I've been in some hellhole in Tucson,
+
+435
+00:32:54,400 --> 00:33:00,400
+every show we did remotely was mixed through our studio.
+
+436
+00:33:00,400 --> 00:33:03,400
+I'd come in with an Opus Audio feed, Wes comes in with an Opus feed,
+
+437
+00:33:03,400 --> 00:33:07,400
+the Mumble Room comes in, we mix it all together in the studio,
+
+438
+00:33:07,400 --> 00:33:11,400
+it sends it out to the OBS machine where we can record the members-only version
+
+439
+00:33:11,400 --> 00:33:14,400
+of the show, and we can live stream it out to the internet.
+
+440
+00:33:14,400 --> 00:33:18,400
+And the real compromise we were making there was all I really had was
+
+441
+00:33:18,400 --> 00:33:24,400
+a low bit rate audio stream back to the studio because I had to compensate for LTE.
+
+442
+00:33:24,400 --> 00:33:27,400
+And if I needed to control something or check in on the Mumble Room,
+
+443
+00:33:27,400 --> 00:33:32,400
+I'd have to use something like Rust Desk to remote view the desktop in the studio,
+
+444
+00:33:32,400 --> 00:33:35,400
+which of course didn't take bandwidth away from my VoIP session,
+
+445
+00:33:35,400 --> 00:33:39,400
+lowering the quality and making me drop packets, and it was a mess.
+
+446
+00:33:39,400 --> 00:33:44,400
+And Rust Desk is great, don't get us wrong, but boy, it's hard to do that live
+
+447
+00:33:44,400 --> 00:33:49,400
+in a show remotely on LTE and a big old desktop screen.
+
+448
+00:33:49,400 --> 00:33:53,400
+Right, and there's only so much you can expect with LTE,
+
+449
+00:33:53,400 --> 00:33:57,400
+and I have a pretty optimal setup with three different LTE connections
+
+450
+00:33:57,400 --> 00:34:03,400
+that I have bonded over a VPN that goes to three different servers at Linode
+
+451
+00:34:03,400 --> 00:34:07,400
+running a custom VPN OS that combines it back together.
+
+452
+00:34:07,400 --> 00:34:10,400
+I am doing best case scenario LTE compensation,
+
+453
+00:34:10,400 --> 00:34:13,400
+and it's still limited in what it can achieve.
+
+454
+00:34:13,400 --> 00:34:16,400
+But with the bandwidth availability of Starlink,
+
+455
+00:34:16,400 --> 00:34:20,400
+I've done Coderadio and now Linux Unplugged completely live.
+
+456
+00:34:20,400 --> 00:34:26,400
+Brent and Wes are coming in to my RV that's parked out here off-grid in the woods.
+
+457
+00:34:26,400 --> 00:34:29,400
+The mumble room's coming in here. I'm mixing everything live.
+
+458
+00:34:29,400 --> 00:34:32,400
+The live stream is streaming out over OBS.
+
+459
+00:34:32,400 --> 00:34:36,400
+The member recording is happening here in the RV for the first time ever,
+
+460
+00:34:36,400 --> 00:34:38,400
+and you guys know I've done a ton of remote shows.
+
+461
+00:34:38,400 --> 00:34:42,400
+For the first time ever, I'm actually producing the full show remotely.
+
+462
+00:34:42,400 --> 00:34:45,400
+The studio could be powered off right now.
+
+463
+00:34:45,400 --> 00:34:51,400
+This is a remarkable difference in what is capable by going from a high-end,
+
+464
+00:34:51,400 --> 00:34:55,400
+I'm talking very high-end, LTE setup to Starlink.
+
+465
+00:34:55,400 --> 00:35:01,400
+And Starlink right now is $99 a month after you get the $400-and-something gear.
+
+466
+00:35:01,400 --> 00:35:04,400
+It's pretty impressive, the change that this makes.
+
+467
+00:35:04,400 --> 00:35:10,400
+It's sort of a – for remote workers, it's a paradigm shift in performance.
+
+468
+00:35:10,400 --> 00:35:15,400
+And you combine that with an impressive power draw.
+
+469
+00:35:15,400 --> 00:35:19,400
+When you look at all of the reviews online right now, they're all a little old,
+
+470
+00:35:19,400 --> 00:35:23,400
+and they talk about how the dish is pulling around 100 watts of power.
+
+471
+00:35:23,400 --> 00:35:26,400
+For me, that would be a huge deal.
+
+472
+00:35:26,400 --> 00:35:29,400
+I would need to find a supplemental source of power,
+
+473
+00:35:29,400 --> 00:35:33,400
+or I would need to increase the overall power capacity,
+
+474
+00:35:33,400 --> 00:35:35,400
+battery capacity of lady tubes.
+
+475
+00:35:35,400 --> 00:35:40,400
+100 watts consistently, 24-7, is a huge deal.
+
+476
+00:35:40,400 --> 00:35:45,400
+I mean, right now as I'm recording the show, I actually have this up.
+
+477
+00:35:45,400 --> 00:35:49,400
+My overall power draw for the entire live broadcast setup
+
+478
+00:35:49,400 --> 00:35:53,400
+with everything pretty much turned off in the RV except for my Raspberry Pis
+
+479
+00:35:53,400 --> 00:35:56,400
+is around 215 watts.
+
+480
+00:35:56,400 --> 00:35:59,400
+I can probably make it like this for quite a while,
+
+481
+00:35:59,400 --> 00:36:05,400
+but if I added another 100 watts to that, it'd really be a problem.
+
+482
+00:36:05,400 --> 00:36:10,400
+It's no joke, especially during this storm where there's really no solar to be had.
+
+483
+00:36:10,400 --> 00:36:15,400
+But I am impressed because through a series of what I think are probably
+
+484
+00:36:15,400 --> 00:36:18,400
+software improvements, maybe some hardware revisions,
+
+485
+00:36:18,400 --> 00:36:22,400
+they've gotten the power draw down from 100, 110 watts
+
+486
+00:36:22,400 --> 00:36:25,400
+to around an average of 35 watts.
+
+487
+00:36:25,400 --> 00:36:29,400
+Especially when you take out the router, you actually drop another 8 watts,
+
+488
+00:36:29,400 --> 00:36:32,400
+so it's using less power than that, really.
+
+489
+00:36:32,400 --> 00:36:38,400
+I've seen it peak as high as 75, but this is only for a short period of time,
+
+490
+00:36:38,400 --> 00:36:41,400
+and on average, it's around 35 watts.
+
+491
+00:36:41,400 --> 00:36:45,400
+What I did is I grabbed a smart plug that does power monitoring
+
+492
+00:36:45,400 --> 00:36:48,400
+that feeds statistics into my Home Assistant instance,
+
+493
+00:36:48,400 --> 00:36:53,400
+so I've been monitoring the power draw of the dish from the moment I powered it up.
+
+494
+00:36:53,400 --> 00:36:56,400
+I've got historical data now over the last four days
+
+495
+00:36:56,400 --> 00:37:02,400
+that shows me its overall power draw, and 75 watts is as high as it got.
+
+496
+00:37:02,400 --> 00:37:05,400
+It really seems like the team just made some impressive improvements
+
+497
+00:37:05,400 --> 00:37:07,400
+to the power use.
+
+498
+00:37:07,400 --> 00:37:12,400
+An interesting note is cold weather will bring the power draw up of this dish
+
+499
+00:37:12,400 --> 00:37:14,400
+so it can heat itself up to melt ice.
+
+500
+00:37:14,400 --> 00:37:18,400
+A lot of the YouTube reviewers you'll see out there,
+
+501
+00:37:18,400 --> 00:37:21,400
+they're going to tell you it's got heating elements in it,
+
+502
+00:37:21,400 --> 00:37:25,400
+and that it turns these heating elements on to melt the ice.
+
+503
+00:37:25,400 --> 00:37:32,400
+But in actuality, what it really is, is that the software just detunes the radios
+
+504
+00:37:32,400 --> 00:37:38,400
+to run really inefficient, and their inefficiency generates heat.
+
+505
+00:37:38,400 --> 00:37:41,400
+Yeah, right? The power's got to go somewhere.
+
+506
+00:37:41,400 --> 00:37:43,400
+That's great, though.
+
+507
+00:37:43,400 --> 00:37:44,400
+It's simpler, too.
+
+508
+00:37:44,400 --> 00:37:47,400
+You don't have to ship these extra heating elements and extra parts.
+
+509
+00:37:47,400 --> 00:37:51,400
+Yeah, it's a really clever little piece of hardware, that little dish.
+
+510
+00:37:51,400 --> 00:37:55,400
+It self-actuates, and it moves to track the satellites and find them.
+
+511
+00:37:55,400 --> 00:37:57,400
+It's really something to watch.
+
+512
+00:37:57,400 --> 00:38:02,400
+And it seems that there are a series of projects going on right now
+
+513
+00:38:02,400 --> 00:38:04,400
+to pull the statistics that the dish tracks,
+
+514
+00:38:04,400 --> 00:38:09,400
+because the dish is tracking your speed, your latency, your packet loss,
+
+515
+00:38:09,400 --> 00:38:11,400
+and that's all available in the app.
+
+516
+00:38:11,400 --> 00:38:14,400
+If you bypass the router and you hook directly to the dish,
+
+517
+00:38:14,400 --> 00:38:16,400
+the app doesn't work.
+
+518
+00:38:16,400 --> 00:38:18,400
+Now, there's two solutions.
+
+519
+00:38:18,400 --> 00:38:22,400
+I love that Starlink makes this available, because it lets you geek out.
+
+520
+00:38:22,400 --> 00:38:25,400
+So if you want to bypass the router, but you still want to pull up the app
+
+521
+00:38:25,400 --> 00:38:28,400
+and get the stats, you have to add a static route.
+
+522
+00:38:28,400 --> 00:38:30,400
+I'll have the details in the show notes.
+
+523
+00:38:30,400 --> 00:38:33,400
+And it's basically a route that you put on your router that says,
+
+524
+00:38:33,400 --> 00:38:39,400
+when you go to this 192.168.100.1 machine, route it to this WAN interface.
+
+525
+00:38:39,400 --> 00:38:44,400
+And then that will forward that to the WAN interface on the dish,
+
+526
+00:38:44,400 --> 00:38:47,400
+which is set up to listen at 192.168.100.1,
+
+527
+00:38:47,400 --> 00:38:50,400
+and it will retrieve the information for the app,
+
+528
+00:38:50,400 --> 00:38:52,400
+and you can then use it with your own LAN.
+
+529
+00:38:52,400 --> 00:38:57,400
+But the other route to go is there is a series of Python tools called
+
+530
+00:38:57,400 --> 00:39:01,400
+Starlink GRPC tools, because they're using GRPC on the dish,
+
+531
+00:39:01,400 --> 00:39:05,400
+and it can pull the stats remotely and store them locally.
+
+532
+00:39:05,400 --> 00:39:12,400
+And our buddy Jeff Geerling has a Docker setup that will pull in the GRPC tools
+
+533
+00:39:12,400 --> 00:39:16,400
+and Grafana, and then input that information directly into Grafana
+
+534
+00:39:16,400 --> 00:39:20,400
+so you can have historical information of how the dish is performing
+
+535
+00:39:20,400 --> 00:39:22,400
+right there on your Linux box.
+
+536
+00:39:22,400 --> 00:39:24,400
+Oh, yes.
+
+537
+00:39:24,400 --> 00:39:26,400
+It's nice to have these kinds of tools available,
+
+538
+00:39:26,400 --> 00:39:30,400
+and it's so rad that Starlink didn't lock this stuff down,
+
+539
+00:39:30,400 --> 00:39:33,400
+because it makes it so much more usable in my existing environment
+
+540
+00:39:33,400 --> 00:39:36,400
+that I've spent a lot of time curating to work for me on the road.
+
+541
+00:39:36,400 --> 00:39:39,400
+So I hope they never prevent this kind of flexibility.
+
+542
+00:39:39,400 --> 00:39:42,400
+It enables a new kind of remote living.
+
+543
+00:39:42,400 --> 00:39:45,400
+It's like good for my psyche to get out here in the woods.
+
+544
+00:39:45,400 --> 00:39:47,400
+Like when I'm out here, I feel so much better.
+
+545
+00:39:47,400 --> 00:39:51,400
+I'm not stressing about financial stuff or the state of world affairs.
+
+546
+00:39:51,400 --> 00:39:54,400
+I'm like living in a little cabin out in the woods,
+
+547
+00:39:54,400 --> 00:39:57,400
+and now I have internet that actually allows me to work out here.
+
+548
+00:39:57,400 --> 00:40:01,400
+So in the past, I'd drive into the studio when I was out in the woods.
+
+549
+00:40:01,400 --> 00:40:06,400
+I'd just jump in the car and take like a two-hour drive early in the morning,
+
+550
+00:40:06,400 --> 00:40:09,400
+work out of the studio all day, and then drive back home for two hours
+
+551
+00:40:09,400 --> 00:40:11,400
+to my RV out in the woods.
+
+552
+00:40:11,400 --> 00:40:14,400
+And that's fine, but it's a silly use of gas,
+
+553
+00:40:14,400 --> 00:40:16,400
+especially with the cost of fuel right now.
+
+554
+00:40:16,400 --> 00:40:18,400
+Now I can just stay out here,
+
+555
+00:40:18,400 --> 00:40:23,400
+and it actually improves my state of mind, my mood.
+
+556
+00:40:23,400 --> 00:40:26,400
+It's such a special place that I was just telling Brent before the show,
+
+557
+00:40:26,400 --> 00:40:30,400
+like I'm not sure if I want to bring you out here.
+
+558
+00:40:30,400 --> 00:40:31,400
+You know what I mean?
+
+559
+00:40:31,400 --> 00:40:32,400
+I want to show it to you,
+
+560
+00:40:32,400 --> 00:40:34,400
+but I don't know if I actually want to take you here
+
+561
+00:40:34,400 --> 00:40:35,400
+because it's so special to me.
+
+562
+00:40:35,400 --> 00:40:37,400
+But you've got to show off Starlink in person.
+
+563
+00:40:37,400 --> 00:40:38,400
+I want to see this thing.
+
+564
+00:40:38,400 --> 00:40:40,400
+This might apply to my setup too.
+
+565
+00:40:40,400 --> 00:40:43,400
+And something tells me Elon knows where it is now.
+
+566
+00:40:43,400 --> 00:40:45,400
+Nice.
+
+567
+00:40:45,400 --> 00:40:47,400
+Yeah, he's probably watching.
+
+568
+00:40:47,400 --> 00:40:50,400
+You know, I had kind of an emotional moment.
+
+569
+00:40:50,400 --> 00:40:51,400
+It was silly.
+
+570
+00:40:51,400 --> 00:40:53,400
+Because the speed tests were like one thing.
+
+571
+00:40:53,400 --> 00:40:54,400
+Okay, great.
+
+572
+00:40:54,400 --> 00:40:55,400
+240 megabits.
+
+573
+00:40:55,400 --> 00:40:56,400
+Wow.
+
+574
+00:40:56,400 --> 00:40:57,400
+150 megabits.
+
+575
+00:40:57,400 --> 00:40:58,400
+Wow.
+
+576
+00:40:58,400 --> 00:40:59,400
+That's great.
+
+577
+00:40:59,400 --> 00:41:01,400
+I want to see those speeds.
+
+578
+00:41:01,400 --> 00:41:04,400
+But what actually hit me a lot harder than any speed test that I did
+
+579
+00:41:04,400 --> 00:41:07,400
+was just seeing VS Code download
+
+580
+00:41:07,400 --> 00:41:10,400
+and coming down to like 11 megabytes a second.
+
+581
+00:41:10,400 --> 00:41:14,400
+I've never really experienced an internet connection like that at home before.
+
+582
+00:41:14,400 --> 00:41:17,400
+And so, you know, when everything I do is online,
+
+583
+00:41:17,400 --> 00:41:21,400
+and every app, every device, like everything's like using the internet,
+
+584
+00:41:21,400 --> 00:41:23,400
+and the quality of your internet affects so much,
+
+585
+00:41:23,400 --> 00:41:25,400
+just even how your devices perform
+
+586
+00:41:25,400 --> 00:41:29,400
+because of their damn insistence on connectivity,
+
+587
+00:41:29,400 --> 00:41:32,400
+it really felt like a shift for me.
+
+588
+00:41:32,400 --> 00:41:34,400
+And I give it the full stamp.
+
+589
+00:41:34,400 --> 00:41:38,400
+Even having the caveats of it's not fully out of beta yet,
+
+590
+00:41:38,400 --> 00:41:42,400
+you know, some people experience sometimes like up to eight minutes of downtime a day.
+
+591
+00:41:42,400 --> 00:41:46,400
+I think some of that might really be based on your sky clearance
+
+592
+00:41:46,400 --> 00:41:52,400
+because having 100% clearance here, I've really had fantastic connectivity.
+
+593
+00:41:52,400 --> 00:41:55,400
+I think over the last four days,
+
+594
+00:41:55,400 --> 00:42:00,400
+I've maybe had a total of 35 seconds of downtime last time I checked the app.
+
+595
+00:42:00,400 --> 00:42:04,400
+And my average ping, because of course I've been running a smoke ping
+
+596
+00:42:04,400 --> 00:42:06,400
+to try it out here on my machine,
+
+597
+00:42:06,400 --> 00:42:11,400
+is around 35 milliseconds back to Google and stuff like that.
+
+598
+00:42:11,400 --> 00:42:13,400
+Today, it's actually kind of been the worst.
+
+599
+00:42:13,400 --> 00:42:16,400
+So we're kind of trying this on the worst case scenario.
+
+600
+00:42:16,400 --> 00:42:18,400
+And it's still holding up.
+
+601
+00:42:18,400 --> 00:42:20,400
+Chris, I'm curious about how it's working.
+
+602
+00:42:20,400 --> 00:42:23,400
+You said this in what you said was like four days of rainy weather.
+
+603
+00:42:23,400 --> 00:42:25,400
+Do you think it's going to get better,
+
+604
+00:42:25,400 --> 00:42:28,400
+or is it just not affected by sort of thick clouds and the such?
+
+605
+00:42:28,400 --> 00:42:30,400
+Well, that'll be interesting to see.
+
+606
+00:42:30,400 --> 00:42:32,400
+It seems rather unaffected by it.
+
+607
+00:42:32,400 --> 00:42:36,400
+I think snow would be a bigger issue, especially a heavy snowstorm.
+
+608
+00:42:36,400 --> 00:42:39,400
+And I was concerned it would get blown over.
+
+609
+00:42:39,400 --> 00:42:42,400
+We were initially on the coast where I was first going to set it up,
+
+610
+00:42:42,400 --> 00:42:47,400
+and the wind speeds were getting up to like 60 miles per hour out on the coast.
+
+611
+00:42:47,400 --> 00:42:49,400
+So we came inland to our spot in the woods,
+
+612
+00:42:49,400 --> 00:42:51,400
+just at the foot of the Cascades.
+
+613
+00:42:51,400 --> 00:42:56,400
+So if it wasn't so gray, I'd be looking at the Cascade Mountains right now.
+
+614
+00:42:56,400 --> 00:42:58,400
+And the wind wasn't as bad here,
+
+615
+00:42:58,400 --> 00:43:02,400
+but we had this big channel of wind that came down right into
+
+616
+00:43:02,400 --> 00:43:05,400
+where we're kind of in this groove around mountains.
+
+617
+00:43:05,400 --> 00:43:07,400
+So it sort of channeled the wind in here,
+
+618
+00:43:07,400 --> 00:43:10,400
+and it hit us real hard for like a half hour.
+
+619
+00:43:10,400 --> 00:43:14,400
+And every tree around us had all of its leaves blown off.
+
+620
+00:43:14,400 --> 00:43:17,400
+In fact, I think my solar panels are partially covered in leaves right now.
+
+621
+00:43:17,400 --> 00:43:21,400
+And I sat there and watched the dishy to see if it would get blown over,
+
+622
+00:43:21,400 --> 00:43:26,400
+because it's probably 25 miles per hour wind with a lot of things,
+
+623
+00:43:26,400 --> 00:43:28,400
+debris flying through the wind or through the air.
+
+624
+00:43:28,400 --> 00:43:29,400
+But it just stayed.
+
+625
+00:43:29,400 --> 00:43:31,400
+It didn't even flinch.
+
+626
+00:43:31,400 --> 00:43:33,400
+It just seems really sturdy.
+
+627
+00:43:33,400 --> 00:43:35,400
+Because it looks kind of like it'd be a top-heavy thing,
+
+628
+00:43:35,400 --> 00:43:38,400
+but they gave it a pretty sturdy base, so it seems to have held its ground.
+
+629
+00:43:38,400 --> 00:43:40,400
+I mean, yeah, you storm tested it.
+
+630
+00:43:40,400 --> 00:43:42,400
+It should be ready for anything, right?
+
+631
+00:43:42,400 --> 00:43:43,400
+Yeah, I think.
+
+632
+00:43:43,400 --> 00:43:45,400
+Maybe the snow, maybe the ice, we'll see.
+
+633
+00:43:45,400 --> 00:43:52,400
+But I'm kind of just, I'm struck by when I started looking into what Starlink
+
+634
+00:43:52,400 --> 00:43:54,400
+and what SpaceX is doing here,
+
+635
+00:43:54,400 --> 00:44:03,400
+I realized this was way more complex and a way bigger deal
+
+636
+00:44:03,400 --> 00:44:06,400
+than I think as a society we've really caught up to.
+
+637
+00:44:06,400 --> 00:44:09,400
+SpaceX is about to switch over to using their Starship rocket,
+
+638
+00:44:09,400 --> 00:44:12,400
+the big boy that they want to take to Mars,
+
+639
+00:44:12,400 --> 00:44:15,400
+and that's going to increase their deployment capacity
+
+640
+00:44:15,400 --> 00:44:18,400
+from something like 40 to 60 satellites at a time
+
+641
+00:44:18,400 --> 00:44:20,400
+to something like 400 satellites at a time.
+
+642
+00:44:20,400 --> 00:44:22,400
+Oh, wow, just in order of magnitude.
+
+643
+00:44:22,400 --> 00:44:26,400
+Yeah, and the capacity, more capacity means faster speeds.
+
+644
+00:44:26,400 --> 00:44:27,400
+It means more users.
+
+645
+00:44:27,400 --> 00:44:32,400
+It's like they can add capacity by putting more of these things up in the sky
+
+646
+00:44:32,400 --> 00:44:35,400
+in a way that like Comcast can't really.
+
+647
+00:44:35,400 --> 00:44:38,400
+They can't just constantly be laying fiber all the time.
+
+648
+00:44:38,400 --> 00:44:40,400
+And there is that element to this.
+
+649
+00:44:40,400 --> 00:44:42,400
+Before I got it, I was given a lot of thought to,
+
+650
+00:44:42,400 --> 00:44:47,400
+how do I feel about a lot more satellites up in space
+
+651
+00:44:47,400 --> 00:44:49,400
+that you're going to be able to see from the ground?
+
+652
+00:44:49,400 --> 00:44:52,400
+Is it going to be kind of feeling like we've junked up the sky?
+
+653
+00:44:52,400 --> 00:44:56,400
+But the reality is, is that Starlink isn't the only initiative too.
+
+654
+00:44:56,400 --> 00:44:58,400
+Like Bezos has an initiative to do this.
+
+655
+00:44:58,400 --> 00:44:59,400
+Indeed.
+
+656
+00:44:59,400 --> 00:45:03,400
+And SpaceX sees this as part of an interplanetary communications network.
+
+657
+00:45:03,400 --> 00:45:05,400
+Like they see this as building infrastructure
+
+658
+00:45:05,400 --> 00:45:09,400
+to enable communications to the moon and to Mars.
+
+659
+00:45:09,400 --> 00:45:14,400
+But they also just recently acquired a company
+
+660
+00:45:14,400 --> 00:45:18,400
+that was working on a system like Starlink, but for IoT devices.
+
+661
+00:45:18,400 --> 00:45:22,400
+IoT devices that could be kind of smaller
+
+662
+00:45:22,400 --> 00:45:24,400
+and didn't necessarily have big dishes,
+
+663
+00:45:24,400 --> 00:45:27,400
+but could still receive these lower powered signals
+
+664
+00:45:27,400 --> 00:45:30,400
+from smaller satellites up in space.
+
+665
+00:45:30,400 --> 00:45:33,400
+And SpaceX just purchased that company.
+
+666
+00:45:33,400 --> 00:45:38,400
+And so they may be also looking at launching into the IoT space down the road.
+
+667
+00:45:38,400 --> 00:45:40,400
+They also just were granted a few months ago.
+
+668
+00:45:40,400 --> 00:45:41,400
+I think it was back in July.
+
+669
+00:45:41,400 --> 00:45:44,400
+They were requesting, I don't know if it's been granted yet,
+
+670
+00:45:44,400 --> 00:45:48,400
+but they were requesting permission to test a mobile Starlink setup
+
+671
+00:45:48,400 --> 00:45:51,400
+for buses, vans, boats, and airplanes.
+
+672
+00:45:51,400 --> 00:45:53,400
+And just doesn't that make so much sense?
+
+673
+00:45:53,400 --> 00:45:56,400
+Yeah, I mean, you could see how it would be a great service for airplanes.
+
+674
+00:45:56,400 --> 00:45:59,400
+It's probably even a faster connection than I'm getting.
+
+675
+00:45:59,400 --> 00:46:02,400
+You've been talking really great things about Starlink and your experience,
+
+676
+00:46:02,400 --> 00:46:05,400
+but there's got to be some stuff that didn't go so well
+
+677
+00:46:05,400 --> 00:46:06,400
+or some stuff you're worried about.
+
+678
+00:46:06,400 --> 00:46:10,400
+So what's your least favorite thing about your Starlink experience to date?
+
+679
+00:46:10,400 --> 00:46:13,400
+I think in part it's that it's the better than nothing beta.
+
+680
+00:46:13,400 --> 00:46:14,400
+So things could go down.
+
+681
+00:46:14,400 --> 00:46:15,400
+You don't really know.
+
+682
+00:46:15,400 --> 00:46:16,400
+And so here I am.
+
+683
+00:46:16,400 --> 00:46:19,400
+Now I'm kind of becoming dependent upon it.
+
+684
+00:46:19,400 --> 00:46:21,400
+So there's that aspect of it.
+
+685
+00:46:21,400 --> 00:46:24,400
+Also, I'm worried about moving this thing.
+
+686
+00:46:24,400 --> 00:46:26,400
+Yeah, you and I have talked about theft as well.
+
+687
+00:46:26,400 --> 00:46:27,400
+True.
+
+688
+00:46:27,400 --> 00:46:29,400
+I could see at a campground somebody stealing it.
+
+689
+00:46:29,400 --> 00:46:31,400
+That's why it would be nice to have it on the roof.
+
+690
+00:46:31,400 --> 00:46:33,400
+But they expect you to use this in a service area.
+
+691
+00:46:33,400 --> 00:46:36,400
+And you really shouldn't go beyond that service area.
+
+692
+00:46:36,400 --> 00:46:38,400
+It's supposed to be fixed at your home.
+
+693
+00:46:38,400 --> 00:46:40,400
+And moving it is tricky.
+
+694
+00:46:40,400 --> 00:46:42,400
+And it requires updating your service address
+
+695
+00:46:42,400 --> 00:46:45,400
+and hoping that there isn't overcapacity in that area.
+
+696
+00:46:45,400 --> 00:46:47,400
+And perhaps they will allow you to move it.
+
+697
+00:46:47,400 --> 00:46:51,400
+But that's not what this dish is licensed for by the FCC.
+
+698
+00:46:51,400 --> 00:46:53,400
+And it's not how they've built the system.
+
+699
+00:46:53,400 --> 00:46:56,400
+They've built the system such that you're at a service address
+
+700
+00:46:56,400 --> 00:46:59,400
+and they use those service addresses to figure out
+
+701
+00:46:59,400 --> 00:47:01,400
+where their biggest demand is at and stuff like that.
+
+702
+00:47:01,400 --> 00:47:03,400
+So it goes into some of their planning, I would assume.
+
+703
+00:47:03,400 --> 00:47:06,400
+But additionally, you could move it like I did
+
+704
+00:47:06,400 --> 00:47:08,400
+to set it up here in the woods.
+
+705
+00:47:08,400 --> 00:47:10,400
+And then say I want to go back somewhere
+
+706
+00:47:10,400 --> 00:47:12,400
+that's more back in civilization.
+
+707
+00:47:12,400 --> 00:47:13,400
+And I could try to move it back to there
+
+708
+00:47:13,400 --> 00:47:15,400
+and it could tell me, nope, sorry.
+
+709
+00:47:15,400 --> 00:47:17,400
+Overcapacity in this area.
+
+710
+00:47:17,400 --> 00:47:19,400
+So there is that.
+
+711
+00:47:19,400 --> 00:47:22,400
+Additionally, the power drive is a lot better than I expected.
+
+712
+00:47:22,400 --> 00:47:23,400
+Absolutely.
+
+713
+00:47:23,400 --> 00:47:27,400
+Between 35, 40 watts, 45 watts on average continuously.
+
+714
+00:47:27,400 --> 00:47:32,400
+But that also has made a pretty big difference on our day-to-day here.
+
+715
+00:47:32,400 --> 00:47:34,400
+Well, that and having zero solar.
+
+716
+00:47:34,400 --> 00:47:36,400
+So it's really kind of a worst-case scenario.
+
+717
+00:47:36,400 --> 00:47:42,400
+But my batteries, instead of being in the low 70s or high 60s
+
+718
+00:47:42,400 --> 00:47:44,400
+in the morning now, they're in the 50s,
+
+719
+00:47:44,400 --> 00:47:48,400
+the mid to high 50% range now when I wake up.
+
+720
+00:47:48,400 --> 00:47:50,400
+Not the end of the world, but it's a lot of power draw.
+
+721
+00:47:50,400 --> 00:47:52,400
+And that's a lot of other things that are running.
+
+722
+00:47:52,400 --> 00:47:54,400
+That's not just the dish that brings that down.
+
+723
+00:47:54,400 --> 00:47:58,400
+That's my fridge and my servers and my networking gear
+
+724
+00:47:58,400 --> 00:48:02,400
+and a lot of little things are running, my CPAP and noisemakers.
+
+725
+00:48:02,400 --> 00:48:03,400
+But it makes a difference.
+
+726
+00:48:03,400 --> 00:48:07,400
+And it's about 5% to 10% of our battery draw.
+
+727
+00:48:07,400 --> 00:48:11,400
+And that makes a difference when you're living for multiple days off grid.
+
+728
+00:48:11,400 --> 00:48:14,400
+I'm now watching power a little more closely.
+
+729
+00:48:14,400 --> 00:48:16,400
+It's like sort of a precious commodity right now.
+
+730
+00:48:16,400 --> 00:48:18,400
+And so it's a downside.
+
+731
+00:48:18,400 --> 00:48:21,400
+But because of the trade-offs, it's kind of worth it.
+
+732
+00:48:21,400 --> 00:48:24,400
+And I'm not going to lie, Brent, as a space enthusiast
+
+733
+00:48:24,400 --> 00:48:26,400
+who's also obviously a Linux enthusiast,
+
+734
+00:48:26,400 --> 00:48:30,400
+this really brings two things I like a lot together.
+
+735
+00:48:30,400 --> 00:48:32,400
+So I'll overlook some of that stuff.
+
+736
+00:48:32,400 --> 00:48:38,400
+I'm curious if you've considered adding your automation enthusiast to the situation.
+
+737
+00:48:38,400 --> 00:48:42,400
+Is it possible, first of all, without too much trouble to automate the dish?
+
+738
+00:48:42,400 --> 00:48:46,400
+So that, for instance, you could turn it off past midnight or something
+
+739
+00:48:46,400 --> 00:48:49,400
+to save power for eight hours or something?
+
+740
+00:48:49,400 --> 00:48:50,400
+I may actually do that.
+
+741
+00:48:50,400 --> 00:48:52,400
+So that was another reason I put it on a smart plug.
+
+742
+00:48:52,400 --> 00:48:57,400
+So the dish itself draws power through PoE, power over Ethernet.
+
+743
+00:48:57,400 --> 00:49:02,400
+They supply you with a very high-end custom PoE injector
+
+744
+00:49:02,400 --> 00:49:05,400
+because this thing can draw a lot of power if it needs to heat itself.
+
+745
+00:49:05,400 --> 00:49:09,400
+I mean, I think this thing allows for like up to 150, 160 watts or more than that.
+
+746
+00:49:09,400 --> 00:49:11,400
+It's a lot of power for PoE.
+
+747
+00:49:11,400 --> 00:49:15,400
+So you probably want to use their custom PoE injector.
+
+748
+00:49:15,400 --> 00:49:17,400
+So that is what I plugged into a smart plug.
+
+749
+00:49:17,400 --> 00:49:20,400
+So not only can I monitor the draw of the dish,
+
+750
+00:49:20,400 --> 00:49:23,400
+but I can also turn it off from Home Assistant.
+
+751
+00:49:23,400 --> 00:49:27,400
+And I may very well do that, is set some sort of automation.
+
+752
+00:49:27,400 --> 00:49:31,400
+What would be incredible, what would be like next level and very doable
+
+753
+00:49:31,400 --> 00:49:35,400
+because those gRPC tools I mentioned, they're all Python tools.
+
+754
+00:49:35,400 --> 00:49:37,400
+Home Assistant's a Python project.
+
+755
+00:49:37,400 --> 00:49:43,400
+It really is just so ripe for the picking to take the data that's on Dishy
+
+756
+00:49:43,400 --> 00:49:46,400
+and make an integration that feeds it into Home Assistant.
+
+757
+00:49:46,400 --> 00:49:49,400
+So then ideally you could do something like,
+
+758
+00:49:49,400 --> 00:49:54,400
+when my average transfer rate drops below this threshold for X amount of time
+
+759
+00:49:54,400 --> 00:49:57,400
+after 11 PM, switch off the smart plug.
+
+760
+00:49:57,400 --> 00:50:01,400
+That sounds possible, but just all the bits aren't there yet to connect it.
+
+761
+00:50:01,400 --> 00:50:04,400
+Somebody needs to make a Home Assistant integration for Starlink.
+
+762
+00:50:04,400 --> 00:50:06,400
+That would be amazing.
+
+763
+00:50:06,400 --> 00:50:10,400
+I'm curious too about the downtime from the moment, you know,
+
+764
+00:50:10,400 --> 00:50:14,400
+you turn the power back on until you have a usable connection.
+
+765
+00:50:14,400 --> 00:50:17,400
+It's quicker than I expected. I think it was 30 seconds or so.
+
+766
+00:50:17,400 --> 00:50:19,400
+Gosh, that's actually really super reasonable.
+
+767
+00:50:19,400 --> 00:50:21,400
+Yeah, I was impressed. I really was.
+
+768
+00:50:21,400 --> 00:50:23,400
+I think I, you know, I stepped away for a second,
+
+769
+00:50:23,400 --> 00:50:27,400
+grabbed something, came back to my desk and it was pretty much back up and going.
+
+770
+00:50:27,400 --> 00:50:29,400
+I liked that a lot.
+
+771
+00:50:31,400 --> 00:50:33,400
+Just a little housekeeping before we get out of here.
+
+772
+00:50:33,400 --> 00:50:35,400
+Thank you to our members at unpluggedcord.com.
+
+773
+00:50:35,400 --> 00:50:38,400
+Our member feeds have some of the best bits in them.
+
+774
+00:50:38,400 --> 00:50:41,400
+You get the full recording, everything we messed up,
+
+775
+00:50:41,400 --> 00:50:44,400
+plus a big pre and post show, which is like a whole other show.
+
+776
+00:50:44,400 --> 00:50:46,400
+It's a way to say thank you to our members.
+
+777
+00:50:46,400 --> 00:50:50,400
+And then if that's not your thing, you like it short and tight, nice and quick.
+
+778
+00:50:50,400 --> 00:50:53,400
+We have that too. We have a second feed that is limited ads,
+
+779
+00:50:53,400 --> 00:50:55,400
+but the same full production.
+
+780
+00:50:55,400 --> 00:50:59,400
+And you can get access to that by going to unpluggedcord.com and support the show.
+
+781
+00:50:59,400 --> 00:51:03,400
+If you have any feedback, topic ideas or thoughts on Fedora 35,
+
+782
+00:51:03,400 --> 00:51:08,400
+which will be your covering next week, let us know at linuxunplugged.com slash contact
+
+783
+00:51:08,400 --> 00:51:12,400
+and join our matrix community at linuxunplugged.com slash matrix.
+
+784
+00:51:12,400 --> 00:51:14,400
+And the Luplug happens every Sunday.
+
+785
+00:51:14,400 --> 00:51:18,400
+I popped in there for a bit this Sunday since we had delayed the land recording.
+
+786
+00:51:18,400 --> 00:51:21,400
+I took the opportunity to say hi to the Luplug.
+
+787
+00:51:21,400 --> 00:51:24,400
+It was a good time. That's noon Pacific in our mumble room.
+
+788
+00:51:24,400 --> 00:51:28,400
+Mumble details at linuxunplugged.com slash mumble.
+
+789
+00:51:28,400 --> 00:51:30,400
+How easy is that?
+
+790
+00:51:31,400 --> 00:51:34,400
+Well, how about some feedback?
+
+791
+00:51:34,400 --> 00:51:37,400
+James has a wormhole like app that he'd like to share.
+
+792
+00:51:37,400 --> 00:51:42,400
+Hey guys, I want to throw out a cool file sharing app I've started using pretty heavily.
+
+793
+00:51:42,400 --> 00:51:47,400
+It's in the vein of Magic Wormhole, but can be installed with a single binary.
+
+794
+00:51:47,400 --> 00:51:48,400
+It's written in Go.
+
+795
+00:51:48,400 --> 00:51:50,400
+Sorry, Chris.
+
+796
+00:51:50,400 --> 00:51:52,400
+Can actually perform direct peer-to-peer connections as well
+
+797
+00:51:52,400 --> 00:51:56,400
+and has the ability to resume interrupted transfers.
+
+798
+00:51:56,400 --> 00:51:58,400
+There's even an Android app for it.
+
+799
+00:51:58,400 --> 00:52:00,400
+It's called Croc.
+
+800
+00:52:00,400 --> 00:52:04,400
+And actually, this is something we've talked about before, but it's been ages
+
+801
+00:52:04,400 --> 00:52:08,400
+and this seems like a good chance to revisit it because I for one didn't know
+
+802
+00:52:08,400 --> 00:52:11,400
+that there was Croc GUI, an Android app on F-Troid.
+
+803
+00:52:11,400 --> 00:52:13,400
+I just might have to try that one out.
+
+804
+00:52:13,400 --> 00:52:15,400
+Yeah, this looks pretty neat.
+
+805
+00:52:15,400 --> 00:52:21,400
+And it looks like the GitHub page was bumped just about 20 days ago, 18 days ago.
+
+806
+00:52:21,400 --> 00:52:22,400
+So it's still alive out there.
+
+807
+00:52:22,400 --> 00:52:28,400
+You know, the idea of these kinds of things is you take a command, you point at a file
+
+808
+00:52:28,400 --> 00:52:32,400
+and it makes that file immediately available for transmission over your LAN or the Internet.
+
+809
+00:52:32,400 --> 00:52:36,400
+It's like the easy button for sending files around your LAN.
+
+810
+00:52:36,400 --> 00:52:38,400
+Don't bother with secure copy.
+
+811
+00:52:38,400 --> 00:52:40,400
+Don't bother with Samba.
+
+812
+00:52:40,400 --> 00:52:43,400
+Use, in this case, Croc or what we've used at Wormhole before.
+
+813
+00:52:43,400 --> 00:52:45,400
+I like that it does local peer-to-peer.
+
+814
+00:52:45,400 --> 00:52:47,400
+I don't know if Wormhole does that.
+
+815
+00:52:47,400 --> 00:52:48,400
+You know, we'll have to look.
+
+816
+00:52:48,400 --> 00:52:50,400
+There may be some good comparisons out there of all of these tools.
+
+817
+00:52:50,400 --> 00:52:54,400
+Hopefully, there's one of those awesome GitHub lists that kind of makes that clear.
+
+818
+00:52:54,400 --> 00:52:59,400
+The one thing I will say is I think Magic Wormhole does still have, you know,
+
+819
+00:52:59,400 --> 00:53:01,400
+kind of that social network effect.
+
+820
+00:53:01,400 --> 00:53:03,400
+I was using Croc.
+
+821
+00:53:03,400 --> 00:53:06,400
+I really love how easy they make it to host your own relay, which, you know,
+
+822
+00:53:06,400 --> 00:53:10,400
+if you're exchanging private files, not that it has to travel over it,
+
+823
+00:53:10,400 --> 00:53:13,400
+but just any of the setup of the exchange you might care about.
+
+824
+00:53:13,400 --> 00:53:16,400
+And you can just type Croc relay and be up and going.
+
+825
+00:53:16,400 --> 00:53:19,400
+But when you're actually transferring files with other people,
+
+826
+00:53:19,400 --> 00:53:22,400
+it seems to me more people have Wormhole installed, at least right now.
+
+827
+00:53:22,400 --> 00:53:24,400
+Fair enough.
+
+828
+00:53:24,400 --> 00:53:26,400
+Hey, we have a pic before we get out of here.
+
+829
+00:53:26,400 --> 00:53:30,400
+And I know Optimus Gray in our chat room is trying this one out right now.
+
+830
+00:53:30,400 --> 00:53:34,400
+It's the official repository for KDE Connect on iOS.
+
+831
+00:53:34,400 --> 00:53:35,400
+It is finally here.
+
+832
+00:53:35,400 --> 00:53:41,400
+Yes, there is a companion app that works with iOS 15 that lets your iPhone
+
+833
+00:53:41,400 --> 00:53:43,400
+get in on the KDE Connect fun.
+
+834
+00:53:43,400 --> 00:53:46,400
+It's up on TestFlight right now, which is like the test area for apps
+
+835
+00:53:46,400 --> 00:53:48,400
+sort of outside the App Store.
+
+836
+00:53:48,400 --> 00:53:50,400
+And we'll have a link in the show notes.
+
+837
+00:53:50,400 --> 00:53:53,400
+We call that poor man sideloading over here in Android world, Chris.
+
+838
+00:53:53,400 --> 00:53:56,400
+It pretty much is exactly what it is, Wes.
+
+839
+00:53:56,400 --> 00:53:59,400
+It's like sideloading with rails on rails.
+
+840
+00:53:59,400 --> 00:54:02,400
+That's sideloading with bumpers.
+
+841
+00:54:02,400 --> 00:54:05,400
+Oh, iPhone users, we put up with so much.
+
+842
+00:54:05,400 --> 00:54:08,400
+But it's really nice to see KDE Connect for iOS now.
+
+843
+00:54:08,400 --> 00:54:10,400
+It's been a long time coming.
+
+844
+00:54:10,400 --> 00:54:12,400
+Yeah, KDE Connect is amazing.
+
+845
+00:54:12,400 --> 00:54:14,400
+And I've kind of taken it for granted on Android.
+
+846
+00:54:14,400 --> 00:54:16,400
+I didn't realize there wasn't anything on iOS.
+
+847
+00:54:16,400 --> 00:54:19,400
+So here's hoping this makes it to the App Store sometime soon.
+
+848
+00:54:19,400 --> 00:54:23,400
+Yeah, I wonder if this is the kind of thing Apple would allow in the App Store.
+
+849
+00:54:23,400 --> 00:54:24,400
+That's a good question.
+
+850
+00:54:24,400 --> 00:54:27,400
+Yeah, wouldn't that be nice?
+
+851
+00:54:27,400 --> 00:54:30,400
+It'd really be nice if they acknowledge that kind of stuff.
+
+852
+00:54:30,400 --> 00:54:33,400
+Oh, boy, I have lots of complaints and thoughts about that.
+
+853
+00:54:33,400 --> 00:54:35,400
+But I'll save that for the Coder radio show at coder.show,
+
+854
+00:54:35,400 --> 00:54:37,400
+if you haven't checked that out.
+
+855
+00:54:37,400 --> 00:54:40,400
+Also, holla at our friends, a Cloud Guru on social media.
+
+856
+00:54:40,400 --> 00:54:43,400
+They're just slash a Cloud Guru on social media platforms
+
+857
+00:54:43,400 --> 00:54:47,400
+like YouTube or Twitter or the, I don't know, the Instagram.
+
+858
+00:54:47,400 --> 00:54:48,400
+I mean, I don't know what you do.
+
+859
+00:54:48,400 --> 00:54:50,400
+But if it's a social media, you can probably find them
+
+860
+00:54:50,400 --> 00:54:52,400
+slash Cloud Guru, pow.
+
+861
+00:54:52,400 --> 00:54:54,400
+If you do that Twitter thing, we're at Linux Unplugged
+
+862
+00:54:54,400 --> 00:54:56,400
+and the network is at Jupiter Signal.
+
+863
+00:54:56,400 --> 00:55:01,400
+If you're a big Mastodon user, I guess go to linuxunplugged.com slash contact
+
+864
+00:55:01,400 --> 00:55:02,400
+and tell me why.
+
+865
+00:55:02,400 --> 00:55:03,400
+Tell me.
+
+866
+00:55:03,400 --> 00:55:05,400
+I've been thinking about it, but I don't know, man.
+
+867
+00:55:05,400 --> 00:55:07,400
+I'd rather just go all in on Matrix.
+
+868
+00:55:07,400 --> 00:55:11,400
+And you can find a whole network of podcasts over at Jupiterbroadcasting.com
+
+869
+00:55:11,400 --> 00:55:15,400
+like the self-hosted show, like Linux Action News, like Coder Radio.
+
+870
+00:55:15,400 --> 00:55:18,400
+You'll probably find more Wes Payne if you go look for it.
+
+871
+00:55:18,400 --> 00:55:20,400
+I mean, there's probably lots of it over there, right?
+
+872
+00:55:20,400 --> 00:55:21,400
+Just a bit.
+
+873
+00:55:21,400 --> 00:55:24,400
+Why not go catch up on some old brunch classics over at extra.show?
+
+874
+00:55:24,400 --> 00:55:25,400
+They're still up over there.
+
+875
+00:55:25,400 --> 00:55:27,400
+Go listen to a little brunch.
+
+876
+00:55:27,400 --> 00:55:28,400
+Spend your morning with Brent.
+
+877
+00:55:28,400 --> 00:55:29,400
+That's what I do.
+
+878
+00:55:29,400 --> 00:55:31,400
+When I'm missing him, I just play a brunch episode.
+
+879
+00:55:31,400 --> 00:55:32,400
+Oh, that's so nice of you.
+
+880
+00:55:32,400 --> 00:55:35,400
+If I play your episode with Wes, it's like I'm hanging out with the both of you.
+
+881
+00:55:35,400 --> 00:55:37,400
+Ah, that's what you do when you hide in your secret spot.
+
+882
+00:55:37,400 --> 00:55:38,400
+You won't invite us to.
+
+883
+00:55:38,400 --> 00:55:40,400
+You know it's a Wes shrine.
+
+884
+00:55:40,400 --> 00:55:41,400
+You just don't want to say it on air.
+
+885
+00:55:41,400 --> 00:55:42,400
+You know it's true.
+
+886
+00:55:42,400 --> 00:55:48,400
+Links to everything we talked about today at linuxunplugged.com slash 427?
+
+887
+00:55:48,400 --> 00:55:49,400
+429.
+
+888
+00:55:49,400 --> 00:55:50,400
+429.
+
+889
+00:55:50,400 --> 00:55:52,400
+I don't think we're ready for 430.
+
+890
+00:55:52,400 --> 00:55:53,400
+No.
+
+891
+00:55:53,400 --> 00:55:55,400
+Although it will be our Fedora 35 review episode.
+
+892
+00:55:55,400 --> 00:56:01,400
+We're going to do a Fedora 34 exit interview and we'll do a Fedora 35 review.
+
+893
+00:56:01,400 --> 00:56:05,400
+So what I'd like to encourage is go try it out and let us know what you think during the show.
+
+894
+00:56:05,400 --> 00:56:06,400
+So go get Fedora 35.
+
+895
+00:56:06,400 --> 00:56:07,400
+It'll be out hopefully next week.
+
+896
+00:56:07,400 --> 00:56:08,400
+Maybe not.
+
+897
+00:56:08,400 --> 00:56:10,400
+Depends on the bugs.
+
+898
+00:56:10,400 --> 00:56:12,400
+But you know, they release it when it's ready and we encourage that.
+
+899
+00:56:12,400 --> 00:56:16,400
+So no razzing from us.
+
+900
+00:56:16,400 --> 00:56:17,400
+Feel free to join us live.
+
+901
+00:56:17,400 --> 00:56:20,400
+We do it rainstorms or not.
+
+902
+00:56:20,400 --> 00:56:22,400
+Sorry if this episode sounded like hell.
+
+903
+00:56:22,400 --> 00:56:25,400
+I'm sure Joe was trying his best.
+
+904
+00:56:25,400 --> 00:56:26,400
+Probably swearing me.
+
+905
+00:56:26,400 --> 00:56:29,400
+Just, I can picture it now.
+
+906
+00:56:29,400 --> 00:56:30,400
+But no he tried.
+
+907
+00:56:30,400 --> 00:56:31,400
+Just no he tried.
+
+908
+00:56:31,400 --> 00:56:32,400
+There's nothing you can do.
+
+909
+00:56:32,400 --> 00:56:34,400
+It's a bomb cyclone.
+
+910
+00:56:34,400 --> 00:56:37,400
+But we do it live regardless.
+
+911
+00:56:37,400 --> 00:56:40,400
+jblive.tv on a Tuesday at noon Pacific 3pm Eastern.
+
+912
+00:56:40,400 --> 00:56:44,400
+Thanks so much for joining us on this week's episode of Your Unplugged program.
+
+913
+00:56:44,400 --> 00:56:48,400
+Even if you're not here live, we still appreciate the hell out of you.
+
+914
+00:56:48,400 --> 00:56:49,400
+Thanks for subscribing.
+
+915
+00:56:49,400 --> 00:56:50,400
+Thanks for downloading.
+
+916
+00:56:50,400 --> 00:56:51,400
+Thanks for reviewing the show.
+
+917
+00:56:51,400 --> 00:56:52,400
+All that kind of stuff.
+
+918
+00:56:52,400 --> 00:57:21,400
+And we'll see you right back here next Tuesday.
+
+919
+00:57:22,400 --> 00:57:34,400
+Let's go find a title.
+
+920
+00:57:34,400 --> 00:57:35,400
+JBtitles.com.
+
+921
+00:57:35,400 --> 00:57:36,400
+I don't know.
+
+922
+00:57:36,400 --> 00:57:37,400
+Maybe it'll sound all right.
+
+923
+00:57:37,400 --> 00:57:40,400
+How did it, how did it sound in the land so far?
+
+924
+00:57:40,400 --> 00:57:41,400
+Did it sound okay, Wes?
+
+925
+00:57:41,400 --> 00:57:42,400
+Yeah.
+
+926
+00:57:42,400 --> 00:57:43,400
+You know, it comes and goes.
+
+927
+00:57:43,400 --> 00:57:48,400
+So there's definitely a few moments where it'll be clear, including the land intro where
+
+928
+00:57:48,400 --> 00:57:51,400
+you're like, oh yeah, yeah, no, it's definitely raining behind Chris.
+
+929
+00:57:51,400 --> 00:57:52,400
+Yeah.
+
+930
+00:57:52,400 --> 00:57:57,400
+When you and I were doing land, it was raining hard and then no kidding.
+
+931
+00:57:57,400 --> 00:58:01,400
+We'd stop like between a story or something to like check something and the rain would
+
+932
+00:58:01,400 --> 00:58:02,400
+stop.
+
+933
+00:58:02,400 --> 00:58:06,400
+And then right as we got started again, just pouring down rain.
+
+934
+00:58:06,400 --> 00:58:10,400
+That's why I don't do this very often, but you know, I wanted to really, truly put Starlink
+
+935
+00:58:10,400 --> 00:58:14,400
+through its paces and really see if this was legit or if it was hype.
+
+936
+00:58:14,400 --> 00:58:19,400
+And, uh, I mean, here we are now, this is the second live show where I'm really pushing
+
+937
+00:58:19,400 --> 00:58:20,400
+this thing.
+
+938
+00:58:20,400 --> 00:58:23,400
+I'm taking remote audio streams to Wes and Brent to the mumble room.
+
+939
+00:58:23,400 --> 00:58:28,400
+I've got a couple of computer, I've got, I've got like 60 devices on my land that are probably
+
+940
+00:58:28,400 --> 00:58:30,400
+chirping to the internet all the time.
+
+941
+00:58:30,400 --> 00:58:32,400
+I've got my web browser, my chat programs going.
+
+942
+00:58:32,400 --> 00:58:39,400
+And of course we're live streaming over OBS and it is raining like the Dickens and it's
+
+943
+00:58:39,400 --> 00:58:40,400
+really holding up right now.
+
+944
+00:58:40,400 --> 00:58:46,400
+My ping time to Google is 35.2 milliseconds right now while I'm doing all of this, while
+
+945
+00:58:46,400 --> 00:58:50,400
+the connection is theoretically fairly slammed.
+
+946
+00:58:50,400 --> 00:58:56,400
+So I thought what I would do is pull up the real time power usage for the show and see
+
+947
+00:58:56,400 --> 00:58:59,400
+how much power the dish used while we were doing the show.
+
+948
+00:58:59,400 --> 00:59:07,400
+Because I, I have discovered through monitoring this thing that it uses more power to transmit
+
+949
+00:59:07,400 --> 00:59:09,400
+than it does to receive.
+
+950
+00:59:09,400 --> 00:59:13,400
+And if you think about it to receive, it's just sitting there listening for signals from
+
+951
+00:59:13,400 --> 00:59:14,400
+space, right?
+
+952
+00:59:14,400 --> 00:59:19,400
+But to send, it actually has to send that up into space.
+
+953
+00:59:19,400 --> 00:59:22,400
+So it uses more power when you're transmitting more.
+
+954
+00:59:22,400 --> 00:59:23,400
+Yeah, exactly.
+
+955
+00:59:23,400 --> 00:59:24,400
+Uh, here we are right now.
+
+956
+00:59:24,400 --> 00:59:28,400
+We're at 39 Watts, uh, in real time.
+
+957
+00:59:28,400 --> 00:59:34,400
+And, uh, let's see around 9 am when I first started really cranking away for the day,
+
+958
+00:59:34,400 --> 00:59:41,400
+56 Watts during the show around 47, 46, 46, 35 Watts right now.
+
+959
+00:59:41,400 --> 00:59:43,400
+It's got down to 35 Watts while we're doing the show.
+
+960
+00:59:43,400 --> 00:59:46,400
+Wow, that's amazing.
+
+961
+00:59:46,400 --> 01:00:13,400
+Think about that for a Linux box that's communicating with space with freaking space.
+

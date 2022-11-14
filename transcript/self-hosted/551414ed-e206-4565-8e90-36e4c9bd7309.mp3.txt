@@ -1,0 +1,842 @@
+I have an idea for a charging station in the home that I think would be a brilliant way
+to save battery life.
+I think I'm onto something here.
+So if you need to save battery life, why do you need a charging station?
+Here's the thing.
+So you got your devices, right?
+Like your laptops and your iPads.
+And the actual truth is you shouldn't keep these things at 100% charge state all the
+time, right?
+Whoa.
+No, no, no.
+Somewhere between 40 and 60% is probably ideal for the type of lithium ion batteries that
+are in our devices.
+Do you agree?
+Yeah.
+When I worked in the Genius Bar, I can't tell you the number of MacBooks I saw with batteries
+that were exploding through the keyboard or stopping the trackpad from working.
+I wish there was a way to just set in any OS, I want my battery level to be at this
+unless I press I'm going traveling button.
+Here's what I'm thinking.
+So there's a couple of ways I think I could solve this, but I've got a really old MacBook
+from like 2013 and the battery is still kind of working and I want to keep it alive.
+And it dawned on me that they have that Home Assistant app for Mac OS that tracks your
+battery life.
+Oh my God, you're a genius.
+Right?
+So you just put the adapter, you plug that into a smart plug and you have Home Assistant
+automatically turn off the smart plug when the Mac gets to 60%.
+And I think you could probably do it with Linux.
+I'm wondering maybe somebody in the audience knows how you could report back a battery
+status to Home Assistant, but...
+That's a great idea, Brent.
+So I want to expand the idea for other devices as well.
+So I want input from people on how to do this, but essentially my goal would be to use a
+couple of smart plugs that are managed by Home Assistant to charge things for a while
+and then turn the charge off.
+And if there was a way to do it intelligently, maybe I don't even need the sensor data.
+Maybe I could just do it by like some math.
+I don't know.
+That's my current goal at home right now.
+So if anybody has some suggestions, I'd like them.
+In the meantime, if you just have a Mac that you want to limit the maximum charging for,
+you should look into Aldente.
+It works with Intel or M1 Macs and it's just letting you set a hard limit on the charge
+before the system continues to charge, I suppose.
+You could look into that.
+We'll have a link in the show notes.
+This is fantastic.
+I gave my wife my old laptop last year sometime and I know for a fact, even though I've told
+her you need to unplug it at least once a month and cycle the battery.
+I know it's been sat there since my daughter was born and hasn't moved.
+Right.
+Well, we have like one Mac here in the studio that's for effects processing and it just
+sits there always plugged in.
+So I put this Aldente on there and capped it at 60%.
+And then I started thinking, how could I do this where it's not Mac OS specific or maybe
+it could be for multiple devices.
+So I'm going to expand the idea.
+In the meantime, you could expand your mind at a cloud guru.
+They are the leading in learning for the cloud Linux and other modern tech skills, hundreds
+of courses, thousands of hands on labs.
+Get certified, get hired, get learning at a cloud guru.com.
+I think we've talked about this before.
+I'm talking of course about health checks to IO, but I've had a little epiphany with
+health checks recently and I've started using it quite heavily for my own purposes.
+I wonder if you used it for anything.
+You have talked about it before and I've considered it, but I haven't been able to grok if it's
+worth the setup time yet.
+It was actually one of the things I've been meaning to talk to you about.
+I did go last time we talked about it with the hosted service and one of the struggles
+of being a self-hoster is do I self-host, do I use the hosted version?
+With different services, I fall on different sides of that line and Bitward and I use the
+hosted service and I pay, I think it's $10 or $12 a year for that.
+With health checks, their hosted version is actually free for up to 10 health checks.
+Beyond that, they have a pricing page.
+The hobbyist is actually free for up to 20 jobs, not 10, my mistake.
+Beyond that, you can pay $5 a month and you'll get some phone support and some email support
+and then they have business plans at $20 and up for 100 jobs and stuff like that.
+I was doing a bunch of different ZFS replication tasks and what I wanted to happen was I've
+just done a whole bunch of hardware shuffles in my house.
+You?
+Never.
+Well, this all stems from January when I was basing everything around GVTG and wanting
+to do everything with that single Intel box and it didn't work out.
+I've had to kind of rewind and kind of reconfigure a few things.
+My old dual Xeon box is now purely Homelab that is running ESXi and it's just going to
+sit in a corner turned off for 95% of its life now, just such an overkill for that box
+because it's so powerful, but it consumes a lot of power in the process.
+The Intel i5 system in the basement is the full-time one, but what I figured I could
+do is take a couple of these slightly older 10 terabyte hard drives I have that are two
+or three years old at this point, put those into the Homelab box and then schedule that
+to turn on at least once a week.
+I'll probably turn it on more whilst I'm working during the week and doing OpenShift stuff,
+but what I wanted to happen was to have a local backup.
+So I wanted my ZFS in the basement to replicate to the ZFS in my Homelab box upstairs and
+to keep track of when the last backup was, I needed some kind of a tool to do that because
+I've got a lot going on as we all do and I'm going to forget stuff.
+The last thing I want is to come to need that backup and go, oh yes, the last time it ran
+was 2019.
+Oh dear.
+Right.
+Well, you recall that did happen to me where I had a Google account outage and so the backup
+hadn't run for a little bit and I didn't realize it.
+Absolutely.
+So I finally got round to setting up the self-hosted version of the health checks.
+Now I'm running this on Linode because I actually foresaw a situation where all the servers
+in my house are off for a couple of weeks, let's say I'm taking a vacation or something
+or traveling to England to see grandparents or whatever.
+Or maybe your power is turned off because you're getting solar installed.
+Yes, that is happening soon actually.
+And so I thought, right, where can I run this that is reliable and is going to be more reliable
+than my house?
+And I thought Linode was a perfect fit for that.
+So this is running on one of their $5 a month Linodes, it's the same one that's doing perfect
+media server.com and my personal blog and all the rest of it.
+So this box is serving like quintuple duty at this point.
+It's doing a lot of stuff for me and it's only a five, it's only a five or a month.
+The self-hosted version of health checks, I'm running the Linux server Docker, which
+was written by one of my friends also called Alex.
+He has done a bunch of work with making sure that it pulls in the latest code from the
+health checks repo.
+So there is as always with containers, it seems a choice to be made about which container
+do I run?
+Do I run the official one or do I run the Linux server one or some other random one?
+I try and run the Linux server ones for obvious reasons whenever I can, if for no other reason
+than they auto update, which is kind of nice when you restart the app.
+So you get all the features with this self-hosted version that you don't get on the hosted version.
+So actually in this case, self-hosting gives you more functionality than the hosted version,
+which is always nice.
+And there are a bunch of integrations.
+I'm just using one with pushover, which is a push notification service, which you configure
+through environment variables for the container.
+You generate a token with pushover and pass that through an environment variable in your
+Docker compose file or however you like to do that.
+It also supports a bunch of other interesting stuff like Prometheus, Ops Genie, if you're
+doing something for work, this can be useful.
+You can have it ping Slack, Discord, Microsoft Teams, Mattermost, it does webhooks.
+There really are a lot of integrations for alerting.
+I'm just using pushover, as I said.
+It's really nice because I don't really see it if it's in the log file.
+But if I got a message in the same communications tool I'm using to chat with you and Wes or
+something like that, then I'm definitely going to see it.
+And then I'm going to be able to take action on it.
+And so just those small things like being able to send a message to Slack, it makes
+a huge difference for me, Alex.
+It supports Telegram as well.
+So if you have a group of people, you can actually have it interact with bots as well,
+I think, and do a bunch of stuff with that.
+So you could make this really quite deeply integrated into some kind of an incident response
+solution type thing.
+I don't really need that.
+I just need to be reminded that, hey, dummy, you haven't run your backups for two weeks.
+Did I track that in that description of yours, you transitioned from the hosted solution
+to the self-hosted version?
+Yeah.
+And why was that?
+Well, number one, I was running up against the 20 job limit, which I thought was 10.
+So maybe I wasn't running up against it.
+But I knew I was going to be running into that limit soon anyway.
+And I also, as part of being the host of this show, feel a responsibility to try these things
+out on occasion.
+That's how I felt.
+Not just because of that, but because I could host it, say, on a VPS, and then I could check
+even the systems here on the LAN at the studio, it might be worth doing.
+What kind of setup am I looking at, though?
+Because things I'd like to monitor is like, is Nextcloud running?
+So what does that mean?
+It means, is the web port available, is the database server online?
+I guess is the web page loading?
+I'd like to know that kind of stuff.
+But there's all kinds of other things.
+Like I'd like to know, we have our Matrix server that we run.
+That isn't on the LAN, but it's a server we manage.
+And Matrix eats a crap ton of RAM right now.
+The Synapse server is definitely a work in progress.
+And it's something that we have to log in and manage from time to time, and even restart
+sometimes or go through some sort of cleanup.
+And I'm wondering, what about those kind of scenarios where the system's running out of
+memory?
+Does it do that kind of monitoring, that kind of reporting?
+Or is it more failed yes or working, that kind of stuff?
+It's a great question, because it's a bit of a confusing area, all this monitoring and
+alerting type stuff.
+So Health Checks is primarily designed to be run as part of a script or a cron job or
+something like that.
+And the way it works is you curl a URL, you hit a URL.
+The Health Checks API on the other end receives that request and goes, hey, I've just been
+pinged on this random string of URL UUID type stuff.
+That's a phoning home.
+That is that job completing.
+So if you put it at the end of a backup script, say the very last line is curl https healthchecks.com
+your slash UUID, then the software knows that you've successfully got to the end of that
+script and it assumes that everything's gone well.
+What you're looking for, I suspect, is something more along the lines of Prometheus, which
+is designed to monitor disk space and memory usage and CPU temperatures and percentage
+and all that kind of crap.
+And Prometheus will then output to something called Alert Manager, and you can write what's
+called PromQL, Prometheus Query Language queries.
+Sounds complicated.
+It's much easier than SQL to get started with.
+So if you've ever had to write an SQL query, you can probably write a PromQL one.
+And that's probably more what you're after in terms of monitoring, you know, is matrix,
+is the API still available?
+For example, can I still hit a certain URL?
+Is that website still available?
+In the meantime, I've been keeping an eye on it with NetData, which feels like a cheat.
+I feel like I almost am ashamed to admit it, but it's been handy and I've used that to
+kind of keep an eye on the system, but I know I need to take it to the next step.
+Maybe a topic for a future episode.
+Who doesn't love a pretty graph, eh?
+Speaking of which, did you know about this command I found out quite recently about this
+one?
+Docker stats.
+Just go to a box where you've got a few containers running and take a look at this.
+This is pretty great.
+In fact, this is one of the ways I realized how much memory and CPU matrix actually takes.
+All the snaps, at least.
+This is kind of like top for your Docker containers.
+It gives you CPU usage, memory, IO, and all that kind of stuff, and you can also just
+get a list for a singled container if you specify that container, if that's what your
+permissions only allow for.
+But if you can see all of the containers, then you can just run Docker stats on its
+own and get a list of everything on the box, and I was surprised because I run ping stat
+here at the studio, so I just thought, well, I'll check it right before the show.
+And I ran that, and it comes up, and ping stat, which is just ping and stuff and graphing
+it, right?
+300% of my CPU when I ran this command, and I'm like, what is it doing?
+But then I sat there and watched it for probably five minutes, and it never once again really
+did anything.
+But that brief moment when I brought it up, Alex, is 300% of my CPU on my server for ping
+stat.
+Yeah, it's pretty interesting, isn't it?
+If I go into my cloud VPS where the Unify controller is running, that damn thing has
+117 processes under one container.
+Yeah, yeah, that's...
+Eesh.
+I don't know how that makes me feel.
+It doesn't make me feel good, I'll be honest.
+Linode.com slash SSH.
+Go there to get a $100 credit on a new account for 60 days, and of course, you support the
+show.
+Linode is the largest independent cloud computing provider out there.
+No matter what technology stack you're familiar with, you're gonna find Linode easy to use.
+And if you're an expert under the hood, there's a little thing here or there, little hints
+that you'll see for us longtime Linux users that will make things even quicker and more
+efficient and things you'll really appreciate.
+And if you ever run into any trouble, Linode has fantastic, amazing, great customer service
+24-7 by phone or by ticket, whatever you prefer, and they have hundreds of guides and tutorials
+to help you get started.
+And we often will link to some in the notes.
+There's one that I recommend anybody that wants to run phpMyAdmin, give that one a read.
+That's just a few steps you can go through to make that a much more secure installation.
+Linode is easy to use and they have a powerful cloud dashboard, and they also have S3 compatible
+object storage.
+This could be something that works great for your backup strategy.
+A lot of applications and tools can integrate and backup to S3 compatible storage.
+And Linode has fantastic pricing, and you could build that right into your backup or
+recovery strategy.
+But additionally, you could also just use it for a static website, for hosting any kind
+of files you need out in the cloud where you don't wanna have to run a server in front
+of it.
+And they have simple one-click application deployments, if that's more of your jive,
+which I totally respect because Linode is a fantastic learning platform as well.
+Deploy an application, learn how it works.
+Linode's great for that.
+They're a $100 credit.
+There's all kinds of things you can try, and learning something, trying it out is a great
+use of that too.
+I mean, absolutely, you can put it in production, but why not use that credit to learn something
+new as well?
+So go to linode.com slash SSH, get that $100 60-day credit and support the show.
+That's linode.com slash SSH.
+Now you know how I love me some Blue Iris stuff.
+Some pretty exciting news in the last couple of weeks about deep stack integration with
+Blue Iris.
+Traditionally, what you had to do to get object detection, you know, bird, car, plane, bear,
+I think was one of the options.
+You want bear detection for sure.
+Yeah, probably.
+Yeah, if a bear is in the woods, does it, how does the saying go?
+Actually, I don't care where you are.
+If there's a bear in your backyard, even where you live, Alex, I think you'd wanna know about
+it.
+What's particularly exciting about this latest Blue Iris update is that built right in now
+to the Blue Iris software, you can launch DeepStack natively on the Windows system that
+it's running on.
+So you don't need a helper program or any kind of a JPEG kind of detection intermediary
+software anymore.
+It's just all done within Blue Iris.
+So I've put a link to a YouTube video in the description, which talks you through how to
+set that up.
+DeepStack gets even better, tempting me to come over to the Windows side, but it's not
+gonna happen just yet.
+You know, I actually find a lot of utility in just bringing the video feeds into Home
+Assistant and having a dashboard in Home Assistant I can go to and just get live camera feeds.
+So that, you know, that would just be a great integration one day, is something that manages
+all of that.
+Absolutely.
+Alex, I know you're a big ZFS guy, so have you seen zfs.rent?
+I have, yes.
+Oh my goodness, this thing looks really, really cool.
+I can't remember where I discovered it.
+I think it was on the self-hosted Discord.
+Somebody just said to me, have you, why don't you use zfs.rent and I'm like, because I didn't
+know about it.
+The whole premise behind zfs.rent is that it's a simple cloud service to store ZFS snapshots.
+Effectively, it's like having a ZFS send, but in a co-located data center, but their
+business model is really pretty interesting.
+So these guys rent out KVM virtual machines and they have dedicated hard drives to each
+VM.
+So I guess they're using pass-through or something.
+There is no sharing and no over-committing on these VMs.
+And when you sign up to their service, you receive a root password, a dedicated IBV4
+address.
+So you could, you know, alias that to a sub-domain of your choosing.
+And then you get a pre-formatted and mounted ZFS pool.
+Here's where it gets really, really interesting.
+You can send them hard drives with data already on them to their data center.
+I love that.
+That's great.
+You know, you were just talking about how you had those 10 terabyte drives that you
+were kind of using as just scratch drives for backup.
+That's a great example.
+You could load those suckers up and send them off.
+Absolutely.
+Yeah.
+Now pricing is pretty straightforward.
+It's 10 bucks a month per drive.
+So if you can go on Best Buy and find one of their easy stores on a cheap deal, you could
+have, you know, a 14 terabyte drive for $200, load that sucker up with all of your data,
+send it off to this data center, and for 10 bucks a month, you've got 14 terabytes of
+cloud storage.
+You know, that is doable for what I do here, right?
+It's one of those things.
+You sort of read the website and you're like, where's the catch?
+There's got to be a catch.
+I was actually speaking with Ryan, who's the guy behind ZFS.Rent, and I'm hoping to get
+him on the show to do an interview shortly, but he seems like a really great guy.
+And honestly, I have no qualms about recommending this service, even just as a, hey guys, you
+know, audience, did you know this cool thing existed?
+Yeah.
+Nope.
+No sponsor, no relationship of any kind.
+It's just something we came across.
+Each plan includes one terabyte of base bandwidth data movement per month.
+They don't distinguish between upload or download.
+A terabyte is a terabyte.
+They have a rate of an additional $5 per terabyte after that, which is actually pretty reasonable.
+If I'm uploading more than a terabyte in a month, my ISP is probably knocking on my door.
+I would imagine the time where you would actually need to exceed a terabyte is the initial seeding.
+Well, we can get round that by sending them the drive preceded or in a disaster recovery
+scenario.
+And if I'm at the point where I need to download 14 terabytes of data from my backup, I think
+I can probably swing, you know, the hundred bucks or whatever it is to get that.
+That's just what I was thinking is that's really the only time it would be costly is
+when you're actually pulling it all back down.
+I wonder if they would do that, although you wouldn't really want to wait.
+But I guess they could maybe reload a disk.
+You could send them the disk and they could reload it up.
+Now, did you see this on their home page?
+Users have a choice of from OS's, CentOS with maintenance support until 2029 crossed out
+to 2021.
+Oh, too soon.
+So Ubuntu and Debian, but here's where I thought it got super interesting is as an arch guy,
+no pre-installed OS.
+You can attach your own Linux ISO to the KVM virtual machine and install via a tunneled
+VNC client any OS that you want.
+That's adorable.
+That's a really great setup.
+They also do support Debian 10.7 out of the box and Ubuntu 20.04 until 2025, which is
+honestly what I would just do.
+I think it's too it's so great that they left the 2029 on there and crossed it out.
+Like that's such a statement.
+I've actually just deployed my first CentOS 8 stream box in production.
+We're doing a small, limited Jupiter colony mail server for like a handful of people right
+now, and it's all running on CentOS 8 stream.
+Look at you, you hipster.
+Yeah, I'm going to.
+So I'm going to give it a go and see how it is to to run a mail server.
+I'll report back.
+I suspect there's going to be crappy aspects to it.
+This episode is brought to you by Synology, makers of network attached storage devices,
+networking and surveillance equipment.
+In late 2020, they released the DS1621+, a six bay NAS unit with a four core, eight thread
+Ryzen CPU.
+As a result, this system runs cool and quiet whilst being a powerhouse under the hood.
+And if you need it, there's a PCIe slot for adding cards such as 10 gigabit networking
+as well.
+What really sets Synology units apart from their competition for me though, is their
+level of fit and finish.
+Their enclosures are beautiful and their software is really great as well.
+I'm talking about their disk station management software.
+DSM is like using a desktop session inside a browser.
+It's really cool if you haven't seen it.
+And we've got a link for a live demo for you at selfhosted.show slash Synology.
+This simple and intuitive UI is perfect for those just getting started on their self hosting
+journey.
+I've used Synology's now for many years and I still can't quite believe how they pulled
+this off in a browser.
+You can also find tons of apps available in their built-in store, as well as community
+provided repos and more recently, Docker support.
+With this Docker support, you can run darn near anything you like on these boxes.
+And remember that with that Ryzen chip, you've got full x86 compatibility, so there's no
+arm weirdness going on here.
+To find out more about Synology and their other NAS products, visit selfhosted.show
+slash Synology so that they know we sent you and to support the show.
+A big thanks to Synology for sponsoring our show.
+Synology wanted us to actually have a chance to try out some of their hardware, and so
+we thought we'd share our thoughts with you and they sent a DS1621 plus to Alex to kick
+the tires.
+They did indeed.
+Yes.
+So I am the proud recipient of a Ryzen powered NAS.
+That's pretty neat.
+That left me thinking, how do I go about reviewing a NAS?
+Because it's, you know, it's something you just throw files on and forget about for the
+next few years.
+And when I hear Ryzen, I think it probably has a fair amount of CPU power in that thing.
+This is one of their embedded chips.
+This is the Ryzen V1500B.
+It's a four core, 2.2 gigahertz, eight thread CPU, and it supports up to 32 gigabytes of
+ECC memory, which is pretty nice.
+The motherboard built into the Synology also has a couple of NVME slots, which I thought
+was particularly interesting.
+And one of the things actually that I was most disappointed about with the COBOL, you
+know, the Helios 64, was that it was a five bay NAS.
+But if you use the NVME slot that came with it, you turned it into a four bay NAS.
+Well, there's none of that going on here.
+This remains to be a six bay NAS with two extra PCIe NVME slots as well.
+So you can fit effectively eight drives in this thing, which is great.
+That's great.
+Yeah, that is.
+Now the fit and finish really is next level on this thing.
+In five minutes of taking it out of the box, I had the drive cages removed with the tool-less
+hot swappable drive cages they have.
+I had the drives installed, put them into the enclosure.
+One important thing to note is that you must populate the first drive slot with a drive.
+And if you don't, the Synology will fail to boot.
+And I assume this is because they're installing the DSM OS onto that first drive.
+Now, I don't know what that means for the long-term reliability of a spinning drive
+in that first slot, but it's something I can report back on in a few months' time.
+Yeah.
+And it could just be that maybe it just doesn't proceed because what's the point of a NAS
+with no disk?
+Well, you say that, but these things have full-on app stores these days, and they can
+run Docker as well.
+So you could conceivably buy a Synology unit and not put any drives in it and still run
+some services if you liked.
+I don't know why you would, but you could.
+It is easy to deploy applications on, I suppose.
+That's a good point.
+I'm curious about just physical size and noise and those kinds of things.
+How was all that?
+And give me an idea of how much space this thing takes up.
+Noise is great.
+The fans that are included in the unit are very, very quiet.
+I've actually had it in a closet right just off my office a few feet from where we're
+sat right now.
+And I closed that door, and I can't hear it.
+It's just, oh, it's pretty quiet.
+You'll hear it if it's on the desk next to you, but that's more a result of the fact
+of having mechanical hard drives than it is fan noise right next to you.
+In terms of the size of the thing, I think it's about five kilos, give or take.
+I don't know.
+The footprint's about the size of a 16-inch laptop, maybe a little bit less.
+And then, I don't know, nine inches tall or so.
+Basically think of six hard drives lying on their side with a couple of inches either
+side.
+That absolutely makes sense.
+And now, also, I think that means you're a ButterFS user, which I think is fantastic.
+Well, it would if I had chosen ButterFS.
+Which I did.
+I did.
+Oh, OK.
+Hello.
+Welcome to the club.
+You and I are now running ButterFS at home.
+The reason I picked ButterFS is because it enables compression and snapshots.
+And that's an option that's exposed to the users at the time of creating the array or
+the volume of storage in the DSM software.
+So let's talk about software for a little bit.
+So this thing does run the DSM, which is their OS, and it has a nice interface on it, which
+has an app store.
+But you're a long-termer.
+You don't necessarily always like the graphical environments on top of stuff in the management
+tool.
+So how did you handle all of that?
+How did you react to it?
+What were your thoughts?
+So I'll tell you who I think this system is actually perfect for.
+It's those people just getting started in self-hosting who want their hand holding a
+little bit, but are also comfortable with the idea that they have to learn some stuff
+to run these services.
+And through the UI, you are guided through the process of setting up Docker containers,
+of sharing folders, of doing file service sharing like Samba, and all the rest of it,
+you know, like time machine backups and all that kind of stuff.
+Creating users.
+A lot of times people ask me when they read the perfect media server, what's the best
+GUI?
+And I'm like, well, it's the command line, silly.
+But actually, I think it's something like this.
+I don't think a really good GUI for server management on Linux truly exists.
+I know you like cockpit, but I don't think there's anything quite on this scale for vanilla
+Linux.
+Right.
+Nothing this straightforward.
+Nothing this straightforward and nothing this comprehensive.
+Yeah.
+This does a lot more than cockpit.
+Yeah, absolutely does.
+And sometimes that can be to its detriment because you think, right, I just want to have
+a composed file and paste it in and create these five containers like this, please.
+Right.
+Whereas with the UI that Synology has, you have to click through a few things and create
+volumes and all the knobs and switches are labeled all the same as they would be in a
+composed file.
+But you just have to go through and click them, which, you know, if I'm trying to explain
+this to my mother over the phone, for example, and she's actually had a Synology unit in
+her house now for, I want to say five years, and I've not really had to touch it or think
+about it.
+I mean, it just keeps on working this thing.
+And I think the long-term outlook for the Synology unit for me is going to be, it's
+going to end up at a parent's house, which is no bad thing in my opinion.
+I think it's a sign of, you know, I said this a few episodes ago.
+I bought a Raspberry Pi for eight gig and an external USB hard drive, and I've been
+having the most difficult time trying to get that thing to USB boot with my sister's fiance
+trying to talk him through how to set the Raspberry Pi up with USB boot and then flash
+it remotely.
+And oh, what a pain.
+And I'm thinking to myself, well, if I just had this Synology, I could just send it to
+them and it looks nice.
+It's nice and quiet.
+There's no cables to be unplugged by the cat, you know?
+I think Angela's been running one at her house for probably seven to eight years.
+I don't even know.
+It's crazy how long that thing has been running.
+So it seems like it's been pretty solid.
+I think for the people who like to deploy something and then begin to figure it out
+and learn how it works, it fits that so well.
+I worked with Synology to get one of these for Wes for Christmas because it's not that
+Wes doesn't know how to manage a server, obviously, but he just doesn't really have the time.
+He's got other stuff to do, right?
+He still wants to be able to run Jellyfin in his case and manage his media and save
+files to a centralized location on his network, but he doesn't have the time to build a box
+and set up all of the services, even though he knows how.
+And so I thought a Synology would be perfect for him, too.
+And so we say it's for beginners, but it's also just for people who got a lot going on,
+like people just kind of like in your situation that just maybe have a little less time or
+interest in building it completely from scratch.
+I think I agree totally.
+Now one thing I would like to discuss is the version of Docker that's running on the NAS
+and it's running 18.09, which as the name suggests, comes from 2018.
+So what this means is if you SSH into the Synology, you can get in behind the scenes
+and go and tinker with what's going on and you think to yourself, great, I'm just going
+to use Docker compose and I will circumvent the UI and just do it that way.
+But unfortunately, because that version of Docker is so old, it means a lot of the newer
+features in Docker compose aren't supported.
+So you then think to yourself, hmm, I could upgrade the version of Docker, couldn't I?
+And yes, you can.
+There is a GitHub repo to do that in an unsupported fashion.
+And then you quickly run into all sorts of problems trying to figure out how networking
+bridging works and all that kind of stuff and wish you'd never bothered.
+So my recommendation with Docker would be to just stick to the UI on the Synology and
+it will just work brilliantly.
+And then if you're a crazy kid like Alex, you could just end up using your Synology
+as an iSCSI endpoint and point your VMware infrastructure at it.
+That's true.
+Actually, yeah.
+You see Synology in the backgrounds of so many tech YouTuber videos, Network Chuck,
+Lawrence Systems, Tom from Lawrence Systems, they've all got Synology blinking away in
+the background.
+And I've often wondered, what are these guys that surely know better, right?
+In air quotes, what are they all doing with their Synologies?
+And it turns out, actually, if you fill this sucker up with SSDs and put a 10 gig networking
+card in there, you can get some seriously good performance over iSCSI with VMware, which
+Synology have worked very hard to get the official certification for.
+Yeah.
+I remember we were talking to Wendell and he even thought that was pretty remarkable
+back in the day, but it is pretty good to see it and a nice little home lab addition.
+So if you have something like an Intel NUC that doesn't have much storage and you want
+a cheap way to add six, eight, or more drives, because Synology offer a lot of different
+products, buy Synology, use iSCSI, and then your NUC suddenly has 20 terabytes to go out.
+I can see it too.
+Maybe one day I'll have all these Raspberry Pis and then they'll just be one centralized
+storage to be able to support VMware is pretty great.
+But when you were messing around with this, one thing I didn't hear you talk about was
+if you dug into what your backup options would be, if you felt like you were limited, maybe
+by the DSM, by what your backup backup options could be, what was that experience like?
+Well, it's not running ZFS.
+So I needed a way in which to do versioned snapshots and incremental backups.
+Incremental backups are really important because rather than sending the entire file system
+every single time, it only sends the bits and bytes that have changed.
+Now ZFS does this at the block level, but because I'm going from ZFS to ButterFS, there's
+no mechanism in place to do that.
+Now I could use rsync, but then it's going through and it's checking MD5 hashes every
+time and it can be a bit slow and a bit clunky.
+And I tripped over something called Minio.
+I actually mentioned this, I think with the orange one last week.
+I tripped over Minio, which is a S3 front end.
+Now this provides the S3 object storage API on your LAN effectively backed by your own
+storage.
+Now the advantage that that gives you is that you can use a tool such as RESTIC to do incremental
+versioned snapshot backups to this S3 endpoint backed by the Synology.
+All right, so pause because this is a big deal and this is probably something we should
+dedicate an entire episode to, but this lets you build your own S3 object storage on your
+LAN or maybe up in the cloud.
+There's a lot of ways you could use this if you think about it.
+Yeah, we should come back to this as a separate topic, but okay.
+So let me unpack this.
+So you have something like this set up on your LAN running, exposing some storage that
+you're then making available to the DSM software, or how does this work?
+Minio is running as a container that's then backed by a volume mount to one of the volumes
+on the Synology itself.
+Lots of volumes terms going on here, but that's where it gets a little confusing.
+So essentially what happens is Minio is running as a container.
+It presents itself as an API that I can then call from RESTIC, and RESTIC will then just
+store the data on those S3 buckets as objects.
+That's worth doing too, Alex, because it seems like you could use that for other stuff in
+the future as well, because there's a lot of things that will just plug right into that.
+It does free you up from the ZFS kind of train, if you like.
+So if something like zfs.rent isn't up your street and you want to host just a few hundred
+megabytes of files, then something like RESTIC is going to do you really well.
+One of the most difficult parts of using RESTIC is configuring it.
+Now I came across a project this week which solves that problem in a really beautiful
+way called auto RESTIC.
+Now there's a link to this thing in the show notes, but essentially what happens is you
+define the locations and the backends in a YAML file, and you're done.
+That's not so bad to manage, I mean that sounds like something that I could probably wrap
+my head around.
+What's really nice as well is if you just have a local backend, which is just some dumb
+USB hard drive, you can actually have as one of your backends just HDD type local path
+my external storage, and it's as simple as that.
+Oh, although my backend is never dumb, but that does seem really nice.
+I didn't mean as an insult darling.
+There's a bunch of other cool stuff that auto RESTIC supports as well, like hooks.
+So if you want to perform some commands before or after a specific backup, let's say you
+want to delete some files after a backup's happened, for example, you can do that using
+the hooks that are built into auto RESTIC.
+You can also exclude files as well, and there is a forget policy.
+So one of the favorite things about ZFS send for me is when I use Jim Salters Sanoid tool,
+it has a policy driven snapshot engine, which will automatically keep the last hour or the
+last six hours and then the last six days and then the last six weeks and then the last
+six months, it'll keep one snapshot from each of those different timestamps.
+Auto RESTIC also has a forget and prune policy engine built right into it, which you configure
+again in the YAML right next to the location that you're defining.
+It's the way RESTIC should work.
+Yeah, that does sound nice.
+Well, very good.
+We will have a link to that at selfhosted.show slash 43.
+Now before we go, Alex, Jase Novell wrote in on the Discord, so I guess that's more
+like sent a message on Discord and then we thought that's a good question to read on
+the show.
+But he says, I'm working through the planning stages of building a new home.
+Oh, I love that.
+Really?
+Oh, I'm envious.
+Yeah.
+He writes, if you are all starting from scratch, how would you design a smart home that would
+get the wife approval factor, but at the same time, not be too much overkill?
+Well, that actually feels like that's how you achieve the wife approval factor is not
+going overkill.
+But I get the spirit of his question, like what's a reasonable kind of build it in while
+I have the opportunity, but not go excessive.
+Automated flame throwers on the driveway should do the trick.
+Right.
+And laser pointers on articulating arms so that way you can, you know, you could just
+put that out there and that way the pets stay entertained.
+No, but really thinking about it, it comes down in my mind, like the first place I go
+to is just solid networking.
+Whilst you've got those walls open, run as many high quality cables as you can.
+Yeah.
+I would suggest starting with Cat 6a as a minimum.
+Yes, it could be considered a little bit overkill, you know, 5e will do quite comfortably gigabit
+ethernet and even you'll even do 10 gig over a very short distance, but Cat 6a will give
+you 10 gig guaranteed.
+I think it's like three or 500 feet, something like that.
+And if you're thinking about the lifetime of a house, which could be 50 plus years,
+you really want to put in there as good as you can afford to at the time you're building
+it because having retrofitted a couple of houses with ethernet cable, let me tell you,
+pulling cable is no fun.
+It's how you'll do everything from cameras to smoke detectors to sensors to Wi-Fi endpoints.
+Everything's better with ethernet or just workstations, televisions, media set top boxes.
+You'll never beat wired.
+As good as wireless gets, it cannot just beat a physical copper connection.
+It's just the reality of physics right now.
+And I just so completely agree with Alex.
+I have a buddy right now who is building a tiny home and it's a really cool place.
+And in this tiny home, which is probably 250 square feet, I don't actually know, he has
+18 ethernet jacks in different places.
+Some of them are multiple panels and stuff, but you think about it, that's how he's going
+to do his phone.
+That's how he's going to do all of his TV, HDMI is going to be over ethernet in the wall.
+That's how he's going to do all of his cameras.
+That's how he's going to do his desk.
+That's how he's going to bring his internet connection in.
+I really just completely totally agree with you, Alex.
+And it would be nice as well not to have to daisy chain switches.
+One of the ways in which I extend the ethernet around some of the larger rooms in this house,
+in walls that are more difficult to pull cable through, like external walls or stuff with
+insulation in, I actually just run an ethernet cable along the skirting board, the baseboard,
+and then have a switch and then just carry on.
+So actually, if I think about it, between the switch that's carrying my voice to you,
+there's probably four switches.
+It's a horrible network design, but it works.
+I wish I could shake up so many industries to like the hotel industries should all be
+putting ethernet in the rooms for me to use RVs.
+Oh my gosh, Alex, I wish the RV manufacturers would build an ethernet to every RV.
+All home manufacturers, you shouldn't build a home today without ethernet and it's happening
+still Alex in 2021.
+Without ethernet, but also without a proper server covered.
+And I think, you know, having some kind of a central place where all that ethernet comes
+into with a patch panel and space for all the different bridges that you need these
+days.
+Your Zigbee bridge, your Z-Wave bridge, your Philips Hue light bulb bridge, all this kind
+of stuff.
+Like the solar installer came and did a survey on my roof last week and he said, can I take
+a look at your internet router?
+And I'm like, okay, this is going to be complicated unless you tell me why you need to see that.
+And he said, well, we have this monitoring thing that connects via Zigbee to the solar
+on the roof and does a bunch of, you know, consumption monitoring stuff.
+And I said, okay, so tell me what you need.
+Is it just an ethernet Jack?
+And he went, yes.
+I'm like, I've got you covered.
+Yeah, that's a great example.
+But just so many other things like you'll have like your ISPs box you need to put somewhere
+and like a phone or a cable television thing if you go that route.
+So absolutely think of that and think of noise because some of these things that you're going
+to have in that space, like a switch have very loud fans.
+Also just before we completely go away from ethernet, label, man, the first, a couple
+of times, the first, the first time and then a second time, but no, no nonsense.
+But a couple of times, twice in a row, unfortunately, I got screwed and the guys that did my ethernet
+didn't properly label stuff and it is such a pain in the arse, let me tell you.
+So label everything you're doing, consider fan noise, consider heat because that could
+also be a problem because if it was me, I would like to have my switch and my server
+and all of that in the same space.
+So if I were really designing everything from scratch, I may actually consider putting all
+of that in my garage where I have a little room built off.
+Anything you can do now is an investment that will save you problems later because you're
+going to have heat issues.
+You're going to have power issues.
+You're going to have noise problems.
+You're going to have growth and sprawl problems.
+So if you can give consideration to that in some way, I absolutely would think of that.
+And then also maybe if you're going to do cameras, consider doing something like POE
+from the start and how you might build for that.
+Absolutely.
+And one of the other things I would consider in that server cupboard is you mentioned heating
+and cooling, but I would suggest if you can get a dedicated electrical circuit just for
+that equipment, it would make things much easier to troubleshoot if that room with thousands
+probably thousands of dollars worth of equipment in it has its own electrical supply.
+You could build a UPS type system in around it as well, but it's possible that that thing
+is going to be drawing quite a few amps.
+So it's worth having that separate circuit.
+And if you did later want to have like a backup power supply for that, or maybe you wanted
+even solar power or something like that, if you have that gear already isolated on its
+own circuit, that just got way simpler down the road.
+So that's something to think of too.
+And you really, I don't think you can overdo it with Ethernet and I don't think you can
+overdo it with circuits for independent stuff.
+When I had my place built years and years ago, which I don't live in anymore, but I
+had a circuit for my home office.
+Oh, actually, and here I did it in the studio too now that I think about it.
+The studio has three separate power circuits just in the studio.
+Now the reason for that is really overkill because of ground loops and noise like that.
+And then our offices upstairs, each room upstairs is on its own circuit because we run so much
+computer gear, we didn't want to be popping each other's breakers.
+I never used to really worry about that when I lived in England because obviously everything's
+at 220 volts over there, so half the amps.
+But over here at 110 volts, it really makes a difference.
+Yeah, so those are, I don't think they're overkill.
+The way you sell them is in long-term reliability and a reducement in replacements and hacky
+solutions and in stress.
+And just learning from people who've tried this the cheaper way and have had to make
+adjustments since.
+And if it's your only route, you'll make it work, man, no problem.
+But if you do have the ability to do some of this stuff ahead of time, man, future you
+is going to be so thankful.
+Yes, absolutely they will.
+Being retrofitted a few houses myself, I can tell you there's nothing worse than going
+through a crawl space with cockroaches trying to pull ethernet.
+So save yourself some headaches.
+Now if you'd like to get your question answered or discussed on the show, you can go to selfhosted.show
+slash contact.
+There you go.
+And also selfhosted.show slash SRE if you'd like to become a member.
+You support the show, you get a limited ad feed and you get extra content, a post show.
+And I think it's like five dollars a month, which is like our best deal on the network
+right now.
+Selfhosted.show slash SRE and get additional content.
+Best deal for the best show.
+Dang right.
+Now you just launched Jupiter Garage dot com, didn't you?
+Man, you and I, I know you have the same problem.
+Way too much gear, stuff's all over the place.
+So Jupiter Garage dot com, we've been selling off some things that we have in the studio.
+Plus I've kind of mixed it with some original stuff in there and you and I were talking
+about it and we were thinking now that you've got a different NAS situation, maybe we ought
+to put the Helio 64 in the garage sale.
+Yeah.
+Well, I'm not really using it for anything.
+So I figured I'll save someone else having to wait for it to be delivered.
+So we'll put it on there for a good price and it'll go live on Monday, which will be
+April the 26th.
+Yeah.
+Jupiter Garage dot com.
+I just sold the free NAS that I used to have here in the studio.
+I sold it for $200.
+Man, that is a steal.
+Yeah, it is.
+You know, in some part it's just because I don't, this gear has just been sitting around
+anyways.
+So it's not like I'm doing anything with it and might as well go to a home with somebody
+in the audience.
+That just seems like kind of awesome, you know?
+So yeah, the Helio 64, it will probably go pretty fast.
+So maybe we should say Monday, Monday a.m. Seattle time just to kind of give people an
+expectation.
+Absolutely.
+All right.
+All right.
+Also, you can find our sponsor, Cloud Guru, on social media.
+It's simple.
+They're just slash a Cloud Guru everywhere.
+And if you're looking for all the different ways to subscribe to the show, you can go
+to self-hosted dot show slash subscribe.
+I'm on Twitter at ironic badger.
+Yeah, I'm there too at Chris LAS and the whole show right here, this show, this one at self-hosted
+show.
+This show?
+Which show?
+This show.
+The whole show.
+This one.
+Yeah.
+No, the whole thing.
+It's all there in just the hundred and whatever it is characters now.
+200 and whatever.
+It's really just a good resource to get show announcements and news and maybe send us questions,
+I suppose.
+And if all that isn't too much for you, I'd like to thank you for listening.
+That was self-hosted dot show slash 43.

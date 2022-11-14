@@ -1,0 +1,645 @@
+Think we have something like 70 people signed up for the East Coast meetup so far
+69 baby nice
+You know, it's gonna go up from there too because it always kind of goes up a few ticks in the last day
+Now the question that I I have is this barbecue place gonna have enough meat
+Well, I've been emailing them back and forth and it's a little bit complicated
+Like we don't want to have to charge everybody like tickets and admission and that kind of thing
+but you know a barbecue restaurant they make a certain amount of food in the morning and
+Well the night before and once it's gone, it's gone. So yeah
+There are a couple of things that we can do to help kind of mitigate that you can pre-order on the website
+so, you know when you turn up to the spot you can walk into the restaurant and they'll sort of
+Carve your food while while you wait in there without waiting in the normal line
+The other thing that we were thinking about doing but we're not sure of the logistics and how it would work is giving them numbers
+Before hand so that we can actually make sure there's enough meat for everybody. Well, the way that would work is if people sign up
+On the meetup page. Yeah, so it is critical if you are coming, please make sure you sign up on the meetup page
+So we have a really accurate idea of numbers and equally if you aren't able to make it, please unsubscribe
+Please saying you know, you're not coming anymore. That's really important, too. I love that. We're running into this problem
+And this is just a great problem to have we are thrilled to have this problem and we want it to be an even bigger
+Problem, so if you can come on come hang out with us on April 9th in Raleigh, North Carolina
+We have all the details of meetup comm slash Jupiter broadcasting and don't worry
+We're gonna bring some snacks too. So and they're not gonna be meat snacks. So if you're not a meat eater
+There will be something for you. You know, I think we're bringing a Brent with us
+So we've at least got to take care of him, right? Right? He'll be our vegan advocate
+You know, he always stands up for the non meat eaters because he's about the only one in our crowd
+I
+Was browsing the old hacker news the other day and I came across a docker.com blog post
+About a speed boost achievement for docker desktop in 4.6. This is fascinating story Alex
+Yeah, I think so too and the performance of docker desktop particularly on the m1
+silicon Apple silicon max has been
+Bad enough that I have literally stopped using docker on my Mac
+And I just SSH into a server and use it there and do all my builds on a remote server
+Yeah. Oh
+Okay, so, you know, we're gonna talk today about how I'm looking at ditching containers
+so we thought we should probably have a little bit of container good news and
+This is a neat little happenstance. There was a discovery by the Asahi Linux team Hector Martin
+Who's trying to port Linux to the m1?
+Discovered that Apple's MV me drivers are really really great
+except for a particular function called the f-sync and
+Depending on how this is called and when it's called. It's
+Horribly slow on Mac OS so Hector discovered that
+Talked about it publicly. They've submitted code upstream the Linux kernel to solve it on on Linux
+But it isn't necessarily solved on the Mac. And so a docker user noticed this
+We'll have a link to the github issue and said hey, by the way, this might help performance
+I've done some testing here and I've noticed that if you use the same fix that Hector Martin found and you apply it
+You're gonna get this kind of expected performance increase and you know
+Just one of these great examples of community helping, you know
+Really improving a product like this the docker team took a look at the suggestion and said yeah, you're right
+Let's implement it and and now they're saying some operations are like 98% faster
+Well, they were pretty slow beforehand. So I mean
+They had plenty of headspace to improve that. Yeah. Yeah, it's interesting
+And you know as we record the Asahi Linux team just released. I think it was you know a few days ago their first alpha
+right and
+I'm gonna give it a go this Sunday by the time people are hearing this it'll be just like
+probably
+The weekend this episode came out, but we tried it at first and there's a there's like some
+File-system typical problems you'll fall into that just sort of trap you it's like I don't know if you ever played that game pitfall
+You know, yeah, you're running along and also you just fall into a pit
+That's what it's like right now trying to get Linux on the m1
+but if you solve file system problems
+Or you don't have any file system problems and you're trying it on an m1 Mac like like an air or a mini
+it seems to be pretty straightforward and
+Early benchmarks are showing
+Pretty good performance as long as you're not hitting that GPU
+Yeah, you know what's interesting is Jeff Gehling released a video this week talking about his experiences with the new Mac Studio and
+in that video he did some power comparisons between a recent Ryzen system that he built a Linux gaming PC
+compared to the Mac Studio and I
+Couldn't quite believe what I was seeing but then at the same time having used the m1 MacBook Air and my m1
+Max MacBook Pro god, that's such a stupid name. I
+Just called the MacBook max
+Okay. Yeah, well, it's still a stupid name. But yeah, who thought max Mac was a good one
+Anyway, I know, you know, there's just nobody to say no anymore. Is there anyway, that's a bit of a segue bit of a tangent
+bit of a tangent
+Yeah, the power draw was a lot better though. You're right the like the wasn't the Ryzen something in the 40 watt neighborhood?
+That's right. Yeah. Yeah, the Ryzen was about 38 40 watt something like that and the Mac Studio idle was 6 watts
+It's the same as a Raspberry Pi. Yeah, and in the context of Docker desktop, too
+you really got a you got to figure the majority of the use case is for development testing and
+So this f-sync change doesn't really impact things much other than you know improves performance
+I think I'm not sure Alex
+But I think there's an argument to be made that it might be slightly less safe the way the way they've changed this operation
+but it kind of feels like
+You know again for a development Docker setup
+It doesn't it doesn't really matter if it's slightly less safe because you're not running your production
+Server on this thing. Yeah, it's a similar type of operation to when you make a bunch of rights to a USB Drive, right?
+After you've written some data
+You need to sync it and make sure that those rights have occurred and the file system tables all been updated that kind of thing
+So as it turns out Mac OS actually cheats as you said Chris on Linux f-sync will both flush rights to the drive and ask
+It to flush its right cache to stable storage
+but on Mac OS f-sync only flushes rights to the drive itself instead they provide a
+f-full sync operation to do what f-sync does on Linux
+Aha, so you got f-sync and you got f-sync full sync
+Now on the laptops I can see why they would do this, right?
+Because essentially the laptop has a built-in UPS if you yank the power cord on a MacBook
+It's gonna keep on trucking right but on a Mac studio same on the iPhone right same on iPhone
+Yeah, absolutely, but on a Mac studio or some kind of other desktop
+Once you pull the power cord your toast
+So this leads me to wonder what would happen to you know data integrity on a desktop Mac that doesn't have a built-in battery
+Yeah, you got to figure Apple must have done the math
+But there is that sort of cynical voice in the back of my head that goes well, you know
+They may have just designed this for mobile devices because that's their primary device now
+And you know when they sell max the the number one Mac they sell are the laptops
+So they're probably designing for that, you know
+I got that's the voice in the back of my head when I hear that and I think to myself
+Maybe APFS needs a few more years before I give it the old production grade for any kind of serious data storage
+I mean that said I've experienced zero issues with APFS and the migration was flawless and I
+Really give them credit for the migration. I also give them credit for
+the really kind of
+low-key
+But consistent rollout they did over three versions of Mac OS to sort of slice and dice the way that volumes are managed on
+APFS like they really executed well on that transition. I'll give them credit there
+that that doesn't change the fact though that we haven't seen a lot of
+Production server grade edge case uses out there for years, right?
+And I don't mean to be the old IT guy in the room
+But for me for a file system to really be production grade safe for like server data
+I want to see other people
+Banging on it for a few years in production in the way I'd be using it
+So if it's containers or or whatever it might be, you know, like yeah, they've did they've done
+Well, and I think that sets the ground for a pretty good file system that I can trust
+But it's still like for it to actually be considered safe in my brain
+I got to see people using it the way I'm using it and I got to see that working for a while
+Yeah, so with all that in mind, okay. I really hope that Asahi Linux
+Works well in a couple of years time and you know with the market is flooded with these cheap
+M1 Mac minis that are now obsolete from Apple software and we can all run low power
+Linux Apple silicon
+home service
+Leno comm slash SSH go there to get
+$100 in 60-day credit on a new account and you go there to support this here show. Yeah, that's right
+This here shows made possible by you taking advantage of our sponsor when it comes time for you or someone
+You know or someone you're working with to deploy a server go to Linode comm slash SSH
+It's what I use for anything that I deploy in the cloud for like the last two and a half years and it's so much
+Nicer than those hyperscalers that just want to lock into their crazy complicated platforms
+You know Linode started in 2003 and they've just been moving it forward iterating on making it better and better and now
+It's like nearly 19 years later
+That's wild Linode is old enough to vote. That's crazy
+And they've really just iterated on and making something super great and that's why they're willing to give you $100
+$100 is like a confidence statement
+They're saying we trust that if we let you actually kick the tires with this thing
+You're gonna like what you see and it's just such a great way to support the show, too
+So it's Linode comm slash SSH go deploy something go try something go see why they are the absolute best
+They make cloud computing simple affordable and accessible to all Linode comm slash
+SSH
+Now this is a mixture public service announcement slash app pick I think we've mentioned paperless on the show before
+It's a document management system that helps you transform physical documents into a searchable online
+Archive and I've used this to great effect for my wife actually when when we're traveling and stuff back to England
+She does a lot of Skype and zoom music teaching lesson
+she's a music teacher and
+What we actually did was scanned all of her students music into paperless and then using the OCR that's in there
+We can actually search for the specific bit of sheet music that we need when she's in England on my server back here
+which is just
+Super cool. So anyway for the longest time I've been using paperless dash ng
+I think it stood for paperless next-gen not entirely sure to be honest
+I like to think the next generation. Yeah, like make it so
+You got it
+A chap called Jonas Winkler actually took over the original paperless project, which itself had been abandoned now in the last few weeks
+There's been a new project come along called paperless dash ng X
+next generation X
+something like that
+And essentially what the community have done is the ng fork of the original code has seemed to go unmaintained
+There's actually a github issue which we'll link to in the show notes
+Where there's a bunch of people talking about how much value they get from the software
+And also how much of a shame it is to see it kind of go to waste
+But obviously open source being open source, you know
+This discussion thread went on for you know, the best part of two three weeks
+Before eventually the community just went okay this Jonas guy. He seems to have fallen off the the radar for now for whatever reason
+So we're just gonna fork this thing and call it ng X. Yeah, I sure hope he's okay
+You know, I hope it's just a case of burnout
+and it is good to see something like this you wouldn't this wouldn't happen with a
+Commercial service right when a cloud company is shutting down for whatever reason
+The products just kind of gone
+but when you have something that you can self host that's open source software
+there can be a
+Escape hatch when the project kind of starts to fade now this first version doesn't seem like it's introduced a ton of new stuff
+They drop support for Python 3 7 so they're kind of moving that forward
+They've updated a ton of the docs and the scripts and the containers and the branding
+They also had to drop support for ansible playbooks, which is definitely a bummer to see that
+But they are hoping maybe somebody would want to help them support that it seems like maybe it's just an issue of things getting out
+Of date and the dev team not really having the skill set to manage it
+So long as they continue to support Docker, you know, they're all they've got my vote
+What's interesting though is if if we look through the the issues on their github, there is one
+specifically talking around moving the organization in github forward and
+You know, so that right now is probably a really good time to get involved in the project
+If you're looking to do any kind of open source contributions, you know clearly they're looking to improve the the project
+There is an issue in here
+1632 which again will be linked in the show notes where they're talking about how you can make your membership official of the project
+It's 100% a community project and they will gladly welcome
+contributions from anybody member or not
+But you know if you're a member of of it
+You can start to have a bit more say over where the direction of the project goes and that kind of thing
+Interesting. Yeah, I wish them the best right? This is one of those projects that I think is
+Probably not mentioned enough
+If you look into it, it's such a no-brainer
+I'm I'm implementing this in the future probably at the end of summer
+I'm gonna I'm definitely putting this into action and it's amazing there. There's just no way I'm gonna do another year without this system
+So paperless ngx go check it out. I'm gonna my plan is to have something set up by the end of summer. So that way I
+Know me a big talker right now, but that way at the start of 2023
+I could just just use paperless from the beginning of the year. We'll see
+I'll tell you where it's really useful is tax season
+You know, you get all these 1099s and w2 forms all this kind of crap coming in, you know from yeah all over the place
+you just take a picture on your smartphone with one of the scan apps and
+It then you can share it from there with paperless, you know, like through the share sheet on iOS or a similar thing on Android
+that will basically then upload the file into paperless and then it does its
+Optical character recognition OCR on those files and from there
+All you need to do when it comes to tax time is search
+1099 or tax or whatever it is and you'll just find all the forms boom boom boom boom
+Even cooler than that though is you can set up a bunch of ingestion rules
+So what we did for the sheet music for example
+Was we look for certain keywords like bassoon or piano or that kind of thing and add certain tags to each file
+So in our case we added sheet music as a tag or any time I get an email from Google with my Google
+Fi bill in it. I have that send the email automatically forward it to an address that will put it into a specific folder and
+Paperless will scan that folder ingest the file
+Automatically tag it and so when I come to expense my cell phone bill through work
+All I need to do is I don't need to log into Google Fi and then spectrum and in all these different
+Systems, I log into paperless search for my little keyword to bring up my personal
+Internet bills boom just download the PDF done. That's so
+Great. I love it. I really really love it. I've been struggling with that very thing today
+That's what I was working on earlier today
+It's just been one bad news after another including the one that I probably heard from
+The most from the audience since our last episode and that is that the matter group has announced a delay
+For the matter standard. Yes, that is the one announced in
+2019 by Amazon Apple Google and Samsung
+The idea is to take ZigBee and make something they could all use together that has a few base
+things that could all agree on and of course Alex the industry is trying to
+Spin this like the Nanoleaf CEO said quote. I think the three-month delay might actually be a good thing
+I feel that now that there's more certainty across the industry. We'll see unity at the time of launch
+Yeah, it's a good thing because we can't get enough chips right now
+So we'll just push it out and then sell the same amount anyway
+Right. Sure. Yeah, I mean it's his job to say it's a good thing, right? I gotta say I'm not too surprised
+Um, it really is funny though. Cuz like anybody who like doubts matter. It's like they they took this newsman
+They just they were on with it. They like they they sent me the link, you know
+And you know, I agree my confidence is slipping
+But it just it's so obviously needed that I I hope I hope I hope that this delay
+Doesn't throw this whole thing off
+track, but it has sent me into a bit of a
+Death spiral with my whole home set up now Alex. It's just a disaster
+Well, I blame you
+I mean we had that feedback a couple of episodes ago saying
+should I wait for matter or should I get into Z wave or Zigbee or whatever right now and
+If I recall the advice was if you need something now buy it now and I think that advice has just been proven
+Right, you know if you need a new smart home widget today
+buy
+What's on the market today and hope for the best?
+Yeah, and for me for me it it sends me into this whole spiral of okay. Now I've got a problem
+Because I've got a network of you know
+30 Z wave devices and
+They are integrated throughout the automations and you know everything from temperature display widgets to
+Scripts and automations. I have a Z wave device in there. And so the migration to Z wave JS
+Which I've tried in the past for me
+Went horribly bad. Nothing worked
+I essentially had to just retouch everything in home assistant
+And you know one of those things where you load your dashboard and like everything's aired out and not working, right?
+Oh, yeah. Yeah, that was my situation
+And so my thought was screw it. I'm not gonna migrate to Z wave JS
+I'm gonna hold out and just move over to matter and I'll just
+Low-key replace the devices over a year and call it good and
+That plan came crashing down a couple of months ago when I discovered or a month ago when I discovered that the next release the
+One that comes out in really probably a few days from the release of this episode
+Will totally disable the Z wave integration that I'm using so I'm kind of stuck in time
+With home assistant and now that matter is delayed. It's like a whole nother complicating factor and
+I've realized that if I'm going to do this Z wave JS migration
+That it's gonna end up being so much work
+That I might as well take this opportunity to just redo everything, you know, have you reached that point?
+We're like, yeah, okay
+This one this one job is essentially so much work that just nuke and paving the entire infrastructure
+Is only a minor part of the overall work. I
+Feel that way every time I think about implementing a VLAN set up in my house like at the moment
+I just run a flat network and I think I would be cool if my cameras are on their own VLAN and then all my
+IOT stuff was on its own but you think
+I'm gonna have to touch every device here and I just can't be bothered
+Let's just stick it in a slash 16 and forget about it
+Tailscale comm slash self-hosted go there to get a free personal account for up to 20 devices
+And of course you support the show and you can sign up for tail scale tail scale comm slash self-hosted
+It is the zero config VPN it installs on any device in minutes. You can manage firewall rules
+You can work from anywhere. I have really taken things to the next level
+I have recently started adding a couple of my VMs to my tail scale
+Network now stick with me here for a second now, I can SSH into the VMs
+I have running on my machines here in the studio where I'm working on projects from home. It's so
+Great. It is so great. Also, I can confirm that it is
+Stupid simple to set up tail scale on Nix OS more details on that in a moment
+And what I love about tail scale is it supports two-factor authentication
+You're single sign-on and underneath all of it. They're using the stuff that just makes WireGuard
+So great the noise protocol and they do a mesh network. So that way it's one flat network between all your machines
+It's so simple to get started as well
+And they really have installers for like every distro even ARM Linux distros all that kind of stuff
+You'd be amazed how fast you can build out a WireGuard network
+That's mesh peer-to-peer in just a few minutes
+I love it. And you know after you get everything signed up. They all have their own IP
+And so I've started setting bookmarks. I have a I have a tail scale folder in my bookmark bar and
+All of the different web services that I hit that I have a tail scale IP for now
+So from and I of course that syncs across all my Chrome instances
+So from every machine I can get access to those web apps and it doesn't matter what your machine is
+Every machine I can get access to those web apps. It doesn't matter what it could be Dylan at home
+It could be something at the studio. It could be something in the RV. It could be something up on Linode
+It's just super powerful
+So go try it for yourself support the show and use it up to 20 machines for absolutely free by going to tailscale.com
+slash
+self-hosted
+In the dock, I see a very tantalizing little sentence that says I have a new direction for dupes the no
+Container theory. I cannot wait to hear your logic on this
+I want more control with this next go-around and I'm looking at what my options are
+With any kind of setup that I might redo and maybe to kind of help you understand. I should recap what I have now
+So right now I have a couple of Raspberry Pi 4s that are running Ubuntu 20
+04 right the previous LTS and
+Back when I set that up Alex you could still get
+a setup script for home assistant where you could install supervised home assistant
+On vanilla Ubuntu, which I don't think they actually support anymore
+But in my world
+This is the ideal setup because I have home assistant running in containers
+But a fully supervised setup so I have access to the add-ons. I can get the hack store
+All that kind of stuff. I get the backup manager snapshots, etc, etc
+But it's on an OS that I manage
+That I update because that's how I prefer to do things
+That is no longer a viable option and even now it's kind of
+fiddly
+Home assistant will often say that I am in an unhealthy state and so it won't let me update add-ons or update the system
+And I have to reboot and then it's all of a sudden in a healthy state again
+And then I can go about updating things
+So it's it's already not perfect and I don't want to go the direction of where I was trending
+Which is an x86 machine that would be more powerful
+Ideally like a laptop that supports quicksync
+And then I would put proxmox on that
+And I would run home assistant in its own dedicated virtual machine as just an appliance
+And I would just swallow the fact that I am running their OS and I don't really want to do that
+But you know what?
+It's fine. I told myself
+But as the asahi linux team started getting linux on the m1 closer to a reality and I started realizing
+that a headless mac mini m1
+running
+Linux could be a viable home server
+And maybe I don't want to go this proxmox route. Maybe I want to go a
+Linux host that is running these applications
+But then I started thinking
+What are my two main problems that I would like to solve with this next round?
+Like if I besides performance because that's a given
+If I were rebuilding my entire home setup and you got to think about this yourself probably sometimes
+What would be the next step
+And I realized I would love to solve
+reproducibility
+Because a year or two into this I don't
+Really remember how I have it set up. I have it set up
+In a way that it's pretty obvious to figure out
+And I do have some documentation, although I haven't touched it in about a year
+So I don't really have like a game plan to like rebuild this thing should a rabbit
+So I don't really have like a game plan to like rebuild this thing should a raspberry pi crap out
+I mean I could probably do it in a couple of days
+Then the home assistant stuff would take longer
+But you know, it's not ideal
+And I started thinking about what I could do to solve this problem
+And I started thinking about your favorite ansible, of course
+Perhaps like, you know, this was an opportunity and my moment in time to learn ansible
+I'm sure you think that's probably a great idea
+Well, you're not going to hear anything
+Bad about some kind of config management from me. No, no, I think ansible is a
+laudable goal
+So instead I did a hard right and turned from that and and went down the path of nix
+And the reason why I got to nix is I wanted god damn it. I wanted I know i'm sorry. I know it's so close
+I wanted something that was
+reproducible from the metal
+So I could essentially just recreate the same exact setup by just dropping in some config files
+And building the system
+And that's what nix provides
+and then as I start to
+Use nix and nix os and I tried nix os versus just putting nix on top of a distro
+and really it's just a
+it's kind of like
+It's a matter of how far do you want to be able to control the system, right?
+Are you good with setting up a base distro and keeping its package manager going and then putting nix on there and then rebuilding everything?
+Or would you like to build everything from the ground up?
+user accounts groups permissions
+Everything reproduce everything and that's the route I want to go and that's why I went more than just nix the package manager
+I went to nix os
+and the nix os way of doing things is extremely compelling because you can
+with very simple syntax you can say I want containers and then
+You build the system and you can test it before you deploy it and it's reproducible
+And it's so great, but you build the system and if you tell it I want containers
+It it the nix system figures it all out man
+It figures out the software dependencies the services that need to be installed you can make declarations in there for firewall stuff
+It's a lot like dr. Compose
+But for your entire os it's honestly how linux should be
+For a lot for basically every use except for the desktop
+This is how linux should work for every container for every server for every iot device out there for any system out there
+I'm telling you this as somebody who's used linux for probably almost 25 years
+This is how linux should have worked forever. Now. Nix has actually been around for a little while
+I'm, just finally getting around to try it
+And so what I have discovered alex while using nix is if you can use the nix package manager to install stuff and manage stuff
+You've essentially documented your entire system with the config file and made it reproducible
+so anytime you could like deploy home assistant through the config file or
+A sync thing or plex or you know, whatever
+You can essentially run a command on another box and rebuild and recreate that entire system to the exactly how you had it
+And you can do that in a rolling way
+So what happens when something isn't in the nix way that nix ethos
+Yeah, like an example of this actually is paperless ngx. Like I don't think that's been packaged up yet, right?
+You can totally do containers and nix like totally is great for that
+It's great as a container base and it is great as a container host
+And uh, you can do podman and docker on the same system at the same time. Like it's really powerful
+And um, I think a lot of listeners that are hearing me right now are probably thinking no chris
+Just run the container on nix os. It's so much easier
+And that may actually ultimately be the way I go
+I may still end up running a few things in containers, but what I have realized is
+the benefit
+of the way nix manages everything is that I can come back to a system
+five years later
+And not only will it be fully up to date
+But if it just has any problems a super easy to roll back and be super easy to reproduce
+Just like done. How often do you do that though five years as your example?
+Often I mean usually I don't use hardware past that right? So i'm touching on i'm rebuilding nix
+stuff every few years usually I mean speaking about myself. I prefer to
+Change stuff every couple of years
+So the chances of me sticking with the same system for five whole years is is quite slim
+Have you have you ever had like an arch desktop that you install and then like three years later?
+You realize it's the same install and you've just been reliably updating it
+My arch desktop actually is the one that I installed in london and it travels to the US
+It's the one that I installed in london and it traveled across the ocean in a container, you know
+I love it, right?
+And when you think about how like some desktop linux users, especially mint users
+They they actually like reinstall every major for every major version. I know they have it's crazy, right?
+Nix is that for everything to the next level and I can pin versions if I need to I can roll back
+It's the kind of distro
+that you can install it and and
+And you can actually reliably let it auto update because it's so simple to recover
+It's very compelling and I'm I'm still kind of new to it
+So I'm struggling to really put all of it into words
+But it's got me excited in a way about deploying software on linux
+That essentially docker compose did for containers and I I really don't have a major problem with these
+With running these applications in containers, but if I'm being totally honest
+I do feel kind of weird about
+pulling down like
+Essentially an entire software os environment to run sync thing when it's just like, you know
+Some binaries and some config files
+And I don't really need to run all of that in a container. I don't need to manage the network
+I don't need to have like these virtual network interfaces
+I don't need any of that. I don't need to like mount storage volumes or any of that
+I don't really need it
+If I can still get all of the manageability benefits that I got with the software as a container, you know
+Being able to pull down specific versions being able to stay current being able to roll back
+Being able to isolate data and application stuff like I get all of that with nix without actually having to have in a container
+That's compelling to me and it also means that I could probably really eek a lot of performance out of an m1
+And the great thing is is there's already people working to get nix os running on the m1 mini
+That's running on the m1 mini. So like by the time i'm ready to do this the work's going to be done
+Can I play devil's advocate now? Are you done?
+soakbox, uh
+So so in summary
+Boo containers. No. Yeah, go ahead
+Why
+learn a
+Slightly unusual bespoke
+Soak deployment configuration system, which is what nix appears to use just from a quick glance. I'll be honest
+I'm, not super familiar with it
+Uh, and I really you know, I have I have no real opinions
+Let me preface everything i'm about to say with no real opinions about nix os at all. I haven't looked at it super closely
+but
+Devil's advocate time if I am learning ansible
+And I want to run it against ubuntu or centos or arch
+or mac os or any other system that ansible supports
+I've learned a skill that's transferable not only between multiple different operating systems
+but also different
+Jobs and ansible has been hugely powerful for my career
+You know as a springboard where I could start operating at a level that was much higher
+Than actually if i'd just been doing everything like a caveman on on the command line
+Right simply because people smarter than me had abstracted away a lot of the complexity
+And so I look at nix os and I I see their configuration language looks
+Pretty easy to understand. It's you know, it's just a standard sort of json type looking configuration thing, right?
+And some of the things you said right you you wanted reproducibility
+okay, so nix os is clearly that because of the whole ethos of the project, but
+Let's say you wanted in five years time to redeploy a specific version of sync thing for whatever reason it might be
+You could do that with a container on ansible. You could go through your git commit history
+Look up what tag you are running five years ago
+Pull that down from docker hub assuming it's still there
+But the same is true of nix os, right?
+And then deploy that container and you've got everything as it was on that day in history five years ago
+And it's all in git. So it's all version controlled and it's all reproducible
+I wouldn't be surprised if the more common way of using nix isn't
+Ansible deploying like a centos or a rail system or an open to system with the nix package manager installed
+uh, because I think the other thing you I don't know if you mentioned it necessarily in there, but
+Learning ansible would also be a much more employable skill
+You know if you're ever looking for a job, it looks good on the resume
+It looks good on the resume. Um, so I actually don't think it precludes me from wanting to learn ansible because I think that's still
+Time that would be well spent. Yeah, I do
+what I have kind of felt about using nix is um, okay, this is going to be kind of a controversial statement, but
+Uh, this is the future of linux and this a lot of what they're solving. It just should be done at the os
+anyways, and it doesn't necessarily mean you don't still also need something like ansible maybe for some small scale things, you know,
+You're if you have a few boxes maybe with something like nix you could get away without something centralized
+But if you have any kind of scale, you're you're obviously going to need tools to manage that
+But I I honestly think when I use nix I look at what rail is doing and I don't know how they're going to get there
+But they're ultimately going to end up here
+And same with what canonical needs to do with ubuntu
+uh, and it's so in some ways I like using it because it's just
+I I think it's how i'm going to use linux now for the future
+When i'm not deploying a desktop system and i'm not even convinced
+It may actually ultimately end up using it for a desktop system as well
+Especially like a system here in the studio. That's pretty static
+I think the counterpoint to that is what redhat for example. I know it well are doing with the uh, redhat core os
+Core os operating system at the minute fedora core os if you want to try out the uh, the upstream version
+Everything is configured
+Declaratively up front, right? So you say I want this nick to have this ip address, right?
+I want these storage disks to be configured to this mount point that kind of thing
+Uh, that's all done through an ignition config file. You supply that to the vm or to the
+The machine when it boots up and it then configures itself based on that
+instantiation kind of request
+And it seems to me like nix is operating in a similar space where the the operating system is almost like read only
+And everything is kind of given to it. It's like this blank canvas
+Onto which everything gets painted straight away
+Nix os itself managed to make base arch feel bloated. It's really nothing. There's not a lot going on there
+So what happens when you need to do a rollback, uh, for example with my home assistant vm
+Uh running on top of proxmox
+If an upgrade goes sideways
+all I do is roll back a specific snapshot which on the zfs backend storage that uh proxmox uses is
+Simple what's uh, how does that work in nix? Do you know yet?
+See you probably wouldn't quite go through the same scenario
+So what i've what i've run into so far is uh, there's two ways you can you can yolo it and just build and deploy
+But you can also do like a build
+Dash dash test and that does everything and it'll uh, you know, that's where it'll fail out
+So they have this sort of switch command that you add. So once you verify that everything's saying the config works and
+Like like what software building when it fails to build it'll give you errors and it'll tell you where in the config file
+There might be a problem and stuff like that
+Um, and then once you've resolved all that you do the switch command and it actually then deploys that as your production system
+Um, but by the time you've deployed it, you already know everything works. So there's no, uh, you can roll back but there's
+It doesn't really you don't really need to because you just don't it doesn't it doesn't actually switch over unless it actually successfully
+Everything works
+I mean, that's interesting. Uh, obviously there's a paradigm shift there that I
+I and you and we perhaps as a as a show need to go through and kind of figure out
+What the future looks like if nix is is the way to go because you're certainly you're certainly peaking my interest as we talk about
+I think it is kind of for me. It's a discovery thing, too
+Um, i'm thinking about making a nix chat room on the matrix server because I think we have some nix nerds
+In the audience, uh, just to kind of wrap this up, uh, alex
+What I was thinking is uh with using nix, I would keep things under very tight control
+And then I think I kind of want to and maybe you could tell me if i'm on the right track here
+I think maybe I might stick with home assistant core. So it's going to be a pretty minimal home assistant
+I'm going to get like the minimum viable home assistant rebuilt
+And I I wonder if I shouldn't and maybe you could talk me off this ledge consider going with node red
+For my automation. So i'm doing all my automations in something separate something else outside of home assistant again kind of
+Building these data silos
+Um, and i'm also thinking and I don't know how I would even manage to pull all this off at this point
+But this is really the time to transition everything to mqtt like anything I can get over mqtt do it including
+Like z-wave js to mqtt and all of it
+So do you think i'm on the right track is node red too far?
+Or is it just like I don't know i'm just if i'm going to redo all this again
+I don't really want to have to do it a second time
+node red is brilliant for extremely complex automations where there are lots of uh,
+tre
+If this then that and if this condition is true, then do that, you know, all that kind of really complicated almost like programming logic
+Um where it's I think complete overkill is just a simple turn light on at 6 a.m.
+Type thing turn heater on at 6 a.m. Whatever it is. Sure. Sure. Yeah, um, and I
+I tend to have in my mind as soon as I go beyond like three or four or five kind of steps in an automation
+I find the uh home assistant yaml based or the interface based automation is quite cumbersome and that's when I reach for node red
+I could see like 80 of our automations wouldn't need to do that
+I could see like 80 of our automations wouldn't need that
+but there is a niche there like
+If so-and-so hasn't been home for so long and so-and-so is this far from here then turn these things off
+and then additionally
+I hope at some point i'm gonna have
+Over mqtt all of my power information from the victron system feeding in and then I would be also looking at solar input
+And battery charge level and possibly doing automations based on that as well
+Mqtt is just so lightweight and
+It's all you it does all you need it to do in a really small
+Little lightweight package. So I got an idea. So here's what we're going to do is you and west come out
+We'll fly you out for episode 70
+And we'll do a bro build at the rv
+We'll rebuild everything over the weekend. We'll record it for the show
+You know, we'll go do some fancy driving
+We'll make a whole thing out of it because I just don't know if I want to take all this on like we got to
+Get linux. We got to get nixos going on in m1. I got to
+Get everything rebuilt. You got to get all the individual docker services restored got to migrate data
+And we got to get everything using mqtt got to get no red going
+Just talk about my daily rate, huh? Yeah, I mean, you know, you know, maybe I could pay it in like sandwiches delicious burgers
+Oh, i'll tell you what is good in the pacific northwest. There's a little asian place just across the road from the studio
+Which yeah, I love that place is good. That's when noah comes in to visit
+That's the first place he and I go and if we don't have time
+And but I know he's coming i'll order ahead for him
+So I remember this is a very old linux action show where he was waxing lyrical
+I think about panda express and you're like dude. It's a chain
+He does love his chinese food though. I don't know we just think about it
+We gotta do something for episode 70 and i'm just saying you come out here. I mean, you know, jb will put you up
+Yeah, it's not long is it? It's probably what sort of may june sort of time. Yeah, maybe we'll see
+Watch this space
+We need to issue a correction on the show
+Samuel g writes in about the argon aeon four bay raspberry pi nas case that we covered last episode
+Hi guys, I love the show. I think you might have read the argon aeon announcement wrong
+You referred to the base model as seven hundred dollars, but I think that's actually an hk money
+Uh in u.s. Dollars, it's only about 120 which is a pretty good price if you if you look at it
+So yes, thank you for writing in and letting us know that uh, we we can't do currency conversions
+No, you know what? It was my bad because I grabbed it and I put it in the dock, but I didn't note the currency
+And so I just assumed it was us because it was like, you know had been a couple hours because i'm a dummy
+Also samuel sent that in as a boost
+With a value for value podcast app
+Uh, that's pretty cool very and um gene sent. Oh, I meant to bring it in the studio with me alex, but gene
+Uh gene heard about the temperature issues. We've been having in the studio garage server room
+Over the summer and he built a wi-fi sensor for me to put in there. That is so cool
+I meant to bring it down here for you
+Uh, so that way you could look at his handy work. So i'll i'll show it to you, uh after the show
+But of course it's using esp home. So it should be uh, no problem to get it working
+Uh with home assistant here in the studio and we'll be able to monitor the temperature out there
+Which i'm going to get this installed once we have the rack in its final position
+So thank you gene for setting that in he sent that in a bit ago and um, the plan is to deploy that soon
+Yeah, I mean if I come out there we should do that and deploy. Oh, yeah deploy a fleet of sensors. Not just one
+Oh, man, if you actually came out here. Yeah, it would be we'd have a lot with this probably like a dozen things we could do
+Um bearded tech sent in something so
+Rad and I say rad ironically awesome. I got I got feedback that I should stop saying rad. No
+No, I will not
+Uh, anyways bearded tech has written this piece of software called fever
+And you got to look at this alex. Go look at uh, go look at his github page there. It's a uh,
+Frigate event video recorder. Have you seen this?
+Yeah, I only because you put it in the dock and it looks awesome. I am going to be uh,
+Adding this to my frigate arsenal pretty soon. Yeah, so it lets you store video independently of frigate
+But it also has some home assistant integrations for notifications. Um, you can get frames in home assistant
+It makes browsing it really easy. He's been working on mobile support. So if you got
+One of them internet phones like alex does you can still look at it. Yeah
+You can look at your vidjas in the uh web viewer
+Like an internet phone is a special thing these days I gotta give you gotta give you crap I guess I don't know
+You know have you seen the prices of the coral like the little ai kind of usb sticks that work really well crazy
+Yeah, so I paid I think like
+$30 or $40 over msrp. They're going for over $200. Oh my gosh, like more than double. It's it's kind of crazy
+So, uh bearded tech has a github page up with this fever app on there and it's super cool
+He's also got a docker compose
+If that's how you you know, if you're still using containers
+I mean, I don't use containers anymore. But if you're still using containers, he's got a docker compose good to go
+You know, what's interesting is I see in his config file that he's got a whole tail scale section. Oh, yeah
+Yeah, he's been he's been dropping me hints about stuff he's working on
+It's really good and it's gpl too. So nice. It's free. Yeah, so go check that out
+We'll have a link to that in the show notes
+Well, very good. I uh, I hope to see lots of you at our meetup on april the 9th in raleigh
+Uh, like we said, please make sure you if you are coming your updates are updated
+Uh, like we said, please make sure you if you are coming you update the page so we can get a you know
+Accurate idea of numbers so we we don't order too much meat or too many uh,
+Too many other treats for you
+Right, and I want to put the word out there alex
+I'd like y'all to join me including you on march 31st at jblive.tv 4 p.m. Seattle time
+7 p.m. Alex time 11 p.m. London
+We're doing an ama and any of the hosts are welcome
+I though nobody's actually said they're showing up but we're gonna do an ama we're gonna help people get set up on matrix and
+the big thing
+I'm giving away some bitcoin. I'm gonna help you get your value for value podcasting app
+So i've been talking about fountain on some of the other shows
+It has a little boost feature in there, but the hardest part is getting set up
+So i'm going to give away some bitcoin to help people get set up. So that way
+they can try out boosting boosting their favorite podcast creators out there and maybe one day free software projects because
+the bearded tech
+Who's working on fever is integrating lightning payments so you can send a boost to his project to support it. I think that's so cool
+So join me ama matrix setup
+Bitcoin giveaway and I have a special guest joining me
+Do a little interview on the live stream. So it's march 31st 4 p.m. Seattle 7 p.m
+New york 11 p.m london at jblive.tv
+And for all the ways to get in touch with us, you can go to self hosted dot show slash contacts
+There's a form over there. You can fill in and and get your message on the show
+Pew pew pew pew you can also hit us up on discord
+We got information about that at self host dot show slash discord and the self-hosted matrix rooms at colony dot jupiter broadcasting
+Dot com and of course this here podcast is at self-hosted show on twitter
+As always, thank you so much for listening everybody. That was self-hosted dot show slash 67

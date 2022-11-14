@@ -1,0 +1,645 @@
+Coming up on this week's show, we talk through how too much automation can sometimes be a
+bad thing.
+Chris has a mini home assistant freakout and continues to collect Raspberry Pi's at frankly
+an alarming rate.
+I'm Alex.
+I'm Chris, and this is Self Hosted 19.
+I bought another Raspberry Pi for.
+Uh oh.
+Yeah.
+I just wanted a test rig that I could do some experiments with without affecting my production
+Raspberry Pi's.
+You know, the, the number on the end of the model name is not the number you're supposed
+to own.
+Good.
+Cause I think I've, I think this is my sixth, maybe.
+Your sixth Raspberry Pi four.
+I think it might be.
+Oh dude, you have a problem.
+The Self Hosted Discord.
+I blame them.
+They've been asking me questions and I was like, you know, I want to test this for these
+guys, but I don't want to do it on my production system.
+So it's their fault.
+Production.
+Oh, you're so cute.
+And no, it is.
+They're server grade pies and don't, don't you forget it.
+Um, sound delicious.
+Server grade pies.
+That should be the title right there.
+Does sound delicious.
+The thing that the Discord's been asking me is once you move your system over to the USB
+SSD, that's kind of a funny saying, a lot of acronyms there, but once you move over
+to that SSD that's on USB, uh, and you boot from it, is the SD card still required?
+This is a frequent question that's come in because the performance improvements by doing
+this, where you, you take the Raspberry Pi four image for say like Ubuntu 2004, and then
+you flash that to a USB SSD drive like you would an SD card.
+You can actually boot from that.
+But after some testing today with this new Raspberry Pi, I realized you absolutely still
+have to have in this current setup, the SD card in there to load the kernel.
+So the SD card is just necessary for the very, very early stages of the boot process.
+Once the kernel is loaded, it switches over to your external SSD drive and everything
+runs from that.
+And you in theory could probably remove the SD card.
+Yeah.
+Slash boot has to remain on the SD card.
+You can work around that with a pixie boot if you want to.
+So you could network boot the pies completely SD cardless if you really wanted to.
+So another option.
+Yeah.
+I mean, I find it to be a pretty good compromise though, Alex, because it's only using the
+SD card for a very short amount of time when the system's booting, and then after that,
+it doesn't even touch it.
+It's not making any rights to it unless you're doing kernel upgrades.
+So I guess the only time at which you'd be at risk is when you're actually writing data
+to the SD card of it failing.
+Yeah.
+And that's such a simple setup that it's no problem to just DD that to another SD card
+as a hot standby every now and then.
+And it doesn't need to be a big one.
+So how do you go about migrating the root file system from the SD card to the SSD?
+Is it our sink or what?
+How do you do it?
+Oh, it's even simpler.
+You just write the image that you would have written to the SD card to the USB drive to
+the SSD.
+What happens if the kernel gets out of sync with what's in slash boot and what's on the
+image?
+This is where you have to take careful precautions to mount the right boot and have that so you're
+updating the right slash boot.
+Okay.
+That makes sense.
+That's a pretty spectacular performance about the best performance you're going to get on
+a Raspberry Pi 4 without overclocking it.
+They are the little boxes that can I've mentioned it before.
+My 3D printer has been running a Pi 3B plus for the last year plus just works and it's
+been running from an SD card.
+So I really shouldn't worry too much about deploying to production with an SD card, but
+the right performance from an SSD is pretty great.
+It's hard to argue with that.
+Now Home Assistant, should we talk about that and the drama this week?
+Yeah, because this honestly would invalidate my entire setup if this had gone through.
+I really took this hard when they announced that they were deprecating the supervised
+mode of Home Assistant on generic Linux.
+Well before we get to explaining the nitty gritty of supervised and everything else,
+I think it's worth stating that Home Assistant lately have been on somewhat of a crusade
+to change things and do rebranding, kind of redefining their relationship as a project
+with the community.
+We had a few weeks ago a situation where they were doing a bunch of stuff around YAML in
+the UI, kind of taking away or abstracting away a lot of the YAML controls into just
+click click UI based stuff.
+And then that led to a whole series of blog posts and an episode of the Home Assistant
+podcast dedicated to it.
+And now we have this.
+So I don't know, there's a few things happened and let's break it down.
+So you have Home Assistant, which is a combination of Home Assistant Core and supervised DE,
+which manages a lot of things for Home Assistant, keeps it up to date, allows you to take snapshots,
+it allows you to install add ons.
+We've talked about that on the show before.
+That's Home Assistant.
+Home Assistant Core is just the base functional part of Home Assistant.
+You can get that as a Docker image on any Linux box today.
+And then you have the whole OS that they provide as an image that you can deploy to Raspberry
+Pis or in a VM.
+And the bit that they were deprecating, which they have now revised their plans, but when
+announced the bit they were deprecating was the ability to install the overall Home Assistant
+package that includes core and supervised DE on any Linux box.
+If you wanted Home Assistant on Linux, you could only get the core version, no plugins,
+no themes, no community add ons, no supervised DE to do the backups and the updates, just
+the Docker image of just the core Python application.
+Or you had to grab their pre-built image that includes an entire Linux OS.
+I think one of the things that wound me up a little bit about this announcement wasn't
+the announcement itself because open source projects are generally created by people volunteering
+their time.
+And if the project goes in a way I don't like, then I'm perfectly within my rights to fork
+it.
+But this time, Home Assistant is turning into a company.
+So we've got this Nabu Casa company who have been founded in the last year.
+They've hired a few people, Frank being one of them, the founder of Home Assistant is
+another.
+There's a few of the actual staff working on Home Assistant now.
+And so it's kind of going through growing pains of transitioning from a free and open
+source project entirely built off voluntary time donations to being almost like a pseudo
+product in a way.
+One of the key arguments in the blog post was developer's health.
+There was a line in there which just rubbed me up the wrong way.
+I know that this blog post will make a subset of our community angry.
+There are people that think they deserve other people's work, even if it costs them their
+health.
+You're wrong.
+Just as with our recent decision to limit the usage of YAML in some cases, Home Assistant
+will keep choosing health over features.
+Open source is not about us having to support every feature anyone on the internet can think
+of.
+Open source means that anyone can do that themselves and choose to share this or not.
+Now, that paragraph with the you're wrong section has since been removed from the blog
+post entirely.
+And for me, that's kind of a tacit agreement that, yeah, okay, perhaps we were a bit almost
+rude in that one.
+It feels like it's coming from a place of burnout, doesn't it?
+Yeah.
+And there was a comment, this was on Reddit, I mean, there was a huge number of comments
+on Reddit about this, saying that users are basically coming from a place of entitlement.
+But actually, if you think about it, the developers saying that the users are entitled is itself
+an entitled position.
+And I find it interesting how this happens with open source all the time that as project
+gains traction, the reason that it gained popularity was because it is what it was.
+And then if you take things away from it, it no longer is what it was.
+So of course, people are going to be upset, because they've built their lives around this
+thing.
+We're both Chris and I are feeling a bit locked in to Home Assistant these days.
+All right, well, let's zoom in on this for a moment.
+Because what I find interesting here is you have the burnout, you have the entitlement
+story that's quite common in the open source world.
+And then you also have this mismatch with user expectations.
+And in this case, which is not always true in these situations, but in this case, the
+change users might be right.
+From a security standpoint, I think you could make a pretty solid argument that if you have
+experienced system administrators who are deploying common operating systems with multiple
+years of support, and a standardized way to patch and monitor the vulnerabilities on those
+systems, those are probably likely more secure than Home Assistant's custom built OS, no
+matter how minimal it is.
+Because the reality is, a group like Canonical or Red Hat has entire teams of engineers just
+dedicated to building a production grade operating system.
+Nebuchadnezzar has a couple of guys who are making a massive, huge project that needs
+an OS to run on top of.
+The OS isn't their primary focus.
+As a longtime system administrator who runs all of my own systems now, I don't want to
+run somebody else's operating system.
+I want to run what is my standard deployment that I know how to maintain, patch, reproduce,
+backup, restore, etc.
+I don't want somebody else's custom OS.
+I want that kind of stuff out of my infrastructure as much as possible, actually.
+So there was a mismatch with what the end users wanted and expected, and potentially
+what looks like might be the widely deployed scenario, versus what the developers want,
+perhaps from a product standpoint and simplified development perspective.
+And I think this is a classic mismatch that we have here, only this time it's really complicated,
+because it does mean that Home Assistant was nearly about to make a change that would completely
+invalidate my setup.
+And I had one of those moments where I felt just as locked in to Home Assistant as I would
+any other cloud service or any kind of smart things central hub that has a subscription
+or has a license, I felt caught in a trap, because I was being told that my setup was
+deprecated and there were no plans to support it.
+And sorry, if you want to keep running it on your own OS, then you better switch back
+to core, which listeners of this show will note I just migrated from.
+So the timing on this was horrible.
+And I realized, well, I've just done it again.
+Only this time, I've spent all the money on the hardware, I've spent all the hours setting
+it up myself, and now I'm just as locked in.
+Well, what's wrong with them saying in that scenario, sorry, Chris, we're not going to
+support you.
+We'll still leave Supervisor there, we'll still maintain it.
+But if you get into a situation that you can't fix, well, you're on your own.
+I mean, that's kind of the Linux way, isn't it?
+I think there is a scenario where they would set a timeline, a 90-day window or something,
+where they would inform users that at this point, this will no longer be a supported
+deployment methodology.
+And in that 90-day period, there would be a call to action to create documentation to
+help users because that was, I think, the thing that really pushed this over the edge
+and made them roll this back is they realized very quickly there was a massive lack in documentation
+to actually support the way they were telling people to deploy it now.
+And the user base was rightfully upset about that.
+You just told me to go use this new method and the documentation is out of date and wrong
+in some cases.
+And so they had to reverse course.
+But I think if you had set a timeline, maybe it could be as short as 90 days.
+If you had made a good case for it, maybe had a call for support because, again, this
+is an open source project and people don't know to help until you ask for it.
+As silly as that sounds to the people making it, the consumers of the product are not aware
+of the day-to-day strife.
+They don't know where help is needed unless you tell them.
+That's why whenever we have developers on this show or other shows, we always say, how
+can people help?
+They don't know.
+So communicating that initially, even before it came to this, if you were to rewind the
+clock, would be the first step, then setting a timeline to migration, and then updating
+the docs and improving them in the short term.
+If you have to make the change, there is a way to do it.
+I still wouldn't have been thrilled, but it wouldn't have been this immediate pulling
+the rug out from underneath me saying it's already deprecated as of this post.
+And so who are these changes aimed at?
+It feels to me like Home Assistant's trying to pivot into this new friendly, new user,
+mythical new Linux user friendly product.
+Who are these people?
+Yeah.
+Deploy it on your Pi.
+It seems like they're targeting the people that have bought small board computers or
+perhaps they are targeting a product themselves.
+That was a sense I got from this is maybe if they're going to make a Home Assistant
+hardware device one day, it will need its own OS, and so if they're going to work towards
+that, that would be a logical focus of their resources.
+This is a point I made in the Linux spotlight that I did with Rocco.
+I think more people come to Linux these days through headless server apps like Home Assistant
+or Plex or whatever than they actually do through the desktop.
+Linux is dominant on the server side, and it feels to me like Home Assistant is leveraging
+that kind of Linux ecosystem to get them off the ground, and they've built up this reputation
+now and they're trying to abstract away a lot of stuff that made it great.
+Declarative configuration through YAML files is being abstracted away a little bit to the
+UI, and with this supervised de-change, okay, it's been rolled back, but it just feels like
+another screw that's being turned to make it a black box and appliance that can be productized.
+Yeah, it could go that way.
+I hope not because I think your analysis is correct.
+A lot of early adopters of Home Assistant pip installed it because it was a pip install
+away, and then the next wave came and it was Docker users that installed the containers,
+and now I think the area they're focused on, like some of their primary developers even
+for their main Home Assistant setups are using things like the Odroid or Raspberry Pis, or
+they're recommending people go buy a NUC and deploy their image on it.
+Yeah, so it's a worrying time for the Home Assistant project in general.
+I don't know what this means for the future because officially nothing's changed at this
+point, but you've got to imagine that something somewhere is going to give at some point.
+Whether it's the developer's health being used as an excuse, I'm not saying that people
+should work themselves into the ground for my benefit for free, but at some point I'm
+paying Nabu Casa five bucks a month, I've submitted a couple of pull requests to Home
+Assistant, I've been on their podcast, and I've still got told by people on Reddit that
+I didn't qualify to have an opinion.
+At what point do the users qualify for that opinion?
+I'm just worried.
+It's a red flag for me that maybe all is not well at the head of the project.
+I think it is a red flag, however, that flag is maybe not quite as bright red because they
+did dial it back, which means they're listening, and that's a good sign.
+It's more sort of burnt sienna now, right?
+And that feels like, okay, there's room for negotiation here.
+And I think that's important because the community around Home Assistant, especially when it
+comes to integrations and whatnot, is super important.
+And building that up in a competitor will take, I mean, how long has Home Assistant
+been around?
+Years.
+It would take just as long, I think.
+So long live Home Assistant.
+Yeah.
+Although I'm sure people, and actually we welcome, jump in the Discord at selfhosted.show
+slash discord or send us an email at selfhosted.show slash contact.
+Are you using something besides Home Assistant and how do you like it?
+Because there's commercial products out there, there's other open source projects.
+I'd like to hear from you.
+Now in the last episode, I promised you a reverse proxy roundup.
+I don't have one for you today, but what I do have is a plug for the latest episode of
+TechSnap.
+That's episode 429 at TechSnap.systems slash 429.
+Yeah.
+In the meantime, since our last episode, Wes and Jim did a pretty nice overview.
+They were talking about Caddy, which just dropped version two recently.
+I've taken a little look at it and I had a bit of a Twitter exchange with a developer.
+I'll keep my opinions to myself on that one for now.
+I don't think I'll be switching away from my beloved NGINX quite yet though.
+I'm still trying to get you to switch to traffic.
+Yeah.
+Yeah.
+Talking of the Discord, I want to give a quick shout out to user anther76.
+He has been really helpful in helping me figure out how to get past the host mode problem
+that I talked about in last episode with traffic.
+There's a couple of lines you can add to your config of the traffic container, which is
+extra underscore hosts, and then you put in the IP address of your Docker network.
+And then by doing that, you can run Plex in host mode and use traffic as a full reverse
+proxy.
+There is an example, which I'll have a link to in the show notes in my infrastructure
+GitHub repo of my example Docker compose file that I'm just using to test stuff.
+So if you're curious, take a look in the show notes.
+And I just mentioned those contact methods.
+Those are also perfectly viable if you want us to go more into reverse proxies, just let
+us know.
+We're just waiting for you to ask, selfhost.show slash contact.
+In the meantime though, you didn't have a chance to play with something else and they
+build themselves as your quote offline first privacy centric personal data center, Home
+Lab OS.
+So this is an interesting one.
+Home Lab OS proposes to be my favorite project of the year.
+If you think about all the technologies that are involved here, it's using Linux, it's
+using Ansible, it's written and configured in YAML, and it deploys lots of Docker containers
+and WireGuard and magic happens.
+Yeah.
+And it claims over 100 click deploy services, easy backup and restores, and it will automatically
+publish it all on Tor hidden services.
+So you basically don't need to worry about port forwarding as long as you got Tor.
+And you get the whole thing up and running with one line deployment.
+I mean, this is like everything that would be checking your boxes.
+It largely does, to be fair.
+I mean, what are we talking here?
+Is it a script that you run on top of Linux?
+It's a framework, I suppose is the best way I can think of to describe it.
+And largely speaking, that's my issue with it.
+It's using Terraform under the hood to create a bastion server to make the magic happen
+about having a remote endpoint that you can target and a bastion server.
+If you're familiar with that concept, it's something that you would connect to that is
+open to the internet without being your main box.
+So it's like a jump post is another word for it, you might hear.
+So you wouldn't connect directly to your server running on your LAN, you'd go through the
+bastion which then your firewall knows what the public IP address of that is.
+So you can limit internet facing traffic to a very specific place.
+So in terms of security and basic protocols like that, it's a good thing to have and it's
+pretty common in industry.
+And what's clear is that the developer of this project, Nick Busey, he really knows
+what he's doing.
+You know, I spent a good couple of days digging through the code here and he's using Ginger
+templating to template out all of the Docker compose YAML files.
+And it's really, you know, it must have been a lot of work to get to this point and it
+supports hundreds of applications.
+But the trouble is it wasn't invented here and I don't mean that as a necessarily a bad
+thing, but it's so complicated.
+Even though I've spent months working as a consultant on Ansible code bases, it took
+me a good few hours to get my head around just what this thing was doing under the hood.
+Now maybe that's not the point of this thing.
+Maybe I should just run the one line deploy and just go with it.
+But I like to know what things are doing under the hood and it's so complicated and so abstracted
+away from what's actually happening under the hood.
+In the end, I ended up kind of being a bit turned off from it, sadly.
+That was my impression as well, so that's interesting because I thought we were going
+to have two different views on this.
+I don't need all of this and I've kind of solved this in its own way for each one of
+these using, you know, duplicati and other just backup systems and having Docker containers
+where I've just hand deployed a handful of applications and I just manage it all from
+compose files.
+I don't particularly need this anymore.
+I do see it for somebody who is curious, like, hey, I got this box.
+I've heard about this Linux thing.
+I'll throw this Ubuntu on here and see how far I can get at replicating what I use the
+cloud for.
+I'll tell you where this thing I think actually is the most useful.
+It's for examples.
+It's for showing what's possible with automation and getting people involved in infrastructure
+as code and committing all of those configuration files to a Git repository somewhere.
+And so that when you're trying to do some kind of a server rebuild or, you know, save
+yourself writing bash scripts, which, you know, may or may not work, you're using Ansible,
+which is battle tested by Red Hat and millions of customers across the world.
+A lot of stuff that's in here is industry standard stuff.
+So if you can start looking at this sort of code base and understanding it and figuring
+out what it's doing, then, you know, you're pretty well set for a, you know, a DevOps
+job.
+It's a good point.
+It's a good example of what can be done.
+I mean, it's pretty neat to see something like this.
+That's not just the crazy like bash scripts or PHP command line scripts that are running,
+but it's actual, well, I mean, it's a combination of bash scripts, but it's actual best practices
+being applied to assemble these systems for you.
+It's kind of neat to watch it.
+I've seen simpler code bases as part of government projects.
+Let's just put it that way.
+Yeah.
+It's not a great learning tool in that sense.
+That said, the developer behind it, Nick, is a great guy.
+He hangs out on our discord and he quite often does Twitch live streams and stuff like that.
+And he's very open to feedback and stuff like that.
+I would say in general, he's a bit of a Steve Wozniak looking for a jobs.
+If you're, you know, willing to put some spit and polish and make it a little more consumable
+for mortals, then, you know, I think that's going to take the project to the next level.
+But for now it's a bit much for me.
+I'll tell you what though, I've made this point before on other shows, but I think it's
+something that's worth repeating is you do need projects like this to showcase open source
+and get it up and running because the barrier to running things like next cloud or your
+own mail server or a hosted Bitward installation, et cetera, is sometimes you don't even know
+the fundamentals to install software on a Linux box and you don't know if it's worth
+it to learn.
+And so when you can one line deploy something and then have a UI to go through and deploy
+applications and then experience things like setting up your own syncing or your own mail
+server, it can be a big motivator to learn and to go on a journey.
+You were touching on it, like it's a validation or it's a it's a way to prove out something
+before you begin a journey and open source software, there's such a need for showcasing
+like that.
+So I like it from that standpoint, too.
+I think what I'd like to see really with this type of project is to separate out the constituent
+components into building blocks.
+So let's say I want to generate a Docker compose file from, you know, a YAML dictionary for
+all of different variables, for example.
+So I don't have to keep typing in the path that I'm using, you know, for the Docker volumes
+or, you know, I don't want to expose my port numbers in my Git repo or whatever, so I can
+encrypt this kind of stuff, right?
+Right.
+Yep.
+If HomeLab OS was a series of, let's say, Ansible roles that you could consume and reuse
+different building blocks of that were written in a very generic, non-opinionated fashion,
+then I think this thing has huge, huge potential.
+But as it stands, I think the fact that it's got such strong opinions on the way things
+is done is great for it, but it means that it's very limited in terms of other use cases.
+But a cool project, and I definitely recommend trying it.
+You know, even if you just throw it in a VM for a bit, but HomeLab OS, we'll have a link
+in the show notes.
+I'm sorry I wasn't very nice, Nick, but I do like the project, promise.
+Great job, though.
+I mean, if this is the work of a single individual, it makes me feel like I have not accomplished
+much in life.
+Yeah, right.
+What have you been doing with your life, Chris?
+I don't know.
+Too many road trips, I guess, or too many installations of Ubuntu 20.04, so you and
+I both had a very different experience with remote installations this week of Ubuntu 20.04.
+Mine was really kind of tame.
+Flashed an image, threw that image on a headless box, waited for the DHCP server to issue
+a new lease, and then I just grabbed that IP from the log, SSHed into it, and began
+my setup.
+And I was in a nice, comfy SSH session, can't complain.
+I think your experience was a little different, though.
+Before I immigrated, I made some plans with different servers and stuff like that, and
+I managed to convince my dad to leave my old server in his house.
+It's in a Fractal Define R5 case.
+The motherboard that's in there is an X8 Super Micro something, the Xeon chip that's in there
+is a V1, so it's quite old, it's only got 16 gigs of RAM, and it's really just designed
+to be a remote endpoint for my storage.
+I had about 50 terabytes worth of storage in my server in the UK before I left, so I
+just left it all there and bought new drives when I came here.
+It's got, I think, five or maybe four 8-terabyte drives and a couple of 6-terabyte drives.
+No SMR drives, I did check after the drama lately.
+Yeah, you never know, they might sneak in, that's a TechSnap reference.
+And before I immigrated, as I just said, I left this at my dad's house, I installed Debian
+on it, and it's been working absolutely flawlessly, but recently I decided to start investigating
+WireGuard and then thought, well, wouldn't it be cool if I could do some of the ZFS send
+and receive stuff that Jim and Alan Jude keep talking about?
+So then I started having to install DKMS modules on Debian, and this was, I don't know, a couple
+of months ago.
+And for some reason, last night, apt was just getting its knickers in a complete twist.
+The DKMS stuff was just not working, I couldn't fix it, and in the end I thought to myself,
+you know what would solve all of my problems?
+Just going from Debian 9 to Ubuntu 20.04.
+Which of course, there's no direct upgrade path, that's nothing you're gonna be able
+to do.
+No, you have to wipe and start from scratch.
+And this is in London, right?
+This box is in?
+In a closet in my dad's house at 2am British time, so it's quite high stakes game of poker
+here.
+Did you consider not going with WireGuard?
+No.
+No, of course not, of course not.
+So I'm running PFSense as the firewall at his house.
+So I've got an open VPN tunnel I mostly use to stream iPlayer, because iPlayer requires
+a residential IP block.
+So if you try and go through DigitalOcean or something like that, they know that those
+IPs aren't residential, so it won't work.
+So you have to go through, you know, like a parent's house or something like that.
+That works great for us.
+But so I connected through open VPN from a crusty old Windows VM that's running Java
+8 to the IKVM IPMI Java interface.
+Oh boy.
+I then downloaded the ISO to the VM that was running in my basement here, mounted remotely
+the Ubuntu ISO into the virtual storage media manager that's part of this IPLI client.
+It then took about 25 minutes to boot.
+So I just got to visualize all of this.
+So first of all, it's like one of the worst interfaces ever created on the planet, right?
+For the IPKVM, I'm assuming.
+Yeah, it's about three frames per second.
+Yeah.
+Yeah.
+Okay.
+So you're on your desktop and you're accessing the ESXi console where inside there you're
+remotely viewing a Windows VM, which is remotely running this Java IPKVM.
+Yes.
+That sounds really horrible.
+It's pretty inception, isn't it?
+It's pretty inception.
+I'm running Windows on ESXi, accessing Windows through Firefox in a browser session, accessing
+the console output of my server in England through a Java client, mounting an Ubuntu
+ISO through the virtual media manager, and somehow I managed to get booted into the ISO
+on the third try.
+It was quite fun because my upload here is only 30 meg, which is, you know, it's still
+reasonable for cable, but it's not the gigabit that I had last year, and it was just absolutely
+pegging at 30 meg the entire upload whilst it booted the ISO, which I found really interesting,
+but it worked.
+Now, did you go with the server ISO or did you go with the net?
+I went with the server ISO, and I think that was critical to my success.
+There was no clicking required.
+I could just press one button on the keyboard, wait for the latency to catch up, and then
+press the next arrow button or press the next tab, wait for that keystroke to actually
+occur and update and refresh, and then move on to the next one.
+I think if you're trying to do this with an actual UI, you might struggle.
+Right.
+That would be horrible with the GUI.
+And then you also get to take advantage of some of the server's other features during
+the installation.
+Yeah.
+I mean, the installation of Ubuntu itself was relatively uneventful until I got to the
+point where it asked me if I wanted to import my SSH keys, and then my mind exploded.
+So this is something I've relied on Ansible to do for years.
+I keep all of my SSH keys up to date on GitHub, and then I use the authorized keys module
+to import all of my GitHub public keys onto specific hosts.
+But there's a new command I learned about called ssh-import-id, which will do the same
+damn thing for you.
+Isn't that great?
+And to make it even better, they've built it into the Ubuntu server installer.
+So all I type in is my GitHub username, press go, and then the cloud init file that it generates
+imports all of the SSH keys from GitHub that I have.
+So then I'm kind of curious, did you use ZFS for the entire thing, or did you do Extended
+4 on the root OS and ZFS on the data drives?
+What's the approach here?
+Because I assume there must have been a pool already existing that you were hoping you
+could reconnect to once the installation was done.
+I just made a very simple mirror of the two six terabyte SSDs that I had in that box and
+then used that as my ZFS volume.
+I did install root on Ext4.
+I didn't see an option exposed in the server installer for ZFS on root, so I didn't think
+to do that.
+Yeah.
+I didn't even think about that.
+Well, very interesting.
+And I suppose now you've been able to play around with some of the ZFS send and receive
+things that you were initially attempting to get to.
+Yeah.
+Yeah.
+So I've now got WireGuard configured not to connect through the PSN's firewall.
+It's a point to point, you know, my media VM connects directly to the server that runs
+in my dad's house, you know, through WireGuard, so it's a point to point tunnel.
+And now ZFS send and receive will work over that tunnel.
+So I started using Jim Salter's Sanoid tool and Syncoid tool to manage not only the snapshots
+in terms of like a configurable hourly, daily, monthly, weekly type situation, but also to
+send them as well.
+So one of the really cool things about ZFS that's blowing my mind a little bit is that
+I can send data from one server and it will arrive in the same exact layout on the other
+server.
+That doesn't sound amazing until you realize that includes all the data sets, all the permissions,
+all of the snapshot history, all of the ACLs, every single parameter that is attached to
+those files in America is now attached to those files in England.
+Right.
+And your file system is doing this.
+It's not some demon you're running in the background like rsync or something that's
+like me.
+I use sync thing to move stuff around between my boxes, but this is being managed at a file
+system block level.
+Yeah.
+I've always kind of scoffed a little bit at the hidden cost of ZFS, you know, that you
+have to set pools up up front and that the penalty for getting it wrong, you know, let's
+say you set your a shift wrong for example, or something like that.
+So your partitions don't quite match the cylinders on the disk and stuff.
+The penalties are quite high, but I tell you what, when it works, it's amazing.
+It's cheaper than glassier too, I think doing it this way.
+Yeah.
+If you have a place to send it to, for sure.
+I have this hybrid setup where at the studio I have this big super micro box that has the
+ZFS array where everything is ultimately stored.
+But then in my mobile RV setup, I have a pool of XFS for the storage drives and extended
+for the OS and SD cards because I just want as minimal overhead as possible on those boxes.
+And then I use sync thing and duplicati and other tools to move data around and just sort
+of negate the benefits of ZFS in the mobile setup.
+But I find that user space tools, you know, they work for me.
+They move data fine, backup happens, I have snapshots, it's all fine.
+It's just not as tight and integrated into the file system as it could be.
+But here at the studio, I do take advantage of that.
+So I kind of have been enjoying the differences of these setups because there's things I like
+about both of them.
+And I think they're both pretty valid.
+It just sort of, I think it is worth the time to investigate if you keep hearing people
+talk about it a lot.
+They just did a really good butter FS compared to ZFS roundup on two and a half admins.
+And I think that's worth checking out too, if you're curious about that, because there's
+a lot of trade-offs there as well.
+And it really comes down to the workload.
+But if you haven't tried it, like Alex is saying, it's so easy to do now.
+It's so easy to just give it a go.
+Yeah, that's over at 2.5admins.com with Alan Jude, Jim Salter, and the beloved Joe Ressington.
+But of course, I just run APFS on everything.
+You mad man.
+Now, it's not like ZFS has completely replaced everything on my file servers.
+Media, you know, like movies and TV shows and that kind of stuff, stuff that's easily
+replaced is still being handled by merger FS.
+What I'm using ZFS for is stuff that's irreplaceable.
+So I'm talking like photos, drone footage.
+Also I'm using it for container app data.
+So I have a different data set for each container that I'm using.
+And then that way, before I make a change to the configuration of a particular app or
+something like that, I have a snapshot now that gets taken with Sanoid.
+If I screw up the configuration change, I can just roll back to the previous snapshot
+and I'm good to go.
+There's lots and lots of different things that you can do when you're using ZFS.
+And the checksumming and, you know, the data integrity checks that it does for me on stuff
+like photos and music that I've ripped from my CDs, I don't physically own anymore, stuff
+like that.
+It's just I want to take every precaution I can with that stuff.
+One thing I have yet to implement and I'm going to look into something, I'm curious,
+Alex, if you have any advice is I still would like to have checksums as well, because that's
+something ZFS offers when you talk about bit rot.
+Really what you're talking about, especially with spinning media, but I suppose theoretically
+possible with solid state, is a failure of a block over time or an area of the disk that
+becomes unreliable and the things you stored there are lost.
+And that's something that you have to check against if you're using spinning media, but
+I think it's worth checking against with solid state as well.
+And that's something ZFS includes, XFS and ButterFS and other file systems include checksumming
+for the metadata, so they sometimes are labeled as checksummed file systems, but they're not
+actually checksumming at the block level at each individual file all the way down the
+file system tree.
+They're just checking the metadata head, which is nice, but isn't going to tell you the entire
+picture.
+Before I moved to ZFS last year, this was after Linux Fest Northwest actually, Alan
+and Jim were very persuasive, I actually had been using SnapRaid and I still do use SnapRaid
+and that does do checksumming every day for me on my movies and TV shows.
+And that is snapshot parity calculation, so it knows when stuff has changed.
+I'm never super 100% convinced it's as effective as ZFS, I've not really got any way to check
+or any real way to know, because if the bit changes overnight, well, when I run the SnapRaid
+sync the next day, it'll go, oh, that bit's changed, I'll just recalculate that bit of
+parity, no?
+So I don't know if that's how it would work or whatever, but SnapRaid does claim to do
+that.
+I remember you talking about SnapRaid and it's something I've been meaning to try.
+I also, I know in the past I've come across tools like MD5 deep and hash deep, which will
+go through, they'll crawl your whole file system, generate checksums and then they can
+check against that.
+But hit those contact links or the Discord and let me know what you use.
+I would like something that I could cron or get some kind of output that would run every
+night on these pies, but isn't going to totally abuse the disk IO and the CPUs.
+So if you have any suggestions, let me know.
+If you're doing those jobs on cron, you should check out healthchecks.io.
+You can self-host that as a container and that will let you check in with curl every
+night and send you an email if that cron job fails.
+You're going to get me to use health checks one of these days.
+You're right.
+I think I'm heading down that path.
+I like it.
+We'll put a link to that in the show notes as well.
+Everything we talked about is at self-hosted.show slash 19.

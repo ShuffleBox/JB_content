@@ -1,0 +1,1131 @@
+The Starlink satellite network runs Linux and at a massive scale.
+We could potentially see 32,000 Linux systems orbiting the planet
+just about right now.
+Yeah, it's super interesting.
+These things are amazing, and I'm really excited
+for eventually having internet beamed to me from space from Linux.
+And they have a ton of fascinating details,
+if you want more, over in AMA on Reddit,
+including that they use the same Linux stack
+for the Dragon spacecraft and Starlink,
+and they're running with the preempt patch.
+Hello friends and welcome into your weekly Linux talk show.
+My name is Chris.
+My name is Wes.
+Hello Wes and welcome to episode 358.
+We have a lot to get into today.
+I'm going to do something that I never saw coming.
+I'm going to attempt to defend ButterFS in this episode of your Unplugged program.
+I'll make the case here in a little bit.
+And then we want to have a discussion about how y'all, because I'm in Texas,
+how y'all are feeling about GitHub's decision to start using main instead of master
+and OpenZFS decision to change some of their terms.
+We'll talk about post-market OS as well and what they have for the PinePhone.
+And then towards the end of the episode,
+we will discuss what proprietary systems are doing better
+and what Linux needs to do right now to catch up.
+So to help us get to all of that, we've called upon the powers of cheese and Drew.
+Hello, gentlemen.
+Hello.
+Hello, Internets.
+And then like amulets attached to their belts of power,
+it is our virtual lug time.
+Appropriate greetings, Mumble Room.
+Hello, everybody.
+Amazing.
+I am very pleased to have you here.
+And I don't even have the full list in front of me, but I sense a strong presence.
+I sense a strong presence.
+I don't have the full list because I'm broadcasting from Lady Joops down in Texas.
+Leander, Texas, I think is how you say it, which is Austin's fastest growing town.
+Did you know?
+I'll fill you in here, Chris.
+We've got 13 fine folks joining us via Mumble and a whole bunch more over in Quiet Listening.
+Yeah, they figured out the Quiet Listening thing, didn't they?
+I like that.
+That's pretty great.
+We do these shows here on Tuesdays when we are doing them,
+which is just about every Tuesday at noon Pacific.
+So let's get into a few things.
+I am here in Texas right now and enjoying the heat.
+It's one of those weird ones.
+Let's see.
+Are you guys familiar with the feels with versus the actual temperature?
+I don't even know why we use anything but feels like, you know what I mean?
+Tinkering with weather.
+According to my sensors, it's partly cloudy in this municipality.
+They also found radon in your home.
+Great.
+It's 95 degrees technically, but it's one of those where it feels like 105.
+What the hell is that?
+That's commonplace here in Texas, right?
+Because of the humidity.
+And I'm actually surprised that it feels like 105 up there in Austin.
+Because it's usually a little drier there than it is down here on the Gulf Coast.
+So I have my server booth open right now and ventilating because I can't get it
+below 95 degrees in lady jubes.
+And I've shut down one of my raspberry pies to try to reduce the thermal load
+and it has gone nowhere.
+Thankfully, I SSH in and Ubuntu 2004 server edition puts right on the message
+of the day what your CPU temperature is.
+So as soon as I SSH into that sucker, I know what my temperature is.
+And it's so far, they're around 65, 67 degrees.
+So I'm not too concerned, but it's...
+I like the idea of you, you know, making yourself more uncomfortable
+for the sake of your technology.
+I am.
+I am radiating the heat into the RV and I have the ACs off for the show.
+So it's a double whammy.
+I do have one fan going, one lone fan.
+All right.
+Well, let's get into the show because we have a whole bunch to talk about today.
+And I wanted to start with something that's going to get me ridiculed.
+I like to do that these days.
+You know, first I'll say something that's somewhat reasonable about Microsoft
+and I'll have people write attack articles about me.
+And so now I'm going to say something somewhat reasonable about ButterFS
+and I'm going to get attacked by friends and by people who don't even know me.
+But I think it is time to defend ButterFS a bit
+after having recently gone through my own trials and tribulations with it.
+If you listened a couple of weeks ago, I had a ButterFS snafu when I was in the middle
+of a file system conversion and like a dummy, I switched my Wi-Fi networks,
+dropped my SSH session and borked the entire thing.
+One of my ultimate all time will never forget mistakes in data loss.
+It's like you've never adminned a box before.
+Oh, Wes, when I did it, I knew it.
+I felt all the years of doing IT shame.
+Like I just I knew I had made a mistake immediately.
+And Hadia saw it in my face.
+My wife, she was standing across from me from the room.
+She's like, oh, what happened?
+Did somebody die?
+Right.
+Just good data, honey.
+Just good data.
+So let's talk about this because today I had the opportunity to attend a Fedora
+working group meeting where they brought on some developers from Facebook who use
+ButterFS in production on their servers.
+They brought in the main developer of ButterFS, who also happens to be a Facebook employee,
+and a system developer, as well as other Fedora party members, workstation developers.
+And myself was there as well as Neil, who's in the Mamba room.
+He was there.
+And the conversation was really around Facebook's use of ButterFS, their lessons
+learned in production, and their overall opinions, takes, lessons learned that they
+could kind of pass on to the Fedora team who has currently an open bug about revisiting
+the default partitioning layout for Fedora workstation.
+And this is the genesis of this entire conversation, I believe.
+The workstation working group has to look at this problem that has arisen with the use
+of Docker and Flat Hub.
+The default disk layout in this bug report says that it's problematic.
+Having a separate home and small root means running out of disk much more quickly.
+And the bug submitter says, in fact, it's actually happened on every single machine
+I have when I'm deploying a lot of Flatpaks.
+Things are a lot different, they write, since we made the decision to have the current default
+disk layout.
+We have a much more reliable upgrade, very true, I agree with that, in addition to a
+lot of new technology that eats up a lot of root disk space.
+Now, think about this problem.
+If you're Fedora and you think perhaps you have to re-evaluate the way you are default
+partitioning every workstation install, at the same time, you have distributions like
+Ubuntu deploying ZFS, you have distributions like SUSE deploying ButterFS, and they're
+solving these problems and gaining benefits like compression and snapshots and copy-on-write
+copy-on-write and checksums and sending and receiving data that is really fantastically
+awesome.
+And you also have to solve a problem that traditionally you've done with tools like
+LVM and extended for that perhaps are no longer as competitive with what the rest of the
+commercial market has.
+See the rest of our topic later today, like later versions of NTFS, Apple's APFS on their
+Macs and on the iPhones.
+And honestly, Ubuntu 20.04, I mean, shipping ZFS and making an option you can check, it's
+a competitive consideration, even if they don't want to come right out and say it.
+Combined with trying to solve a real problem that has presented itself to its users who
+are using things like containers and flat packs, which Fedora is driving, and they have
+to pick a path here.
+And so the timing of this was pretty important.
+And bringing these developers in from Facebook, I thought, was a great way to hear how folks
+do it in production.
+There's some context for like why we have to set up the way we do today with LVM and
+having X4 for workstation and XFS for server.
+The reason we have it set this way is that even back when we made this change, like over
+a decade ago, the concept of being able to grow or reconfigure the storage was considered
+very valuable and necessary, especially as people's systems tended to change over time.
+And like one of the core tenants is that we don't want the system to be a pain for people
+to adjust it as their needs change.
+Like if you need to have more space, you should have an easy way to slot in more space.
+So that's why workstation has for the longest time done X4 on LVM so that we get these things
+and we get like 60 to 70% of the way there.
+And, you know, as a matter of public record, when the workstation working group was first
+founded several years ago, I think it was like 2012, 2013 or something like that, like
+as part of the original design doc, we always aimed to move towards an advanced file system
+technology to unify or stack and simplify the user experience for storage management.
+And in there, we listed ButterFS as one that we wanted to go towards when we felt we were
+ready for it and when the developers felt it was ready for that.
+Periodically, members of the workstation working group, as well as other members of Fedora
+have visited this, tried it out and evaluated.
+I've, you know, as I've stated many times before, I've personally been running ButterFS
+on all of my systems for the past five years and with containers and flat packs and even
+people who are packagers, like you're using tools like mock, which makes roots and image
+roots and things like that to do clean builds, it eats all of your space up so very quickly.
+These were not all demands that we had when we made this decision long ago.
+And we still have all the same needs that we had before.
+Also, I would point out that when these decisions were made, SSDs weren't nearly as common.
+Right.
+So like you had a performance limit that you really just weren't going to have to deal
+with in software.
+And now we're we've blown past that point, like I think arguably three years ago when
+laptops started switching to SSDs by default for everything.
+And and there's a whole new set of challenges.
+And trim is more of a consideration now as well.
+You have to have a file system that's aware that it's writing to an SSD and support that.
+There's those issues as well.
+And laptops now just almost all of them ship with SSDs.
+Now, the thing is, and I think it's detectable in these conversations, but I don't I don't
+recall being directly addressed is Butterfess has a bit of a reputation problem.
+I just recently talked about me using Butterfess on my Raspberry Pi's.
+And God bless them, Jim and Alan just think I'm completely insane.
+And in talking to them, I realized even I have my own biases against it.
+Like the data I'm currently using on Butterfess is it's it's replaceable.
+It's not it's not like my only copy because I was playing it safe.
+But I think one of the things that I took away from these developers at Facebook is
+it's not the same Butterfess as it was a few years ago when I was running Arch
+and I hit that bug that prevented my system from booting.
+It's so hard, right?
+I mean, we have all these horror stories from the early years or from whenever.
+But unless you're someone who uses it in production or maybe a developer,
+how do you really go assess the current state of the art and like what the limitations are?
+Right. You have to keep checking in on things in the open source world because they just
+continually improve.
+And if you've made your mind up about something based on an opinion you collected a few years ago,
+it's almost guaranteed that if that project is under any kind of active development,
+your opinion is now out of date.
+And Joseph, who is the lead developer of Butterfess and he's employed by Facebook
+full time and he seems like a very genuine guy who is a real straight shooter,
+says that a lot of these faults that we find with Butterfess now is actually
+Butterfess exposing hardware problems.
+Obviously, I'm very familiar with every problem we ever get in Butterfess because
+it ultimately lands on me.
+Like that said, you know, we do not we've not really had any issues that are directly
+Butterfess' fault. And in fact, most of the things that we find with Butterfess that I
+assume are Butterfess' fault have ended up being hardware.
+So we found interesting problems where like a RAID controller would write to the middle
+of a disk on reboots.
+We found this because Butterfess started throwing checks on errors.
+And yeah, that was super fun.
+And previously, these controllers had XFS on them.
+And so we had been randomly corrupting AI test data for years.
+This bug had existed for years.
+Butterfess found it.
+We found a variety of microarchitectural issues and CPUs because of the way Butterfess
+kind of hammers on the CPU with compression stuff.
+By and large, we have, you know, we all know as file system developers that disks are awful.
+Butterfess has really highlighted this fact.
+In the chat room says, boy, that that recording is horrible.
+Yeah, it is true.
+It is the hashtag Zoom meetings reality.
+Actually, this is blue jeans, but that's how it goes.
+But that is an opportunity to hear from the lead developer of Butterfess.
+And he says there that they've gotten to a point now where a lot of times it's some
+esoteric aspect of the CPU and the disk or just a crappy piece of hardware that's causing
+errors and file systems that we traditionally use like XFS and extended for my two go tos
+don't necessarily find that stuff.
+And so we just go along blissfully ignorant of issues that Butterfess is raising.
+And we often will attribute a failure to Butterfess when in reality it's Butterfess
+warning you about something that's wrong with hardware.
+Obviously, it's not every time, but it's more and more common now when we when Butterfess
+does run into issues like this.
+Now, this is Alex.
+He is in charge of literally millions of servers at Facebook.
+And he says you just have to simply accept it's not the Butterfess of a few years ago.
+But you can essentially think of like the fleet as like a big stress test.
+I mean, that's how it feels to me.
+Pretty stressful.
+And when we were pushing these things out, like every time you're doing like a million
+Butterfess operations now.
+Right.
+And so in the past several years, I will say that like, well, I think Joseph has been awesome
+from the very beginning.
+The number of issues that like have been top of mind for us from even dealing with Butterfess
+on like the edge cases, you're talking like millions of servers, like something goes wrong
+and somebody is mad about it.
+We got to figure out what happened has decreased dramatically.
+And so it's like a very reliable file system for us, even under the, you know, we've spent
+on containers for builds, we have containers for services, all this other crazy stuff using
+snapshots and compression and a bunch of the new stuff.
+It's been like super rock solid.
+And he mentions we're pushing out updates multiple times a day to the Facebook.com website.
+And when we push these things out, they're doing it at the file system level across millions
+of servers where there are millions of file system operations per server.
+On millions of servers.
+So it's really the definition of a stress test.
+Now, it's a particular use case, but over time, they kept finding all the different
+education cases and they have the developer there and they fix them when they've come
+across them.
+And it's sort of been in like this intense incubation chamber for the last few years,
+a benefit that CFS, I think, gained from Sun.
+Initially, it was developed in-house where they just kept throwing their edge cases at
+it and made it better and better and better.
+And that was like a three to five year development period.
+I don't recall what the time frame was.
+And then they released that publicly after that.
+Yes.
+I mean, it's almost a mythical sort of, you know, the birth of ZFS inside Sun.
+And that's why it has such better foundations than ButterFS.
+Right.
+As if these things over time don't improve.
+I think that's a common myth associated with ButterFS.
+Well, it does seem like there's a sort of attitude, true or not.
+We can debate that with evidence.
+But just that ButterFS foundations were bad and are bad and it can't be salvaged, at least
+from some on the ZFS side.
+Yeah.
+And maybe I bought into some of that.
+I don't know.
+I will see.
+I'm now running it in production myself.
+So I will find out.
+Either I will eat these words or it will turn out that things have improved.
+But there's other aspects than just laying the files out on a disk.
+There is benefits to checksums, but there's benefits to snapshots.
+But there's also benefits in production on a laptop or on a server to compression.
+And it's not just because compression is awesome.
+Also, I wanted to speak to the compression thing.
+We don't just use compression because it's awesome because we can save space, but it
+also drastically reduces write amplification issues for us.
+And so we're talking about like drastically extending the lifetimes of our very, very
+terrible solid state drives, you know, laptop class all day drives.
+We extended their lives quite a bit and save us quite a bit of money just by turning on
+compression.
+This is something else I learned in this working group chat is Facebook is buying like the
+cheapest SSDs they can get their hands on because they're buying so many at such a scale
+and they're throwing them in machines.
+It's not like they're doing this with enterprise grade disk.
+In fact, they're doing this a lot of times with laptop grade disk.
+So ironically, ButterFS is getting punished on a disk that shares a lot of characteristics
+with what you or I would use.
+Yeah, isn't that fascinating?
+It's sort of the next like, you know, commodity version of that.
+You don't have this one bespoke giant array because that won't work for Facebook scale.
+And so you have these, you know, these cheapo components that combinations of open source
+software like Linux and open source and ButterFS make usable.
+I started off by saying that Joseph has identified that a lot of times issues that we attribute
+to ButterFS eventually boil down to weird hardware problems.
+Well, this could actually be a real user problem in production at scale.
+If say Fedora, for example, were to switch over to ButterFS and there was a conversion
+process and then people had finicky SSDs, they may start seeing a lot of errors that
+they weren't even aware of, not necessarily because of ButterFS, but because ButterFS
+identifies them.
+And this creates a interesting situation for a workstation OS.
+I think ButterFS will definitely expose more errors.
+So if you had a situation where the underlying storage device is likely wonky or as Joseph
+mentioned, there's like silent data corruption, that would definitely become visible.
+In my opinion, that's a good thing because I definitely do not want to get random silent
+corruption on my device.
+It does mean, however, that if your laptop is wonky and you're running ButterFS, you
+would probably become more aware of the wonkiness than you were before where you might have
+been going merrily your way without realizing there was silent data corruption.
+Now, that sounds both like a good thing, but think about the bad side to this.
+Bad side to this is if your file system in the past would just continue along completely
+ignorant or ignoring the situation as an end user, you would just go about your day.
+I mean, yeah, sure, maybe that picture has been ruined or that MP3 will never play again.
+But what do you care?
+You know, you can still get to your system, your web browser, as far as you're blissfully
+unaware, as far as you're concerned, nothing is wrong and you're still getting your work
+done.
+ButterFS is much more sensitive to that.
+And getting those files back after some sort of catastrophic situation has happened,
+traditionally has been tricky.
+But Joseph's been creating certain recovery tools that look pretty solid and are starting
+to get upstreamed into the mainline kernel.
+You know, speaking from the guy who usually ends up having to put random users data back
+together, we have I have a lot of over the years written a lot of tools to recover because
+it's really like ButterFS's ability to find crappy drives is really good.
+The problem is, is we are also pretty vulnerable to crappy drives because of the way we do
+things.
+And so like, whereas XFS goes and finds like a bad block that doesn't make any sense,
+whatever, it just like anything else that doesn't kind of work in that area, it continues
+to work.
+It's kind of like half copy off stuff, whereas ButterFS is just gonna be like, no, you don't
+get anything, which is like a really shitty user experience.
+So that's historically how it's worked.
+We have more and more, like I wrote a bunch of tools, like offline tools to copy stuff.
+Those offline capabilities are making their way into the kernel themselves.
+In fact, most of them now exist where you can mount the file system, read only in recovery
+mode, and it'll just throw, it'll throw errors for things that have errors.
+But generally, if it can get to stuff, it'll let you copy it.
+So historically, it was really, really bad.
+You basically had to hope that you could get me on IRC to recover your data or fun.
+And then after that, use one of the awful tools that I had written to go and just copy
+stuff.
+And now we're to the point where those strategies exist in the kernel themselves.
+I don't think he anticipated that you attending this meeting meant throwing him under the
+bus on a podcast.
+I know, right?
+Yeah, and what I love about it, honestly, is just how really open and honest they were
+through this entire process.
+Like, yeah, this is an issue.
+The users will think this is a problem.
+This is probably how it should work.
+But users are going to consider this a problem.
+And there is multiple solutions.
+And part of it is on the distribution to solve that front end.
+I think that's what's great about having that kind of frank conversation is, yeah, this
+thing's going to detect that stuff.
+And in the past, you have just been ignorant of it.
+And you need to probably eventually come up with a way to even surface that to end users
+in a way that doesn't leave their system unbootable.
+And to that end, there could be in the next maybe one or two kernel releases a, for lack
+of a better term, a simply don't care mode, just continue on, obviously be read only.
+It's still be protecting your data.
+But the idea would be just throw the system in a, yeah, I know I've got a problem.
+But I've got to boot up so that way the user can solve it.
+And so the ideas in the next version or two is to automatically turn these options on
+like, okay, we aborted the transaction because of corruption, we'll put you in the we don't
+care mode.
+So you can just do what you need to do.
+We haven't done that work yet, because we're still validating those artworks.
+But that being said, that's the ideal, right is that we want to, you know, you've suffered
+some sort of corruption that you didn't notice, you boot up the box, that's the biggest trick,
+right is booting the box and the file system refuses to mount read, right.
+And suddenly, you're kind of stuck in a shell, we want to be able to like, let you continue
+to boot.
+So you can troubleshoot and fix it.
+And so what I have done in the past is I've made like my root file system extended for
+and then I'll make my data drives, a different file system, right, just so you don't have
+to worry about that.
+Mm hmm.
+It's fascinating to me to hear a little bit more from butter fs, you know, developers
+and people hands on deploying it.
+And I think that's one area where, sort of paradoxically, being a part of the kernel,
+well, we all have huge respect for the kernel, and it's deployed in production so many places.
+But that lack of, you know, sort of representation community, a couple of voices to represent
+the people working on it, you I mean, CFS has its own whole GitHub repository with issues
+and things so you kind of get a sense of who's working on this, what are the real problems.
+And before this, like, I never got that from butter fs.
+And so it just felt like a sort of void of like, well, is this just something that's
+kept in the kernel?
+Or is it something that people are really using?
+Yeah, that has been under active development, active troubleshooting, and it's been punished
+at a massive scale.
+And there's new things coming to it, it's not done.
+Native encryption is coming down the pipeline.
+And Neil asked a good question, he said, will the new native butter fs because you could
+use dm crypt today, but will the new native butter fs encryption support live encrypting
+assist a series of data, a drive or a folder or whatever?
+Can we encrypt something that has been traditionally unencrypted?
+Can we take that and encrypt it with this new native butter fs encryption?
+Because traditionally, that's a huge pain in the butt.
+And what I like about this answer that Joseph gives is, it's using a code pathway that is
+tried and true, and you will be able to do a conversion of non encrypted to encrypted
+data.
+Compression and encryption will go through the same data paths for us, like it's essentially
+just a data transformation thing.
+And it'll work this, it'll take advantage of the same infrastructure that compression
+has.
+So if you want to suddenly compress everything, you compress it and tell it, hey, rewrite everything,
+you can like the auto defrag can do it on demand, or you can say re defrag the whole
+file system and defrag essentially just means rewrite.
+And then you it rewrites and it goes through the data path for compression and re compresses.
+The same will work for encryption.
+So if you want to go and correct the sub volume and do that, and the the tooling will just
+automatically kick off the thing to re write everybody and then as that, you know, as that
+happens, everything re encrypts, you don't have to blow everything away and try again.
+Doesn't that seem smart?
+Just use the same data pathway that compressions already using tried and true.
+People use that at scale all the time for all of its perceived faults.
+It's just such a flexible file system, you know, because you can do these things where
+you can decide like, oh, yeah, all of a sudden, I don't want copy on right over there.
+Or all of a sudden, yes, I want compression and I want encryption over here.
+It was a fascinating talk.
+I'm glad I had a chance to attend.
+And it did make me reconsider the state of butterFS, which just sort of happened to fit
+perfectly with me just redeploying it in production again.
+Anyways, let's move on to something that's happening, admittedly, in a much broader context
+than what we normally talk about here on the show.
+And that is various different open source projects have stepped up the pace in which
+they are looking at their code base, they're looking at the terms and the vernacular they
+use, and they're shifting to things that they believe are a little more sensitive, a little
+more understanding, and probably the behemoth in this discussion is since we all gathered
+here last time, GitHub has decided to start using the term main instead of master as a
+branch name.
+And additionally, the ZFS co-creator Matthew Ahrens has decided to take a search through
+the code base and make changes there.
+This week, Matt Ahrens decided to send a poll request in to remove any unnecessary references
+to slavery, as he put it, from the open ZFS code base.
+He says the quote, horrible effects of human slavery continue to impact society.
+He goes on to write, the casual use of the term slave in computer software is unnecessary.
+It's a reference to a painful human experience.
+And chiming in a bit more about the project's acceptance, well, the short patch switches
+the script zpool.d slash slaves for zpool dash d slash dm dash deps, and usage of slave
+to dependent or dep throughout the code and the documentation.
+There's no change to the way open ZFS works, and the change was accepted by the project
+team.
+They do note, though, in what I think is maybe a dig on Linux, that references to slash sys
+slash class slash block slash star dev slash slaves remain because that path is determined
+by the Linux kernel, and working around that would require elevated privileges, a situation
+Ahrens described as unfortunate.
+Also Redis and Python shifted away from the use of master and slave, OpenShift dropped
+the whitelist and blacklist terms, and the GitHub command line and desktop interfaces
+replaced master with trunk or main, depending on which UI you're using.
+I think also Apache made some changes fairly recently as well.
+And I mean, a ton of these changes to you mentioned, like Redis and Python and Ruby,
+you know, that some of this stuff has been in the works for a long time.
+And so I thought maybe we'd have a moment here on the show because this is something
+that's rippling across open source software, and I feel like we should, we should address
+it and to avoid it would be not only a disservice, but somewhat obvious thing to avoid.
+And so I thought, let's, let's discuss this.
+Let's actually have a conversation around this, and see kind of what our thoughts are
+on it.
+And I want to keep this as a just a as an inclusive, open conversation as we can.
+And see what see what you all think I'll start with initially, I have to be honest, I do
+have a bit of a bias towards this where I, my first reaction to this is sometimes it
+feels a little bit like small change for small feelings.
+But the more I thought about it, the more that started to shift.
+But I don't want to hog the mic on this one, I kind of want to, I kind of want to pass
+it around.
+And I thought maybe I'd start with you, Drew, since you haven't, you haven't talked for
+a bit here on the show.
+I'm kind of curious what you think about projects, projects that are going through their code
+base, and they're replacing terms like master or slave with something else like original
+or dependent.
+I think it's indicative of the way things are moving in sort of our political climate.
+And the idea that we need to be more sensitive to different cultures.
+I think it's a good thing.
+Personally, I always felt a little weird going with the master-slave terminology just because
+of the implications that it has.
+And seeing projects like, you know, Reaper come out with their new edition is codenamed
+Black Lives Matter, and they had this exact change.
+It speaks to the fact that technology and technology companies are understanding that
+we're part of the greater world and we need to be sensitive to the things that are happening
+around us.
+We don't exist in a bubble and everything touches technology these days.
+So we need to move with the times.
+So I agree with all of that.
+I think there are a couple of valid slippery slope style arguments in which you can argue
+where does the change stop?
+I want to read a couple of comments that struck me.
+King32 on Reddit wrote, as a black software engineer, I think this is nonsense.
+I thoroughly dislike how much energy and attention this one specific issue is getting and wish
+it were invested in something that would actually improve the workspace for minorities.
+I realize this isn't a zero sum, but it just feels like a massive distraction.
+And I think that was perhaps how I felt initially to this issue.
+But after thinking about it a little bit, my opinion on that is I disagree.
+I feel like you can't tell people where to spend their time and energy in open source.
+People scratch their own itch.
+And if this is a matter that they feel is important to them, they're not necessarily
+taking it away from something else because they were never going to contribute to that
+to begin with.
+I do wish it worked like that.
+I wish I could say, everyone all at once, let's focus on the desktop, but it just doesn't
+work like that.
+Yeah, please fix the Linux desktop, but now it doesn't.
+Yeah.
+And he says that he admits that it's not a zero sum game.
+That is literally what it comes down to.
+Open source is not a zero sum game.
+You can do one thing while not taking away from another.
+But that said, another comment that I did initially kind of resonate with, but then
+upon further reflection have thought a little more about, and that's from B Bradley.
+He says, master in this context means main or principle, like a master copy.
+So when we're talking about the GitHub change, I totally understand when it's specifically
+used in the master or slave context, but this seems like an effort which could be spent
+on other more effective means by improving the workplace for black Americans.
+I think what we have to think about here is it's a broader picture than one group or demographic.
+It includes all of us.
+It's not just Americans.
+It's a worldwide community here.
+I know this is going to be difficult, but when I see the situation, I think to myself,
+language changes all the time.
+These particular types of changes are generally fairly straightforward.
+The most rigorous aspect of the change is us humans have to learn a new nomenclature.
+And part of being understanding and kind to people is being willing to constantly adapt.
+Our regular on the show, Carl, linked in the JB Telegram group, a great video by Rich Bowen
+all about welcoming nomenclature.
+I think it's a great primer if you'd like to start thinking about and talking about
+some of these issues.
+And it really, at the end of the day, at least in my mind, comes down to compassion and empathy.
+And we need to be open, especially, I mean, I'll just say, as a privileged middle class
+white male, I need to be open to experiences that are different than me.
+And, you know, a lot of this stuff is embraced by the projects themselves.
+And there are people willing to do the work.
+And it's just a tiny little bump in all the change of technology that we're constantly
+accommodating to.
+I mean, before long, we'll have forgotten about this.
+And we'll be dealing with the next thing that system D eats.
+It may seem like a small change, it may seem like it's a nothing burger of an argument
+to say, well, we should change master slave to something different.
+But we're talking about huge systemic problems that face our entire society.
+And you don't make big changes with just large movements all at once.
+It takes a lot of smaller changes to really get from point A to point B in this context,
+because we're fighting centuries of problematic thinking.
+And yeah, the master slave argument, it seems small, but it is important.
+And it's one step out of many steps that need to be taken.
+While it might seem like a small change, it's something that projects like this can easily
+implement.
+It's not like it's going to take a ton of time to implement this.
+But it also brings awareness so that future projects can think about these things when
+they're developing their projects.
+So I think that it's a win win for the open source community.
+And I mean, obviously, we can do be doing things better.
+But I think where you can do something, and where you can make change, then why not do
+it?
+So just just take that leap and do it.
+That's kind of where I come down on this is it is a simple search and replace.
+And if it means that 10 years because this stuff continues to evolve, right?
+So if it means five, 10 years from now, a black developer, or a Native American developer,
+or a Chinese developer, whoever can sit down and, and not have a tinge of hmm, I'll give
+you a reframe where this kind of helped me rethink about this.
+Because obviously, this is not an issue that directly impacts me.
+And so you're what I have to do is I have to try to put myself in other people's shoes.
+And I think that's a good exercise.
+And I tried to make it kind of, what about things that trigger me?
+And what gets me kind of upset?
+And that is when people just excessively use militarized terms for things.
+And projects kind of have like a military nomenclature.
+I don't like that.
+I think it's disrespectful to our service members.
+I think it exaggerates what they're doing.
+I think it, it just is, it's gross.
+And it, it actually kind of grosses me out when I start seeing projects use military
+terms for things.
+And that's a form of language I just, I don't like now.
+Should that be included in this conversation?
+I think it kind of is one of those things you have to take in every particular scenario
+and evaluate it on its own merits.
+I personally, I might draw the line at renaming a project like GIMP because of the historical
+context, because it's an acronym, because all of these, all of these aspects to it.
+I kind of scoffed at the GIMP renaming project.
+But this is an area where you could argue, maybe we should consider things like that
+should be changed.
+And I, I landed on, I'm going to keep using GIMP, and I'm going to keep calling it GIMP.
+Yeah, I don't think there will be a, you know, a one size fits all answer here.
+One great thing in that video I mentioned was just how often some of these changes,
+especially around like whitelist and blacklist, they're just better, more clear terms that
+don't rely on, on metaphor that can get your point across.
+And then I think there are also going to be times where, yeah, you know, it's just, it's
+too late to make that change, or we all already know that project, and there's a context around
+it.
+So it's not some, you know, decree from on high.
+It's more about thinking about it actively and making the right calls where they make
+sense.
+And as a project, maybe thinking about, well, who do we want to attract as contributors?
+Who do we, who do we not want to turn away as contributors?
+And considering that, I think this is actually kind of trickier than you think, because there's
+not necessarily inherent ethical standards or problems around software or hardware.
+You know, when I had IDE hard drives and I had a master and a slave, I never thought
+about that in a human context.
+I simply thought about it in this is the master device and this is a secondary device.
+But I also don't have any background or experience that, that might change the way I perceive
+that.
+And the answer was, well, if language changes all the time, and this technology is a kind
+of a search and replace and submit a new pull request and it's done kind of job.
+And the biggest negative that you could really quantify is we have to learn a new term.
+Well, that's just not enough to say, don't do it.
+Honestly, I can learn a new term.
+Technology, it doesn't care.
+It doesn't care if it's master, it's slave.
+It doesn't care if it's original and secondary.
+It doesn't care.
+And as people change happens all the time in other contexts as well.
+And so I kind of come down on the side of generally it's a good thing.
+And I, I think having reflected on it, I can see where Matt Aaron's is coming from for
+open ZFS.
+I can see where GitHub is coming from.
+I can see where postfix is coming from.
+That's an interesting one.
+So the postfix email demon, as you can imagine, has lots of master and slave commentary throughout
+it.
+They are embarking on what will likely end up to be a multi-year change.
+They will roll it out slowly to warn users about retired vernacular.
+And then eventually the retired vernacular will just stop working.
+Yeah, that's just it.
+We can find solutions here that, you know, for whatever impacts that may be detrimental
+to some groups, we can figure out ways to ameliorate those.
+And otherwise, let's all get on with the great business of open source.
+Yeah, really quite, quite literally change is always happening and these things are always
+shifting.
+And I know it can be hard.
+I know it can be, it can seem exhausting.
+It can seem never ending.
+And my answer to that is welcome to the human race for all a real pain in the neck.
+I really kind of see that more as the beginning of the conversation, not our final word on
+it.
+But it's also open to anyone who's listening and wants to give us their feedback at linuxunplug.com
+slash contact.
+But post-market OS is doing something the Librem 5 never did.
+And that is actually shipping the GUI based on Gnome to end users.
+Post-market OS traditionally has been really kind of a basic OS that you could get going
+on older hardware that have been abandoned.
+But they seem to have taken a liking to the pine phone and they say there's a few things
+about it that we like and on their post that we'll have linked, they have a quick rundown.
+Number one, mainline Linux kernel with few patches and everything getting upstreamed,
+free software GPU driver, a modem that is separated from the main CPU, a removable battery,
+a micro SD card slot, a headphone jack that also doubles as a serial port and hardware
+kill switches.
+You bring all these together with some reasonable specs and it seems like people are taking
+a real liking and post-market OS is one of them.
+Interestingly, this community edition will be shipped with Phosh.
+And Phosh, if you're not familiar, is the phone shell running on top of various Gnome
+components developed by Purism for their own Linux smartphone, of course, the previously
+mentioned Librem 5.
+Yeah, how about that?
+So the Phosh UI will get in the hands of end users via the pine phone.
+Isn't that something?
+Mm hmm.
+You think that you think that that bugs Purism a little bit?
+You got to wonder.
+You do have to wonder, although regardless, I think it's kind of interesting as a reflection
+on like, how do you manufacture and build these things and maybe some of the differences
+between experience in the pine phone side of building hardware and then some experience
+that we have to grant here on the Purism side of working upstream with some of those vendors
+and being able to build seemingly a shippable, if not by them, phone shell.
+What you're going to get here is a post-market OS community edition, which will come with
+a new on-device installer and it will ask you for a password and then it will encrypt
+the installation and you have a GUI graphical environment that's easy to flash or pre-order
+on the pine phone and I think it's pretty noteworthy because until the pine phone really
+became an actual product in end users hands, we weren't sure how all of the different open
+source projects would adapt.
+Would this actually become viable?
+I just want to propose to you that we fast forward, I don't know, let's just say a year
+and maybe they're working on a pine phone two and the Librem five in a fairly usable
+condition has shipped.
+We now have ourselves, I think you could argue, a bit of a baby ecosystem.
+Cute little ecosystem.
+Yeah, I love it.
+I'm totally sold and I need to get some pine devices myself, which is why I'm interested
+to note here that pre-orders open early July 2020.
+That's this year for those of you who've lost track of what day, let alone year it is.
+We'll have a link to the announcement in the show notes, of course, over at LinuxUnplugged.com
+slash 358.
+You know, after July, then you'll be able to buy the postmarket OS pine phone community
+edition for $150 plus any relevant shipping and handling costs, and maybe import charges
+depending on your region.
+And in what I love is a, you know, nice piece of transparency.
+The pine store is going to donate $10 per sale to postmarket OS.
+They also have a little thanks to Purism for pushing the free software smartphone revolution,
+Wes.
+Wouldn't it be interesting if some of the biggest contributions out of Purism on the
+mobile side don't actually come from the Librem 5 directly, but from the software created
+for the Librem 5 that got upstreamed?
+I think that's just more magic of open source.
+I think you might be right, Wes.
+All right.
+Well, with that said, you know, we are well into the show at this point.
+We really got away from us, but we have to do a bit of housekeeping.
+There's not a lot of housekeeping this week because honestly, I'm on the road, so there's
+not much to report on.
+But I do want to mention the Luplugged every single Sunday at noon Pacific.
+It's on the official live calendar now.
+It's noon Pacific, which is the time we do this show.
+You just go convert that to your time now at Jupiterbroadcasting.com slash calendar.
+An easier option might just be to show up in the Mumble Room every day at noon Pacific
+and just see who's around.
+And at least two days a week, you'll find somebody.
+A 24-7 live stream monitor.
+You probably want to have an entire box, just an entire computer dedicated to just the Mumble
+Room going all the time.
+And then what I would do is I'd probably pop off at least three computers for Twitter feeds.
+You know, you got to get Wes's feed up there.
+You got to get my feed up there.
+You got to get the Jupiter signal.
+And if you're really dialed in, you probably got to have another computer for Cheez's feed
+and Drew's feed.
+You never know what's going to happen.
+Right?
+Damn right.
+Or just check Jupiterbroadcasting.com slash calendar.
+I mean, whatever works for you.
+We also have a chat room, IRC chat room at IRC.geekshed.net.
+And it's at pound hashtag quadrathroat Luplugged.
+And you can chat along in there while we have our special get togethers.
+I tried to join just briefly while I was visiting family this week.
+I was walking up to a family store and I'm like, oh, the Luplugged.
+So I jump on there, tap it.
+Hello, everybody.
+How's it going?
+And do one of those.
+All right.
+Thanks.
+OK.
+I'll see you later.
+And I jump out.
+But I try to do that even if I can't hang out.
+But often we're hanging out, chatting about things, and people are creating reasons for
+you to buy cool hardware devices.
+What's nice about it is, you know, the Mumble Room is definitely the best thing about this
+show, but we never have enough time to discuss everything.
+And the Luplugged, well, that's the place to do it.
+That's right.
+Also, if you are on the Twitters, I'm sorry, but check out at Jupiter Signal.
+It's the network account.
+Anything going on with a network or any particular episode release gets announced at Jupiter
+Signal and the show at Linux Unplugged.
+I'm sorry if you're on Twitter, though.
+I am so sorry.
+But if you are, you should definitely be following those accounts.
+You made that choice.
+OK, that's your fault.
+That's on you.
+You can't blame Westride for that.
+Make it better by following us.
+So what could we do as Linux?
+Let's say we've been equipped with the ability to assemble masses of developers, wave magic
+wands and solve a problem that would make us instantly more competitive with commercial
+systems.
+What could we change today?
+And I think this, you know, could be one of those things where we could go on forever.
+We could have a whole dedicated podcast on this, but I'm sure some of us have thoughts.
+And so I thought we could just kick them around a little bit and and give our opinions on
+some areas that Linux could shore up a little bit or a lot a bit to be fully competitive
+with Mac OS or Windows or maybe it's Android or iOS.
+It's up to each one of us to decide and and maybe give a few opinions on how to get that
+started.
+But to kick things off, because I like to apparently punish Drew this week, I'm going
+to send it to Drew.
+I will take that abuse and roll with it.
+The thing that I really want to see move forward is audio and video support and capabilities.
+And I know PipeWire is coming and I have high hopes for PipeWire, but looking back through
+the history of it, you know, ALSA and the OSS sound system and Pulse Audio and and all
+of the video issues that we've had throughout time, you know, a lot of it comes down to
+proprietary codecs, but a lot of it also comes down to the fact that I always feel like everything
+that I'm touching in regards to audio and video is designed by and for engineers and
+not really for real people.
+So when you compare against something like Mac OS or Windows where everything is, I'd
+like to say much simpler, but honestly on Windows, it's kind of terrible there too.
+But Mac has it down with their audio interfaces and the way that it all works.
+It is super simple and slick and easy to use and there's no wonder that so many professional
+audio people tend to run Macs for, you know, DJ sets or for music composition or whatever.
+And I think Linux really could be competitive in that space, but we need to get there.
+We need to make it more accessible and I want to see that happen.
+Yeah, you know I'm right there with you, 100% right there with you.
+If you could, and I know this is kind of just a rando, but if you could just kick it off
+in one direction, where would you start?
+Would it be PipeWire?
+Yeah, I think so.
+I think getting PipeWire up and running and simple and easy to use as well as, you know,
+really taking over the jack stack and making it more transparent and easier for people
+to really get going, get ingrained with and removing those barriers to entry would be
+a huge step.
+Yes.
+I mean Linux is so powerful and flexible and can be tuned to do very specific things.
+So there's no reason why we can't have super performant video and audio applications ready
+to go.
+It just needs that work to turn it into a real monster of a multimedia production system.
+I think that, you know, unification that PipeWire offers is maybe one of the things that's going
+to be present throughout a lot of these Linux criticisms is just there are so many different
+systems.
+I recently wanted to, you know, set up my main microphone running through jack with
+a pair of Bluetooth headphones running on pulse and that is a whole adventure I would
+never like to repeat, but, you know, it's the same about so many things, including things
+like, you know, developer docs or how do you actually target, quote unquote, Linux?
+I was just reading an internet discussion today that was super, super, super critical
+of SystemD as if it was five years ago and they were just rabidly discussing how horrible
+it is and how anti-Unix it is and I think a part of what has kept that conversation
+going is it's true, it is less Unix-like, but when I look at those clips that we just
+played earlier today and we were talking about rolling out a competitive modern file system
+for a Linux workstation and one of the bits that has to be solved is how the system handles
+a failed disk, well, you have to make changes across multiple projects, the bootloader,
+the kernel and SystemD and if instead of SystemD it was five different projects, it literally
+would never get done, but because it's now three projects, it is actually possible for
+us to create something that isn't user hostile and I don't know how to explain this to people
+who are so anti-SystemD.
+I agree, we did indeed lose something, but the benefits have been numerous from management
+to predictability to simple coordination of development and it is really hard to quantify
+that kind of stuff, but I think what you're talking about, Drew, here with Pipewire would
+bring a cohesiveness that SystemD brings at the system level that would be not nearly
+as controversial and Brent, I bet you have some along these same lines here when it comes
+to professional camera gear.
+When I was reflecting on this question, one thing I thought was, yeah, of course audio
+and video, that's our thing around here, but I thought what are the things that we take
+for granted and one thing that I use all the time that I take for granted is the software
+and my pro photo cameras or any camera for that matter and it has been sort of a dream
+of mine for a long time and I would imagine others and we've had hints of sort of addressing
+it, but having some open source firmware on those things would be pretty neat because
+that cameras are really getting to a place where they are just computers with a lens
+stuck on them now and so it would be really amazing to see what could happen in that space
+if only we had a little bit of access and a little bit of open software running on them.
+No kidding.
+No kidding.
+At that level, oh man, what a game changer.
+So Mr. Bacon, you've been a Linux user for let's just say longer than some of my children
+have been alive.
+I'm curious what you would change.
+One thing that some of the proprietary offerings like Mac OS and Windows do provide is that
+installation experience.
+It's dead simple.
+It's pretty much stayed the same throughout the years and as a new user, if you're coming
+into Linux, there's so many different variations of installers, right?
+You have Anaconda that Red Hat and Fedora use.
+You have Calamares that Manjaro, KDE Neon, Distant that Elementary and Pop OS use, Ubiquity
+that Ubuntu and some Debian systems use.
+I feel like at some point we need to kind of unify these installers to create the same
+human interface kind of guidelines throughout them.
+And one of the real things that I appreciated about what Elementary and Pop OS did is that
+they decided just to build their own, which again kind of segments the installer market
+for Linux, but they really thought about the key goal there was getting the OS installed
+to the drive as quickly as possible.
+And personally, it's one of my favorite installers and Calamares really has attempted to kind
+of bridge that gap.
+So it's a distro agnostic, right?
+You can use it for whatever project you're working on, building your own Linux distribution.
+You can really customize it as well, but everybody has their own kind of way that they've done
+it in their own, you know, Ubiquity is primarily Python.
+I think the elementary distant is basically Rust with Vala and GTK on top of it.
+So I would love to see that kind of unified, even if we're using different installers that
+same human interaction guidelines set forth through all of these installers so that whenever
+you get to partitioning, it's going to look very similar, if not the same on Fedora as
+it would on elementary or pop or Ubuntu or anything else like that.
+Wouldn't that be something?
+A universal Linux installer that is the same distro installer for all of them.
+Maybe they each have their own, but then yet there's some like universal version you could
+use.
+Some sort of metaprotocol free desktop installer dot D thing that you implement.
+Yeah.
+Wouldn't that be something?
+What a world.
+You know, even the same process, right?
+So like you start out, you know, here, then you go to disk partitioning, then you go to
+user creation and then you have your slide show while the installation process is going
+on.
+But basically the same kind of following the same sort of guidelines for all of these installers
+across board, I think would be would be a great step up, you know, in showing that we're
+kind of a unified operating system.
+Even if it's not the same installer, they're following the same basic principles.
+Yeah, I could see that actually working because here's my when I talk when we talk about this,
+my my target user is a developer, engineer, sysadmin, DevOps kind of user who is sitting
+down to use a professional grade workstation.
+Obviously in Linux on the server, this is not really as much of an issue.
+You either build your own, you roll your own, you have some sort of deployment system or
+you've learned just how to manage the system that you like to use and you do it at scale.
+It's already solved.
+But at the desktop level, there's not like this minimum requirements of usability options
+and standards for how to get Linux on a system.
+And that never even really occurred to me until you brought that up.
+Mr. Payne, you must be looking at the market, you're reviewing it, you're sitting back and
+going, we have to fix this in the next year to be competitive with commercial desktops.
+OK, well, it's not really for me, but for some folks I know.
+And I think one thing and it's, again, probably a result of just, you know, so many options,
+but accessibility, you know, there are there are things including including orca if you
+need it on Linux.
+And there's a variety of options.
+And I think in one sense, the open source nature and, you know, hack it in yourself
+means that there is a good potential and there might even be a lot of room for folks who
+need to implement these solutions themselves.
+But anyone who's doing a ton of, you know, of exactly that work you were talking about
+stuff, you know, that you're doing everything in the shell or the terminal, a text based
+interface, they're using Mac OS because, you know, the screen reader is really great.
+They've got all kinds of stuff.
+And you can use technology like dragons, you know, naturally speaking to talk to your computer
+if you're not able to type for whatever reason, and Linux, I think, is fragmented and probably
+behind.
+Yeah, that and that was that's when I feel particularly bad about I'm really glad you
+brought that up is that's an area where wouldn't it be fantastic if we were the default destination
+for people with certain disabilities that made it harder to use the computer or nearly
+impossible.
+And if you could just say, well, Linux, that'd be great.
+It's a great point.
+The other thing that Brent's pointing out that I think we should circle back to is sometimes
+brand is just simple stuff.
+It's just like the basics.
+Yeah, I have a few friends and family who I've helped sort of move to Linux for various
+reasons.
+And all of them repeatedly come to me with desires to edit PDFs or do certain things
+with PDFs, like combine them or take pages out and stuff.
+And I know that is so simple.
+And there are solutions, but man, are they ever kind of clumsy.
+And I've explored this repeatedly over the years and I haven't come up with anything
+that's as nice.
+And I'm not suggesting necessarily that we should come up with better PDF solutions.
+Part of my feeling is that, well, why is PDF kind of the format out there?
+And that's a lot harder for us to change because it's out of our control, but those are the
+things that I see more often than not as part of the challenge on Linux.
+Ah, the legacy problems of PDF.
+It's the language of business, Brent.
+You know, it's like if it's a PDF, it must be unaltered so we can trust it.
+Yeah, right.
+That makes me vomit in my mouth a little bit.
+I want to see the workstation be the best on the planet.
+I really think that the Linux desktop should be a shining example of technical excellence.
+And maybe that means it doesn't have the best UI.
+Maybe that means it doesn't have the most common look.
+Maybe that means it has a couple of electron apps.
+But I think the one area it should not ever compromise should be the technical excellence
+of the desktop, multi-threaded, doesn't crash, runs reliably for months at a time.
+It should be the beacon of technical excellence for any engineer or developer or admin who's
+sitting back and going, I want to deploy the most technically competent, the most technically
+superior workstation.
+It should be so far and above clear that that is Linux, that Windows or Mac OS never comes
+into the conversation.
+But quite frankly, that is not the situation today.
+Our file systems do not compete with commercial file systems.
+The multi-threaded aspects of GNOME are lacking.
+You know, if you looked at that from a commercial grade operating system, whoever developed
+that operating system should be fired.
+We haven't gotten our act together on a 3D API that includes sound and 3D.
+Thankfully, thankfully Vulkan came along, thankfully, but it wasn't, it wasn't something
+of our doing.
+There's so many areas where it feels like you're running a desktop environment on top
+of a command line environment, which is running on top of a kernel.
+You can feel that stack sometimes.
+There's some distributions like Fedora that get really close to bringing it all together.
+And there's other distributions, SUSE, where it feels like they're millions of miles apart
+or Arch even.
+And the reality is, be selfish for a second, wouldn't it feel incredible that every time
+you suggested someone install Linux on their machine, you knew with ultimate certainty
+in the back of your mind, it was the most technically competent piece of software that
+could be deploying on their desktop.
+There was nothing better.
+Windows wasn't going to do a better job technically.
+Mac OS didn't take better advantage of the hardware.
+It just was the best option.
+And if Linux is not that, I think people will continue to buy Mac books and surfaces.
+Simply put, people who are in the know, who appreciate these finer details about how software
+is actually built, who are evaluating things not based on the morality of software, but
+based on how it is designed and engineered, we've got to step up our game there.
+It's not a huge gap.
+It's not an impossible problem.
+It just requires organization at the lower levels, the medium levels, and the higher
+levels of the desktop stack.
+Something we haven't necessarily been great at in the past, but it's not outside our reach.
+My thing is very vague because it starts at the file system on the disk.
+It goes all the way up to the IO scheduler that's handling things like a browser that's
+using your GPU and your disk and your RAM at the same time while keeping all of your
+other applications on your desktop responsive.
+And it's vendor applications that take advantage of all that stuff because we have created
+an API.
+We've created a developer story, an inclusive developer story that tells them how to make
+fantastic software, taking advantage of all of the latest open source and free software
+development that's happened on the platform.
+And we don't have that today.
+So a week minus a day, it'll be Apple's first virtual WWDC, Worldwide Developer Conference.
+They may announce ARM Macs in this conference, they may not.
+If they do, they will announce something that we as a community have half accomplished in
+the last half, I don't know, decade.
+They will announce an operating system that was originally built for power PC hardware,
+now running on ARM hardware, and they will have all of their applications ready to go.
+They will have their sound system, they will have their video system, they will have their
+desktop applications, they will have their web browser, and they will likely even have
+a large amount of commercial support going to the ARM platform.
+We could not do that.
+We could not just say all of Linux is switching to RISC-V processors and just have everything
+start switching over over the next five years.
+It would take 30 years and it would be half-assed and we'd still have people running 32-bit
+software on x86 processors.
+So some kind of singular vision on the workstation.
+There's projects out there, Canonical does this, Fedora does this, but we need something
+that's turned up to 11, that's looking at the desktop and really putting it all together
+and then evaluating where we lack and solving that problem.
+Because right now, for some work cases, I don't think we are technically the best solution.
+And man, does that really burn me in 2020.
+Am I a bastard if I bring up Chrome OS here?
+No.
+I mean, I think that's a good example, isn't it?
+Yeah.
+I mean, it is just that.
+And you hit on that, you know, some folks from the elementary OS side, I think, and
+as you said, Canonical, like there just hasn't been that much pressure and you need an organization
+that is dedicated to touching all those places in the stack.
+And it is a hard problem, it's a distributed problem where there's so many different things
+to tune that you can tune, thankfully, but that you have to tune to get the desktop experience
+that I guess we're expecting from the proprietary world.
+I just want somebody to bring it all together.
+I want somebody who can look at GNOME Shell and say, fix these 10 areas of GNOME Shell.
+I want somebody who can look at our 3D APIs and say, let's reach out to these two vendors
+and solve this problem.
+And I want somebody who can just look at the whole picture, Wes.
+Yeah, that's tough.
+I mean, you've got to pay for it, right?
+And there are organizations that's work is getting done.
+It's just not enough and, you know, too little and the world keeps changing and we have to
+try and keep up.
+There are hopes, right?
+We've gotten things better with Wayland and with Pipewire and with Vulkan and with SystemD.
+I think there has been some consolidation and modernization, but we're definitely not
+there yet.
+It's not lost on me that maybe we would lose something kind of special if that did happen.
+Yeah.
+I mean, there's no Sparky Linux for Mac OS, right?
+Boy, it's a tricky thing.
+And maybe the more realistic answer is something more closer to the middle.
+And maybe we are starting to see that more and more.
+Elementary OS, Fedora Workstation, Ubuntu, especially in conjunction with vendors like
+Lenovo and Dell, feel like we're starting to see them address each one of these issues,
+starting with the low hanging fruit and working their way up.
+But if I were in the industry right now and I were looking to burn a few grand on a laptop,
+it feels like still a bit of a gamble on a Linux machine.
+I know me personally, it would be fine.
+But if I were someone who maybe I was going independent for the first time and I'm starting
+my own firm and traditionally I worked at a shop that used Mac or Windows.
+I just recently had a conversation with somebody about this.
+So this is where this is coming from.
+And they chose to go with Windows.
+We talked about Linux as an option, but they were buying Alienware hardware and they just
+wanted to get all $4,000 worth of the Alien hardware and shipped with Windows 10.
+And they ultimately decided to stay with it.
+And I couldn't make the argument because they were doing OBS and live streaming.
+And my argument was you can do it on Linux.
+And that wasn't good enough because, well, it's supported on Windows and it might be
+even slightly better in this scenario with Windows.
+And I just couldn't seal the deal.
+It was awkward because this just recently happened to me.
+And I used to make a living on going into places and selling them on switching their
+servers from Windows to Linux.
+And here I was in 2020 trying to convince a client of mine that they should deploy OBS
+on Ubuntu 2004 and they were buying Alien hardware to do it and they wanted to do live
+streaming and they decided to stay with Windows 10.
+And I didn't push super hard because I just, I couldn't quite articulate like the killer
+reason they had to switch to Ubuntu.
+All my reasons were you can do the same thing.
+That's hard.
+There's a natural place where Linux and open source excels when you need that customization,
+right?
+Sometimes you buy an off the shelf solution and sometimes you hire a sys admin who assembles
+that stuff and maintains it for you.
+And that's really where Linux excels when you can do something slightly better because
+you had all the knobs and available things for you to use.
+And then there's also the philosophical side that just belief in free software and open
+source software and then that's fundamentally often a better way to do things.
+And when you take that out of the equation and you just have an end user who has a computing
+task, it gets a little more dicey.
+When it isn't infrastructure that you depend on for 10 years and you need transparency
+and you need modularity and you need customizability.
+You know, going back to the Fedora working group, one of the comments that was made by
+the Facebook developers is they've essentially rolled their own container solution.
+They don't use Docker, but they took a look at the world of container technologies and
+said, you know what, we'll just use the primitives provided by the operating system and we'll
+roll our own container solution.
+And that is extremely common on Linux at scale in the enterprise and is extremely uncommon
+on the desktop that modularity, that customizability, that choose your own solution is the very
+thing that appeals to production environments.
+And it's the very kind of thing that doesn't seem to work in consumer environments.
+And I think this is where we have this impedance mismatch and we kind of just ride the middle.
+And I have to say, as a longtime Linux user, the trend is better.
+Like the trend is improvement and things do seem to be getting simpler.
+Setting up your video, setting up your audio, getting 3D acceleration, getting playback
+of H.264 and MP3 codecs.
+All of that is so much simpler than it even was four, five or 10 years ago.
+And there is a steady march towards it.
+But this was really an idea of if we could just change something right away and just
+really amp up the competitiveness of the desktop, these are the things we would do.
+And the reality is, if you wait long enough, a lot of this stuff does tend to arrive to
+desktop Linux.
+It just it takes time for development and the right parties to get interested and then
+spend the resources on it.
+I think we've probably talked that one out.
+We have more for the post show, but I'd love to get your ideas or your thoughts on this
+particular topic, linuxunplugged.com slash contact or join us live.
+Get in that mumble room, hang out with us.
+Just go Google search Jupiter colony mumble.
+You'll get our setup guide.
+You can come right in and tell us your thoughts or hang out in that IRC room, irc.geekshed.net
+pound Jupiter broadcasting.
+But I think that just about wraps up for this week's episode of the Unplugged program.
+Go get more Wes at Wes Payne, go get more me at Chris Lass and the whole show at Linux
+Unplugged.
+See you next Tuesday.
+Making up weather conditions, quick, we must sacrifice the entire state of Delaware to
+appease the sun god.
+It's so hot, it is dysfunctionally hot here.
+I think I am seeing unicorns right now.
+Either that or unicorns live in lady jubes.
+I'm not sure.
+Maybe the unicorns actually just live here now.

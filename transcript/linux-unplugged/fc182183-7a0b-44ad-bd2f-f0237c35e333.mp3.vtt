@@ -1,0 +1,3329 @@
+WEBVTT
+
+00:00.000 --> 00:03.400
+All right, I know we're getting a little too excited about NixOS these days,
+
+00:03.400 --> 00:06.900
+but I'm really thinking we should switch to Linux from scratch.
+
+00:06.900 --> 00:09.800
+Whoa, like build a ground up, like really learn something kind of thing?
+
+00:09.800 --> 00:11.000
+Yeah, you know.
+
+00:11.000 --> 00:12.500
+That's going to take a lot of time, Wes.
+
+00:12.500 --> 00:14.300
+Oh, no, I've got something for you.
+
+00:14.300 --> 00:14.700
+Oh, yeah?
+
+00:14.700 --> 00:21.700
+Yeah, on our Linux just today, a giant pass script to build Linux from scratch automatically.
+
+00:21.700 --> 00:24.000
+You know, it reminds me of that old saying, Wes.
+
+00:24.000 --> 00:33.600
+It's my petition. It's how you use it.
+
+00:33.600 --> 00:37.400
+Hello, friends, and welcome back to your weekly Linux talk show.
+
+00:37.400 --> 00:38.200
+My name is Chris.
+
+00:38.200 --> 00:39.200
+My name is Wes.
+
+00:39.200 --> 00:40.300
+And my name is Brent.
+
+00:40.300 --> 00:42.000
+Hello, gentlemen.
+
+00:42.000 --> 00:43.500
+Well, coming up on the show today,
+
+00:43.500 --> 00:47.000
+we're going to tell you about how we nearly blew up our matrix server.
+
+00:47.000 --> 00:47.900
+Don't worry.
+
+00:47.900 --> 00:51.700
+We saved it at the very last minute right before the big stream last week.
+
+00:51.700 --> 00:54.600
+We'll share what we messed up, what we learned,
+
+00:54.600 --> 00:58.700
+and how we're going to try to build it back better than ever this time.
+
+00:58.700 --> 01:03.800
+You know, it's kind of one of those IT War Story shows where we admit that maybe we made a mistake,
+
+01:03.800 --> 01:07.800
+plus an unexpected circumstance comes along and it blows up our whole setup.
+
+01:07.800 --> 01:09.900
+But we really do kind of have an idea of how to fix it.
+
+01:09.900 --> 01:13.800
+And then after we tell you about all that, we'll kick off the next challenge.
+
+01:13.800 --> 01:17.100
+Then we'll round out the show with some boosts and picks and a lot more.
+
+01:17.100 --> 01:21.300
+So before I get any further, let's say time appropriate greetings to that virtual lug.
+
+01:21.300 --> 01:22.900
+Hello, Mumble Room.
+
+01:22.900 --> 01:24.500
+Hello, everyone.
+
+01:24.500 --> 01:25.400
+How are you?
+
+01:25.400 --> 01:26.300
+Hello.
+
+01:26.300 --> 01:29.000
+Hello, hello, hello.
+
+01:29.000 --> 01:30.200
+Some old friends in there.
+
+01:30.200 --> 01:31.900
+We have a whole good group in there.
+
+01:31.900 --> 01:33.800
+So, powerful Sunday crew.
+
+01:33.800 --> 01:35.200
+Thank you for being here on a Sunday.
+
+01:35.200 --> 01:39.300
+Now, I do want to mention we are so close.
+
+01:39.300 --> 01:41.800
+This is like your last minute notice.
+
+01:41.800 --> 01:49.400
+The April 9th, 2022 Raleigh, North Carolina Meetup is happening next weekend as we record this.
+
+01:49.400 --> 01:52.300
+Meetup.com slash Jupiter Broadcasting refers to the deets.
+
+01:52.300 --> 01:54.300
+Cancel your plans, book your flights.
+
+01:54.300 --> 01:58.200
+And come with an empty belly because there's a barbecue place.
+
+01:58.200 --> 02:00.100
+There is also a brewery.
+
+02:00.100 --> 02:02.900
+And do let us know if you're coming so we can warn the restaurant.
+
+02:02.900 --> 02:05.900
+Meetup.com slash Jupiter Broadcasting, it gets real close.
+
+02:05.900 --> 02:08.400
+And then you won't hear us talking about it anymore.
+
+02:08.400 --> 02:11.800
+It's going to be like this era of when we were talking about the East Coast Meetups.
+
+02:11.800 --> 02:14.400
+Oh, I'm just getting kind of emotional about it.
+
+02:14.400 --> 02:18.700
+But yeah, I think I fly out like Wednesday midday.
+
+02:18.700 --> 02:20.800
+Land and record a self-hosted.
+
+02:20.800 --> 02:21.800
+Have you packed yet?
+
+02:21.800 --> 02:24.500
+No, I did find the luggage though.
+
+02:24.500 --> 02:28.800
+But I'm currently doing that whole like, could we get away with one carry on for both of us?
+
+02:28.800 --> 02:34.100
+Because the lifestyle, you know, and she's kind of an over packer.
+
+02:34.100 --> 02:35.800
+Don't tell her I said that.
+
+02:35.800 --> 02:37.400
+She's one of those, you know, we might need.
+
+02:37.400 --> 02:38.400
+Well, we might need.
+
+02:38.400 --> 02:39.600
+You know what I'm saying?
+
+02:39.600 --> 02:42.500
+So, we end up with like a bag of stuff that we might need.
+
+02:42.500 --> 02:47.300
+And yeah, I don't think it's going to be one bag, but we'll see.
+
+02:47.300 --> 02:52.200
+I'm just thinking like today is going to be a great show because we've got some good community news.
+
+02:52.200 --> 02:54.500
+We're going to kick off the next challenge.
+
+02:54.500 --> 03:01.000
+We got kind of a come to Jesus moment with our matrix server and no matter how bad we screw up today.
+
+03:01.000 --> 03:05.400
+We got a double slow cooked pork shoulder going in the oven right now.
+
+03:05.400 --> 03:08.200
+Wes brought like this amazing piece of prize meat.
+
+03:08.200 --> 03:10.000
+Did you win that like in a fight or something?
+
+03:10.000 --> 03:14.600
+Well, yeah, that's that's also what explains the black guy, but I didn't I didn't really want to tell that story.
+
+03:14.600 --> 03:17.800
+Okay, that's fair. That's fair. But I'm looking forward to snacking down on that.
+
+03:17.800 --> 03:18.700
+That's going to be really great.
+
+03:18.700 --> 03:21.200
+Plus, Wes brought us some ciders.
+
+03:21.200 --> 03:25.600
+So we're going to just it's going to be doesn't really doesn't really matter how the show goes, but we'll do our best.
+
+03:25.600 --> 03:27.700
+Anyway, I suppose I suppose.
+
+03:27.700 --> 03:29.400
+Well, you promised. All right.
+
+03:29.400 --> 03:32.400
+All right. Well, let's kick off the community news.
+
+03:32.400 --> 03:35.900
+Danny for it joins us from elementary with an update.
+
+03:35.900 --> 03:39.000
+Of course, we've kind of been wondering what's going on over there, Danny.
+
+03:39.000 --> 03:43.100
+So what is the latest? Yeah, thanks for having me on.
+
+03:43.100 --> 03:48.200
+So just kind of in a nutshell, there's been some change ups at elementary, Inc.,
+
+03:48.200 --> 03:52.900
+which is the company that kind of supports and funds the elementary open source community.
+
+03:52.900 --> 03:57.000
+So these days, it's just me now.
+
+03:57.000 --> 04:00.800
+I'm the only employee and owner of the company.
+
+04:00.800 --> 04:04.500
+So things are changing a little bit there.
+
+04:04.500 --> 04:11.500
+It's been a little bit chaotic, but we just want to make sure everybody knows that like I'm here and things are okay.
+
+04:11.500 --> 04:13.700
+And development is still going on.
+
+04:13.700 --> 04:20.000
+I have kind of more of a like a lengthy dive into what's going on and what's coming on our YouTube channel,
+
+04:20.000 --> 04:24.700
+which is linked from our website, elementary.io for people who are curious to find out more.
+
+04:24.700 --> 04:26.900
+Excellent. We will also link to that in the show notes.
+
+04:26.900 --> 04:28.800
+Wes and I got to catch a bit of that.
+
+04:28.800 --> 04:32.300
+And, you know, I think you just you said a lot of stuff there.
+
+04:32.300 --> 04:36.300
+So I think a lot of the details are are kind of pretty well covered.
+
+04:36.300 --> 04:40.800
+I was really impressed. You really kind of just laid it all out there and you were really honest about it all.
+
+04:40.800 --> 04:43.900
+So why don't we talk about like, you know, where things go now?
+
+04:43.900 --> 04:52.000
+Because I think that's what we're all kind of interested in is what the future is and kind of what you might see as short term changes and maybe some long term stuff like what's next?
+
+04:52.000 --> 04:56.800
+Yeah, absolutely. I definitely want to focus on the future and what can be done better.
+
+04:56.800 --> 05:06.400
+And I think like something that's been huge for me is kind of reevaluating like what is the purpose of the company and its relationship to the community and not only just the elementary community,
+
+05:06.400 --> 05:18.300
+but the wider open source community. And something that I really want to get back to that I feel like we used to do a lot more of was more donating to upstream projects and more like funding for developers in the community.
+
+05:18.300 --> 05:21.200
+Like, I think GitHub sponsors is a really big opportunity.
+
+05:21.200 --> 05:27.900
+So I think like that's kind of the role that I want the company to take is more like a support role.
+
+05:27.900 --> 05:33.200
+That's going to be quite the process, right? Because there's probably not like a ton of funds to go around, I would imagine.
+
+05:33.200 --> 05:43.800
+So how are you thinking that's going to work? Like, is there going to be some of the income that comes into elementary that's then going to go out to different members that are working on projects that benefit the distribution?
+
+05:43.800 --> 05:46.900
+Yeah, I haven't figured out exactly how to split things up yet.
+
+05:46.900 --> 05:54.800
+And I definitely want to talk it over with our developer community and find out like what they feel is important to fund and how things should be split up.
+
+05:54.800 --> 06:03.600
+But I really want to make giving a bigger part of what the company does and kind of with the downsizing that's happened.
+
+06:03.600 --> 06:17.700
+I think that we do have a bit more of an opportunity to make it more so that we're pushing money out into the community and not so much like just funneling money into a for-profit company, you know?
+
+06:17.700 --> 06:21.300
+Yeah, I follow you. I do. I think that's a really good goal.
+
+06:21.300 --> 06:28.200
+I wonder, is your life expenses going to be covered by that? Because you have to eat, too.
+
+06:28.200 --> 06:37.100
+Yeah, I don't think really that I'm going to have to change anything about my employment status or anything with the company.
+
+06:37.100 --> 06:42.800
+We kind of already made some budget cuts and stuff towards the end of the year as a response to COVID.
+
+06:42.800 --> 06:50.400
+So I think where I'm at right now, I'm comfortable and I'm good. And I think that there's room to do more.
+
+06:50.400 --> 06:55.900
+Great. That's exciting. So keep us posted, right? Keep us informed on what's going on.
+
+06:55.900 --> 07:00.600
+Keep us up to date on what the new developments are and come on here and share with us when things are moving and shaking.
+
+07:00.600 --> 07:06.900
+Yeah, absolutely. And if people want to follow along and like more real time, like elementary.io is always the place to go.
+
+07:06.900 --> 07:09.900
+We got a link to our blog there and social media accounts.
+
+07:09.900 --> 07:14.400
+Very good. Well, thank you, Danny. Thanks for taking a bit of time to update us and good luck on everything.
+
+07:14.400 --> 07:19.500
+We'll be checking in from time to time and trying out new releases as they land and all that kind of stuff.
+
+07:19.500 --> 07:24.400
+And looking forward to the future. Thanks. All right.
+
+07:24.400 --> 07:29.900
+We will have links in the show notes at Linux Unplugged dot com slash four five two.
+
+07:29.900 --> 07:32.500
+Why don't we stay in the ecosystem just for a minute?
+
+07:32.500 --> 07:36.100
+I noticed that Chris Davis did a blog post, Chris Davis, a.k.a.
+
+07:36.100 --> 07:44.100
+Brain Blasted in the community. Chris calls himself a gnome developer who wants to improve the gnome ecosystem as much as possible.
+
+07:44.100 --> 07:48.200
+Kind of appreciate that. Yeah. Currently works on fractal matrix app for gnome,
+
+07:48.200 --> 07:52.100
+which I only laugh because we've been talking about it behind the scenes a lot recently.
+
+07:52.100 --> 07:54.000
+But I don't know if any of us have tried it.
+
+07:54.000 --> 07:59.300
+Yeah. Yeah. It's like next on our list and a few other great apps to like, you know,
+
+07:59.300 --> 08:01.800
+whether a couple others you've probably heard of.
+
+08:01.800 --> 08:05.700
+But Chris did a post about plans for GNOME 43 and beyond.
+
+08:05.700 --> 08:08.700
+And I really like some of the stuff that they're talking about here.
+
+08:08.700 --> 08:13.100
+So we've seen the arrival of Libidwaita. I'm sorry, Libidwaita.
+
+08:13.100 --> 08:17.000
+We've got to make sure I get that right. And that really created a platform like, you know,
+
+08:17.000 --> 08:20.900
+a library that developers could use to create gnome looking applications.
+
+08:20.900 --> 08:25.800
+But it also makes it simple to implement some stuff we've been wanting for a long time,
+
+08:25.800 --> 08:32.400
+like customizable accent colors, right? Global accent colors that can be opt in for app developers.
+
+08:32.400 --> 08:35.400
+Yeah, this is looking really good. They have some screenshots here.
+
+08:35.400 --> 08:39.900
+And I think, Wes, the change here is and you probably you could probably tell me if I'm wrong,
+
+08:39.900 --> 08:44.300
+but I think the real shift here with this is like this stuff that was being done before
+
+08:44.300 --> 08:48.400
+with CSS changes is now getting done via an API.
+
+08:48.400 --> 08:54.500
+Yeah, I guess developers using the recoloring API will be able to programmatically change colors
+
+08:54.500 --> 08:58.700
+in applications and then have dependent colors update automatically.
+
+08:58.700 --> 09:05.200
+So you can create presets which can be used for, say, to recolor the window based on text views color scheme
+
+09:05.200 --> 09:09.800
+that you're using somewhere else, right? So the whole window can match whatever you're choosing for your text view.
+
+09:09.800 --> 09:13.100
+And I've also seen some suggestions like maybe something's in an administrative state.
+
+09:13.100 --> 09:19.300
+So you make the window red. And this API gives you I think it gives you I don't know about more control.
+
+09:19.300 --> 09:23.900
+I can't really speak to that, but I think it gives a better end result.
+
+09:23.900 --> 09:29.100
+And Chris Davis himself has been working on Loop, which is get ready for this, Wes.
+
+09:29.100 --> 09:33.400
+It's an image viewer, but it's written in Rust.
+
+09:33.400 --> 09:36.400
+That's right. And GTK4 using LibitWidow.
+
+09:36.400 --> 09:39.700
+I don't want that dirty C code to touch my precious JPEGs.
+
+09:39.700 --> 09:45.900
+Oh, of course not. No, you need to run to those JPEGs as fast as possible and with as much memory safety as possible.
+
+09:45.900 --> 09:47.400
+You know what, though?
+
+09:47.400 --> 09:53.900
+We only bring this up because doesn't it feel like we're seeing more and more stuff for GNOME written in Rust?
+
+09:53.900 --> 09:55.800
+I mean, it's almost like a meme at this point.
+
+09:55.800 --> 10:01.400
+Yeah, I guess there's some some getting to be a battle tested Rust GTK sort of friendship, I guess.
+
+10:01.400 --> 10:04.600
+Yeah. Yeah. I like the direction of this stuff.
+
+10:04.600 --> 10:11.500
+I have to say one of the things that Chris also wants to work on is the XTG desktop portal file pickers.
+
+10:11.500 --> 10:14.300
+Like, how do I say it? So you got a Flatpak application.
+
+10:14.300 --> 10:20.800
+It's Sandbox. It's limited right now in how many files it can open that are associated with a file that you want to open.
+
+10:20.800 --> 10:29.200
+Another way to say that is let's say you saved out an HTML archive and you've got an HTML file with some images and CSS and stuff like that.
+
+10:29.200 --> 10:31.800
+And you open that with a Flatpak application.
+
+10:31.800 --> 10:38.700
+Well, you'll maybe be able to open the core document, but all of the associated files like the CSS file and the images folder,
+
+10:38.700 --> 10:42.400
+none of that is going to be accessible by that Flatpak application right now.
+
+10:42.400 --> 10:49.500
+Right. Or, you know, often you have stuff that has like a project file and then all the resources for that project are kept next to it in the same folder or something.
+
+10:49.500 --> 10:52.800
+Right. I'm sure that's super common for IDEs, right?
+
+10:52.800 --> 10:57.900
+So Chris wants to fix that. He wants to kind of just change the way that works and make it possible.
+
+10:57.900 --> 11:02.900
+Just tweak the portal so that way it's possible for that to actually not be the case.
+
+11:02.900 --> 11:05.500
+He also calls out some accessibility fixes.
+
+11:05.500 --> 11:15.500
+And the reason why I'm mentioning this is I feel like we have an opportunity here as a community to help Chris because he is currently looking for work.
+
+11:15.500 --> 11:21.700
+If you know someone out there that maybe is looking for an employee that would fit these skills, I will have a link in the show notes.
+
+11:21.700 --> 11:31.400
+Additionally, Chris has a link to Patreon, GitHub sponsors and PayPal, and there he's just looking for some help to set time aside for these issues.
+
+11:31.400 --> 11:41.600
+And what Mr. Davis has done here is essentially zeroed in on what I think are issues that affect real people that use the GNOME desktop.
+
+11:41.600 --> 11:49.700
+These are sometimes things that we criticize GNOME about is focusing on things that don't apply to the actual users that are using the desktop
+
+11:49.700 --> 11:55.800
+and maybe they're targeting that elusive new user or they're targeting that elusive mobile Linux user.
+
+11:55.800 --> 11:58.800
+And I think, you know, you see some of that with Chris is talking about.
+
+11:58.800 --> 12:03.400
+He definitely wants to improve some stuff to work better on mobile, but I really don't have issue with that.
+
+12:03.400 --> 12:07.900
+Make it work great on both. OK, I'm on board with that. Yeah, right. That's a good compromise.
+
+12:07.900 --> 12:15.400
+So I just wanted to call attention to this work. It's a reminder to us that the GNOME community is made up of a lot of viewpoints.
+
+12:15.400 --> 12:20.000
+And, you know, I think as we covered this limit way to stuff additionally,
+
+12:20.000 --> 12:25.100
+we learned that a lot of times you'll see individuals speak on GNOME's behalf,
+
+12:25.100 --> 12:28.600
+but it's actually made up of a lot of individuals with different opinions.
+
+12:28.600 --> 12:31.800
+And so we're starting to see a diversity in those opinions now. And I just think that's a great thing.
+
+12:31.800 --> 12:38.500
+And I like this goal set here. I'm getting kind of low key excited about the slow progression GNOME is going in.
+
+12:38.500 --> 12:45.900
+There's always a couple of trade offs we make, but ultimately after they change something and then they iterate on it,
+
+12:45.900 --> 12:50.900
+I think the users end up for the better. I mean, we've gotten to a pretty nice place and I'm excited to see where it goes.
+
+12:50.900 --> 12:54.800
+And it's just interesting here to hear someone who clearly is making some changes that we like,
+
+12:54.800 --> 13:00.800
+who has shown, you know, skills in doing this work that's saying, if you can offer me some more support community,
+
+13:00.800 --> 13:06.400
+I'm willing to keep doing this and to, you know, to do more of it. And so it's a time to reflect on that and what we want.
+
+13:06.400 --> 13:12.400
+And Danny, before we jump off of all of this, do you have any thoughts on Lib Adwaita, how it may affect elementary OS and that stuff?
+
+13:12.400 --> 13:17.900
+Because that's sort of your neck of the woods to the whole GTK area. Even though you guys don't have GNOME Shell,
+
+13:17.900 --> 13:22.700
+you're pretty reliant on the GTK stack. And I got to figure you're looking at this.
+
+13:22.700 --> 13:29.400
+Yeah, I mean, so far in porting to GTK4, the changes that were made here have been extremely positive.
+
+13:29.400 --> 13:36.500
+Like it's a lot of GNOME design language stuff is no longer in GTK4 and it's in Lib Adwaita.
+
+13:36.500 --> 13:42.600
+So this is a huge win for desktops like us or for XFCE that have our own design language.
+
+13:42.600 --> 13:47.700
+And we don't have to kind of be pulled along behind the GNOME boat. But for the GNOME community,
+
+13:47.700 --> 13:55.600
+I think this is also a huge win for their app developers because GNOME has never really had an official supported theming API.
+
+13:55.600 --> 14:00.600
+And with Lib Adwaita, now it does. Yeah, I think it's an adjustment, right? It's not a downgrade.
+
+14:00.600 --> 14:06.600
+It's not a bad thing. And I think initially maybe was seen as that. It was seen as the end of theming.
+
+14:06.600 --> 14:12.200
+And it's just a change in how theming is done. And I feel like it is a new chapter in the GNOME desktop.
+
+14:12.200 --> 14:17.000
+That's we're just arriving there. Like it's the very beginning. It's the very first chapter.
+
+14:17.000 --> 14:21.400
+But we're just there. We've just turned the page. It's exciting. 42 is a great release.
+
+14:21.400 --> 14:29.200
+43 is going to be a great release. And I'm excited to see how it had distributions like elementary OS and others that are using all those tools.
+
+14:29.200 --> 14:30.400
+Embrace it.
+
+14:32.400 --> 14:39.700
+Linode.com slash unplug go there partner and get yourself $100 in 60 day credit on your new account and you support this here show.
+
+14:39.700 --> 14:45.000
+I don't know. Thank you. I don't know. I don't know. But maybe maybe that guy could do the ad reads from now on, right?
+
+14:45.000 --> 14:49.700
+He seems pretty excited. I'll tell you why he's excited about Linode. He's been using it for a while.
+
+14:49.700 --> 14:55.300
+You know, he runs his business infrastructure on there. And so he knows you can trust your business infrastructure on there.
+
+14:55.300 --> 15:00.200
+But he's also got his kids game servers on there. So like you want to set yourself up like a safe Minecraft server.
+
+15:00.200 --> 15:04.100
+Or maybe you want to get yourself, you know, I don't know, a little CSGO action.
+
+15:04.100 --> 15:07.700
+I don't know what you do. I don't know. I'm not going to pass judgment.
+
+15:07.700 --> 15:13.200
+I'm just saying go to Linode.com slash unplugged, get $100 in credit and support the show.
+
+15:13.200 --> 15:18.000
+And they got 11 data centers around the world. And I'll tell you, I don't always pick the right data centers.
+
+15:18.000 --> 15:22.900
+And I'm going to own up to that in a little bit. But you can. You can learn from my mistake.
+
+15:22.900 --> 15:29.500
+I'm going to use Linode the wrong way so you don't have to. Also, Linode is constantly upgrading their infrastructure.
+
+15:29.500 --> 15:35.300
+They got these super fast connections. It's embarrassingly fast coming in 40 gigabit connections coming into their machines.
+
+15:35.300 --> 15:39.500
+And they are their own ISP. Then they got new MVME PCIe storage.
+
+15:39.500 --> 15:42.800
+And I just learned recently, Wes, a couple of our machines, we get free upgrades.
+
+15:42.800 --> 15:45.300
+I thought we're going to have to pay more. Wait, free?
+
+15:45.300 --> 15:51.000
+We just go in there. And if you could, if you qualify, you look at your disk and they just got a little button.
+
+15:51.000 --> 15:55.300
+You press that button and you just get it. Wow. Maybe I shouldn't be saying this. Maybe it's not true.
+
+15:55.300 --> 15:58.500
+I don't know. But it is online. And I'm pushing that button. Let me tell you.
+
+15:58.500 --> 16:02.400
+The button says upgrade. Yeah, I'm pushing that button, Wes. I love that button.
+
+16:02.400 --> 16:06.800
+And I love their object storage. This is my new, like, I don't know what I'm going to do with all this stuff,
+
+16:06.800 --> 16:11.700
+but I don't want to store it on this particular machine. So I put it in object storage and it's been working so good.
+
+16:11.700 --> 16:17.900
+Everything gets its own addressable URL. It works super easy with their uploader or their CLI client that I use to upload it.
+
+16:17.900 --> 16:21.900
+Because their CLI client is easy, too. The whole thing is ridiculously simple.
+
+16:21.900 --> 16:24.200
+You don't even have to be like a server expert to figure this stuff out.
+
+16:24.200 --> 16:28.200
+But if you are, you're going to be impressed with the power that they let you get to if you need to.
+
+16:28.200 --> 16:33.900
+I'm talking like they'll even give you guides to, like, take one of their rigs, wipe off their image and put NixOS on there.
+
+16:33.900 --> 16:40.000
+If you're that kind of maniac, they'll do it with you. I've done it before. Don't threaten me. I'll do it again.
+
+16:40.000 --> 16:44.800
+I'll do it. Don't challenge me on this. I'll tell you what, go try it for yourself and see what we're talking about.
+
+16:44.800 --> 16:48.400
+Go see why Wes spins up his stuff over there. He's spinning up servers all the time.
+
+16:48.400 --> 16:51.000
+You'd think he's like some sort of DJ spinning the tracks.
+
+16:51.000 --> 16:54.300
+Yeah. I don't listen to music. I just listen to that web UI.
+
+16:54.300 --> 16:59.900
+That's right. That's right. And that awesome... What do you have, keyboard? The Coder keyboard or whatever it is?
+
+16:59.900 --> 17:01.200
+Yeah. Code keyboard?
+
+17:01.200 --> 17:07.700
+Code keyboard. Yeah, that's right. Sitting there on calls with Wes, clack clack clack clack clack as he's setting up the Linux.
+
+17:07.700 --> 17:12.700
+It's like how I know he's doing something actually. But, you know, it's a great thing is we all can use it, right?
+
+17:12.700 --> 17:14.800
+Wes can over there, you know, he's fine. He's using it, right?
+
+17:14.800 --> 17:19.100
+But, you know, I can stumble my way through it too and act like I'm an expert as well because it's pretty straightforward.
+
+17:19.100 --> 17:23.500
+And they got great documentation and just the best damn customer service in the world.
+
+17:23.500 --> 17:27.300
+That's what I hear all the time from the audience. So go try it out with a hundred dollars and support the show.
+
+17:27.300 --> 17:34.400
+linode.com slash unplugged. That's linode.com slash unplugged.
+
+17:34.400 --> 17:48.700
+Just about two years ago, we launched the Jupiter Colony Matrix server as something of a living experiment, let's say, here on the show.
+
+17:48.700 --> 17:59.000
+And since we spent the last week pulling that same server back from the brink, we thought it best to share what we screwed up.
+
+17:59.000 --> 18:04.800
+What we've learned and there's a lot and how we're going to try to build things back a little better.
+
+18:04.800 --> 18:10.900
+That's right. We did mess up. We messed up bad. I acknowledge it. Sometimes we get these wild ideas.
+
+18:10.900 --> 18:12.700
+Yeah, a little maybe a little over our head.
+
+18:12.700 --> 18:22.900
+We think what could go wrong? And then we realize we've stumbled into something that is old school complicated, not new school complicated, old school complicated.
+
+18:22.900 --> 18:26.800
+That's all right. That's my power zone. I can deal with that.
+
+18:26.800 --> 18:30.200
+I didn't realize I was signing up to manage an exchange server, but that's what I'm doing.
+
+18:30.200 --> 18:33.600
+Basically, if you know, if you're an old IT guy, you know what managing an exchange server is like.
+
+18:33.600 --> 18:38.200
+That's what managing a Synapse server is. So maybe some terminology just that way.
+
+18:38.200 --> 18:45.600
+We're all on the same page keys right now. Matrix is actually the protocol like HTTP is right.
+
+18:45.600 --> 18:48.700
+So you've got Matrix, which is a protocol element.
+
+18:48.700 --> 18:51.900
+The chat client is like a front end. It's like your web browser.
+
+18:51.900 --> 18:57.100
+There's multiple front ends, elements probably the most feature rich. And then there's Synapse.
+
+18:57.100 --> 19:02.000
+Synapse is the back end matrix server that we're using. Dendrites is another one.
+
+19:02.000 --> 19:06.000
+Is there other? I don't know. But Synapse is the one that's deployed any kind of scale.
+
+19:06.000 --> 19:12.500
+Yeah, you know, and that's kind of been the one that the team behind Matrix have been using as like the sort of primary implementation development stuff.
+
+19:12.500 --> 19:16.500
+And, you know, Dendrites is a new implementation but hasn't necessarily caught up on all the features,
+
+19:16.500 --> 19:22.600
+which kind of right now, after they go through that, you know, the RFC kind of process, then they're kind of usually first implemented in Synapse.
+
+19:22.600 --> 19:27.200
+And I guess the sales pitch, the short sales pitch for Matrix, if you're not really familiar with it,
+
+19:27.200 --> 19:35.300
+is it's a decentralized federated chat system that supports direct encrypted communications and public chat rooms.
+
+19:35.300 --> 19:42.000
+And it features a lot of the same kind of nice to haves that your Mattermost, your Slacks, your Discords have.
+
+19:42.000 --> 19:47.100
+You can have a server with multiple channels. You can paste a GIF or a GIF.
+
+19:47.100 --> 19:50.500
+I don't care what you call it. You can paste it in there. It'll display it.
+
+19:50.500 --> 19:55.800
+You know, image previews, kind of the rich like chat features you get from a modern chat system.
+
+19:55.800 --> 20:00.700
+They're all in Matrix, a lot like how Discord does it, but one that you can self-host
+
+20:00.700 --> 20:07.500
+and one where you could say create an account on Matrix.org and then join our Matrix server where you'd find all our rooms and stuff. It's great.
+
+20:07.500 --> 20:12.600
+Yeah, you know, I mean, instead of a sort of proprietary implementation or even just a particular implementation here,
+
+20:12.600 --> 20:18.400
+you've got something that has a generic protocol and has a spec and then can have a plethora of clients.
+
+20:18.400 --> 20:24.600
+And yeah, you've got that old school internet feeling like with email where you don't have to go through some, you know, some gatekeeper.
+
+20:24.600 --> 20:27.300
+You can just say, yeah, I want to have a home server.
+
+20:27.300 --> 20:31.500
+And then you can start participating with our home server, with the main one, with any of them.
+
+20:31.500 --> 20:37.600
+Yeah, and I want to make it clear what we are about to tell you would not be a problem if it's you
+
+20:37.600 --> 20:40.500
+and like a handful of people using the Matrix server.
+
+20:40.500 --> 20:44.600
+You could probably run it on a Raspberry Pi and you'd be happy, right?
+
+20:44.600 --> 20:50.600
+What we're about to tell you is a journey you go through when you start with like a hundred users
+
+20:50.600 --> 20:57.600
+and then you got nearly 3000 users and just like all of the things that change when that happens.
+
+20:57.600 --> 20:58.800
+That's what we're going to talk about today.
+
+20:58.800 --> 21:01.700
+So our initial deployment was a bit anemic.
+
+21:01.700 --> 21:02.400
+It was basic.
+
+21:02.400 --> 21:05.700
+You know, we were just really wanting to get some hands-on experience.
+
+21:05.700 --> 21:08.800
+So that way we could talk somewhat intelligently about it on the show.
+
+21:08.800 --> 21:15.400
+I thought we had so much to learn, but we initially deployed a four-core Linode box with eight gigs of RAM
+
+21:15.400 --> 21:20.400
+and like, you know, a fair amount of, I don't know, 150 gigs of local SSD.
+
+21:20.400 --> 21:21.300
+It wasn't a lot.
+
+21:21.300 --> 21:22.100
+Yeah, again, right?
+
+21:22.100 --> 21:24.700
+Like when we just did it kind of simply because we'd been talking about Matrix.
+
+21:24.700 --> 21:28.700
+We obviously thought it was cool and it felt like, okay, well, if one of the things is about that, you know,
+
+21:28.700 --> 21:32.000
+that we highlight about this is that it's open source and you can run it yourself,
+
+21:32.000 --> 21:34.400
+we better run it ourselves to just try it.
+
+21:34.400 --> 21:38.600
+So we just went with like a super simple Docker compose setup, which was just two containers, right?
+
+21:38.600 --> 21:42.600
+Like we got Postgres for the database and we've got the Synapse container,
+
+21:42.600 --> 21:46.900
+just the, you know, the one right from stock upstream running the main Python application.
+
+21:46.900 --> 21:49.100
+This is the good and bad about things in containers, too.
+
+21:49.100 --> 21:50.200
+It's not about the technology.
+
+21:50.200 --> 21:53.900
+It's like it does enable you to quickly get up and get running,
+
+21:53.900 --> 21:59.900
+but it's not necessarily configuring the most optimal situation for a high-demand production use.
+
+21:59.900 --> 22:02.200
+And you just have to kind of be aware of that.
+
+22:02.200 --> 22:08.200
+And, you know, this was fine two years ago when we maybe, you know, after a year had 300 people on there.
+
+22:08.200 --> 22:14.400
+It was getting a little bit slow, but as long as West logged in from time to time and made sure the disk wasn't filling up,
+
+22:14.400 --> 22:15.400
+we were okay.
+
+22:15.400 --> 22:18.100
+Yeah, you know, did our updates.
+
+22:18.100 --> 22:21.600
+I got to say that really like the upgrading process has always been nice.
+
+22:21.600 --> 22:25.900
+They've got great, you know, release notes that kind of call out if there are things that they're making breaking changes.
+
+22:25.900 --> 22:28.800
+And other than that, you just update the tag on the Docker image and away you go.
+
+22:28.800 --> 22:30.200
+So that's that part's been nice.
+
+22:30.200 --> 22:35.900
+Yeah, and solid updates like they're almost always introducing something that Weston are like, oh, that's worth an upgrade.
+
+22:35.900 --> 22:37.700
+Yeah, they've been really good about that.
+
+22:37.700 --> 22:39.400
+And dendrites moving along really well, too.
+
+22:39.400 --> 22:45.100
+But Synapse legitimately has been making solid improvements nearly every time we want to do an update.
+
+22:45.100 --> 22:47.000
+So they really hadn't been too bad.
+
+22:47.000 --> 22:53.900
+But over the last 10 months or so, the matrix colony has grown.
+
+22:53.900 --> 22:57.800
+In fact, I would say even kind of like at the beginning of the year or so, I wasn't really sure.
+
+22:57.800 --> 23:00.000
+Like, are we going to keep running this matrix thing?
+
+23:00.000 --> 23:02.700
+It's kind of becoming a pain in the butt.
+
+23:02.700 --> 23:05.900
+I think I grassed about it on air once, you know, you know, maybe.
+
+23:05.900 --> 23:14.200
+Yeah, well, we were just that was the first steps of us realizing that we either need to decide to like commit to this or rethink our involvement with it
+
+23:14.200 --> 23:19.300
+because it is with the size that it had become, it did take some resources.
+
+23:19.300 --> 23:25.600
+I do like to take a think about it because we kind of haphazardly just implemented Discord a few years ago.
+
+23:25.600 --> 23:28.700
+And I think we're still kind of dealing with the consequences of that.
+
+23:28.700 --> 23:30.800
+So I thought, you know, we'll take it slow with matrix.
+
+23:30.800 --> 23:32.100
+We'll see where this goes.
+
+23:32.100 --> 23:36.800
+And then when it started to get to this pain in the ass stage, I thought, I really haven't made up my mind.
+
+23:36.800 --> 23:39.100
+I really haven't committed to this yet.
+
+23:39.100 --> 23:44.100
+You know what I actually think things really kind of changed, to tell you the truth, is when the whole free node thing went down.
+
+23:44.100 --> 23:51.000
+Hmm. And then all of a sudden, a lot of the projects that we like to communicate with started popping up on matrix.
+
+23:51.000 --> 23:58.200
+And I think that particular instance also made people realize how nice it was to have something that could be decentralized.
+
+23:58.200 --> 24:03.600
+So projects can run their own instance, but still participate in the overall network.
+
+24:03.600 --> 24:06.300
+You know, I'm on a Red Hat instance. I'm on a GNOME instance.
+
+24:06.300 --> 24:12.700
+I'm on a bunch of other projects servers, but I do it from the JB server.
+
+24:12.700 --> 24:16.200
+And then it just kind of started accelerating in about three months or so.
+
+24:16.200 --> 24:21.300
+It just really kind of started growing a lot. It picked up and that's awesome.
+
+24:21.300 --> 24:24.600
+And there's a really cool decentralized community growing on there.
+
+24:24.600 --> 24:27.000
+And as a result, I've been spending a lot more time on there.
+
+24:27.000 --> 24:30.200
+And I realized this is there's a lot of really good conversations.
+
+24:30.200 --> 24:35.600
+People are kind because it's still in that kind of phase where it's not huge, you know,
+
+24:35.600 --> 24:39.200
+but it's also big enough that there's always some conversation going on.
+
+24:39.200 --> 24:43.000
+And then that room aspect of it kind of breaks things up.
+
+24:43.000 --> 24:47.000
+Yeah, yeah, you know, we've got there's different communities that can all kind of flourish there,
+
+24:47.000 --> 24:51.100
+but it still has that you have to opt in kind of functionality because, you know,
+
+24:51.100 --> 24:54.500
+you already you might already have slack or telegram because of your friends or for work or something.
+
+24:54.500 --> 24:58.400
+But if you don't do an open source things, you probably don't yet have elements.
+
+24:58.400 --> 25:01.000
+So you have to you don't want to be there.
+
+25:01.000 --> 25:04.300
+And it's, you know, not a great process to get on board,
+
+25:04.300 --> 25:07.100
+especially if you want to on board directly to our server.
+
+25:07.100 --> 25:10.000
+You have to like change defaults on the on the login screen.
+
+25:10.000 --> 25:11.800
+It's just not like as great.
+
+25:11.800 --> 25:13.400
+And I know it's a little confusing, right?
+
+25:13.400 --> 25:16.400
+Like if you're not familiar, you have to figure out what a home server is
+
+25:16.400 --> 25:20.400
+and then figure out which one might be right for you or where it makes sense to go do that.
+
+25:20.400 --> 25:21.600
+Right, right.
+
+25:21.600 --> 25:23.100
+Yeah. Do you want to host your own thing?
+
+25:23.100 --> 25:24.400
+You want to just join matrix.org?
+
+25:24.400 --> 25:27.600
+You want to set up an account on the JB system, right?
+
+25:27.600 --> 25:30.300
+No, it's it's kind of like when you start with Linux,
+
+25:30.300 --> 25:33.900
+you got to pick a distro and sometimes people just get stuck there.
+
+25:33.900 --> 25:37.200
+But over the last few months, it seemed like people are moving over.
+
+25:37.200 --> 25:38.700
+They were trying it out.
+
+25:38.700 --> 25:43.600
+And then within the last literally like the last since the last time we did the show,
+
+25:43.600 --> 25:46.700
+we realized the load was getting way too damn high.
+
+25:46.700 --> 25:50.800
+And then one morning I woke up to a telegram message that said,
+
+25:50.800 --> 25:52.400
+I think the matrix server is down.
+
+25:52.400 --> 25:54.200
+I'm not sure if the matrix server is up.
+
+25:54.200 --> 25:56.300
+Can you check on that?
+
+25:56.300 --> 25:58.100
+And sure enough, it was.
+
+25:58.100 --> 26:03.400
+And I realized pretty quickly that we had used up all of the available disk on that system.
+
+26:03.400 --> 26:05.400
+Sure had.
+
+26:05.400 --> 26:14.000
+That basically kicked off a series of nights of Wes burning the midnight oil to try to rescue the matrix server.
+
+26:14.000 --> 26:19.100
+And him and I doing like emergency preparations to like maybe migrate a server
+
+26:19.100 --> 26:23.100
+or like spin something up entirely and all this kinds of stuff that we had to do.
+
+26:23.100 --> 26:26.700
+Some of it was fun. Some of it was a bit hectic.
+
+26:26.700 --> 26:30.500
+But we realized, I think probably what by day two,
+
+26:30.500 --> 26:33.900
+we're probably going to have to just totally rebuild the way we've implemented this
+
+26:33.900 --> 26:38.200
+if we really want to scale it to like maybe 10,000 plus users.
+
+26:38.200 --> 26:43.900
+Yeah, we'd been kind of interested in utilizing the new worker system that Synapse has added
+
+26:43.900 --> 26:47.900
+so that you can kind of deconstruct it from just this one monolith Python application
+
+26:47.900 --> 26:51.200
+to have that work shared across different processes.
+
+26:51.200 --> 26:55.200
+But that takes some plumbing because now you're taking that system apart
+
+26:55.200 --> 26:58.600
+and it needs abilities to be able to coordinate between the workers
+
+26:58.600 --> 27:01.400
+and you have to add Redis to the system, none of which is super hard,
+
+27:01.400 --> 27:05.700
+but it just, you know, it has its own particular setup and we're not developing this
+
+27:05.700 --> 27:07.100
+and we haven't gone down that path before.
+
+27:07.100 --> 27:10.100
+So it was just a new, you know, several new docs pages to reads
+
+27:10.100 --> 27:14.800
+and get familiar with while having it on a live system that we were hoping to,
+
+27:14.800 --> 27:18.200
+you know, not totally break after we just got it back online.
+
+27:18.200 --> 27:20.400
+And of course, this all starts happening.
+
+27:20.400 --> 27:23.700
+We really realized Tuesday, this is really screwed.
+
+27:23.700 --> 27:26.100
+The system's really screwed up now.
+
+27:26.100 --> 27:29.300
+The problem was like it was down for a while.
+
+27:29.300 --> 27:33.700
+And then when we brought it back up to sync with the rest of the Federation,
+
+27:33.700 --> 27:35.800
+essentially matched the server out.
+
+27:35.800 --> 27:38.600
+And then the other problem we discovered was that when a user would log in
+
+27:38.600 --> 27:42.500
+and sync all of the rooms, a single login session of a single user
+
+27:42.500 --> 27:48.000
+on a 2,000 user system would peg the system to 100%.
+
+27:48.000 --> 27:52.600
+We also realized pretty quickly that while we had thrown more hardware at this
+
+27:52.600 --> 27:55.200
+because we thought that's going to solve the problem.
+
+27:55.200 --> 27:56.900
+We'll just throw hardware at it.
+
+27:56.900 --> 27:59.100
+So we upped it from four cores to six cores.
+
+27:59.100 --> 28:03.900
+We went from eight gigs to 16 gigs and we sliced off another set of storage.
+
+28:03.900 --> 28:07.300
+It's like the third time we'd sliced off more storage at this point.
+
+28:07.300 --> 28:09.600
+And we figured that'll fix it.
+
+28:09.600 --> 28:12.900
+But we discovered by default Synapse is kind of,
+
+28:12.900 --> 28:14.900
+well, it's sort of silly single threaded.
+
+28:14.900 --> 28:17.200
+It's kind of amazing how single threaded it is.
+
+28:17.200 --> 28:21.200
+And so you can throw six cores at it, but that doesn't matter
+
+28:21.200 --> 28:25.600
+because it's using one core unless you do this worker thing.
+
+28:25.600 --> 28:29.200
+So that was really our realization is okay.
+
+28:29.200 --> 28:31.100
+All right, let's get this thing to a stage.
+
+28:31.100 --> 28:33.800
+That way it survives the live event on Thursday.
+
+28:33.800 --> 28:36.000
+Yeah, because of course, we just started to push people
+
+28:36.000 --> 28:37.700
+towards using the matrix server, right?
+
+28:37.700 --> 28:39.000
+That was part of the live stream.
+
+28:39.000 --> 28:40.600
+Let's get people to sign up for matrix.
+
+28:40.600 --> 28:43.000
+And now here the matrix server has fallen over.
+
+28:43.000 --> 28:47.200
+So you banged out like a couple of generic workers is I think what they're called.
+
+28:47.200 --> 28:49.400
+Yeah, you know, they can kind of just do anything
+
+28:49.400 --> 28:52.000
+and then there's some more support you can split things out further.
+
+28:52.000 --> 28:55.100
+We haven't yet walked down that path, probably something we want to try.
+
+28:55.100 --> 28:57.900
+Still more reading to do really, but this was just an attempt to like,
+
+28:57.900 --> 29:00.300
+okay, well, yeah, maybe we can split off some of the stuff.
+
+29:00.300 --> 29:02.800
+You can do some of the, you know, responding to the Federation events
+
+29:02.800 --> 29:04.400
+and syncing there and then we can have some other things
+
+29:04.400 --> 29:06.000
+that are handling interacting with the clients.
+
+29:06.000 --> 29:08.400
+Just try to keep those a little more responsive.
+
+29:08.400 --> 29:09.400
+And it seems like it's worked.
+
+29:09.400 --> 29:10.800
+It's not, it's still not great.
+
+29:10.800 --> 29:13.800
+It's not where I think any of us want the server to be in terms of responsiveness,
+
+29:13.800 --> 29:16.300
+but I think it's been usable at least.
+
+29:16.300 --> 29:19.100
+Yeah, it's still a little, it's still a little slow, but it's usable.
+
+29:19.100 --> 29:20.600
+And we want to work on that.
+
+29:20.600 --> 29:23.900
+We have and we what we realized too is sort of our hodgepodge approach
+
+29:23.900 --> 29:28.100
+of adding disk sort of randomly at the machine various like local disk
+
+29:28.100 --> 29:32.100
+and network disk and object store all these random mixes of disks.
+
+29:32.100 --> 29:34.400
+Well, we were constrained by the lowest common denominator.
+
+29:34.400 --> 29:38.100
+So our disk throughput was essentially completely pegged.
+
+29:38.100 --> 29:40.200
+We were maxing out our disk IO.
+
+29:40.200 --> 29:44.300
+We were single threaded on the core and because we had been down for a while
+
+29:44.300 --> 29:47.300
+because we had used up all the disk from storage.
+
+29:47.300 --> 29:49.300
+It was a nightmare while that thing synced back up.
+
+29:49.300 --> 29:53.200
+It just completely slammed the box as people were trying to sign on all of that.
+
+29:53.200 --> 29:55.700
+So we realized we got to do this worker thing.
+
+29:55.700 --> 29:58.300
+We got to readdress the disk situation.
+
+29:58.300 --> 30:00.700
+We kind of started making a list of stuff.
+
+30:00.700 --> 30:04.300
+And also I'm told Wes that version three of the sync protocol
+
+30:04.300 --> 30:07.400
+is going to be lighter weight and faster and it's close.
+
+30:07.400 --> 30:08.700
+So we're going to get a little assist.
+
+30:08.700 --> 30:11.100
+That's the nice thing to hear is they are making improvements
+
+30:11.100 --> 30:12.900
+as we try to make improvements.
+
+30:12.900 --> 30:15.000
+To their credit they really have like I remember, you know,
+
+30:15.000 --> 30:18.100
+maybe six months or a year ago we would often have issues
+
+30:18.100 --> 30:19.300
+with the memory use of Synapse.
+
+30:19.300 --> 30:22.900
+Just over time it would slowly between it and the way it was kind of using Postgres
+
+30:22.900 --> 30:25.300
+like the system would just really eat RAM.
+
+30:25.300 --> 30:26.600
+That doesn't happen anymore.
+
+30:26.600 --> 30:27.700
+Yeah, that's true.
+
+30:27.700 --> 30:29.600
+That has gotten better.
+
+30:29.600 --> 30:31.100
+So that's nice to see.
+
+30:31.100 --> 30:36.300
+Also, I got to admit because this was a test that we were doing for the show.
+
+30:36.300 --> 30:38.700
+We deployed this system in California.
+
+30:38.700 --> 30:42.500
+It's quite close to us, but maybe not the rest of y'all.
+
+30:42.500 --> 30:46.200
+Not for an international audience, not the best location for it.
+
+30:46.200 --> 30:47.900
+Maybe not the worst, but not the best.
+
+30:47.900 --> 30:50.300
+So I think, you know, one of the things we would do differently now
+
+30:50.300 --> 30:54.600
+is we would deploy to a centralized data center
+
+30:54.600 --> 30:57.800
+and we would kind of look at some of our options here.
+
+30:57.800 --> 31:00.900
+And I think when you consider all the improvements we could make
+
+31:00.900 --> 31:05.700
+for a large-scale implementation, one would be better utilize the workers,
+
+31:05.700 --> 31:07.500
+go even further with that.
+
+31:07.500 --> 31:12.400
+Each major like functionality aspect of the backend Synapse server
+
+31:12.400 --> 31:13.400
+can be handled by a worker.
+
+31:13.400 --> 31:15.900
+And some of them, it's like one worker to handle like presence.
+
+31:15.900 --> 31:17.300
+That's a worker, right?
+
+31:17.300 --> 31:20.800
+But something like Federation Sync, that's like 10 different workers
+
+31:20.800 --> 31:24.500
+you can set up each with their own individual config file
+
+31:24.500 --> 31:26.700
+and NGINX rules you may or may not have to set up.
+
+31:26.700 --> 31:27.200
+Yeah, right.
+
+31:27.200 --> 31:30.300
+Because you might want to start setting up NGINX load balancing
+
+31:30.300 --> 31:33.100
+or you use Regex to direct some traffic to the worker
+
+31:33.100 --> 31:34.300
+that's going to handle that traffic.
+
+31:34.300 --> 31:37.900
+So there's just a little lots of moving pieces to reconfigure.
+
+31:37.900 --> 31:39.500
+This is about the time I realized, you know,
+
+31:39.500 --> 31:41.900
+I should have just contacted the folks at EMS and just said,
+
+31:41.900 --> 31:44.300
+hey, would you like to sponsor a few episodes and in trade,
+
+31:44.300 --> 31:46.000
+just host our Matrix community?
+
+31:46.000 --> 31:48.800
+Because I'd like this to be faster for people.
+
+31:48.800 --> 31:51.000
+I'd like it to be a nice experience with Matrix.
+
+31:51.000 --> 31:55.000
+And we are not experienced Matrix admins or Synapse admins by any stretch.
+
+31:55.000 --> 31:57.300
+We've just kind of realized we need to take it more seriously.
+
+31:57.300 --> 31:58.900
+And so we've thought, well, how would we build this better
+
+31:58.900 --> 32:00.200
+if we were going to redeploy it?
+
+32:00.200 --> 32:03.500
+And I think one of the things we're going to do is experiment
+
+32:03.500 --> 32:07.400
+with the NixOS build, kind of in theme right now,
+
+32:07.400 --> 32:11.200
+as a way to kind of learn the edges of this thing,
+
+32:11.200 --> 32:14.000
+to see if we could build something with multiple workers out of the box
+
+32:14.000 --> 32:19.800
+and something that uses a centralized data center with MVME storage, right?
+
+32:19.800 --> 32:22.800
+Just one pool of big MVME storage.
+
+32:22.800 --> 32:25.400
+And maybe something that collects metrics out of the box,
+
+32:25.400 --> 32:28.300
+because you discovered there's actually quite a bit of information
+
+32:28.300 --> 32:31.400
+we could be getting from the system to better understand what it's doing.
+
+32:31.400 --> 32:35.000
+Yeah, you can have Synapse submit Prometheus metrics, which is great.
+
+32:35.000 --> 32:35.800
+So we've turned that on.
+
+32:35.800 --> 32:39.000
+We just need to start sucking it up and throw it in some dashboards.
+
+32:39.000 --> 32:41.100
+Yeah, so that's something we want to play around with.
+
+32:41.100 --> 32:46.900
+And maybe inevitably we decide, OK, NixOS, this isn't the way to go.
+
+32:46.900 --> 32:49.900
+Let's go with this community ansible solution, because that's pretty popular.
+
+32:49.900 --> 32:50.600
+Yeah, definitely.
+
+32:50.600 --> 32:54.100
+And I think even regardless if you use it or use pieces of it,
+
+32:54.100 --> 32:59.300
+it's an awesome store of community knowledge around how to admin a Synapse box.
+
+32:59.300 --> 33:03.600
+And it's got pointers to tools, like there's an admin web UI you can use.
+
+33:03.600 --> 33:07.100
+It's got notes on database maintenance, which is another area I think
+
+33:07.100 --> 33:10.700
+we need to spend some time either deciding how much history we're going to keep
+
+33:10.700 --> 33:15.200
+for some of these rooms or spending some time compressing past state events.
+
+33:15.200 --> 33:18.700
+There's just one of the things we run into was our database was getting larger
+
+33:18.700 --> 33:24.500
+than we expected, and Synapse really needs it to be pretty fast if you want good latency.
+
+33:24.500 --> 33:25.900
+Yeah, that's tricky.
+
+33:25.900 --> 33:28.100
+That is something we'll have to figure out, too.
+
+33:28.100 --> 33:29.900
+And we want everyone's input on all of this.
+
+33:29.900 --> 33:31.200
+We're going to collect your feedback.
+
+33:31.200 --> 33:33.800
+We do have a matrix ideas room on our matrix server,
+
+33:33.800 --> 33:35.600
+which will be linked in the show notes.
+
+33:35.600 --> 33:40.500
+But if you go on the colony.jupyterbroadcasting.com matrix server, you'll find it.
+
+33:40.500 --> 33:42.400
+I'm picturing maybe a future build.
+
+33:42.400 --> 33:43.900
+Maybe it's NixOS based.
+
+33:43.900 --> 33:45.500
+Maybe it's not.
+
+33:45.500 --> 33:46.600
+It's NVMe storage.
+
+33:46.600 --> 33:47.900
+It's centralized data center.
+
+33:47.900 --> 33:52.600
+And maybe it uses object storage for like the image files and video files
+
+33:52.600 --> 33:54.600
+that people upload to the matrix chat.
+
+33:54.600 --> 33:55.700
+Yeah, that seems pretty reasonable.
+
+33:55.700 --> 33:56.500
+I could see something like that.
+
+33:56.500 --> 33:59.500
+Just something that we could build that we know could run for a while.
+
+33:59.500 --> 34:02.800
+I think six cores and 16 gigs of RAM so far has been sufficient.
+
+34:02.800 --> 34:05.900
+I feel like once we optimize the Synapse configuration,
+
+34:05.900 --> 34:07.800
+that's plenty of hardware to throw at this.
+
+34:07.800 --> 34:08.800
+Yeah, that was the other part, too.
+
+34:08.800 --> 34:11.200
+You know, we got the default working Synapse.
+
+34:11.200 --> 34:12.600
+Like, oh, hey, look, it works.
+
+34:12.600 --> 34:14.300
+It's doing federation rate.
+
+34:14.300 --> 34:14.800
+Cool.
+
+34:14.800 --> 34:17.100
+And then we had not done performance tuning.
+
+34:17.100 --> 34:18.700
+So we've also turned off presence.
+
+34:18.700 --> 34:19.900
+Maybe we should never have had it on.
+
+34:19.900 --> 34:20.700
+I don't know.
+
+34:20.700 --> 34:22.200
+People have thoughts about that, too, maybe.
+
+34:22.200 --> 34:23.900
+Yeah, matrix ideas room.
+
+34:23.900 --> 34:25.600
+That'll be linked in the show notes.
+
+34:25.600 --> 34:26.900
+Go over there and let us know what you think.
+
+34:26.900 --> 34:29.000
+Because we're kind of putting all this together right now.
+
+34:29.000 --> 34:29.700
+The system's up.
+
+34:29.700 --> 34:30.600
+It's running.
+
+34:30.600 --> 34:32.700
+It just doesn't perform at the level we
+
+34:32.700 --> 34:35.000
+would like, but we're tweaking it.
+
+34:35.000 --> 34:37.400
+And then we're going to eventually probably migrate it
+
+34:37.400 --> 34:41.000
+to some new ultimate matrix server.
+
+34:41.000 --> 34:41.800
+Right?
+
+34:41.800 --> 34:42.900
+Doesn't that seem like the plan?
+
+34:42.900 --> 34:43.900
+Yeah, I think so.
+
+34:43.900 --> 34:46.800
+And just another reason, maybe the other part
+
+34:46.800 --> 34:49.000
+we're kind of experimenting with here is maybe
+
+34:49.000 --> 34:50.900
+you want your own home server, if you're
+
+34:50.900 --> 34:53.500
+into that kind of thing, rather than signing up for ours.
+
+34:53.500 --> 34:54.200
+That's true.
+
+34:54.200 --> 34:55.800
+And you won't run into any of these problems
+
+34:55.800 --> 34:58.300
+if it's just you and a couple of friends or just yourself.
+
+34:58.300 --> 35:02.000
+Like, you really would not have any of these issues.
+
+35:02.000 --> 35:03.700
+It's just when you have thousands of users
+
+35:03.700 --> 35:05.300
+and they're always on there 24-7.
+
+35:05.300 --> 35:07.900
+And then, like a jackass, you hold a live stream
+
+35:07.900 --> 35:09.500
+where you tell everyone to go sign up
+
+35:09.500 --> 35:11.000
+for your matrix server the very week
+
+35:11.000 --> 35:13.200
+that it's collapsing under its own weight.
+
+35:13.200 --> 35:16.100
+And then, of course, make us all have to work super overtime
+
+35:16.100 --> 35:18.500
+so that way we can at least get it working and functional
+
+35:18.500 --> 35:22.200
+so that way the live stream isn't a total disaster.
+
+35:22.200 --> 35:23.500
+Which it still was touch and go.
+
+35:23.500 --> 35:26.200
+There were moments the server barely made it.
+
+35:26.200 --> 35:27.200
+Yeah.
+
+35:27.200 --> 35:29.200
+It was definitely a lag in there for a while.
+
+35:29.200 --> 35:31.000
+But, hey, conversations happened.
+
+35:31.000 --> 35:31.900
+And sats were given.
+
+35:31.900 --> 35:32.800
+And sats were given.
+
+35:35.800 --> 35:38.100
+Speaking of that, that live stream
+
+35:38.100 --> 35:42.300
+is posted at xers.show slash 84.
+
+35:42.300 --> 35:46.600
+Brent did the yeoman's work of trying to quickly collect up
+
+35:46.600 --> 35:48.300
+everyone's Lightning payment addresses
+
+35:48.300 --> 35:49.500
+and paste them in the doc.
+
+35:49.500 --> 35:50.400
+Nice work, sir.
+
+35:50.400 --> 35:51.500
+I think we did OK.
+
+35:51.500 --> 35:52.500
+I think we hit everybody.
+
+35:52.500 --> 35:56.000
+But hopefully, we're crossing fingers.
+
+35:56.000 --> 35:58.500
+And then Wes had to turn it into a battle
+
+35:58.500 --> 36:01.700
+when he tried to boost people before I could boost people.
+
+36:01.700 --> 36:02.200
+Yeah.
+
+36:02.200 --> 36:04.400
+So the sats were flying.
+
+36:04.400 --> 36:05.000
+I love this.
+
+36:05.000 --> 36:08.300
+We gave away 60 unique Lightning donations,
+
+36:08.300 --> 36:11.100
+usually around 1,000 or 2,000 sats each.
+
+36:11.100 --> 36:14.200
+And we gave them to 42 different individuals on the live stream.
+
+36:14.200 --> 36:16.100
+32 new people, at least by our count,
+
+36:16.100 --> 36:17.400
+signed up for our matrix chat.
+
+36:17.400 --> 36:19.900
+Although the great thing is those numbers continue
+
+36:19.900 --> 36:21.200
+to roll over the weekend.
+
+36:21.200 --> 36:22.400
+They've gone up.
+
+36:22.400 --> 36:25.500
+We featured an interview with the Fountain FM developer,
+
+36:25.500 --> 36:26.000
+Oscar.
+
+36:26.000 --> 36:27.400
+That's in the live stream.
+
+36:27.400 --> 36:29.800
+We also covered some JB projects that the three of us
+
+36:29.800 --> 36:30.500
+are working on.
+
+36:30.500 --> 36:31.600
+That's all in there.
+
+36:31.600 --> 36:36.000
+Extras.show slash 84, if you'd like to participate in that.
+
+36:36.000 --> 36:38.000
+And if you'd like to send us one of them boosts
+
+36:38.000 --> 36:40.900
+that we talk about all the time, go grab a new podcast app
+
+36:40.900 --> 36:43.100
+at newpodcastapps.com.
+
+36:43.100 --> 36:44.800
+Then get yourself set up with something
+
+36:44.800 --> 36:46.600
+like Blue Wallet or Strike.
+
+36:46.600 --> 36:47.800
+Grab a few sats.
+
+36:47.800 --> 36:49.500
+Stuff them in your Lightning wallet.
+
+36:49.500 --> 36:50.500
+Boost away.
+
+36:50.500 --> 36:51.700
+That's how you do it.
+
+36:51.700 --> 36:52.500
+newpodcastapps.com.
+
+36:56.500 --> 36:57.600
+All right, guys.
+
+36:57.600 --> 36:58.900
+I think we waited long enough.
+
+36:58.900 --> 37:00.600
+People want to know about this NixOS challenge.
+
+37:00.600 --> 37:02.400
+We're going to put the details in the show notes.
+
+37:02.400 --> 37:03.900
+So if you miss any of this, hopefully
+
+37:03.900 --> 37:05.700
+we'll have it listed there.
+
+37:05.700 --> 37:09.200
+But it is time to officially kick off the Nix challenge
+
+37:09.200 --> 37:10.300
+with some goals.
+
+37:10.300 --> 37:13.000
+Number one, study the Nix expression language.
+
+37:13.000 --> 37:17.300
+Number two, set up at least one Nix or NixOS system,
+
+37:17.300 --> 37:19.200
+because Nix is also a package manager available
+
+37:19.200 --> 37:20.800
+for your current distro.
+
+37:20.800 --> 37:23.700
+Install HTOP using Nix.
+
+37:23.700 --> 37:26.100
+And then join our Nix Nerds Matrix channel.
+
+37:26.100 --> 37:26.700
+Come in there.
+
+37:26.700 --> 37:27.800
+Tell us how it's going.
+
+37:27.800 --> 37:28.800
+Tell us how you're doing.
+
+37:28.800 --> 37:30.500
+Share all that kind of stuff.
+
+37:30.500 --> 37:33.000
+And then last but not least, post a screenshot
+
+37:33.000 --> 37:36.300
+of either HTOP or, for extra nerd points,
+
+37:36.300 --> 37:39.700
+a full working graphical desktop over on our GitHub, which we
+
+37:39.700 --> 37:42.000
+will have linked in the show notes.
+
+37:42.000 --> 37:45.400
+The idea is, the challenge is to complete all of that
+
+37:45.400 --> 37:47.500
+by the end of April.
+
+37:47.500 --> 37:49.500
+At the end of the month, we'll do a review
+
+37:49.500 --> 37:51.900
+of how it went for everybody, the moments that stand out
+
+37:51.900 --> 37:55.900
+to us, and what our plans are as a team to keep using Nix
+
+37:55.900 --> 37:59.100
+or not, and what we're going to deploy with all of that.
+
+37:59.100 --> 38:00.500
+I challenge thee.
+
+38:03.700 --> 38:05.700
+So you've been officially challenged,
+
+38:05.700 --> 38:07.200
+and Brent's already all in.
+
+38:07.200 --> 38:08.700
+You've created a GitHub for people
+
+38:08.700 --> 38:10.400
+to use where they can post screenshots and stuff.
+
+38:10.400 --> 38:11.500
+Tell us a bit about that.
+
+38:11.500 --> 38:13.900
+Yeah, we kind of put together some ideas
+
+38:13.900 --> 38:15.800
+to post a bunch of screenshots there,
+
+38:15.800 --> 38:17.600
+instead of necessarily the matrix room,
+
+38:17.600 --> 38:18.900
+because then we could just review them all.
+
+38:18.900 --> 38:20.600
+It's actually really fun, and there
+
+38:20.600 --> 38:23.600
+are discussions happening with each screenshot
+
+38:23.600 --> 38:25.400
+as well, which I find really great.
+
+38:25.400 --> 38:28.000
+So we set up the GitHub's discussions,
+
+38:28.000 --> 38:30.000
+which is actually super useful for this.
+
+38:30.000 --> 38:32.500
+But bonus, and I might not have told you guys this,
+
+38:32.500 --> 38:35.700
+I also set up a section to share some config files
+
+38:35.700 --> 38:37.000
+and discuss them as well.
+
+38:37.000 --> 38:37.600
+Great idea.
+
+38:37.600 --> 38:38.500
+Excellent.
+
+38:38.500 --> 38:41.000
+And also some resources that people
+
+38:41.000 --> 38:42.000
+are finding really handy.
+
+38:42.000 --> 38:43.800
+So there's some activity happening there.
+
+38:43.800 --> 38:46.500
+I think if you're familiar with GitHub,
+
+38:46.500 --> 38:48.700
+that's a really natural place to have these discussions.
+
+38:48.700 --> 38:51.200
+If you're not familiar with GitHub, like me,
+
+38:51.200 --> 38:52.200
+great way to learn.
+
+38:52.200 --> 38:54.000
+This is just like the perfect opportunity
+
+38:54.000 --> 38:57.100
+if you've ever been tempted by the idea of trying out Nix.
+
+38:57.100 --> 38:58.800
+We're doing it here with you.
+
+38:58.800 --> 39:00.000
+The goal is pretty doable.
+
+39:00.000 --> 39:01.300
+You just got to get Htop going.
+
+39:01.300 --> 39:03.800
+And we've got the matrix community and the GitHub
+
+39:03.800 --> 39:05.200
+as resources.
+
+39:05.200 --> 39:06.900
+And the people in the matrix community
+
+39:06.900 --> 39:09.000
+have been so awesome about answering questions
+
+39:09.000 --> 39:11.000
+and helping people figure out and get their heads
+
+39:11.000 --> 39:11.800
+wrapped around this.
+
+39:11.800 --> 39:13.000
+Yeah, I've been really impressed by that.
+
+39:13.000 --> 39:13.800
+So good.
+
+39:13.800 --> 39:14.800
+It's a real nice thing.
+
+39:14.800 --> 39:16.600
+And if you're not sure if you want to try out Nix,
+
+39:16.600 --> 39:19.200
+just ask yourself, would you like a totally deterministic
+
+39:19.200 --> 39:20.300
+Linux box?
+
+39:20.300 --> 39:21.300
+It's always this way.
+
+39:21.300 --> 39:22.200
+It's a static thing.
+
+39:22.200 --> 39:25.400
+When an update changes, it rebuilds, and it tests.
+
+39:25.400 --> 39:27.400
+And you can roll back if things don't work.
+
+39:27.400 --> 39:28.500
+Think about how powerful that could
+
+39:28.500 --> 39:29.900
+be in a production environment.
+
+39:29.900 --> 39:33.700
+I'm picturing studio machines running Nix OS that's rock
+
+39:33.700 --> 39:34.200
+solid.
+
+39:34.200 --> 39:36.600
+If some update comes along and it screws something up
+
+39:36.600 --> 39:40.000
+before a damn show, we can just roll back and just kick it
+
+39:40.000 --> 39:41.600
+and do the show and not worry about it
+
+39:41.600 --> 39:43.200
+and fix the problem afterwards.
+
+39:43.200 --> 39:45.300
+I like that you're still not willing not to do updates
+
+39:45.300 --> 39:46.200
+right before the show.
+
+39:46.200 --> 39:48.200
+You're just trying to play it around that.
+
+39:48.200 --> 39:49.800
+No, I'm doing updates.
+
+39:49.800 --> 39:51.800
+There's a red dot in the system tray.
+
+39:51.800 --> 39:53.100
+I got to do the update.
+
+39:53.100 --> 39:54.200
+It's got a number on it.
+
+39:54.200 --> 39:56.400
+So there's a bunch of them, Wes.
+
+39:56.400 --> 39:58.000
+I cannot do the update.
+
+39:58.000 --> 39:59.200
+What am I, an animal?
+
+39:59.200 --> 40:01.700
+And so from time to time, we're going to do the check-in.
+
+40:01.700 --> 40:03.600
+It is a month-long challenge.
+
+40:03.600 --> 40:04.800
+So really, I mean, come on.
+
+40:04.800 --> 40:05.800
+You can spin up a VM.
+
+40:05.800 --> 40:07.700
+You can go get a Leno going.
+
+40:07.700 --> 40:08.400
+Just try it out.
+
+40:08.400 --> 40:09.000
+Try it out.
+
+40:09.000 --> 40:10.600
+And then let us know how it goes.
+
+40:10.600 --> 40:11.900
+And we'll kind of check in from time to time
+
+40:11.900 --> 40:14.200
+because we're going to be traveling next weekend.
+
+40:14.200 --> 40:17.600
+I mean, we'll probably be still talking about Nix.
+
+40:17.600 --> 40:19.400
+So we all collect links throughout the week
+
+40:19.400 --> 40:20.000
+for this show.
+
+40:20.000 --> 40:22.800
+And literally, the only thing we collected this week
+
+40:22.800 --> 40:25.900
+was Nix links and some matrix links, obviously,
+
+40:25.900 --> 40:27.000
+because we were dealing with matrix.
+
+40:27.000 --> 40:28.800
+But it's like, we are just obviously going
+
+40:28.800 --> 40:30.900
+to be thinking about this and talking about this.
+
+40:30.900 --> 40:32.300
+But we'll check in.
+
+40:32.300 --> 40:34.100
+And just to point out, too, if you
+
+40:34.100 --> 40:35.700
+don't want to go the full Nix OS yet,
+
+40:35.700 --> 40:36.900
+you don't have a spare system.
+
+40:36.900 --> 40:39.300
+You don't have a VPS or a VM around,
+
+40:39.300 --> 40:41.400
+you can install Nix on any old Linux box you got.
+
+40:41.400 --> 40:43.900
+Just start with that, and you can install Htop from there.
+
+40:43.900 --> 40:46.000
+Could just be a great way to manage software
+
+40:46.000 --> 40:48.100
+on distribution that you already use.
+
+40:48.100 --> 40:50.300
+Maybe a new way to solve that problem.
+
+40:50.300 --> 40:54.700
+So the Nix challenge has officially begun.
+
+40:54.700 --> 40:57.000
+Get the details in the show notes.
+
+40:57.000 --> 40:58.700
+We do have a bit of feedback, though.
+
+40:58.700 --> 41:00.200
+Mr. Brent, do you want to kick us off?
+
+41:00.200 --> 41:00.600
+Sure.
+
+41:00.600 --> 41:04.000
+I figured we could talk about Nix OS feedback that we got.
+
+41:04.000 --> 41:06.800
+I've been sort of watching the chats go by, especially
+
+41:06.800 --> 41:08.300
+in our matrix channel.
+
+41:08.300 --> 41:12.000
+And I thought I would grab a few that were interesting.
+
+41:12.000 --> 41:15.600
+So Nivoyu suggested, honestly, it's
+
+41:15.600 --> 41:17.900
+everything I hoped Nix OS would feel like.
+
+41:17.900 --> 41:20.500
+This is exactly how I want my systems configured,
+
+41:20.500 --> 41:23.500
+because it feels like one of those Arch bootstrap scripts.
+
+41:23.500 --> 41:25.600
+But I actually know exactly what's going on here.
+
+41:25.600 --> 41:28.800
+I thought that was pretty funny and very, very, very
+
+41:28.800 --> 41:29.700
+good feedback.
+
+41:29.700 --> 41:32.400
+It feels like Arch in a lot of ways.
+
+41:32.400 --> 41:34.600
+But then when you tell the Nix package manager
+
+41:34.600 --> 41:36.400
+to go do its thing, and you're like,
+
+41:36.400 --> 41:37.600
+I really haven't told it much.
+
+41:37.600 --> 41:39.200
+I just told it, I want a system.
+
+41:39.200 --> 41:41.800
+And then it just goes, and it builds a system.
+
+41:41.800 --> 41:43.900
+Or even with Nix OS, you just say, yeah, right?
+
+41:43.900 --> 41:45.600
+I need this service to be running.
+
+41:45.600 --> 41:47.000
+Here's a little config for the service.
+
+41:47.000 --> 41:48.100
+And then it figures out, oh, well, you're
+
+41:48.100 --> 41:48.900
+going to need that package.
+
+41:48.900 --> 41:50.700
+We're going to need a startup system to you.
+
+41:50.700 --> 41:54.700
+Dear Nix OS, or Dear Nix package manager, I want containers.
+
+41:54.700 --> 41:56.600
+And then you tell it to go, and you end up
+
+41:56.600 --> 41:58.900
+with a system that can run Docker and Podman.
+
+41:58.900 --> 42:01.000
+Or you could do just a Docker or a Podman system.
+
+42:01.000 --> 42:03.100
+I also found with the package caching
+
+42:03.100 --> 42:06.100
+that it's really speedy whenever you make any changes,
+
+42:06.100 --> 42:07.400
+even quite large changes.
+
+42:07.400 --> 42:09.400
+So I thought that was a nice experience, too.
+
+42:09.400 --> 42:10.200
+I see Josh wrote in.
+
+42:10.200 --> 42:11.700
+You want to take that one, Mr. Payne?
+
+42:11.700 --> 42:14.000
+Yeah, Josh writes in, quote, I've already
+
+42:14.000 --> 42:16.300
+been hacking on this config and learning the ways of Nix,
+
+42:16.300 --> 42:20.300
+because I've determined this is my dream distribution.
+
+42:20.300 --> 42:20.900
+Whoa.
+
+42:20.900 --> 42:21.800
+Strong words, Josh.
+
+42:21.800 --> 42:22.300
+I like it.
+
+42:22.300 --> 42:25.200
+We are in the new distro energy phase right now.
+
+42:25.200 --> 42:26.900
+Like, it is strong right now.
+
+42:26.900 --> 42:28.100
+Like, wow.
+
+42:28.100 --> 42:30.300
+Although, I got to say, we're like three weeks into it.
+
+42:30.300 --> 42:32.300
+So it's like sticking around.
+
+42:32.300 --> 42:34.100
+And part of the goal here, too, is
+
+42:34.100 --> 42:36.700
+to figure out where the limitations are, too, right?
+
+42:36.700 --> 42:37.200
+We get it.
+
+42:37.200 --> 42:39.100
+Like, when you adopt a weird system that's
+
+42:39.100 --> 42:41.500
+out of the mainstream that does things differently, that
+
+42:41.500 --> 42:44.100
+needs some workarounds to make some things work,
+
+42:44.100 --> 42:45.800
+that's going to be part of the experience.
+
+42:45.800 --> 42:48.900
+And I'm interested in where that falls and how much that is
+
+42:48.900 --> 42:52.500
+and how hard it is to kind of figure out those workarounds.
+
+42:52.500 --> 42:56.400
+How does it feel in practice day to day?
+
+42:56.400 --> 43:03.300
+And now, as the French say, it is time for Le Boost.
+
+43:03.300 --> 43:05.000
+Merci a tout le monde pour Le Boost.
+
+43:05.000 --> 43:09.800
+This week, we got user 406, who got in early.
+
+43:09.800 --> 43:13.300
+5,000 sats says, I can't make it live on Sundays,
+
+43:13.300 --> 43:15.200
+but wanted to send you a boost.
+
+43:15.200 --> 43:17.100
+So you know I was out here.
+
+43:17.100 --> 43:19.000
+Had to get into Bitcoin for this.
+
+43:19.000 --> 43:22.600
+Here's hoping to see you next Sunday one day.
+
+43:22.600 --> 43:25.700
+Thank you for getting into Bitcoin.
+
+43:25.700 --> 43:28.900
+What I feel like is there's going
+
+43:28.900 --> 43:31.400
+to be a lot of people who are just trying this out
+
+43:31.400 --> 43:33.100
+for the first time to send us a boost.
+
+43:33.100 --> 43:34.760
+And I'm all about it, because I think
+
+43:34.760 --> 43:37.300
+we're leaving people with more options down the road.
+
+43:37.300 --> 43:40.500
+And I still recommend, if you're in the States
+
+43:40.500 --> 43:43.700
+or a couple of other countries, just grab the Strike app.
+
+43:43.700 --> 43:47.300
+Super easy to get started, really painless.
+
+43:47.300 --> 43:49.500
+And you know what, user 406?
+
+43:49.500 --> 43:51.500
+Whenever you do get that Sunday day off,
+
+43:51.500 --> 43:52.700
+we'll be here waiting for you.
+
+43:52.700 --> 43:54.400
+That's right, every Sunday.
+
+43:54.400 --> 43:58.600
+Well, Toxel boosted in with 800 sats,
+
+43:58.600 --> 44:01.500
+writing in about love 451.
+
+44:01.500 --> 44:04.500
+I'm a fan of JB Show since mid-2012.
+
+44:04.500 --> 44:05.800
+Wow.
+
+44:05.800 --> 44:07.100
+I've never written any feedback,
+
+44:07.100 --> 44:09.200
+but Chris's speech in the last episode
+
+44:09.200 --> 44:11.400
+inspired me to try out the Fountain app
+
+44:11.400 --> 44:13.700
+and write up a boost.
+
+44:13.700 --> 44:17.300
+Thank you for 10 years of the best tech podcast content
+
+44:17.300 --> 44:18.500
+out there.
+
+44:18.500 --> 44:20.400
+And by the way, these sats I'm sending you
+
+44:20.400 --> 44:23.500
+are from the osmbtc.org donation fund.
+
+44:23.500 --> 44:24.900
+It's a nice way to earn some sats
+
+44:24.900 --> 44:27.700
+while contributing to the OpenStreetMap project.
+
+44:27.700 --> 44:29.100
+Wow, wow.
+
+44:29.100 --> 44:30.900
+That is fascinating.
+
+44:30.900 --> 44:32.000
+Thanks, Toxel.
+
+44:32.000 --> 44:32.800
+That's so great.
+
+44:32.800 --> 44:34.500
+You know, it's one of the fun things about these boosts,
+
+44:34.500 --> 44:36.900
+too, is I feel like we've been hearing from folks
+
+44:36.900 --> 44:38.200
+that we've never heard from.
+
+44:38.200 --> 44:39.900
+And we definitely hear from people we have heard from, too.
+
+44:39.900 --> 44:41.400
+It's an interesting new channel that way.
+
+44:41.400 --> 44:45.900
+Crashmaster18 sent in 1,000 sats yesterday for love 451.
+
+44:45.900 --> 44:48.800
+Thanks for the Fountain FM recommendation.
+
+44:48.800 --> 44:50.400
+I got the Bitcoin lightning set up.
+
+44:50.400 --> 44:51.600
+I like the boost idea.
+
+44:51.600 --> 44:54.000
+I used the Cash app to fund my Fountain wallet.
+
+44:54.000 --> 44:57.700
+I also joined the Matrix using Element Easy Peasy.
+
+44:57.700 --> 44:58.300
+Thank you.
+
+44:58.300 --> 44:59.400
+Aw, nice.
+
+44:59.400 --> 45:01.200
+I feel like that needs a bell.
+
+45:01.200 --> 45:03.100
+All right, you know what?
+
+45:03.100 --> 45:04.600
+One bell.
+
+45:04.600 --> 45:06.700
+Something shifted in my head at really the beginning
+
+45:06.700 --> 45:08.700
+of the year, and I really started
+
+45:08.700 --> 45:10.800
+thinking more about pushing decentralized stuff
+
+45:10.800 --> 45:13.800
+and stop just no longer really trying
+
+45:13.800 --> 45:16.200
+to push centralized services onto the community.
+
+45:16.200 --> 45:18.000
+And I think that's what I like in part about the lightning
+
+45:18.000 --> 45:20.000
+stuff, and that's part what I like about Matrix.
+
+45:20.000 --> 45:21.300
+It's decentralized.
+
+45:21.300 --> 45:23.100
+It's self-hostable.
+
+45:23.100 --> 45:24.600
+I think it's the future.
+
+45:24.600 --> 45:26.800
+Cardanerd wrote in with 1,000 sats,
+
+45:26.800 --> 45:29.800
+been using NixOS as my main workstation for about six
+
+45:29.800 --> 45:34.000
+months now, so longer than we have.
+
+45:34.000 --> 45:34.700
+Yeah.
+
+45:34.700 --> 45:36.000
+I'll never look back.
+
+45:36.000 --> 45:38.600
+I really look forward to seeing how you all feel about it.
+
+45:38.600 --> 45:42.000
+Also, Raspberry Pi plus Nix works like a charm.
+
+45:42.000 --> 45:44.800
+I will say, I think, ultimately, I
+
+45:44.800 --> 45:46.800
+am very, very excited about trying that
+
+45:46.800 --> 45:48.000
+for my home network setup.
+
+45:48.000 --> 45:49.800
+Now that I'm thinking about redoing the home setup
+
+45:49.800 --> 45:51.600
+and we're getting into Nix, I'm just
+
+45:51.600 --> 45:54.400
+thinking, how great could that be for the home setup?
+
+45:54.400 --> 45:54.900
+Right?
+
+45:54.900 --> 45:56.300
+You know, Alex divulged to me that he
+
+45:56.300 --> 45:58.700
+has a few pies laying around that he's not using right now,
+
+45:58.700 --> 46:00.600
+so maybe we can do a bit of testing
+
+46:00.600 --> 46:02.100
+when we're out there next week.
+
+46:02.100 --> 46:07.800
+NoName, with 500 sats, boosting in yesterday on LUP 451.
+
+46:07.800 --> 46:09.500
+Podfather recommended your show.
+
+46:09.500 --> 46:12.600
+And yeah, best Linux show I've heard.
+
+46:12.600 --> 46:13.300
+There you go.
+
+46:13.300 --> 46:15.600
+We got a recommendation from the Podfather.
+
+46:15.600 --> 46:16.700
+That's got to be serious.
+
+46:16.700 --> 46:18.100
+Check that off the list.
+
+46:18.100 --> 46:19.600
+Shout out to Adam Curry.
+
+46:19.600 --> 46:20.700
+Respect to the Podfather.
+
+46:20.700 --> 46:23.000
+And check out his podcast with Dave Jones,
+
+46:23.000 --> 46:24.300
+who we've had on the show before.
+
+46:24.300 --> 46:25.400
+It's podcasting 2.0.
+
+46:25.400 --> 46:26.300
+That's the name of it.
+
+46:26.300 --> 46:28.200
+You can find it over at podcast.index.
+
+46:28.200 --> 46:30.400
+It's a great podcast if you are interested in maybe
+
+46:30.400 --> 46:32.400
+where podcasting could be going.
+
+46:32.400 --> 46:34.100
+They do a weekly show.
+
+46:34.100 --> 46:36.600
+The tools that they are building, the open source
+
+46:36.600 --> 46:38.400
+tooling that they're building, and how
+
+46:38.400 --> 46:40.900
+they want to keep podcasting decentralized and maybe
+
+46:40.900 --> 46:42.700
+a little weird, that's all in their show.
+
+46:42.700 --> 46:44.900
+It's a good show.
+
+46:44.900 --> 46:51.400
+Limiting Factor wrote in with 13,500 sats yesterday.
+
+46:51.400 --> 46:55.800
+He says, what a pain in the ass this was to set up, lol.
+
+46:55.800 --> 46:58.600
+But much like everything we do in our community,
+
+46:58.600 --> 47:02.100
+it's overly complicated for its own various reasons,
+
+47:02.100 --> 47:04.200
+and yet totally worth it.
+
+47:04.200 --> 47:04.700
+Amen.
+
+47:04.700 --> 47:05.600
+I do appreciate it.
+
+47:05.600 --> 47:07.000
+That's kind of our style.
+
+47:07.000 --> 47:07.700
+It is early.
+
+47:07.700 --> 47:09.100
+Like, this is one of the things we
+
+47:09.100 --> 47:10.900
+thought about with Matrix and the boosts.
+
+47:10.900 --> 47:13.200
+And you know, even when we launched the shows, guys,
+
+47:13.200 --> 47:16.100
+seriously, even when we started doing the shows 15 years ago,
+
+47:16.100 --> 47:18.300
+it was like, we're kind of appealing
+
+47:18.300 --> 47:19.600
+to a lot of early adopters.
+
+47:19.600 --> 47:21.200
+We want to make shows for everybody,
+
+47:21.200 --> 47:22.600
+but we want to make sure we're also
+
+47:22.600 --> 47:25.300
+making content for early adopters, because that's us.
+
+47:25.300 --> 47:27.200
+And we want content that's made for us, too.
+
+47:27.200 --> 47:28.900
+And we don't want just like willy-nilly,
+
+47:28.900 --> 47:30.900
+like hype men, early adopters.
+
+47:30.900 --> 47:32.900
+We want people that think about this stuff deeply,
+
+47:32.900 --> 47:35.000
+that try this stuff, that build this stuff, that
+
+47:35.000 --> 47:36.300
+work with this stuff.
+
+47:36.300 --> 47:38.200
+That's why we're running our own node.
+
+47:38.200 --> 47:40.300
+That's why we're running our own Matrix server, right?
+
+47:40.300 --> 47:42.700
+Because we want to get hands-on experience with this stuff
+
+47:42.700 --> 47:44.300
+and truly take advantage of the fact
+
+47:44.300 --> 47:46.000
+that it can be self-hosted.
+
+47:46.000 --> 47:49.800
+Because if people like us won't do it, who will?
+
+47:49.800 --> 47:50.500
+Really, no one?
+
+47:50.500 --> 47:51.400
+Yeah.
+
+47:51.400 --> 47:54.200
+There's got to be an audience to use this self-hosted stuff,
+
+47:54.200 --> 47:56.200
+or else they're just going to stop building it for folks.
+
+47:56.200 --> 47:57.500
+And that's part of my thought.
+
+47:57.500 --> 47:59.200
+And if we can encourage people out there
+
+47:59.200 --> 48:01.100
+to also have fun with the technology,
+
+48:01.100 --> 48:03.200
+because it is a lot of fun, and also create
+
+48:03.200 --> 48:05.700
+a bit of a demand for this self-hosted technology,
+
+48:05.700 --> 48:07.200
+for this peer-to-peer technology,
+
+48:07.200 --> 48:08.700
+for this decentralized technology,
+
+48:08.700 --> 48:10.700
+for open source technology.
+
+48:10.700 --> 48:12.500
+And the more of us that are doing it,
+
+48:12.500 --> 48:14.600
+as we've seen just with the next challenge,
+
+48:14.600 --> 48:16.700
+with the self-hosted show, just the more of us
+
+48:16.700 --> 48:18.300
+that are interested in it, the better
+
+48:18.300 --> 48:21.400
+we can all help each other.
+
+48:21.400 --> 48:23.700
+I have a fun pick for us before we get out of here.
+
+48:23.700 --> 48:25.400
+What sneaky last-minute pick.
+
+48:25.400 --> 48:26.400
+This is Wildman.
+
+48:26.400 --> 48:28.900
+So I'm going through my notes, because I heard
+
+48:28.900 --> 48:31.300
+from the developer of Userland.
+
+48:31.300 --> 48:33.900
+It is an app that's available for Android
+
+48:33.900 --> 48:37.800
+that lets you run Linux on Android,
+
+48:37.800 --> 48:39.900
+like Ubuntu, or Debian, or Kali Linux.
+
+48:39.900 --> 48:42.100
+You don't have to root your device.
+
+48:42.100 --> 48:45.100
+You just essentially get a fast, local VNC connection
+
+48:45.100 --> 48:49.500
+to the Linux that's running in a self-contained app VM.
+
+48:49.500 --> 48:50.100
+It's so cool.
+
+48:50.100 --> 48:52.600
+And I actually tagged this for us
+
+48:52.600 --> 48:55.700
+to feature this as a pick three years ago.
+
+48:55.700 --> 48:56.500
+Wow.
+
+48:56.500 --> 48:57.300
+And then I never.
+
+48:57.300 --> 48:58.100
+It's still going.
+
+48:58.100 --> 48:58.900
+Yeah.
+
+48:58.900 --> 49:00.300
+That's a great sign, right?
+
+49:00.300 --> 49:01.300
+I went to check on it.
+
+49:01.300 --> 49:03.200
+I'm like, well, surely it's dead now.
+
+49:03.200 --> 49:04.100
+No.
+
+49:04.100 --> 49:05.000
+No, it's still going.
+
+49:05.000 --> 49:06.500
+And I had a chance to talk with the developer.
+
+49:06.500 --> 49:07.300
+It's open source.
+
+49:07.300 --> 49:08.200
+It's GPL.
+
+49:08.200 --> 49:09.200
+It's up on GitHub.
+
+49:09.200 --> 49:10.000
+We'll have that link.
+
+49:10.000 --> 49:13.500
+It's available in F-Droid as well, which we do like seeing that,
+
+49:13.500 --> 49:15.800
+because there's just not enough stuff in F-Droid.
+
+49:15.800 --> 49:17.300
+There's good stuff in there, but not enough.
+
+49:17.300 --> 49:18.800
+And so it's really nice to see that.
+
+49:18.800 --> 49:21.100
+You can just install this like a regular app,
+
+49:21.100 --> 49:23.000
+and then you can run a full Linux distro on top
+
+49:23.000 --> 49:24.900
+of an Android device.
+
+49:24.900 --> 49:27.600
+They also, if you check, once you go to that link,
+
+49:27.600 --> 49:31.100
+if you look at their Play Store apps, this isn't really a pic,
+
+49:31.100 --> 49:33.100
+but this guy's like a bonus pic.
+
+49:33.100 --> 49:35.600
+They kind of use the same trick for two other things.
+
+49:35.600 --> 49:38.400
+So they have the whole user land for Linux distros,
+
+49:38.400 --> 49:41.900
+but then they have Foxbox, which is a desktop Firefox.
+
+49:41.900 --> 49:45.200
+Oh, like the desktop version of Firefox on your phone.
+
+49:45.200 --> 49:48.100
+Yeah, so you're like, when you go to Reddit or other sites,
+
+49:48.100 --> 49:50.500
+you're like, would you like to see the mobile version?
+
+49:50.500 --> 49:51.200
+No, I don't.
+
+49:51.200 --> 49:53.900
+You don't get that when you use the desktop version of Firefox,
+
+49:53.900 --> 49:54.400
+right?
+
+49:54.400 --> 49:56.700
+Plus you get all the Firefox extensions and stuff.
+
+49:56.700 --> 49:57.700
+Yeah, sure.
+
+49:57.700 --> 49:59.700
+But then the other one that actually
+
+49:59.700 --> 50:04.100
+feels like maybe this should be a million dollar product
+
+50:04.100 --> 50:05.900
+is called Craftbox.
+
+50:05.900 --> 50:10.500
+And it's a VM that fires up a Linux machine
+
+50:10.500 --> 50:14.700
+and just runs a hosted Minecraft server on an Android machine.
+
+50:14.700 --> 50:16.400
+So maybe you've got a fancy phone.
+
+50:16.400 --> 50:18.500
+You've got a tablet you're not doing anything with.
+
+50:18.500 --> 50:21.300
+You could actually turn that into a local Java edition
+
+50:21.300 --> 50:23.100
+Minecraft server using this.
+
+50:23.100 --> 50:24.600
+And all of this is GPL3.
+
+50:24.600 --> 50:27.400
+So wanted to give a shout out to that.
+
+50:27.400 --> 50:29.500
+My Android phone can finally be useful.
+
+50:29.500 --> 50:30.100
+Great.
+
+50:30.100 --> 50:32.300
+Chris, it's so interesting that you brought this up
+
+50:32.300 --> 50:33.700
+and didn't tell Wes or I about it,
+
+50:33.700 --> 50:36.100
+because literally yesterday I was
+
+50:36.100 --> 50:37.660
+playing with an application.
+
+50:37.660 --> 50:40.500
+I guess there's another bonus pick called Termux
+
+50:40.500 --> 50:42.500
+that you can install via F-Droid.
+
+50:42.500 --> 50:46.900
+And I wanted to simply do some R-Sync backups to my phone
+
+50:46.900 --> 50:49.900
+and play around with what I could do with some old phones.
+
+50:49.900 --> 50:53.100
+And this is so the same line of thinking,
+
+50:53.100 --> 50:55.300
+it makes me smile that somehow we always
+
+50:55.300 --> 50:57.300
+seem to get to the same place at the same time.
+
+50:57.300 --> 50:58.400
+So thanks for that.
+
+50:58.400 --> 50:59.000
+That's great.
+
+50:59.000 --> 51:03.500
+Of course, link over at linuxunplug.com slash 452.
+
+51:03.500 --> 51:04.300
+All right, gentlemen.
+
+51:04.300 --> 51:05.700
+I think that's everything, yeah?
+
+51:05.700 --> 51:07.200
+I think we came to do what we wanted.
+
+51:07.200 --> 51:09.100
+And we got ourselves a pork shoulder waiting for us.
+
+51:09.100 --> 51:11.000
+And Nick's expressions to write, I think.
+
+51:11.000 --> 51:12.900
+We have some Nick's work to do.
+
+51:12.900 --> 51:15.700
+We've got a whole matrix system to rebuild and rebuild it
+
+51:15.700 --> 51:16.900
+better.
+
+51:16.900 --> 51:19.500
+We're going to call it the million dollar matrix system.
+
+51:19.500 --> 51:21.100
+Like the million dollar, you get the reference.
+
+51:21.100 --> 51:21.500
+Of course.
+
+51:21.500 --> 51:21.900
+Yeah, of course.
+
+51:21.900 --> 51:23.000
+We have the technology.
+
+51:23.000 --> 51:24.900
+If you'd like to join us live and participate
+
+51:24.900 --> 51:26.400
+in our Mumble Room, our chat room,
+
+51:26.400 --> 51:29.300
+or just listen live because it is a different show,
+
+51:29.300 --> 51:30.600
+well, you can do that on Sunday.
+
+51:30.600 --> 51:33.500
+We do it at noon Pacific over at jblive.tv.
+
+51:33.500 --> 51:35.800
+And we do have the calendar linked
+
+51:35.800 --> 51:37.900
+at jupitabroadcasting.com slash calendar
+
+51:37.900 --> 51:39.600
+where you can get it in your local time.
+
+51:39.600 --> 51:40.900
+See you next week.
+
+51:40.900 --> 51:43.500
+Same bad time, same bad station.
+
+51:43.500 --> 51:45.800
+Of course, don't miss Linux action news.
+
+51:45.800 --> 51:50.300
+We did a roundup of a lot of things coming to Linux 5.18.
+
+51:50.300 --> 51:53.500
+Plus, we talked about the new rolling Rhino, Ubuntu release,
+
+51:53.500 --> 51:55.500
+mix, remix, unofficial.
+
+51:55.500 --> 51:59.300
+We got the details and more over at litixactionnews.com.
+
+51:59.300 --> 52:01.000
+Be sure you go grab that.
+
+52:01.000 --> 52:03.700
+Of course, our members feed, you get the full live production
+
+52:03.700 --> 52:04.600
+or an ad free.
+
+52:04.600 --> 52:06.100
+It's your choice.
+
+52:06.100 --> 52:08.500
+You can support the show at unpluggedcore.com
+
+52:08.500 --> 52:11.300
+or support all the shows on the network at jupiter.party
+
+52:11.300 --> 52:13.700
+and get all of the bonus content.
+
+52:13.700 --> 52:14.800
+That's how you do it.
+
+52:14.800 --> 52:16.700
+And links to everything we talked about on our website,
+
+52:16.700 --> 52:19.000
+including our contact page, litixunplugged.com.
+
+52:19.000 --> 52:21.100
+And we'll see you right back here next Sunday.
+
+52:21.100 --> 52:49.500
+We'll see you next week.
+
+52:49.500 --> 53:02.500
+So I'm trying to find a spot to like take my son camping
+
+53:02.500 --> 53:03.900
+for like his 13th birthday.
+
+53:03.900 --> 53:06.500
+I'm out of ideas like we've been everywhere
+
+53:06.500 --> 53:07.500
+and I'm not saying that to bring.
+
+53:07.500 --> 53:09.900
+It's like I really can't think of anywhere to go
+
+53:09.900 --> 53:11.300
+and I promised him like a trip
+
+53:11.300 --> 53:13.100
+and now I'm just coming up blank.
+
+53:13.100 --> 53:14.500
+Has he been out to the Olympics?
+
+53:14.500 --> 53:15.500
+That was what I thought.
+
+53:15.500 --> 53:17.200
+I suggested the Olympics to him and he's like,
+
+53:17.200 --> 53:18.200
+oh, I don't know.
+
+53:18.200 --> 53:20.100
+I kind of like to be somewhere in the woods.
+
+53:20.100 --> 53:22.000
+That's like, that's a rainforest.
+
+53:22.000 --> 53:24.200
+That's like the most woods you can get.
+
+53:24.200 --> 53:26.400
+I need to find like a great spot and suggest it to him
+
+53:26.400 --> 53:27.400
+is what I got to do.
+
+53:27.400 --> 53:29.000
+I've been thinking about like,
+
+53:29.000 --> 53:31.000
+where would I want to go if I were his age?
+
+53:31.000 --> 53:33.300
+It would probably be like swimming, hot tubs,
+
+53:33.300 --> 53:34.400
+you know, hiking.
+
+53:34.400 --> 53:35.500
+He loves all that kind of stuff.
+
+53:35.500 --> 53:41.000
+Hey, he can have breakfast in a hot tub here if he wants.
+
+53:41.000 --> 53:42.000
+I want breakfast in a hot tub.
+
+53:42.000 --> 53:43.500
+A journey to visit Uncle Brent.
+
+53:43.500 --> 53:45.300
+There you go.
+
+53:45.300 --> 53:46.100
+I've got woods.
+
+53:46.100 --> 53:48.300
+And we show up and he's got breakfast ready for us.
+
+53:48.300 --> 53:49.800
+I mean, while you guys are going out East,
+
+53:49.800 --> 53:52.000
+you might want to swing down to Florida and catch a launch.
+
+53:52.000 --> 53:53.400
+There's quite a few these days.
+
+53:53.400 --> 53:56.700
+I really, our initial plan,
+
+53:56.700 --> 53:58.700
+we were planning to swing down to Florida.
+
+53:58.700 --> 54:00.600
+That was initially the plan.
+
+54:00.600 --> 54:04.300
+I just couldn't make it work from like a budget standpoint,
+
+54:04.300 --> 54:07.000
+but the first draft did have us going to Florida for a bit
+
+54:07.000 --> 54:10.100
+because I've never been other than just like staying over
+
+54:10.100 --> 54:13.300
+at an airport or a hotel for a night to then fly out somewhere else.
+
+54:13.300 --> 54:15.000
+Like that's my extent of Florida travel.
+
+54:15.000 --> 54:20.500
+Yeah, but in super secret, huge Disney guy over there.
+
+54:20.500 --> 54:45.500
+Yeah, it's a Magic Kingdom after all.
+

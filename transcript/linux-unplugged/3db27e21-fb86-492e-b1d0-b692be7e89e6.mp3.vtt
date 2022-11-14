@@ -1,0 +1,3431 @@
+WEBVTT
+
+00:00.000 --> 00:03.240
+Wes's buddy, Leonard Pottering, the creator of Pulse Audio
+
+00:03.240 --> 00:07.720
+and SystemD, says that we should popularize image-based OSes
+
+00:07.720 --> 00:11.320
+with modern security properties built around immutability,
+
+00:11.320 --> 00:17.040
+secure boot, TPM2, adaptability, auto-updating, factory reset,
+
+00:17.040 --> 00:21.600
+and uniformity deployed via images.
+
+00:21.600 --> 00:25.680
+And they've updated SystemD to help start this.
+
+00:25.680 --> 00:27.700
+It's kind of like creating a Chrome OS-like update
+
+00:27.700 --> 00:29.600
+or a Silverblue-like update process.
+
+00:29.600 --> 00:33.600
+SystemD sysupdate automatically and atomically updates
+
+00:33.600 --> 00:36.800
+the host OS, container images, portable service images,
+
+00:36.800 --> 00:37.960
+or other sources.
+
+00:37.960 --> 00:41.720
+And of course, you get a new config file, sysupdate.d.
+
+00:41.720 --> 00:43.520
+I think you might be a fan of this.
+
+00:43.520 --> 00:44.440
+You're pro images.
+
+00:44.440 --> 00:45.800
+I am pro images.
+
+00:45.800 --> 00:48.280
+I know it's funny because I'm going
+
+00:48.280 --> 00:50.680
+to be like the devil's advocate guy, I think,
+
+00:50.680 --> 00:51.720
+this week on the show.
+
+00:51.720 --> 00:54.320
+And so I guess I'm starting early.
+
+00:54.320 --> 00:55.560
+I think this is a great idea.
+
+00:55.560 --> 00:57.960
+I know it's probably not going to get adopted
+
+00:57.960 --> 01:02.640
+by maybe anybody but Fedora and a few enterprise distros.
+
+01:02.640 --> 01:05.800
+But the idea is you always have a known good OS partition
+
+01:05.800 --> 01:07.800
+available that you can boot into.
+
+01:07.800 --> 01:12.440
+And you could have a scenario where perhaps SystemD is taking
+
+01:12.440 --> 01:16.440
+care of the A-B image stuff and making sure you've always
+
+01:16.440 --> 01:18.220
+got a working base image.
+
+01:18.220 --> 01:20.940
+And then your favorite distributions package manager
+
+01:20.940 --> 01:23.700
+is taking care of applications and stuff like that.
+
+01:23.700 --> 01:26.380
+You could have a world where these two things coexist.
+
+01:26.380 --> 01:27.840
+It does seem especially nice.
+
+01:27.840 --> 01:29.880
+It's probably going to do a better job than the sort
+
+01:29.880 --> 01:31.640
+of sketchy bash script I might write
+
+01:31.640 --> 01:32.800
+if I was trying to do this myself,
+
+01:32.800 --> 01:34.000
+say, with Arch or something.
+
+01:34.000 --> 01:36.160
+So in that sense, I'm for it too.
+
+01:36.160 --> 01:36.800
+I could see it.
+
+01:36.800 --> 01:37.720
+I mean, look it.
+
+01:37.720 --> 01:40.080
+Other OSes are getting these features.
+
+01:40.080 --> 01:41.480
+It's about time, right?
+
+01:41.480 --> 01:42.560
+It's about time, Linux.
+
+01:42.560 --> 01:43.320
+Come on.
+
+01:43.320 --> 01:44.880
+Let's not patch this one out.
+
+01:44.880 --> 01:46.200
+Let's try it.
+
+01:46.200 --> 01:46.880
+Give it a go.
+
+01:46.880 --> 02:00.480
+Hello, friends, and welcome back to your weekly Linux talk show.
+
+02:00.480 --> 02:01.120
+My name is Chris.
+
+02:01.120 --> 02:01.920
+My name is Wes.
+
+02:01.920 --> 02:03.520
+And my name is Brent.
+
+02:03.520 --> 02:04.600
+Hello, gentlemen.
+
+02:04.600 --> 02:05.320
+Hello.
+
+02:05.320 --> 02:06.480
+Nice to see you.
+
+02:06.480 --> 02:07.860
+Well, guess what?
+
+02:07.860 --> 02:10.520
+Linux just landed support for something
+
+02:10.520 --> 02:15.080
+called software-defined silicon, kernel-level support
+
+02:15.080 --> 02:18.800
+to enable or disable a built-in CPU feature.
+
+02:18.800 --> 02:21.320
+As in, the CPU ships with all the features,
+
+02:21.320 --> 02:23.440
+but only certain ones get turned on,
+
+02:23.440 --> 02:27.080
+depending on what the user has or hasn't paid for.
+
+02:27.080 --> 02:29.240
+Intel can issue a license.
+
+02:29.240 --> 02:31.680
+It's coming in the next generation of systems.
+
+02:31.680 --> 02:35.280
+And Linux is already getting support for it as of this week.
+
+02:35.280 --> 02:38.720
+And as you can imagine, we've got a whole range of thoughts
+
+02:38.720 --> 02:39.240
+on this.
+
+02:39.240 --> 02:40.360
+So we'll dig into that.
+
+02:40.360 --> 02:43.480
+And then we'll round out the show with some boosts, some picks,
+
+02:43.480 --> 02:44.360
+and more.
+
+02:44.360 --> 02:46.280
+So before we get any further, let's
+
+02:46.280 --> 02:48.480
+say time-appropriate greetings to our virtual lug.
+
+02:48.480 --> 02:49.920
+Hello, Mumble Room.
+
+02:49.920 --> 02:50.560
+Hello, Chris.
+
+02:50.560 --> 02:51.440
+Hello, Wes.
+
+02:51.440 --> 02:53.080
+And hello, Brent.
+
+02:53.080 --> 02:54.080
+Hello.
+
+02:54.080 --> 02:56.520
+More and more folks showing up in the quiet listening
+
+02:56.520 --> 03:00.880
+and just getting a free software version encoded in Opus
+
+03:00.880 --> 03:02.120
+straight from our mixer.
+
+03:02.120 --> 03:03.720
+We can't hear you, but we see you.
+
+03:03.720 --> 03:04.320
+We see you.
+
+03:04.320 --> 03:06.960
+And I'm going to give that another mention this week,
+
+03:06.960 --> 03:10.040
+because we have a project that I think we're going
+
+03:10.040 --> 03:12.400
+to work on after the show.
+
+03:12.400 --> 03:14.680
+And I think Mumble could be an option that's
+
+03:14.680 --> 03:17.120
+more viable for people who like low-latency versions
+
+03:17.120 --> 03:19.840
+of the stream, because we may be changing things up and going
+
+03:19.840 --> 03:21.960
+to a peer-to-peer system in the future.
+
+03:21.960 --> 03:23.200
+More on that.
+
+03:23.200 --> 03:28.320
+So our Mumble is the best way to get absolutely low-latency,
+
+03:28.320 --> 03:30.920
+high-quality audio, and you can get in that quiet listening.
+
+03:30.920 --> 03:33.160
+And if you want to move into the lobby and chat with us,
+
+03:33.160 --> 03:35.580
+or the on-air area, I should say, you totally can.
+
+03:35.580 --> 03:40.200
+So you can get the details at linuxunplug.com slash Mumble.
+
+03:40.200 --> 03:43.560
+And then we do the show live on Sundays at noon Pacific,
+
+03:43.560 --> 03:46.360
+3 PM Eastern over at jblive.tv.
+
+03:46.360 --> 03:48.780
+And we'll have more details to share on that kind of stuff
+
+03:48.780 --> 03:50.080
+coming up in the future.
+
+03:50.080 --> 03:51.620
+This week, though, we wanted to talk
+
+03:51.620 --> 03:53.800
+about this software-defined silicon that
+
+03:53.800 --> 03:58.380
+is landing the support that's coming in Linux in 5.18
+
+03:58.380 --> 04:00.820
+and is probably something that's going
+
+04:00.820 --> 04:03.320
+to be a huge topic in tech circles,
+
+04:03.320 --> 04:05.640
+I would imagine, within a generation or so of Intel
+
+04:05.640 --> 04:07.160
+processors.
+
+04:07.160 --> 04:09.680
+We touched on a lot of the details in Linux Action News
+
+04:09.680 --> 04:11.560
+this week.
+
+04:11.560 --> 04:14.080
+And we got some feedback in our matrix room
+
+04:14.080 --> 04:16.160
+that it was probably worth bumping this
+
+04:16.160 --> 04:19.260
+to a wider discussion because it seemed that people were not
+
+04:19.260 --> 04:22.160
+aware that this was a thing that was even coming.
+
+04:22.160 --> 04:23.760
+And we haven't talked a lot about it
+
+04:23.760 --> 04:27.120
+because we didn't want to sound like the sky was falling.
+
+04:27.120 --> 04:29.000
+We didn't want to sound to the alarm
+
+04:29.000 --> 04:31.600
+that the next generation of Intel CPUs
+
+04:31.600 --> 04:34.560
+are going to have essentially feature DRM,
+
+04:34.560 --> 04:39.040
+and Linux is totally supporting it
+
+04:39.040 --> 04:40.520
+because it's the capability to do it.
+
+04:40.520 --> 04:41.360
+It's all free software.
+
+04:41.360 --> 04:42.040
+It's all GPL.
+
+04:42.040 --> 04:43.040
+That's right.
+
+04:43.040 --> 04:44.480
+This is a tricky spot.
+
+04:44.480 --> 04:46.480
+And so we thought, let's talk about what it is so you guys
+
+04:46.480 --> 04:47.760
+have the right context.
+
+04:47.760 --> 04:50.240
+We're not going to hype it up or anything like that.
+
+04:50.240 --> 04:52.720
+We're just going to talk about what software-defined silicon
+
+04:52.720 --> 04:53.480
+is.
+
+04:53.480 --> 04:56.080
+And LWN has a good write-up, too, that we'll link to.
+
+04:56.080 --> 04:57.320
+But can you give us, I don't know,
+
+04:57.320 --> 04:59.520
+the highlights that you think we should probably know, Wes?
+
+04:59.520 --> 05:02.760
+Yeah, so software-defined silicon, or SDSI,
+
+05:02.760 --> 05:04.440
+if you want to be hip and abbreviate it,
+
+05:04.440 --> 05:08.480
+is kind of, as you say, it's a quote unquote feature that
+
+05:08.480 --> 05:11.160
+lets Intel ship some hardware capabilities that have to then
+
+05:11.160 --> 05:13.200
+later be enabled.
+
+05:13.200 --> 05:14.760
+A little more technical, it appears
+
+05:14.760 --> 05:16.920
+as a device on your system that offers
+
+05:16.920 --> 05:18.920
+a couple of new operations.
+
+05:18.920 --> 05:22.480
+One is to install an authentication key certificate
+
+05:22.480 --> 05:25.000
+or a capability activation payload.
+
+05:25.000 --> 05:26.540
+But basically, you have a certificate
+
+05:26.540 --> 05:28.640
+that is then used to verify the requests that
+
+05:28.640 --> 05:30.240
+are contained in the payload.
+
+05:30.240 --> 05:32.440
+And the idea being here that you've
+
+05:32.440 --> 05:35.200
+bought this chip or some piece of hardware,
+
+05:35.200 --> 05:36.600
+it has a base set of features.
+
+05:36.600 --> 05:39.060
+And then if you want to enable those additional features that
+
+05:39.060 --> 05:41.940
+are kind of hidden behind this new SDSI capability,
+
+05:41.940 --> 05:44.240
+you have to go talk to Intel in some capacity to pay them
+
+05:44.240 --> 05:44.720
+a fee.
+
+05:44.720 --> 05:46.520
+Maybe it's a recurring monthly fee.
+
+05:46.520 --> 05:49.280
+We don't really have details yet on what exact features this
+
+05:49.280 --> 05:52.200
+is going to be used to gate or how you're going to get access
+
+05:52.200 --> 05:53.280
+to them process might be.
+
+05:53.280 --> 05:55.760
+Yeah, is it going to be like they issue you
+
+05:55.760 --> 05:58.160
+a package that writes the files to these places
+
+05:58.160 --> 05:59.960
+now that these devices are on your system?
+
+05:59.960 --> 06:01.400
+Or is it some service that's calling home
+
+06:01.400 --> 06:02.800
+to their cloud service?
+
+06:02.800 --> 06:03.760
+I don't know.
+
+06:03.760 --> 06:06.200
+The stuff in the kernel is really just the bare bones
+
+06:06.200 --> 06:08.840
+stuff so that user space can make it work at all.
+
+06:08.840 --> 06:11.480
+That's how the nuts and bolts of it work.
+
+06:11.480 --> 06:13.720
+From an implementation standpoint,
+
+06:13.720 --> 06:15.680
+it's sort of almost perfectly Linux.
+
+06:15.680 --> 06:17.660
+It's you drop a file in a directory
+
+06:17.660 --> 06:21.080
+that the file says yes, no, properly licensed,
+
+06:21.080 --> 06:24.120
+and then another one that is the actual license.
+
+06:24.120 --> 06:29.160
+And then there's code in the CPU that verifies those files,
+
+06:29.160 --> 06:31.380
+verifies the functionality request,
+
+06:31.380 --> 06:33.760
+and then either turns it on or turns it off.
+
+06:33.760 --> 06:35.880
+It's really at this point kind of up in the air
+
+06:35.880 --> 06:37.680
+how all of that's going to work.
+
+06:37.680 --> 06:40.440
+But of course, the kernel team isn't necessarily
+
+06:40.440 --> 06:43.520
+looking to block this kind of stuff.
+
+06:43.520 --> 06:45.120
+There's not a whole lot of arguments
+
+06:45.120 --> 06:48.760
+that can be made against denying this.
+
+06:48.760 --> 06:50.240
+It's GPL software.
+
+06:50.240 --> 06:52.160
+It's just adding a couple of devices.
+
+06:52.160 --> 06:54.600
+It simply enables another piece of functionality
+
+06:54.600 --> 06:56.680
+in the upcoming CPUs.
+
+06:56.680 --> 06:59.220
+And the kernel community hasn't made a practice
+
+06:59.220 --> 07:01.200
+of rejecting this kind of stuff for other devices
+
+07:01.200 --> 07:03.360
+out there that do this that are maybe not CPUs.
+
+07:03.360 --> 07:03.880
+Right.
+
+07:03.880 --> 07:06.280
+Yeah, I mean, there's all kinds of weird gadgets
+
+07:06.280 --> 07:08.440
+or proprietary things that end up running Linux,
+
+07:08.440 --> 07:10.520
+even if it's in a data center that I'm never
+
+07:10.520 --> 07:12.640
+going to have access to or hardware I'm never going
+
+07:12.640 --> 07:13.940
+to be able to purchase outright.
+
+07:13.940 --> 07:15.200
+So this is what's coming.
+
+07:15.200 --> 07:16.640
+It landed in 5.18.
+
+07:16.640 --> 07:18.280
+It's going to be probably a little while
+
+07:18.280 --> 07:20.160
+before you get it trickled down to your distribution
+
+07:20.160 --> 07:21.040
+for most of you.
+
+07:21.040 --> 07:22.720
+I am using it right now, though.
+
+07:22.720 --> 07:23.960
+Actually, let me double check.
+
+07:23.960 --> 07:27.880
+But I think, yeah, I have 5.18.0 installed on this machine.
+
+07:27.880 --> 07:29.000
+You hipster, you.
+
+07:29.000 --> 07:29.720
+I love it.
+
+07:29.720 --> 07:30.840
+And this is an Ubuntu box.
+
+07:30.840 --> 07:33.280
+I'll tell you how I did that later in the show.
+
+07:33.280 --> 07:35.560
+So my system hasn't broken.
+
+07:35.560 --> 07:37.640
+In fact, when Linus announced this release,
+
+07:37.640 --> 07:39.080
+he was pretty low key about it.
+
+07:39.080 --> 07:42.480
+And he's like, yeah, pretty minor update.
+
+07:42.480 --> 07:44.200
+Nothing really too big in here.
+
+07:44.200 --> 07:48.000
+I think his words were, nothing's too surprising.
+
+07:48.000 --> 07:49.880
+Maybe not too surprising for you,
+
+07:49.880 --> 07:53.440
+but I don't think most of the community realizes that we're
+
+07:53.440 --> 07:56.560
+just kind of laying down and letting this stuff land
+
+07:56.560 --> 07:57.520
+in the Linux kernel.
+
+07:57.520 --> 07:57.920
+Yeah, right.
+
+07:57.920 --> 07:59.760
+I suppose his commentary is more on the like,
+
+07:59.760 --> 08:02.260
+oh, there's no crazy new subsystem or radical change,
+
+08:02.260 --> 08:04.080
+or we didn't suddenly enable Rust everywhere.
+
+08:04.080 --> 08:06.040
+Yeah, no wild bug.
+
+08:06.040 --> 08:06.880
+Yeah.
+
+08:06.880 --> 08:07.560
+Right, yeah.
+
+08:07.560 --> 08:08.800
+That kind of stuff.
+
+08:08.800 --> 08:11.920
+So it's just sort of unceremoniously went out.
+
+08:11.920 --> 08:13.600
+And there was really no red flags,
+
+08:13.600 --> 08:15.080
+like because Linus didn't say, hey,
+
+08:15.080 --> 08:16.680
+this is the one that includes the Intel.
+
+08:16.680 --> 08:17.880
+You may not want to upgrade.
+
+08:17.880 --> 08:19.260
+Yeah.
+
+08:19.260 --> 08:21.760
+So it was just sort of a low key release.
+
+08:21.760 --> 08:24.520
+We'll link to LWN, which has thoughts on this
+
+08:24.520 --> 08:25.760
+before it came out.
+
+08:25.760 --> 08:27.800
+And we'll also link to the actual original patch
+
+08:27.800 --> 08:29.240
+conversation.
+
+08:29.240 --> 08:32.120
+I'm also not quite clear on the parties involved here,
+
+08:32.120 --> 08:35.680
+because it seems to be that the parties introducing the idea
+
+08:35.680 --> 08:39.320
+is a developer from Red Hat working on behalf of Intel,
+
+08:39.320 --> 08:42.400
+even though Intel has plenty of kernel engineers on their own.
+
+08:42.400 --> 08:44.960
+But so there is some relationship with this
+
+08:44.960 --> 08:45.800
+there as well.
+
+08:49.520 --> 08:52.000
+Linode.com slash unplugged.
+
+08:52.000 --> 08:54.600
+That's where you go to get $100 in 60-day credit
+
+08:54.600 --> 08:55.520
+on a new account, and that's where
+
+08:55.520 --> 08:57.080
+you go to support the show.
+
+08:57.080 --> 08:58.940
+I love getting to talk about Linode.
+
+08:58.940 --> 09:00.840
+This is my moment every single week,
+
+09:00.840 --> 09:02.920
+and I really appreciate it, because there's always
+
+09:02.920 --> 09:04.040
+something to talk about.
+
+09:04.040 --> 09:05.760
+How great is that?
+
+09:05.760 --> 09:08.160
+And Linode really has been our secret sauce.
+
+09:08.160 --> 09:09.840
+I was just thinking about this morning.
+
+09:09.840 --> 09:11.780
+There's a project I'm working on.
+
+09:11.780 --> 09:14.880
+Of course, I'm going to Linode to deploy this thing, right?
+
+09:14.880 --> 09:18.720
+And I realized sometimes it's like I just pop off a server
+
+09:18.720 --> 09:20.520
+super quick, and I get up and working,
+
+09:20.520 --> 09:23.720
+and I probably have the thing done in two minutes.
+
+09:23.720 --> 09:26.280
+And then sometimes, sometimes I sit here,
+
+09:26.280 --> 09:28.520
+and I really think, how am I going to build this?
+
+09:28.520 --> 09:29.880
+What do I want to do?
+
+09:29.880 --> 09:32.800
+What should we use on the back end to deploy it?
+
+09:32.800 --> 09:34.760
+Because Linode works with all of that stuff too.
+
+09:34.760 --> 09:36.760
+So if you like to just do a one-click deploying, get up,
+
+09:36.760 --> 09:38.580
+and running really easy, you can.
+
+09:38.580 --> 09:40.400
+But if you want to tie it in with some infrastructure
+
+09:40.400 --> 09:43.560
+management, maybe do a little Terraform and some bulk,
+
+09:43.560 --> 09:45.220
+yeah, Linode supports all of that.
+
+09:45.220 --> 09:47.160
+You see, they've been around for nearly 19 years,
+
+09:47.160 --> 09:49.360
+and in that time, they figured out
+
+09:49.360 --> 09:53.280
+what features are worth spending energy and effort on,
+
+09:53.280 --> 09:56.240
+and which features are just silly platform features
+
+09:56.240 --> 09:57.680
+that are checking a box.
+
+09:57.680 --> 10:00.400
+And their mission has remained unchanged in that 19 years.
+
+10:00.400 --> 10:03.280
+Make cloud computing simple, affordable, and accessible
+
+10:03.280 --> 10:04.340
+to all.
+
+10:04.340 --> 10:07.400
+And that really has led to the best-in-class experience.
+
+10:07.400 --> 10:11.280
+Support, performance, flexibility, 11 data centers
+
+10:11.280 --> 10:12.240
+around the world.
+
+10:12.240 --> 10:15.280
+In that time, they became their own ISP.
+
+10:15.280 --> 10:16.400
+You know what I'm saying?
+
+10:16.400 --> 10:18.680
+It really pays off over time.
+
+10:18.680 --> 10:21.160
+And now, we just get a great experience
+
+10:21.160 --> 10:23.880
+as customers with the best support in the business
+
+10:23.880 --> 10:25.140
+backing it all up.
+
+10:25.140 --> 10:27.400
+And of course, I'm taking advantage of their object
+
+10:27.400 --> 10:31.720
+like a maniac these days, powerful DNS manager.
+
+10:31.720 --> 10:34.320
+And the bottom line matters, right?
+
+10:34.320 --> 10:37.200
+Pricing 30% to 50% cheaper than all the major cloud providers
+
+10:37.200 --> 10:38.600
+out there.
+
+10:38.600 --> 10:41.720
+And you get Linode's great support, great performance,
+
+10:41.720 --> 10:44.080
+and you get a member that's friendly to our community.
+
+10:44.080 --> 10:47.440
+Somebody who plays nice, who buys local.
+
+10:47.440 --> 10:49.680
+So go try them out, support this show,
+
+10:49.680 --> 10:52.200
+and get $100 to really kick the tires.
+
+10:52.200 --> 10:54.480
+Go to linode.com slash unplugged.
+
+10:54.480 --> 11:01.640
+So let's talk about the moralities of this software
+
+11:01.640 --> 11:02.920
+defined silicon.
+
+11:02.920 --> 11:05.200
+And really, if the free software community
+
+11:05.200 --> 11:07.520
+should be taking a stand here.
+
+11:07.520 --> 11:09.560
+Because you could make the argument, perhaps,
+
+11:09.560 --> 11:11.760
+that Linux is big enough and relevant enough
+
+11:11.760 --> 11:15.200
+for enough market segments, not just the server,
+
+11:15.200 --> 11:18.520
+that if we put up a hard stand and said,
+
+11:18.520 --> 11:21.940
+no, this is a free software platform.
+
+11:21.940 --> 11:23.600
+It's not just the license that's free.
+
+11:23.600 --> 11:28.480
+It's about making something for people that is forever, right?
+
+11:28.480 --> 11:30.640
+It's about creating something that's
+
+11:30.640 --> 11:32.580
+for the general good, for humanity.
+
+11:32.580 --> 11:36.040
+It's not a tool for corporations to have successful platforms,
+
+11:36.040 --> 11:37.200
+although it can be.
+
+11:37.200 --> 11:38.280
+It's free software.
+
+11:38.280 --> 11:39.640
+It's GPL software.
+
+11:39.640 --> 11:41.760
+It's code for the people.
+
+11:41.760 --> 11:43.080
+And it should be commons.
+
+11:43.080 --> 11:46.920
+And so when we add things that restrict functionality,
+
+11:46.920 --> 11:48.960
+it's sort of inherent to the spirit of what
+
+11:48.960 --> 11:50.200
+we're trying to do here.
+
+11:50.200 --> 11:53.160
+Maybe it's not against the law of the GPL.
+
+11:53.160 --> 11:55.160
+It's definitely against the spirit of the GPL.
+
+11:55.160 --> 11:57.920
+That's, I think, the big argument being made.
+
+11:57.920 --> 12:00.000
+I think I'll play devil's advocate on this one.
+
+12:00.000 --> 12:01.640
+And I'm going to take Intel's side.
+
+12:01.640 --> 12:03.960
+Because I think I actually could make an argument for why
+
+12:03.960 --> 12:05.440
+it could be a good thing, too.
+
+12:05.440 --> 12:08.360
+But I'm curious, Brent, because Wes and I
+
+12:08.360 --> 12:11.760
+have dug into this a lot for Linux Action News.
+
+12:11.760 --> 12:13.080
+I know you caught that coverage.
+
+12:13.080 --> 12:15.120
+And you're coming at this with some information.
+
+12:15.120 --> 12:17.120
+But it's newest to you right now.
+
+12:17.120 --> 12:19.240
+So I'm curious what your impressions are
+
+12:19.240 --> 12:22.760
+on just the moralities around software-defined silicon
+
+12:22.760 --> 12:26.560
+being able to turn CPU features on and off through Linux.
+
+12:26.560 --> 12:28.520
+I'm looking forward to hearing your perspective
+
+12:28.520 --> 12:32.880
+as the Intel spokesperson in this hour.
+
+12:32.880 --> 12:36.200
+My initial sort of internal gut reaction
+
+12:36.200 --> 12:40.960
+is that it feels like a really slippery slope, or it could be.
+
+12:40.960 --> 12:42.600
+Is it going to lead to subscriptions
+
+12:42.600 --> 12:45.240
+for all your hardware, you know, like five years down the road
+
+12:45.240 --> 12:48.120
+where you're very, very hampered with what
+
+12:48.120 --> 12:50.760
+you can do with the stuff you, quote unquote, own?
+
+12:50.760 --> 12:54.000
+And thus, you are limited because you're not paying them
+
+12:54.000 --> 12:55.600
+on a monthly basis or whatnot.
+
+12:55.600 --> 12:58.000
+That is the first thing that comes to mind for me
+
+12:58.000 --> 12:59.960
+and is a bit of a scary perspective.
+
+12:59.960 --> 13:02.240
+Locking features up behind a monthly subscription.
+
+13:02.240 --> 13:02.840
+Well, that's it.
+
+13:02.840 --> 13:07.000
+I mean, we're subscriptionifying everything these days, it seems.
+
+13:07.000 --> 13:11.120
+And the last sort of thing that we have that's our own
+
+13:11.120 --> 13:13.600
+is the hardware that we've purchased or come by.
+
+13:13.600 --> 13:17.160
+And it seems to me like it would be a darn shame
+
+13:17.160 --> 13:19.120
+to see that go away and to have it
+
+13:19.120 --> 13:21.560
+be sort of like the Peloton model,
+
+13:21.560 --> 13:23.520
+and they can take it away from you anytime.
+
+13:23.520 --> 13:27.280
+That's my initial sort of reaction when I hear this.
+
+13:27.280 --> 13:31.600
+I could definitely accept that from a business point of view,
+
+13:31.600 --> 13:33.240
+it probably makes a lot of sense.
+
+13:33.240 --> 13:35.840
+They're creating the same chips for a whole bunch
+
+13:35.840 --> 13:40.600
+of different sort of, as you might say, models of their CPU.
+
+13:40.600 --> 13:42.060
+But for them, it's much, much easier
+
+13:42.060 --> 13:43.520
+to do the manufacturing and stuff.
+
+13:43.520 --> 13:45.360
+So I could see that point of view.
+
+13:45.360 --> 13:47.000
+I love that we're talking about this
+
+13:47.000 --> 13:49.560
+because it's not an easy answer, is it?
+
+13:49.560 --> 13:53.760
+Not as black and white as it might be on Windows
+
+13:53.760 --> 13:55.280
+or on the Mac platform.
+
+13:55.280 --> 13:56.940
+This might just be par for the course.
+
+13:56.940 --> 14:00.680
+But here, we kind of are the beacon of freedom
+
+14:00.680 --> 14:02.880
+in the software world, Linux is.
+
+14:02.880 --> 14:06.120
+And where does that freedom, where
+
+14:06.120 --> 14:07.620
+do we draw the line on that freedom?
+
+14:07.620 --> 14:11.120
+And what role does Linux have on protecting that freedom?
+
+14:11.120 --> 14:16.680
+Because we've pushed this until the breaking point with Nvidia.
+
+14:16.680 --> 14:19.640
+We just kept dogmatic at the issue.
+
+14:19.640 --> 14:22.280
+The kernel team is currently pushing this
+
+14:22.280 --> 14:24.080
+to the breaking point with ZFS.
+
+14:24.080 --> 14:26.520
+They will just not relent on that.
+
+14:26.520 --> 14:31.080
+There are some hills they are just willing to die on.
+
+14:31.080 --> 14:32.160
+Why not this hill, Wes?
+
+14:32.160 --> 14:34.160
+And should they be dying on this hill?
+
+14:34.160 --> 14:35.440
+Well, you're the devil's advocate, huh?
+
+14:35.440 --> 14:37.240
+I don't think we've heard your position yet.
+
+14:37.240 --> 14:39.360
+You've got me to do your work for you over there.
+
+14:39.360 --> 14:44.080
+No, my take on why is a little more cynical.
+
+14:44.080 --> 14:47.200
+I think it's because Intel is an influential partner,
+
+14:47.200 --> 14:49.560
+a major code contributor, and because the code they
+
+14:49.560 --> 14:50.760
+are contributing is GPL.
+
+14:50.760 --> 14:53.000
+But I'm curious if there's a moral obligation there.
+
+14:53.000 --> 14:55.080
+Yeah, I mean, it does make us ask some questions
+
+14:55.080 --> 14:57.760
+around the relationship with Intel.
+
+14:57.760 --> 14:59.680
+It's not even just some random provider.
+
+14:59.680 --> 15:01.360
+This is a company we like to laud
+
+15:01.360 --> 15:03.160
+as sort of doing open source and working
+
+15:03.160 --> 15:04.520
+with the kernel the right way.
+
+15:04.520 --> 15:08.240
+So you can see if the kernel were to take a stand here,
+
+15:08.240 --> 15:10.800
+I mean, that could really affect the way Intel
+
+15:10.800 --> 15:11.960
+is used to doing business.
+
+15:11.960 --> 15:14.160
+It seems like they are willing to do that model.
+
+15:14.160 --> 15:15.520
+They've adopted to that model.
+
+15:15.520 --> 15:18.280
+So then having to sort of, would they start shipping their own?
+
+15:18.280 --> 15:21.240
+Or would we be booting into FreeDOS
+
+15:21.240 --> 15:22.760
+to sort of load these certificates
+
+15:22.760 --> 15:24.080
+or doing some other, you know?
+
+15:24.080 --> 15:26.080
+Would the alternative be that this would still
+
+15:26.080 --> 15:28.280
+have to happen until it would keep moving forward?
+
+15:28.280 --> 15:29.840
+It would just be a worse interface
+
+15:29.840 --> 15:32.000
+to do so because you couldn't do it as easily directly
+
+15:32.000 --> 15:32.760
+with the kernel.
+
+15:32.760 --> 15:34.160
+Yeah, I guess we don't know.
+
+15:34.160 --> 15:37.160
+It seems like with the dominance of the x86 world
+
+15:37.160 --> 15:40.720
+and the popularity we see amongst developers
+
+15:40.720 --> 15:43.200
+and Hollywood production shops, Intel
+
+15:43.200 --> 15:46.520
+would have to be pressured into at least a few workstation
+
+15:46.520 --> 15:48.160
+and consumer line Intel chips, too,
+
+15:48.160 --> 15:49.760
+that were functional enough.
+
+15:49.760 --> 15:52.440
+But here's the devil's advocate's position,
+
+15:52.440 --> 15:53.760
+I think, for doing this.
+
+15:53.760 --> 15:55.480
+And I don't know if I fully buy it,
+
+15:55.480 --> 15:58.960
+but this is where I think Intel's coming from.
+
+15:58.960 --> 16:01.160
+And because, Brent, you touched on it,
+
+16:01.160 --> 16:05.640
+there are real genuine economies of scale when it comes here.
+
+16:05.640 --> 16:09.720
+And we've seen how screwed up chip manufacturing has gotten
+
+16:09.720 --> 16:11.080
+in the last couple of years.
+
+16:11.080 --> 16:14.120
+And so if there is a way for Intel
+
+16:14.120 --> 16:17.840
+to create a chip at one price point
+
+16:17.840 --> 16:21.080
+that they can then make millions of,
+
+16:21.080 --> 16:25.000
+and that makes it possible to actually meet demand, supply
+
+16:25.000 --> 16:27.760
+demand, and that makes it possible to sell at price
+
+16:27.760 --> 16:31.960
+points that give us devices that are like Chromebooks in cost
+
+16:31.960 --> 16:34.440
+or give us high-end workstation devices,
+
+16:34.440 --> 16:37.040
+depending on what people are willing to spend, I get it.
+
+16:37.040 --> 16:39.240
+I mean, it also helps Intel maximize revenue.
+
+16:39.240 --> 16:42.800
+But having a company that's making good revenue,
+
+16:42.800 --> 16:45.080
+there's one of the few American-owned companies.
+
+16:45.080 --> 16:46.840
+I'm just going to throw that in, too.
+
+16:46.840 --> 16:48.040
+Maybe that's a good thing.
+
+16:48.040 --> 16:49.920
+While also, they reduce the amount
+
+16:49.920 --> 16:52.320
+of different testing surfaces they have,
+
+16:52.320 --> 16:54.880
+so perhaps the products become more reliable.
+
+16:54.880 --> 16:58.140
+And it also means that you could buy something today
+
+16:58.140 --> 17:01.800
+for a cheaper price, like a $300 laptop or something
+
+17:01.800 --> 17:02.680
+like that.
+
+17:02.680 --> 17:05.260
+And then later on, you could add another feature,
+
+17:05.260 --> 17:07.880
+like maybe you could turn on virtualization for $80
+
+17:07.880 --> 17:09.000
+or something like that.
+
+17:09.000 --> 17:11.680
+And it means customers who have minimal needs
+
+17:11.680 --> 17:14.160
+but are very price-sensitive could technically
+
+17:14.160 --> 17:16.480
+get access to something that later on could
+
+17:16.480 --> 17:18.720
+become more advanced as their skill set becomes more
+
+17:18.720 --> 17:19.760
+advanced.
+
+17:19.760 --> 17:23.960
+So it really opens up the world to a whole new price point,
+
+17:23.960 --> 17:26.520
+and it gives a whole new stability and production
+
+17:26.520 --> 17:27.900
+pipeline for Intel.
+
+17:27.900 --> 17:31.080
+And we've seen in the last few years how important that is.
+
+17:31.080 --> 17:31.840
+It is just a shame.
+
+17:31.840 --> 17:33.240
+It feels like we're going backwards in some ways.
+
+17:33.240 --> 17:34.760
+It makes me think of the whole stuff
+
+17:34.760 --> 17:37.780
+with getting your Pi codecs in place
+
+17:37.780 --> 17:39.040
+and just what a pain.
+
+17:39.040 --> 17:40.000
+It's all fine, right?
+
+17:40.000 --> 17:40.640
+You can do it.
+
+17:40.640 --> 17:43.320
+You can run the right scripts or figure it out.
+
+17:43.320 --> 17:44.800
+But just practically, it sucks.
+
+17:44.800 --> 17:46.760
+There have been some interesting questions,
+
+17:46.760 --> 17:48.920
+like Kenji in our IRC room wondering,
+
+17:48.920 --> 17:50.600
+how's this going to work around?
+
+17:50.600 --> 17:53.500
+Is it per machine or CPU or person?
+
+17:53.500 --> 17:56.960
+So I buy it, and then I give my computer to Brent.
+
+17:56.960 --> 17:58.040
+Is that a separate thing?
+
+17:58.040 --> 18:01.440
+Does he need to buy a new copy of that from Intel himself?
+
+18:01.440 --> 18:03.920
+Or can you transfer it from one machine to the next,
+
+18:03.920 --> 18:06.060
+for instance, if you have a personal license
+
+18:06.060 --> 18:08.880
+and you have two computers and you change the workload on one
+
+18:08.880 --> 18:10.440
+and you decide it's more suited to the other,
+
+18:10.440 --> 18:11.920
+can you just move that over?
+
+18:11.920 --> 18:15.280
+Yeah, or what happens when you reload your box?
+
+18:15.280 --> 18:18.160
+Because these are getting written to this virtual device.
+
+18:18.160 --> 18:19.560
+That has to happen somehow.
+
+18:19.560 --> 18:22.720
+And if you nuke and pave your system,
+
+18:22.720 --> 18:24.040
+what makes that stick around?
+
+18:24.040 --> 18:26.160
+Yeah, the administration side will be interesting, too.
+
+18:26.160 --> 18:28.160
+What's persisting this, and is it, yeah?
+
+18:28.160 --> 18:31.360
+Devil's advocate aside now, this is clearly a step back.
+
+18:31.360 --> 18:33.600
+This is absolutely something that I will
+
+18:33.600 --> 18:35.800
+be voting with my wallet on.
+
+18:35.800 --> 18:37.680
+I made that comment quickly in land,
+
+18:37.680 --> 18:40.880
+but just to expand on that, the Ryzen systems
+
+18:40.880 --> 18:42.960
+have never looked any better as far as I'm concerned.
+
+18:42.960 --> 18:46.160
+And I could live a long, happy life with Ryzen systems
+
+18:46.160 --> 18:48.000
+and Apple M-based systems.
+
+18:48.000 --> 18:49.960
+And as long as I can run Linux on both,
+
+18:49.960 --> 18:51.880
+I may never need Intel again.
+
+18:51.880 --> 18:53.560
+You combine that with Raspberry Pi's,
+
+18:53.560 --> 18:55.920
+Intel's been less relevant than ever for me.
+
+18:55.920 --> 18:58.160
+And I see this kind of stuff, and I
+
+18:58.160 --> 19:00.360
+understand that because it's GPL software
+
+19:00.360 --> 19:02.640
+and they're just creating a device that you write files to,
+
+19:02.640 --> 19:04.120
+it's going to land in the kernel.
+
+19:04.120 --> 19:07.000
+Because it's Intel, there's not going to be a lot of pushback.
+
+19:07.000 --> 19:09.520
+I wish this stuff got more scrutiny.
+
+19:09.520 --> 19:11.680
+I have a ton of love and respect for the kernel team.
+
+19:11.680 --> 19:13.960
+I think they get away with this kind of stuff all the time.
+
+19:13.960 --> 19:15.120
+The University of Minnesota stuff
+
+19:15.120 --> 19:16.580
+should have gotten more scrutiny.
+
+19:16.580 --> 19:18.080
+This should be getting more scrutiny.
+
+19:18.080 --> 19:19.440
+But because we love these people,
+
+19:19.440 --> 19:22.320
+and because they work so hard, I think
+
+19:22.320 --> 19:24.240
+we are hesitant to criticize.
+
+19:24.240 --> 19:26.520
+I don't know if criticism is the right place, though.
+
+19:26.520 --> 19:27.960
+Like, I don't know that insisting
+
+19:27.960 --> 19:30.440
+that they take this moral judgment is.
+
+19:30.440 --> 19:33.280
+I think I could see you making the opposite argument of wanting
+
+19:33.280 --> 19:39.960
+them to remain a useful, neutral tool to be used for whatever
+
+19:39.960 --> 19:43.760
+purpose, especially considering that that's so much of what
+
+19:43.760 --> 19:45.080
+makes it successful.
+
+19:45.080 --> 19:47.160
+We often, on the show, talk about,
+
+19:47.160 --> 19:49.080
+yeah, there's the philosophy part, which I think
+
+19:49.080 --> 19:51.360
+matters to us, at least the hosts of the show,
+
+19:51.360 --> 19:54.480
+a fair amount, but matters seemingly less and less
+
+19:54.480 --> 19:59.040
+to the general cloud public who just use it as a tool.
+
+19:59.040 --> 20:01.000
+Yeah, I think where I really get concerned
+
+20:01.000 --> 20:05.600
+and I feel like where I've kind of landed on this one is,
+
+20:05.600 --> 20:07.600
+you're right, it's not their role,
+
+20:07.600 --> 20:10.280
+but it's sort of like our last line of defense.
+
+20:10.280 --> 20:13.240
+That's where I just go, if anybody was going to stop this,
+
+20:13.240 --> 20:17.560
+or if anybody was just going to embarrass Intel for doing this,
+
+20:17.560 --> 20:20.460
+it would be these developers with this platform,
+
+20:20.460 --> 20:23.480
+even if it just kind of raised awareness in the consumer
+
+20:23.480 --> 20:26.760
+population so they could start voting with their wallets.
+
+20:26.760 --> 20:28.480
+But instead, it's just been totally quiet.
+
+20:28.480 --> 20:29.600
+Yeah, it has been very quiet.
+
+20:29.600 --> 20:32.240
+It does make me think it's one of those areas that
+
+20:32.240 --> 20:35.880
+seems to come up a lot these days of sort of not
+
+20:35.880 --> 20:38.480
+necessarily the letter of the law, but the spirit
+
+20:38.480 --> 20:40.520
+and what their behavior will be.
+
+20:40.520 --> 20:42.740
+If this is really a thing that's limited to, say,
+
+20:42.740 --> 20:46.000
+a feature that's only used by giant data centers
+
+20:46.000 --> 20:49.000
+when they're training models or doing some specific task that
+
+20:49.000 --> 20:51.880
+really is not applicable to my sort of use case,
+
+20:51.880 --> 20:54.880
+even as a somewhat odd user of software,
+
+20:54.880 --> 20:57.120
+a technological enthusiast, then maybe it's
+
+20:57.120 --> 20:58.080
+not that big of a deal.
+
+20:58.080 --> 21:01.960
+But if it's something that most Intel buyers start running
+
+21:01.960 --> 21:04.600
+into, that'll sour things pretty quick.
+
+21:04.600 --> 21:06.000
+I imagine not, right?
+
+21:06.000 --> 21:08.240
+I imagine it's the enterprise that's really going to get it.
+
+21:08.240 --> 21:09.880
+Well, I mean, they're the ones who are going to shell out
+
+21:09.880 --> 21:11.000
+the money anyway, right?
+
+21:11.000 --> 21:11.500
+Right.
+
+21:11.500 --> 21:15.240
+And there's so many nickel and dimey ways you can do this.
+
+21:15.240 --> 21:18.680
+And you could see a CPU that maybe has more cores you
+
+21:18.680 --> 21:19.800
+can turn on.
+
+21:19.800 --> 21:22.280
+And you've got to license it for that.
+
+21:22.280 --> 21:24.840
+And then it's a lot more manageable problem, too,
+
+21:24.840 --> 21:28.040
+because then you're making Red Hat, SUSE, and Debian packages.
+
+21:28.040 --> 21:30.640
+And you've pretty much covered all of the enterprise
+
+21:30.640 --> 21:31.920
+deployments that are going to be using this thing.
+
+21:31.920 --> 21:32.920
+I suppose so, right?
+
+21:32.920 --> 21:35.560
+You know, but again, I want to just mention LW one more time.
+
+21:35.560 --> 21:39.080
+Because there was a bit in here that I think resonated with me.
+
+21:39.080 --> 21:41.440
+They're talking about business models in here
+
+21:41.440 --> 21:44.520
+and talking about how car manufacturers like Tesla
+
+21:44.520 --> 21:46.960
+want to include features that you pay for to turn them on.
+
+21:46.960 --> 21:48.920
+And we've kind of just accepted this.
+
+21:48.920 --> 21:51.200
+They're calling these rent-based business models.
+
+21:51.200 --> 21:53.400
+And they say it's been spreading through the technology
+
+21:53.400 --> 21:54.960
+industry for some time.
+
+21:54.960 --> 21:57.480
+Many of us have no longer purchased and even run
+
+21:57.480 --> 21:58.120
+our own servers.
+
+21:58.120 --> 21:59.920
+We run them from a cloud provider.
+
+21:59.920 --> 22:02.320
+Companies are still in the proprietary software business.
+
+22:02.320 --> 22:05.480
+But they're finding that monthly subscription models are appealing.
+
+22:05.480 --> 22:08.720
+Simply, it just works better than regular software licensing.
+
+22:08.720 --> 22:10.360
+And of course, there's dodgy websites
+
+22:10.360 --> 22:12.160
+out there that handle payments for all kinds
+
+22:12.160 --> 22:13.000
+of different content.
+
+22:13.000 --> 22:15.600
+He's making a joke about LWN, which is a paid-for content
+
+22:15.600 --> 22:16.760
+website there.
+
+22:16.760 --> 22:19.560
+But the issue really comes down to free software
+
+22:19.560 --> 22:22.640
+is supposed to enable freedom and access to these machines.
+
+22:22.640 --> 22:25.760
+But now we're going to find ourselves using it to our free
+
+22:25.760 --> 22:27.880
+software is going to ask the hardware for permission
+
+22:27.880 --> 22:29.640
+to be available to do things.
+
+22:29.640 --> 22:32.400
+Essentially, we're going to a model where free software
+
+22:32.400 --> 22:35.480
+enabled us to explore and use these computers, perhaps
+
+22:35.480 --> 22:37.240
+in ways that were never intended.
+
+22:37.240 --> 22:40.280
+And now we're going to a model where free software is relegated
+
+22:40.280 --> 22:42.240
+to the rest of the world asking for permission
+
+22:42.240 --> 22:43.720
+to get these features.
+
+22:43.720 --> 22:46.360
+If this approach is commercially successful,
+
+22:46.360 --> 22:48.240
+we're likely going to see more of it.
+
+22:48.240 --> 22:51.240
+And you combine that with kind of like the monthly subscription
+
+22:51.240 --> 22:53.680
+thing or something like that that Brent was saying.
+
+22:53.680 --> 22:55.600
+And then I think we kind of have a dystopia scenario.
+
+22:55.600 --> 22:58.040
+Oh, you can see like a weird, it's
+
+22:58.040 --> 23:00.480
+a range of CPUs that are targeting the netbook thing
+
+23:00.480 --> 23:02.240
+comes back or whatever right there.
+
+23:02.240 --> 23:05.640
+And you can't enroll your own TPM keys or something like that
+
+23:05.640 --> 23:08.200
+or the trust secure boot keys anymore
+
+23:08.200 --> 23:11.920
+unless you subscribe to the enterprise model.
+
+23:11.920 --> 23:15.000
+Is there an opportunity here for some of the reverse engineering
+
+23:15.000 --> 23:18.320
+that we're seeing in like the M1, for instance?
+
+23:18.320 --> 23:20.720
+Is any of that even possible in this case?
+
+23:20.720 --> 23:23.160
+That's a good question, Brent, because some
+
+23:23.160 --> 23:26.080
+of what's made the M1 Linux port possible
+
+23:26.080 --> 23:28.800
+is a lot of the functionalities at the firmware level.
+
+23:28.800 --> 23:32.280
+So the drivers just hand it off and the firmware does it.
+
+23:32.280 --> 23:33.820
+We see this with the Nvidia card.
+
+23:33.820 --> 23:36.040
+Like this new open source driver is really
+
+23:36.040 --> 23:38.040
+being made possible because the firmware is
+
+23:38.040 --> 23:40.200
+going to handle a lot of the stuff that Nvidia wanted
+
+23:40.200 --> 23:42.880
+the driver to handle in the past, for better or for worse.
+
+23:42.880 --> 23:45.760
+But we're definitely seeing this transition
+
+23:45.760 --> 23:48.880
+to the software side is a lot simpler
+
+23:48.880 --> 23:50.600
+and the complexity is being offloaded
+
+23:50.600 --> 23:52.620
+to the individual hardware components.
+
+23:52.620 --> 23:55.240
+And these are like little micro operating systems
+
+23:55.240 --> 23:57.160
+and microcomputers all in their own.
+
+23:57.160 --> 23:59.640
+And it's just becoming more and more common.
+
+23:59.640 --> 24:01.840
+Well, just at the same time as we see, yeah, and way
+
+24:01.840 --> 24:04.020
+more specialized chips for various roles
+
+24:04.020 --> 24:06.360
+instead of just one big old generalized CPU.
+
+24:06.360 --> 24:08.820
+Yeah, I think it's a good and bad thing.
+
+24:08.820 --> 24:10.520
+I think we're seeing the pros and cons of it.
+
+24:10.520 --> 24:13.200
+I think in the example of the M1 stuff,
+
+24:13.200 --> 24:16.360
+it's meant the Linux port has gone very, very rapidly
+
+24:16.360 --> 24:17.540
+from what I thought it would.
+
+24:17.540 --> 24:20.880
+And it seems like there's a nice little halves and gets
+
+24:20.880 --> 24:23.720
+that the developers are getting because of the functionality
+
+24:23.720 --> 24:25.600
+that the firmware handles.
+
+24:25.600 --> 24:27.000
+Same thing with Nvidia.
+
+24:27.000 --> 24:28.960
+If you want the functionality of an Nvidia card,
+
+24:28.960 --> 24:31.200
+or you want access to CUDA and Nvidia Compute,
+
+24:31.200 --> 24:32.700
+but you didn't want to have to hassle
+
+24:32.700 --> 24:36.200
+with the proprietary driver, well, they
+
+24:36.200 --> 24:37.440
+found a solution around that.
+
+24:37.440 --> 24:39.840
+And this is the future we're going into.
+
+24:39.840 --> 24:42.400
+And it's built in at the hardware level.
+
+24:42.400 --> 24:44.760
+And it's going to be trickier to navigate.
+
+24:44.760 --> 24:45.800
+There's going to be different things
+
+24:45.800 --> 24:48.280
+to consider for consumers now when we're buying hardware.
+
+24:48.280 --> 24:49.920
+It's not just going to be speed and specs.
+
+24:49.920 --> 24:52.320
+Yeah, there's more in there because it's
+
+24:52.320 --> 24:54.360
+running its own, basically, software as well.
+
+24:54.360 --> 24:55.880
+And you're going to have to care about how well that's
+
+24:55.880 --> 24:56.440
+implemented.
+
+24:56.440 --> 24:57.520
+Yeah, you're going to have to care about,
+
+24:57.520 --> 24:58.940
+how does that firmware work?
+
+24:58.940 --> 25:00.440
+What kind of driver does it have now?
+
+25:00.440 --> 25:02.760
+It's a whole new kind of nuance that we're going
+
+25:02.760 --> 25:04.000
+to have to help people navigate.
+
+25:04.000 --> 25:05.400
+And a reminder that as far as we've
+
+25:05.400 --> 25:08.240
+gotten in some areas with free and open source software,
+
+25:08.240 --> 25:12.760
+there's a whole other layer down there.
+
+25:12.760 --> 25:14.920
+So Jonathan has a great post at LWN.
+
+25:14.920 --> 25:16.040
+Again, I've mentioned that.
+
+25:16.040 --> 25:16.620
+We'll link it.
+
+25:16.620 --> 25:19.440
+I'd love to hear the audience's reaction to this
+
+25:19.440 --> 25:23.040
+because my question to you out there,
+
+25:23.040 --> 25:25.520
+where do you personally draw the line?
+
+25:25.520 --> 25:27.360
+Is your Android device fine because that
+
+25:27.360 --> 25:29.360
+requires a bunch of firmware?
+
+25:29.360 --> 25:31.520
+What about a Nintendo Switch?
+
+25:31.520 --> 25:33.880
+What about electric cars like the Tesla
+
+25:33.880 --> 25:37.120
+that you can buy self-driving or whatever for $10,000
+
+25:37.120 --> 25:39.800
+or whatever it is after the fact?
+
+25:39.800 --> 25:41.960
+Where do we draw that line?
+
+25:41.960 --> 25:44.020
+And are you concerned about the slide
+
+25:44.020 --> 25:46.880
+into subscriptions for every little component there?
+
+25:46.880 --> 25:49.040
+So send us a boost in with a new podcast app
+
+25:49.040 --> 25:51.680
+or use the Breeze app if you don't switch podcast apps.
+
+25:51.680 --> 25:54.000
+Or send us an email at linuxunplugged.com
+
+25:54.000 --> 25:56.040
+slash contact and let us know what you think.
+
+25:59.040 --> 26:01.860
+Bitwarden.com slash Linux.
+
+26:01.860 --> 26:04.160
+Go get started with a free trial for Teams, Enterprise,
+
+26:04.160 --> 26:07.520
+or a personal account at bitwarden.com slash Linux.
+
+26:07.520 --> 26:09.400
+As an individual user, I love it.
+
+26:09.400 --> 26:10.920
+But of course, as a business owner,
+
+26:10.920 --> 26:13.400
+it's been, I think, a big part to what keeps our information
+
+26:13.400 --> 26:14.720
+secure and protected.
+
+26:14.720 --> 26:17.200
+Bitwarden is the easiest way for an individual or a business
+
+26:17.200 --> 26:20.240
+to store, share, and sync sensitive information.
+
+26:20.240 --> 26:21.600
+And Bitwarden is open source.
+
+26:21.600 --> 26:24.160
+It's trusted by millions of users in their community.
+
+26:24.160 --> 26:25.960
+It has a self-hosted component as well.
+
+26:25.960 --> 26:28.520
+And it's what Wes and I use to store all of our passwords,
+
+26:28.520 --> 26:29.720
+manage our two-factor codes.
+
+26:29.720 --> 26:32.960
+We're both customers of Bitwarden Cloud, which is just
+
+26:32.960 --> 26:35.680
+an unbelievable great deal.
+
+26:35.680 --> 26:38.280
+Man, and you know they keep adding new features too.
+
+26:38.280 --> 26:41.560
+Bitwarden has rolled out account switching.
+
+26:41.560 --> 26:42.640
+That's great.
+
+26:42.640 --> 26:45.640
+But now they've just recently added the ability on Android
+
+26:45.640 --> 26:48.360
+to switch accounts while you're at the password fill out.
+
+26:48.360 --> 26:49.840
+You know, this is so nice because I
+
+26:49.840 --> 26:52.440
+have a business account and a personal account.
+
+26:52.440 --> 26:54.400
+And now, right there, when you're at the prompt,
+
+26:54.400 --> 26:57.000
+you can tap the avatar bubble and switch
+
+26:57.000 --> 26:59.680
+to another account quickly, get the password access,
+
+26:59.680 --> 27:01.740
+authenticate, and deploy that one password.
+
+27:01.740 --> 27:03.600
+How nice is that?
+
+27:03.600 --> 27:05.160
+Account switching has been great.
+
+27:05.160 --> 27:07.080
+And one of the features I'm just getting into,
+
+27:07.080 --> 27:10.280
+and it just got better, is their username generator.
+
+27:10.280 --> 27:12.760
+Now, this makes it easy to create a random username
+
+27:12.760 --> 27:15.300
+for a website you're signing up for or a service
+
+27:15.300 --> 27:16.720
+and add an extra level of security.
+
+27:16.720 --> 27:18.640
+That's just genius.
+
+27:18.640 --> 27:21.120
+But now, they're making it even easier to use.
+
+27:21.120 --> 27:23.560
+When you generate a new username,
+
+27:23.560 --> 27:27.060
+there will now be an option to create an email address
+
+27:27.060 --> 27:28.960
+with a subselection for choosing something
+
+27:28.960 --> 27:34.480
+like simple login, a non-addy, or my favorite, Firefox Relay.
+
+27:34.480 --> 27:35.040
+Yeah.
+
+27:35.040 --> 27:37.440
+So you just enter the API key for your individual account
+
+27:37.440 --> 27:39.760
+for that service, like Firefox Relay.
+
+27:39.760 --> 27:43.080
+And then, upon generation of the username and the password,
+
+27:43.080 --> 27:46.240
+it'll also generate that email address that's
+
+27:46.240 --> 27:47.560
+just for them and unique.
+
+27:47.560 --> 27:49.760
+A new alias is instantly registered to your account.
+
+27:49.760 --> 27:52.300
+And it's all saved in Bitwarden and then synced across
+
+27:52.300 --> 27:55.320
+your devices automatically.
+
+27:55.320 --> 27:56.920
+Using a good password manager is probably
+
+27:56.920 --> 27:59.640
+one of the number one things you can do for your security.
+
+27:59.640 --> 28:00.540
+You probably already know that.
+
+28:00.540 --> 28:03.040
+But if a friend or a family or a colleague or your workplace
+
+28:03.040 --> 28:05.600
+hasn't really wrapped their noodle around that,
+
+28:05.600 --> 28:06.760
+have them try out Bitwarden.
+
+28:06.760 --> 28:07.960
+It's the best way to do this.
+
+28:07.960 --> 28:10.240
+And you can support the show and get a free trial
+
+28:10.240 --> 28:12.520
+for Teams, Enterprise, or an individual plan
+
+28:12.520 --> 28:14.800
+by going to bitwarden.com slash Linux.
+
+28:14.800 --> 28:15.600
+That's where you go.
+
+28:15.600 --> 28:16.200
+Go right now.
+
+28:16.200 --> 28:17.760
+Support the show and try it out.
+
+28:17.760 --> 28:21.240
+It's like a low-hanging fruit to protect yourself.
+
+28:21.240 --> 28:23.920
+Bitwarden.com slash Linux.
+
+28:27.760 --> 28:30.000
+As always, we got some great feedback this week.
+
+28:30.000 --> 28:31.320
+Chris wrote in.
+
+28:31.320 --> 28:34.000
+Last week, you mentioned the new HP laptop running Pop!
+
+28:34.000 --> 28:34.560
+OS.
+
+28:34.560 --> 28:37.360
+And it did get me wondering about whether devs really
+
+28:37.360 --> 28:39.520
+use laptops all that much.
+
+28:39.520 --> 28:40.400
+I'm not a dev.
+
+28:40.400 --> 28:43.040
+And it would drive me nuts to sit in front of the laptop
+
+28:43.040 --> 28:45.360
+all day trying to get anything serious done.
+
+28:45.360 --> 28:49.580
+Wouldn't the standard pony for a dev or any other heavy PC user
+
+28:49.580 --> 28:52.080
+be the most powerful desktop with the biggest
+
+28:52.080 --> 28:53.760
+monitor you could afford?
+
+28:53.760 --> 28:57.280
+I seem to only use my laptop when I'm on the road.
+
+28:57.280 --> 28:59.600
+Well, Wes, you're a developer by day.
+
+28:59.600 --> 29:00.720
+Do you use a laptop?
+
+29:00.720 --> 29:02.000
+Yes, I do.
+
+29:02.000 --> 29:03.480
+Yeah, you know, I think you probably
+
+29:03.480 --> 29:05.720
+would assume it would be a nice big workstation.
+
+29:05.720 --> 29:08.860
+I think for folks open source work or at homework,
+
+29:08.860 --> 29:10.440
+that probably is often the case.
+
+29:10.440 --> 29:11.680
+Maybe this is one of those things
+
+29:11.680 --> 29:15.080
+that needs to get caught up for our post-pandemic working
+
+29:15.080 --> 29:16.160
+remotely life.
+
+29:16.160 --> 29:17.920
+But I think a lot of it comes down
+
+29:17.920 --> 29:20.000
+to just sort of the lowest common denominator, right?
+
+29:20.000 --> 29:22.280
+Like, your folks need to sometimes go to meetings.
+
+29:22.280 --> 29:23.560
+They sometimes travel for work.
+
+29:23.560 --> 29:25.000
+They sometimes go to conferences.
+
+29:25.000 --> 29:27.480
+And therefore, you're either going to get them two machines
+
+29:27.480 --> 29:29.000
+or you just get them one.
+
+29:29.000 --> 29:31.600
+And to be clear, no one's really sitting there just
+
+29:31.600 --> 29:33.800
+typing on a single laptop unless they have to, right?
+
+29:33.800 --> 29:36.160
+Like, these days, you've got sort of hotel stations
+
+29:36.160 --> 29:37.880
+where you just plug into a dock at a little
+
+29:37.880 --> 29:40.160
+wherever you're sitting down and you've got all the monitors
+
+29:40.160 --> 29:40.640
+you need.
+
+29:40.640 --> 29:42.520
+I wonder, too, if the work from home trends
+
+29:42.520 --> 29:44.480
+have maybe accelerated this a bit so that way you can take
+
+29:44.480 --> 29:45.720
+your machine back and forth.
+
+29:45.720 --> 29:49.040
+But if you look at the sales numbers,
+
+29:49.040 --> 29:51.720
+laptops are selling like gangbusters over desktops.
+
+29:51.720 --> 29:54.400
+And if you look specifically at Apple,
+
+29:54.400 --> 29:56.800
+they sell way more MacBook Pros than they
+
+29:56.800 --> 29:58.840
+do regular desktop machines.
+
+29:58.840 --> 30:01.920
+And they target those things hard at developers.
+
+30:01.920 --> 30:03.720
+And I think they've done a pretty good job
+
+30:03.720 --> 30:07.760
+of balancing dedicated CPU versus integrated CPU or disk
+
+30:07.760 --> 30:10.000
+and except for when they didn't with the bad keyboards
+
+30:10.000 --> 30:10.600
+and stuff.
+
+30:10.600 --> 30:13.160
+And you see Dell adopt the Sputnik model.
+
+30:13.160 --> 30:14.800
+You see HP with the Dev1.
+
+30:14.800 --> 30:17.880
+And of course, System76 is catering to that audience.
+
+30:17.880 --> 30:21.400
+I think there's something nice about having everything in one.
+
+30:21.400 --> 30:22.960
+That's why the iMac's popular, too.
+
+30:22.960 --> 30:25.000
+I think there's people that like the all-in-one.
+
+30:25.000 --> 30:26.520
+But I get where you're coming from,
+
+30:26.520 --> 30:29.260
+other Chris, because it's like for me,
+
+30:29.260 --> 30:30.680
+I can tell the difference when I'm
+
+30:30.680 --> 30:32.800
+using a workstation still versus a laptop.
+
+30:32.800 --> 30:35.480
+It's beginning to change, but I still
+
+30:35.480 --> 30:38.240
+feel like there's a performance delta
+
+30:38.240 --> 30:39.760
+between a laptop and a desktop.
+
+30:39.760 --> 30:42.000
+Right, so you'd be the one sort of complaining to IT,
+
+30:42.000 --> 30:44.200
+I really need a desktop.
+
+30:44.200 --> 30:47.240
+I need one, and a laptop, and a tablet, and a phone,
+
+30:47.240 --> 30:48.800
+obviously.
+
+30:48.800 --> 30:51.760
+Oh, and a projector, too.
+
+30:51.760 --> 30:55.760
+Now, we did get a lot of questions around the Pop OS
+
+30:55.760 --> 30:59.360
+and HP sort of project that we touched on last week.
+
+30:59.360 --> 31:03.160
+And we got some boosts about that, too.
+
+31:03.160 --> 31:07.240
+And now, it is time for Le Boost.
+
+31:07.240 --> 31:08.760
+Nick wrote in with some feedback,
+
+31:08.760 --> 31:11.920
+and the golden dragon wrote in with a boost six days ago
+
+31:11.920 --> 31:15.280
+with two, two, two, two sats, which
+
+31:15.280 --> 31:17.000
+apparently is a row of ducks.
+
+31:17.000 --> 31:20.840
+I'm a duck, D-U-K, duck, loaded with talent.
+
+31:20.840 --> 31:21.360
+It is.
+
+31:21.360 --> 31:25.160
+If you type in two, two, two, two into a calculator,
+
+31:25.160 --> 31:27.520
+it looks like a row of those yellow duckies.
+
+31:27.520 --> 31:29.840
+I think we got a sat amount last week as well.
+
+31:29.840 --> 31:33.640
+That was one of those old calculator secrets, which
+
+31:33.640 --> 31:35.560
+maybe we'll have to look back on that.
+
+31:35.560 --> 31:37.400
+So the golden dragon wrote in.
+
+31:37.400 --> 31:39.680
+Now, this sounds promising.
+
+31:39.680 --> 31:44.400
+HP plus Pop with AMD seems like a stellar dev system.
+
+31:44.400 --> 31:47.000
+The one question I would have is,
+
+31:47.000 --> 31:49.920
+what is a killer system like this going to cost?
+
+31:49.920 --> 31:52.320
+Well, I think we'd know it's going to start around $1,000.
+
+31:52.320 --> 31:53.400
+I thought it was like $1099, something like that, right?
+
+31:53.400 --> 31:54.800
+Yeah, something like that.
+
+31:54.800 --> 31:57.000
+What we don't know is what the price goes up
+
+31:57.000 --> 31:58.480
+to when you tweak the specs.
+
+31:58.480 --> 32:00.160
+Because that came with 16 gigs of RAM
+
+32:00.160 --> 32:02.240
+and one terabyte of disk space, which is really
+
+32:02.240 --> 32:04.440
+not too bad for that price.
+
+32:04.440 --> 32:07.520
+And 16 gigs of RAM might be the max,
+
+32:07.520 --> 32:09.760
+but you might be able to tweak storage and processor.
+
+32:09.760 --> 32:11.360
+We are collecting these questions,
+
+32:11.360 --> 32:14.720
+so keep sending them in.
+
+32:14.720 --> 32:15.680
+Boost.
+
+32:15.680 --> 32:17.800
+Yeah, Nick wrote in about the same lines
+
+32:17.800 --> 32:20.000
+with some great questions I think are worth exploring
+
+32:20.000 --> 32:21.640
+in the future as well, one of them
+
+32:21.640 --> 32:24.840
+being, how long is the laptop going to be supported?
+
+32:24.840 --> 32:26.680
+Firmware updates, how are those going to work?
+
+32:26.680 --> 32:30.000
+Will it use the existing Pop OS firmware delivery method?
+
+32:30.000 --> 32:31.880
+I thought those were all really good questions.
+
+32:31.880 --> 32:33.920
+Yeah, you know, I haven't really used an HP machine for a while.
+
+32:33.920 --> 32:36.320
+Are they playing nice with some of our fancy new Linux
+
+32:36.320 --> 32:36.920
+firmware stuff?
+
+32:36.920 --> 32:39.240
+Yeah, I hope it has LVFS support, right?
+
+32:39.240 --> 32:40.720
+It needs that LVFS.
+
+32:40.720 --> 32:41.200
+Come on.
+
+32:41.200 --> 32:41.800
+It needs that.
+
+32:41.800 --> 32:43.040
+Yeah, that's a good question.
+
+32:43.040 --> 32:46.040
+Magenta Sheep boosts in using Buries no less,
+
+32:46.040 --> 32:50.920
+six days ago, with 3,142 SATs.
+
+32:50.920 --> 32:53.720
+Is that Pop OS HP system running Core Boot?
+
+32:53.720 --> 32:55.680
+That is probably the number one question we got.
+
+32:55.680 --> 32:56.480
+Yeah, right there.
+
+32:56.480 --> 32:58.440
+Oh, I've written that one down.
+
+32:58.440 --> 33:01.360
+I don't know how much can be shared yet or not too,
+
+33:01.360 --> 33:05.000
+so I got to get information on the NDAs around this thing.
+
+33:05.000 --> 33:06.160
+Keeping secrets from us.
+
+33:06.160 --> 33:07.520
+I don't have the info, but I just
+
+33:07.520 --> 33:08.640
+know that once I get it, there's going
+
+33:08.640 --> 33:10.400
+to be that kind of thing, so.
+
+33:10.400 --> 33:12.680
+Core Boot's definitely the number one question though.
+
+33:12.680 --> 33:14.520
+We got a double boost from Magenta Sheep
+
+33:14.520 --> 33:19.240
+six days ago, 3,142 SATs again.
+
+33:19.240 --> 33:26.600
+They write, ZFS's killer feature for me is sending
+
+33:26.600 --> 33:28.360
+encrypted raw snapshots.
+
+33:28.360 --> 33:30.360
+Nothing else I know of lets me have
+
+33:30.360 --> 33:32.680
+better security and integrity.
+
+33:32.680 --> 33:38.080
+Not just an encrypted snapshot, but an encrypted raw snapshot.
+
+33:38.080 --> 33:40.720
+I hear from the audience all kinds of clever ways
+
+33:40.720 --> 33:42.360
+they're using ZFS send and receive.
+
+33:42.360 --> 33:42.920
+Totally.
+
+33:42.920 --> 33:45.920
+To move things around between data centers and servers.
+
+33:45.920 --> 33:47.280
+And that's an awesome feature.
+
+33:47.280 --> 33:50.400
+When we get to poking at BcashFS in a real way,
+
+33:50.400 --> 33:52.800
+I think we've got to play around with some of these features
+
+33:52.800 --> 33:56.400
+that people love about ZFS and ButterFS.
+
+33:56.400 --> 33:58.480
+Speaking of BcashFS.
+
+33:58.480 --> 34:03.880
+Oh yes, user 7620 boosted in five days ago with 10,000 SATs.
+
+34:03.880 --> 34:05.760
+B-O-O-S-T.
+
+34:05.760 --> 34:07.640
+Hooray for BcashFS.
+
+34:07.640 --> 34:08.800
+I can't wait.
+
+34:08.800 --> 34:11.280
+Hey, well, user 6720.
+
+34:11.280 --> 34:11.960
+We agree.
+
+34:11.960 --> 34:12.520
+We agree.
+
+34:12.520 --> 34:14.040
+I still have it on that laptop.
+
+34:14.040 --> 34:15.600
+I'll run it for a little bit.
+
+34:15.600 --> 34:19.240
+I got to also figure out a good set of benchmarks.
+
+34:19.240 --> 34:21.680
+So we'll be chatting about that in the future.
+
+34:21.680 --> 34:22.760
+I agree, though.
+
+34:22.760 --> 34:23.440
+Very exciting.
+
+34:23.440 --> 34:26.480
+You know, I'm curious about those two touch on kind
+
+34:26.480 --> 34:28.960
+of the same topic we explored last week.
+
+34:28.960 --> 34:31.440
+And I wondered how ButterFS dealt with,
+
+34:31.440 --> 34:33.400
+I've been reading tons about it this week,
+
+34:33.400 --> 34:37.520
+but I wondered how you mentioned ZFS's encrypted raw snapshots.
+
+34:37.520 --> 34:39.920
+Well, how does ButterFS compare in there?
+
+34:39.920 --> 34:42.480
+I want to know for my own purposes here.
+
+34:42.480 --> 34:44.120
+Sounds like you have some experimenting to do.
+
+34:44.120 --> 34:44.840
+I do.
+
+34:44.840 --> 34:46.800
+Young master brand.
+
+34:46.800 --> 34:57.960
+Michael wrote in with a boost as well one day ago, 30,000 SATs.
+
+34:57.960 --> 35:00.920
+He writes, helping you helping others, smiley face.
+
+35:00.920 --> 35:03.280
+Supporting open source projects is a great idea.
+
+35:03.280 --> 35:07.280
+Ah, this is in reference to sending a 15% split
+
+35:07.280 --> 35:10.280
+to OpenSATs, which we're doing this episode as well,
+
+35:10.280 --> 35:13.040
+which is a nonprofit charity that
+
+35:13.040 --> 35:16.240
+gives 100% of the revenue sent to their general funds
+
+35:16.240 --> 35:18.080
+to free software projects.
+
+35:18.080 --> 35:21.560
+And so when you boost this here podcast and office hours,
+
+35:21.560 --> 35:23.120
+we're doing a little experiment.
+
+35:23.120 --> 35:25.760
+15% goes to OpenSATs.
+
+35:25.760 --> 35:29.000
+So for this episode, if my rough quick math as we're doing this
+
+35:29.000 --> 35:32.840
+is right, we've sent about 3,200 and change to OpenSATs.
+
+35:32.840 --> 35:33.480
+Nice.
+
+35:33.480 --> 35:35.200
+Yeah, that's pretty great.
+
+35:35.200 --> 35:37.200
+So thank you, everybody, for helping us experiment
+
+35:37.200 --> 35:38.120
+with that.
+
+35:38.120 --> 35:40.840
+You did note in there, we have a couple of folks
+
+35:40.840 --> 35:42.320
+that are now boosting in with Breeze.
+
+35:42.320 --> 35:45.920
+That's B-R-E-E-Z. I think it's breeze.technology
+
+35:45.920 --> 35:47.160
+for the website.
+
+35:47.160 --> 35:50.920
+This works on Android or iOS.
+
+35:50.920 --> 35:54.360
+And what it essentially does is it gives you a lightning node
+
+35:54.360 --> 35:55.400
+in your pocket.
+
+35:55.400 --> 35:59.120
+I thought you were just happy to see me.
+
+35:59.120 --> 36:00.040
+Well done, sir.
+
+36:00.040 --> 36:01.520
+Well done.
+
+36:01.520 --> 36:04.880
+Breeze is sort of a front end to different services
+
+36:04.880 --> 36:07.080
+on the Lightning Network, including
+
+36:07.080 --> 36:08.800
+value for value podcasts.
+
+36:08.800 --> 36:11.200
+And so it's a way to send in a boost
+
+36:11.200 --> 36:14.440
+without having to switch from your favorite podcast app.
+
+36:14.440 --> 36:16.720
+Eventually, there is discussion for folks
+
+36:16.720 --> 36:19.400
+like AntennaPod, which AntennaPod supports
+
+36:19.400 --> 36:21.080
+a lot of podcasting 2.0 features,
+
+36:21.080 --> 36:24.040
+but not value and boost yet, although they
+
+36:24.040 --> 36:26.440
+are looking at integrating Breeze to accomplish that.
+
+36:26.440 --> 36:26.960
+Oh.
+
+36:26.960 --> 36:27.640
+Yeah.
+
+36:27.640 --> 36:29.340
+So you get a little head start right now.
+
+36:29.340 --> 36:31.720
+It is pretty cool, for better or for worse,
+
+36:31.720 --> 36:33.520
+to run a lightning node in your pocket.
+
+36:33.520 --> 36:36.680
+You can also grab a new podcast app at newpodcastapps.com.
+
+36:36.680 --> 36:39.080
+I'm using Fountain FM these days.
+
+36:39.080 --> 36:40.240
+You can follow me on Fountain.
+
+36:40.240 --> 36:41.680
+I'm at chrislas.
+
+36:41.680 --> 36:43.840
+And I'm clipping the podcasts that I listen to,
+
+36:43.840 --> 36:45.880
+including JB shows and others.
+
+36:45.880 --> 36:48.120
+So if you're interested in the podcasts I listen to,
+
+36:48.120 --> 36:49.380
+you can follow me on Fountain.
+
+36:49.380 --> 36:50.880
+I'm just at chrislas.
+
+36:50.880 --> 36:53.480
+And it's fountain.fm, I think, for that.
+
+36:53.480 --> 36:56.680
+newpodcastapps.com has them all.
+
+36:56.680 --> 36:59.360
+And with that, gentlemen, you know what it's time for?
+
+36:59.360 --> 37:00.280
+The picks.
+
+37:00.280 --> 37:03.080
+It is time for the picks.
+
+37:03.080 --> 37:04.600
+And I had a hard time picking one
+
+37:04.600 --> 37:06.400
+that I felt was on theme for this week.
+
+37:06.400 --> 37:07.560
+So that's the thing I've been trying to do.
+
+37:07.560 --> 37:08.680
+Yes, you have.
+
+37:08.680 --> 37:12.240
+Not just some random dirty pick, but one that's on theme.
+
+37:12.240 --> 37:14.080
+And I think I found it.
+
+37:14.080 --> 37:15.360
+I mentioned earlier in the show
+
+37:15.360 --> 37:18.420
+that my Ubuntu system was using Linux 5.18 already.
+
+37:18.420 --> 37:21.320
+And it's this tool I'm using to do it.
+
+37:21.320 --> 37:24.160
+I was suspicious you were compiling these things by hand.
+
+37:24.160 --> 37:26.440
+Actually, if you recall, what were we doing, Wes?
+
+37:26.440 --> 37:28.960
+You and I were in here recently recording,
+
+37:28.960 --> 37:30.680
+and a pop-up as we finished came up and said,
+
+37:30.680 --> 37:31.720
+5.18's ready.
+
+37:31.720 --> 37:33.600
+It must have been last week's.
+
+37:33.600 --> 37:34.960
+It must have been last week's, yeah.
+
+37:34.960 --> 37:36.760
+It's really just that.
+
+37:36.760 --> 37:37.960
+It's not an app you should use.
+
+37:37.960 --> 37:39.080
+Don't do what Chris does.
+
+37:39.080 --> 37:40.040
+Don't do this.
+
+37:40.040 --> 37:41.880
+To tell you what kind of a lunatic I am
+
+37:41.880 --> 37:43.120
+and why you should never do this,
+
+37:43.120 --> 37:45.440
+I'm actually doing this on KDE Neon, too.
+
+37:45.440 --> 37:46.280
+So it's not even like,
+
+37:46.280 --> 37:48.600
+it's already kind of a Frank and Ubuntu setup.
+
+37:48.600 --> 37:50.320
+So I got Neon on top of Ubuntu,
+
+37:50.320 --> 37:52.320
+and then I'm also on top of that role on my own kernel.
+
+37:52.320 --> 37:53.320
+Don't do this.
+
+37:53.320 --> 37:55.880
+But if you want to, it's called Ubuntu Mainline,
+
+37:55.880 --> 37:58.480
+and it lets you pick your version.
+
+37:58.480 --> 38:00.280
+And you can have multiple versions.
+
+38:00.280 --> 38:01.480
+You can go way back.
+
+38:01.480 --> 38:02.720
+You can do all kinds of stuff.
+
+38:02.720 --> 38:04.440
+Or you can be a madman
+
+38:04.440 --> 38:08.040
+and literally get a new kernel the day it's posted,
+
+38:08.040 --> 38:09.600
+and a little pop-up will come up
+
+38:09.600 --> 38:11.480
+if you leave the notifications on,
+
+38:11.480 --> 38:12.600
+and it downloads and installs.
+
+38:12.600 --> 38:13.440
+It's just a PPA away.
+
+38:13.440 --> 38:16.160
+Does the thing have like RC releases, too,
+
+38:16.160 --> 38:17.000
+if you wanted to help test out?
+
+38:17.000 --> 38:18.080
+I think it does, Wes.
+
+38:18.080 --> 38:18.920
+Yes, it does.
+
+38:18.920 --> 38:19.760
+In fact, it does.
+
+38:19.760 --> 38:20.720
+I just skip them.
+
+38:20.720 --> 38:21.680
+Yeah, sure, sure.
+
+38:21.680 --> 38:23.680
+Yeah, and you can purge older kernels,
+
+38:23.680 --> 38:25.120
+and you can choose some of this stuff.
+
+38:25.120 --> 38:27.840
+I should mention, it gives you a GUI to manage all this,
+
+38:27.840 --> 38:29.560
+which is handy.
+
+38:29.560 --> 38:31.440
+You can also get the header packages
+
+38:31.440 --> 38:34.400
+if you need to build stuff and whatnot
+
+38:34.400 --> 38:36.320
+for your other modules and stuff.
+
+38:36.320 --> 38:40.800
+And honestly, as much as I say don't use this,
+
+38:40.800 --> 38:41.640
+Maybe use it.
+
+38:41.640 --> 38:45.480
+I've been using it for 10 months on this machine.
+
+38:45.480 --> 38:46.960
+You're just telling us about this now?
+
+38:46.960 --> 38:47.800
+Yeah.
+
+38:47.800 --> 38:49.040
+That's what's been putting that skip in your step.
+
+38:49.040 --> 38:51.400
+You know why I did it?
+
+38:51.400 --> 38:53.560
+Is initially, I was just a little disappointed
+
+38:53.560 --> 38:54.400
+in the performance.
+
+38:54.400 --> 38:55.800
+It felt like the machine was getting slow,
+
+38:55.800 --> 38:58.120
+and I'm like, I need a little more pep in my step.
+
+38:58.120 --> 38:59.400
+Maybe a newer kernel will do it.
+
+38:59.400 --> 39:00.920
+And you know what?
+
+39:00.920 --> 39:03.600
+It did break my NVIDIA driver, however.
+
+39:03.600 --> 39:06.400
+So I'm using the free NVIDIA driver again.
+
+39:06.400 --> 39:08.040
+This is why we can't have nice things.
+
+39:08.040 --> 39:09.920
+I probably could fix that,
+
+39:09.920 --> 39:12.920
+but I just give no crap at all.
+
+39:12.920 --> 39:14.120
+You know what I mean?
+
+39:14.120 --> 39:15.360
+It's an old NVIDIA card,
+
+39:15.360 --> 39:18.840
+and I've spent so many years fighting the NVIDIA driver
+
+39:18.840 --> 39:20.040
+on laptops and stuff,
+
+39:20.040 --> 39:22.840
+that now that it's the lights at the end of the tunnel,
+
+39:22.840 --> 39:24.000
+I just can't be bothered.
+
+39:24.000 --> 39:24.840
+You're done.
+
+39:26.480 --> 39:28.000
+I'm playing Race the Sun on this thing.
+
+39:28.000 --> 39:30.160
+What do I need 3D acceleration for?
+
+39:30.160 --> 39:31.200
+So, good enough.
+
+39:31.200 --> 39:32.360
+But that might also explain
+
+39:32.360 --> 39:34.120
+why the machine's been a little laggy.
+
+39:34.120 --> 39:35.560
+If you'd like to give us a pick idea,
+
+39:35.560 --> 39:37.800
+you can go to linuxunplugged.com slash contact
+
+39:37.800 --> 39:39.880
+and send an idea in.
+
+39:39.880 --> 39:41.680
+We'd love to have them over there.
+
+39:41.680 --> 39:43.200
+If you want more show,
+
+39:43.200 --> 39:44.680
+well, there's a few ways you can do it.
+
+39:44.680 --> 39:46.320
+You can become a member.
+
+39:46.320 --> 39:48.400
+Linux Unplugged does have a membership program
+
+39:48.400 --> 39:50.320
+at unpluggedcore.com.
+
+39:50.320 --> 39:53.080
+These members get special access to two different feeds.
+
+39:53.080 --> 39:54.520
+One that's an ad-free feed,
+
+39:54.520 --> 39:56.840
+nice, tight, full production with all of Drew's editing,
+
+39:56.840 --> 39:58.600
+who's our summer editor right now.
+
+39:58.600 --> 40:00.840
+Or you can choose the live version.
+
+40:00.840 --> 40:03.080
+And then you'd know I just screwed that up right there.
+
+40:03.080 --> 40:05.920
+But because editor Drew is so smooth, you don't know.
+
+40:05.920 --> 40:07.000
+But if you listen to live version,
+
+40:07.000 --> 40:08.200
+you hear all the mess ups,
+
+40:08.200 --> 40:09.600
+all the times we stopped the show
+
+40:09.600 --> 40:13.120
+because Wes has got to go to the bathroom.
+
+40:13.120 --> 40:14.520
+Okay, that doesn't happen very often.
+
+40:14.520 --> 40:15.800
+But if it did, you'd know.
+
+40:15.800 --> 40:18.000
+Actually, what you really get with the live show
+
+40:18.000 --> 40:19.920
+is just more show.
+
+40:19.920 --> 40:22.840
+There's like almost an entire additional show
+
+40:22.840 --> 40:24.160
+in the pre and post show.
+
+40:24.160 --> 40:26.040
+It's just a lot more casual.
+
+40:26.040 --> 40:27.680
+And as a thank you,
+
+40:27.680 --> 40:30.520
+because you give us runway to decide which sponsors we do
+
+40:30.520 --> 40:31.880
+or don't wanna work with.
+
+40:31.880 --> 40:33.360
+It's not something we talk a lot about,
+
+40:33.360 --> 40:35.160
+but I've just for a little while,
+
+40:35.160 --> 40:37.080
+I'm gonna just mention
+
+40:37.080 --> 40:40.760
+that we get the most ridiculous pitches on this show.
+
+40:40.760 --> 40:44.400
+They get sent in for just all these kinds of crazy products
+
+40:44.400 --> 40:47.000
+and services that they want us to pitch to you guys.
+
+40:47.000 --> 40:50.760
+And it's so nice that our members give us the option
+
+40:50.760 --> 40:53.760
+to just hit the delete button on all of those emails, right?
+
+40:53.760 --> 40:55.000
+That's powerful.
+
+40:55.000 --> 40:56.120
+It keeps us independent.
+
+40:56.120 --> 40:57.800
+It keeps us focused on making content
+
+40:57.800 --> 41:00.200
+that's true to our audience and true to our members.
+
+41:00.200 --> 41:02.920
+So thank you to our members at unpluggedcore.com.
+
+41:02.920 --> 41:05.120
+And if you're missing Linux action news,
+
+41:05.120 --> 41:07.560
+well, then you are missing out on not only that Intel news,
+
+41:07.560 --> 41:10.120
+but a bunch of other stuff that happens every single week
+
+41:10.120 --> 41:12.120
+in the world of Linux and free software.
+
+41:12.120 --> 41:14.360
+So go to linuxactionnews.com for that.
+
+41:14.360 --> 41:15.480
+Plus you get more Westpain.
+
+41:15.480 --> 41:16.560
+Darn right.
+
+41:16.560 --> 41:17.640
+Darn right.
+
+41:17.640 --> 41:19.960
+Go get more Westpain at linuxactionnews.com.
+
+41:19.960 --> 41:21.600
+And last but not least,
+
+41:21.600 --> 41:23.320
+we'd love to have you join us live.
+
+41:23.320 --> 41:24.640
+See you next week.
+
+41:24.640 --> 41:27.080
+Same bad time, same bad station.
+
+41:27.080 --> 41:28.120
+Yeah, that's right.
+
+41:28.120 --> 41:29.720
+Why don't you come on over?
+
+41:29.720 --> 41:31.400
+We do the show on Sundays.
+
+41:31.400 --> 41:34.400
+We may be experimenting with some new tools,
+
+41:34.400 --> 41:36.920
+maybe experimenting with video streams for this year's show
+
+41:36.920 --> 41:39.960
+so you can see us doing the show live from the JB1 studio.
+
+41:41.000 --> 41:43.200
+Could have some announcements in that regard.
+
+41:43.200 --> 41:45.600
+Perhaps next Sunday would be a good one to join us for
+
+41:45.600 --> 41:49.800
+at jblive.tv, 12 p.m. Pacific, 3 p.m. Eastern.
+
+41:49.800 --> 41:51.520
+Now links to everything we talked about today,
+
+41:51.520 --> 41:54.760
+that's over at linuxunplug.com slash 460.
+
+41:54.760 --> 41:56.840
+You can find our RSS feed over there,
+
+41:56.840 --> 41:59.400
+contact page, previous episodes,
+
+41:59.400 --> 42:00.560
+and then don't forget all the great shows
+
+42:00.560 --> 42:02.800
+over at jupiterbroadcasting.com.
+
+42:02.800 --> 42:04.560
+Thanks so much for joining us on this week's episode
+
+42:04.560 --> 42:05.920
+of the Unplugged program.
+
+42:05.920 --> 42:07.080
+See you back here next week.
+
+42:07.080 --> 42:23.920
+If you like the show, please subscribe.
+
+42:37.080 --> 42:52.180
+The cone of silence.
+
+42:52.180 --> 42:55.960
+Do we have any more details on the London meetup?
+
+42:55.960 --> 42:58.560
+Because we didn't mention that in the show and I'm wondering we could like record a thing
+
+42:58.560 --> 42:59.560
+but is there any updates?
+
+42:59.560 --> 43:03.280
+Well, I think is our resident Canadian which is like halfway to England is my understanding
+
+43:03.280 --> 43:04.280
+Brent might know.
+
+43:04.280 --> 43:06.080
+You got anything new for us, Brent Lee?
+
+43:06.080 --> 43:10.800
+Last time we talked about this, which was on office hours last Tuesday.
+
+43:10.800 --> 43:13.080
+There were about 40 people signed up to go to the meetup.
+
+43:13.080 --> 43:18.240
+And as far as today, this update as this minute, there are 53 people.
+
+43:18.240 --> 43:21.000
+So I think the numbers are going up quite considerably.
+
+43:21.000 --> 43:25.720
+I think that might end up being a problem in terms of venue, but that's a good problem
+
+43:25.720 --> 43:26.720
+to have.
+
+43:26.720 --> 43:30.560
+So I feel like there and those are probably 53 really amazing people to go and meet.
+
+43:30.560 --> 43:32.240
+I feel kind of jealous.
+
+43:32.240 --> 43:37.160
+I see one Martin Wimpress on there, so perhaps Martin Wimpress could do some local advising.
+
+43:37.160 --> 43:38.160
+Mm hmm.
+
+43:38.160 --> 43:39.160
+All right.
+
+43:39.160 --> 43:42.840
+So this is I think this thing's happening, though, on August 6, 2022.
+
+43:42.840 --> 43:44.160
+I think this is happening.
+
+43:44.160 --> 43:47.600
+So what we'll do is let's we'll just play it cool.
+
+43:47.600 --> 43:50.440
+We'll pretend like we planned to do this in the post show the entire time.
+
+43:50.440 --> 43:51.920
+So get ready.
+
+43:51.920 --> 43:53.920
+The cone of silence.
+
+43:53.920 --> 43:58.520
+Hey, everybody, I just want to make sure that you know that London meetup is on.
+
+43:58.520 --> 44:01.520
+Go get details at meetup.com slash Jupiter broadcasting.
+
+44:01.520 --> 44:03.240
+Hey, guys, look at this.
+
+44:03.240 --> 44:04.760
+Fifty three people attending already.
+
+44:04.760 --> 44:05.760
+Can you believe it?
+
+44:05.760 --> 44:06.760
+That is wow.
+
+44:06.760 --> 44:09.760
+I never expected that at all.
+
+44:09.760 --> 44:32.080
+What a surprise.
+

@@ -1,0 +1,1746 @@
+I got great news for anybody that's feeling retro right now.
+Linux's floppy disk support isn't just going away.
+No, no, it's getting better in 2020.
+Yeah, that's right.
+It doesn't make any sense,
+but the same kernel where Intel stabilized
+Tiger Lake graphics, AMD added support for Zen version three,
+and we got that new ex-fat driver, it's seen floppy work.
+I kind of love this.
+Yesterday, Wes and I were just talking
+about how I wanted to set up an LTO tape drive
+here in the studio and just start putting stuff
+on the LTO tape.
+Retro.
+But maybe this is a better way to go.
+And it's not just like keeping things kind of fresh.
+It's a full on bunch of code fixes,
+586 lines of new code and 613 deletions.
+Let's say you can tell it's good.
+Hello friends, welcome into Linux Unplugged episode 345,
+your weekly Linux talk show.
+My name is Chris.
+My name is Wes.
+Hello, Wes.
+We have a really fun show to get into today.
+Wes and I have been running Ubuntu 2004
+and GNOME 3.36, and we have many,
+many things to share with you.
+But also, I don't know if you can tell,
+I'm not in Denver this week.
+I'll tell you what happened.
+I was surprised to see you in the studio this morning.
+Crazy series of events.
+I'm not in Denver this week.
+I'm in the studio.
+I'm in the studio.
+I'm in the studio.
+I'm in the studio.
+Crazy series of events, which we will get into in a moment.
+We've got a bunch of community news,
+and we're gonna go behind the scenes
+of the just completed WSLConf,
+the first of the tech conferences
+to pivot to virtual only in the light
+of all of the recent healthcare stuff.
+They were really at the forefront of that,
+and so it makes for a fascinating story.
+But before we get into that,
+I got a couple of bits of business to get into.
+Time appropriate greetings, virtual log.
+Hello, hello.
+Hello, hello.
+Hello, hello.
+Howdy.
+Hello.
+Happy Linux Tuesday.
+Yes, that is a great showing.
+Hello, everybody.
+There's so many in there.
+I'm gonna do it.
+Are you ready, Russ?
+I'm gonna do it.
+Come on.
+Hello to Anthr, Byte, Carl, Conan, Emaxer, Frank,
+Jill, John, Colonel, Kestras, Minimac, TechMav,
+and all of you up in the quiet listening
+who are just hanging out and listening.
+We have 20 people in there this week,
+and it is awesome, but of course,
+in studio with us rocking, as always,
+in the corner in the big comfy chair is Mr. Cheese Bacon.
+Hello, sir.
+Hello, everyone.
+It's great to see that we have the continued turnout
+each week.
+It just seems to be getting bigger and bigger
+and bigger and bigger every week.
+It's awesome.
+I know.
+One of the reasons I came back a little early
+was because I was thinking everybody's at home.
+Yeah, if you're hunkered down at home,
+why not hang out virtually?
+They're gonna show up, and it's gonna be a big show,
+and it is.
+We have a big chat room going right now.
+Hello, everybody.
+We've got a lot going on in the mumble room.
+Before we get into why I'm not in Denver,
+how about a couple of fun floppy facts, Westpain?
+You want to razzle dazzle us with a few fun floppy facts?
+Floppy facts.
+Razzle dazzle us, sir.
+A blank CD would take roughly 487 floppy disks.
+Okay.
+That's the size comparison.
+It's not as big as I thought, really.
+CDs aren't that great.
+Yeah, but when you're installing an operating system,
+it really makes all the difference.
+Yeah, it gets a little better when you go up a level.
+A blank DVD would take roughly 3,264 floppies.
+Could you imagine watching a movie
+and then pausing to swap a disk or something like that?
+It might look nice on the shelf, though,
+just you have to have so many laying around.
+Oh, yeah, especially if the labels
+could all complete a picture
+when they're all lined up next to each other.
+Now you're thinking.
+Yeah, that'd look really good.
+What about a big disk?
+Yeah, okay, well, a single one-derabyte drive,
+that's nearly 700,000 floppies.
+You know what was interesting about the code cleanup
+is that some of it was specifically
+for ARM support of floppy disks.
+So ARM devices are getting floppy drives?
+I'll admit, that's not anything I've ever tried.
+No, that's not where I expected that to go.
+But, I mean, why not?
+If you're using it somewhere mobile
+or in the field, IoT-based perhaps,
+you don't need that much storage and floppies are around.
+There are still some legacy applications
+and equipment out there.
+I'm looking at you, old-timey oscilloscopes
+that only output by floppy.
+So I wonder how many people are here for the first time.
+I think, Anther, you're here for the first time
+working from home.
+Welcome to the Virtual Lug.
+Thank you.
+Glad to have you here.
+Who else?
+Anybody else in the Virtual Lug this week
+joining us for the first time
+because they're working from home?
+That'd be me.
+Welcome.
+Awesome, I'm glad you made this on your list.
+I'm glad it worked for you.
+And shout out to everybody in the chat room, too,
+who is joining us for the first time.
+And if you didn't know, podcasting
+and listening to podcasts, it makes you more productive.
+Yeah, and welcome to the low latency feed of the show.
+So why am I here?
+Why am I one of those low latency contributors?
+Because as you may have seen,
+elementary OS folks had to cancel their sprint
+because of all of the COVID-19 restrictions and concerns.
+And of course, just safety precautions.
+And they had team members who would have been traveling
+from Europe and they just wouldn't have been able
+to get back.
+So those minor details.
+Funny enough, though, and they told me as soon as they knew,
+the guys told me immediately,
+I found out the evening before I was getting ready to leave,
+I was already packed up, ready to go, everything was set.
+And so I decided to head out anyways.
+Yeah, I mean, you're ready to go.
+Yeah, I mean, I coordinated with work and you,
+like we were planning for me to be remote.
+Angela had decided that she could watch the kids
+while we were gone.
+And we had arranged some friends
+to also help watch the kids.
+And we made time.
+Like it had sort of worked out just sort of beautifully.
+And I thought, okay, let's go anyways
+because this time is available.
+Wow, did that turn into an adventure.
+There was a winter storm that rolled
+into the Pacific Northwest that chased me around.
+And so I decided because I figured we'd have a good showing
+that I should just try to come back
+and try to make it back by Tuesday,
+which turned into an incredible adventure itself,
+which since we're here to talk about Linux,
+I will spare you all from,
+but you can find it at worklifeandrv.com.
+It's episode four, eager beavers versus the storm.
+We'll have a link in the show notes.
+I tell you what, I thought I'd go work from the road
+for a week or two and then come back all refreshed
+and recharged.
+And it ended up being essentially a struggle to survive
+and also not crash my home.
+It was a hell of a journey.
+And in the meantime,
+the elementary OS guys got together virtually.
+They started working on a few different goals.
+It's not necessarily the same thing.
+I mean, a pandemic is not gonna stop them.
+No, and they've already made some improvements
+and contributions.
+Daniel Foray and Cassidy have been tweeting
+about some of their improvements.
+So I invited them to come on the show after they're done
+and tell us where they got,
+but maybe they might reschedule this to an in-person thing.
+We just don't know at this time.
+It's all up in the air.
+Also, since we've gotten together last, Linux Fest Northwest
+is officially canceled.
+So obviously we won't be making it to Linux Fest Northwest
+this year.
+We need a sad clip for that.
+Oh man, it's a bit of a blow, huh?
+It is, it really sucks.
+Yeah, yeah, especially after not making it to scale.
+I'm not sure.
+I'm kind of postulating what I might do,
+maybe a mini meetup because there are some folks
+that just already have travel plans locked in.
+And it really all just depends on where the pandemic is
+by that point.
+I've been talking about it on the Chris Last cast
+and I'll probably just keep people posted that way.
+I kind of look at that as,
+it's almost like my personal newsletter,
+only I would write a horrible newsletter, let's be honest.
+Could you imagine how atrocious that would be?
+I'd kind of like to see it, but no, no, podcasts are better.
+Yeah, I just, I do a lot better verbally.
+So I'm just kind of keeping everyone posted on my plans,
+what I'm doing off air and that kind of stuff
+at the Chris Last cast.
+So if I end up doing a Linux fest sort of pirate meetup
+or something like that.
+Escape to Ballynam.
+I'll keep everybody posted there, but I may not.
+I mean, if this thing, if the health situation continues
+to get worse and worse, we'll see.
+We'll see, we're just gonna play it by ear.
+Why don't we talk about some great news,
+assuming that manufacturing isn't too much of-
+Impacted.
+Yeah, like that could always change things here,
+but it looks like we're gonna see a new Pinebook Pro run.
+And this time they'll ship with Manjaro KDE edition
+as the default operating system and pre-orders
+as we record will go live tomorrow, March 18th, 2020
+for early shipping in May.
+What do you think about the choice of Manjaro
+as the distribution of choice on the Pinebook?
+It's kind of unexpected to me, but I like it.
+Honestly, it seems like one of the few options
+I might actually keep around
+without immediately reflashing after I got one.
+All right, that's a pretty fair point
+if you're talking about you and I personally, right?
+What about you, Cheezy?
+Personally, I'm a huge fan of Manjaro
+and I've been using it on the Pinebook
+since I think it was, well, I've tested all of the betas.
+So the initial build and now I think it was beta three
+was the last one that I've installed
+and it's still currently running.
+And I paired that with, because it is the KDE version,
+I paired that with a lot of the tips and tricks
+that you had given whenever we did
+the basic to brilliant video.
+Oh yeah, the plasma livestream.
+Yeah, the plasma livestream.
+So to me, it's that perfect little machine
+that I reach for when I'm just kicking it on the couch,
+laying in bed, you know, checking out my OctoPrint server,
+just see how my 3D printer's going or something, right?
+It's perfect little machine for that.
+Yeah, good point.
+And it is also kind of a cutting edge device.
+So having an operating system that stays very current
+and has the latest upstream drivers.
+Seems like a nice idea.
+Yeah, TechMav, I'm curious, what do you think,
+if you look at Manjaro and you look at them
+sort of expanding their focus into Pinebooks,
+does this make sense?
+I personally use the Manjaro KDE plasma on my Pinebook Pro.
+I love it.
+I mean, it stays up to date.
+It's minimal problem.
+I run off of a 128 gigabyte micro SD card.
+I prefer it much better than the default
+Debian mix match it did.
+I still think that this product has a wider ability
+if we can just put all those tiny little pieces together
+between the community and the businesses.
+I think an Ubuntu install being optioned for it
+would be just a great place for education.
+I mean, great price point.
+Try to put community together with something like Landscape
+or some of the other management systems out there.
+Like an Ubuntu 2004 machine that is managed by Landscape
+and set up as a package for education.
+This can knock out Chromebook.
+Yeah, I could see that.
+I could see that.
+Anthony, what do you think about the price though?
+Is this the right device for the money
+when you could go on eBay, you could spend two to 300 bucks
+and you could get a pretty great x86 ThinkPad?
+Yeah, I agree.
+I usually use an x270 for the couch machine
+and a little remote terminal server,
+but opening up a Pinebook with that good power efficiency
+and brand new plastic is appealing.
+I do like the idea of power efficiency,
+especially for my, I'm sitting at the couch surfing machine.
+The thing that stays in your bag all day,
+you just know it'll be on.
+You never know when you might need the machine
+and the Pinebook Pro fits that.
+Sort of the iPad roll for me right now
+where I just need a really quick go-to,
+always has battery life machine.
+Colonel, you think maybe there's some concerns
+about the power behind this thing
+and building packages from the AUR?
+Yeah, my only concern would be
+if there's a lot of packages that may not be available.
+So people build them from the AUR
+and does the Pinebook have the horsepower
+and the RAM and et cetera to be building those packages
+every time you run your updates?
+Sure, that's a good question.
+And then Mini-Mac, you have a question too
+that's sort of related
+that I think Cheese could probably answer.
+Why don't you go ahead Mini-Mac?
+Yeah, my crucial thing on the new couch computer laptop
+would be the speakers.
+So just watching a YouTube video like that,
+you need some speakers that have some quite good sounds.
+So how are the speakers?
+Not good at all.
+To be quite honest.
+Ah, that's so sad.
+The speakers are pretty horrible.
+There have been a few people on the forums
+that have modded them and replaced the speakers
+and they've gotten a few more DB out of them
+and stuff like that, but they're still not great
+because they are down firing too.
+So let's say if you're relaxing with it on your lap,
+as people do with laptops,
+then the speakers are gonna be down firing.
+What I normally do is I pair that
+with a set of Bluetooth headphones
+and I haven't had any problems in that regard.
+But personally, another reason that I choose Manjaro
+is simply because the availability of packages,
+as Neil had stated, there are so many more packages
+available in the Manjaro repos.
+So one of the things, for example, was Telegram.
+I could snap the Telegram down,
+but then it was an outdated version
+and would crash any time someone dropped a GIF
+into a channel, so.
+That makes it like triple annoying.
+Yeah, exactly.
+So you don't know if it's this new hardware
+or what's going on.
+So, but as soon as I switched over Manjaro
+and then pulled down their build,
+which is the latest build of Telegram, I had no problem.
+So I think it's a smart decision for them
+to use Manjaro to ship these with.
+Especially if they're working together,
+even any kind of degree on the phone aspect
+of the PinePhone as well.
+You could see sort of the cross-pollination benefits here.
+And to Wes's original point,
+this would be a distribution that was shipped on this
+that I would probably keep.
+I mean, I would absolutely love to be able
+to just have an image I could download of Ubuntu 2004
+and run that when that's released.
+Oh yeah.
+But I love Manjaro as a workstation OS,
+especially on something like this that,
+like Neil made the point,
+really benefits from cutting edge upstream drivers.
+I think it was just weird at first
+to see an arch-based distro coming on a laptop.
+And then I think back to those arguments
+that we used to have about rolling versus long-term support.
+And that version of me is like, yes.
+Like that victory kid meme.
+And then now the older version of me is like,
+I don't know about this.
+So we'll just watch where this goes.
+But I think the one takeaway from this is it's great.
+Actually, there's a couple of takeaways.
+It's great for Manjaro, good on them.
+I'm really proud might not be the right word,
+but I am really pleased to see them continue to work
+with different industry players
+that seem like they have similar interests
+as the Manjaro core audience.
+Absolutely.
+Very intuitive, very clever of them.
+And it seems like a sign of maturity
+of the project itself as well.
+And I think all of those same things
+can be said about the Pine folks for recognizing Manjaro
+as a potential partner to work with.
+It's good.
+It's a good sign that these two,
+I guess you could call them companies now,
+but really it's projects, are getting their core audience.
+And can grow together.
+Mm-hmm.
+Okay, now I'm actually, now I love it.
+The worst part about this is it's going back,
+I have to think about ordering one.
+I know, yeah.
+Cheesy, you still recommend it?
+What do you think?
+If you're gonna spend the money,
+say you get a little tax return money or something,
+would you spend it on that?
+Yeah, if you're debating a Chromebook or a Pinebook,
+I would say go with a Pinebook.
+All right.
+If you're debating a decent little ThinkPad
+that might be a little bit over 200 bucks or a Pinebook,
+I would say go with the ThinkPad.
+Yeah.
+So I have both.
+I have a T440 ThinkPad that I use,
+and I mainly use that for the 3D printing stuff
+that I've been doing lately,
+so modeling and that sort of stuff.
+And then whenever I'm done with that,
+that goes down and I pick up the Pinebook.
+I get it.
+I always like to ask Jill sort of the long-term perspective
+because she and I have been watching this stuff for so long.
+This seems like a pretty clever partnership,
+doesn't it, Jill?
+Oh, most definitely.
+And you know, I think it's also a really good source
+of revenue for Manjaro.
+So it's a win-win.
+Great point.
+Nobody's brought up the money aspect of it,
+but this makes the project more sustainable
+and probably gonna sell a few Pinebooks.
+So they're gonna make some money too.
+Right.
+Well, and then isn't the Manjaro also shipping
+with some other hardware vendors
+out of Europe right now as well?
+Those guys are killing it.
+Yeah, and there's more to come.
+I just don't know if right now is the right time
+for me to talk about it,
+but there's more hardware in the works.
+Oh.
+Yeah, they got more stuff going on.
+Yeah.
+Let's talk about another sale though.
+This one I'm definitely still processing.
+And I think even the wording of the announcement
+has my conspiracy bacon tentacles tingling.
+I'm excited for this.
+I got tingling tentacles, Wes.
+NPM is joining GitHub.
+NPM is joining GitHub.
+There's something missing in that title, right?
+Yeah, comma also means Microsoft.
+Yeah.
+Which immediately, now I think GitHub
+has done really well under Microsoft's leadership.
+And I think that is really,
+I think you attribute a lot of that to Nat.
+I think Nat has really had a steady hand with all of this.
+And he is in a sense with this announcement
+taking a leadership role here,
+a very public leadership role.
+And so I think that's part of the framing of this message.
+Instead of saying Microsoft, they're saying GitHub,
+because what they're really saying is Nat.
+And that GitHub is still operating as its own
+sort of entity within Microsoft.
+And from some of the things I've read,
+it sounds like if anything,
+Microsoft has been adopting some of the GitHubisms
+more so than the reverse.
+Yeah, I mean, I'm well into this now.
+And I can't sit here and think of a single thing
+they've screwed up.
+But I wonder if the wording of this announcement
+isn't still trying to be super sensitive to that concern.
+Because the idea of Microsoft owning NPM sits,
+let's just practice for a moment.
+Do you wanna do like a thought experiment with me
+for a second here, Wes?
+Yeah, let's do it.
+Let's pretend like we could rewrite reality
+and that we're reading an entirely different news headline.
+You ready?
+This is CNN Breaking News.
+Breaking News, as we're recording, Wes,
+NPM has been acquired by Microsoft.
+Sounds a little different, doesn't it?
+Microsoft now owns and controls NPM.
+That sounds a little bit different.
+It does.
+However, when you say NPM is joining GitHub,
+that's not so bad.
+And I just think the wording-
+Oh, they're teaming up, oh great.
+The wording there is choice.
+But I think it's pretty intentional
+because they're trying to say,
+look at what we've done here.
+We've had a steady hand, we'll have a steady hand with NPM.
+I think that's the message.
+And for millions of developers
+who use the public NPM registry every day,
+there's not a lot that will change.
+In fact, I think they'll go out of their way
+to make sure what you expect to remain free stays free.
+In fact, Nat writes on the blog,
+our focus after the deal closes will be to,
+we've got three items,
+invest in registry infrastructure and platform.
+Who doesn't like hearing that?
+Improve the core experience.
+He writes, we will work to improve the everyday experience
+of developers and maintainers.
+And number three, gotta have this,
+gotta have this, engage with the community.
+We will actively engage with the JavaScript community
+to get your ideas and help us to find the future of NPM.
+Looking further ahead, we'll integrate GitHub and NPM
+to improve the security
+of the open source software supply chain.
+Okay, that sounds pretty nebulous, but I like this part.
+And enable you to trace a change from a GitHub pull request
+to the NPM package version that fixed it.
+And to their credit, I mean,
+they have been adding a lot of, you know,
+vulnerability scanning and tools
+to assess open source projects, which is great.
+Yeah, I find that to be a uniquely actionable item.
+In an otherwise pretty high level document.
+Yes, and not something you generally see
+in this type of announcement.
+And that's like, this is a specific thing
+we are going to execute on.
+And to allow somebody like a developer
+who is trying to figure out if this is a safe thing
+to incorporate into an overall project,
+to trace it all the way back to a GitHub pull request
+to make sure that things are fixed, that's a big deal.
+That's actually something I would love to see
+just from a show research standpoint.
+I mean, we know the NPM ecosystem
+could do with some improved security.
+Linux headlines, not show.
+Okay, so what about paying customers of NPM?
+Because if you remember, I mean,
+this was a business here that got purchased.
+They say they're investing heavily
+in improving GitHub packages,
+which is the package system built into GitHub.
+Later this year, we'll enable NPM's paying customers
+to move their private NPM packages to GitHub packages.
+Although they say, allowing NPM to exclusively focus
+on being a great public registry for JavaScript.
+So if you're a paying customer,
+sounds like you're getting rolled
+into the GitHub version of these things.
+NPM public stand put for the time being?
+That's how I read it.
+So I was curious if that's how you read it.
+I think that makes sense.
+I think I see that all changing in about 12 months.
+That seems like they're gonna redo all of this.
+There's something brewing here.
+When you look at the whole picture
+of checking in your code, publishing somewhere,
+putting it up online via Azure services,
+there's something really kind of coalescing here
+that I don't fully appreciate yet,
+but I can see the edges of it.
+I also think about this.
+Think about outdated Internet Explorer,
+the bad one with not supporting
+the latest JavaScript standards
+or any of the latest standards.
+To now the world where Microsoft
+like made TypeScript and owns NPM.
+And it's like this major JavaScript player
+and VS Code, which is a huge editor in that ecosystem.
+Yeah.
+Wild.
+Yeah, it is.
+And of course, you and I are coming off of WSL Conf
+where we watch people write Linux applications on Windows
+and run XFCE on top of Windows 10.
+Crazy.
+It really has been-
+2020.
+Yeah, 2020 has been nuts for us so far,
+which we'll get more into here in just a moment.
+I think this is one of those stories
+I'm gonna just digest and see what happens,
+but I would really, really appreciate
+some sort of perspective, any perspective.
+Really, I just wanna think about this
+from all the angles, linuxunplugged.com slash-
+Contact.
+Yeah, you knew where I was going with that.
+I'd really like to get people's input on this one.
+Now, there's another story that I feel like in another era,
+I would be all over this story.
+If Unfilter was still a show,
+this would be something that I could sit here
+and I could just tell you everything
+off the top of my head about this.
+But you may have heard, quote, unquote,
+the government is trying to ban encryption,
+quote, end quote.
+Have you heard that?
+I have heard that.
+Well, the EFF and their Action Center
+is trying to raise the alarm
+about the Graham Blumenthal bill,
+which is called something ridiculous.
+It's got a name-
+The EARNET Act.
+Yes, the EARNET.
+EARNET.
+And the high level is it, in the United States,
+would make it mandatory for companies
+to enable backdoors into encryption.
+Which is something we've seen being pressed
+time and time again.
+You know, it comes and it goes.
+My main concern, obviously, is the implications
+from a security standpoint of this.
+But secondarily, the other concern I have
+is the conversation is within the context
+of commercial platforms.
+The conversation talks about iOS.
+And Android.
+And Google.
+And Apple.
+And Microsoft.
+And them working to provide the federal government
+with a legal means to break encryption.
+But never in the conversation
+is how this impacts free software.
+How does this affect developers
+who are writing software all over the world
+and the majority of their users are in the United States?
+I have extremely deep concerns
+about how this could affect open source software.
+And that is not part of this conversation.
+And I think it could be a fundamental game changer
+for free software.
+So I will have a link in the show notes
+for the EFF's Action Center.
+They write, members of Congress have mounted
+a major threat to your freedoms of speech
+and security online.
+Senators Lindsey Graham and Richard Blumenthal,
+which Graham is a Republican,
+Blumenthal is a Democrat, so it's, quote, bipartisan,
+recently introduced a bill that would undermine
+key protections for internet speech in the US.
+It would also expose providers
+of private messaging services,
+like Telegram, WhatsApp, iMessage, et cetera,
+to extreme legal risk,
+potentially forcing them to undermine
+their tools of security.
+The so-called EARN-IT Act, Senate 3398,
+is anti-speech, anti-security, anti-innovation,
+and unnecessary.
+Let's tell Congress to reject it.
+I couldn't say it better myself.
+I honestly have not been as informed on this
+because of the crazy amount of corona news going on.
+And, you know, that's probably the exact condition
+they're relying on for nobody to notice this
+and let it just sneak right through.
+Well, if you think about it, right,
+we'd had this conversation around,
+between law enforcement and security experts around,
+like, I mean, what's possible?
+We all know that no one's gonna all follow the laws,
+and when you break encryption,
+it creates problems basically for everyone.
+I don't think that changed in the last six months.
+Right? Yeah.
+Yeah, and it's like technology doesn't understand borders.
+Source code doesn't necessarily appreciate
+your silly nation-state government.
+You fundamentally make something flawed here.
+It makes it flawed everywhere around the world.
+And maybe, listening to this, you think,
+well, what's to worry about?
+I have nothing to hide.
+Perhaps you have full faith
+in your United States government.
+Congratulations, that must feel great.
+But how do you feel about China?
+How do you feel about Iran?
+How do you feel about the United States, say, in 30 years?
+Are you concerned that then it could be abused
+in those situations?
+If you are, then we have to do something today.
+That's it.
+I think, too, that, you know,
+one of the underlying things that we haven't mentioned here
+is the serious flaw are the people, right?
+The people that are in control of gathering this data,
+what prevents them from gathering data from a company
+that's using some sort of encrypted communication?
+You know, when they're trying to figure out,
+should we go with Azure or should we go with AWS?
+Well, let's tap into their private encrypted systems
+and see what they're saying about us about the deal, right?
+So I think that it really comes down
+to you're giving this power now to humans
+who are notably flawed and are going to end up using it
+for, you know, really anything that they choose, so.
+And the issue with the Earn It Act
+is it itself does not necessarily lay out
+the banning of encryption or any specific things like that.
+What it does is it designates a council of 19 people,
+half of which, mostly, mostly, most of it, most of it.
+I think we should go with that, dude.
+It's new, it's accepted, you're using it.
+It could be my version of Nodamine, you know what I mean?
+This is my version of that.
+I like it.
+So it's got 19 people on the council,
+almost half of which are law enforcement.
+Now here's the fun thing.
+Two of the people on the council have tech experience.
+Now this council will be formed.
+It will determine a list of best practices,
+things that remind you that you gotta think
+about the poor children and terrorism
+and any other kind of agenda these people wanna push.
+And it's only two of the people on this board
+have any technical experience at all.
+And they will make the rules that Apple and Google
+and anyone distributing software
+in the United States of America
+that wants to be lawful has to follow.
+That's what's about to happen.
+This council of 19 people,
+and two of them are tech people,
+are gonna decide if you can use encryption or not,
+if this passes.
+And we don't normally talk about this kind of stuff
+on the show, but I can only wonder
+what the ramifications would be for free software.
+How does a developer in Germany navigate this?
+I do not know.
+And you know, it's so silly is imagine a developer
+who is in Vancouver, Canada, or in Mexico,
+just miles from the border.
+And it fundamentally changes the legality
+of the free software project they're working on.
+It's so silly.
+It is legislation of a bygone era,
+just like Blumenthal and Graham.
+They are of a bygone era.
+So let's talk about something of a more modern era,
+GNOME 3.36, which Wes and I have been using
+for the last week, essentially via Ubuntu 2004.
+Well, it was just so easy.
+We loaded that up after our week with Windows.
+And I'm gonna say as much as I can
+for our review of 2004, which is not yet released,
+but it has been wonderful.
+Now, I'm curious, I could say a whole bunch,
+but I'm curious what your take is
+because you've spent a year and a half now in plasma.
+It feels very refreshingly minimal.
+And I like, I've sort of installed Ubuntu 2004
+five or six times now in the past couple of weeks.
+It's also really nice how fast I can get going
+in that fresh install.
+Like I tweak a couple of things,
+I've got that down now because I've done it a few times.
+And then I have a totally usable system.
+So that's been nice.
+Yeah, how fast does that feel though?
+Super snappy, very appropriate animations
+all over the place.
+And that new lock screen, oh boy.
+Oh man, the lock screen is very pro.
+It is very, very pro.
+I'm curious though, if you feel like it's quote unquote,
+snappier than plasma.
+In some areas, yes.
+In some areas, no.
+I will say running it on Wayland has been very nice.
+Pretty much flawless.
+Look at you, you're going all in now.
+Well, I mean, that's 2004.
+That's right.
+Gotta find out if it'll work.
+It's very nice.
+GNOME 3.6 is, and as somebody who talks
+about this stuff a lot,
+I try to think of something new I can say,
+but it is the best, it is the fastest release
+of the GNOME Shell that I have ever used.
+It is the best, it is the best version of GNOME ever.
+It really is.
+It simply is the best version of GNOME ever.
+And I wish I could stop saying that in a way
+because it's almost become cliche for me to say
+this new release is better.
+I feel like since GNOME 3.11, I've been saying.
+Yeah, accurate.
+Every release is better.
+But they're hitting the stride.
+The project's just doing great.
+I gotta say, so I spent some time on the Mac
+and I was like, oh, this is great
+with all these third-party apps
+and the windowing environment's very snappy.
+Then I went to Windows and I'm like, oh boy,
+this is a little rough, but I can understand
+if I needed a commercial grade application,
+I can see the appeal.
+And now with the subsystem, it's actually livable.
+And that's a big admission coming from me
+because I have issues with Windows.
+And then after all of that, on the same hardware,
+I came back to Ubuntu 2004
+and then latest GNOME Shell, GNOME 3.36.
+And what you have here, without spoiling our review,
+is the best product Canonical has ever made for the desktop
+and the best version of GNOME Shell
+that has ever been released.
+And those two things came together in one product.
+It is the best release of Ubuntu ever.
+And I have been using it since the very first release.
+I think we were impressed just from the moment
+we booted up the flash drive.
+Absolutely, and now I have been using it for a week
+and I am going to just keep it on there.
+I just love it, it looks beautiful.
+GNOME has come so far.
+You were mentioning the system settings,
+how great that is now.
+Oh, the system settings are beautiful.
+I was so surprised, especially coming from Plasma.
+I was like, it's all in one place, it's unified,
+it's sleek, and it's just as easy to use.
+How long have I wanted just one spot
+where I just click the dark mode?
+Just click dark and everything.
+It doesn't have to be like a special theme
+where I go change the GTK theme and the Shell theme
+and the cursor theme.
+It's just dark mode, boom, and everything switches
+and it's elegant and it's refined and it's well done.
+And then you combine that with the just incredible
+performance of GNOME Shell 3.36
+and the new updates they have made to it,
+like my favorite is do not disturb mode
+in the notifications, hell a frickin' loo-ya.
+It is by far the best version I've ever used
+and I enjoyed every moment of using it.
+And I was legitimately a little worried
+after really enjoying the Mac, not really liking Windows,
+I was like, what if I switched to GNOME Shell again
+and Ubuntu and I hate it?
+What if I don't enjoy it?
+What does that mean?
+I gotta say.
+Not a problem for today.
+Brilliant, brilliant, and I don't do as Chris does,
+but I'm gonna just stick with this release
+even though it's not done yet.
+I'm gonna leave it on this machine.
+The only downside was their cool ZFS automatic
+partitioner roofing totally has to re-wipe the drive.
+So no more Windows on there, had to give up Windows.
+I was gonna try to dual boot that S,
+try that out for a little while so I could keep playing
+with Windows Terminal and subsystem,
+but to have all the fancy automatic snapshots.
+Hey, you got snapshots, who cares about Windows?
+CFS stuff, I was like, yeah,
+it's not worth keeping Windows.
+So I had to wipe the whole drive and put Ubuntu on there,
+but it is great.
+And the upgrade is worth it for the lock screen alone.
+And think about, when have I ever said that?
+My favorite part was that they finally made it
+so you could suspend without having to know
+the magic key combo to get it to show up in the menu.
+I think you just had to hold shift,
+but now it has just an option to suspend.
+I think it was alt.
+I don't know if it was shift.
+I think it was alt.
+See, I don't even know.
+And I suspend my laptop all the time.
+So I will admit, it took me a really long time
+to realize that was there.
+Yes, I think that's true.
+It was just not accessible.
+I just would close the lid.
+But then I was on the desktop and I'm like,
+well, now, what if I want to suspend?
+And I'm Googling it, I'm like, oh, right, okay.
+Yeah, now it is right there.
+The whole thing's just, it's so great.
+It's so great to see it coming along.
+So if you haven't yet, go give the live environment a try.
+Go give it a try.
+Even if you're a longtime Plasma user,
+like old Westpain here.
+Go give it a go.
+I know, I guess I'm back in a gnome for a while.
+Maybe, maybe.
+You know, at the end of the day,
+you just want to get your work done
+and your Plasma environment is looking good.
+It's all set up.
+It works like it hasn't failed you yet.
+So I don't know.
+But I want to be on 2004.
+It's just, I can feel it.
+It's a good one.
+You think it's worth the whole reload?
+Oh yeah, it might be.
+I think it is.
+That old ZFS too.
+Yeah.
+Mm-hmm, mm-hmm.
+Well, how about just a little brief housekeeping
+before we get into the rest of the show?
+That's probably a responsible thing to do.
+We should clean up around here.
+I agree.
+Well, we just released a behind the scenes
+of Linux Unplugged on Jupiter Extras.
+If you go to extras.show slash 64,
+we looked back at episode one
+and then went over the arc of the show
+and essentially ended up making fun of me the entire time.
+I was so bad.
+We played an old sponsor.
+I didn't even know we had that sponsor.
+That's, it was so embarrassing.
+It was a different you really, Chris.
+Sure sounds like it.
+Yeah, I know.
+I sound 10 years younger.
+Anyways, if you're curious what goes
+into making Linux Unplugged, extras.show slash 64,
+we released Linux Unplugged behind the scenes.
+Also, if you're, maybe you're at home now.
+Maybe you got a little extra time during the day.
+You could listen to our show in the background.
+Would you like to know when we're live?
+Jupiterbroadcasting.com slash calendar
+converts it to your local time.
+jblive.tv is where you watch us.
+It's more fun live.
+Now you heard me mention Linux Headline,
+linuxheadlines.show, three minutes or less every weekday,
+and we give you just the news you need to know about.
+I'm constantly discovering stuff
+through headlines that I wanted to know.
+And then officially, no Linux Fest Northwest this year.
+Whew, that hurts, that hurts.
+And we'll let you know when we know what they're doing.
+There has been some rumblings of maybe working
+with some of the speakers to record their talks
+and post them online.
+If they do that, we'll keep you posted.
+We'll let you know what's going on there.
+And then last but not least,
+that Telegram group, 1,700 users strong.
+Can't stop it.
+Jupiterbroadcasting.com slash Telegram
+to get in on the conversation,
+the persistent conversation that continues
+even after the show.
+Jupiterbroadcasting.com slash Telegram for all of that.
+All right, Mr. Westpain.
+Well, we had the opportunity to attend WSL Conf last week.
+When we recorded episode 344, it was in the midway point.
+We were actually breaking from the conference
+to record the show.
+Now it's all done.
+And the thing that is particularly unique about WSL Conf
+is A, first WSL Conf ever.
+Ever.
+And that was kind of a unique opportunity
+for a bunch of Linux users to show up at Microsoft.
+And B, it was one of the first tech conferences
+that had to pivot to an online format
+because of the developing COVID-19 situation.
+Right at the start of this wave, yeah.
+Yeah.
+And so not only was having WSL Conf for the first time ever
+an interesting thing worth talking about,
+but being the first tech conference
+to have to go online only,
+also was a very interesting kind of,
+let's talk about this moment.
+So we invited two different individuals on the show.
+Sohini.
+I'm Sohini Bianca Roy.
+I am a product manager at Canonical.
+And returning to the show, Hayden.
+Hi, I'm Hayden Barnes.
+I'm a senior developer advocate at Canonical.
+And they were fundamental to pulling off WSL Conf
+and converting it to an online conference.
+Now you'll note, they're both Canonical employees.
+They were working in partnership with Microsoft to do this,
+but this was a community-driven event.
+And they were the spear of that community.
+And so we wanted to have both of them on the show
+to talk about some of the dynamics of that,
+what that was like to kind of reach the point
+where we're gonna have a conference
+about the Windows subsystem for Linux.
+Really, why?
+Sponsored by Canonical?
+Yeah, like this isn't a Microsoft thing that's happening.
+Like what's going on here?
+And having attended it, feeling like we learned something,
+it was worth having these individuals on
+to really kind of chat about this
+and maybe even get some advice for future conferences
+that are also going virtual.
+So Hayden and Sohini are joining us now
+to talk about WSL Conf.
+And I, as an attendee, thought we should probably start
+at the very beginning and ask, why WSL Conf now?
+Sohini, do you wanna start with that one?
+Sure, I'd love to.
+I think it actually started, well, it started in 2016,
+really, when Microsoft announced at Build
+that they were going to invest in a partnership with us
+for Bash on Ubuntu for Windows.
+And now here we are many years later,
+but the community around it is just growing.
+And we've seen so many people who are thanking us
+right and left for supporting this.
+And we decided to get together a little bit
+to see what they're up to,
+to figure out how we can better support them.
+But it's also, they're really innovating
+really impressively in the space.
+And I think there was so much that we could have learned
+from our open source partners.
+And we wanted to get everyone together
+to figure out what happens next.
+Hayden, it also feels like the impending official release
+of WSL2 played a role in the timing of this.
+Certainly that demonstrated momentum in the platform.
+We announced WSL Conf in the fall after WSL2 was announced
+at Build.
+So that certainly kind of rolled into the momentum
+and had something to do with the timing.
+Yeah, well, and watching a lot of the presentations,
+it really seemed like a lot of it was individuals
+that are heavily using the subsystem,
+digesting how WSL2 will change workflows
+or improve workflows.
+And that was like a big part of the conference.
+Absolutely.
+WSL2 unlocks a lot of new possibilities for developers
+and with that full Linux application support on Windows.
+So I have a question for both of you.
+So Sahini, let's start with you.
+Have you observed much pushback or skepticism
+from the community around Canonical working
+with Microsoft on this?
+Because I get a sense of pressure
+from a portion of our audience
+that it's a little suspicious, the whole subsystem thing.
+And so I imagine if you're heavily involved with this,
+it may have come your way.
+I'm curious about that.
+Yeah, I think we live in a community
+that just loves the authenticity of open source
+and community driven activity.
+So it feels natural to be suspicious
+when companies are working together
+to build something that affects the community in this way.
+But I think all I see is the potential
+for our resources combined together.
+So I'm hoping that when we continue to build
+these community events,
+that we are really showing how much the community impacts
+how we build what we're doing together.
+And I don't know if that directly answers the question.
+So feel free to push on me a bit there.
+I get what you're saying because I think I observe that.
+It's sort of what I observe is there's people
+that are getting the work done
+that are seeing this as another tool
+that they're going to use.
+And then there's people that are just expressing
+an observational concern and maybe are not directly involved
+with the actual work getting done.
+Do you know what I mean?
+It's fair.
+So I might let Hayden push back
+on any additional perspective there.
+But I think we're just excited to keep working together
+because we just keep hearing so much great feedback
+from clients who are just excited
+about what we've been put out there.
+So I think I'm holding on to the positivity
+and I'm going to keep doing great work for everybody else.
+Good for you.
+There was a lot of excitement about things
+at the conference.
+So clearly people want to get work done.
+I think that is just the way you get it go forward
+is you just focus on the people
+that are getting the work done.
+And Hayden, I'm curious on your observations
+on concerns or suspicions or your overall thoughts on it.
+We've talked about this in the past
+and there's a certain segment of the Linux community
+that is going to be resistant,
+if not a little upset by what we're doing.
+And I think the vast majority of open source contributors
+understand that there's a role for community,
+there's a role for corporations.
+And we really tried to balance that at WSL Conf.
+What you didn't see is that all the parties working on that
+took a lot of steps to make sure
+that that remained an independent community event.
+And that's what we're focusing on.
+So the concern that Microsoft is somehow going to influence
+how we do things here at Ubuntu is just not founded.
+Yeah, it's sort of like implying that digital ocean
+is impacting the way that Ubuntu images are created.
+It's another actually I think very clever target for Ubuntu.
+And I think you guys are going at it
+in a really kind of aggressive way,
+which I congratulate you for.
+So let's pivot a little bit to the actual event itself.
+Before we get to the big change to virtual,
+I'm not sure who might have the most experience,
+but I'd love to know what it was like
+interfacing with Microsoft to set up space
+on their own campus for a Linux event.
+A lot of the images where Linux arrives at Microsoft
+and it felt fun and unique and it felt like a real moment.
+Microsoft actually sponsors reactor spaces.
+And I think there's about seven or eight throughout the world
+and open source projects and communities
+can reserve those spaces free of charge.
+And they let us reserve a space for two whole days
+and that's open to meetups, user groups,
+other small conferences.
+So they were very welcoming
+and opened their doors to us and hosted us.
+And we were appreciative of that.
+They did a lot of work for us that we ended up,
+of course, not having to rely on,
+but we still, we made the best of it.
+And we look forward to having an in-person event
+down the line.
+Yeah, I could see it still,
+it seems like the virtual one was pretty successful.
+So I could definitely see that happening.
+Let's talk about the internal decision process
+that must've just been-
+Couldn't have been easy.
+It must've been super hard.
+So, and especially the timing of this whole COVID-19 stuff
+is this was a few weeks ago
+where this discussion must've started.
+Now it seems inevitable from where we sit now,
+but how did this begin?
+And how difficult was that conversation?
+And really kind of at the end of it,
+ultimately what made the decision to go virtual?
+You know, with toilet paper,
+a highly coveted item and quarantine memes
+just all over my social media,
+it seems kind of like you said,
+inevitable and obvious
+that we would have switched to a virtual event.
+But if I take a moment to go back to the mentality
+of March 2nd, which was, you know, eight days
+before our conference was supposed to happen,
+the mentality was a little uncertain.
+I remember even texting Hayden the weekend before
+being like, it's 80% sure we're doing this right in person.
+And that morning Seattle King County Public Health
+and Communications leadership came out
+and they actually said,
+you know, we are not recommending
+widespread cancellations of gatherings or schools.
+KubeCon sent an email saying,
+we're definitely going forward.
+Emerald City Comic Con, which is obviously in Seattle,
+said they were going forward.
+That decision switched March 6th,
+but things changed really quickly.
+And we, I think, just had a conversation together
+and we were like, well, we take the risk
+of having people come over,
+maybe their visas being denied,
+maybe people getting stuck in Seattle or Redmond.
+And then the risk of further infection
+for people becoming hosts of this virus
+was that risk worth the collaboration that we could achieve
+and some of the melding of the minds
+that we could have achieved
+in that personal, intimate environment in Redmond.
+And we decided that we could switch
+the intention of the event, make it virtual,
+expand access to people, get the word out
+about what people are doing with WSL,
+get that energy, and then reschedule
+for that in-person event for later in the fall.
+So that was really tough
+and we had to kind of change our mentalities.
+We had been working towards this event for months
+and it was so exciting to finally be able to meet
+all these people we've been chatting with online forever.
+I feel like one of our presenters
+is one of my best friends now
+because we're just constantly in contact now.
+That it was a hard decision,
+but I'm excited again that we were able to expand that access
+the way that we did.
+Yeah, and having attended the virtual conference,
+I expected it to be much rougher, honestly,
+because of the last minute nature
+of having to make this pivot.
+And it sounded like there was even a change out
+of which technology platform was gonna be used to doing it.
+That must have been a complete scramble.
+Oh gosh, yeah.
+There were three really critical pieces
+that we had to be really strategic about.
+One was just the presenters.
+We wanted to make sure they were comfortable
+and confident in presenting to a now different kind
+of audience, a different cadence, different tempo.
+So we had presenters come in.
+We did one-on-ones with a lot of presenters
+and making sure their audio was good.
+They felt comfortable with all of the new technology.
+And in one of those sessions,
+we were trying out Microsoft Teams
+and some folks just, we had kind of unexplainable issues,
+things that we weren't able to pinpoint.
+And I'm sure Microsoft Teams had a little bit of a backlog.
+And we had three business days to make the switch.
+And we realized on the Friday before our event
+that Microsoft Teams, there were just too many glitches
+and the risk was too high.
+We just, we still wanted it to be a really smooth event,
+not filled with mic taps and oh, you know,
+forgot to install something.
+So it was a tough decision going away from Microsoft Teams
+but we already had a relationship with BlueJeans
+and we were already set up to go
+with a pretty large event through BlueJeans.
+And we figured that would be the right step
+for us at that time.
+You both were very active in the community
+during all of this, answering questions from attendees.
+Hayden, I'm curious if you have any lessons learned
+from replicating the hallway track in a virtual conference
+or any other thoughts on lessons learned from both of you
+but we'll start with Hayden here
+because a lot of things are switching virtual.
+It sounds like our beloved Linux Fest Northwest
+is gonna go at some version of this.
+What can we pass on to them?
+We felt like trailblazers here
+because not only are we a WSL conference
+but as far as I know,
+we're one of the first open source conferences
+to pivot this quickly to a virtual event.
+Some of the lessons that I've taken away.
+So for example, we had a round of testing with Teams
+with our presenters and we identified some issues
+and we worked through those issues
+and then we had a second round of testing
+and then we determined that our solutions
+to those issues were not effective.
+And that's when we made our pivot.
+Had I had the advantage of the perspective that I have now,
+we would have engaged Teams sooner rather than later.
+And I will say from now on for any in-person event,
+I will always have, how do we pivot this
+to a virtual event in the back of my mind?
+Because you never really plan
+for a worldwide global viral pandemic.
+You sure don't.
+So we plan for a lot of things
+and we had a lot of great things lined up
+but honestly, this one caught us by surprise.
+And I think moving forward,
+there's gonna be a whole proliferation of tools
+and best practices kind of coming out
+of the next few weeks.
+I think if I look at some of the things that I've built
+that I'm most proud of, they've been over a beer
+or over dinner or some weird offhand exchange
+with people that I met at a conference
+or people I met unintentionally or something like that.
+So having that backroom kind of interaction,
+having some kind of way to network
+with folks that you're meeting was so important
+because I wanted to still create that aspect of networking,
+of connection, of jokes,
+of some personal human interaction from a virtual event.
+And so we had a few polls, we had the Telegram channel
+and I think those were good starts.
+If I were to think about any future virtual events,
+I'd want to maybe facilitate maybe like topics
+that people can sign up for in small groups
+and just share things that they're working on
+or ask questions in a smaller controlled environment
+so people feel more comfortable engaging
+and sharing what they're up to.
+Because I think presenting or being a presenter
+is much harder than networking
+or having these side conversations, if that follows.
+Yeah, it does.
+And maybe facilitating little virtual birds
+of a feather type sessions
+that seem to be popular at events.
+As great as Telegram can be,
+you often have the loudest and most communicative folks
+sort of dominate there.
+So yeah, smaller sessions.
+Sounds like good lessons learned,
+but I mean, really hats off,
+I expected it to be so much rougher
+and the core value of the event was truly there.
+It really was, it was a great conference.
+I feel like it shifted my whole perspective
+on the subsystem for Linux
+and maybe kind of appreciate the fact
+that ultimately it's gonna mean more Linux applications
+and more things written for the Linux platform
+and more people learning Linux commands
+and Linux syntaxes
+and ultimately it's gonna be a good thing for Linux.
+Absolutely, I think Hayden and I when we,
+our first check-in together was what do we want
+out of all of this?
+And it was Linux for everybody.
+And I think WSL has been a great way for us
+to expand that mission, that project.
+Absolutely.
+We just got, Microsoft just announced today
+that they've passed 1 billion Windows 10 devices.
+And we see that as 1 billion potential WSL users
+to get them into the Linux ecosystem
+and trained on those Linux skills.
+And contributing to the code, open source.
+Let's get more, let's get more.
+Boy, I couldn't say it better myself.
+Well, thank you both very much.
+Thank you for the great event
+and thanks for coming on and telling us a little bit
+of the behind the scenes from it.
+Thanks for having us.
+It's been our pleasure, thank you so much.
+I won't lie, it's not quite the same
+not being there in person.
+And as we were wrapping up that conversation,
+my thought was I wish I would have been able
+to have this exact conversation in person with them.
+Oh yeah, I was really looking forward to meeting Hayden.
+Yeah, but at the same time,
+the core thing was actually still very useful.
+I attended this thing and I learned something.
+And if that is something,
+like that's a decent return on my investment of time.
+Well, and I think they both talked about it there,
+recognizing right away that you had to approach this thing
+from a totally different angle and philosophy
+about like what you were building.
+And I think that helped make it a success
+because it wasn't trying to be a physical event.
+It really was a virtual event to teach
+and get the word out about WSL.
+It's also a lot more possible when you can leverage tools
+like BlueJeans and Telegram and Twitter
+to kind of get the word out about a very changing event.
+But if they were to say, hey, you know what,
+we've decided to have a September or October
+WSL Conf in person, I'd go.
+Yeah.
+It was sort of perfect timing
+since we were running Windows 10 as well
+and using the new terminal and using the subsystem.
+So we were kind of hip to everything they were talking about.
+Oh man.
+Ah, all right.
+Well, how about we do a little epics
+before we get out of here?
+We've got two for you this week.
+Number one is something that I think might be useful
+for those of you who are working from home
+and need to manage a VPN
+and wanna do something at the network level,
+or maybe it's just time to try out WireGuard.
+Friends, check out PyVPN,
+the simplest VPN installer designed for Raspberry Pis.
+Of course you'd like this.
+WireGuard.
+He just wanted an excuse to get another pie
+stuck in your IV somewhere.
+Exactly.
+And say WireGuard, you know,
+whenever I have an opportunity to say WireGuard.
+WireGuard, WireGuard.
+And it also actually supports OpenVPN as well,
+which turns out people still use.
+But this is kind of nice, right?
+It's OpenVPN or WireGuard on Raspbian.
+And it just walks you through all of it.
+Really simple.
+You can just, if you want,
+you can just curl a command,
+pipe it right into Bash,
+and you're off to the races.
+I only laugh because what could go wrong
+with those kinds of approaches.
+But it's a really neat idea for network level VPN.
+And seeing WireGuard get one step closer to implementation,
+you know, to make it a little bit easier to use WireGuard.
+This is more of that tooling on top to help it easy,
+make it easy.
+That's gonna make WireGuard magic when that happens.
+And this is one step towards that.
+It's when you can just forget that it's there at all.
+Yeah, kind of like, is it, what was the subspace?
+The application to...
+You know, there's a couple other ones now.
+Oh yeah?
+We should give them a try.
+Oh yeah?
+I'd like to because now that I've been like reloading
+all my systems, I don't have like any of my WireGuard
+stuff set up.
+Yeah, we should fix that.
+We should totally fix that.
+But Cheesy, you also have something for the folks
+that might be working at home
+and suffer with RSI like I do.
+It's called Break Timer.
+Yeah, so breaktimer.app is a great open source,
+basically break timer is exactly what it is.
+It's available for Windows, Mac OS and Linux.
+So if you're working at home and you're just glued
+to your screen, instead of getting up and taking a break,
+well, this is a super simple app that'll help you,
+that'll give you reminders to go take a break.
+So you can skip the reminders if you'd like.
+One of the things that I thought was really neat
+that I haven't seen some of these other apps do
+is the idle rest.
+So if there's no activity going on,
+you're not moving your mouse, you're not typing anything,
+the timer will restart itself
+whenever you get back to your machine.
+So say if you took your break,
+if you set your break for two minutes or whatever,
+and you come back in five minutes,
+your timer won't automatically start,
+your timer will start again
+as soon as you start being active on your machine.
+So really cool, really simple little app,
+you know, great looking little UI.
+You can schedule your work hours
+so it won't bug you when you're gaming on the weekends
+or something like that, but nice.
+I like that idle timer detection, that's clever.
+And of course it's GPL3, which is nice.
+It seems like just enough of a tool, you know,
+not too much, but just something to help you keep track
+and remind you to go stretch for a while.
+Yeah, I actually find this really useful when I'm editing.
+Yeah, that's an especially repetitive activity.
+Yeah, I get in the zone, I forget to take a break.
+I can imagine it's probably similar for developers.
+You get in the zone, you're really in the flow.
+You don't want to stop.
+That's the last thing you want to do is stop, yeah.
+And you can also have the notification be just,
+you know, a normal notification,
+or you can have it actually fill out your entire screen
+to say, start your break now, fool.
+And of course you can set your text as well, so.
+I would just go with the built-in notifications, you know,
+but I do like the full screen is like,
+if you really want to be heavy handed about it,
+be your own boss, you know?
+Good, go tell future self, do this.
+I'm making the rules.
+Yeah.
+I think that is actually a really good idea.
+So it's called Break Timer.
+So those are two picks for you, PyVPN and Break Timer.
+And of course, we'll have links to those and everything
+we've talked about at linuxunplug.com slash 345.
+And we'd love to have your feedback and ideas,
+linuxunplug.com slash contact.
+And join us in that ongoing conversation
+at jupiterbroadcasting.com slash telegram.
+Anything you want to plug there, Mr. Westpain?
+Why don't you check out techsnap.systems?
+Wes and Jim Salter from Ars Technica breaking down things
+twice a month at techsnap.systems.
+I'll plug chrislast.com slash consulting.
+The hardest thing about launching a podcast now
+is actually making a podcast that stands out.
+I'm taking my 10-plus years of experience
+and helping people with their shows
+at chrislast.com slash consulting.
+Check that out.
+Of course, the show is live on Tuesdays.
+Join us live.
+Makes the show.
+Makes the show.
+Great mumble, great chat room, the best.
+People tell me Linux Unplugged has the best.
+Jupiterbroadcasting.com slash calendar for your local time.
+And jblive.tv is where you can go to get the embedded
+chat and the video.
+The audio, of course, released later at linuxunplug.com.
+The cleaned up, proper edition that has 99.9%
+of the viewer and listenership is at linuxunplug.com.
+But if you want a little extra fun, that's the live stream.
+Either way, we appreciate you.
+Thanks for joining us.
+We'll see you back here next Tuesday.
+So until then, have a great week.
+You know, just something that's really cool about that Pi VPN, I don't know if you guys
+noticed, but apparently it also works on Amazon's free tier using Ubuntu or Debian.
+So if you're-
+That's adorable.
+Yeah, if you need that AWS free tier, set you up some Ubuntu, some Debian, throw some
+Pi VPN on top, man, you got you a good meal.
+You could do like a cooking show version of putting services together.
+If you take a dash of Ansible, with a little sprinkle of Ansible, maybe a dash of salt.
+No Ansible is the recipe, of course, right?
+Well, you use your Ansible, you make sure your thing has a dash of salt in it just to,
+you know, make sure everything's all gravy.
+And I'm curious, can we get like just, can I get a sample consulting tip for free from
+Chris Les?
+Yeah, absolutely.
+What would be your free giveaway, like free trial, click on my link, and this is what
+you get.
+Don't launch a podcast.
+I think that's a great idea.
+But how about cheesy?
+I mean, if I was going to like consult with you, you know, so you and I are going to have
+a call.
+The way it works is, of course, is first, if you had a podcast, I get links from you
+and I do like a full review.
+I'd listen to your show, I look at your site, I look at how you distribute the podcast,
+I look at your feed, I look at your social presence, I look at your show notes, I look
+at how you get audience feedback.
+I mean, I go all in like, like, you know, I would do for one of our shows.
+And then we have the call.
+And I tell you what you're doing right, I tell you what you're doing wrong.
+But for you, what I would tell you is, well, number one, you've got a great design sense.
+So you could really launch something that has a real visual style.
+But secondarily, I think you could clearly own that beer slash Linux space, you know,
+the Venn diagram where beer and Linux cross, you could completely own that market.
+And if you launched a podcast, I would definitely recommend for you.
+It's beers with Linux.
+Nice.
+I feel reminded of something that you did long ago.
+Yeah, beer is quite tasty.
+Beer is quite tasty.
+Well, Chris, I forgot to talk to you about scale.
+Oh, yeah.
+Oh, totally.
+I'd love to hear.
+I'd love to hear.
+Hold on.
+Do you want to do the official Jill, our reporter on the scene from scale?
+Well, we'll pretend like you're on the scene, okay?
+Because obviously, you're no longer.
+Okay.
+All right, very good.
+Let's go.
+We'll go first.
+We'll bring in our star reporter.
+Oh, my gosh, it's Anderson Cooper, everybody.
+Ladies and gentlemen, reporting on the scene in California, it is Jill, the Linux girl
+on our scale live stream.
+Jill, what are you learning at scale 2020?
+Oh, what's been awesome is because of unfortunately, because of the virus, we had a very small
+community like feel at scale, which was awesome.
+It was kind of like scale six years ago, but one of the highlights was seeing Elle do her
+talk on confessions of assisted men.
+Oh, that's a good time.
+Yeah.
+Yes.
+It was really good.
+It was the first time she had done it alone.
+Oh, yeah.
+Yeah.
+It was really, really nice to get to talk to Elle, Elle Moore outside of Twitter and
+Jupiter broadcasting, so that was wonderful, but yeah, so even though a lot of the big
+companies weren't there, they couldn't send their people out, but they were still sponsoring
+the event.
+Oh, that's good.
+But as a result, they sent to the booths, they sent all the local community there.
+So it was probably pretty much 50% of Los Angelenos because of that.
+Really?
+Yeah.
+It sounds like it was kind of a special scale then.
+Yeah, it was.
+It was.
+It really felt like scale was about, like I was saying, six or seven years ago, but
+we still had, even though normally we have over 5,000 in attendance, we still had 3,500,
+which was really, really good.
+That is not, I mean, so that's about half, right?
+Yeah.
+Yeah.
+Okay.
+Yeah.
+So what are the expo hall?
+You know where all the booths are?
+How different was that?
+Set in about 40%, which was a little weird because we're used to seeing that, as you
+know, Chris, that whole hall just completely full.
+Right.
+But we still had a lot of people.
+Like I had a lot of people coming to the Linux Chicks LA booth, and I still was able to get
+a lot of good interviews for Linux game cast, which, and LWW.
+So it was just, it really, everyone was very careful to not touch each other's hands.
+We were trying as much to do fist bumps and shoulder bumps.
+Really?
+Getting creative.
+So it must have been like an ongoing conversation the entire conference.
+Yes, it was.
+And the fact that we were the only tech conference that hadn't been canceled and was still going
+on, and I know if scale had happened the next week, we would have been canceled, you know,
+of course.
+So, but it was a very wonderful event despite what's going on in the world.
+And what was also really cool is a lot of the speakers who had canceled, people filled
+in for them at the last minute, like the Kubernetes track was really awesome because the whole
+track was going to be canceled.
+And then everyone, you know, everyone said, well, well, I can come in and do the talk
+literally like, you know, the day before.
+So it was, it turned out, I didn't go to that track, but everyone said it was wonderful
+as a result of the spontaneity.
+That's nice.
+It's cool to see people step up like that, you know, I know about that.
+I could talk about that.
+I wasn't planning to, but I'll do it.
+Yeah, that was just really cool.
+And it was, you know, again, it was really great to talk to Elmore and Nuritzi Sanchez
+as well.
+I got to talk with her and she was wonderful.
+Her brunch with Brent was great too.
+Yes.
+In fact, oh man, I meant to mention that in the housekeeping, the last few brunches with
+Brent have been so killer.
+Definitely.
+Yeah.
+Oh gosh.
+Well, you know, has it crossed your mind that might be the last tech event of the year
+you attend?
+Yeah.
+Because I wanted to go to Linux Fest Northwest, of course, and was planning to and was just
+about ready to look into the trains.
+Oh, nice way to do it.
+Good for you.
+Yeah.
+Yeah.
+But next year for sure.
+Yeah.
+Or if it's put off to the who knows, it might happen the end of the year.
+Yeah.
+You never know.
+Some of them might reschedule.
+I feel like most of them probably won't.
+Yeah.
+Unfortunately.
+The year without a conference.
+What about OSCON?
+Would you would you consider going to OSCON if it continues in July?
+Yeah.
+OSCON actually is one I've never been to.
+And the irony of it is scale is bigger than OSCON normally.
+You could take the train to OSCON, though.
+Yes, you can.
+Yeah.
+So I've been wanting to go there.
+Well, we'll see what happens.
+You know, it seems like every week it is an entirely different world we're living in right
+now.
+History is being made as we as we live right now.
+Yeah.
+But it's so awesome that our penguins are still marching.
+You know, we still had scale.
+We still have the Linux community.
+And it's been my my respite and all this madness.
+True.
+And we have our virtual look.
+Yes.
+Yes.
+And Jupiter Broadcasting.
+Yay.
+Oh, oh, and it was so cool.
+A couple people came up to me that had heard my brunch with Brent.
+Oh, that's wonderful.
+And what was really sweet is is one of the Jupiter Broadcasting listeners.
+He wanted a picture with me.
+Who wouldn't?
+Yeah, that's true.
+I wish I could have gotten a picture this year.
+Yeah.
+Next year, Chris, for sure.
+OK.
+You promise?
+Yes, I promise.
+Yes, I promise.

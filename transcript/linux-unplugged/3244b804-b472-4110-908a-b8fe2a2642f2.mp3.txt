@@ -1,0 +1,1108 @@
+So Wes and I have been kind of geeking out and
+following the development of getting Linux support for
+the M1 platform, like completely upstream support.
+And Hector Martin and the Linux team, they're working on that.
+And as part of this interest and just kind of documenting it so
+we can report on the shows, Wes was watching one of the live streams last
+night that Hector Martin does of development, fascinating insights.
+And listen to how they're actually developing the GPU driver,
+which they've just upstreamed some of the M1 GPU driver
+support to Mesa with 75% OpenGL ES compliance, which is wild at this stage.
+But how are they doing this?
+Since they don't have a complete Linux operating system to run and
+develop on, they have an amazing hack.
+Yeah, the M1 GPU driver, that's the user space part, by the way.
+So it's running on Mac OS at this point, but
+it's really awesome that it's passing a ton of the tests already.
+So that's why I really wanna work on this hypervisor,
+because once this works, it will give me the information I need to write
+the kernel side of this.
+And since the user space side is going so well, basically,
+once the kernel side has basic GPU context and memory management,
+we can plug that in and then suddenly everything works on Linux too.
+So it's really cool that we're getting so much progress.
+I had a private conversation with Hector and he told me that he was optimistic
+that we may have a usable desktop by December.
+And I thought he was crazy when he said that, I thought, no way, no way.
+But now that I hear that, he might be onto something.
+Sounds like you better start budgeting, buddy.
+I don't think so.
+I mean, if you think about it, Wes, if you're gonna spend that kind of money,
+it's gotta be, if you're gonna do it for a brand new computer,
+it has to be really operational.
+I think at this stage, it's gonna be, you can do data recovery,
+you can do forensics, you could do some sort of rescue and
+get basic Linux functionality.
+I think that's gonna be where we get to in 2021.
+But that's gonna be really valuable.
+Hello, good looking and welcome back to your weekly Linux talk show.
+My name is Chris.
+My name is Wes.
+Hello, Wes.
+You know, you didn't have to wear the postal outfit for today's episode.
+That wasn't required.
+You turned the studio into a post office.
+I just thought I'd dress to fit.
+This episode is brought to you by the all new at Cloud Guru,
+the leader in learning for Linux, the cloud, and other modern tech skills.
+Hundreds of courses, thousands of hands-on labs.
+Get certified, get hired, get learning at acloudguru.com.
+Well, coming up on episode 404, it's webmail has been found.
+It's the finale of the email server series this week.
+It's a three-part series, and we have one last important task we must finish.
+We must get webmail up and running after a back and forth.
+If we were gonna do it, we decided, yes, it's a feature we need.
+And really, to make it complete,
+we know we gotta have a little bit of a production test.
+So we're gonna give out credentials live on the show to, I won't say who,
+I'm gonna reveal, but to a test user.
+Hint, hint, he's in the mumble room.
+And he's gonna try logging in for the first time and send an email and
+let us know if it works right here live.
+Then after all this is done, we're gonna kind of, just from time to time,
+follow up and do check-ins on the email server.
+It's not gonna be like a regular thing anymore,
+kind of like how we do the Arch server from time to time.
+But of course, we've got community news, we've got pics, we've got some feedback.
+So before I get into any of that,
+I'd like to say time appropriate greetings to that mumble room.
+Hello, virtual lug, lup-lup.
+Hello.
+Hello.
+Hello.
+Hello.
+Hello.
+Namaskaram.
+Hello, everybody.
+Boy, it's nice to have, look at that, 25 of you in there.
+Good to have you here today.
+So let's start with a little community news because one of those members in that
+virtual lug is Mr. Daniel Fore from the elementary OS project.
+And we have news of a beta for elementary OS 6.
+Dan's joining us to tell us a little bit about it.
+Hello, Dan, welcome back.
+Hey, how's it going?
+Oh, pretty good.
+Good to see a beta land.
+This is kind of an exciting milestone in the road towards elementary OS 6.
+So what are we expecting here?
+This doesn't look like it's a final product at this stage, but
+it's looking like it's getting pretty close to something you could use day to day.
+Yeah, I tell you what, it's been a rough year for obvious reasons, but
+I'm really excited to get this beta out.
+So what we're really looking at here is we're making this big transition over to
+a flat pack based app center, right?
+And we have all these great new APIs, both from upstream and
+from things we've been working on.
+And we're in a place right now where we want to really stabilize that developer
+experience and get people in and building their apps as flat packs with these new
+APIs and getting feedback about their experience so
+we can get ready to do the real thing.
+All right, so you mentioned the year.
+It's been 370-ish days since 2004 came out, which will be the base.
+And I'm wondering, what are your thoughts reflecting on that amount of time?
+Is it the project's goal to generally ship sooner than that?
+Or is it really just a matter of you ship when it's ready, and
+if it takes 370-ish days to get to a beta, that's acceptable and
+what the user should expect?
+Yeah, I mean, it's a little bit of this, a little bit of that.
+Like, obviously, it would have been nice to ship a lot sooner.
+We had planned a sprint early last year that we were supposed to be able to go and
+get all this flat pack app center stuff done at that time.
+And then the world blew up.
+So this is definitely a lot more delayed than we really wanted.
+But that is kind of the beauty of deciding to release when we're ready is we've
+never really had these big commitments to dates.
+And it was more like, this is the work that needs to get done.
+And as long as it takes to get the work done, that's the experience we want to ship.
+And you know what, I think the users appreciate that.
+So there is now ways, though, for people to get involved and
+help accelerate development and help make elementary OS 6 great.
+I saw you have information posted where you go through the beta,
+you show some of the new features.
+By the way, I really like that new, I think you guys call it accent colors
+feature that kind of just lets you spice up the UI a little bit.
+That looks really slick.
+How does that work, Dan?
+Does it highlight the default buttons in different colors that you choose?
+Is that essentially what it's doing?
+Yeah, so under the hood, what it actually is, is we're now shipping
+eight different variations of our style sheet that are kind of built at compile
+time, and they all use a different base accent color.
+So when you're getting things like the suggested action buttons, or
+selections in radios, or in menus, or lists, or things like that,
+anytime that you see, normally you just see a blue accent by default.
+But now you can kind of choose what your favorite color is, or
+we actually even just merged the ability to have it automatically select a color
+based on your wallpaper.
+There must be a performance benefit to you guys building those themes ahead of
+time.
+And then as a user, I select them, they're built and ready to go.
+That just seems great.
+Is that something that's normal, or
+is that something that elementary OS does differently?
+You know, I'm really not sure how other platforms are handling it.
+I think Deepin maybe has a color selection, and
+I think maybe another desktop environment.
+I'm really not sure about how other ones are working.
+But this is like the one we felt that would be the easiest to maintain and
+allow us to add as many colors as we want and
+make sure that when people go to switch them, they're switched and they're done.
+I just like to know these kinds of things because I think honestly one of the great
+things about the elementary OS experience is I love a lot of GTK applications.
+But in the past, I've run into issues with Gnome Shell itself.
+A lot of that's been fixed up, but elementary OS has always been there as
+an alternative that lets you play in that user space, kind of like Budgie does, but
+with some real nice choices you guys have made.
+So to that end, I'm curious just to get your high level thoughts on
+Gnome 40 adopting a horizontal layout that reminds me a lot of
+the way Pantheon does things.
+Yeah, I think it's really interesting.
+I think that a lot of people have this perception that developers from different
+desktop environments are in fierce competition and don't ever talk to each
+other or anything like that, but it's really not true at all.
+We were at the design sprint where they were working on the design for
+the new login and lock screen.
+And a lot of the discussions that we had with the Gnome design team actually
+informed the design for our stuff.
+So we're in contact with designers at Gnome and we go to Guadac and things like that.
+And so there's a lot of cross-pollination of ideas, and
+it doesn't totally surprise me that we would decide to do a lot of things very similarly.
+Right, and I gotta say, as an end user, the experience for
+me just means it's more consistent when I'm switching between desktop environments.
+It's just like one less thing for me to have to do a translation in my head.
+So it kind of works out for an end user, so I like it.
+Well, there's a lot in here, like stuff with App Center and flat packs, but
+I'm curious if there's any other areas that you'd just like to particularly touch on
+before we give people any more info on how to get involved.
+Yeah, I think the biggest ones here are just that we were trying to roll out that
+whole new look and feel with the new style sheet, and
+we really need feedback from app developers to make sure we didn't break our styles.
+So any kind of weird idiosyncrasies, we'd love to have reported there.
+I mean, we're really just in this stage of here's all the big stuff and
+tell us what we broke.
+Yeah, that new installer needs some hands on.
+That's probably a really easy way for people to give it a test.
+I like that you have this page, so
+I'm gonna recommend everybody that wants to help out, check it out.
+Elementary.io slash git dash involved.
+Every project should do this.
+The team just outlays a lot of ways you can just get involved,
+be it from funding to design to desktop and support.
+It's super clever, and it's really well done.
+Thanks a lot.
+Well, Dan, thank you.
+Thank you, and thank you guys for putting out all the good stuff.
+And I look forward to giving it a try.
+And then, of course, the release.
+When that does happen, you come back and chat with us about it.
+Yeah, absolutely.
+I think we're probably gonna kick off another beta, hopefully relatively shortly.
+We're getting a lot of great feedback and a lot of bug fixes in, so
+we really wanna keep that feedback loop churning.
+Thank you, sir.
+Thanks for updating us.
+Good to have you here.
+Thank you.
+Mr. Daniel Fore, everybody, from Elementary OS.
+We will have links to everything we just chatted about in the show notes,
+of course, so you can go right there.
+Now, a project that we just love on this show,
+we use it to help produce this here podcast, is Audacity.
+And you may have heard this week that Audacity has joined the Muse Group,
+which is a collection of brands that includes another popular open source
+music app called MuseScore, a lot of people are familiar with that.
+And I think that the Muse Group is, I don't know a lot about it yet, but
+we've invited several people involved onto the show to come tell us about it.
+And I did reach out to the Audacity development team,
+well, at least a couple of the developers.
+And they don't have a lot to add to this story at this moment.
+But the way it seems to be coming through is that MuseScore will be involved with
+the management and day-to-day operation of Audacity,
+much like how sometimes a foundation will.
+And then there will be a team of developers that will remain that have been
+there for a while that will continue to develop under that umbrella now.
+I essentially believe what's happened here is the equivalent of copyrights and
+trademarks have been purchased and acquired and transferred to Muse Group.
+And one of the key goals, it sounds like from the outset here,
+is to improve the UI of Audacity, it's kind of job number one right now.
+Which, Wes, it's like the developer that I spoke with literally said to me,
+I'm also both scared and excited.
+Yeah, I think that's right.
+I mean, it's really been a long journey for Audacity.
+It began development way back in 1999, yeah, that's right,
+last millennium at Carnegie Mellon University and has come a long way since there.
+I mean, they just recently shipped version 3.0, which added a lot of stuff already.
+It's not really clear exactly all what's going on here.
+Muse Group itself was formed, just like the company,
+was formed a few days prior to the Audacity announcement.
+Although obviously MuseScore and
+some of the other stuff involved had been going on a lot longer than that.
+We don't know a lot about the financials or the exact structure, but
+if how this works out is they've got a new steward who wants to help support
+the development of this free and open source audio tool, I think I support that.
+And because it is open source, I mean, if they ruin it, at least we can fork it.
+That's true, and I'm not particularly familiar with MuseScore, but
+from just kind of doing some research for this story, it seems to be really well
+liked, it seems like people are very much a fan of that software and
+have a lot of goodwill towards this acquisition because of how they have
+managed MuseScore, hopefully that's a good sign.
+This is one of those stories that does actually kind of terrify me just a little
+bit because it is a tool that is so precious to so
+many of us in any kind of media production on Linux.
+Media production, I mean, it's used a bunch in academic research.
+It's just sort of, like it happens with the best open source tools,
+it just becomes sort of part of the landscape because it doesn't cost anything.
+You can always count on it, it's always there for you, and
+it would be a shame for that to change.
+Yeah, I will continue to leave our doors open to anyone
+involved that would like to come chat with us, I've sent out a couple invitations.
+And maybe we'll do a follow up next week, kind of a head scratcher.
+And one thing that was a little strange to me is that the announcement
+started on YouTube in a YouTube video by the design lead from the Muse group.
+Who's a well known individual, and so maybe that makes sense.
+But it wasn't like a press release from the Audacity project or
+like the Muse group website, if there is one.
+And that video, I mean, it had a lot to like in the video, definitely, but
+it was aimed at the existing audience, his audience on YouTube.
+And so it's sort of like, hey, I'm in charge of Audacity now, isn't that?
+Here's what I'm thinking, which is great.
+But yeah, there hasn't been a lot of communication geared to the wider
+open source community or users who aren't familiar with Muse group but
+are familiar with Audacity.
+Put very well, and we will have a link in the show notes.
+There is now a post on the Audacity website,
+which we will also link in the show notes.
+But quite literally, all it does is it quotes the YouTube video.
+They just put a block quote of essentially a transcript from the YouTube video.
+And then the only thing they add to it is that we're scared and excited, and
+they hope we are too.
+That's the entirety of the statement from the Audacity project.
+And I think it's one of those situations where things are still getting dialed in.
+And whenever you have a deal like this, it involves copyright and
+intellectual property and money.
+That there's just certain things that people can't say right now.
+And so this news has kind of come out before maybe everything is fully formed
+based on my read of my conversation and this post.
+It's like they just can't say everything fully yet.
+But the headlines are getting written fast, so
+that's why I wanted to contact them.
+Because the headlines clearly say the Muse group now owns Audacity and
+is in control of it and will be quote unquote partnering with the open source
+developers, which is just not very clear.
+It doesn't really say who is quite in charge then.
+Because you can't make an open source community do anything.
+It's like you can't, you can't herd cats.
+It's like you can have goals and you can have outlines.
+If you get everybody on board, they'll go for it.
+But if you just come at them from on high with a mandate,
+not all of them are gonna do anything.
+They're not gonna jump necessarily.
+Right.
+How many resources will be expended by the project in terms of development time?
+How much of that will be sort of shepherding and
+helping out existing development, volunteer resources, or paid resources?
+We don't know.
+I guess we'll just have to pay some close attention to the repo and
+see what happens.
+Linode.com slash unplugged.
+Go there to get a $100 60 day credit, yep, $100 towards a new account.
+And go there to really support the show too.
+Let us know you heard about it here.
+Linode is our cloud hosting provider.
+It's what we've built our new email server on.
+It's Linode, of course.
+It's what we do our back end processing, and hosting, and our automation system,
+and next cloud, and object storage for config backups.
+It's how we do a lot of the things that make it possible for
+a small team to operate at the scale that we operate at.
+That's why Linode is essentially like part of our team.
+Because they're a fundamental aspect of how we get production done.
+And unlike the big clouds, unlike big cloud, like AWS and
+the Googs and Azure, Linode gives you access to tools they would never dream of.
+And man, oh man, is Linode's UI infinitely simpler and
+much more straightforward.
+And yet somehow, you'll be amazed at the speed, performance, and
+complexity of things you could actually build if you wanted to.
+And you get 11 data centers to choose from.
+Every service level is backed by the best customer support in the business.
+And that matters, that really matters.
+Instead of just being a number,
+you're gonna talk to an individual by phone or ticket.
+And it's gonna make all the difference when you're in a tough spot.
+And it's not just like that one great thing about Linode.
+It's like all the things about Linode that make them our go-to choice for
+anything we're building.
+It's not even really a debate, because when you become kind of a Linode connoisseur,
+there's just things you can't do on the other providers.
+And they really, truly love Linux.
+I mean, you can see it in the projects they support and
+the conferences that they've supported.
+But when they are building anything,
+they start from a perspective of how can we make Linux do this for us?
+Even if it doesn't fully do it yet.
+I've shared the story before about when they became their own ISP.
+And back then when they did that, it was ridiculous to be using Linux
+at the layer that they were planning to use, at the networking layer.
+And now it's become an entire industry.
+Because they see this stuff like we do.
+Like we're sitting here shucking and jiving about pipe wire.
+Back in 2018, well, it's shipping in 2021.
+Because we're passionate about this stuff.
+We follow it for a long time, just like Linode does.
+And that's what I love about them.
+Because if you're a long time Linux user, that stuff shines through the product.
+I think it's really great.
+So go see what you can do with Linode.
+Go put that $100 to work for you and see what I've been talking about it.
+linode.com slash unplugged.
+Build something or maybe even learn something.
+There's a lot of great places to host, I'll admit.
+But nobody does it like Linode.
+Go see why we choose Linode every single time.
+linode.com slash unplugged.
+You know, Mr. Payne, we have a really major, major housekeeping today.
+I normally say we just have a spot of housekeeping.
+But I enthusiastically embraced the housekeeping this week.
+Well, we woke up and it was a mess in here.
+Clearly, we didn't clean up after ourselves last week.
+Oh, it wasn't you and me.
+It was Minimac and that rowdy Luplug.
+They had a hell of a get together this Sunday.
+Minimac, do you want to give us a little update on how the Mycroft get together went?
+Well, it went really well.
+We had an excellent pre-talk.
+And I want to thank all the members of the Mycroft community that found the time for
+a really Luplug session.
+And most of them will be present next week, too.
+Yeah, that's the main show, right?
+That's the big event.
+Indeed.
+So in the pre-talk, we tried to nail down the structure of the talk that actually takes
+place next week.
+But we already had some inside information and everything was really cool.
+And we played around with our Mycroft bot we have now in the Mumble channel.
+And that one will be available, I guess, for the whole week.
+So if you want to test that one, you can whenever you want.
+Please be aware that it can be a little bit tricky with the wake word, with the HeyMycroft
+word.
+And maybe you have to adjust your microphone settings a little bit.
+I have some excellent news.
+Chris Gessling, you know, the guy from Down Under, the community manager.
+He has announced his presence, too, for the talk.
+So I guess we're going to have to beam him some coffee.
+That is great.
+So it will be an excellent talk.
+And I really hope that you find the time to join us.
+I will put a reminder on all the JB social media channels.
+All I can say is see you next Sunday.
+It's really neat to see the Mycroft team engaging.
+There's people that showed up just for the pre-talk this Sunday.
+So you know it's going to be a great turnout this Sunday.
+And yeah, you heard him right.
+They now have a Mycroft bot in the Mumble room that you can speak to via Mumble.
+It's so cool.
+It's so cool.
+Yeah.
+So check it out this Sunday.
+Also, I want to put a call out there for your questions.
+We want to do a Q&A episode coming up later this month because I'm going to be doing some
+traveling.
+I'm going to just take that opportunity to just answer questions.
+We haven't done that ever on the show.
+So ask us anything.
+We'll answer as many as we can.
+Go to linuxunplug.com contact for the Q&A episode coming up real soon.
+And also I'll mention we have a couple very limited retro last items in the garage right
+now, including the very last few coins.
+We still have some swag bags that honestly the swag bags are super popular.
+Those are up right now at Jupiter garage.com.
+It's the very last of the last coins.
+So grab one if you would like them.
+What's this tech talk today portable speaker?
+I see.
+That seems like the perfect way to listen to a Linux unplugged.
+If you happen to have a device that still has a headphone jack, it's just a little,
+it just runs right off the headphone jack.
+I might have a battery in there.
+I can't remember.
+It works though.
+I just plugged it in.
+Yeah.
+If you were a tech talk today fan, I looked at that little speaker and I thought, you
+know, I kind of miss doing that show.
+I don't need to do any more shows.
+I really don't need to do any more shows, but I kind of miss it.
+So that's all at Jupiter garage.com.
+So this is the finale of our email series.
+We today finally we'll finish it all up.
+We've been building our own self hosted email server in 2021.
+Yeah, I know.
+I know we're doing it because everybody says you should never host your own email server.
+So we're going to do it so you don't have to spite email server.
+It's definitely the best possible reason.
+It is totally a spied email, you know, and we have two important tasks to complete today.
+We must deploy the web mail.
+And of course, we must get our first production user online.
+But I have to first acknowledge that we have gotten a lot of feedback about this topic.
+Wow.
+We weren't even sure if you guys would love this idea or not.
+But it turns out a lot of you crazy bastards out there are also hosting your own email.
+But additionally, a lot of people are thinking about it for some reason.
+Maybe it's Google fatigue, or it's probably a dozen reasons.
+But this is this has been remarkable.
+I spent oh, I don't know.
+Three hours yesterday, just reading email about self hosted email hosting.
+So I kept sending West messages like I'm I've made it back to this date.
+I've made it this far.
+I was given like real time messages.
+It was a mountain of feedback.
+Yeah, wow.
+I did not expect that.
+I mean, a few sure.
+But apparently email is a spicy topic.
+Yeah.
+And Hank wrote in with a with a pretty good question that I think we should cover on the
+show.
+So I wanted to respond to this one on air.
+He says, What's your plan to keep your email servers secure?
+You tout the fact that your update woes are minimized.
+I think you've just shifted the need to update the OS though to needing to update the containers.
+In this regard, I just prefer to keep things within the packaging system on Debian and
+its derivatives.
+I install unattended upgrades package which defaults to install security updates daily.
+Security updates are tested and very unlikely to break anything.
+I suppose the same is true for a containerized email server.
+But I'm unaware of any automated security updates.
+By the way, unattended upgrades is a good little pro tip on you Debian users out there
+and derivatives.
+If that's something you might be able to get away with on your box.
+But he makes a good point West because I think we kind of maybe tried to connect security
+with containerized application.
+And that is something we should never do on this show.
+Yeah, right.
+I mean, of course, you still need to do updates if there's a vulnerability or a bug that needs
+attention.
+Well, you got to get those somehow.
+Containers do give us some nice tools for sort of separating those concerns.
+It allows us to sort of choose when we want our updates in our containers versus on our
+host system.
+And so if we did want, you know, automated updates on the host system, we certainly could,
+although we still need to attend to what's going on in the container.
+What's nice about having this all in Docker and open source is we have access to everything.
+So if we want to rebuild things, if we want to make tweaks, we have that functionality.
+And we try to choose projects that have regular updates to the end releases to their images
+anyway.
+Beyond that, there are some nice tools around there as well.
+If you do want to set up something like an automatic update, but you will have to do
+that yourself.
+True.
+Real time update from Neil in the chat room.
+He says that if you're on Fedora, a DNF-Automatic will achieve the same result as unattended
+dash upgrades.
+Nice tip.
+Yeah.
+Thanks, Neil.
+Yeah, I think the message I was trying to make last episode is that when I looked at
+say Mail-in-a-Box, which I still think is an awesome project, and if you're good with
+the traditional way of deploying software where it just uses packages and it just kind
+of goes all over your system, that's a great option.
+I was surprised by my reaction, guys.
+And I think the thing I want you to take away is when I used Mail-in-a-Box and I watched
+that install script run, instead of having this sensation of, oh, man, it's so great,
+this is just taking care of everything for me, I had this sinking concern that I had
+no idea what was really happening to my system.
+And I just watched package after package after config file after config file get written
+to the hard drive.
+And I started thinking, this is fundamentally altering this box in a way that I don't know
+if I'm going to feel confident in just upgrading when there's a new update that comes out.
+It also gets more complicated when, you know, like we were doing for today's show, start
+hacking in things like web mail, and suddenly you've got multiple conflicting things installed.
+And maybe you don't do that.
+Maybe you've got, you know, a VPS or a VM for everything.
+But I think it's pretty common to just sort of add those things on when it's convenient.
+And then you've got mixed requirements that maybe one update needs an update, but that
+might break another part of the system.
+I mean, there's several advantages, right, Byte?
+Yeah, so when you restart a system because of an update, usually you get a message like
+a restart is necessary, then your entire system is down for a long time.
+But if you use containers, a container is usually really fastly rebooted.
+And if it's only by the service itself, yeah, it's really fast.
+Yeah, I think that when you look at running your core applications that you want to run
+for, you know, five years minimum, and you want to maybe even survive an entire OS upgrade,
+having that isolation is such a killer feature for me.
+Other things like snapshots, or easily quickly rebooting, or switching to a different image
+or something like those, there's a lot of nice advantages.
+Migrating to a new host server.
+Right, oh my gosh, yes.
+That's been very handy for us.
+We did a migration from DigitalOcean to Linode, and it was absolutely much simpler by having
+a lot of our applications, nearly all of our applications containerized.
+It made it just significantly simpler.
+And so mobility and maintainability of the host OS are paramount for me.
+And then there was other benefits, like instead of going with Ubuntu 18.04, I could now deploy
+CentOS Stream 8, which is something I've wanted to test in production so I could just talk
+about on the show anyways.
+I mean, Hank does have a good point though, right, that you don't get the security for
+free, and it's still definitely something you have to manage, and that may influence
+how you want to run your software.
+So Neil, I'm curious what your thoughts are, because I know one of the things that's
+drive you crazy in the past is when people equate running applications in a container
+to being secure, but there's probably still some use cases here that you probably agree
+with.
+Yeah, so like for me, it isn't necessarily about security to choose to use containers
+over something else, although security can be beneficial.
+The main aspects I wind up using it for is I actually kind of use it a little differently
+than most people.
+I use it mainly to replace virtual machines.
+So unlike a lot of folks, I actually have an init.
+I have systemd init running in my containers.
+I'm using systemd nspawn instead of Podman for some of my stuff, because a lot of my
+stuff are multi-service stuff, and it's just not worth it for me to do the extreme splitting
+required to do it in something like Podman or whatnot.
+So I run them as nspawn containers, which means they boot up like they would VMs.
+And because I'm using Butterfests in my file system, they're snapshot and I can actually
+do Butterfests and receive to transfer them everywhere.
+And I also, because of Butterfest's coolness, I actually just layer them on top of the host
+operating system root file system.
+So I take the host operating system, make a snapshot, use that as the base to instantiate
+a container and do clever rebase things.
+So for me, what the advantage of containers is, these different things are still running
+on the same system I would normally run it on, like if they were all in one box, but
+I have the ability to orchestrate them independently.
+If they need to have conflicting requirements, they're easily handled.
+Like if I have to have CentOS for an environment and use different module streams, like being
+able to use the different application stream from RHEL or modules from CentOS and activate
+them for the language stacks and whatnot, I can still use packaging.
+I can still use all the tools that I'm familiar with.
+I can still manage it with config management or Ansible or whatever I'd like.
+But because most of my applications don't need a different kernel and don't need emulated
+hardware for all of them, I can drastically simplify the maintenance and management of
+my systems.
+And the big win for me there is when I sometimes get trapped into running an application that
+can't necessarily upgrade right away, the operating system can move forward and most
+of my things can move forward and that one thing can stay back a little bit until either
+I figure out a way to upgrade it or I replace it with something else.
+I don't use it as a way to hold back.
+I use it as a way to be more strategic about how I spend my time managing my infrastructure.
+Well put.
+And two thoughts.
+First thought is, and this is why, why we covered all this is a huge part of security
+is staying current, especially with software that has open ports to the internet.
+We've locked ours down and can because we have mail route in front of it, but we could
+lock it down further, obviously.
+I mean, there's all options we have there, but some software like SSH and web servers,
+they're always going to be exposed directly to the internet.
+So keeping them current is a huge, huge part of security.
+But if you, if you listen to what Neil said in there too, is you'll also essentially hear
+the reason why developers that want a modern workstation need a more modern file system
+than extended for.
+He just clearly laid out how he can use ButterFS as part of his development workflow to give
+him different environments that are safe and disposable and do it in a very clever way.
+And that's why you need something beyond what just extended for can do.
+Even if you or I maybe only use it for compression or something like that, he or other developers
+like him can use it for a lot of crazy features, including just making their day to day job
+simpler.
+And that's why it's important that we ship really competitive file systems with desktop
+Linux distributions that want to be used as a workstation.
+Just my little side note, and thankfully most Linux distributions will let you format any
+disk and just about any file system you want.
+All right, so we had to decide essentially between two webmail packages as we saw it.
+There's a lot out there.
+And one of the kind of nice things about doing it in these three part stages that we've done
+here on the show is in between the audience has had time to give us a lot of good ideas.
+And we definitely got two suggestions the most via all the different mechanisms people
+get a hold of us.
+And that was RainLoop and RoundCube.
+And I was a little hesitant to RoundCube just because I had used it before and kind of wanted
+to try something new.
+So we first took a look at RainLoop.
+Yeah, you know, we heard a lot of good stuff about RainLoop and I'd never used it either.
+So I was pretty curious where I think I'd used RoundCube.
+I didn't run it myself, but it was used by someone else that was hosting email for me
+and that had been fine.
+But it's funny, we were just talking about, you know, how containers are kind of an integral
+part of this setup.
+And that's where things, at first we were hopeful, but kind of fell down in our trials
+with RainLoop.
+There is a Docker Compose and some Docker setup in their repository, but they don't
+have a lot of docs around it, at least that I could find in my cursory survey.
+And it just didn't seem as set up for that.
+The docs on their main site really were geared around more of a legacy installation setup
+where you've already got like web server infrastructure running and you kind of just bootstrap this
+PHP app onto there.
+By comparison, RoundCube has a lot of nice docs there, their site seems really well developed.
+Seems like they've got a community around them and they've got this whole plethora of
+Docker Compose support, multiple Docker Compose files and very explicit examples of sort of
+like, well, here's three different options.
+If you want to go the Apache route or the NGINX FPM route and here's an option with
+Postgres or here's an option with MySQL.
+So it just felt like here's a project that's embracing this as an option for running the
+software that they make.
+And that was a pretty big signal.
+And simplicity in setup is also appealing here because it's not going to be our primary
+job to admin this.
+And it's kind of a jackass move even to put a mail server in production and then give
+it the amount of attention that we're going to give it.
+So we want to build it in a way that when future Wes and Chris come back to this thing,
+we know how to fix it or how we built it or how we could even rebuild it.
+And when we looked at RainLoop versus RoundCube, it honestly kind of just came down to RoundCube
+was a little simpler, had a little bit clearer documentation and just was a little bit easier
+for us to snap into the old configuration and setup that we had.
+Now, I still would like to do some some playing with RainLoop and there might be some things
+I've missed or if the audience has a as a compose file handy that they want to share
+with us, that'd be great, too.
+I would totally try it.
+And I think it's still something I want to try.
+It was just to get this, you know, accomplish our tasks, start playing with web mail, see
+how to integrate RoundCube was really the simpler and easier option.
+And I mean, it is pretty neat, like it's not a bad experience.
+We'll get more into that.
+And they've been around for 13 years, like since 2008.
+That's also pretty impressive.
+And it seems actively developed today.
+A former past version of Chris definitely deployed RoundCube and liked it back then.
+But you know, we could sit here and tell you about it.
+But maybe we should put it to the test.
+All right, Mini Mac, get your telegram ready.
+This is it.
+I am ready.
+So Mini Mac will be our first production user.
+We want this to be a tool for members of our community.
+And we thought let's put it to the test right here.
+So I just sent you on telegram the URL for the web mail, your credentials.
+If you could log in, first of all, tell us if it works, if it loads for you and if you
+can send off an email.
+Now, you should use your full email as the sort of username.
+Login.
+Yeah.
+What do you think, Wes?
+Are you nervous?
+Fingers crossed.
+I should be looking at the logs, shouldn't I?
+I'm a little nervous, actually, because, you know, we really did not test this beforehand.
+I mean, we tested it, but it's a whole different ballgame.
+Okay.
+First success.
+I mean.
+Good.
+Good.
+Good.
+That's a good sign.
+Okay.
+Now, do you want to send me an address where I should my first famous first words sent
+to?
+Oh, yeah.
+Email me.
+Chris at JupiterBroadcasting.com.
+He gets a lot of email.
+He probably won't reply.
+Don't be offended.
+Wes suggested that I should send you a welcome email, but I wanted you to send the first
+email.
+I think this is a good test because Gmail is really picky about who it actually accepts
+email from.
+So if it's going to reject your email, it's going to be Gmail.
+My heart rate is pounding, actually.
+My heart is going.
+I suppose the question is, does Minimax sound like a scammer in his event?
+He does have some products to sell you, but that's just, you know, that's that's a coincidence.
+Okay.
+Email is out.
+Oh, boy.
+Let's verify and sent.
+Yeah.
+Okay, I don't see it yet.
+Come on.
+Wes, you see?
+Dad, you have the logs up?
+Oh, no.
+Here, let me check.
+Wait.
+Hold on a second.
+Hold on a second.
+Oh, there it is.
+What?
+Yeah, you got it.
+It works.
+Congratulations, Wes.
+Yeah.
+We got it.
+See titles, famous first words.
+All right.
+I'm going to write back.
+Yeah, I'm going to write back.
+Just very simply.
+It worked.
+And I'm going to tell me if you got that.
+I mean, I'm very happy.
+I suppose we should check it round round trip.
+But did you get the reply?
+Not yet.
+Oh, my God.
+I hate email.
+Just the other week, you were talking about how it's a cool federated system.
+And now, here you are.
+I know.
+It should see it.
+It should come right in.
+Success.
+Re from Chris Fisher, famous first words.
+Excellent.
+And the content is, in fact, it worked.
+Nicely done, Wes.
+Nicely done, Minimac.
+I mean, I'm honestly, I'm still surprised, but it just doesn't seem like we did it so
+hastily and we really didn't know what we were doing.
+But thankfully, the tools that we have access to right now are good enough that it kind
+of takes care of that for us.
+I mean, not to do a shameless plug, but it is legitimately why Alex and I started the
+self-hosted podcast, because these tools, the stuff that you can run yourself now, it's
+at a level way beyond anything we dreamed when we first started doing these shows.
+And I am so grateful for the open source projects that make all of that possible.
+And so our plan there is we're just going to slowly roll that out a little bit to certain
+people just over time as we just kind of expand it.
+And then maybe eventually, I don't know, we might go further from there.
+I don't know what we're going to do exactly.
+We just want to try to get a few people on there to make sure everything's working.
+Because you know, even though we're crazy, we want to be cautious.
+And then we'll probably just kind of ramp it up over time.
+So I guess more on that when we do a future email server update.
+And that essentially right there completes the email server series.
+And Wes Payne was a hero and a legend in this one, because we put a lot of work, specifically
+Wes did, into Rain Loop.
+And we thought we were going to go with that all the way until just really last night,
+maybe this morning.
+And then at the last minute, we said, now let's do round cube instead.
+And Wes got it all set up and running just a little bit before the show, like a real
+legend.
+So let's pause everybody to Wes Payne for getting that done.
+Good job, Wes.
+Now you'll just have to wait and see how it lasts, right?
+Can we maintain it?
+How does it do?
+Do we keep using it?
+Stay tuned to Linux Unplugged for more.
+Mailroute.net slash Linux.
+Try out Mailroute today and get 10% off the lifetime of your account and get a 30 day
+free trial, no credit card required.
+Mailroute is how we are routing mail through to our mail server.
+So yeah, during the live show, we went through Mailroute.
+It happened so dang fast.
+And if you have a business where even just a handful of people, you know how critical
+email is.
+And you know how bad threats like ransomware are getting more and more.
+And admins are looking for ways to manage that risk.
+And Mailroute is a fantastic way to do that.
+For 24 years, they have focused on that core competency, just providing cutting edge email
+security.
+And I absolutely loved the tools as an admin while we were setting up our email server
+the first time around.
+I logged in and looked at their real time logs and saw the emails coming and going and
+knew that, hey, we'd gotten some stuff set up.
+So I was pretty confident it was going to work.
+You know, it gave me a pretty good snapshot and I really liked that tool, especially when
+I'm setting things up.
+But another thing that I know I'm going to take advantage of at some point, and I would
+really, I would really recommend you consider this as well, is you can use Mailroute to
+queue up messages for up to like 15 days or like whatever you set it to.
+So that way you have time for maintenance or if you have an outage or an internet outage
+of some kind, Mailroute will make sure you don't lose your email.
+And then when your system comes back online, it just forwards it right to your mail server
+like it was never down really.
+That's just such a nice piece of mind.
+Additionally, if you work in government and compliance is an issue for you, Mailroute
+has some of the most important compliances that you could have in that business.
+So you can feel safe using Mailroute.
+Of course, they have a lot of information on their website.
+So go try Mailroute out today and get 10% off the lifetime, lifetime of your account.
+How great is that that they're doing that for us and for you guys too?
+So go get a 30 day free trial, no credit card required.
+Visit mailroute.net slash Linux.
+This is an example of one of those great partnerships where we contacted Mailroute because we were
+absolutely going to be using Mailroute and we just said, we think you'd be a great fit.
+We're doing this mail series where we'd love to have you on board.
+Mailroute said, all right, let's do it and they did it for two episodes and now they're
+back because they got a lot of great feedback from you guys.
+We had a bunch of you try it out and really like it and so they thought, let's stick around
+for a little bit longer.
+So they're here for a little bit longer and I'd love for you to go try them out because
+I think they could provide a real service regardless of the scale of your institution.
+But this could offer a lot of benefit if you're a large institution or a small business.
+But if you're just a self-hoster and you want the peace of mind, you don't want to worry
+about the crap and you don't want to worry about the downtime, Mailroute's going to solve
+that for you.
+And they've been solving it for 24 years.
+So go to mailroute.net slash Linux, get 10% off the lifetime of your account, support
+the show and start a free 30-day trial with no credit card required.
+Mailroute.net slash Linux.
+Well speaking of email, it's time to check our mailbag and we've got an email from Murray
+wanting to know more about Pipewire.
+Hi, you guys asked what specific things from Fedora 34 listeners would like you to cover.
+I know you choked about Pipewire being too niche, but as a musician and podcaster transitioning
+off macOS and onto Linux full time, I would love to hear more about it.
+Audio has been the single biggest pain point in my move since it works dramatically differently
+than in macOS.
+I only learned about Pipewire shortly before listening to the episode and it sounds super
+cool.
+Please do share more of your thoughts on it.
+Best, Murray.
+Murray, you are coming in at such a great time into Linux media production.
+Oh, how do, how I could just picture that the future for you is going to be so bright
+because Linux has really gotten to a good point.
+I kind of seem to kind of get the impression that you're focused more on the audio end
+of stuff.
+Pipewire does manage video.
+In fact, it started to manage video, but it has really, really gotten to the point where
+you can produce media on Linux all day long and it's fantastic.
+We do things that I simply could never leave Linux.
+We just had a hypothetical like back and forth this other Sunday when we were recording land,
+like how would we even recreate what we do now on other platforms?
+It's just, it's remarkable what we get out of one computer running Linux because of jack
+audio and Pipewire takes everything I love about the current state of Linux audio and
+makes it easier and remains compatible with it.
+And that's why it's going to be kind of a big deal as it rolls out.
+It started as really a way to just focus on getting video in and out of the Linux desktop,
+particularly like in a Wayland future.
+But it's really grown into a low latency audio and video system for playback and capture.
+Yeah, you know, we did some chatting with the developers and they kind of emphasize
+that that once you've got this sort of graph node processing to handle, you know, little
+bits of either video or audio, it's kind of the same and why not unify that in one tool?
+You can think about this too, in terms of development, you can think of Pipewire as
+a server and a user space API to deal with multimedia pipelines on the desktop like mixing
+available sources of video and accessing sources of audio and bringing those all together.
+And there is an API the developers can write to as well as they can just continue to use
+pulse audio or jack audio, if that's what their application is designed for, because
+Pipewire speaks that as well.
+That's huge.
+Right.
+So you get the like legacy support, but you also have a new Pipewire native API if you
+want to be future forward, right with that more efficient lower latency Pipewire backend
+server managing it all now.
+So really, depending on your distribution, things are going to pretty much work just
+as normal, you won't even really know anything has changed.
+And it really has been, for me, at least a very smooth transition.
+It's been a very positive transition, unlike maybe a decade ago where it would have been
+a little or decade plus would have been a little bump here.
+Yeah, it should all just work.
+But one of the neat things about Pipewire supporting all of these options at the same
+time is in the audio world, it unifies them.
+Before you had a lot of neat stuff you could do with jack.
+And then of course, there was the pulse world, which is growing more and more functionality
+with things like pulse effects.
+And you can do a lot of clever stuff with pulse, but it was never really designed for
+that pro audio, low latency sort of workload.
+And that just meant you had two or three different Linux audio worlds that didn't always play
+nicely together, or you had to, you know, really know what you're doing to link them
+up correctly.
+But in Pipewire, that just works.
+Or maybe another way to put it is stack them on top of each other, right?
+You would have you would have sound system stacked on top of sound systems.
+Yeah, really, as much fun as that sounds like.
+And so I think, you know, for Murray's case, things should just work, you can just get
+started.
+But when you're ready, you can start playing with some of these tools that are designed
+around jack workflows, things like like Katia or Carla.
+And then you can start doing some of that fancy orchestrating of moving inputs wherever
+you need doing loop backs, monitoring input on the system, all that fun kind of pro audio
+stuff that you might have been using a special Mac app for.
+Yeah, put really simply, if you're recording a podcast, and you want to record a guest,
+and you want to do it all on maybe one laptop, or one computer, how do you capture that application
+audio and bring it into your recorder to record it, you need tools that can link that all
+together.
+And that's what Pipewire will enable in a way that we've had before, but was not in
+a unified framework for exchanging all of this.
+And none of the previous solutions that we've talked about were really built with our way
+land future in mind and the security requirements that come with that, like having applications
+sandboxed in flat packs that need ways that are standardized and API's to communicate
+with each other.
+And Pipewire aims to solve all of those problems to outside of just the multimedia improvements
+we've talked about, it's really going to be a unified framework for both consumers that
+won't even know they're using Pipewire quite legitimately won't even know.
+And pros like us who are going to rant and rave about it for years now because this is
+over time and even already beginning to solve pain points that we have struggled with for
+13 years, legitimately, legitimately, probably maybe even longer, maybe 15 years.
+And so it's really exciting for us as content creators who've been using this platform for
+a very long time to see something that really truly feels competitive with what you see
+on the Mac side.
+Well, we're clearly very excited about Pipewire the future, especially now that it's deployed
+in Fedora 34.
+But it's also a project we've been following for a long time here on the show.
+So if you want some background and to get an idea of how far things have come, maybe
+check out Linux Unplugged 272 way back when October 2018 when we sat down with lead Pipewire
+developer Wim Taymans who told us what he was aiming to do.
+And just a couple of picks before we get out of here.
+This week, we wanted to share a Pastebin alternative.
+There's a lot out there.
+So we'd love your feedback too for ones that you love that are simple and self-hostable.
+But our beloved Slexi.org, which we have used as a J.B. team for years to past Pastebins
+back and forth or when you hear us read an email on the show that we've linked in our
+show notes, we put it in Slexi.org and they are shutting down as all hosted services that
+Giveth eventually Taketh.
+Just when you really depend on them and don't think they'll go anywhere.
+I really hadn't.
+I just started thinking, huh, I guess they are sticking around.
+So this week, Wes found us a markdown loving Pastebin service.
+Although really, I should give credit to Gamma over in our matrix chat, the J.B. matrix who
+posted this.
+And I just thought, boy, that seems perfect for our needs.
+Thank you, Gamma.
+I didn't know that.
+Look at you.
+Good guy, Wes.
+Giving him credit.
+All right.
+Now, I'm trying to get you to say the name, though, because I'm avoiding the name.
+I'm going to say rentree, rentree.org.
+For our entry, I don't know if that's better.
+Yeah.
+And rentree.co, too, works maybe?
+I'm not sure.
+But it's called rentree.
+And it's a markdown lightweight Pastebin that is really clean.
+And you can combine images, inline links, code snippets, all the markdown stuff.
+And we put a link to that in the show notes.
+And then this is also, at the same time, the show saying to you, hey, we know of a handful
+of these.
+And we've debated which one we want to use, which one we want to self-host.
+But we'd like to point to this link and say, hey, do you know of anything that's kind of
+clean like this?
+Because what we need is just a nice, clear reading experience with not a lot of junk
+because we're reading it live on air.
+And we don't want like sidebar stuff or big, huge, fat header bars and stuff like that.
+We just want something nice and clean.
+And if you know of a Pastebin alternative that's open source and self-hostable, please
+let us know at linuxunplug.com slash contact.
+Because we'd like to try one out and then standardize one for the network.
+Like we kind of have with HedgeDock.
+And then we have one last extra pick for you this week.
+And it's a special one, Wes, do you happen to know why?
+Something tells me it must be written in Rust.
+That's right.
+Feels good.
+It's been too long since we've had a Rust pick.
+And this one is the kind of pick you were never asking for, a replacement for PS written
+in Rust called Prox.
+But hear me out, it actually has a pretty great output.
+They call it a human readable format that is colored with automatic theme detection
+based on your terminal background, keyword search over a multi-column UI, and then additional
+information that your boy PS doesn't have like TCP UDP port usage, read write throughput,
+the Docker container name that that process might be running under, and more memory information
+which is nice in the era of system DOOMD.
+Oh, you know, this tree view is pretty sweet too.
+Yeah, it really does actually look good enough that I'm I think I'm legitimately switching
+to this.
+I initially picked this as an ironic pick because who needs another PS?
+That's ridiculous.
+And then I installed it and I absolutely love it.
+It's even great on our server.
+I love the Docker support and that is really handy.
+Whoa, and there's experimental support on both Mac and Windows.
+Look at them.
+Everybody gets to play.
+Oh, I didn't even I didn't even really think about the fact that there's Rust apps on the
+Mac.
+Of course there are.
+I knew Microsoft was hot to trot with Rust, but I'm sure Apple's been super helpful getting
+Rust working on Mac OS.
+And Chris, you'll never guess, it's already packaged in Arch.
+Oh, of course.
+Yeah, absolutely.
+I knew that.
+You know, I knew that.
+Anyways, go check it out.
+It's a really nice, really clean, really elegant way to list all of the processes and the resources
+they're using and all of that.
+It's called Prox, P-R-O-C-S, and yeah, it's up on GitHub, so it's probably just easier
+to get the link in the show notes, if I'm being honest with you.
+Thank you very much to our Unplugged Core contributors at unpluggedcore.com for like
+a few more hours.
+The secret promo that I gave out will be valid and then I'm going to remove that product
+from the garage.
+So if you haven't taken advantage of it yet, you got hours, you got hours left.
+But you know, there's other things we do to thank our members.
+We also make a couple of feeds available to them, a completely unedited raw version where
+you hear us screw up and lots of probably, I would say, two solid pre-shows easily, maybe
+three pre-shows that we just totally blew and did not record except for our members.
+That's in the feed this week too.
+And then also you can get just a limited ad feed if you prefer.
+It's a little tighter version of the show, same full production, all of that stuff.
+Those are two different feeds we make available to those of you who help make the show sustainable
+at unpluggedcore.com.
+And thank you everybody who does support the show there.
+Be sure to go check out jupytergarage.com too for some of that limited time last merch.
+And those coins are almost gone at jupytergarage.com.
+If you do the Twitter thing, you can follow the show at linuxunplugged.
+The website's linuxunplugged.com, but we do have a Twitter handle, which, you know, you
+can follow.
+You can follow.
+I follow the network.
+I'll just follow the whole network at Jupiter Signal.
+I'd probably follow Wes.
+Wes, tweet a picture of some dogs sometime.
+Maybe you have, but you know like that epic superhero like A-Team shot you took of the
+pups the other morning?
+That would make, that's some serious Twitter material right there.
+Cute dogs.
+Who can say no?
+All right, I'm on it.
+I can't say no.
+I can't say no.
+So go find him.
+He's at Wes Payne on the Twitter.
+I'm at Chris LAS.
+The entire network and all of our fantastic podcasts, like the self-hosted podcast and
+Linux Action News, and the Coda Radio program, are all over at JupiterBroadcasting.com.
+And we'd love to have you join the show live.
+See you next week.
+Same bad time, same bad station.
+Just get your Linux on every Tuesday.
+Get all Linux-y.
+And join us live at 12 p.m. Pacific, 3 p.m. Eastern.
+I'm not exactly sure what it means to get all Linux-y.
+Probably means like boot up a Linux box and join the live stream.
+That's probably what it means.
+The only way to find out is join us live next week while we get Linux-y, right?
+Yeah.
+Maybe bring a towel, though.
+Yeah.
+That's not a bad idea and a beverage.
+And you can absolutely join us in our mumble room.
+Info for that is at LinuxUnplugged.com slash mumble.
+That's the way.
+You get the idea.
+You get the idea.
+We have a website.
+Aren't you proud of us?
+And we put links of relevant information on there that you're probably wondering.
+It's a good idea.
+See you next Tuesday.
+Alright, JBtitles.com.
+Let's go name this thing.
+Do we miss anybody or anything in the show that we wanted to catch up on the post show
+before we head out of here?
+Well, Neil let us know that our pick is also packaged in Fedora.
+So you know, all those folks we convinced to try Fedora 34 don't have to miss out.
+Nope.
+Absolutely.
+Absolutely.
+I don't know.
+I've kind of played with the whole episode 404 thing with KOTORadio.
+So I feel like it's kind of silly if we go all in.
+But also I feel silly if we don't acknowledge that today is May 4th, which all of the Star
+Wars fans are excited about because the fourth is with them.
+And it is episode 404 on May 4th.
+There's a lot of fun to be had there.
+But this show is not a Star Wars show.
+And we just did the 404 gag with KOTORadio like 11 weeks ago.
+So I'm I'm perplexed as to how to title this monster.
+Well, you could always reference the 504 code.
+Which is?
+I don't actually know what it is because I've never seen it before.
+That is the least helpful ever.
+Like I'm sure Wes as a as a web dev like actually knows it off the top of his head.
+Method not allowed.
+Oh, my gosh.
+Listen to you.
+Nicely done.
+Thank you.

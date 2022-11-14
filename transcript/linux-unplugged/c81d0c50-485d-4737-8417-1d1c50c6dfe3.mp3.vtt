@@ -1,0 +1,3788 @@
+WEBVTT
+
+00:00.000 --> 00:03.440
+Did you see the Telegram was bragging about 500 million active users?
+
+00:03.440 --> 00:04.440
+Oh boy.
+
+00:04.440 --> 00:09.520
+Yeah, and they said 25 million new users in the last 72 hours.
+
+00:09.520 --> 00:12.800
+It kind of seems like a great way to get a target right on their back.
+
+00:12.800 --> 00:14.120
+Somebody's going to take notice.
+
+00:14.120 --> 00:18.200
+Apparently it was a big wave from the riot on Capitol Hill.
+
+00:18.200 --> 00:21.840
+A bunch of people were like, oh no, we need to communicate in top security.
+
+00:21.840 --> 00:22.840
+Uh oh.
+
+00:22.840 --> 00:27.520
+Oh yeah, Telegram, the maximum security chat program.
+
+00:27.520 --> 00:38.200
+Nobody tell them about Matrix.
+
+00:38.200 --> 00:41.320
+Hello friends and welcome into your weekly Linux talk show.
+
+00:41.320 --> 00:42.320
+My name is Chris.
+
+00:42.320 --> 00:43.320
+My name is Wes.
+
+00:43.320 --> 00:44.320
+Hello Wes.
+
+00:44.320 --> 00:45.840
+Looking very dapper today.
+
+00:45.840 --> 00:47.360
+I like the all silver outfit.
+
+00:47.360 --> 00:49.280
+Well, I thought you'd like the bow tie especially.
+
+00:49.280 --> 00:52.920
+Well, you know what really impresses me is those socks.
+
+00:52.920 --> 00:55.080
+That is really going the extra mile.
+
+00:55.080 --> 00:57.920
+This episode is brought to you by a cloud guru, the leader in hands on learning.
+
+00:57.920 --> 01:01.400
+The only way to learn a new skill, you know it, is by doing it.
+
+01:01.400 --> 01:04.920
+That's why ACG provides hands on labs, cloud Linux servers, and much more.
+
+01:04.920 --> 01:08.200
+Get your hands cloudy at a cloud guru dot com.
+
+01:08.200 --> 01:14.680
+So here we are gathered together for episode 388 and we're doing things a little differently.
+
+01:14.680 --> 01:19.480
+So I want to first I want to say just to keep some tradition, some form, I want to say time
+
+01:19.480 --> 01:21.320
+appropriate greetings to the mumble room.
+
+01:21.320 --> 01:22.320
+Hello, virtual lug.
+
+01:22.320 --> 01:23.320
+Hello.
+
+01:23.320 --> 01:24.320
+Good evening.
+
+01:24.320 --> 01:25.320
+Hey guys.
+
+01:25.320 --> 01:26.320
+Hey guys.
+
+01:26.320 --> 01:33.400
+We're all kind of fired up today because we've been playing around with PeerTube 3.0, which
+
+01:33.400 --> 01:38.480
+introduced live streaming support and it's peer to peer live streaming and it really
+
+01:38.480 --> 01:42.280
+is now a full YouTube killer in a box.
+
+01:42.280 --> 01:46.320
+You get everything you get with YouTube like from the good old days where a clean feed
+
+01:46.320 --> 01:52.280
+of what people have recently posted, subscriptions, but unlike YouTube where it's spying on you
+
+01:52.280 --> 01:59.160
+constantly to feed an ad algorithm, it's free open source software and it's peer to peer
+
+01:59.160 --> 02:02.000
+and it can federate with other PeerTube instances.
+
+02:02.000 --> 02:03.880
+You guys have heard us talk about it before.
+
+02:03.880 --> 02:07.560
+We've had different experiments with it and recently we've been experimenting with a real
+
+02:07.560 --> 02:11.760
+small instance over at Jupiter dot tube and playing around with its peer to peer live
+
+02:11.760 --> 02:12.960
+streaming support.
+
+02:12.960 --> 02:17.560
+So this episode and the last three days worth of live stream or tests that we've done have
+
+02:17.560 --> 02:24.880
+all been on PeerTube and it's kind of crazy exciting because it is working and it has
+
+02:24.880 --> 02:31.600
+allowed us with one Linode and some object storage to essentially create a worldwide
+
+02:31.600 --> 02:35.440
+CDN where people are watching it and it still seems like it has a couple of kinks so we're
+
+02:35.440 --> 02:36.440
+still testing it.
+
+02:36.440 --> 02:40.240
+It's not like a production thing, but Wes, I mean, how long do you think the setup was
+
+02:40.240 --> 02:41.240
+in total?
+
+02:41.240 --> 02:43.800
+Well, I don't know, an hour or two maybe at most.
+
+02:43.800 --> 02:48.320
+We built a test, a real test one, then we spun up our actual test instance.
+
+02:48.320 --> 02:52.080
+So you know, there's some things getting everything configured, getting installed, but I mean,
+
+02:52.080 --> 02:54.800
+it's all powered by Docker anyway.
+
+02:54.800 --> 02:58.960
+And they've also got a very robust and nice guide if you just want to set things up traditionally,
+
+02:58.960 --> 03:01.760
+use the stuff like Postgres and Redis and TypeScript.
+
+03:01.760 --> 03:05.600
+So nothing weird or out of the box or hard to find anything like that.
+
+03:05.600 --> 03:09.920
+So I mean, an afternoon, really an afternoon to get it set up, start playing with it.
+
+03:09.920 --> 03:12.320
+And since then, it's been the same configuration.
+
+03:12.320 --> 03:14.240
+They've got a lot of nice admin facilities.
+
+03:14.240 --> 03:18.680
+They've got like a guide for, hey, you're the backend admin and you want to set everything
+
+03:18.680 --> 03:19.680
+up by hand.
+
+03:19.680 --> 03:23.080
+And they've also just got like a guide aimed at once you've got an instance, how do you
+
+03:23.080 --> 03:24.080
+administer this?
+
+03:24.080 --> 03:25.080
+How do you set it up?
+
+03:25.080 --> 03:26.080
+How do you make it useful?
+
+03:26.080 --> 03:27.720
+How do you set all the transcode options?
+
+03:27.720 --> 03:32.280
+Honestly, I've been pretty impressed by the docs and all the configurability so far.
+
+03:32.280 --> 03:35.560
+Yeah, and the options are really getting there.
+
+03:35.560 --> 03:40.280
+I think customization, but not in an overwhelming way is a big part of what they're trying to
+
+03:40.280 --> 03:41.280
+go with this.
+
+03:41.280 --> 03:44.560
+As a content creator, I like a lot of the options they give me.
+
+03:44.560 --> 03:49.220
+I can set system themes, I can install plugins fairly easily.
+
+03:49.220 --> 03:52.760
+It's easy to create live streams and choose if the live stream is persistent and remains
+
+03:52.760 --> 03:55.020
+available for playback afterwards.
+
+03:55.020 --> 03:59.120
+But the other thing that's nice because of the architecture is we have 30 people or so
+
+03:59.120 --> 04:04.480
+watching it right now and the load on the server itself still remains pretty low.
+
+04:04.480 --> 04:11.040
+Yeah, early on we were looking at it and it was bouncing between 6% on the CPU and this
+
+04:11.040 --> 04:16.160
+is a four core box to about 40% and at one point, just looking at the history, it looks
+
+04:16.160 --> 04:19.800
+like it spiked up to around 60% CPU usage.
+
+04:19.800 --> 04:26.160
+But this is, it's a YouTube instance in a box with 30 people watching a live stream
+
+04:26.160 --> 04:30.880
+and you can configure how many are allowed to live stream and then the viewers themselves
+
+04:30.880 --> 04:31.880
+become the CDN.
+
+04:31.880 --> 04:35.400
+It's just so neat and I love where the project's going with it.
+
+04:35.400 --> 04:38.300
+So we're all kind of fired up today because we've been talking about that.
+
+04:38.300 --> 04:42.800
+But we're gathered here really to geek out on GPUs.
+
+04:42.800 --> 04:47.040
+I think even if you're not a graphics head, you're going to get some valuable information
+
+04:47.040 --> 04:48.640
+out of this episode.
+
+04:48.640 --> 04:54.040
+I've been testing this new XPS 13 from Dell, the latest developer edition with the 11th
+
+04:54.040 --> 04:55.040
+gen Intel processor.
+
+04:55.040 --> 04:58.040
+I recently reviewed it in Coder 395.
+
+04:58.040 --> 05:03.320
+I've been honestly trying to just wrap my noodle around the performance of this XE GPU
+
+05:03.320 --> 05:10.240
+and the 11th gen CPU and I knew I needed to better understand it for the audience because
+
+05:10.240 --> 05:14.600
+I could tell I was reaching the limits of my understanding and so I wanted to reach
+
+05:14.600 --> 05:20.400
+out to somebody who had a deep understanding of this stuff and could communicate it really
+
+05:20.400 --> 05:21.400
+well.
+
+05:21.400 --> 05:24.560
+So I called up Wendell from Level One Techs and of course, Level One Linux.
+
+05:24.560 --> 05:28.640
+He's a great resource for this kind of stuff and he's been covering a little bit of the
+
+05:28.640 --> 05:33.840
+future of these XE GPUs and what it could mean for virtualization on his Level One Linux
+
+05:33.840 --> 05:34.840
+channel.
+
+05:34.840 --> 05:36.120
+I'll have a link to that in the show notes.
+
+05:36.120 --> 05:38.720
+So he came on and he and I just started geeking out.
+
+05:38.720 --> 05:40.360
+We started talking about the XE GPU.
+
+05:40.360 --> 05:45.680
+We talked about Intel's new OneAPI initiative, which I won't spoil, it's a massive endeavor
+
+05:45.680 --> 05:49.560
+that Intel's trying to leverage their position that they have right now.
+
+05:49.560 --> 05:53.760
+And then later on in the interview, we also get into his current daily driver Linux setup,
+
+05:53.760 --> 05:56.400
+which I think you might be surprised about his answer.
+
+05:56.400 --> 05:57.400
+Ooh.
+
+05:57.400 --> 05:59.200
+Yeah, I gotta ask, you know, I gotta ask.
+
+05:59.200 --> 06:00.200
+Of course.
+
+06:00.200 --> 06:03.440
+Of course, there's a few terms that get used in this episode that I wanted to define if
+
+06:03.440 --> 06:06.280
+you're not a graphics head.
+
+06:06.280 --> 06:11.000
+GVTG is virtualizing the GPU for multiple guest machines.
+
+06:11.000 --> 06:15.280
+So it effectively gives you near native GPU performance in a virtual machine while still
+
+06:15.280 --> 06:18.140
+also allowing the host to use that GPU.
+
+06:18.140 --> 06:19.640
+So that's GVTG.
+
+06:19.640 --> 06:24.580
+VFIO comes up that allows virtual machines direct access to PCI hardware resources like
+
+06:24.580 --> 06:29.760
+the GPU or a network card or another PCI device.
+
+06:29.760 --> 06:35.460
+I've actually passed through like a USB card to it and even a dock, a Thunderbolt dock.
+
+06:35.460 --> 06:36.880
+That's using VFIO.
+
+06:36.880 --> 06:40.880
+And then also another term that gets mentioned that you may or may not be familiar with in
+
+06:40.880 --> 06:43.120
+this interview is IGPU.
+
+06:43.120 --> 06:48.240
+In the context of our chat, it's the graphics card that comes built into Intel CPUs.
+
+06:48.240 --> 06:49.240
+But don't worry, stick with it.
+
+06:49.240 --> 06:52.660
+Even if you're not a graphics person, I think there's something that'll interest you that's
+
+06:52.660 --> 06:55.160
+worth listening to in this chat with Wendell.
+
+06:55.160 --> 07:01.480
+So the reason I wanted to chat with you today was I got my hands on a Dell XPS Developer
+
+07:01.480 --> 07:11.600
+Edition that has an i5 11th Gen Intel CPU and the XELP graphics in it.
+
+07:11.600 --> 07:20.960
+And this little laptop is blowing my X1 Carbon 10th Gen with an i7 CPU and GPU away.
+
+07:20.960 --> 07:26.280
+I mean, it just is shredding it in machine learning benchmarks.
+
+07:26.280 --> 07:28.600
+And I can play actual video games on it.
+
+07:28.600 --> 07:30.040
+I can play Tomb Raider.
+
+07:30.040 --> 07:31.960
+I can play Hotshot Racing.
+
+07:31.960 --> 07:36.720
+I can play CSGO and nothing that's super demanding, but games I'm currently playing that I actually
+
+07:36.720 --> 07:41.280
+enjoy playing, I can play them on this laptop with an integrated GPU.
+
+07:41.280 --> 07:45.520
+And I thought to myself, something must be going on here more than I can appreciate.
+
+07:45.520 --> 07:48.520
+And I thought, this is something I need to ask Wendell is like, what's going on with
+
+07:48.520 --> 07:50.440
+these XE or Z graphics?
+
+07:50.440 --> 07:53.320
+And I hear about a dedicated GPU and the whole thing.
+
+07:53.320 --> 07:55.520
+So can you kind of just fill me in?
+
+07:55.520 --> 08:01.240
+So Intel had their one API thing and a lot of details, I guess, about the Intel graphics
+
+08:01.240 --> 08:02.240
+stuff came to light.
+
+08:02.240 --> 08:05.840
+And they've got XE graphics now in their 11th Gen.
+
+08:05.840 --> 08:10.300
+And to me, that's not quite, I mean, it's like, OK, it's impressive, but it's also not
+
+08:10.300 --> 08:15.560
+super impressive because the integrated graphics sort of stagnated there for, I don't know,
+
+08:15.560 --> 08:17.360
+like four generations.
+
+08:17.360 --> 08:24.040
+And then so the XE graphics that's in the 11th Gen, yeah, it's OK.
+
+08:24.040 --> 08:28.280
+But what Apple is able to do with their integrated graphics arguably is more impressive because
+
+08:28.280 --> 08:31.040
+that would be something more on the level of what I would expect from Intel when they're
+
+08:31.040 --> 08:33.880
+going to release XE graphics to begin with.
+
+08:33.880 --> 08:36.840
+But maybe the second generation of that will be good.
+
+08:36.840 --> 08:43.120
+And at Intel in their one API, they sort of revealed some of the DG1 dedicated graphics
+
+08:43.120 --> 08:47.960
+stuff and like DG2 and what they have in mind for XE graphics, especially in the data center.
+
+08:47.960 --> 08:57.720
+And packing 1,000 Dota sessions or whatever on a single card, which had four GPs on it.
+
+08:57.720 --> 09:00.000
+But it's a single PCIe card.
+
+09:00.000 --> 09:06.080
+And so that's kind of exciting because they're hitting power targets, not just throwing raw
+
+09:06.080 --> 09:08.680
+watts at it to get the performance.
+
+09:08.680 --> 09:13.160
+But also like maybe that will be good for laptop users having those kind of things integrated.
+
+09:13.160 --> 09:19.360
+But in the bigger picture, how everything stacks up, it's like the Apple M1 and then
+
+09:19.360 --> 09:21.480
+like Radeon integrated graphics.
+
+09:21.480 --> 09:25.380
+And then way on down the list is the old iGPU.
+
+09:25.380 --> 09:33.280
+And somewhere between the M1 and the really old iGPU is XE graphics.
+
+09:33.280 --> 09:34.940
+It wins some against Radeon.
+
+09:34.940 --> 09:37.400
+It loses some against Radeon.
+
+09:37.400 --> 09:40.160
+It's a different architecture, and it is really interesting.
+
+09:40.160 --> 09:42.600
+I suppose your point's well taken, though.
+
+09:42.600 --> 09:48.280
+Ideally, we would have been where we're at right now about three generations ago.
+
+09:48.280 --> 09:51.600
+So it's good, but not as good as it should be by now.
+
+09:51.600 --> 09:52.600
+Yes.
+
+09:52.600 --> 09:53.600
+Yeah.
+
+09:53.600 --> 09:57.720
+I mean, if you want to take the anti-Apple spin on it, you can say, well, Apple was able
+
+09:57.720 --> 10:02.100
+to do this with failed toaster parts and used rubber bands.
+
+10:02.100 --> 10:06.860
+So the big people should have been able to at least be that good.
+
+10:06.860 --> 10:11.440
+But the reality is that ARM and some other things are doing some magic for us.
+
+10:11.440 --> 10:16.600
+But Apple did some genuinely good engineering with their processors and worked with some
+
+10:16.600 --> 10:20.600
+smart and talented people to sort of bring it together.
+
+10:20.600 --> 10:26.840
+And XE graphics is still sort of bolted on a legacy architecture, but I don't have a
+
+10:26.840 --> 10:31.960
+feel for how different or how similar XE graphics is to things that have been tried in the past,
+
+10:31.960 --> 10:34.160
+like Larbi.
+
+10:34.160 --> 10:41.560
+And early on with Larbi, it looked like Larbi was going to be amazing because they're engineers
+
+10:41.560 --> 10:46.200
+that are a deep dive on, I think, Quake, one of the id Software engines.
+
+10:46.200 --> 10:53.560
+And there's 1,000 or 2,000 lightweight x86 cores on this GPU because, yeah, you can use
+
+10:53.560 --> 10:54.560
+x86 for everything.
+
+10:54.560 --> 10:57.760
+I mean, what could possibly be wrong with that idea?
+
+10:57.760 --> 11:01.760
+And then you look at a game like Quake, and it turns out that that kind of a game, the
+
+11:01.760 --> 11:06.360
+engine was basically from the mind of a genius or mind of several geniuses.
+
+11:06.360 --> 11:08.700
+And nobody else built game engines that way.
+
+11:08.700 --> 11:13.640
+But that wasn't really discovered until they went to port other game engines later.
+
+11:13.640 --> 11:19.720
+And so it was like, oh, Larbi, maybe this isn't good for anything other than Quake.
+
+11:19.720 --> 11:24.320
+But in terms of running hardware really quickly, it ran Quake really, really amazingly well.
+
+11:24.320 --> 11:29.440
+And that's what Apple has done with M1 and M1 graphics is they've looked really closely.
+
+11:29.440 --> 11:33.960
+They've done a lot of analysis on the software that they run and the instructions and also
+
+11:33.960 --> 11:39.840
+the emulation layer, like the stuff that they added to make ARM better able to deal with
+
+11:39.840 --> 11:43.080
+x86 instructions, which are variable length.
+
+11:43.080 --> 11:47.320
+That's some really clever stuff, but it's from a deep dive at just looking at the sequence
+
+11:47.320 --> 11:51.640
+of instructions that are run and looking at the insanity and saying, OK, what do we have
+
+11:51.640 --> 11:53.120
+to do here?
+
+11:53.120 --> 11:54.440
+Let's make this work.
+
+11:54.440 --> 11:58.520
+It stands to reason they did the same thing with graphics.
+
+11:58.520 --> 11:59.880
+And that's the difference here.
+
+11:59.880 --> 12:01.160
+That's the difference for the IGPU.
+
+12:01.160 --> 12:06.720
+They really looked at a whole ecosystem of games because Tomb Raider is fairly well optimized
+
+12:06.720 --> 12:11.680
+and runs really good on the mobile embedded platform.
+
+12:11.680 --> 12:18.200
+With Xe graphics for one API, what I'm starting to see from one API is Intel saying, OK, in
+
+12:18.200 --> 12:22.400
+order for us to squeeze more performance out of Silicon, we're going to have to change
+
+12:22.400 --> 12:23.860
+our software.
+
+12:23.860 --> 12:28.440
+And so I think this is kind of long winded, but this is just a long winded way to preface
+
+12:28.440 --> 12:35.080
+this by saying, I think Apple is taking a hardware assisted software optimization route.
+
+12:35.080 --> 12:41.880
+And I think Intel is taking a software assisted hardware optimization path.
+
+12:41.880 --> 12:47.400
+So on the one hand, you've got Apple, which is doing a pre pass on your software to make
+
+12:47.400 --> 12:49.360
+it better fit the hardware.
+
+12:49.360 --> 12:54.280
+And the hardware has stuff in it to run the instructions that are not necessarily ARM
+
+12:54.280 --> 12:56.120
+instructions a little better.
+
+12:56.120 --> 13:02.360
+Intel, on the other hand, is saying, we need to make adjustments in software and recompile.
+
+13:02.360 --> 13:04.640
+And so this is happening at compile time.
+
+13:04.640 --> 13:08.240
+And the other one's not happening at compile time, but it's not happening at runtime either.
+
+13:08.240 --> 13:10.480
+It's sort of in the mix.
+
+13:10.480 --> 13:13.240
+And I think there's pros and cons for both approaches.
+
+13:13.240 --> 13:14.280
+Sure.
+
+13:14.280 --> 13:20.200
+It seems to me, though, the advantage long term of Intel's approach is that that stuff
+
+13:20.200 --> 13:21.920
+is baked into Linux.
+
+13:21.920 --> 13:25.140
+And as longtime Linux users, I think you probably agree.
+
+13:25.140 --> 13:26.720
+We can be patient with this kind of stuff.
+
+13:26.720 --> 13:33.640
+And if it means in years down the road, we will have really reasonable laptop and desktop
+
+13:33.640 --> 13:39.440
+graphics that are totally supported out of the box when I install Linux, I'm along for
+
+13:39.440 --> 13:40.440
+the ride.
+
+13:40.440 --> 13:44.520
+And it doesn't have to be absolutely, that's what I think excited me about the Xe graphics
+
+13:44.520 --> 13:49.720
+is it doesn't have to be competitive with the latest Nvidia and AMD graphics.
+
+13:49.720 --> 13:50.760
+That's not my work case.
+
+13:50.760 --> 13:54.160
+My work case is mostly I want an accelerated desktop.
+
+13:54.160 --> 13:58.080
+I want accelerated video encoding and decoding.
+
+13:58.080 --> 14:02.560
+And I want to be able to play some games really well, but doesn't have to be like on absolutely
+
+14:02.560 --> 14:03.560
+high settings.
+
+14:03.560 --> 14:08.800
+And I think Intel could get us there and no driver fiddling required.
+
+14:08.800 --> 14:13.400
+I just recently, in two different scenarios with two totally different distributions,
+
+14:13.400 --> 14:17.040
+went down the rabbit hole of having to fix a system after a failed Nvidia driver install.
+
+14:17.040 --> 14:20.240
+And it felt like I was back in the early 2000s all of a sudden.
+
+14:20.240 --> 14:23.780
+And so for me, I just can't wait for this stuff to work out of the box.
+
+14:23.780 --> 14:26.940
+And I think the other thing that you touched on in a video of yours that I'll link in the
+
+14:26.940 --> 14:33.300
+show notes is it seems like Intel's baking in more shared GPU features for virtual machines.
+
+14:33.300 --> 14:36.040
+And that could be really awesome for a lot of users.
+
+14:36.040 --> 14:44.800
+Yeah, I think one API, their vision of one API is comprehensive from what I can tell.
+
+14:44.800 --> 14:51.320
+And so imagine like, yes, it's all of those things, but it also reaches into other operating
+
+14:51.320 --> 14:54.100
+systems even than just Linux like Android.
+
+14:54.100 --> 15:00.880
+So their vision of it is to make it super easy for developers to not have to worry about
+
+15:00.880 --> 15:01.880
+anything.
+
+15:01.880 --> 15:08.880
+So I did the interview with Jeff McVeigh that'll probably be out maybe Monday or Tuesday.
+
+15:08.880 --> 15:14.360
+And obviously, a lot of it is not there yet, but the vision is to make everybody not have
+
+15:14.360 --> 15:15.360
+to worry about it.
+
+15:15.360 --> 15:19.440
+And if you look at the language, like the problem that I have with it, if you look at
+
+15:19.440 --> 15:26.320
+the language, it's a lot of really crazy stuff in terms of really high level abstraction.
+
+15:26.320 --> 15:30.200
+And it's like, OK, but tell me how that's going to make my life easier.
+
+15:30.200 --> 15:36.080
+And one thing that I have a personal experience with is just the linear algebra libraries.
+
+15:36.080 --> 15:39.440
+And the linear algebra libraries, like you think it's like how many ways are there to
+
+15:39.440 --> 15:44.520
+just let's compute the eigenvalues of this.
+
+15:44.520 --> 15:45.520
+Let's do some matrix multiplication.
+
+15:45.520 --> 15:51.200
+Turns out on a modern x86 processors, there's like a dozen ways to do that.
+
+15:51.200 --> 15:53.160
+And some ways are faster than others.
+
+15:53.160 --> 15:55.460
+Some ways are faster with a sparse data set.
+
+15:55.460 --> 15:58.320
+Some ways are faster with a full data set.
+
+15:58.320 --> 16:00.820
+Some ways are, you know, it's just it's crazy.
+
+16:00.820 --> 16:04.120
+And so a lot with this open source like we do in the research thing, you actually need
+
+16:04.120 --> 16:08.140
+to run some tests, not only in your data set, but also on the machines that you have available
+
+16:08.140 --> 16:09.140
+to do the testing.
+
+16:09.140 --> 16:13.080
+I can't just dive into the calculations and say to the library, here, go calculate this
+
+16:13.080 --> 16:14.080
+for me.
+
+16:14.080 --> 16:17.440
+Because you're not necessarily going to get the most efficient path to do the calculations
+
+16:17.440 --> 16:20.840
+based on your hardware and the available data.
+
+16:20.840 --> 16:24.420
+And so one API is supposed to take all of that away, but also supposed to make things
+
+16:24.420 --> 16:28.680
+a little easier cross platform, like, you know, the new the new iPhone 12 has like this
+
+16:28.680 --> 16:30.280
+lidar thing that's completely crazy.
+
+16:30.280 --> 16:33.800
+And I was watching I think it was an Unreal Engine demo the other day or something.
+
+16:33.800 --> 16:39.380
+No, it was it was a it was some third party company has trained a model that will produce
+
+16:39.380 --> 16:42.640
+blender models from lidar and a camera.
+
+16:42.640 --> 16:43.640
+And it is unbelievable.
+
+16:43.640 --> 16:47.260
+Like, you just hold the camera up and slowly move it around as it as it indicates.
+
+16:47.260 --> 16:52.360
+And it uses the lidar and the camera in the iPhone to produce a realistic blender model
+
+16:52.360 --> 16:55.000
+of whatever it is that you were doing with your phone.
+
+16:55.000 --> 16:57.180
+And it is truly incredible.
+
+16:57.180 --> 16:59.160
+It's just it's just insane.
+
+16:59.160 --> 17:03.880
+And so from the descriptions of one API, what's happening in my brain is saying, okay, if you're
+
+17:03.880 --> 17:08.680
+going to build that, there's a phone component, there's a cloud component, there's a training
+
+17:08.680 --> 17:12.320
+component, there's all these different software stacks, you think about developing an Android,
+
+17:12.320 --> 17:17.280
+it's like, okay, I'm going to get out Eclipse or Android Studio, the JetBrains tools, whatever,
+
+17:17.280 --> 17:22.240
+and start, you know, there's that whole tech stack and ODB and getting all that stuff ready.
+
+17:22.240 --> 17:26.120
+And then in the cloud side of it, it's like, am I using Amazon lambda, and it's got all
+
+17:26.120 --> 17:29.000
+the stuff that goes with that, or if I'm not using Amazon lambda, maybe I have to do my
+
+17:29.000 --> 17:32.660
+own cloud infrastructure, maybe I'm going to need, you know, a whole tech stack there.
+
+17:32.660 --> 17:35.400
+And then there's probably gonna be some middleware applications where I'm going to do, you know,
+
+17:35.400 --> 17:39.640
+some special sauce or whatever, and it's gonna be a whole other product stack there.
+
+17:39.640 --> 17:42.920
+And Intel is saying, look, this is too much to ask of developers and research scientists
+
+17:42.920 --> 17:43.920
+and stuff like that.
+
+17:43.920 --> 17:48.760
+We need to come up with a really high-level interface to all of this stuff and open it
+
+17:48.760 --> 17:52.400
+as much as possible so that everybody will build it, because we're spending a lot of
+
+17:52.400 --> 17:59.560
+our time, you know, figuring out which instruction set will do basic linear algebra the quickest,
+
+17:59.560 --> 18:02.280
+and we don't need to do that.
+
+18:02.280 --> 18:07.400
+And that is kind of, you know, to your point, that is kind of what Intel has in mind is
+
+18:07.400 --> 18:13.360
+to take those optimizations away so that you don't have to do those optimizations yourself.
+
+18:13.360 --> 18:16.320
+The library sort of knows that and figures that out.
+
+18:16.320 --> 18:21.480
+How long do you think we'll be waiting around to see one API take off?
+
+18:21.480 --> 18:27.680
+And what do you suppose the chances are of vendor adoption, like, say, AWS, for example,
+
+18:27.680 --> 18:28.680
+or other vendors?
+
+18:28.680 --> 18:29.680
+Are they on board?
+
+18:29.680 --> 18:33.440
+Or is this gonna be something that Intel comes up with that's a really great idea that doesn't
+
+18:33.440 --> 18:35.320
+really see much vendor adoption?
+
+18:35.320 --> 18:36.320
+I don't know.
+
+18:36.320 --> 18:40.160
+I mean, it's so large and so ambitious, it's probably gonna be both.
+
+18:40.160 --> 18:44.520
+We're probably gonna see some vendors adopt it and for it to make sense in some places.
+
+18:44.520 --> 18:48.600
+I would love nothing more than, like, you know, again, like, for one API and all of
+
+18:48.600 --> 18:53.880
+its lofty goals, it's hard to talk about because it is so large and abstract, but, like, concrete
+
+18:53.880 --> 18:58.920
+goals for me personally is I hope Intel's GVTG takes off.
+
+18:58.920 --> 19:03.480
+This is kind of like Intel's answer to SRIOV, and it's been here a while.
+
+19:03.480 --> 19:04.480
+It's not really new.
+
+19:04.480 --> 19:08.560
+Actually, Intel's moving a lot of things that they've already had under one API.
+
+19:08.560 --> 19:12.820
+So in some ways, yes, it's ambitious and we talked about it in lofty goals, but the reality
+
+19:12.820 --> 19:17.240
+here is a lot of this stuff already existed somewhere else in some way, and they're just
+
+19:17.240 --> 19:18.560
+kind of bringing it together.
+
+19:18.560 --> 19:27.440
+But GVTG is an extension to the graphics subsystem, the iGPUs, like in Xeon E3s.
+
+19:27.440 --> 19:30.640
+So I think Intel's had this discrete GPU plan for a while.
+
+19:30.640 --> 19:37.520
+Now, you know, the iGPU and the Xeon E3, that is, like, when you say anemic GPU, like, there's
+
+19:37.520 --> 19:39.080
+a picture there.
+
+19:39.080 --> 19:40.080
+That's what it is.
+
+19:40.080 --> 19:44.560
+So it's like, okay, I've taken, you know, an unsustainable amount of food and I've divided
+
+19:44.560 --> 19:49.040
+it among four people or I've divided it, you know, I've divided this infinitesimal amount
+
+19:49.040 --> 19:52.600
+of GPU horsepower among four virtual machines.
+
+19:52.600 --> 19:55.040
+You can do that with GVTG.
+
+19:55.040 --> 19:58.560
+You can slice and dice it where two virtual machines or three virtual machines, unlike
+
+19:58.560 --> 20:03.800
+SRIOV, which tends to be more of a hard partition when we're talking about it in the graphics
+
+20:03.800 --> 20:09.600
+space in terms of VRAM and some of the other components, GVTG is a little bit more flexible.
+
+20:09.600 --> 20:13.720
+You get, you know, GPUs weren't designed for things like context switching, but you have
+
+20:13.720 --> 20:20.180
+a little bit more of an ability to do context switching-like behavior with GVTG.
+
+20:20.180 --> 20:25.320
+And so in the demonstrations that Jeff McVeigh did in the one API presentation and, you know,
+
+20:25.320 --> 20:30.280
+in some of the stuff that Roger Koduri was talking about, it looked like their GPUs were
+
+20:30.280 --> 20:31.660
+set up to do that.
+
+20:31.660 --> 20:34.800
+So it's like, I want to run a thousand Dota clients across four GPUs.
+
+20:34.800 --> 20:36.440
+Okay, you know, we can do that.
+
+20:36.440 --> 20:40.720
+Now we've got a really, you know, a really heavy demanding simulation workload that we
+
+20:40.720 --> 20:42.200
+need to run in this other virtual machine.
+
+20:42.200 --> 20:48.760
+And it's like, okay, well, we can move the Dota clients over to these three GPUs and
+
+20:48.760 --> 20:54.700
+give the heavy simulation, you know, one dedicated piece of silicon or whatever it takes to actually
+
+20:54.700 --> 20:55.700
+run it.
+
+20:55.700 --> 20:59.440
+And so those functions are the things that I'm looking out for.
+
+20:59.440 --> 21:00.440
+I'm looking for that.
+
+21:00.440 --> 21:04.180
+I want to be able to take the changes that they make to the Linux kernel and be able
+
+21:04.180 --> 21:08.800
+to roll with that because one of the things they specifically talked about in the presentation
+
+21:08.800 --> 21:14.880
+is being able to take the frame buffer from that GPU and shove it into another GPU directly
+
+21:14.880 --> 21:17.560
+over the PCI bus without hitting main memory.
+
+21:17.560 --> 21:21.320
+And for our Looking Glass project, that would be the Holy Grail.
+
+21:21.320 --> 21:27.480
+Like if the plumbing is there in the Linux kernel to do that for the Intel GPUs, we know
+
+21:27.480 --> 21:30.560
+Radeon GPUs are quasi capable of it.
+
+21:30.560 --> 21:36.200
+What we need to do to move, we as a community, need to do to move the needle forward to be
+
+21:36.200 --> 21:40.040
+able to do direct GPU frame buffer, frame buffer copies.
+
+21:40.040 --> 21:43.120
+At that point, we're no longer constrained by main memory bandwidth.
+
+21:43.120 --> 21:48.880
+We can literally copy that frame buffer directly into another GPU from a guest GPU to a host
+
+21:48.880 --> 21:49.880
+GPU.
+
+21:49.880 --> 21:53.840
+That's really the next step for speed and optimization in VFIO.
+
+21:53.840 --> 21:58.500
+Not only for enterprise workloads where they're doing simulations or tons of streaming clients,
+
+21:58.500 --> 22:05.320
+but I would love to see this land in consumer machines because it would make VM super fast,
+
+22:05.320 --> 22:09.760
+obviously, but it also means we'd be a step closer to fully isolated applications where
+
+22:09.760 --> 22:14.080
+the entire stack is completely isolated, but you're not taking a big performance penalty
+
+22:14.080 --> 22:15.080
+for that.
+
+22:15.080 --> 22:16.080
+Yeah.
+
+22:16.080 --> 22:21.440
+I mean, having a hardware assist, I mean, that level of containerization, I don't really
+
+22:21.440 --> 22:25.000
+call it containerization because I'd apply something else, but that level of containerization,
+
+22:25.000 --> 22:26.560
+that can only be the future.
+
+22:26.560 --> 22:27.560
+Or isolation.
+
+22:27.560 --> 22:28.560
+Yeah.
+
+22:28.560 --> 22:31.240
+I mean, we have to have this level of secure compute.
+
+22:31.240 --> 22:34.240
+Like there's no, like the security threats and the stuff that we see with things like
+
+22:34.240 --> 22:39.040
+solar wind, there is no reason today that we shouldn't be running all of our applications
+
+22:39.040 --> 22:42.280
+in individual application sandboxes.
+
+22:42.280 --> 22:45.160
+I mean, it's almost to the point where each individual application should have its own
+
+22:45.160 --> 22:46.840
+encrypted memory space.
+
+22:46.840 --> 22:49.960
+The thing that's preventing us from getting there is market segmentation.
+
+22:49.960 --> 22:53.780
+We have the hardware, we have the technology, come on guys, let's dot the I's and cross
+
+22:53.780 --> 22:54.780
+the T's.
+
+22:54.780 --> 22:55.780
+Right.
+
+22:55.780 --> 22:56.780
+Yes.
+
+22:56.780 --> 23:02.760
+That sounds like another rant I heard recently from a well-known individual.
+
+23:02.760 --> 23:09.000
+I want to take a moment and welcome a brand new sponsor to the network and to the show.
+
+23:09.000 --> 23:10.280
+It's oh dear.
+
+23:10.280 --> 23:14.240
+And the timing is perfect because I think a lot of us are looking for a better take
+
+23:14.240 --> 23:20.940
+on how to do monitoring and looking for something that was designed to work with automation.
+
+23:20.940 --> 23:22.640
+And that's where oh dear comes in.
+
+23:22.640 --> 23:27.960
+Go to oh dear dot app and use the promo code Linux for a $10 discount on any plan.
+
+23:27.960 --> 23:33.400
+Oh dear was co-founded by the author of cron dot weekly and a listener of the show.
+
+23:33.400 --> 23:35.080
+So they're also from the community.
+
+23:35.080 --> 23:37.000
+And I think that's really great.
+
+23:37.000 --> 23:41.080
+But you know, as somebody who does run a lot of services, I know what it's like to be informed
+
+23:41.080 --> 23:44.620
+by my listeners that something's out before I know it's out.
+
+23:44.620 --> 23:47.200
+So be the first to know when your site is unavailable.
+
+23:47.200 --> 23:54.440
+Oh dear has global uptime checking with servers that are worldwide that will report a problem
+
+23:54.440 --> 23:59.280
+as soon as it happens from multiple different angles and they can go deep into your site.
+
+23:59.280 --> 24:03.620
+They can crawl and index your entire website and detect a broken link and notify you about
+
+24:03.620 --> 24:04.620
+that.
+
+24:04.620 --> 24:08.380
+There's also the ability, of course, to monitor all kinds of aspects of the backend infrastructure.
+
+24:08.380 --> 24:12.120
+So perhaps you have scheduled tasks or cron jobs and you want to find out if they've run
+
+24:12.120 --> 24:15.520
+or not and look and get alerts if something doesn't execute.
+
+24:15.520 --> 24:17.320
+Oh dear completely accommodates that.
+
+24:17.320 --> 24:21.960
+Oh dear is always monitoring the performance and speed of your website over time so they
+
+24:21.960 --> 24:23.840
+can detect if something happens immediately.
+
+24:23.840 --> 24:29.600
+If you have a sudden performance impact, something gets really slow or get a historical snapshot.
+
+24:29.600 --> 24:31.840
+See if performance is changing over time.
+
+24:31.840 --> 24:36.820
+But the thing that really makes oh dear really special is the API.
+
+24:36.820 --> 24:40.160
+It lets you configure everything about the application.
+
+24:40.160 --> 24:44.900
+Everything you see in your dashboard can be controlled with an easy to use restful API.
+
+24:44.900 --> 24:52.480
+And of course, any changes you make via the API are visible in the dashboard in real time.
+
+24:52.480 --> 24:56.300
+It's the monitoring solution that embraces automation and gives you the tools to make
+
+24:56.300 --> 24:58.040
+it possible.
+
+24:58.040 --> 25:01.600
+And it's comprehensive API means there's tons of third party integrations already available.
+
+25:01.600 --> 25:05.520
+There's of course a command line client, but there's other neat ways to interface with
+
+25:05.520 --> 25:09.120
+like the notifications in the system to over the API like a telegram chat bot.
+
+25:09.120 --> 25:13.400
+There's a JavaScript SDK, a terraform provider and a lot more.
+
+25:13.400 --> 25:15.880
+So right now head over to oh dear dot app.
+
+25:15.880 --> 25:20.520
+Oh dear dot app and start a 10 day no strings attached trial, no credit card required.
+
+25:20.520 --> 25:22.920
+You can get set up in less than a minute.
+
+25:22.920 --> 25:28.260
+And when you do sign up for any of the plans, use the promo code Linux for a $10 discount.
+
+25:28.260 --> 25:31.340
+And if they ask, tell them the Linux unplug program sent you.
+
+25:31.340 --> 25:32.340
+It's pretty neat.
+
+25:32.340 --> 25:33.920
+And I think you probably agree.
+
+25:33.920 --> 25:37.580
+It's time to relook at how we're doing monitoring, go with a fresher take on something that is
+
+25:37.580 --> 25:42.280
+designed for automation with a comprehensive API and great documentation too.
+
+25:42.280 --> 25:43.280
+So check them out.
+
+25:43.280 --> 25:47.260
+It's oh dear, oh dear dot app promo code Linux for a $10 discount.
+
+25:47.260 --> 25:53.080
+And thanks to oh dear for sponsoring the unplugged program.
+
+25:53.080 --> 25:58.800
+So my conversation with Wendell continues and I asked him about his daily driver Linux
+
+25:58.800 --> 25:59.800
+setup.
+
+25:59.800 --> 26:05.400
+So before we go, I want to ask you one last question and that's just a snapshot of what
+
+26:05.400 --> 26:08.360
+Wendell's daily Linux drivers look like today.
+
+26:08.360 --> 26:10.200
+Are you still mostly a fedora guy?
+
+26:10.200 --> 26:11.740
+What kind of hardware, et cetera?
+
+26:11.740 --> 26:13.560
+My main machine is a threader for machine.
+
+26:13.560 --> 26:15.560
+It's a 3970X.
+
+26:15.560 --> 26:18.680
+It's got 128 gigabytes of memory in it right now.
+
+26:18.680 --> 26:28.400
+It has a Tesla V100, a 2080Ti and a, I think it's a, no, no, it's the 6800, it's a 6800
+
+26:28.400 --> 26:29.400
+non XT.
+
+26:29.400 --> 26:30.400
+Whew.
+
+26:30.400 --> 26:31.400
+And I'm about out of PCI-E.
+
+26:31.400 --> 26:32.400
+Oh, wow.
+
+26:32.400 --> 26:38.280
+Do you just run the whole OS at a RAM or what?
+
+26:38.280 --> 26:42.280
+Well, I mean, that's the, that's the goal right now.
+
+26:42.280 --> 26:49.940
+The V100 can, you can use the V100 as a Titan kind of sorta in a VFIO like type pass-through
+
+26:49.940 --> 26:50.940
+type situation.
+
+26:50.940 --> 26:51.940
+Oh, that's nice.
+
+26:51.940 --> 26:52.940
+That works pretty well.
+
+26:52.940 --> 26:53.940
+Yeah.
+
+26:53.940 --> 26:57.400
+So you can, you run it as a V100 as pure compute or you can run it as, as whatever.
+
+26:57.400 --> 27:05.120
+It's still, it's still a little sketchy sometimes binding and unbinding GPUs.
+
+27:05.120 --> 27:10.920
+So that can, that can be a little, a little weird and it's not, it's definitely not an
+
+27:10.920 --> 27:12.840
+ideal situation.
+
+27:12.840 --> 27:15.360
+I'm not running Fedora right now.
+
+27:15.360 --> 27:20.920
+I do have, I'm running 20.10 because I've been helping a lot of people on our forum
+
+27:20.920 --> 27:21.920
+use 20.10.
+
+27:21.920 --> 27:26.720
+I still have another machine that I do work on, which is still running Fedora, but the
+
+27:26.720 --> 27:33.340
+Threadripper machine is running Ubuntu and it's, it doesn't have the same optimizations
+
+27:33.340 --> 27:36.880
+for performance for virtual machines out of the box.
+
+27:36.880 --> 27:40.800
+And so people on our forum and some, and some other people will have trouble with things
+
+27:40.800 --> 27:44.680
+like, you know, sometimes it's crackling audio or sometimes like the virtual machine performance
+
+27:44.680 --> 27:47.280
+is fine until you go to write to disk.
+
+27:47.280 --> 27:51.600
+And I've found that I've had to do a lot more sort of hand tuning to get those things to
+
+27:51.600 --> 27:58.680
+work well on the Ubuntu 20.10 kernel versus Fedora.
+
+27:58.680 --> 28:02.020
+And I was going to try the low latency kernel, but then I ran into another problem, which
+
+28:02.020 --> 28:05.680
+is you don't get ZFS out of the box necessarily.
+
+28:05.680 --> 28:09.880
+And so like the newer kernel, it's like, okay, I'll download the, the, the devs for Ubuntu
+
+28:09.880 --> 28:10.880
+from kernel.org.
+
+28:10.880 --> 28:13.960
+I was like, oh yeah, ZFS is not a thing with those kernels.
+
+28:13.960 --> 28:14.960
+Crap.
+
+28:14.960 --> 28:15.960
+I did not realize that.
+
+28:15.960 --> 28:16.960
+Yeah.
+
+28:16.960 --> 28:19.780
+It's a, and then it's like, okay, let me get the DKMS thing and it's like, oh, this doesn't
+
+28:19.780 --> 28:20.780
+work either.
+
+28:20.780 --> 28:24.200
+Like, have I, have I painted myself into a corner here?
+
+28:24.200 --> 28:27.680
+So I've been, I've been forcing myself to use this setup so that I can sort of learn
+
+28:27.680 --> 28:28.680
+what those pitfalls are.
+
+28:28.680 --> 28:29.880
+Cause I didn't expect that either.
+
+28:29.880 --> 28:37.080
+Like I expected that when I download the Ubuntu kernel from kernel.org, you know, for 20, cause
+
+28:37.080 --> 28:40.200
+it's like, okay, let's try 5.10 on 20.10.
+
+28:40.200 --> 28:46.520
+But yeah, ZFS, the ZFS DKMS thing wouldn't, doesn't build and it's not in the kernel because
+
+28:46.520 --> 28:48.480
+the canonical hasn't got a hold of it yet.
+
+28:48.480 --> 28:51.800
+So you have to get the kernel that canonical got a hold of in order to get ZFS.
+
+28:51.800 --> 28:52.800
+Oh, okay.
+
+28:52.800 --> 28:55.400
+When you lay it out like that, I guess that makes sense.
+
+28:55.400 --> 28:56.520
+I see it.
+
+28:56.520 --> 28:57.520
+But that was a nice gotcha.
+
+28:57.520 --> 29:01.920
+And it's interesting that there's enough people that are using 20.10 that you felt motivated
+
+29:01.920 --> 29:03.660
+to switch over to it.
+
+29:03.660 --> 29:07.200
+And do you think people are doing that instead of using the LTSs for graphics driver and
+
+29:07.200 --> 29:08.720
+Mesa stack updates or?
+
+29:08.720 --> 29:10.920
+Yeah, that's what led to all of that.
+
+29:10.920 --> 29:16.880
+There was, there was a bit of a, a bit of a kerfuffle when the 6,000 series GPUs launched
+
+29:16.880 --> 29:17.880
+and it was like, crap.
+
+29:17.880 --> 29:19.880
+I'm going to have to figure this out.
+
+29:19.880 --> 29:23.680
+And it really, for me, it wasn't really too bad, but you know, I might be a little bit
+
+29:23.680 --> 29:28.960
+snow blind to it because I have so much experience with it, but it really wasn't a huge deal
+
+29:28.960 --> 29:33.440
+to get it working on 20.10.
+
+29:33.440 --> 29:40.720
+And so like, you know, AMD did a lot of work to get it working on 20.04, but 20.10 launched
+
+29:40.720 --> 29:43.840
+like the week before the GPUs launched.
+
+29:43.840 --> 29:49.840
+And so you could install the driver from AMD.com and there's, you can get the open driver or
+
+29:49.840 --> 29:55.080
+the proprietary driver, but the open driver was basically Abhari with the, with the closed
+
+29:55.080 --> 29:56.080
+driver.
+
+29:56.080 --> 30:00.200
+And you could get Mesa, newer Mesa and Radvi and, and some other stuff.
+
+30:00.200 --> 30:03.880
+I don't know if I'm saying that right, but the, all the accoutrement that goes like with
+
+30:03.880 --> 30:07.760
+the stuff that's not in the kernel, but it's a little bit of a, you know, I could, I can
+
+30:07.760 --> 30:11.760
+kind of relate because it's a little bit of a trap for newbies because it's like, oh,
+
+30:11.760 --> 30:12.760
+I'm running the newest kernel.
+
+30:12.760 --> 30:16.520
+And it's like, well, there's all this other stuff that's not in the kernel that you also
+
+30:16.520 --> 30:20.000
+need in order to be able to run your games and do your stuff, or you need somebody to
+
+30:20.000 --> 30:24.080
+backport those things into something that will run in your environment.
+
+30:24.080 --> 30:30.240
+And so, and then, or some poor soul somewhere has to spend a ton of time backporting the
+
+30:30.240 --> 30:36.560
+cool stuff in 5.10, which there's a ton of cool stuff in 5.10 and newer to like kernel
+
+30:36.560 --> 30:41.000
+5.8 or 5.4 in the case of 20.04.
+
+30:41.000 --> 30:46.340
+And so it's kind of an impossible situation because you want the people doing the development,
+
+30:46.340 --> 30:51.120
+doing the development on branch master, I guess, for lack of a better way to describe
+
+30:51.120 --> 30:55.840
+it, like on head, like you want them doing the work there because that's where it is,
+
+30:55.840 --> 30:59.480
+or they know where the bodies are buried, you know, wherever it was.
+
+30:59.480 --> 31:05.560
+And so they were doing their work all along when head was 5.4 and they know what's broken
+
+31:05.560 --> 31:07.000
+in 5.4.
+
+31:07.000 --> 31:12.620
+And so it seems like a crazy situation where, you know, somebody inside of AMD and somebody
+
+31:12.620 --> 31:17.020
+inside of Valve or somebody on Valve's indirect payroll, because Valve is greasing the wheels
+
+31:17.020 --> 31:22.020
+here very quietly with a lot of money and that is appreciated, but you know, it sort
+
+31:22.020 --> 31:23.020
+of gets spoiled.
+
+31:23.020 --> 31:28.320
+Like if it's like, oh, Valve is paying $3 million to, you know, developers all over
+
+31:28.320 --> 31:32.320
+the world to advance this thing forward, then, you know, as the people tend to want to want
+
+31:32.320 --> 31:36.980
+to want to pee in the Cheerios as it were, it's better to just keep it quiet and just
+
+31:36.980 --> 31:40.560
+get the work done and, you know, not not do anything for the fanfare.
+
+31:40.560 --> 31:42.040
+They're not necessarily in it for the glory anyways.
+
+31:42.040 --> 31:43.040
+Yeah, yeah.
+
+31:43.040 --> 31:45.560
+They just like, I just I just want a reasonable computing experience.
+
+31:45.560 --> 31:46.840
+That's where I am with VFIO.
+
+31:46.840 --> 31:51.400
+It's like the whole reason I do the VFIO stuff rather than trying to run a native is like,
+
+31:51.400 --> 31:52.800
+I don't, you know, I don't have time for this.
+
+31:52.800 --> 31:53.800
+I just want it to work.
+
+31:53.800 --> 31:57.760
+And it's like, yes, I would love it if everything worked perfectly on Linux, but I don't have
+
+31:57.760 --> 31:59.720
+time for that.
+
+31:59.720 --> 32:03.680
+So I want Linux to do what Linux does well, because I can count on Linux to do that.
+
+32:03.680 --> 32:09.800
+I don't want to bring the horrible ugliness into Linux because it's my nice, clean, pristine,
+
+32:09.800 --> 32:11.360
+you know, thing.
+
+32:11.360 --> 32:16.320
+But like the whole understanding in the community of like the whole driver thing with the 6000
+
+32:16.320 --> 32:20.920
+series GPUs and all that, it's just it's like when the fabs were spinning up making those
+
+32:20.920 --> 32:27.840
+GPUs, there were developers developing on what was then the head of development for
+
+32:27.840 --> 32:31.760
+the Linux kernel, which is probably like five point four or five point six or something
+
+32:31.760 --> 32:38.560
+in that, not five point ten or, you know, five point ten, you know, beta one or whatever.
+
+32:38.560 --> 32:41.720
+And Ubuntu 2004 would have been sort of the big release.
+
+32:41.720 --> 32:46.000
+It's what, you know, Canonical says the majority of their users are using the LTS releases.
+
+32:46.000 --> 32:49.800
+Of course, the enthusiasts are using the latest releases and the enthusiasts are likely the
+
+32:49.800 --> 32:52.720
+ones to buy new GPUs when they first come out.
+
+32:52.720 --> 32:59.320
+But yeah, OK, we're using an LTS support, but long term support doesn't imply that it's
+
+32:59.320 --> 33:04.820
+going to have the scaffolding and infrastructure to be able to support all of this stuff that
+
+33:04.820 --> 33:06.640
+you get with graphics.
+
+33:06.640 --> 33:10.280
+So like LTS support, it's like, OK, we're going to spin up our network driver.
+
+33:10.280 --> 33:13.880
+We're going to spin up our mouse driver because our mouse has 37 buttons and the built in
+
+33:13.880 --> 33:16.400
+driver doesn't handle that well or whatever.
+
+33:16.400 --> 33:18.720
+That's going to be fine because that device isn't changing very often.
+
+33:18.720 --> 33:19.720
+It's on the market.
+
+33:19.720 --> 33:20.720
+It's set.
+
+33:20.720 --> 33:21.720
+It's fixed, right?
+
+33:21.720 --> 33:23.920
+Yeah, the interface in the kernel is not really changing.
+
+33:23.920 --> 33:25.520
+But with GPUs, that's not really the case.
+
+33:25.520 --> 33:29.200
+The interface within the kernel is changing dramatically.
+
+33:29.200 --> 33:35.880
+And because of the work bringing the newer GPUs to the kernel, we see in what ways the
+
+33:35.880 --> 33:38.280
+old interface is deficient.
+
+33:38.280 --> 33:44.220
+So then it becomes a huge amount of work to backport those changes to the kernel to the
+
+33:44.220 --> 33:45.220
+old kernel.
+
+33:45.220 --> 33:51.680
+Effectively, you are, you know, just dressing up, cherry picking bits of kernel 5.10 and
+
+33:51.680 --> 33:54.000
+shoving it into kernel 5.4.
+
+33:54.000 --> 33:55.660
+And at that point, we're just deluding ourselves.
+
+33:55.660 --> 33:59.160
+It's like, you might as well go to kernel 5.10.
+
+33:59.160 --> 34:03.800
+I mean, you're probably going to introduce more bugs than you solve because you've, you
+
+34:03.800 --> 34:11.400
+know, packaged and backported so much functionality in kernel 5.10 that you're running more kernel
+
+34:11.400 --> 34:13.320
+5.10 than 5.4 at this point.
+
+34:13.320 --> 34:14.480
+I mean, come on.
+
+34:14.480 --> 34:17.160
+So what you're really saying, Wendell, is it would just be easier if the entire world
+
+34:17.160 --> 34:19.480
+ran Arch and was rolling all the time.
+
+34:19.480 --> 34:21.320
+Yeah, yeah, exactly.
+
+34:21.320 --> 34:25.800
+But you know, this is, I get like Linus saying, it's like, don't break user space.
+
+34:25.800 --> 34:31.920
+I interpret to say, Linus is saying, you can trust to update your kernel and we probably
+
+34:31.920 --> 34:33.620
+will not screw you.
+
+34:33.620 --> 34:37.760
+And so the idea of, you know, okay, we're going to have an LTS distro, but I also need
+
+34:37.760 --> 34:41.560
+to keep my kernel on whatever version of the kernel existed then.
+
+34:41.560 --> 34:45.680
+I think I could see historically like how that was a thing because yeah, I mean, I was
+
+34:45.680 --> 34:46.680
+guilty of that.
+
+34:46.680 --> 34:52.040
+You know, kernel 2. something on Debian for like way longer than I should have.
+
+34:52.040 --> 34:54.200
+Like guilty as charged.
+
+34:54.200 --> 34:57.440
+But where we are now with the Linux kernel, it's so good.
+
+34:57.440 --> 35:03.040
+And they are usually, not always, but usually so quick about being on top of problems that
+
+35:03.040 --> 35:09.040
+for workstations, long-term support means something entirely different than servers,
+
+35:09.040 --> 35:10.040
+I think.
+
+35:10.040 --> 35:14.280
+And so I think my philosophy is like, let's just roll with the newest kernel that's reasonably
+
+35:14.280 --> 35:18.200
+stable and we'll probably have a better experience for it, even on an LTS kernel.
+
+35:18.200 --> 35:22.000
+And you can totally install a newer kernel on an LTS kernel and most of the time not
+
+35:22.000 --> 35:23.000
+run into problems.
+
+35:23.000 --> 35:24.000
+All right.
+
+35:24.000 --> 35:25.000
+Well, thank you, Wendell.
+
+35:25.000 --> 35:26.000
+All right.
+
+35:26.000 --> 35:33.440
+It was great having Wendell on and check out Level One Tech and the link we have in the
+
+35:33.440 --> 35:34.700
+show notes.
+
+35:34.700 --> 35:35.700
+He knows so much about it.
+
+35:35.700 --> 35:39.080
+I just like, I like to absorb the knowledge, but I do want to do a spot of housekeeping
+
+35:39.080 --> 35:41.120
+before we go on.
+
+35:41.120 --> 35:45.920
+Do join the Luplug if you get a chance on Sundays at noon Pacific, 3 p.m. Eastern.
+
+35:45.920 --> 35:47.480
+It's on our mumble server, just in the lobby.
+
+35:47.480 --> 35:50.400
+You can get info at linuxunplug.com.
+
+35:50.400 --> 35:56.120
+And also a special reminder about the accessibility tools on Linux on the January 4th edition
+
+35:56.120 --> 35:57.800
+of the Luplug.
+
+35:57.800 --> 35:59.800
+And I've updated the calendar to reflect that.
+
+35:59.800 --> 36:02.280
+We're going to try to do that in the future.
+
+36:02.280 --> 36:05.220
+And also I want to mention that you might have noticed we don't have a lot of time for
+
+36:05.220 --> 36:07.280
+news this week.
+
+36:07.280 --> 36:12.940
+Linux Action News continues on and we did get to a lot of stories in episode 171, which
+
+36:12.940 --> 36:14.720
+came out yesterday.
+
+36:14.720 --> 36:17.680
+And you can get that at linuxactionnews.com.
+
+36:17.680 --> 36:21.780
+And a special plug for Self-Hosted 36 later this week, I review the new dedicated Home
+
+36:21.780 --> 36:22.940
+Assistant hardware.
+
+36:22.940 --> 36:26.720
+I think if you've been listening for the last few weeks, you know how much I love Home Assistant.
+
+36:26.720 --> 36:28.320
+Well, I got one.
+
+36:28.320 --> 36:29.320
+You got one?
+
+36:29.320 --> 36:30.320
+What?
+
+36:30.320 --> 36:31.640
+Oh, I'm excited already.
+
+36:31.640 --> 36:32.700
+Well, it's here.
+
+36:32.700 --> 36:33.700
+It's running.
+
+36:33.700 --> 36:34.700
+You know, I'll show you.
+
+36:34.700 --> 36:35.880
+I'll show it to you.
+
+36:35.880 --> 36:37.000
+It's super cool.
+
+36:37.000 --> 36:41.240
+And so there's just a couple of things you need to know about.
+
+36:41.240 --> 36:46.360
+And I talk about all that in Self-Hosted episode 36 at selfhosted.show slash 36, which will
+
+36:46.360 --> 36:48.080
+be out later this week.
+
+36:48.080 --> 36:51.540
+Not out yet as we record this here episode.
+
+36:51.540 --> 36:52.540
+So there you go.
+
+36:52.540 --> 36:53.540
+That's the housekeeping.
+
+36:53.540 --> 36:58.320
+I think that's all the housekeeping we got for this week, just nice and tidy right there.
+
+36:58.320 --> 37:06.160
+I was listening to the PeerTube instance as we went along and I didn't have any drops
+
+37:06.160 --> 37:10.360
+during the Wendell interview at all, nothing, no drops at all.
+
+37:10.360 --> 37:14.640
+It was running super solid and I was getting it from 10 other peers, which was I think
+
+37:14.640 --> 37:17.280
+there was something like 20 people watching it.
+
+37:17.280 --> 37:21.200
+And then we had as we're going to hear something like 10 people that are seating in.
+
+37:21.200 --> 37:26.280
+And it seems to be that when you have that many people, it really kind of smooths out
+
+37:26.280 --> 37:27.280
+any of the hiccups.
+
+37:27.280 --> 37:28.560
+Oh, that is so neat.
+
+37:28.560 --> 37:31.800
+You know, we were playing around in the IRC room, too, and it looks like there is just
+
+37:31.800 --> 37:37.880
+a regular HLS feed that you can find the playlist for and pop it in MPV or VLC or whatever client
+
+37:37.880 --> 37:38.880
+you like.
+
+37:38.880 --> 37:41.280
+I know I'll be trying it with a Chromecast later.
+
+37:41.280 --> 37:42.560
+So that should work with anything.
+
+37:42.560 --> 37:46.340
+Yeah, that's nice because if you do that, not only could you watch the video stream
+
+37:46.340 --> 37:50.720
+in a native Linux client like MPV or VLC, but you're not seating.
+
+37:50.720 --> 37:54.900
+Yeah, you wouldn't help us out with, you know, sharing with everyone else watching.
+
+37:54.900 --> 37:58.040
+But sometimes that's what you need or you're on and you know, mobile connection or just
+
+37:58.040 --> 37:59.040
+use what works.
+
+37:59.040 --> 38:02.720
+Yeah, well, you know, if I was if I was on vacation, but I was watching the shows just
+
+38:02.720 --> 38:04.560
+to make sure you guys didn't screw it up.
+
+38:04.560 --> 38:06.620
+I mean, so I could still watch.
+
+38:06.620 --> 38:07.620
+Quality control.
+
+38:07.620 --> 38:08.620
+Mm hmm.
+
+38:08.620 --> 38:09.620
+Yeah, yeah, yeah.
+
+38:09.620 --> 38:10.620
+I'd totally do it that way.
+
+38:10.620 --> 38:11.960
+So that way I wasn't burning through my LTE connection.
+
+38:11.960 --> 38:15.240
+So and it seems like we maybe we figured out a way we could see it without having to watch
+
+38:15.240 --> 38:16.240
+as well.
+
+38:16.240 --> 38:20.360
+So you can watch it without having to see it and you can see it without having to watch.
+
+38:20.360 --> 38:23.680
+This is the stuff I love about free software in this stack.
+
+38:23.680 --> 38:27.920
+We can poke around with this and come up with solutions that we could never put together
+
+38:27.920 --> 38:32.720
+with something like YouTube or even something like library, which for all effective intents
+
+38:32.720 --> 38:38.160
+and purposes is a crypto scheme with a centralized control that can still be had pressure applied
+
+38:38.160 --> 38:40.520
+to it by a federal government.
+
+38:40.520 --> 38:44.620
+Where PeerTube, that's decentralized, it's peer to peer and it's federated.
+
+38:44.620 --> 38:47.980
+You could take down Jupiter broadcasting, but who wouldn't take down the Federation
+
+38:47.980 --> 38:49.820
+of PeerTube instances and their videos?
+
+38:49.820 --> 38:54.100
+And it means that in the future, a project like Debian could have DebianTube where they
+
+38:54.100 --> 39:00.120
+have their how tos, tutorials, and they have their community events and conferences all
+
+39:00.120 --> 39:03.200
+hosted on PeerTube available for download.
+
+39:03.200 --> 39:07.400
+And you know, if you hear, oh, there's a Debian event and it's live, you don't have to figure
+
+39:07.400 --> 39:11.860
+out where or what platform or if it's on YouTube, you just know it's on DebianTube.
+
+39:11.860 --> 39:14.700
+All of their video stuff is on DebianTube.
+
+39:14.700 --> 39:15.960
+And now live streams are too.
+
+39:15.960 --> 39:18.940
+And it's so cool because it's a lot like YouTube.
+
+39:18.940 --> 39:21.340
+It's that simple as far as the user experience goes.
+
+39:21.340 --> 39:23.240
+It's part of the publish process.
+
+39:23.240 --> 39:27.060
+You publish and if your account's unable to go live, you have an option to just live stream.
+
+39:27.060 --> 39:28.940
+And it gives you the URL and the key.
+
+39:28.940 --> 39:33.700
+You plug that into OBS and you're live like if it was Twitch, it's just as easy to stream
+
+39:33.700 --> 39:37.060
+to as Twitch or YouTube.
+
+39:37.060 --> 39:38.320
+And it's incredible.
+
+39:38.320 --> 39:41.940
+It's incredible because we're running it all on one instance.
+
+39:41.940 --> 39:48.100
+And we experimented over the weekend with a Linode two core instance that was just two
+
+39:48.100 --> 39:50.380
+cores and four gigs of RAM.
+
+39:50.380 --> 39:52.900
+And we were hosting 20 people in that live stream.
+
+39:52.900 --> 39:55.120
+And it was about 60 percent utilization.
+
+39:55.120 --> 39:57.180
+We did totally max it out when we started two streams.
+
+39:57.180 --> 39:58.980
+Well, I had to make trouble and stream myself.
+
+39:58.980 --> 40:01.720
+I mean, you couldn't have all the streaming glory.
+
+40:01.720 --> 40:05.220
+You were even sending some pretty high res stuff and it looked good and you were able
+
+40:05.220 --> 40:07.260
+to play it back on the studio TV even.
+
+40:07.260 --> 40:11.700
+Yeah, it plays the the peer to player even plays in Safari on the iPhone.
+
+40:11.700 --> 40:13.580
+I mean, it passes that low bar.
+
+40:13.580 --> 40:16.780
+So it's like really it works anywhere.
+
+40:16.780 --> 40:20.420
+There's no flash required like it used to require back in the day when we first started
+
+40:20.420 --> 40:21.420
+streaming.
+
+40:21.420 --> 40:22.420
+I'm I'm pretty stoked about it.
+
+40:22.420 --> 40:26.340
+I think it still has a few hiccups here and there, but some of that could be implementation.
+
+40:26.340 --> 40:27.860
+So we're still testing it.
+
+40:27.860 --> 40:30.880
+But I think it's pretty exciting not only because it could act as a canonical archive
+
+40:30.880 --> 40:36.420
+for all of the past and current J.B. shows, but it could mean that if for whatever reason,
+
+40:36.420 --> 40:41.660
+you know, maybe J.B. like I was I was speculating on the pre show, maybe J.B. one day defends
+
+40:41.660 --> 40:46.480
+a an encryption activist who somebody who's who is publicly known for being anti backdoor
+
+40:46.480 --> 40:50.680
+encryption and that becomes disallowed speech on YouTube will have a peer to platform.
+
+40:50.680 --> 40:51.780
+Maybe it never happens.
+
+40:51.780 --> 40:53.680
+Maybe it's just nice to just have multiple options.
+
+40:53.680 --> 40:57.120
+But what's so great about it is we can just plug it into our existing infrastructure.
+
+40:57.120 --> 41:01.540
+We can send an RTMP feed to it and we can stream to it just like every other endpoint
+
+41:01.540 --> 41:02.540
+we streamed to.
+
+41:02.540 --> 41:03.900
+And now it's just part of that mix.
+
+41:03.900 --> 41:05.740
+And that's how we're starting to work with it.
+
+41:05.740 --> 41:09.700
+And I think it has a lot of potential for open source projects, much like I think Matrix
+
+41:09.700 --> 41:10.700
+does.
+
+41:10.700 --> 41:12.140
+There's a lot of the same shared potential there.
+
+41:12.140 --> 41:17.580
+Matrix for the chat and real time communication and then PeerTube for project archives and
+
+41:17.580 --> 41:18.580
+live stream events.
+
+41:18.580 --> 41:23.420
+I think the two things complement each other a lot.
+
+41:23.420 --> 41:28.160
+Leno dot com slash unplugged Leno dot com slash unplugged.
+
+41:28.160 --> 41:30.620
+That's where you go to get a one hundred dollar 60 day credit.
+
+41:30.620 --> 41:31.620
+I was just checking.
+
+41:31.620 --> 41:32.620
+There's just no way.
+
+41:32.620 --> 41:33.620
+Right.
+
+41:33.620 --> 41:34.620
+They're still giving us that deal.
+
+41:34.620 --> 41:36.580
+Is this possible?
+
+41:36.580 --> 41:38.460
+Don't tell them it's too good.
+
+41:38.460 --> 41:42.820
+Did you did you check with Janice in the back office because it's just too good of a deal.
+
+41:42.820 --> 41:44.340
+There's no way they're letting us still do this.
+
+41:44.340 --> 41:45.340
+She was having a sandwich.
+
+41:45.340 --> 41:46.340
+She gave me the thumbs up, though.
+
+41:46.340 --> 41:47.340
+Got the thumbs up.
+
+41:47.340 --> 41:49.380
+Leno dot com slash unplugged.
+
+41:49.380 --> 41:52.580
+You go there to get a one hundred dollar 60 day credit towards your new account.
+
+41:52.580 --> 41:54.220
+And of course, you support the show.
+
+41:54.220 --> 41:57.900
+Leno is our cloud provider of this PeerTube instance that I can't stop going on about.
+
+41:57.900 --> 42:00.020
+Yeah, you know it's hosted on Leno.
+
+42:00.020 --> 42:03.520
+It's really neat, actually, because first we set up a test instance just like a proof
+
+42:03.520 --> 42:05.540
+of concept in minutes.
+
+42:05.540 --> 42:10.500
+And you know, we chose an Ubuntu LTS base 2004, then installed Docker on top of that
+
+42:10.500 --> 42:11.500
+and then deployed the image.
+
+42:11.500 --> 42:14.980
+And we're up and going and in just minutes, really.
+
+42:14.980 --> 42:18.300
+And then once we validated it, we thought, how could we build it a little bit better?
+
+42:18.300 --> 42:22.900
+Like we could carve off large chunks of block storage because it's super easy to just add
+
+42:22.900 --> 42:24.900
+a bunch of block storage to a Leno host.
+
+42:24.900 --> 42:25.900
+That's no problem at all.
+
+42:25.900 --> 42:29.380
+And Leno's prices are really competitive, in fact, 30 to 50 percent less than major
+
+42:29.380 --> 42:32.100
+cloud providers like AWS or Google Cloud or Azure.
+
+42:32.100 --> 42:35.580
+So the pricing is great, but we thought we could probably do it better than that.
+
+42:35.580 --> 42:40.540
+We were looking at the PeerTube documentation and they have a they have a deployment approach
+
+42:40.540 --> 42:43.920
+where you use S3 compatible object storage.
+
+42:43.920 --> 42:45.240
+Well guess what Leno has?
+
+42:45.240 --> 42:51.000
+They have S3 compatible object storage, which means we can just use as little or as much
+
+42:51.000 --> 42:52.780
+space as we need.
+
+42:52.780 --> 42:56.240
+We don't have to carve off terabytes at a time so that way we can accommodate months
+
+42:56.240 --> 42:57.820
+and months of growth.
+
+42:57.820 --> 42:59.980
+We can just use as much or little.
+
+42:59.980 --> 43:03.620
+And it also means that these files that PeerTube creates, like the different derivatives for
+
+43:03.620 --> 43:07.860
+lower quality streaming, they're available to us via object storage for other automation
+
+43:07.860 --> 43:08.860
+purposes.
+
+43:08.860 --> 43:12.620
+Like perhaps we write some scripts that now publish those to archive.org.
+
+43:12.620 --> 43:13.720
+It's so great.
+
+43:13.720 --> 43:15.620
+Object storage is a lot of fun to play with.
+
+43:15.620 --> 43:20.780
+And combining it with PeerTube, I think what we maybe have built here is a super easy reproducible
+
+43:20.780 --> 43:24.820
+model for other open source projects out there.
+
+43:24.820 --> 43:27.580
+Right now we have a four core VPS because we want to play around with live streaming,
+
+43:27.580 --> 43:30.880
+but you could really get away with a two core VPS.
+
+43:30.880 --> 43:35.420
+Right now we have 16 gigs of RAM because again we're experimenting, but initially we started
+
+43:35.420 --> 43:37.020
+with four gigs of RAM.
+
+43:37.020 --> 43:43.080
+This could be like somewhere in the $5 to $10 a month territory over at Linode.
+
+43:43.080 --> 43:44.080
+You see what I'm saying?
+
+43:44.080 --> 43:45.940
+Wow, this could be really accessible for projects.
+
+43:45.940 --> 43:49.820
+You can one click deploy a system with Docker ready to go.
+
+43:49.820 --> 43:51.180
+It's really simple for them to get going.
+
+43:51.180 --> 43:53.100
+The entire stack is open source.
+
+43:53.100 --> 43:56.400
+Linode is a participating member of the Linux community.
+
+43:56.400 --> 43:59.260
+They've been contributing to projects and events forever.
+
+43:59.260 --> 44:00.960
+They've been around forever.
+
+44:00.960 --> 44:04.540
+They started in 2000 and I think it was actually, no, I think it was 1800s.
+
+44:04.540 --> 44:06.580
+Yeah, I think they've been around for 200.
+
+44:06.580 --> 44:08.020
+Oh no, I'm sorry.
+
+44:08.020 --> 44:09.500
+No, that's not quite right.
+
+44:09.500 --> 44:10.980
+But they've been around forever.
+
+44:10.980 --> 44:12.860
+They're an independently owned company.
+
+44:12.860 --> 44:17.820
+They started because they have a love for Linux and you just as a project now have access
+
+44:17.820 --> 44:18.820
+to this.
+
+44:18.820 --> 44:21.900
+It's like just, it became available, YouTube in a box, but it's YouTube of the good old
+
+44:21.900 --> 44:26.980
+days under your control and it's not stealing your information and it's on the Linode stack.
+
+44:26.980 --> 44:30.740
+It's with a company that's been around since 2003, so you know they're in it for the long
+
+44:30.740 --> 44:32.100
+haul.
+
+44:32.100 --> 44:34.860
+Also Linode makes it really easy to host game servers.
+
+44:34.860 --> 44:36.900
+I was playing around with this for my kid.
+
+44:36.900 --> 44:38.740
+They have multiple different types of game servers on there.
+
+44:38.740 --> 44:43.620
+Of course they have things like Team Fortress and CSGO and Minecraft.
+
+44:43.620 --> 44:45.780
+The Minecraft one, you should check that out.
+
+44:45.780 --> 44:49.660
+They let you set all of the options you really are going to care about, like the in-game
+
+44:49.660 --> 44:53.400
+server options in the Linode setup screen.
+
+44:53.400 --> 44:55.100
+They've automated all of that for you too.
+
+44:55.100 --> 44:56.740
+It's so cool.
+
+44:56.740 --> 45:01.300
+So if you want a safe place for your friends, your kids, your community to play Minecraft
+
+45:01.300 --> 45:04.420
+or one of the other many popular games like Arcs on there as well.
+
+45:04.420 --> 45:06.100
+It's such a nice balance point though, right?
+
+45:06.100 --> 45:09.580
+I mean, you get the one click, you get the easy configurability because you know how
+
+45:09.580 --> 45:10.580
+to do it all.
+
+45:10.580 --> 45:14.340
+You don't have to fuss with it this time, but if you ever need to go back in and actually
+
+45:14.340 --> 45:18.380
+make more changes, I mean, you've got SSH access, you've got full control, it's all
+
+45:18.380 --> 45:19.380
+right there.
+
+45:19.380 --> 45:20.380
+Yep.
+
+45:20.380 --> 45:23.300
+They give you the whole range, which of course appeals to Wes and I quite a bit.
+
+45:23.300 --> 45:25.700
+They're just dedicated to offering the best virtualized cloud computing.
+
+45:25.700 --> 45:30.060
+If it runs on Linux, it'll run on Linode and then however much you want, automation or
+
+45:30.060 --> 45:33.860
+just build it from the ground up, you choose and they make it all really accessible with
+
+45:33.860 --> 45:35.100
+a great dashboard.
+
+45:35.100 --> 45:39.140
+So get that $100 credit and play around, linode.com slash unplugged.
+
+45:39.140 --> 45:43.140
+You go there, you support the show, make it possible for us to give content away for free
+
+45:43.140 --> 45:46.660
+and you help out a great company like Linode and become a customer.
+
+45:46.660 --> 45:47.660
+It's a great ecosystem.
+
+45:47.660 --> 45:54.220
+I love it, linode.com slash unplugged.
+
+45:54.220 --> 45:55.900
+Let's get into some feedback, Mr. Payne.
+
+45:55.900 --> 45:56.900
+Yes, let's.
+
+45:56.900 --> 45:58.020
+We have a few emails.
+
+45:58.020 --> 46:03.420
+Let's start with the openSUSE feedback because as you would expect, we got a lot of it.
+
+46:03.420 --> 46:05.360
+We got a lot of it.
+
+46:05.360 --> 46:11.420
+So last week on the show, we secretly ran openSUSE Tumbleweed for a week and then gave
+
+46:11.420 --> 46:16.220
+you our thoughts, which in a super short summary version where there's parts of it we liked
+
+46:16.220 --> 46:17.220
+a lot.
+
+46:17.220 --> 46:19.020
+There were parts of it we were not big fans of, especially me.
+
+46:19.020 --> 46:21.660
+I wasn't a big fan of the Yast experience.
+
+46:21.660 --> 46:24.180
+I've never been a particularly big fan of Zipper.
+
+46:24.180 --> 46:28.260
+I was using SUSE as an enterprise user when Zipper came along.
+
+46:28.260 --> 46:31.700
+I wasn't a big fan of it then and I'm still not really a huge fan of it.
+
+46:31.700 --> 46:33.980
+I think it's one of the slower package managers out there.
+
+46:33.980 --> 46:36.700
+And I also think Yast is kind of slow and clunky.
+
+46:36.700 --> 46:42.260
+But outside of that, I think SUSE and openSUSE have really stumbled on a nice relationship
+
+46:42.260 --> 46:45.940
+between their enterprise products and their community products.
+
+46:45.940 --> 46:48.900
+And in the community space specifically, I think one of the things that SUSE is doing
+
+46:48.900 --> 46:53.660
+extremely well, I should say openSUSE to be clear here, is doing extremely well is they
+
+46:53.660 --> 46:58.780
+have Leap for your server and Tumbleweed for your desktop or your laptop.
+
+46:58.780 --> 47:02.340
+And they even have Micro for like a real minimal viable server install.
+
+47:02.340 --> 47:06.700
+So they have this really nice suite where it's all very familiar.
+
+47:06.700 --> 47:09.820
+If you learn one, it's totally transferable to the other.
+
+47:09.820 --> 47:10.820
+And that really appealed.
+
+47:10.820 --> 47:12.620
+And we were wondering, could it replace Arch for us?
+
+47:12.620 --> 47:17.580
+But at the end of the day, it just felt like there was too much that was old school Linux
+
+47:17.580 --> 47:22.980
+for us, specifically when it came to proprietary video card driver management and Yast.
+
+47:22.980 --> 47:26.980
+But Caleb wrote in and said, I love the show, but I was disheartened with your experience
+
+47:26.980 --> 47:27.980
+with openSUSE.
+
+47:27.980 --> 47:29.100
+Obviously, you'd make a valid point.
+
+47:29.100 --> 47:32.220
+The documentation is terrible, but they are working on it.
+
+47:32.220 --> 47:37.900
+And they point us to t.me slash openSUSE underscore docs if anybody wants to help.
+
+47:37.900 --> 47:44.260
+But Caleb suggests we try out OPI, I think OPI, you think that's OPI or OPUS?
+
+47:44.260 --> 47:49.940
+I like OPI because it's just a cute name, but it stands for OBS Package Installer.
+
+47:49.940 --> 47:53.420
+Search and install almost all packages available for openSUSE and SLE.
+
+47:53.420 --> 47:55.060
+Hey, yeah, that sounds pretty handy.
+
+47:55.060 --> 47:59.900
+I think that's interesting, and it's kind of like it's answering that AUR question and
+
+47:59.900 --> 48:04.220
+tying in OBS, which seems like it really should be just more integrated in because it's such
+
+48:04.220 --> 48:05.540
+a great service.
+
+48:05.540 --> 48:09.420
+But they wrap up with, lastly, I'd like to make an argument about Yast.
+
+48:09.420 --> 48:12.580
+OpenSUSE definitely should be clear about who it's intended for.
+
+48:12.580 --> 48:16.860
+Although Linux-y ways of doing things are still there for experienced users, as a sysadmin,
+
+48:16.860 --> 48:18.540
+I can tell you it really isn't for me.
+
+48:18.540 --> 48:22.500
+Nowadays, even small companies like the one I work for have dozens of servers, bare metal,
+
+48:22.500 --> 48:23.980
+containers, VMs, etc.
+
+48:23.980 --> 48:27.780
+No one in their right mind manages those with Yast over SSH or whatever.
+
+48:27.780 --> 48:30.060
+That's a great point.
+
+48:30.060 --> 48:34.220
+Who I think Yast is great for is a power user or a sysadmin who is not familiar with Linux.
+
+48:34.220 --> 48:37.940
+Yast does a great job of showing you what is possible in the OS and making it easy.
+
+48:37.940 --> 48:41.380
+Yast, building a software RAID array, and Yast doesn't directly equate to the knowledge
+
+48:41.380 --> 48:42.900
+of how to do that in RHEL.
+
+48:42.900 --> 48:47.740
+The user does know that it's possible, though, and maybe what it should look like.
+
+48:47.740 --> 48:49.220
+Interesting defense.
+
+48:49.220 --> 48:52.820
+After we wrapped up the show last week, Neil pointed out that it's actually possible to
+
+48:52.820 --> 48:58.340
+run OpenSUSE and remove Yast, which I figured would be like a package dependency bomb that
+
+48:58.340 --> 48:59.500
+would just destroy your system.
+
+48:59.500 --> 49:00.500
+Right.
+
+49:00.500 --> 49:02.700
+It feels so integrated into everything.
+
+49:02.700 --> 49:04.460
+I do like that defense, though, honestly.
+
+49:04.460 --> 49:08.660
+I think there is a class of user where, especially maybe you're just trying out Linux, you're
+
+49:08.660 --> 49:12.180
+an admin in your day job doing Windows or something, where you're used to this very
+
+49:12.180 --> 49:17.500
+structured environment, lots of GUIs to click for, lots of that kind of deep system integration.
+
+49:17.500 --> 49:19.420
+Maybe Yast is just what you're looking for.
+
+49:19.420 --> 49:23.540
+And if Neil's right here, and he usually is, we can just rip that out for folks that are
+
+49:23.540 --> 49:25.620
+more experienced or just want to do it on your own.
+
+49:25.620 --> 49:27.780
+Okay, maybe I need to give that a try.
+
+49:27.780 --> 49:31.740
+And then perpetuating the cycle that always puts us off from ever talking about OpenSUSE
+
+49:31.740 --> 49:35.180
+and probably also makes it hard for us to enjoy it.
+
+49:35.180 --> 49:39.700
+Of course, I had people that were berating me on Twitter, number one troll, of course,
+
+49:39.700 --> 49:44.900
+being Richard Brown, who said that I've had people like him provide extensive, quote,
+
+49:44.900 --> 49:50.180
+feedback on my, quote, misunderstandings and, quote, false assumptions, end quote, about
+
+49:50.180 --> 49:56.140
+OpenSUSE over the years, yet I, quote, stubbornly beat the same false drum.
+
+49:56.140 --> 50:01.500
+He is just bored of my rhetoric at this point, which I thought that was really, if that isn't
+
+50:01.500 --> 50:04.420
+quintessentially just a perfect example.
+
+50:04.420 --> 50:09.620
+You know, Richard Brown also publicly said I was in the pocket of big ZFS years ago when
+
+50:09.620 --> 50:11.820
+I criticized ButterFS when it wasn't that great.
+
+50:11.820 --> 50:12.820
+Do you remember that?
+
+50:12.820 --> 50:13.820
+That was a cute one.
+
+50:13.820 --> 50:18.900
+And of course, as he, even though he publicly said I was in the pocket of big ZFS, whatever
+
+50:18.900 --> 50:23.500
+the hell that might be, he hasn't given me any credit for my Evolve stance on ButterFS
+
+50:23.500 --> 50:25.580
+as the file system has improved.
+
+50:25.580 --> 50:29.060
+Hmm, that's interesting.
+
+50:29.060 --> 50:33.060
+And it's this kind of language, like when he says that me saying that I don't like to use
+
+50:33.060 --> 50:38.700
+Yast or that I find Zipper slow, that that's rhetoric and false assumptions about Suse.
+
+50:38.700 --> 50:45.980
+You know, he's saying he's using this language like rhetoric at a time when things are really
+
+50:45.980 --> 50:48.180
+not great in the States.
+
+50:48.180 --> 50:52.020
+And the words like rhetoric have a lot of meaning and a lot of power right now.
+
+50:52.020 --> 50:57.800
+And it feels like it's a missed place kind of energy and anger that's coming at me.
+
+50:57.800 --> 51:05.380
+And it's always kind of been this kind of arrogant stubbornness that has kind of radiated
+
+51:05.380 --> 51:09.700
+out from the project by folks like Richard Brown, and even though he's less involved
+
+51:09.700 --> 51:16.240
+now, he still seems to be kind of still creating that same persona around the project because,
+
+51:16.240 --> 51:22.500
+you know, these words I'm speaking now are going to be heard by tens and tens and tens
+
+51:22.500 --> 51:24.260
+of thousands of people.
+
+51:24.260 --> 51:26.800
+His tweet is going to be seen by a couple of people.
+
+51:26.800 --> 51:29.980
+So what does he think he's accomplishing with this kind of rhetoric and attack?
+
+51:29.980 --> 51:33.080
+And using this kind of language, it only escalates the situation.
+
+51:33.080 --> 51:36.740
+And it doesn't welcome anybody in to say your experiences are wrong.
+
+51:36.740 --> 51:40.040
+He's denying me my own personal experiences in this tweet.
+
+51:40.040 --> 51:41.420
+That's what stuck out to me, right?
+
+51:41.420 --> 51:45.580
+Because I think we were legitimately trying, whether or not you liked our take or not,
+
+51:45.580 --> 51:49.540
+to come at this with an open mind and sort of as a new people who had not used open Suse
+
+51:49.540 --> 51:52.620
+for quite some time and just get the experience.
+
+51:52.620 --> 51:55.820
+And many people have pointed out the things that we missed or, you know, as some people
+
+51:55.820 --> 51:58.980
+have said, like, no one really uses yes, like, what are you talking about?
+
+51:58.980 --> 52:01.180
+But that was our experience just getting into it.
+
+52:01.180 --> 52:03.980
+And we don't have the inside community perspective.
+
+52:03.980 --> 52:06.820
+I don't think we were trying to say, like, this is the truth.
+
+52:06.820 --> 52:08.500
+This was just our experience.
+
+52:08.500 --> 52:09.500
+Yeah.
+
+52:09.500 --> 52:14.460
+And, and I think to say my experience is a misunderstanding or a false assumption is
+
+52:14.460 --> 52:15.460
+unfair to me.
+
+52:15.460 --> 52:17.420
+My experience is that zipper is slow.
+
+52:17.420 --> 52:22.220
+And my experience is that Yas kind of adds a complicated layer to managing Linux that
+
+52:22.220 --> 52:26.340
+makes it unique experience to Suse only, which presents non transferable skills to other
+
+52:26.340 --> 52:27.340
+distributions.
+
+52:27.340 --> 52:30.780
+And, I mean, maybe that's a false assumption, but it's, it's my experience.
+
+52:30.780 --> 52:32.180
+It's the way I see the world.
+
+52:32.180 --> 52:33.940
+And I don't like that he's shutting it down like that.
+
+52:33.940 --> 52:37.900
+But Neil, I don't know if you want to wait in the middle of this before we wrap this
+
+52:37.900 --> 52:38.900
+up.
+
+52:38.900 --> 52:42.140
+And I don't really want to turn this into a big Suse bashing thing because I think it's
+
+52:42.140 --> 52:45.220
+actually a pretty great project and they got a little, a lot of great tech and engineers
+
+52:45.220 --> 52:46.220
+there.
+
+52:46.220 --> 52:48.420
+Well, I don't want to bash open Suse either.
+
+52:48.420 --> 52:53.180
+I mean, I'm heavily involved in the project, so it would be pretty bad if I did.
+
+52:53.180 --> 52:58.260
+I think there is plenty of fair criticisms about how people have generally approached
+
+52:58.260 --> 52:59.340
+open Suse over the years.
+
+52:59.340 --> 53:05.140
+I mean, and I think it's, it's somewhat fair to say that Chris, a lot of your approach
+
+53:05.140 --> 53:10.300
+to open Suse over the past five or so years has been influenced or colored by previous
+
+53:10.300 --> 53:14.500
+experiences using it professionally, which I think is fine and fair.
+
+53:14.500 --> 53:20.340
+But at the same time, it's also important to acknowledge that people who are longstanding
+
+53:20.340 --> 53:24.420
+in the open Suse project who have been using open Suse for a very long time.
+
+53:24.420 --> 53:29.880
+Like if you saw the end of the year survey, the majority of people who have been using
+
+53:29.880 --> 53:35.060
+open Suse have been using it for a decade or longer and are like twice my age, which
+
+53:35.060 --> 53:38.800
+is pretty insane when you think about it.
+
+53:38.800 --> 53:44.420
+And that means that maybe the other part that's missing is just a lack of fresh perspective
+
+53:44.420 --> 53:46.620
+on the project as a whole.
+
+53:46.620 --> 53:52.180
+And that kind of dovetails into what you said about Zipper being, it felt slower to you.
+
+53:52.180 --> 53:58.140
+This morning we actually, there was a mailing list post that empirically said on open Suse
+
+53:58.140 --> 54:02.620
+itself in a CI environment for a specific test case, mind you, like it's not proven
+
+54:02.620 --> 54:07.680
+across the board or whatever, but like for this specific test case, we found that Zipper
+
+54:07.680 --> 54:14.220
+was twice as slow as DNF for the same workload, for the same installation transaction.
+
+54:14.220 --> 54:15.780
+And I understand why that is.
+
+54:15.780 --> 54:18.740
+Like I don't want to get into the details cause it's kind of mind numbing and boring
+
+54:18.740 --> 54:25.100
+for most people, but it's important to recognize that you have to continue to figure out how
+
+54:25.100 --> 54:29.420
+to evolve and to support a growing community over time.
+
+54:29.420 --> 54:34.060
+And perhaps some of the issue here is that a lot of the folks in the open Suse community
+
+54:34.060 --> 54:39.960
+feel super defensive about their choice in the same way that, you know, 10 years ago,
+
+54:39.960 --> 54:45.080
+people used to be the same way about Arch and Suse and Mandriva and Magia users.
+
+54:45.080 --> 54:50.820
+They're all in that boat now where people often criticize them for their choice rather
+
+54:50.820 --> 54:55.460
+than embracing them and helping them turn into people that can help make their choice
+
+54:55.460 --> 54:56.820
+of distributions better.
+
+54:56.820 --> 54:57.820
+Yep.
+
+54:57.820 --> 54:58.980
+I can totally, I could totally kind of see that.
+
+54:58.980 --> 55:00.700
+I think that's a really fair point.
+
+55:00.700 --> 55:04.300
+I hope that they are able to attract new blood cause it sounds like that may be an issue
+
+55:04.300 --> 55:06.940
+for the project if that many people haven't have been using it for that long.
+
+55:06.940 --> 55:10.260
+But we, uh, you know, I, we keep an eye on it.
+
+55:10.260 --> 55:15.060
+It just, it seems like too, we, I think there has to be room for different distros for different
+
+55:15.060 --> 55:16.060
+folks.
+
+55:16.060 --> 55:17.420
+Yes, definitely.
+
+55:17.420 --> 55:19.300
+And I think that's where Suse falls down for us.
+
+55:19.300 --> 55:20.960
+It's like, it's not that it doesn't work.
+
+55:20.960 --> 55:23.100
+It's not that it's some pile of garbage.
+
+55:23.100 --> 55:27.180
+It's just not the distro for us and the way we've learned to work in the Linux ecosystem
+
+55:27.180 --> 55:31.100
+over a long time because we, we, we now we've been doing this for a while.
+
+55:31.100 --> 55:34.940
+Somebody coming in new and fresh, uh, like Kayla pointed out in the email that maybe
+
+55:34.940 --> 55:40.380
+doesn't know how to do something in Linux, but just wants to know it can be done or maybe
+
+55:40.380 --> 55:42.060
+needs to learn it's possible.
+
+55:42.060 --> 55:43.060
+Yes.
+
+55:43.060 --> 55:44.060
+Provides that functionality.
+
+55:44.060 --> 55:49.300
+I mean, there was a period of time when I was using Yast to connect my, uh, Sles storage
+
+55:49.300 --> 55:52.020
+servers to a, to a windows domain.
+
+55:52.020 --> 55:57.380
+And I knew how to do it on the command line using all the tools.
+
+55:57.380 --> 56:03.220
+But over time it just became a lot nicer and quicker to just go into Yast and if I install
+
+56:03.220 --> 56:08.020
+that module, if I hadn't, if I didn't have it installed, put the credentials in and let
+
+56:08.020 --> 56:09.680
+it just do its thing.
+
+56:09.680 --> 56:11.780
+And I use the hell out of that.
+
+56:11.780 --> 56:16.100
+And I told, so I can totally relate to somebody who maybe isn't particularly familiar with
+
+56:16.100 --> 56:19.540
+the process, being able to rely on Yast and knowing it's getting done right.
+
+56:19.540 --> 56:21.460
+That's just not where I'm at anymore.
+
+56:21.460 --> 56:22.460
+And that's just my experience.
+
+56:22.460 --> 56:26.420
+But anyways, let's move on because we had somebody write in that suggested that we try
+
+56:26.420 --> 56:27.420
+out Alpine.
+
+56:27.420 --> 56:31.660
+Jordan says, uh, I know you guys never really had a personal use case for it, but one that
+
+56:31.660 --> 56:36.140
+I found for Alpine that nothing else can do is custom install media.
+
+56:36.140 --> 56:37.140
+Just for fun.
+
+56:37.140 --> 56:38.140
+Here's what I did.
+
+56:38.140 --> 56:39.140
+I built a chroot on arch.
+
+56:39.140 --> 56:40.820
+I use it to make a custom ISO.
+
+56:40.820 --> 56:44.980
+Then I boot the ISO in a VM, configure the network, save the changes with Alpine LBU.
+
+56:44.980 --> 56:47.620
+And then I boot that ISO with the LBU changes on real hardware.
+
+56:47.620 --> 56:48.620
+Boom.
+
+56:48.620 --> 56:50.580
+I have my own install image factory.
+
+56:50.580 --> 56:57.700
+The biggest drawback is that it uses M U S L. Oh, instead of G lib C. Mm hmm.
+
+56:57.700 --> 57:01.340
+He goes on to say the area where this is an issue is proprietary applications.
+
+57:01.340 --> 57:06.780
+There is a compatibility layer for G lib C libraries, but I haven't tried steam yet.
+
+57:06.780 --> 57:08.380
+Oh wow.
+
+57:08.380 --> 57:10.420
+Alpine on the desktop.
+
+57:10.420 --> 57:12.180
+All right.
+
+57:12.180 --> 57:16.700
+What I like about this feedback was that Jordan clearly got some of our perspective, you know,
+
+57:16.700 --> 57:19.620
+just that Alpine is conceptually similar to arch.
+
+57:19.620 --> 57:24.660
+They write and that I like to think of it as a smaller, simpler arch.
+
+57:24.660 --> 57:28.260
+What stuck with me there is that clearly they picked up on what we wanted from arch was
+
+57:28.260 --> 57:32.300
+this sort of simple base, very lean and mean, and that we could actually just have an understanding
+
+57:32.300 --> 57:35.660
+of everything that was going on, especially for the arch server.
+
+57:35.660 --> 57:40.500
+He, I think, I think he's right though that, Hey, maybe we should try Alpine in a few more
+
+57:40.500 --> 57:41.500
+places.
+
+57:41.500 --> 57:42.500
+See where it fits.
+
+57:42.500 --> 57:43.500
+Yeah.
+
+57:43.500 --> 57:44.500
+That minimum viable server really is what appeals to us.
+
+57:44.500 --> 57:49.100
+And you can kind of see why maybe SUSE doesn't necessarily appeal to us because what we want
+
+57:49.100 --> 57:55.220
+is just the bare bare minimum where Wes and I can actually articulate to you the applications
+
+57:55.220 --> 57:59.640
+that are installed because it's Samba and net data and everything else is in a container.
+
+57:59.640 --> 58:03.220
+We can articulate to you the file system layout, everything because we built it with our own
+
+58:03.220 --> 58:07.500
+hands and we only installed the packages we absolutely had to have.
+
+58:07.500 --> 58:11.220
+And that's one of the ways we think maybe we've been a little more successful now with
+
+58:11.220 --> 58:16.020
+arch on the server is switching to the LTS kernel and really keeping that base install
+
+58:16.020 --> 58:17.620
+super, super minimal.
+
+58:17.620 --> 58:22.380
+I also like it as a way for, you know, there's lots of stuff that arch or Alpine are similar.
+
+58:22.380 --> 58:25.740
+They don't set up for you or maybe they give you documentation about how to set up.
+
+58:25.740 --> 58:30.000
+And I, I like us having to either figure out how to do that or not do that and skip it
+
+58:30.000 --> 58:33.380
+and live with the results because it also gives you a nice window into some of the stuff
+
+58:33.380 --> 58:36.940
+you might get for free on a more fully featured distro like Fedora or Ubuntu.
+
+58:36.940 --> 58:37.940
+Yeah.
+
+58:37.940 --> 58:40.620
+And I think there's a, probably a future episode out there.
+
+58:40.620 --> 58:45.800
+If we remember to wear our flame retardant pants, where we try out something like a micro
+
+58:45.800 --> 58:49.640
+or some of the just enough OS stuff, maybe if it's possible to run on the raspberry PI
+
+58:49.640 --> 58:53.620
+cause it seems like that'd be a great candidate for that kind of SUSE distro.
+
+58:53.620 --> 58:57.100
+So I could see future content depending on what we get in feedback and the people are
+
+58:57.100 --> 58:58.260
+interested in that kind of stuff.
+
+58:58.260 --> 59:03.380
+I'm kind of thinking, Wes, we do a kind of a pick feedback special next week cause we've
+
+59:03.380 --> 59:07.540
+got a lot of really good feedback that we haven't been able to get to, including some
+
+59:07.540 --> 59:11.900
+follow up on mail spring, which I am now back again using since we heard the developer pop
+
+59:11.900 --> 59:12.900
+his head up.
+
+59:12.900 --> 59:13.900
+Yeah.
+
+59:13.900 --> 59:16.020
+I'm using mail spring again for my email, but I want to follow up more on that later
+
+59:16.020 --> 59:17.820
+cause we got some email to that.
+
+59:17.820 --> 59:19.500
+We also got some people that got predictions in.
+
+59:19.500 --> 59:24.500
+So I want to get those in while we can while we're still within January and a lot more.
+
+59:24.500 --> 59:28.940
+So Wes, let's just jump to the pics and promise to do more feedback next week.
+
+59:28.940 --> 59:33.060
+Now you may have noticed I've been thinking a lot about GPUs this week.
+
+59:33.060 --> 59:37.660
+I don't know if that came across and while I was looking at what the hell's going on
+
+59:37.660 --> 59:44.780
+between my X1 and the XPS 13 and of course my desktop, I wanted something that's like
+
+59:44.780 --> 59:48.460
+that that utility that tells you everything about your processor that I forget what it's
+
+59:48.460 --> 59:50.860
+called like X CPU or whatever.
+
+59:50.860 --> 59:56.500
+Now there's GPU viewer and it's a front end to GLX info, Vulcan info, CLI info and ES2
+
+59:56.500 --> 01:00:00.660
+info and it puts it all in a fairly decent way.
+
+01:00:00.660 --> 01:00:02.180
+It's not beautiful.
+
+01:00:02.180 --> 01:00:03.300
+I won't call it pretty.
+
+01:00:03.300 --> 01:00:04.300
+Yeah.
+
+01:00:04.300 --> 01:00:08.300
+That was my main takeaway here, but it's a lot simpler to navigate than having to know
+
+01:00:08.300 --> 01:00:11.900
+all the commands and then figure out like paging in your terminal, especially if you're
+
+01:00:11.900 --> 01:00:15.580
+new to this stuff and just want to figure out what's on your system and get to playing
+
+01:00:15.580 --> 01:00:16.580
+games.
+
+01:00:16.580 --> 01:00:17.580
+Yeah.
+
+01:00:17.580 --> 01:00:18.580
+Is my Vulcan support working?
+
+01:00:18.580 --> 01:00:22.100
+Am I using the accelerated GPU or am I using the open source driver?
+
+01:00:22.100 --> 01:00:25.300
+These questions are immediately obvious to you with this tool and there's lots of ways
+
+01:00:25.300 --> 01:00:30.260
+to get that info, but the nice thing about GPU viewer is you also get the nitty gritty
+
+01:00:30.260 --> 01:00:36.140
+details like the specific driver version information and the exact video card that's detected and
+
+01:00:36.140 --> 01:00:40.620
+the amount of hardware information that the thing can extract for your video card and
+
+01:00:40.620 --> 01:00:45.700
+then all of the other kind of like supported 3D features in Vulcan and OpenGL and it's
+
+01:00:45.700 --> 01:00:49.020
+just a nice tool for troubleshooting graphics in general and so it's called GPU-Viewer.
+
+01:00:49.020 --> 01:00:55.220
+We'll have a link in the show notes at linuxunplugged.com.388 or you can probably find it on GitHub because
+
+01:00:55.220 --> 01:00:56.220
+that's where it is.
+
+01:00:56.220 --> 01:00:57.220
+It's on GitHub.
+
+01:00:57.220 --> 01:00:58.220
+It's on GitHub.
+
+01:00:58.220 --> 01:01:01.300
+It's packaged in Ubuntu 2010 and a few other places or you can install it since it's just
+
+01:01:01.300 --> 01:01:02.340
+a simple Python app.
+
+01:01:02.340 --> 01:01:09.540
+So easy to get a shout out to our core contributors, unpluggedcore.com.
+
+01:01:09.540 --> 01:01:12.420
+They really are the hawks of this show.
+
+01:01:12.420 --> 01:01:14.300
+They really they held in there.
+
+01:01:14.300 --> 01:01:18.300
+I announced last week that we had this bug where people who used the founder promo were
+
+01:01:18.300 --> 01:01:24.140
+not getting renewed and so we had this renewal failure rate that was like 52% or it was getting
+
+01:01:24.140 --> 01:01:25.140
+pretty bad.
+
+01:01:25.140 --> 01:01:26.640
+It was getting worse by the day.
+
+01:01:26.640 --> 01:01:32.100
+Well I'm happy to say that the bug's been fixed and like 97% of anyone who ever used
+
+01:01:32.100 --> 01:01:33.940
+the founder code has got the discount reapplied.
+
+01:01:33.940 --> 01:01:35.660
+You don't have to do a dang thing.
+
+01:01:35.660 --> 01:01:39.600
+So if you sat back and didn't do anything, well your procrastinating paid off because
+
+01:01:39.600 --> 01:01:41.580
+they fixed it for you.
+
+01:01:41.580 --> 01:01:46.020
+But I am still, for anybody who may have slipped through the cracks because 97% is not 100%
+
+01:01:46.020 --> 01:01:51.020
+and anybody else who wants to lock in a membership for this show and get access to the benefit
+
+01:01:51.020 --> 01:01:55.180
+goodies, I'm keeping that promo code 2021 going for a bit and that will take two bucks
+
+01:01:55.180 --> 01:01:56.180
+off.
+
+01:01:56.180 --> 01:01:59.060
+Just doing that for a little while, kind of like a happy new year's deal.
+
+01:01:59.060 --> 01:02:03.100
+Then you get access to our feeds, either the limited ad version of the show, the same full
+
+01:02:03.100 --> 01:02:07.540
+production, the version that really sounds good in the car or the one that had the Joe
+
+01:02:07.540 --> 01:02:08.540
+touch.
+
+01:02:08.540 --> 01:02:09.540
+And then there's also the bootleg feed.
+
+01:02:09.540 --> 01:02:13.900
+The full live version, all our screw ups, the stuff that never makes it into the show.
+
+01:02:13.900 --> 01:02:16.220
+If you can't join live, that's the one you want.
+
+01:02:16.220 --> 01:02:18.260
+Yeah, it has that live experience, man.
+
+01:02:18.260 --> 01:02:21.860
+You can put it up on the TV and like, you know, be working in the kitchen and you would
+
+01:02:21.860 --> 01:02:24.140
+feel like you're listening to a live show.
+
+01:02:24.140 --> 01:02:26.180
+You get the full pre and post show.
+
+01:02:26.180 --> 01:02:27.420
+It's basically like a whole other show.
+
+01:02:27.420 --> 01:02:29.100
+It really is.
+
+01:02:29.100 --> 01:02:33.420
+And we got a couple of shout outs from diehards that make it through the entire file because
+
+01:02:33.420 --> 01:02:35.940
+it's much, much longer than the main show.
+
+01:02:35.940 --> 01:02:41.180
+And that's all available to anybody who wants to support us at unpluggedcore.com.
+
+01:02:41.180 --> 01:02:44.600
+Mr. Payne, also, I want to mention that our friends over at a Cloud Guru have a Red Hat
+
+01:02:44.600 --> 01:02:48.260
+certified administrator exam prep course that you can take.
+
+01:02:48.260 --> 01:02:49.260
+Oh, ho, ho.
+
+01:02:49.260 --> 01:02:50.260
+Nice.
+
+01:02:50.260 --> 01:02:51.260
+Yes.
+
+01:02:51.260 --> 01:02:55.580
+And in this course, they cover like the concepts necessary to pass the Red Hat exam using a
+
+01:02:55.580 --> 01:02:57.700
+mix of lessons and hands on labs.
+
+01:02:57.700 --> 01:03:00.340
+And then at the end, you put it all together with a challenge lab.
+
+01:03:00.340 --> 01:03:03.820
+And I know people have emailed into the show asking about certifications and which ones
+
+01:03:03.820 --> 01:03:05.480
+on a Cloud Guru we recommend.
+
+01:03:05.480 --> 01:03:06.480
+This is the one.
+
+01:03:06.480 --> 01:03:10.340
+And so we'll put a link to that in the show notes because I guess a lot of people have
+
+01:03:10.340 --> 01:03:12.100
+New Year's resolutions out there.
+
+01:03:12.100 --> 01:03:14.880
+So check out the Red Hat certified system administrator exam prep.
+
+01:03:14.880 --> 01:03:17.940
+That's the one we recommend for that particular path if that's where you're going.
+
+01:03:17.940 --> 01:03:22.980
+And we'll have a link to that specific one in the show notes so you can get it at a cloudguru.com.
+
+01:03:22.980 --> 01:03:27.900
+And then we'll hold, I think, the rest of the feedback, Wes, for next show because I
+
+01:03:27.900 --> 01:03:29.820
+think we'll just do a feedback special.
+
+01:03:29.820 --> 01:03:31.600
+So we got to some of it.
+
+01:03:31.600 --> 01:03:33.300
+But I think that's what the plan is.
+
+01:03:33.300 --> 01:03:34.460
+So do join us next week.
+
+01:03:34.460 --> 01:03:36.180
+See you next week.
+
+01:03:36.180 --> 01:03:38.780
+Same bad time, same bad station.
+
+01:03:38.780 --> 01:03:42.620
+And now is a great time to get any feedback you might have Linux Unplugged dot com slash
+
+01:03:42.620 --> 01:03:45.820
+contact and hey, maybe we'll include it in next week's show.
+
+01:03:45.820 --> 01:03:46.820
+Good point.
+
+01:03:46.820 --> 01:03:47.820
+Look at you.
+
+01:03:47.820 --> 01:03:48.820
+That's the hack, right?
+
+01:03:48.820 --> 01:03:51.260
+You got something you've been wanting to get in and now you know we're looking at the feedback
+
+01:03:51.260 --> 01:03:52.260
+in particular.
+
+01:03:52.260 --> 01:03:53.260
+Now's the time.
+
+01:03:53.260 --> 01:03:54.260
+You can just get it in.
+
+01:03:54.260 --> 01:03:56.300
+You can join us live at jblive.tv.
+
+01:03:56.300 --> 01:04:00.520
+We do the show at noon Pacific, 3 p.m. Eastern or get it on a download.
+
+01:04:00.520 --> 01:04:04.380
+You can find the feeds for that at Linux Unplugged dot com slash subscribe.
+
+01:04:04.380 --> 01:04:07.580
+And like I said, links to everything we talked about today at Linux Unplugged dot com slash
+
+01:04:07.580 --> 01:04:08.580
+three eight eight.
+
+01:04:08.580 --> 01:04:35.460
+Thanks for joining us and we'll see you right back here next Tuesday.
+
+01:04:38.580 --> 01:04:49.500
+All right, JB titles dot com.
+
+01:04:49.500 --> 01:04:50.500
+Let's go.
+
+01:04:50.500 --> 01:04:52.500
+And I know we don't have a lot of time.
+
+01:04:52.500 --> 01:04:56.180
+I wanted to kind of make this a slightly shorter episode because we've been going long.
+
+01:04:56.180 --> 01:05:00.020
+But I did want to actually get this on air because it's something I've been meaning to
+
+01:05:00.020 --> 01:05:04.540
+talk about and haven't had a place to like talk about it or troubleshoot with you guys.
+
+01:05:04.540 --> 01:05:05.540
+So JB titles dot com.
+
+01:05:05.540 --> 01:05:06.540
+Go boat.
+
+01:05:06.540 --> 01:05:08.660
+Chris has some technical troubles.
+
+01:05:08.660 --> 01:05:13.300
+Yeah, I'm having some fedora woes and it's nothing that's like it's not going to like
+
+01:05:13.300 --> 01:05:14.940
+it's not a deal breaker.
+
+01:05:14.940 --> 01:05:20.900
+But I have this weird problem where all of my flat pack apps have vanished from Plasma's
+
+01:05:20.900 --> 01:05:21.900
+purview.
+
+01:05:21.900 --> 01:05:24.900
+My launcher, my menu, K runner, what it cannot find them.
+
+01:05:24.900 --> 01:05:25.900
+They don't exist.
+
+01:05:25.900 --> 01:05:27.680
+I can still execute them on the command line.
+
+01:05:27.680 --> 01:05:31.900
+And if I search for them and discover and then go to their entry, I can launch them.
+
+01:05:31.900 --> 01:05:33.340
+So they still register.
+
+01:05:33.340 --> 01:05:34.340
+They're there.
+
+01:05:34.340 --> 01:05:35.920
+They're just not there.
+
+01:05:35.920 --> 01:05:36.980
+But they're otherwise unknown.
+
+01:05:36.980 --> 01:05:40.420
+And while they are running, I cannot right click and say pin to taskbar.
+
+01:05:40.420 --> 01:05:42.460
+I cannot add them to the menu.
+
+01:05:42.460 --> 01:05:44.540
+I cannot do it just the I can.
+
+01:05:44.540 --> 01:05:48.120
+The option is it just you check it and nothing happens.
+
+01:05:48.120 --> 01:05:51.880
+They just and then I close them and they are they are completely unfindable unless I do
+
+01:05:51.880 --> 01:05:55.220
+the flat pack execute command or I launch discover again.
+
+01:05:55.220 --> 01:05:58.260
+And here's and so I don't know what that's about, but and I don't know if this problem
+
+01:05:58.260 --> 01:05:59.260
+is related.
+
+01:05:59.260 --> 01:06:00.260
+I don't think so.
+
+01:06:00.260 --> 01:06:07.020
+There's a separate kind of software discover issue where I will do a DNF upgrade, you know,
+
+01:06:07.020 --> 01:06:09.060
+update whatever, and I'll update all my packages.
+
+01:06:09.060 --> 01:06:12.260
+I'll get tons and tons and tons and tons of stuff installed because Fedora's always got
+
+01:06:12.260 --> 01:06:13.940
+lots of goodies.
+
+01:06:13.940 --> 01:06:19.420
+And then I'll reboot and I'll log in and I'll get the plasma notification that I have 14
+
+01:06:19.420 --> 01:06:20.420
+updates available.
+
+01:06:20.420 --> 01:06:21.420
+So I'll do a DNF update.
+
+01:06:21.420 --> 01:06:22.980
+It'll say no packages available.
+
+01:06:22.980 --> 01:06:25.100
+So then I do a I'll do a flat pack update.
+
+01:06:25.100 --> 01:06:26.620
+It'll say no updates available.
+
+01:06:26.620 --> 01:06:31.820
+I open up discover and there's like 14 packages in there, including like what looked like
+
+01:06:31.820 --> 01:06:34.960
+to be just system packages.
+
+01:06:34.960 --> 01:06:35.960
+And then I do the update.
+
+01:06:35.960 --> 01:06:37.620
+So then so that happened one time.
+
+01:06:37.620 --> 01:06:42.020
+Now the flip side has happened where I go and discover it says there's no updates.
+
+01:06:42.020 --> 01:06:43.020
+I launched DNF.
+
+01:06:43.020 --> 01:06:47.500
+It says there's updates and that they just don't agree like in none of them agree, but
+
+01:06:47.500 --> 01:06:49.740
+they seem to be installing some of the same stuff.
+
+01:06:49.740 --> 01:06:51.080
+And it's really strange.
+
+01:06:51.080 --> 01:06:54.500
+So I'll do a DNF update on the command line, reboot and then get a notification.
+
+01:06:54.500 --> 01:06:55.860
+Hey, you got more packages.
+
+01:06:55.860 --> 01:06:56.860
+I go and discover.
+
+01:06:56.860 --> 01:06:57.860
+I do an update.
+
+01:06:57.860 --> 01:06:59.140
+And it's not just flat packs.
+
+01:06:59.140 --> 01:07:00.220
+I know what you're talking about.
+
+01:07:00.220 --> 01:07:01.220
+I know what's happening.
+
+01:07:01.220 --> 01:07:02.220
+Different cache.
+
+01:07:02.220 --> 01:07:05.100
+Yeah, there's two separate caches right now.
+
+01:07:05.100 --> 01:07:09.300
+So one of the problems that we have right now and this is something I've been on the
+
+01:07:09.300 --> 01:07:15.180
+on my spare time trying to figure out how to fix because I'm one of the by virtue of
+
+01:07:15.180 --> 01:07:16.180
+happenstance.
+
+01:07:16.180 --> 01:07:19.140
+I'm now one of the maintainers of package kit upstream.
+
+01:07:19.140 --> 01:07:22.420
+I have been trying to figure out how to synchronize.
+
+01:07:22.420 --> 01:07:26.600
+Basically the problem is because package kit and DNF don't expose APIs between each other
+
+01:07:26.600 --> 01:07:31.700
+to lock the database while it is refreshing and pulling in stuff.
+
+01:07:31.700 --> 01:07:34.540
+It can only do a lock when it's applying a transaction.
+
+01:07:34.540 --> 01:07:40.900
+The fix quote unquote was to make it so that they fetch caches independently to avoid races
+
+01:07:40.900 --> 01:07:42.840
+and all kinds of stupid stuff.
+
+01:07:42.840 --> 01:07:47.460
+Like back in the days when we were using yum, everything was piped through the yum tool.
+
+01:07:47.460 --> 01:07:50.460
+And what would happen occasionally is that when you ran the yum command, it would be
+
+01:07:50.460 --> 01:07:53.420
+like waiting for package kit to quit waiting for package.
+
+01:07:53.420 --> 01:07:54.660
+So can I ask you something?
+
+01:07:54.660 --> 01:07:56.020
+So what happens when?
+
+01:07:56.020 --> 01:08:02.060
+So I do a DNF update and I install all the upgrades and then I go and discover and I
+
+01:08:02.060 --> 01:08:03.380
+install all the updates there.
+
+01:08:03.380 --> 01:08:06.740
+Is it just reinstalling some of the same packages I just installed with DNF?
+
+01:08:06.740 --> 01:08:10.100
+Yeah, what's going on actually happens on the file system?
+
+01:08:10.100 --> 01:08:11.700
+Yeah, that's a good question.
+
+01:08:11.700 --> 01:08:15.660
+I think what actually happens is that it silently does nothing.
+
+01:08:15.660 --> 01:08:16.660
+Just chugs right along.
+
+01:08:16.660 --> 01:08:19.100
+What are you supposed to going on with the flat pack thing?
+
+01:08:19.100 --> 01:08:21.340
+Like all my flat pack desktop launchers are gone.
+
+01:08:21.340 --> 01:08:23.220
+I'm guessing you updated the plasma 525.
+
+01:08:23.220 --> 01:08:25.460
+Yeah, I always update like daily.
+
+01:08:25.460 --> 01:08:27.260
+Can't keep plasma away from him.
+
+01:08:27.260 --> 01:08:33.100
+I'm basically making that guess because like I've heard all kinds of random bonkers stuff
+
+01:08:33.100 --> 01:08:37.380
+from different people about the plasma 525 update just today.
+
+01:08:37.380 --> 01:08:41.260
+Like three different people have told me three different things that have gone wrong in 525
+
+01:08:41.260 --> 01:08:42.380
+and now I'm scared.
+
+01:08:42.380 --> 01:08:45.460
+It may be a little bit further back because I think this may have been going on.
+
+01:08:45.460 --> 01:08:48.420
+This has probably been going on for three weeks, two weeks, two weeks.
+
+01:08:48.420 --> 01:08:51.660
+Okay, so I wish I'd known this before because like I know I meant to bring it up to you
+
+01:08:51.660 --> 01:08:53.020
+last week, but I forgot.
+
+01:08:53.020 --> 01:08:55.060
+Okay, I think I know what's happening here.
+
+01:08:55.060 --> 01:09:02.460
+So what goes on for the flat pack stuff is that flat pack in order for the desktop files
+
+01:09:02.460 --> 01:09:07.900
+to show up in the desktop, what it does is it has a profile dot D snippet or environment
+
+01:09:07.900 --> 01:09:08.980
+D helper or something.
+
+01:09:08.980 --> 01:09:14.740
+I forget exactly what it is that tries to export a variable that adds the flat pack
+
+01:09:14.740 --> 01:09:20.700
+desktop file path to the search path so that when plasma starts up or gnome starts up or
+
+01:09:20.700 --> 01:09:24.820
+whatever, it'll read those additional desktop files because they're not installed in the
+
+01:09:24.820 --> 01:09:26.140
+same place as everything else is.
+
+01:09:26.140 --> 01:09:31.540
+I'm just saying if I wasn't using a flat pack, if I just installed a package from the AUR,
+
+01:09:31.540 --> 01:09:32.540
+this would not have happened.
+
+01:09:32.540 --> 01:09:33.540
+That's all I'm saying.
+
+01:09:33.540 --> 01:09:34.540
+That's all I'm saying.
+
+01:09:34.540 --> 01:09:45.980
+That's all I'm saying.
+

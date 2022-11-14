@@ -1,0 +1,5006 @@
+WEBVTT
+
+00:00.000 --> 00:02.000
+I don't know if we've talked about our clone before, Wes.
+
+00:02.000 --> 00:02.920
+Maybe we have.
+
+00:02.920 --> 00:04.760
+But I've been thinking about our clone again
+
+00:04.760 --> 00:07.840
+in the context of getting my stuff out of Google Photos.
+
+00:07.840 --> 00:09.720
+And I decided to give it a go.
+
+00:09.720 --> 00:12.840
+And it has this nice, I guess you could call it a wizard.
+
+00:12.840 --> 00:15.800
+It's a text-based thing that runs you
+
+00:15.800 --> 00:17.440
+through connecting to the various services,
+
+00:17.440 --> 00:19.240
+in this case, Google Photos.
+
+00:19.240 --> 00:21.600
+And then it does this little, I don't know
+
+00:21.600 --> 00:23.180
+if you'd call it a hack, but it does this little trick
+
+00:23.180 --> 00:25.120
+where it runs a local web server.
+
+00:25.120 --> 00:28.920
+It spins one up just to collect the Google authorization token
+
+00:28.920 --> 00:31.000
+that gets returned from Google.
+
+00:31.000 --> 00:34.000
+And then it immediately shuts down the web server,
+
+00:34.000 --> 00:35.400
+configures your permissions,
+
+00:35.400 --> 00:36.840
+and then you can just go in there
+
+00:36.840 --> 00:39.780
+and start copying down your Google Photos.
+
+00:39.780 --> 00:41.920
+It'll even do specific albums
+
+00:41.920 --> 00:43.760
+or things like that if you want.
+
+00:43.760 --> 00:45.900
+But I learned it's not exactly perfect.
+
+00:45.900 --> 00:47.360
+No, no, it's not.
+
+00:47.360 --> 00:49.200
+I mean, our clone is great.
+
+00:49.200 --> 00:51.880
+The issue is more on Google's side.
+
+00:51.880 --> 00:54.200
+So issue number one is right now,
+
+00:54.200 --> 00:57.200
+downloads strips the exif location.
+
+00:57.200 --> 00:59.400
+This is a known limitation of the API
+
+00:59.400 --> 01:00.960
+and there's an open bug about it,
+
+01:00.960 --> 01:03.440
+but who knows when that will get fixed.
+
+01:03.440 --> 01:04.560
+That's kind of a bummer.
+
+01:04.560 --> 01:05.600
+It sure is.
+
+01:05.600 --> 01:08.520
+But number two might be even worse
+
+01:08.520 --> 01:12.920
+because right now the API, which our clone uses,
+
+01:12.920 --> 01:15.640
+does not allow photos to be downloaded
+
+01:15.640 --> 01:18.020
+at their original resolution.
+
+01:18.020 --> 01:19.200
+So they might still be useful.
+
+01:19.200 --> 01:21.360
+You could still process them and post them on Instagram
+
+01:21.360 --> 01:22.320
+or whatever you're trying to do.
+
+01:22.320 --> 01:24.760
+But if you're trying to use this
+
+01:24.760 --> 01:27.440
+as a way to have Google Photos be your backup
+
+01:27.440 --> 01:31.000
+and then make a second copy of your backups,
+
+01:31.000 --> 01:32.000
+that might not work.
+
+01:32.000 --> 01:34.100
+And you might instead need to use something
+
+01:34.100 --> 01:36.120
+like Google Takeout.
+
+01:36.120 --> 01:39.580
+It's almost as if the best solution might be
+
+01:39.580 --> 01:41.760
+just don't use Google Photos.
+
+01:41.760 --> 01:55.600
+Hello friends and welcome back to your weekly Linux talk show.
+
+01:55.600 --> 01:56.600
+My name is Chris.
+
+01:56.600 --> 01:57.600
+My name is Wes.
+
+01:57.600 --> 01:58.600
+Hello Wes.
+
+01:58.600 --> 01:59.600
+It's good to be back from the Montana trip.
+
+01:59.600 --> 02:00.600
+This episode is brought to you by aCloud Guru.
+
+02:00.600 --> 02:02.480
+You know they are the leader in learning for Cloud Linux
+
+02:02.480 --> 02:03.640
+and other modern tech skills.
+
+02:03.640 --> 02:05.680
+Hundreds of courses and thousands of hands-on labs.
+
+02:05.680 --> 02:10.240
+Get certified, get hired, get learning at aCloudGuru.com.
+
+02:10.240 --> 02:14.320
+Coming up on the show today, are you, like me and Wes,
+
+02:14.320 --> 02:18.120
+having a hard time kicking the Google Photos habit?
+
+02:18.120 --> 02:20.480
+Maybe you're looking for a self-hostable alternative.
+
+02:20.480 --> 02:22.400
+They did just recently make a few changes
+
+02:22.400 --> 02:24.320
+to the Google Photos deal.
+
+02:24.320 --> 02:27.200
+And let's be honest, there is that whole privacy thing
+
+02:27.200 --> 02:28.200
+to consider.
+
+02:28.200 --> 02:29.440
+So coming up on the show this week,
+
+02:29.440 --> 02:32.420
+our buddies Brent, a professional photographer,
+
+02:32.420 --> 02:34.880
+and Alex, my co-host on the Self-Hosted podcast,
+
+02:34.880 --> 02:38.660
+and a home lab master, really, discuss new and old ways
+
+02:38.660 --> 02:42.160
+to manage, organize, index, and search your photo collection,
+
+02:42.160 --> 02:44.720
+sort of Google Photo style.
+
+02:44.720 --> 02:48.280
+And if that wasn't enough, I spent the weekend,
+
+02:48.280 --> 02:51.560
+a long weekend, started on Thursday,
+
+02:51.560 --> 02:53.400
+with something special.
+
+02:53.400 --> 02:56.600
+The new System76 Launch Keyboard.
+
+02:56.600 --> 03:00.200
+They're built in Denver, created from scratch,
+
+03:00.200 --> 03:02.520
+right there in Colorado, keyboard.
+
+03:02.520 --> 03:05.680
+I rushed back from Montana to receive this package,
+
+03:05.680 --> 03:07.660
+and I'm going to share my thoughts on the keyboard
+
+03:07.660 --> 03:12.680
+that I say redefines what customizable even means.
+
+03:12.680 --> 03:15.600
+But first, with the powers vested in me,
+
+03:15.600 --> 03:18.160
+I declare a warm, time-appropriate greetings
+
+03:18.160 --> 03:19.280
+to our virtual lug.
+
+03:19.280 --> 03:20.160
+Hello, mama room.
+
+03:20.160 --> 03:20.660
+Hello.
+
+03:20.660 --> 03:21.160
+Hello.
+
+03:21.160 --> 03:21.660
+Hello.
+
+03:21.660 --> 03:22.160
+Hello.
+
+03:22.160 --> 03:22.660
+Hello.
+
+03:22.660 --> 03:23.840
+What do you think?
+
+03:23.840 --> 03:25.160
+Hello, everybody.
+
+03:25.160 --> 03:26.120
+Wow.
+
+03:26.120 --> 03:26.720
+Wow.
+
+03:26.720 --> 03:28.600
+What a group we have today.
+
+03:28.600 --> 03:30.680
+25 of you in there, just solid.
+
+03:30.680 --> 03:32.620
+And it's nice to be back.
+
+03:32.620 --> 03:35.160
+I missed everybody while I was in Montana.
+
+03:35.160 --> 03:37.800
+But you know, it was a good family trip.
+
+03:37.800 --> 03:41.280
+We had some adversities, and we had some triumphs,
+
+03:41.280 --> 03:42.920
+and we got a lot of swimming.
+
+03:42.920 --> 03:47.920
+And I got back to this Launch Keyboard from System76.
+
+03:47.920 --> 03:49.440
+It's right here.
+
+03:49.440 --> 03:52.800
+I have it plugged in over USB-C to my studio computer.
+
+03:52.800 --> 03:54.840
+It is now my studio keyboard.
+
+03:54.840 --> 03:57.600
+You haven't switched back, I was wondering.
+
+03:57.600 --> 03:59.440
+I got it with the royal keycaps, I think it is,
+
+03:59.440 --> 04:00.480
+the slightly quieter ones.
+
+04:00.480 --> 04:03.440
+And I've swapped out a few of the keys
+
+04:03.440 --> 04:05.600
+already, because it's pretty easy to do that.
+
+04:05.600 --> 04:07.920
+It comes with a little keycap remover in the box,
+
+04:07.920 --> 04:09.600
+and it comes with a couple alternative keys
+
+04:09.600 --> 04:11.840
+that you might want to go with right away.
+
+04:11.840 --> 04:14.840
+It's got a USB hub on the back, some A and some C.
+
+04:14.840 --> 04:16.400
+It works on Linux.
+
+04:16.400 --> 04:19.160
+It works on Windows, and it works on Mac OS.
+
+04:19.160 --> 04:21.040
+The keyboard is 100% open source.
+
+04:21.040 --> 04:23.720
+The hardware design and the software that runs on it
+
+04:23.720 --> 04:24.880
+is all open source.
+
+04:24.880 --> 04:27.640
+So of course, those right there check a lot of boxes.
+
+04:27.640 --> 04:30.560
+For me, I've also recently gotten a little more
+
+04:30.560 --> 04:33.240
+into mechanical keyboards, thanks to the bad,
+
+04:33.240 --> 04:36.680
+I'd say, the bad influence for my co-host Mike on Koda Radio.
+
+04:36.680 --> 04:38.000
+I've gotten a little more into them.
+
+04:38.000 --> 04:39.680
+Let's just say it appears in the studio
+
+04:39.680 --> 04:42.640
+that keyboards breed something like bunnies.
+
+04:42.640 --> 04:44.560
+Or tribbles, in my case.
+
+04:44.560 --> 04:45.240
+Yeah.
+
+04:45.240 --> 04:48.280
+So I got it out of the box, and it immediately
+
+04:48.280 --> 04:50.920
+had a very solid feel to it.
+
+04:50.920 --> 04:53.000
+It looks deceivingly simple, but when you pick it up,
+
+04:53.000 --> 04:55.760
+there's a lot of heft in a way that feels like quality.
+
+04:55.760 --> 04:59.080
+The Royal keys are not quite as quiet as I expected.
+
+04:59.080 --> 05:01.560
+That was my first impression when I started typing.
+
+05:01.560 --> 05:03.680
+So maybe I should have just gone with the jades.
+
+05:03.680 --> 05:08.240
+And it's set, by default, to a rotating space backlight theme,
+
+05:08.240 --> 05:09.800
+which I like.
+
+05:09.800 --> 05:11.440
+It circles through different colors
+
+05:11.440 --> 05:13.960
+that you maybe would call, like, galaxy colors, I guess.
+
+05:13.960 --> 05:17.800
+So I just kept it the default. But job one for me,
+
+05:17.800 --> 05:21.000
+when I got this thing, was rearrange the Control, Alt,
+
+05:21.000 --> 05:23.200
+and Super, and Function key layout.
+
+05:23.200 --> 05:29.200
+By default, System76 ships it with Control key, Alt, Fn, Super.
+
+05:29.200 --> 05:32.440
+And that's fine, but not how I like it, you know?
+
+05:32.440 --> 05:34.280
+I like it more traditional.
+
+05:34.280 --> 05:38.120
+So I quickly just swapped it to Control, Fn, Super, Alt,
+
+05:38.120 --> 05:42.200
+swapped the keycaps, and then I went and grabbed their software
+
+05:42.200 --> 05:43.240
+to configure the keyboard.
+
+05:43.240 --> 05:45.880
+And I was curious what this experience was going to be like,
+
+05:45.880 --> 05:46.880
+because I'm not on Pop!
+
+05:46.880 --> 05:51.640
+OS, and I'm on Fedora, which is not even a Debian-based device.
+
+05:51.640 --> 05:53.760
+Which is not even a Debian-based distro.
+
+05:53.760 --> 05:57.240
+And so I'm like, am I going to be able to grab this, or what?
+
+05:57.240 --> 06:00.160
+So I go over to their page, download it off their GitHub,
+
+06:00.160 --> 06:01.880
+and it's an app image.
+
+06:01.880 --> 06:03.800
+So you mark that sucker executable,
+
+06:03.800 --> 06:05.200
+and you double-click on it.
+
+06:05.200 --> 06:07.080
+It asks for your root password, because it's
+
+06:07.080 --> 06:08.120
+going to scan your bus.
+
+06:08.120 --> 06:12.080
+And then it comes up, and it gives you
+
+06:12.080 --> 06:13.800
+a really clever layout.
+
+06:13.800 --> 06:16.680
+It's a visualization of the keyboard, which works really
+
+06:16.680 --> 06:18.640
+well for how my brain works.
+
+06:18.640 --> 06:21.120
+And it makes it simple to click this, or hold this,
+
+06:21.120 --> 06:23.160
+and map this function.
+
+06:23.160 --> 06:25.400
+And within a couple of minutes, I
+
+06:25.400 --> 06:29.600
+was mapping multiple keys to a single key press.
+
+06:29.600 --> 06:31.320
+And I like that a lot.
+
+06:31.320 --> 06:34.320
+Additionally, this thing supports four layers
+
+06:34.320 --> 06:35.320
+of customizable keys.
+
+06:35.320 --> 06:36.960
+In other words, you can essentially
+
+06:36.960 --> 06:39.720
+have four different layouts in this one keyboard,
+
+06:39.720 --> 06:43.000
+and you can toggle through them with different key combinations.
+
+06:43.000 --> 06:46.040
+I have my right Fn key set to switch to layer two,
+
+06:46.040 --> 06:49.840
+which is the default. But one of the things I've done in layer
+
+06:49.840 --> 06:52.680
+two is where I have some of my combos.
+
+06:52.680 --> 06:54.480
+I've set a different backlighting scheme
+
+06:54.480 --> 06:55.920
+for layer two.
+
+06:55.920 --> 06:57.760
+And you can do this with each layer.
+
+06:57.760 --> 07:00.280
+You can do options like only light up
+
+07:00.280 --> 07:02.600
+the keys that have a function assigned to them.
+
+07:02.600 --> 07:06.840
+So when I hold down layer two, only half a dozen keys
+
+07:06.840 --> 07:07.440
+light up.
+
+07:07.440 --> 07:09.680
+And those are just the ones I've mapped something to.
+
+07:09.680 --> 07:11.840
+And the rest all stay off.
+
+07:11.840 --> 07:15.040
+Layer three switches to a vertical scan pattern
+
+07:15.040 --> 07:16.400
+of LED lights.
+
+07:16.400 --> 07:19.480
+So I know I'm on layer three, because the keyboard lights
+
+07:19.480 --> 07:20.520
+switch pattern.
+
+07:20.520 --> 07:23.320
+And then when I release, it goes back to the layer one
+
+07:23.320 --> 07:24.680
+pattern of lights.
+
+07:24.680 --> 07:28.560
+That simple little thing was the trick
+
+07:28.560 --> 07:31.080
+I needed to keep all of this straight.
+
+07:31.080 --> 07:32.680
+I was worried that I would get lost
+
+07:32.680 --> 07:34.720
+in a sea of customization with this thing.
+
+07:34.720 --> 07:37.040
+And I would not be able to map in my brain what's
+
+07:37.040 --> 07:38.920
+on what layer, et cetera.
+
+07:38.920 --> 07:41.560
+But being able to control the LED lights and colors
+
+07:41.560 --> 07:44.000
+and patterns, or just do the single lightups for ones
+
+07:44.000 --> 07:46.600
+that have function, gave me the visual trick
+
+07:46.600 --> 07:48.640
+I needed combined with their software configurator
+
+07:48.640 --> 07:50.720
+that gives you a visual on-screen layout of what
+
+07:50.720 --> 07:53.440
+you're doing with a representation of the keyboard
+
+07:53.440 --> 07:54.720
+up on screen.
+
+07:54.720 --> 07:56.000
+It really actually clicked.
+
+07:56.000 --> 07:57.680
+And I've been able to keep with it.
+
+07:57.680 --> 08:00.520
+So the software really gives you a sense of how far you can
+
+08:00.520 --> 08:01.680
+actually take this keyboard.
+
+08:01.680 --> 08:04.320
+I mean, you can read the specs on their website.
+
+08:04.320 --> 08:07.160
+But when you plug it in and then you open up the software,
+
+08:07.160 --> 08:09.880
+it redefines what customizable is.
+
+08:09.880 --> 08:11.200
+This thing is truly next level.
+
+08:11.200 --> 08:13.040
+And then the beautiful thing is everything
+
+08:13.040 --> 08:15.920
+is then saved back to the keyboard immediately.
+
+08:15.920 --> 08:18.240
+So as soon as I change it, it's applied to the keyboard.
+
+08:18.240 --> 08:19.760
+I can unplug it from this computer.
+
+08:19.760 --> 08:21.840
+And I can go plug it into an entirely separate machine,
+
+08:21.840 --> 08:23.040
+a different operating system.
+
+08:23.040 --> 08:26.000
+It doesn't have any of the firmware or any keyboard
+
+08:26.000 --> 08:27.280
+software on it.
+
+08:27.280 --> 08:29.000
+And it will still all work because it's
+
+08:29.000 --> 08:31.280
+saved locally on the keyboard.
+
+08:31.280 --> 08:32.880
+That is huge for me because I don't
+
+08:32.880 --> 08:35.280
+want to have to load the software on every single machine
+
+08:35.280 --> 08:37.040
+that I want to use this thing on.
+
+08:37.040 --> 08:41.960
+And it also is showed right up in the GNOME firmware
+
+08:41.960 --> 08:43.920
+tool that uses LVFS.
+
+08:43.920 --> 08:46.560
+So it's completely supported by LVFS for updates.
+
+08:46.560 --> 08:47.680
+And I like seeing that.
+
+08:47.680 --> 08:49.400
+And somehow, you haven't even mentioned
+
+08:49.400 --> 08:52.400
+that their customization tool is powered by Rust.
+
+08:52.400 --> 08:52.920
+Oh, I'm sorry.
+
+08:52.920 --> 08:53.800
+What was that, Wes?
+
+08:53.800 --> 08:55.840
+It was powered by Rust.
+
+08:55.840 --> 08:58.360
+Ha, ha, ha, ha, ha, ha, ha, ha, ha, ha, ha, ha, ha, ha, ha, ha.
+
+09:04.080 --> 09:07.200
+And I wasn't really 100% sure, despite all of that,
+
+09:07.200 --> 09:11.440
+if it was really worth $285 because that seems
+
+09:11.440 --> 09:13.160
+like a lot of money for a keyboard.
+
+09:13.160 --> 09:16.020
+So what I did is I went to Amazon
+
+09:16.020 --> 09:18.480
+and I looked at some of their best, highest rated
+
+09:18.480 --> 09:20.160
+mechanical keyboards.
+
+09:20.160 --> 09:22.200
+And I went for the cheapest mechanical keyboard
+
+09:22.200 --> 09:22.800
+I could find.
+
+09:22.800 --> 09:25.240
+And I found one for $35.
+
+09:25.240 --> 09:29.000
+So I thought, let's see how this $35 keyboard stacks up
+
+09:29.000 --> 09:32.640
+against the $285 System76 keyboard.
+
+09:32.640 --> 09:35.120
+And there's obvious things, like this one sort of
+
+09:35.120 --> 09:38.320
+has a more muted sound.
+
+09:38.320 --> 09:40.000
+It doesn't quite feel quite as good.
+
+09:40.000 --> 09:41.460
+I mean, that's not a huge surprise.
+
+09:41.460 --> 09:43.200
+It's also plasticky and light.
+
+09:43.200 --> 09:46.480
+In fact, it even flexes a little bit when I twist it,
+
+09:46.480 --> 09:50.920
+where I could win a knife fight with the launch as a weapon.
+
+09:50.920 --> 09:53.000
+It's very solid.
+
+09:53.000 --> 09:55.680
+And those things were kind of like, OK,
+
+09:55.680 --> 09:57.880
+I went into a $30 keyboard expecting that.
+
+09:57.880 --> 10:00.100
+That's not really where I'm going to judge this on.
+
+10:00.100 --> 10:01.520
+I put them down side by side.
+
+10:01.520 --> 10:03.040
+And Wes was here on Sunday and we
+
+10:03.040 --> 10:04.760
+were doing Linux action news.
+
+10:04.760 --> 10:06.800
+And I didn't even prompt Wes.
+
+10:06.800 --> 10:08.040
+I didn't say anything to Wes.
+
+10:08.040 --> 10:09.800
+You brought it up to me.
+
+10:09.800 --> 10:13.480
+You said, you're typing faster than I've ever seen you type
+
+10:13.480 --> 10:14.360
+on the launch.
+
+10:14.360 --> 10:15.520
+That I did.
+
+10:15.520 --> 10:17.840
+I mean, you seemed kind of naturally at home.
+
+10:17.840 --> 10:20.540
+Admittedly, you had a different mechanical keyboard
+
+10:20.540 --> 10:23.560
+currently in use at the studio for a while, which didn't
+
+10:23.560 --> 10:25.840
+seem to be jiving with you.
+
+10:25.840 --> 10:28.840
+But it was clear that this was a new keyboard
+
+10:28.840 --> 10:30.040
+you were going to keep using.
+
+10:30.040 --> 10:31.640
+Yeah, so that other keyboard we tried
+
+10:31.640 --> 10:35.640
+that I hadn't here for a while was the Keytron K3.
+
+10:35.640 --> 10:38.960
+And I really wanted to like it because it was a good size.
+
+10:38.960 --> 10:42.880
+That was one that Keytron's a little bit smaller
+
+10:42.880 --> 10:44.360
+than the $35 Amazon one.
+
+10:44.360 --> 10:47.080
+The $35 Amazon one's a little wider.
+
+10:47.080 --> 10:51.280
+But the Keytron and the launch are about the same desk size.
+
+10:51.280 --> 10:52.680
+They're about the same size.
+
+10:52.680 --> 10:56.140
+And I can type significantly faster on the launch.
+
+10:56.140 --> 10:58.320
+And I think it is the layout a bit.
+
+10:58.320 --> 11:00.020
+It is also the way the keys feel.
+
+11:00.020 --> 11:02.480
+I think all of those, I think it's like three or four things
+
+11:02.480 --> 11:04.920
+about the design of the keyboard that come together
+
+11:04.920 --> 11:06.960
+to make it actually really fast.
+
+11:06.960 --> 11:08.160
+But I noticed it too.
+
+11:08.160 --> 11:10.440
+Even though I hadn't said anything to you about it,
+
+11:10.440 --> 11:12.240
+that weekend, I used the keyboard
+
+11:12.240 --> 11:14.960
+to write all of the notes for Linux Action News.
+
+11:14.960 --> 11:17.760
+And I was flying.
+
+11:17.760 --> 11:20.760
+I was like really enjoying the typing experience.
+
+11:20.760 --> 11:22.560
+And I know that sounds kind of cliche.
+
+11:22.560 --> 11:25.880
+But that matters a lot to me because I'm
+
+11:25.880 --> 11:29.120
+touching this damn thing every day, all damn day.
+
+11:29.120 --> 11:34.000
+And it matters to me that I smile when I look down at it.
+
+11:34.000 --> 11:36.000
+And it matters to me that it feels good
+
+11:36.000 --> 11:37.160
+every time I press on it.
+
+11:37.160 --> 11:38.920
+That's what you're paying for, right?
+
+11:38.920 --> 11:42.040
+If it works and with the durability
+
+11:42.040 --> 11:44.280
+that it looks like this thing has,
+
+11:44.280 --> 11:47.240
+it could be your keyboard for the next decade.
+
+11:47.240 --> 11:49.280
+There's absolutely no question about it.
+
+11:49.280 --> 11:52.320
+It's USB-C with its customizability.
+
+11:52.320 --> 11:54.440
+I will use this keyboard forever.
+
+11:54.440 --> 11:55.960
+It's going to last a very long time.
+
+11:55.960 --> 11:57.840
+And keyboards do for me in general.
+
+11:57.840 --> 12:00.680
+If it was $185 or $200, I would have already
+
+12:00.680 --> 12:01.960
+ordered another one.
+
+12:01.960 --> 12:03.200
+I absolutely would.
+
+12:03.200 --> 12:05.360
+At $285, it's kind of a special treat.
+
+12:05.360 --> 12:07.440
+And so it's going to be what we use in the studio.
+
+12:07.440 --> 12:09.160
+That feels kind of appropriate because it's
+
+12:09.160 --> 12:10.680
+kind of a specialty item.
+
+12:10.680 --> 12:12.480
+And then that plays a role for me too, right?
+
+12:12.480 --> 12:14.920
+This feels a bit like a bespoke item.
+
+12:14.920 --> 12:18.240
+It feels like something that my friends hand-built in Denver,
+
+12:18.240 --> 12:20.800
+you know, like people that are part of my community
+
+12:20.800 --> 12:22.000
+hand-built something.
+
+12:22.000 --> 12:23.560
+And I can buy it from them.
+
+12:23.560 --> 12:25.160
+And that's special too.
+
+12:25.160 --> 12:28.720
+And that's also the reason why I bought the Librem 15,
+
+12:28.720 --> 12:32.400
+because it also had that unique kind of collector
+
+12:32.400 --> 12:34.000
+almost feel to it.
+
+12:34.000 --> 12:36.400
+And that's why I bought the Atari VCS as well,
+
+12:36.400 --> 12:38.000
+even though I haven't received that one.
+
+12:38.000 --> 12:40.120
+Because again, it's kind of a unique item
+
+12:40.120 --> 12:43.320
+that comes from somebody that is working in the Linux community.
+
+12:43.320 --> 12:47.120
+And this launch encompasses that even so much more.
+
+12:47.120 --> 12:50.720
+I mean, they've been around now for well over 10 years now.
+
+12:50.720 --> 12:53.520
+But this represents a new milestone
+
+12:53.520 --> 12:56.600
+and a first for their business and a first for a Linux vendor.
+
+12:56.600 --> 12:58.480
+And so I wanted to have it for that reason too.
+
+12:58.480 --> 13:02.560
+And I mention that because those thoughts are invoked
+
+13:02.560 --> 13:03.760
+every time I look down at it.
+
+13:03.760 --> 13:05.960
+And that makes me happy as well.
+
+13:05.960 --> 13:09.120
+And so for me, it is worth the $285.
+
+13:09.120 --> 13:13.640
+And the $35 keyboard and the Keytron, which is $85,
+
+13:13.640 --> 13:14.840
+are all good keyboards.
+
+13:14.840 --> 13:17.240
+But they have things that are frustrating about them,
+
+13:17.240 --> 13:20.680
+where the launch really doesn't have any compromises.
+
+13:20.680 --> 13:21.880
+I didn't want a numpad.
+
+13:21.880 --> 13:23.640
+I know for some people that is an issue.
+
+13:23.640 --> 13:25.240
+But for me, this keyboard doesn't really
+
+13:25.240 --> 13:27.720
+have the compromises that those other two have.
+
+13:27.720 --> 13:30.360
+And a lot of times, when you get to the higher end gear,
+
+13:30.360 --> 13:33.560
+and Wes and I talked about this over the weekend, when
+
+13:33.560 --> 13:36.120
+it comes to our microphones, you start
+
+13:36.120 --> 13:40.000
+to get to the $500, $600, $1,000 microphones,
+
+13:40.000 --> 13:42.920
+they don't sound $500 better than a $200 microphone.
+
+13:42.920 --> 13:46.200
+They don't sound $1,000 better than a $100 microphone.
+
+13:46.200 --> 13:49.680
+They sound $50, $80 better, to be realistic about it.
+
+13:49.680 --> 13:52.480
+The drop off is kind of dramatic when
+
+13:52.480 --> 13:54.720
+it comes into high end professional audio gear.
+
+13:54.720 --> 13:56.840
+Some of that is true when it comes to high end computer
+
+13:56.840 --> 13:57.320
+gear.
+
+13:57.320 --> 13:59.640
+I don't think that drop off is as dramatic here
+
+13:59.640 --> 14:00.640
+with the keyboard.
+
+14:00.640 --> 14:02.920
+But when I look at this $85 Keytron,
+
+14:02.920 --> 14:05.040
+this launches another $200.
+
+14:05.040 --> 14:06.880
+Is it $200 better?
+
+14:06.880 --> 14:07.800
+I can't say.
+
+14:07.800 --> 14:09.480
+But I can say it is much better.
+
+14:09.480 --> 14:11.280
+I don't know if it's $200, but that's just
+
+14:11.280 --> 14:13.680
+going to be a personal value call each person makes.
+
+14:13.680 --> 14:15.240
+I, however, am very happy with it.
+
+14:15.240 --> 14:18.600
+And we'll spend a very long time using the keyboard.
+
+14:18.600 --> 14:20.720
+And I think in four or five years,
+
+14:20.720 --> 14:23.120
+I'm not even going to be thinking about the $285 price.
+
+14:23.120 --> 14:24.160
+I'm just going to be thinking about how
+
+14:24.160 --> 14:25.680
+great this keyboard still is.
+
+14:25.680 --> 14:28.040
+And I imagine it will remain my favorite keyboard
+
+14:28.040 --> 14:31.240
+for a long time until I get another one.
+
+14:31.240 --> 14:34.280
+There's also the aspect here that because it's open source,
+
+14:34.280 --> 14:36.000
+all of the openness about it, you
+
+14:36.000 --> 14:38.560
+can be a little less worried that support's going to drop
+
+14:38.560 --> 14:41.940
+or somehow System76, god forbid, goes out of business
+
+14:41.940 --> 14:43.560
+and you can no longer update or there's
+
+14:43.560 --> 14:45.800
+no more updates to their configuration utility
+
+14:45.800 --> 14:48.880
+or they somehow don't host the proprietary EXE download
+
+14:48.880 --> 14:49.840
+anymore.
+
+14:49.840 --> 14:52.400
+Seems like you can put your faith that A, this thing's
+
+14:52.400 --> 14:54.240
+going to be around as long as you need it,
+
+14:54.240 --> 14:57.240
+and B, I mean, you're helping System76 out
+
+14:57.240 --> 14:58.400
+by giving them some cash.
+
+14:58.400 --> 15:00.280
+And maybe there'll be some future keyboards
+
+15:00.280 --> 15:01.360
+that are even nicer.
+
+15:01.360 --> 15:03.480
+I talked to my buddy Mike in Coder Radio
+
+15:03.480 --> 15:05.480
+this week about his experiences using it.
+
+15:05.480 --> 15:07.760
+He tested it on a Mac, and it works there, too.
+
+15:07.760 --> 15:08.520
+Spoiler alert.
+
+15:08.520 --> 15:10.360
+So that's pretty impressive, the fact
+
+15:10.360 --> 15:14.720
+that I got it working on a Neon install and a Fedora box,
+
+15:14.720 --> 15:17.600
+and he has it working on a Mac.
+
+15:17.600 --> 15:20.400
+And it seems to be fully functional there as well.
+
+15:20.400 --> 15:22.940
+And it's really easy to swap the keys around to your liking
+
+15:22.940 --> 15:24.280
+and then just go map them in the software.
+
+15:24.280 --> 15:25.940
+And they're making the software available
+
+15:25.940 --> 15:27.560
+for Windows and the Mac, too.
+
+15:27.560 --> 15:29.000
+And all these things just kind of come together
+
+15:29.000 --> 15:31.040
+to make it feel like it's a bit of a new milestone
+
+15:31.040 --> 15:32.040
+for System76.
+
+15:32.040 --> 15:34.540
+I mean, think about what they had to do to build this thing
+
+15:34.540 --> 15:35.800
+and actually ship it to customers
+
+15:35.800 --> 15:37.040
+from just like a project management
+
+15:37.040 --> 15:38.640
+standpoint and a process development
+
+15:38.640 --> 15:40.280
+standpoint for a business, right?
+
+15:40.280 --> 15:42.000
+And then you think about where this leads.
+
+15:42.000 --> 15:44.520
+Now that they've, this is their first shot.
+
+15:44.520 --> 15:46.920
+And I'm sitting here telling you, I really like it.
+
+15:46.920 --> 15:48.220
+It could have been junk.
+
+15:48.220 --> 15:50.240
+It could have been crappy to type on.
+
+15:50.240 --> 15:53.560
+It's not like they've built a lot of keyboards before.
+
+15:53.560 --> 15:56.120
+So if they took something like this
+
+15:56.120 --> 16:00.080
+and they put this something like this in a laptop,
+
+16:00.080 --> 16:01.660
+that was like something they moved on to,
+
+16:01.660 --> 16:05.260
+is building a laptop that just runs Linux
+
+16:05.260 --> 16:07.080
+and has a keyboard like this on it,
+
+16:07.080 --> 16:09.160
+I think that'd be an extremely compelling project.
+
+16:09.160 --> 16:13.600
+And this is obviously the first step on a much longer journey.
+
+16:13.600 --> 16:17.840
+And checking in on goalpost one, they nailed it.
+
+16:17.840 --> 16:20.840
+And I think that's really the takeaway here, is wherever
+
+16:20.840 --> 16:23.720
+they end up taking this, if this is step one,
+
+16:23.720 --> 16:25.080
+well, they nailed step one.
+
+16:25.080 --> 16:27.400
+So the way I look at this, when you first
+
+16:27.400 --> 16:31.160
+mentioned this keyboard, I had a similar reaction of how much?
+
+16:31.160 --> 16:32.400
+This is way too much.
+
+16:32.400 --> 16:36.960
+There's no way anybody's going to spend $285 on a keyboard.
+
+16:36.960 --> 16:39.480
+But then I started thinking about the equivalent
+
+16:39.480 --> 16:40.920
+in different industries.
+
+16:40.920 --> 16:43.460
+Cars is a perfect example.
+
+16:43.460 --> 16:45.720
+I have a premium version of a Golf
+
+16:45.720 --> 16:50.600
+sat on my driveway, a very average economy car that's
+
+16:50.600 --> 16:54.160
+had a bigger engine and whatever put into it.
+
+16:54.160 --> 16:55.880
+I don't need that bigger engine.
+
+16:55.880 --> 16:58.120
+I don't need the four-wheel drive system.
+
+16:58.120 --> 17:00.600
+But yet, I'm happy to pay extra because it gives me
+
+17:00.600 --> 17:02.120
+those feels when I get into it.
+
+17:02.120 --> 17:03.960
+I look down and I see the fact that it
+
+17:03.960 --> 17:06.880
+has the flappy paddles on the steering wheel.
+
+17:06.880 --> 17:08.840
+And I think to myself, yeah, this is nice.
+
+17:08.840 --> 17:09.800
+This makes me feel good.
+
+17:09.800 --> 17:12.840
+And if you're getting that same feeling from the keyboard,
+
+17:12.840 --> 17:17.560
+something that you touch and see all day, every day for half
+
+17:17.560 --> 17:21.120
+a decade, maybe longer, sure, I think it's worth it, don't you?
+
+17:21.120 --> 17:22.560
+That is my math on it.
+
+17:22.560 --> 17:25.080
+I know for some, though, I think maybe for Neil,
+
+17:25.080 --> 17:27.280
+if it's not full-sized, it doesn't really work for you,
+
+17:27.280 --> 17:27.800
+does it?
+
+17:27.800 --> 17:31.520
+Yeah, I actually use my number pad quite a lot.
+
+17:31.520 --> 17:35.520
+And I mean, I can obviously get away with it
+
+17:35.520 --> 17:37.680
+without having it because my laptops don't have it.
+
+17:37.680 --> 17:39.880
+I actually hate having the number pad on the laptops
+
+17:39.880 --> 17:41.320
+because it makes them cramped.
+
+17:41.320 --> 17:42.760
+But when I'm working on a desktop
+
+17:42.760 --> 17:44.640
+and I'm going to have an external keyboard,
+
+17:44.640 --> 17:47.360
+I really want a full-sized one because I take advantage
+
+17:47.360 --> 17:48.120
+of the real estate.
+
+17:48.120 --> 17:51.760
+And I like the more space in the keys
+
+17:51.760 --> 17:53.320
+and a lot more even layout.
+
+17:53.320 --> 17:55.720
+That said, I'm super excited about this.
+
+17:55.720 --> 17:59.400
+And if they had a regular version of it with a full layout
+
+17:59.400 --> 18:01.000
+and even maybe some multimedia keys
+
+18:01.000 --> 18:05.840
+and some extra little quality of life additions,
+
+18:05.840 --> 18:07.040
+I'd be down for it.
+
+18:07.040 --> 18:08.200
+Maybe they will have multiple.
+
+18:08.200 --> 18:08.880
+I've wondered.
+
+18:08.880 --> 18:11.720
+Or like a volume knob that some of those fancy keyboards have.
+
+18:11.720 --> 18:12.560
+I'd take that.
+
+18:12.560 --> 18:13.040
+Yeah.
+
+18:13.040 --> 18:14.040
+I love the volume.
+
+18:14.040 --> 18:15.080
+I do, too.
+
+18:15.080 --> 18:17.200
+It's my volume knob.
+
+18:17.200 --> 18:20.440
+And so legit, I use my media keys a lot.
+
+18:20.440 --> 18:25.000
+I have the volume control, the play, pause, back, forward,
+
+18:25.000 --> 18:26.000
+and the mute button.
+
+18:26.000 --> 18:28.520
+The mute button gets hit a lot.
+
+18:28.520 --> 18:29.440
+I use those.
+
+18:29.440 --> 18:32.440
+And so having those on a keyboard is important for me.
+
+18:32.440 --> 18:33.160
+Right.
+
+18:33.160 --> 18:36.400
+I am very, very, very fond of compact keyboards
+
+18:36.400 --> 18:40.080
+here in the studio and in my recording setup
+
+18:40.080 --> 18:42.240
+in my mobile setup in Lady Jupiter.
+
+18:42.240 --> 18:44.480
+But at my desk, I agree with you there.
+
+18:44.480 --> 18:45.840
+I like a full-sized keyboard.
+
+18:45.840 --> 18:47.840
+And I think maybe that's one of the reasons I'm not
+
+18:47.840 --> 18:50.160
+putting the launch at my office desk.
+
+18:50.160 --> 18:51.400
+I'm putting it here in the studio.
+
+18:51.400 --> 18:53.480
+And then also because it's a bit of a conversation
+
+18:53.480 --> 18:55.160
+piece in the studio as well.
+
+18:55.160 --> 18:56.760
+But yeah, that's very true.
+
+18:56.760 --> 18:59.320
+And I would love to see one day multiple versions
+
+18:59.320 --> 19:00.440
+of the launch.
+
+19:00.440 --> 19:01.480
+That could be pretty cool.
+
+19:01.480 --> 19:03.240
+What would you have on your keyboard, Wes,
+
+19:03.240 --> 19:04.920
+on your custom launch keyboard?
+
+19:04.920 --> 19:05.440
+Oh, yeah.
+
+19:05.440 --> 19:05.920
+OK.
+
+19:05.920 --> 19:08.280
+Well, I definitely want the volume knob and then
+
+19:08.280 --> 19:11.720
+as many possible LEDs as they could pack.
+
+19:11.720 --> 19:15.880
+And Pipe Dream here, what about something like a System76
+
+19:15.880 --> 19:18.520
+Pure Open Source Powered Touch Bar?
+
+19:18.520 --> 19:21.680
+Ha, ha, ha, ha.
+
+19:21.680 --> 19:23.040
+Well, first, in the housekeeping,
+
+19:23.040 --> 19:25.840
+I wanted to let you know that our buddies across the pond
+
+19:25.840 --> 19:28.840
+have a bit of a party this Saturday.
+
+19:28.840 --> 19:31.880
+Foss Talk Live starts at 7 PM their local time
+
+19:31.880 --> 19:33.040
+on their YouTube channel.
+
+19:33.040 --> 19:34.720
+You can go over there and get subscribed,
+
+19:34.720 --> 19:37.000
+and then that will just go live.
+
+19:37.000 --> 19:40.000
+So we are recording this on June 8.
+
+19:40.000 --> 19:41.520
+So it is the Saturday we're recording,
+
+19:41.520 --> 19:44.480
+which is June 12, 2021, Foss Talk Live,
+
+19:44.480 --> 19:47.040
+7 PM their local time.
+
+19:47.040 --> 19:48.720
+And it's a crossover event, too.
+
+19:48.720 --> 19:49.920
+So Wes and I will have it up.
+
+19:49.920 --> 19:51.280
+We'll have the popcorn going, and we'll
+
+19:51.280 --> 19:53.040
+be cracking jokes at our friends' expense.
+
+19:53.040 --> 19:54.280
+It should be a good time.
+
+19:54.280 --> 19:55.920
+Oh, you know it.
+
+19:55.920 --> 19:58.280
+Also, we'd love to hear from you.
+
+19:58.280 --> 20:00.680
+Some ideas that we have on this show, some of the segments,
+
+20:00.680 --> 20:03.480
+like today's episode, are inspired by our audience.
+
+20:03.480 --> 20:07.000
+We get emails into the show, and then we pursue an answer.
+
+20:07.000 --> 20:09.440
+So we'd love to get your questions, your feedback, all
+
+20:09.440 --> 20:12.640
+of it, at linuxunplugged.com slash contact.
+
+20:12.640 --> 20:14.140
+Of course, there is a whole network,
+
+20:14.140 --> 20:17.280
+and the conversation is always rolling in our Telegram channel.
+
+20:17.280 --> 20:20.400
+You can join that at jupiterbroadcasting.com slash
+
+20:20.400 --> 20:24.440
+Telegram, and the conversation goes 24-7,
+
+20:24.440 --> 20:26.160
+and many of us are popping in and out there
+
+20:26.160 --> 20:26.880
+throughout the day.
+
+20:31.440 --> 20:33.120
+Linode.com slash unplugged.
+
+20:33.120 --> 20:36.240
+Go there to get $100 in credit for 60 days on your new account.
+
+20:36.240 --> 20:37.640
+And of course, you support the show,
+
+20:37.640 --> 20:40.760
+make it possible for us to release free content.
+
+20:40.760 --> 20:42.360
+Linode is our hosting provider of choice.
+
+20:42.360 --> 20:43.280
+You guys know that.
+
+20:43.280 --> 20:44.980
+But I was reflecting on one of the things
+
+20:44.980 --> 20:48.360
+that I really appreciate about Linode while I was traveling.
+
+20:48.360 --> 20:49.920
+And as you can probably guess, that
+
+20:49.920 --> 20:52.340
+was making it possible for us to keep services up,
+
+20:52.340 --> 20:55.080
+even though I was mostly AFK.
+
+20:55.080 --> 20:57.520
+So I'm traveling, and of course, as you would expect,
+
+20:57.520 --> 20:58.560
+I get an alert.
+
+20:58.560 --> 21:00.920
+That alert tells me that network traffic has gone crazy
+
+21:00.920 --> 21:02.040
+on one of our boxes.
+
+21:02.040 --> 21:03.400
+But the great thing about Linode,
+
+21:03.400 --> 21:05.440
+and honestly, yeah, I could do this myself.
+
+21:05.440 --> 21:08.200
+In fact, some of our Linodes, we do have our own software
+
+21:08.200 --> 21:09.120
+and alerting on there.
+
+21:09.120 --> 21:11.080
+And yeah, I can set up monitoring and alerting.
+
+21:11.080 --> 21:12.920
+But it's table stakes with Linode.
+
+21:12.920 --> 21:15.000
+That's the great thing, is there's a baseline.
+
+21:15.000 --> 21:18.600
+And getting alerts on things like excessive network traffic
+
+21:18.600 --> 21:21.440
+is almost always a tell that something is wrong on a box.
+
+21:21.440 --> 21:23.440
+I mean, maybe you're just having a great day.
+
+21:23.440 --> 21:25.240
+You know, that's good to know too, actually.
+
+21:25.240 --> 21:29.240
+That's kind of like, yeah, hell yeah, we're doing great.
+
+21:29.240 --> 21:31.600
+But no, not in this case.
+
+21:31.600 --> 21:33.160
+But the thing that is really slick
+
+21:33.160 --> 21:34.560
+is it's easy to work with a team.
+
+21:34.560 --> 21:38.560
+And so Wes got the alert and was able to get logged in and fix
+
+21:38.560 --> 21:40.320
+the issue before I even read the email.
+
+21:40.320 --> 21:41.960
+He gave me a status update.
+
+21:41.960 --> 21:44.240
+And I just sat there thinking to myself, man,
+
+21:44.240 --> 21:46.520
+am I really grateful that these kinds of basics
+
+21:46.520 --> 21:49.520
+are taken care of and that I pop into the dashboard,
+
+21:49.520 --> 21:52.360
+I can see the history, I can see what's going on.
+
+21:52.360 --> 21:54.800
+And even if you're not a pro, the cloud dashboard
+
+21:54.800 --> 21:56.560
+Linode has built is so straightforward
+
+21:56.560 --> 21:59.880
+that you're going to get access to this information right away.
+
+21:59.880 --> 22:01.760
+And they kind of just abstract away
+
+22:01.760 --> 22:04.520
+the fact that you get 11 data centers to choose from that
+
+22:04.520 --> 22:07.000
+have crazy fast connections between them
+
+22:07.000 --> 22:10.240
+and that you have everything from these $5 a month
+
+22:10.240 --> 22:13.520
+rigs, which it's amazing how many things you
+
+22:13.520 --> 22:16.960
+can run on one of those, to systems with AMD
+
+22:16.960 --> 22:20.280
+epic processors that just crush all of the competition,
+
+22:20.280 --> 22:23.760
+like the full range is in there, while still being 30% to 50%
+
+22:23.760 --> 22:28.280
+cheaper than big cloud that has these complicated, horrible
+
+22:28.280 --> 22:32.080
+UIs, often with some sort of funky secondary business
+
+22:32.080 --> 22:35.200
+model behind them, where Linode, they're truly independent.
+
+22:35.200 --> 22:38.400
+In fact, they are the largest independent cloud provider.
+
+22:38.400 --> 22:39.520
+And I love that about them.
+
+22:39.520 --> 22:42.200
+They've been around since 2003.
+
+22:42.200 --> 22:43.640
+The Linode infrastructure is solid.
+
+22:43.640 --> 22:45.560
+You can focus on your project and not
+
+22:45.560 --> 22:47.840
+having to build and manage all of that stuff.
+
+22:47.840 --> 22:50.200
+And you get alerts when something goes sideways, too.
+
+22:50.200 --> 22:51.200
+And that's pretty great.
+
+22:51.200 --> 22:53.640
+So head over to linode.com slash unplug.
+
+22:53.640 --> 22:55.480
+Get that $100 credit for your new account
+
+22:55.480 --> 22:56.680
+and try this stuff out.
+
+22:56.680 --> 22:59.600
+Go build something, learn something, maybe deliver
+
+22:59.600 --> 23:00.600
+something online.
+
+23:00.600 --> 23:02.160
+There's a lot of ways to host things.
+
+23:02.160 --> 23:03.840
+There's a lot of companies that offer
+
+23:03.840 --> 23:07.440
+a lot of different options at crazy different price points.
+
+23:07.440 --> 23:10.000
+But none of them, none of them are Linode.
+
+23:10.000 --> 23:11.520
+None of them bring it all together.
+
+23:11.520 --> 23:14.000
+None of them are the largest independent cloud provider.
+
+23:14.000 --> 23:16.280
+And none of them have been involved in the Linux community
+
+23:16.280 --> 23:18.280
+as long as Linode, because they've been doing it
+
+23:18.280 --> 23:19.400
+before everybody else.
+
+23:19.400 --> 23:22.160
+So go get $100 and support the show.
+
+23:22.160 --> 23:24.760
+Linode.com slash unplugged.
+
+23:24.760 --> 23:32.000
+Dries from Belgium wrote in, I'm a long-term Mac user
+
+23:32.000 --> 23:35.880
+dipping my toes in Linux with a second-hand ThinkPad running
+
+23:35.880 --> 23:39.000
+Pop OS, that sounds like a nice setup.
+
+23:39.000 --> 23:43.120
+I also have an iPhone and a Canon M50.
+
+23:43.120 --> 23:46.720
+I'm wondering what photo managing solution
+
+23:46.720 --> 23:48.440
+do you all recommend?
+
+23:48.440 --> 23:50.160
+I think privacy is very important.
+
+23:50.160 --> 23:51.440
+I want to add right here.
+
+23:51.440 --> 23:54.960
+And I'd also like a local copy, as well as, ideally,
+
+23:54.960 --> 23:56.640
+a cloud backup.
+
+23:56.640 --> 23:58.400
+I've also got a Raspberry Pi laying around,
+
+23:58.400 --> 24:01.880
+which I could use if I was going to self-host something.
+
+24:01.880 --> 24:04.320
+What are your photo managing and backup workflows?
+
+24:04.320 --> 24:06.120
+Local, cloud, both?
+
+24:06.120 --> 24:09.240
+Uh-oh, I have to admit something on the episode now.
+
+24:09.240 --> 24:11.720
+Right here, I got to say, I have slipped back
+
+24:11.720 --> 24:15.320
+into using Google Photos as my backup backup.
+
+24:15.320 --> 24:16.800
+You kind of have that second backup.
+
+24:16.800 --> 24:20.240
+And truthfully, I have found part of the reason
+
+24:20.240 --> 24:23.280
+that I've been drawn back to it is the front-end client
+
+24:23.280 --> 24:26.440
+features of being able to search for objects like dog
+
+24:26.440 --> 24:30.480
+and Christmas tree or pictures of my son in Idaho
+
+24:30.480 --> 24:32.640
+has just drawn me back to using Google Photos,
+
+24:32.640 --> 24:35.320
+because the front-end makes it easy to find photos
+
+24:35.320 --> 24:38.040
+that I can then pull and send to a family member really quick.
+
+24:38.040 --> 24:41.920
+And that practical functionality brought me back.
+
+24:41.920 --> 24:45.600
+And so I use, on my phone, the Google Photo backup app
+
+24:45.600 --> 24:47.080
+to send my photos off site.
+
+24:47.080 --> 24:48.880
+Yeah, I have to admit, I'm in the same boat.
+
+24:48.880 --> 24:51.560
+I used to have a sort of custom sync thing solution going,
+
+24:51.560 --> 24:53.320
+which worked pretty well.
+
+24:53.320 --> 24:56.280
+But honestly, the network effect kind of pulled me back
+
+24:56.280 --> 24:57.120
+into Google Photos.
+
+24:57.120 --> 24:58.720
+I mean, one, I had bought a Pixel,
+
+24:58.720 --> 25:01.320
+and so it was kind of opted in anyway.
+
+25:01.320 --> 25:03.680
+And then I went on some vacations.
+
+25:03.680 --> 25:04.720
+This was a few years ago.
+
+25:04.720 --> 25:06.760
+But my friends, they were on there too.
+
+25:06.760 --> 25:08.600
+They were starting an album.
+
+25:08.600 --> 25:11.360
+I had to upload some things to Google Photos regardless.
+
+25:11.360 --> 25:14.520
+And once I was there, it was just so easy to stay.
+
+25:14.520 --> 25:15.720
+That's the trick.
+
+25:15.720 --> 25:17.120
+Yep, yep, yep, yep, yep.
+
+25:17.120 --> 25:18.960
+So the problem actually is, we're
+
+25:18.960 --> 25:21.720
+going to admit, Google Photos is a good product.
+
+25:21.720 --> 25:25.120
+But recently, Google has made change to the pricing structure
+
+25:25.120 --> 25:27.080
+and taken away some of the incentives that they
+
+25:27.080 --> 25:29.760
+used to actually get us using it in the first place.
+
+25:29.760 --> 25:31.840
+And with any kind of Google thing,
+
+25:31.840 --> 25:34.560
+it's kind of like, how long is this going to be around?
+
+25:34.560 --> 25:36.080
+Is this really a long-term solution?
+
+25:36.080 --> 25:37.760
+And what about the privacy aspects of it
+
+25:37.760 --> 25:39.400
+and the ongoing cost?
+
+25:39.400 --> 25:41.040
+And I don't know, do you agree, Alex?
+
+25:41.040 --> 25:43.720
+Is part of the problem Google Photos is just kind of, well,
+
+25:43.720 --> 25:44.880
+it's damn good.
+
+25:44.880 --> 25:45.800
+I do, absolutely.
+
+25:45.800 --> 25:47.080
+Yes, hello, everybody.
+
+25:47.080 --> 25:49.760
+They've done the old bait and switch there, haven't they?
+
+25:49.760 --> 25:51.280
+The first hit is free.
+
+25:51.280 --> 25:52.120
+Exactly.
+
+25:52.120 --> 25:53.080
+They drew me in.
+
+25:53.080 --> 25:55.520
+And then because I was already paying for Google Storage
+
+25:55.520 --> 25:59.720
+for my backups, it wasn't like this, oh no, now I have to pay.
+
+25:59.720 --> 26:02.200
+It was like, oh, well, I'm already paying,
+
+26:02.200 --> 26:03.840
+so I guess I can just keep using it.
+
+26:03.840 --> 26:05.360
+Now, for those that aren't familiar,
+
+26:05.360 --> 26:09.520
+what's actually changing is that as of June 1, 2021,
+
+26:09.520 --> 26:12.440
+the account storage is shared across Drive, Gmail,
+
+26:12.440 --> 26:13.120
+and Photos.
+
+26:13.120 --> 26:16.280
+But any new photos and videos you upload
+
+26:16.280 --> 26:19.840
+will now count towards the free 15 gigabytes of storage that
+
+26:19.840 --> 26:22.560
+comes with every Google account.
+
+26:22.560 --> 26:23.880
+Now, the reason that's changed is
+
+26:23.880 --> 26:26.960
+before they had this kind of compressed high quality
+
+26:26.960 --> 26:30.360
+in air quotes that didn't count towards that quota,
+
+26:30.360 --> 26:32.400
+but now everything does, no matter what.
+
+26:32.400 --> 26:33.320
+Yeah.
+
+26:33.320 --> 26:35.760
+And I wasn't using all 10 terabytes,
+
+26:35.760 --> 26:37.520
+so it wasn't a huge hit to me.
+
+26:37.520 --> 26:40.000
+But it woke me up and reminded me
+
+26:40.000 --> 26:43.560
+how precarious the situation is when I'm using a hosted service
+
+26:43.560 --> 26:47.120
+like this, and how they always, so far, Alex,
+
+26:47.120 --> 26:48.720
+have inevitably bit me in the butt,
+
+26:48.720 --> 26:51.320
+and a lot of times have done so in such a way that
+
+26:51.320 --> 26:53.160
+inspired us to start the self-hosted podcast.
+
+26:53.160 --> 26:55.600
+So that, I know, is well-covered ground for us.
+
+26:55.600 --> 26:59.440
+But yet, here I am, knowing better,
+
+26:59.440 --> 27:02.480
+knowing the privacy implications of Google, all of that.
+
+27:02.480 --> 27:05.320
+The transparent background uploads,
+
+27:05.320 --> 27:07.400
+the sharing features that Wes touched on,
+
+27:07.400 --> 27:10.680
+and then the searching features are very good.
+
+27:10.680 --> 27:13.160
+And you could make the argument that now that Google
+
+27:13.160 --> 27:15.400
+is making you pay for this, it actually
+
+27:15.400 --> 27:17.040
+makes Google Photos sustainable.
+
+27:17.040 --> 27:18.800
+So it'll be around for a long time.
+
+27:18.800 --> 27:21.200
+So I think it remains a very viable option.
+
+27:21.200 --> 27:24.800
+But I know I should be probably looking into other things.
+
+27:24.800 --> 27:27.920
+Well, when we look at the whole picture here,
+
+27:27.920 --> 27:31.440
+you've got to take into consideration who owns the data,
+
+27:31.440 --> 27:33.640
+what are they going to do with it, how much is it
+
+27:33.640 --> 27:36.400
+going to cost, not just in terms of it's
+
+27:36.400 --> 27:39.200
+going to cost me a couple of dollars every month,
+
+27:39.200 --> 27:42.880
+but in terms of the cost to humanity,
+
+27:42.880 --> 27:47.680
+I suppose, in not having a fully open solution.
+
+27:47.680 --> 27:50.480
+And what I've come to find writing this piece
+
+27:50.480 --> 27:53.120
+is that there isn't one size fits
+
+27:53.120 --> 27:55.680
+all self-hosted photo management solution.
+
+27:55.680 --> 27:58.440
+There are several very good options,
+
+27:58.440 --> 28:00.440
+but all of them check different boxes
+
+28:00.440 --> 28:03.960
+and miss other really basic stuff.
+
+28:03.960 --> 28:06.520
+Libre Photos, for example, is one of the apps
+
+28:06.520 --> 28:08.440
+we'll come on to later.
+
+28:08.440 --> 28:11.400
+It doesn't let you delete a photo from an album.
+
+28:11.400 --> 28:13.320
+It just boggles my mind that such a basic thing
+
+28:13.320 --> 28:16.720
+gets missed from some of this stuff.
+
+28:16.720 --> 28:19.280
+But the other angle of self-hosting
+
+28:19.280 --> 28:21.800
+is that you have to have a server.
+
+28:21.800 --> 28:25.280
+You have to pay either Linode, or build one
+
+28:25.280 --> 28:28.200
+and stick it in your basement, or a closet, or whatever it is.
+
+28:28.200 --> 28:31.800
+And so there's a cost not only in terms of financial stuff
+
+28:31.800 --> 28:35.320
+upfront for self-hosting, but also in terms of my time
+
+28:35.320 --> 28:38.200
+to research and set these things up as well.
+
+28:38.200 --> 28:41.640
+And if Google Photos ends up being around for 10, 15 years,
+
+28:41.640 --> 28:43.840
+is it likely that you're going to build and self-host
+
+28:43.840 --> 28:46.080
+something that will also be around for 10 or 15 years?
+
+28:46.080 --> 28:47.320
+That's what I was thinking.
+
+28:47.320 --> 28:49.080
+I'm OK running some of my infrastructure,
+
+28:49.080 --> 28:51.680
+but photos are some things I'd like to not lose.
+
+28:51.680 --> 28:54.240
+And if I make a mistake, as a novice admin, say.
+
+28:54.240 --> 28:55.560
+I always find it useful, whenever
+
+28:55.560 --> 28:57.320
+we talk in such large timescales,
+
+28:57.320 --> 29:02.040
+to just remind you, 10 years ago was 2011.
+
+29:02.040 --> 29:04.320
+What were you doing then with your photos?
+
+29:04.320 --> 29:07.120
+Just picture how far the industry's come in that decade
+
+29:07.120 --> 29:09.840
+and think about how far it might go in the next.
+
+29:09.840 --> 29:13.400
+It seems like what really is the killer next generation
+
+29:13.400 --> 29:18.560
+feature is object recognition, face recognition, location
+
+29:18.560 --> 29:20.720
+recognition, and then an interface that
+
+29:20.720 --> 29:22.760
+allows you to manage all of that.
+
+29:22.760 --> 29:26.000
+And that's what Google nailed early with Google Photos.
+
+29:26.000 --> 29:28.480
+It isn't necessarily impossible to get in something
+
+29:28.480 --> 29:29.880
+you could run yourself.
+
+29:29.880 --> 29:32.240
+And I know you've looked at several of them.
+
+29:32.240 --> 29:34.200
+Well, if I was reviewing Google Photos,
+
+29:34.200 --> 29:36.400
+one of the things I would probably put in the negative
+
+29:36.400 --> 29:39.440
+column is that it doesn't have an awful lot in the way
+
+29:39.440 --> 29:41.000
+of organizational features.
+
+29:41.000 --> 29:45.760
+It has basic album support, and that's pretty much it.
+
+29:45.760 --> 29:47.560
+Compare that to a lot of the other options
+
+29:47.560 --> 29:49.360
+that we'll talk about today.
+
+29:49.360 --> 29:53.720
+And Google managed to sidestep a lot of that
+
+29:53.720 --> 29:56.400
+by having awesome machine learning.
+
+29:56.400 --> 29:58.800
+And when you have an interface that is literally,
+
+29:58.800 --> 30:00.880
+like you said in the beginning, search
+
+30:00.880 --> 30:04.360
+for photos of Dylan in Idaho, you
+
+30:04.360 --> 30:07.240
+don't need a directory structure that organizes everything.
+
+30:07.240 --> 30:10.640
+You don't need to spend hours tagging things.
+
+30:10.640 --> 30:13.720
+Their algorithms have done all that work for you.
+
+30:13.720 --> 30:17.160
+And machine learning, it's a bit of a buzzword in the industry,
+
+30:17.160 --> 30:20.360
+but if we think about it in its simplest form,
+
+30:20.360 --> 30:21.800
+it's just pattern matching.
+
+30:21.800 --> 30:23.680
+So all the algorithms are looking
+
+30:23.680 --> 30:26.520
+for are certain groupings of pixels
+
+30:26.520 --> 30:28.520
+that it think, well, maybe that's a tree.
+
+30:28.520 --> 30:29.400
+Maybe that's a face.
+
+30:29.400 --> 30:30.480
+Maybe that's a monkey.
+
+30:30.480 --> 30:31.360
+Or a hot dog.
+
+30:31.360 --> 30:32.360
+Or a hot dog, yes.
+
+30:32.360 --> 30:35.240
+Have you seen that Silicon Valley episode?
+
+30:35.240 --> 30:38.120
+And machine learning really is everywhere these days.
+
+30:38.120 --> 30:41.800
+And I was watching, I think it was a Marques Brownlee video,
+
+30:41.800 --> 30:46.600
+MKBHD on YouTube, talking about how farmers
+
+30:46.600 --> 30:51.080
+are using machine learning to identify weeds in their crops
+
+30:51.080 --> 30:53.560
+so that they use 90% less pesticides.
+
+30:53.560 --> 30:54.280
+So interesting.
+
+30:54.280 --> 30:57.600
+There are some significant use cases for machine learning
+
+30:57.600 --> 30:59.240
+outside of photos.
+
+30:59.240 --> 31:01.920
+But of course, where it gets interesting is it reduces
+
+31:01.920 --> 31:04.440
+your overhead of organization.
+
+31:04.440 --> 31:05.920
+Right, because you don't have to go through and tag,
+
+31:05.920 --> 31:06.960
+this is a Dylan picture.
+
+31:06.960 --> 31:08.040
+This is a Chris picture.
+
+31:08.040 --> 31:09.520
+This is an Idaho picture.
+
+31:09.520 --> 31:11.080
+It just does all that for you and then
+
+31:11.080 --> 31:12.960
+makes it available as search criteria.
+
+31:12.960 --> 31:14.040
+Absolutely.
+
+31:14.040 --> 31:16.680
+Now, when we're thinking about this space,
+
+31:16.680 --> 31:19.800
+we've got to think about the workflow.
+
+31:19.800 --> 31:21.920
+And I think we've got Brent on the line as well.
+
+31:21.920 --> 31:23.080
+And as a professional photographer,
+
+31:23.080 --> 31:25.480
+I'm sure he can add something into the conversation
+
+31:25.480 --> 31:26.840
+about workflows.
+
+31:26.840 --> 31:29.800
+But what I'm primarily looking to back up here
+
+31:29.800 --> 31:32.760
+are the images I take on my smartphone.
+
+31:32.760 --> 31:35.640
+I do take a lot of images with my SLR when I'm traveling.
+
+31:35.640 --> 31:37.800
+But for most of the rest of the time,
+
+31:37.800 --> 31:40.280
+I will dump those at the end of a trip.
+
+31:40.280 --> 31:43.280
+And it's two weeks worth of images, bang.
+
+31:43.280 --> 31:44.920
+And I'm done.
+
+31:44.920 --> 31:47.840
+What I'm more interested in is that kind of daily minutia
+
+31:47.840 --> 31:50.120
+kind of automation and getting those images
+
+31:50.120 --> 31:53.920
+off my mobile device in a never compressed format.
+
+31:53.920 --> 31:55.280
+Now, I use Nextcloud to do this.
+
+31:55.280 --> 31:56.240
+What do you use?
+
+31:56.240 --> 31:58.600
+Actually, Alex, I'm using Nextcloud as well.
+
+31:58.600 --> 32:01.400
+And in the beginning, it was a little clumsy.
+
+32:01.400 --> 32:05.200
+But these days, I'm finding it just very seamless.
+
+32:05.200 --> 32:06.560
+Is that your experience as well?
+
+32:06.560 --> 32:07.280
+It just works.
+
+32:07.280 --> 32:09.080
+Yeah, and that's the best kind of works.
+
+32:09.080 --> 32:10.920
+Does it run automatically in the background?
+
+32:10.920 --> 32:13.440
+Yeah, it has this nice feature where
+
+32:13.440 --> 32:14.800
+it's just called auto upload.
+
+32:14.800 --> 32:18.480
+And you can add any folder that detects media on your phone.
+
+32:18.480 --> 32:21.680
+So it could be even just like downloads and things like that,
+
+32:21.680 --> 32:24.760
+not just the photos from your camera, which
+
+32:24.760 --> 32:28.320
+I found really helpful to back up things like backups
+
+32:28.320 --> 32:31.880
+of my signal database that happens automatically,
+
+32:31.880 --> 32:32.640
+things like that.
+
+32:32.640 --> 32:34.120
+Oh, that's a good idea.
+
+32:34.120 --> 32:35.240
+There you go.
+
+32:35.240 --> 32:36.880
+But for photographs, it's great.
+
+32:36.880 --> 32:38.980
+Because as a professional photographer,
+
+32:38.980 --> 32:41.720
+I have this sort of constant fear
+
+32:41.720 --> 32:46.200
+of losing any photographs that's been baked into my mind
+
+32:46.200 --> 32:47.960
+for a really long time.
+
+32:47.960 --> 32:51.480
+And so I call it the sort of run over by a dump truck situation.
+
+32:51.480 --> 32:53.560
+If your phone gets run over by a dump truck
+
+32:53.560 --> 32:56.120
+while you're out on some experience
+
+32:56.120 --> 32:58.800
+that you want to remember forever,
+
+32:58.800 --> 33:01.240
+well, it uploads your photos as you take them.
+
+33:01.240 --> 33:03.440
+And I think that's a really nice feature.
+
+33:03.440 --> 33:07.000
+And Nextcloud has been really seamless doing that.
+
+33:07.000 --> 33:10.240
+So in terms of at least that auto backup feature,
+
+33:10.240 --> 33:12.760
+it's really solid, really, really solid,
+
+33:12.760 --> 33:16.240
+not to mention solving a bunch of other neat things for us
+
+33:16.240 --> 33:17.240
+outside of photos.
+
+33:17.240 --> 33:19.600
+So there's several ways to get the photos off the phone.
+
+33:19.600 --> 33:22.400
+Like Alex and I recently talked about FolderSync,
+
+33:22.400 --> 33:25.320
+which is another Android application that does this.
+
+33:25.320 --> 33:28.400
+Of course, I guess the obvious other one would be Dropbox.
+
+33:28.400 --> 33:29.440
+They offer to do this.
+
+33:29.440 --> 33:29.940
+Indeed.
+
+33:29.940 --> 33:32.640
+And they'll get it on a file system for you, right?
+
+33:32.640 --> 33:34.400
+So it seems like there are several ways
+
+33:34.400 --> 33:37.600
+to solve that with various pluses and minuses.
+
+33:37.600 --> 33:40.720
+But that's not really what my problem isn't getting
+
+33:40.720 --> 33:42.000
+the photo off the device.
+
+33:42.000 --> 33:43.760
+I don't even mind like you, Alex.
+
+33:43.760 --> 33:46.840
+I'll sit down after a trip, and I'll dump the photos off
+
+33:46.840 --> 33:48.480
+of the SD card for the drone.
+
+33:48.480 --> 33:49.600
+I'll manually do that.
+
+33:49.600 --> 33:50.860
+There's nothing automated about that.
+
+33:50.860 --> 33:52.400
+But there's kind of a ritual about it.
+
+33:52.400 --> 33:54.840
+And I'm pretty good about doing that one thing.
+
+33:54.840 --> 33:56.080
+That I got down.
+
+33:56.080 --> 33:58.880
+It is honestly, it's the organization.
+
+33:58.880 --> 34:01.040
+I guess I don't want to say I'm lazy.
+
+34:01.040 --> 34:04.680
+Young Chris kept everything in folders on his file system
+
+34:04.680 --> 34:08.160
+and managed his music and his pictures that way and loved it.
+
+34:08.160 --> 34:10.440
+And it was a system that really worked for him.
+
+34:10.440 --> 34:12.800
+But now President Chris looks back at that guy
+
+34:12.800 --> 34:14.480
+and goes, boy, what a waste of my time.
+
+34:14.480 --> 34:15.480
+I'm not doing that.
+
+34:15.480 --> 34:18.840
+But yet, I consider these photos extremely important.
+
+34:18.840 --> 34:21.720
+It's this weird dichotomy that I find myself in.
+
+34:21.720 --> 34:23.960
+And so it's not so much the uploading of the photos.
+
+34:23.960 --> 34:26.280
+It is the managing of the photos.
+
+34:26.280 --> 34:28.160
+And I'm trying to find something that
+
+34:28.160 --> 34:31.680
+isn't a proprietary system, that isn't locked to Apple or Google.
+
+34:31.680 --> 34:33.960
+It's really easy to do that kind of organization
+
+34:33.960 --> 34:36.240
+when you have a trip to aim at.
+
+34:36.240 --> 34:39.960
+You know, 2015 road trip, Southwest USA, for example.
+
+34:39.960 --> 34:42.520
+Or like family reunion 2021.
+
+34:42.520 --> 34:43.120
+Uh-huh.
+
+34:43.120 --> 34:44.600
+But if it's just a random Tuesday
+
+34:44.600 --> 34:46.680
+where you've snapped to your kid being cute,
+
+34:46.680 --> 34:49.640
+it's a bit harder to get that into some kind of folder
+
+34:49.640 --> 34:51.240
+other than misc, right?
+
+34:51.240 --> 34:52.880
+Yeah, or just even spend the time
+
+34:52.880 --> 34:55.280
+to do it in the daily flow like that.
+
+34:55.280 --> 34:56.400
+And one of those things that slips, right?
+
+34:56.400 --> 34:57.800
+Maybe you try to do it on Sundays,
+
+34:57.800 --> 34:59.840
+but then something came up and someone came over
+
+34:59.840 --> 35:01.560
+and then you missed it.
+
+35:01.560 --> 35:04.120
+How important do we think open source
+
+35:04.120 --> 35:07.000
+versus closed source is in this space?
+
+35:07.000 --> 35:08.160
+Boy, that's tough.
+
+35:08.160 --> 35:09.000
+That's tough.
+
+35:09.000 --> 35:12.080
+That is tricky because I often consider
+
+35:12.080 --> 35:15.440
+the essential applications to be the most important
+
+35:15.440 --> 35:17.200
+open source free software applications.
+
+35:17.200 --> 35:20.160
+Like that's generally my default.
+
+35:20.160 --> 35:22.440
+But I'm worried, to be honest with you, Alex,
+
+35:22.440 --> 35:23.840
+that the machine learning stuff
+
+35:23.840 --> 35:25.760
+or whatever GPU acceleration stuff
+
+35:25.760 --> 35:27.440
+that's going to be necessary to get what I want
+
+35:27.440 --> 35:28.960
+is all going to be proprietary.
+
+35:28.960 --> 35:30.200
+Well, good news there.
+
+35:30.200 --> 35:31.840
+Most of the apps that we'll talk about today
+
+35:31.840 --> 35:32.920
+use TensorFlow,
+
+35:32.920 --> 35:35.600
+which is a Google machine learning algorithm.
+
+35:35.600 --> 35:37.440
+There's another one that we'll talk about
+
+35:37.440 --> 35:40.360
+called PhotoStruxure, which has a closed source
+
+35:40.360 --> 35:42.600
+and it's also a paid product as well.
+
+35:42.600 --> 35:44.120
+But the developer has committed,
+
+35:44.120 --> 35:46.640
+if anything happens to him or his company,
+
+35:46.640 --> 35:47.920
+to open source the product.
+
+35:47.920 --> 35:49.640
+Does that count for you?
+
+35:49.640 --> 35:51.440
+It's definitely a plus anyway.
+
+35:51.440 --> 35:52.360
+I mean, I'm not,
+
+35:52.360 --> 35:54.200
+I guess I can handle proprietary software,
+
+35:54.200 --> 35:56.560
+but I'd like to understand some of the motivations
+
+35:56.560 --> 35:58.440
+and think that there's something long-term
+
+35:58.440 --> 36:00.120
+that I can depend on at the very least.
+
+36:00.120 --> 36:02.560
+I mean, there's clear advantages to an open source project
+
+36:02.560 --> 36:04.680
+if it has a sizable user base
+
+36:04.680 --> 36:06.760
+and a sustainable development model.
+
+36:06.760 --> 36:09.920
+You get visibility into the direction of the project
+
+36:09.920 --> 36:13.280
+and photos is a pretty important possession.
+
+36:13.280 --> 36:15.840
+And so having that kind of forward-looking guidance
+
+36:15.840 --> 36:18.480
+on a project gives me peace of mind.
+
+36:18.480 --> 36:21.920
+But we talked about Beersmith in episode 400.
+
+36:21.920 --> 36:23.560
+That's a proprietary application,
+
+36:23.560 --> 36:26.200
+but it is built by a developer
+
+36:26.200 --> 36:27.800
+who's dedicating his life to that.
+
+36:27.800 --> 36:30.880
+And it's got a good user base and he's not going away.
+
+36:30.880 --> 36:33.520
+Or, I mean, we're recording this right now in Reaper,
+
+36:33.520 --> 36:35.040
+which is also a proprietary application,
+
+36:35.040 --> 36:37.480
+but one that we love and absolutely depend on.
+
+36:37.480 --> 36:40.680
+Yeah, so if the tool's clever enough
+
+36:40.680 --> 36:43.920
+and it looks sustainable, I'd consider it.
+
+36:43.920 --> 36:44.760
+It's the age-old question
+
+36:44.760 --> 36:46.400
+of how do you monetize open source?
+
+36:46.400 --> 36:47.240
+Right.
+
+36:47.240 --> 36:50.040
+I think it's a problem that will bother us
+
+36:50.040 --> 36:51.240
+for many years yet.
+
+36:51.240 --> 36:54.320
+Well, and Alex, it's also pragmatism versus idealism.
+
+36:54.320 --> 36:55.240
+It's that question too.
+
+36:55.240 --> 36:56.440
+And you're coming to something
+
+36:56.440 --> 36:59.040
+like your precious life photos.
+
+36:59.040 --> 37:00.640
+And you're like in this war of like,
+
+37:00.640 --> 37:03.240
+well, do I want something that's only free software?
+
+37:03.240 --> 37:04.520
+Or am I willing to settle?
+
+37:04.520 --> 37:06.120
+And it's like, where do you fall
+
+37:06.120 --> 37:08.360
+on that whole pragmatism versus idealism line?
+
+37:08.360 --> 37:10.240
+Well, I think if you're going full pragmatist,
+
+37:10.240 --> 37:12.160
+you'll just use Google Photos, right?
+
+37:12.160 --> 37:14.760
+Yeah, and I think that's what's been gnawing
+
+37:14.760 --> 37:17.240
+at both Wes and I is full pragmatist
+
+37:17.240 --> 37:19.640
+also means you're fully vulnerable
+
+37:19.640 --> 37:22.080
+to whatever that service provider does.
+
+37:22.080 --> 37:23.680
+And that's uncomfortable.
+
+37:23.680 --> 37:26.080
+We were looking a little bit before the show
+
+37:26.080 --> 37:28.400
+and playing around with Google Photos sync
+
+37:28.400 --> 37:31.240
+like a Python daemon that'll sync stuff down from Google.
+
+37:31.240 --> 37:33.600
+So I wonder if there's maybe some happy mediums there
+
+37:33.600 --> 37:35.080
+where you still might want a backup.
+
+37:35.080 --> 37:37.320
+Maybe you even want sort of a read-only view
+
+37:37.320 --> 37:39.520
+of a local web interface of those backed up files,
+
+37:39.520 --> 37:42.200
+but you use Google Photos for sharing with family.
+
+37:42.200 --> 37:44.320
+Right, and so you have local copies
+
+37:44.320 --> 37:46.040
+and then you have the copies on Google Photos.
+
+37:46.040 --> 37:46.880
+Or maybe it goes the other way
+
+37:46.880 --> 37:47.720
+and you sync it locally
+
+37:47.720 --> 37:49.760
+and then upload them to Google Photos on the site.
+
+37:49.760 --> 37:50.600
+I'm not sure.
+
+37:50.600 --> 37:51.680
+It seems like there's a lot of options though.
+
+37:51.680 --> 37:53.720
+Or maybe something else entirely.
+
+37:53.720 --> 37:57.000
+You could argue, right, that Google Photos
+
+37:57.000 --> 38:01.160
+being a completely proprietary service is irrelevant
+
+38:01.160 --> 38:03.000
+as long as the export tools are good enough.
+
+38:03.000 --> 38:06.440
+And Google love to promote this Google Takeout tool.
+
+38:06.440 --> 38:07.920
+But when I was writing this piece,
+
+38:07.920 --> 38:09.720
+you know, it's taken me a week or so.
+
+38:09.720 --> 38:11.320
+On the first night I was writing,
+
+38:11.320 --> 38:12.800
+I went to Google Takeout
+
+38:12.800 --> 38:15.520
+and pressed the give me my photos button.
+
+38:15.520 --> 38:18.240
+We are about eight or nine days now
+
+38:18.240 --> 38:20.800
+and I still haven't gotten the download link.
+
+38:20.800 --> 38:22.000
+Really? Wow.
+
+38:22.000 --> 38:23.560
+That doesn't give you confidence.
+
+38:23.560 --> 38:24.400
+Not really.
+
+38:24.400 --> 38:25.240
+Although I have to say,
+
+38:25.240 --> 38:27.160
+I think if Google Photos was gonna shut down,
+
+38:27.160 --> 38:30.480
+they would probably give people a pretty good grace period
+
+38:30.480 --> 38:31.560
+to get their data out of there.
+
+38:31.560 --> 38:34.080
+I don't think Google will just turn it off.
+
+38:34.080 --> 38:36.480
+I think what is actually more likely, Alex,
+
+38:36.480 --> 38:38.600
+is that something happens to my Google account
+
+38:38.600 --> 38:41.640
+and I lose access to my Google account, thus my photos.
+
+38:41.640 --> 38:42.520
+Now I know that Brent,
+
+38:42.520 --> 38:44.920
+you have a fully open sourced workflow.
+
+38:44.920 --> 38:47.280
+So you must have some opinions on this, right?
+
+38:47.280 --> 38:49.280
+Well, I started tackling this problem
+
+38:49.280 --> 38:51.480
+much before we had mobile phones.
+
+38:51.480 --> 38:56.480
+And so I will say my solutions are a bit archaic,
+
+38:56.680 --> 38:57.880
+but they are solid.
+
+38:57.880 --> 38:59.680
+Stay a while and listen.
+
+38:59.680 --> 39:04.240
+And so one thing, one criteria I had
+
+39:04.240 --> 39:06.480
+that's still very strong for me
+
+39:06.480 --> 39:11.360
+is to always have the ability to put my photos
+
+39:11.360 --> 39:15.200
+somewhere on a file system without dependency on anything.
+
+39:15.200 --> 39:20.200
+So anything includes a company, a web service, a database,
+
+39:20.960 --> 39:24.000
+if I can have access to them always,
+
+39:24.000 --> 39:26.200
+then that's really super important.
+
+39:26.200 --> 39:27.240
+And so Chris, when you said,
+
+39:27.240 --> 39:30.800
+oh, if I lose access to my Google account,
+
+39:30.800 --> 39:33.600
+I started cringing and my palms are sweating
+
+39:33.600 --> 39:35.760
+and that makes me super uncomfortable
+
+39:35.760 --> 39:38.560
+because that's something I've seen happen a lot
+
+39:38.560 --> 39:40.600
+to very well-meaning people.
+
+39:40.600 --> 39:42.400
+And I've tried to help people get in
+
+39:42.400 --> 39:44.400
+and sometimes it's impossible.
+
+39:44.400 --> 39:47.120
+And so actually that's even worse
+
+39:47.120 --> 39:49.480
+than having your phone run over by a dump truck
+
+39:49.480 --> 39:53.240
+because it's all of the photos spanning across
+
+39:53.240 --> 39:55.600
+several generations of phones that you've had
+
+39:55.600 --> 39:58.800
+and not to mention other things you've uploaded there.
+
+39:58.800 --> 40:02.520
+So I think having that in mind,
+
+40:02.520 --> 40:05.360
+being able to export your photos meaningfully,
+
+40:05.360 --> 40:08.240
+which Alex, it sounds like they failed there for you,
+
+40:08.240 --> 40:09.400
+that's extremely important.
+
+40:09.400 --> 40:12.240
+So for me, that's the top one
+
+40:12.240 --> 40:15.720
+and that's the one that's kept me from using Google Photos
+
+40:15.720 --> 40:20.480
+all these years is that it just makes me really uncomfortable.
+
+40:20.480 --> 40:23.200
+And so some of the tools I've relied on
+
+40:23.200 --> 40:26.800
+have been a little bit more offline tools for that reason.
+
+40:27.680 --> 40:30.400
+And like I said, I've developed my pipeline
+
+40:31.320 --> 40:32.800
+to have longevity to it.
+
+40:32.800 --> 40:35.240
+And so it's worked up till this point.
+
+40:35.240 --> 40:37.800
+Cause you're even allergic to stuff like Lightroom, right?
+
+40:37.800 --> 40:40.720
+You really don't wanna even go as far as paying Adobe any,
+
+40:40.720 --> 40:42.120
+I don't know, what's the word I'm looking for?
+
+40:42.120 --> 40:43.800
+You don't wanna give Adobe credit
+
+40:43.800 --> 40:47.560
+for going to a subscription model or whatever it is.
+
+40:47.560 --> 40:50.240
+You use a dark table if I'm not mistaken, right?
+
+40:50.240 --> 40:51.160
+I do, yeah.
+
+40:51.160 --> 40:54.240
+And you know, Alex, you touch on a little piece
+
+40:54.240 --> 40:56.120
+of my past there.
+
+40:56.120 --> 40:58.800
+So Lightroom was sort of the defacto
+
+40:58.800 --> 41:00.120
+and where I learned doing a lot
+
+41:00.120 --> 41:03.920
+of really efficient photo manipulation.
+
+41:03.920 --> 41:07.560
+And I got bit by early versions of Lightroom
+
+41:07.560 --> 41:10.440
+because their libraries weren't compatible
+
+41:10.440 --> 41:14.640
+between different versions sometimes depending,
+
+41:14.640 --> 41:16.360
+but also they would get corrupted.
+
+41:16.360 --> 41:21.360
+And so that was where both this desire
+
+41:21.840 --> 41:23.560
+to get away from a dependency
+
+41:23.560 --> 41:25.440
+on some of those functions came from,
+
+41:25.440 --> 41:28.800
+but also where I got introduced to open software
+
+41:28.800 --> 41:31.560
+in the first place, to open source software.
+
+41:31.560 --> 41:33.800
+And so it's funny that you mentioned Lightroom
+
+41:33.800 --> 41:37.120
+because it's the reason that I have these philosophies now
+
+41:37.120 --> 41:38.520
+and that I looked for alternatives
+
+41:38.520 --> 41:43.400
+that didn't tie all my metadata into, you know,
+
+41:43.400 --> 41:46.400
+a neat little database that could get corrupted or lost.
+
+41:46.400 --> 41:47.480
+I think it's better these days,
+
+41:47.480 --> 41:52.360
+but back then it just sort of informed my decisions.
+
+41:52.360 --> 41:53.920
+So all right, Alex, give us a rundown
+
+41:53.920 --> 41:55.840
+of some of the apps you've come across.
+
+41:55.840 --> 41:58.000
+One of the first apps I picked out was Photonics.
+
+41:58.000 --> 42:00.160
+Now this one, its headline feature
+
+42:00.160 --> 42:03.080
+is machine learning object detection.
+
+42:03.080 --> 42:05.320
+There's currently no face detection with this one,
+
+42:05.320 --> 42:07.920
+but there is active development in this area.
+
+42:07.920 --> 42:11.360
+And I ended up really liking this app for a while.
+
+42:11.360 --> 42:14.640
+And then the more I used it, the more I disliked it.
+
+42:14.640 --> 42:17.040
+I just found the interface kind of really cluttered.
+
+42:17.040 --> 42:19.200
+Now, the way I like to describe this
+
+42:19.200 --> 42:21.560
+is kind of designed by developer.
+
+42:21.560 --> 42:23.160
+It's one of those interfaces
+
+42:23.160 --> 42:26.480
+where clearly the people working on the project
+
+42:26.480 --> 42:28.120
+know every little bell and whistle,
+
+42:28.120 --> 42:29.680
+every little knob and dial to turn,
+
+42:29.680 --> 42:32.320
+but as a user coming to it fresh,
+
+42:32.320 --> 42:36.160
+I don't need to be presented with everything all at once.
+
+42:36.160 --> 42:37.720
+With a photo app in particular,
+
+42:37.720 --> 42:40.040
+the content should be front and center
+
+42:40.040 --> 42:43.840
+and then everything else should be available if I want it.
+
+42:43.840 --> 42:48.040
+There is a demo of Photonics at demo.photonics.org.
+
+42:48.040 --> 42:50.440
+Now the next one was actually a really interesting project.
+
+42:50.440 --> 42:52.480
+So it used to be called OwnPhotos
+
+42:52.480 --> 42:56.280
+and recently it was forked into the new project
+
+42:56.280 --> 42:58.680
+called LibrePhotos.
+
+42:58.680 --> 43:01.120
+This was probably,
+
+43:01.120 --> 43:03.560
+it was certainly in my top three of the apps I looked at.
+
+43:03.560 --> 43:05.200
+And there's a lot to like here.
+
+43:05.200 --> 43:08.160
+It's got all the important stuff like face recognition,
+
+43:08.160 --> 43:10.760
+geo lookups, object detection,
+
+43:10.760 --> 43:13.560
+and the developer recently added video support as well.
+
+43:13.560 --> 43:16.480
+And having just had a kid,
+
+43:16.480 --> 43:20.120
+I have totally changed my tune on video.
+
+43:20.120 --> 43:22.520
+Yeah, take as much video as you can, that's my advice.
+
+43:22.520 --> 43:24.480
+And particularly if it displays,
+
+43:24.480 --> 43:26.160
+just like Google Photos does,
+
+43:26.160 --> 43:28.680
+in the feed, in the timeline view,
+
+43:28.680 --> 43:30.840
+just like a photo would do.
+
+43:30.840 --> 43:34.400
+Also, and this one Brent might be of interest for you,
+
+43:34.400 --> 43:38.080
+it has a direct integration with Nextcloud via WebDAV,
+
+43:38.080 --> 43:40.240
+which enables a seamless import of images
+
+43:40.240 --> 43:42.240
+between those two applications.
+
+43:42.240 --> 43:45.800
+See, I like that because it starts to combine
+
+43:45.800 --> 43:48.840
+some applications to solve the whole solution space
+
+43:48.840 --> 43:51.000
+that Google Photos is offering,
+
+43:51.000 --> 43:52.280
+where it seems like so far,
+
+43:52.280 --> 43:54.560
+some of these are little bits and pieces.
+
+43:54.560 --> 43:56.120
+Is that what I'm getting?
+
+43:56.120 --> 43:58.640
+Right, whereas this is a sync and the photo library.
+
+43:58.640 --> 44:00.600
+And I like, I also like in here,
+
+44:00.600 --> 44:02.600
+they have a data visualization section
+
+44:02.600 --> 44:06.400
+that shows you timeline and word clouds and places tree.
+
+44:06.400 --> 44:07.240
+Oh, wow.
+
+44:07.240 --> 44:08.080
+That stuff's fun.
+
+44:08.080 --> 44:09.720
+Actually really do like the timeline stuff
+
+44:09.720 --> 44:11.600
+because I can go through there and look at,
+
+44:11.600 --> 44:13.120
+just discover a whole time period.
+
+44:13.120 --> 44:15.480
+And then pretty soon I'm starting to send pictures
+
+44:15.480 --> 44:17.120
+to my wife, oh, remember this?
+
+44:17.120 --> 44:19.040
+All of that kind of little thing,
+
+44:19.040 --> 44:20.880
+things that just kind of built into Google Photos
+
+44:20.880 --> 44:21.720
+and other software.
+
+44:21.720 --> 44:23.960
+It's nice to see that here in Libre photos.
+
+44:23.960 --> 44:24.800
+That's cool.
+
+44:24.800 --> 44:27.000
+Those data visualizations are cool,
+
+44:27.000 --> 44:30.200
+but ultimately, particularly the word cloud,
+
+44:30.200 --> 44:32.320
+I found it just to be a bit pointless.
+
+44:32.320 --> 44:35.760
+Like maybe if in the word cloud that's generated,
+
+44:35.760 --> 44:38.280
+so what happens is Libre photos will go through
+
+44:38.280 --> 44:40.720
+and scan your images and tag it
+
+44:40.720 --> 44:42.840
+with all the different objects it's found,
+
+44:42.840 --> 44:44.360
+you know, tree, monkey, dog.
+
+44:44.360 --> 44:45.200
+Hot dog.
+
+44:45.200 --> 44:46.040
+Hot dog.
+
+44:46.040 --> 44:48.800
+And it will generate a word cloud.
+
+44:48.800 --> 44:52.120
+And obviously the more times it finds the same word,
+
+44:52.120 --> 44:54.040
+the bigger the word becomes in the word cloud, right?
+
+44:54.040 --> 44:56.120
+Just like you'd expect.
+
+44:56.120 --> 44:58.280
+What I would expect when that happens
+
+44:58.280 --> 45:00.280
+is that I would then be able to click on that word
+
+45:00.280 --> 45:01.440
+in the web interface.
+
+45:01.440 --> 45:03.720
+And it would take me to that category of images.
+
+45:03.720 --> 45:04.560
+Yeah.
+
+45:04.560 --> 45:06.680
+Unfortunately, it doesn't do that right now.
+
+45:06.680 --> 45:09.800
+Ooh, you gotta be kidding.
+
+45:09.800 --> 45:10.640
+What's the point?
+
+45:10.640 --> 45:11.480
+That's no good.
+
+45:13.000 --> 45:13.840
+It's a small thing.
+
+45:13.840 --> 45:15.280
+But again, it's just another example
+
+45:15.280 --> 45:17.240
+of how it's designed by a developer
+
+45:17.240 --> 45:19.200
+as opposed to someone who's more focused
+
+45:19.200 --> 45:21.560
+perhaps on the user experience.
+
+45:21.560 --> 45:22.440
+Yeah, okay.
+
+45:22.440 --> 45:23.280
+All right.
+
+45:23.280 --> 45:26.160
+So Libre photos could be a contender,
+
+45:26.160 --> 45:28.040
+especially if you're in the next cloud space,
+
+45:28.040 --> 45:30.480
+but I have a sense there's something else out there.
+
+45:30.480 --> 45:31.320
+Honestly, man.
+
+45:31.320 --> 45:33.160
+There are so many.
+
+45:33.160 --> 45:34.440
+There are so many.
+
+45:34.440 --> 45:36.440
+I started off trying to write
+
+45:36.440 --> 45:38.200
+a couple of thousand word article.
+
+45:38.200 --> 45:41.880
+And over a week later, I'm tearing my hair out thinking,
+
+45:41.880 --> 45:44.360
+oh, there's so many options.
+
+45:44.360 --> 45:45.880
+So if I miss your favorite option,
+
+45:45.880 --> 45:47.560
+or we don't talk about it today,
+
+45:47.560 --> 45:49.240
+please, it's not a slight against you.
+
+45:49.240 --> 45:53.800
+Just let us know, linuxunplugged.com slash contact.
+
+45:53.800 --> 45:54.640
+All right.
+
+45:54.640 --> 45:57.200
+So the next one I'm gonna talk about is photo structure.
+
+45:57.200 --> 45:59.760
+Now this is the one that's got the really interesting
+
+45:59.760 --> 46:02.960
+kind of open source dilemma going on.
+
+46:02.960 --> 46:06.560
+So the application itself is closed source.
+
+46:06.560 --> 46:08.800
+There are several features that the developer
+
+46:08.800 --> 46:11.600
+has open sourced and upstreamed
+
+46:11.600 --> 46:13.160
+to various different projects.
+
+46:13.160 --> 46:15.760
+So it's kind of a, it's closed source,
+
+46:15.760 --> 46:18.240
+but it's aware of the open source ecosystem.
+
+46:18.240 --> 46:20.080
+So it's not on Adobe.
+
+46:20.080 --> 46:22.640
+It's not like an Oracle kind of level
+
+46:22.640 --> 46:25.360
+of closed source evilness,
+
+46:25.360 --> 46:28.960
+but it's also not full on freedom hippie open source either.
+
+46:28.960 --> 46:30.520
+Somewhere in the middle, interesting.
+
+46:30.520 --> 46:32.320
+Yeah, bear that in mind.
+
+46:32.320 --> 46:33.800
+The killer features of this app
+
+46:33.800 --> 46:36.160
+are based around photo organization.
+
+46:36.160 --> 46:37.920
+So Chris, this might be one for you.
+
+46:37.920 --> 46:40.440
+There are zero machine learning features, unfortunately,
+
+46:40.440 --> 46:43.080
+but what this one really excels at
+
+46:43.080 --> 46:46.080
+is image ingestion and management.
+
+46:46.080 --> 46:49.000
+So if you point this at a directory,
+
+46:49.000 --> 46:51.840
+it will support either existing file systems,
+
+46:51.840 --> 46:54.760
+or it will ingest and import images
+
+46:54.760 --> 46:58.040
+into its own file structure, which is still readable.
+
+46:58.040 --> 46:59.280
+It's not a database.
+
+46:59.280 --> 47:02.520
+It's just a bunch of files organized properly.
+
+47:02.520 --> 47:04.640
+It will also de-duplicate images
+
+47:04.640 --> 47:08.800
+and run on any major OS as a kind of a web app,
+
+47:08.800 --> 47:11.200
+but as a service, if that makes sense.
+
+47:11.200 --> 47:13.560
+So I run everything in a container
+
+47:13.560 --> 47:14.960
+that we're talking about here.
+
+47:14.960 --> 47:17.120
+And if you're saying that's the way you'll go to,
+
+47:17.120 --> 47:20.680
+but this one runs on any major OS that you'd like.
+
+47:20.680 --> 47:21.520
+Oh, okay.
+
+47:21.520 --> 47:23.400
+And it says it's been designed to handle
+
+47:23.400 --> 47:26.280
+a lifetime of photos and videos.
+
+47:26.280 --> 47:27.440
+Like all the best software,
+
+47:27.440 --> 47:30.160
+this one scratches an itch for the developer.
+
+47:30.160 --> 47:32.480
+And so it is closed source, but you can self-host it.
+
+47:32.480 --> 47:34.280
+You can run it on your own system.
+
+47:34.280 --> 47:36.040
+So it's a sustainable project, right?
+
+47:36.040 --> 47:38.520
+The developer can eat, and I think that's important.
+
+47:38.520 --> 47:40.560
+A lot of these projects are kind of
+
+47:40.560 --> 47:42.840
+one or two man operations,
+
+47:42.840 --> 47:45.640
+and PhotoStruxure is a one man operation,
+
+47:45.640 --> 47:47.240
+but it's his full-time job,
+
+47:47.240 --> 47:49.560
+and he can pay the bills and his mortgage with it.
+
+47:49.560 --> 47:52.960
+So he's motivated to keep working on it and add new features.
+
+47:52.960 --> 47:55.800
+And as a paid customer for PhotoStruxure,
+
+47:55.800 --> 47:58.520
+you get the ability to vote on the next features
+
+47:58.520 --> 48:01.080
+coming along and it's a meritocracy.
+
+48:01.080 --> 48:03.400
+So obviously the features with the most votes
+
+48:03.400 --> 48:04.800
+are the ones that he will work on
+
+48:04.800 --> 48:07.640
+because the people paying the bills have asked him to do so.
+
+48:07.640 --> 48:08.480
+I like that.
+
+48:08.480 --> 48:11.160
+Always nice to see software that runs and targets Linux
+
+48:11.160 --> 48:12.880
+and they've mentioned Docker right there
+
+48:12.880 --> 48:14.600
+pretty prominently, wonderful.
+
+48:14.600 --> 48:15.440
+I can live with that.
+
+48:15.440 --> 48:17.920
+All right, so PhotoStruxure looks like a serious contender,
+
+48:17.920 --> 48:19.880
+as long as I don't want the machine learning
+
+48:19.880 --> 48:21.440
+like base tagging stuff.
+
+48:21.440 --> 48:22.600
+Yeah, that is a shame.
+
+48:22.600 --> 48:24.720
+And I think obviously with time,
+
+48:24.720 --> 48:26.920
+those features will get added to it.
+
+48:26.920 --> 48:30.080
+But the thing I picked up most talking to Matthew
+
+48:30.080 --> 48:34.960
+was just how much care and attention and craftsmanship
+
+48:34.960 --> 48:37.960
+has gone into the backend of what's already there.
+
+48:37.960 --> 48:39.600
+By far and away, it's the most performant
+
+48:39.600 --> 48:41.920
+of any of the products that we're talking about today
+
+48:41.920 --> 48:43.840
+or any of the projects we're talking about.
+
+48:43.840 --> 48:46.920
+And I think the project has a bright future.
+
+48:46.920 --> 48:49.320
+Nice one, that had not been on my radar before.
+
+48:50.200 --> 48:51.400
+What else do we got?
+
+48:51.400 --> 48:54.400
+Well, we're moving into the kind of gallery apps,
+
+48:54.400 --> 48:55.520
+actually, no, before we do,
+
+48:55.520 --> 48:57.520
+I'll just talk about PhotoPrism.
+
+48:57.520 --> 48:59.200
+This one is open source,
+
+48:59.200 --> 49:02.040
+and there's a link to the demo in the show notes.
+
+49:02.040 --> 49:04.560
+Much like Libre Photos and Photonics,
+
+49:04.560 --> 49:09.160
+it also uses Google TensorFlow to do machine learning.
+
+49:09.160 --> 49:12.360
+It can automatically classify objects,
+
+49:12.360 --> 49:14.920
+but as of today, there's no face detection.
+
+49:14.920 --> 49:16.640
+Okay, now like our emailer,
+
+49:16.640 --> 49:18.320
+he only had a Raspberry Pi 3,
+
+49:18.320 --> 49:20.520
+so I don't think he can do TensorFlow.
+
+49:20.520 --> 49:22.880
+And what kind of requirements do I need?
+
+49:22.880 --> 49:25.440
+Do I need to have a Nvidia Tesla GPU
+
+49:25.440 --> 49:27.040
+to be able to use TensorFlow?
+
+49:27.040 --> 49:28.720
+I mean, you certainly could.
+
+49:28.720 --> 49:31.680
+You could use CUDA, I think is the Nvidia library
+
+49:31.680 --> 49:33.680
+that does that kind of stuff.
+
+49:33.680 --> 49:38.280
+But I'm just running this on an i5 eighth gen CPU.
+
+49:38.280 --> 49:39.480
+So it's only got six cores.
+
+49:39.480 --> 49:43.320
+It's not a super powerhouse or anything.
+
+49:43.320 --> 49:44.840
+Maybe it is compared to a Raspberry Pi,
+
+49:44.840 --> 49:47.360
+but it's not a data center.
+
+49:47.360 --> 49:49.000
+All right, that sounds pretty reasonable.
+
+49:49.000 --> 49:52.160
+So PhotoPrism uses TensorFlow to do all of that.
+
+49:52.160 --> 49:53.600
+And it also gives you a gallery
+
+49:53.600 --> 49:55.200
+to sort through all of that.
+
+49:55.200 --> 49:56.800
+I would imagine exposing the metadata
+
+49:56.800 --> 49:57.640
+and all that kind of stuff.
+
+49:57.640 --> 49:59.120
+I remember the UI.
+
+49:59.120 --> 50:00.600
+I remember checking it out for self-hosted,
+
+50:00.600 --> 50:02.040
+and it felt like it was really clean
+
+50:02.040 --> 50:03.840
+and simple and straightforward.
+
+50:03.840 --> 50:06.200
+I actually end up growing to hate it this week.
+
+50:06.200 --> 50:08.600
+Again, it's a design by developer problem.
+
+50:08.600 --> 50:11.240
+So if you look at the interface that I've got here,
+
+50:11.240 --> 50:13.760
+it's got eight pictures of airplanes.
+
+50:13.760 --> 50:15.600
+Actually, some of those were taken at the studio,
+
+50:15.600 --> 50:17.240
+by the way, do you remember when there was those planes
+
+50:17.240 --> 50:18.400
+flying around at the sprint?
+
+50:18.400 --> 50:19.240
+Yeah.
+
+50:19.240 --> 50:20.600
+A couple of those are from then.
+
+50:20.600 --> 50:22.680
+If you look at the pictures,
+
+50:22.680 --> 50:25.040
+if you click on an image, what would you expect to happen?
+
+50:25.040 --> 50:26.520
+I would expect the image to open.
+
+50:26.520 --> 50:28.120
+Nope, wrong, guess again.
+
+50:28.120 --> 50:30.240
+Oh no, what happens?
+
+50:30.240 --> 50:32.360
+What happens here is it begins
+
+50:32.360 --> 50:34.360
+a multi-image selection process.
+
+50:34.360 --> 50:35.200
+No.
+
+50:35.200 --> 50:36.120
+That's unacceptable.
+
+50:36.120 --> 50:38.600
+To open the image, you have to click on the tiny,
+
+50:38.600 --> 50:42.000
+tiny little translucent camera icon up in the top left.
+
+50:42.000 --> 50:44.560
+Yeah, that does seem kind of like a really simple thing,
+
+50:44.560 --> 50:46.000
+yet very frustrating thing.
+
+50:46.000 --> 50:48.160
+Which is also sometimes a magnifying glass
+
+50:48.160 --> 50:49.280
+with a plus in the middle of it.
+
+50:49.280 --> 50:50.800
+Right, right, right.
+
+50:50.800 --> 50:52.440
+And also sometimes a play button.
+
+50:52.440 --> 50:54.080
+And because it's a web app,
+
+50:54.080 --> 50:55.480
+God only knows what could be going on
+
+50:55.480 --> 50:56.600
+with your web browser at that moment,
+
+50:56.600 --> 50:58.200
+where the first click isn't even registered.
+
+50:58.200 --> 51:00.960
+Right, so there are little things with PhotoPrism
+
+51:00.960 --> 51:02.760
+that could use work, and again,
+
+51:02.760 --> 51:05.920
+it's mostly user interface and experience stuff.
+
+51:05.920 --> 51:08.160
+They do have really great documentation
+
+51:08.160 --> 51:11.480
+on a WebDAV feature, so much like Libre Photos,
+
+51:11.480 --> 51:13.920
+you can integrate this with Nextcloud,
+
+51:13.920 --> 51:17.720
+but also you can mount this via WebDAV
+
+51:17.720 --> 51:19.600
+from your desktop computer.
+
+51:19.600 --> 51:21.480
+So Brent, maybe this could be one for you.
+
+51:21.480 --> 51:24.800
+I'm thinking with DigiCam or Darktable or something.
+
+51:24.800 --> 51:26.240
+Yeah, it does sound really interesting
+
+51:26.240 --> 51:28.800
+because it seems to blend the internet world
+
+51:28.800 --> 51:31.160
+with my here at home in my cave world.
+
+51:31.160 --> 51:33.280
+And here's what I'm trying to wrap my head around, Brent.
+
+51:33.280 --> 51:35.080
+So you take all these photos, you know,
+
+51:35.080 --> 51:36.240
+you got a whole, I would imagine,
+
+51:36.240 --> 51:39.760
+a nice library of faces and objects.
+
+51:39.760 --> 51:41.960
+Have you ever considered how nice it would be
+
+51:41.960 --> 51:44.720
+to be able to just expose like every picture
+
+51:44.720 --> 51:46.320
+of this particular face or person
+
+51:46.320 --> 51:48.760
+or every photo that has this plant in it?
+
+51:48.760 --> 51:50.560
+Like that seems like that would be extremely useful
+
+51:50.560 --> 51:51.720
+for a professional.
+
+51:51.720 --> 51:55.800
+It's a feature I've dreamt of for decades.
+
+51:55.800 --> 51:58.960
+And so I will say, I will admit to absolutely everyone
+
+51:58.960 --> 52:01.240
+that my methods are deprecated
+
+52:01.240 --> 52:03.240
+and only because they've worked
+
+52:03.240 --> 52:06.200
+and I haven't really needed a better way,
+
+52:06.200 --> 52:08.680
+although you guys are all making me realize
+
+52:08.680 --> 52:10.440
+that I'm suffering a little bit
+
+52:10.440 --> 52:11.800
+without some of these features.
+
+52:11.800 --> 52:13.640
+So I am all ears.
+
+52:13.640 --> 52:15.080
+Hey Alex, I'm thinking we do
+
+52:15.080 --> 52:17.640
+a total self-hosted makeover for the photos
+
+52:17.640 --> 52:20.440
+for Brent in a future episode of self-hosted, you know?
+
+52:20.440 --> 52:21.280
+It's an intervention.
+
+52:21.280 --> 52:22.360
+Yeah, we'll show up.
+
+52:22.360 --> 52:24.280
+We'll have like this whole server set up for you.
+
+52:24.280 --> 52:25.520
+We'll show you the whole workflow
+
+52:25.520 --> 52:27.720
+and get the Brent stamp of approval and then deploy it
+
+52:27.720 --> 52:30.400
+and get all of your images recognized.
+
+52:30.400 --> 52:32.240
+And it'll be a full photo makeover.
+
+52:32.240 --> 52:34.640
+I'll expect a link to the gallery of that event.
+
+52:34.640 --> 52:39.800
+Okay, so that's PhotoPrism and it is open source.
+
+52:39.800 --> 52:41.960
+So that checks a box, it supports web dev.
+
+52:41.960 --> 52:43.920
+So that makes it pretty flexible.
+
+52:43.920 --> 52:45.160
+Is there any other ones we should mention?
+
+52:45.160 --> 52:46.400
+Cause you know, look, I wanted to mention,
+
+52:46.400 --> 52:48.240
+I think it was at Leachy, we've used that before.
+
+52:48.240 --> 52:50.640
+I think we still have that somewhere running actually.
+
+52:50.640 --> 52:52.960
+We do gallery.selfhosted.show.
+
+52:52.960 --> 52:56.000
+There's a few of my own personal images in there.
+
+52:56.000 --> 52:57.200
+And this one's really interesting
+
+52:57.200 --> 52:59.560
+cause it kind of somewhat blurs the line
+
+52:59.560 --> 53:02.520
+between a straightforward gallery app
+
+53:02.520 --> 53:04.360
+and a photo management app.
+
+53:04.360 --> 53:06.440
+And the reason I say that is because
+
+53:06.440 --> 53:09.480
+you can organize images into albums,
+
+53:09.480 --> 53:11.920
+but you can also edit the metadata of these images.
+
+53:11.920 --> 53:14.720
+Now, a lot of these programs that we've talked about
+
+53:14.720 --> 53:18.760
+have next to no image editing features.
+
+53:18.760 --> 53:21.240
+We're talking not a single one on this list
+
+53:21.240 --> 53:22.920
+allows you to crop an image.
+
+53:22.920 --> 53:24.960
+A couple of them allow you to rotate,
+
+53:24.960 --> 53:26.560
+Leachy's one of those.
+
+53:26.560 --> 53:29.880
+But I mean, I can't crop an image in any of these.
+
+53:29.880 --> 53:32.280
+I was, I couldn't believe that.
+
+53:32.280 --> 53:34.840
+Yeah, I think I'm kind of coming to the conclusion
+
+53:34.840 --> 53:37.160
+that my strategy for that would be local editing.
+
+53:37.160 --> 53:40.280
+So something like Shotwell or Darktable for local edits,
+
+53:40.280 --> 53:42.280
+which I think that's what you're doing now, Wes.
+
+53:42.280 --> 53:46.520
+And so that's why the ones that support WebDAV
+
+53:46.520 --> 53:47.560
+are kind of appealing to me
+
+53:47.560 --> 53:49.480
+because I could see using both tools.
+
+53:49.480 --> 53:53.160
+One is a viewing and searching tool and discovery tool
+
+53:53.160 --> 53:54.600
+that I can, oh, look at this great pic.
+
+53:54.600 --> 53:57.000
+I can quickly copy it and paste it into Telegram, right?
+
+53:57.000 --> 53:58.040
+That's one tool.
+
+53:58.040 --> 54:00.840
+And then the other tool is that one
+
+54:00.840 --> 54:02.160
+where I've gone a little bit in
+
+54:02.160 --> 54:04.440
+and I maybe crop something to make it a nicer shot
+
+54:04.440 --> 54:05.280
+or something like that.
+
+54:05.280 --> 54:07.160
+And I can save it back to the same source location.
+
+54:07.160 --> 54:08.840
+During one of those editing sessions,
+
+54:08.840 --> 54:09.800
+maybe when you have the itch
+
+54:09.800 --> 54:10.960
+or you're getting back from a trip
+
+54:10.960 --> 54:11.960
+and you're kind of going through things.
+
+54:11.960 --> 54:12.840
+Right, right.
+
+54:12.840 --> 54:14.160
+What would be a really nice feature
+
+54:14.160 --> 54:17.840
+is if you could use some of these apps we're talking about
+
+54:17.840 --> 54:21.280
+as your sort of photo organization method
+
+54:21.280 --> 54:25.360
+and then have this, let me dream here for a moment,
+
+54:25.360 --> 54:27.560
+have this method to just sort of,
+
+54:27.560 --> 54:28.960
+I don't know, you can't right click in here,
+
+54:28.960 --> 54:31.640
+but right click and go open in Darktable
+
+54:31.640 --> 54:33.640
+or open in Glimpse or something like that
+
+54:33.640 --> 54:35.840
+and then do your cropping and your photo adjusting.
+
+54:35.840 --> 54:39.160
+And that way they don't have to sort of rely on that stuff.
+
+54:39.160 --> 54:40.400
+Yeah, I think you've just described
+
+54:40.400 --> 54:41.440
+the mobile experience now.
+
+54:41.440 --> 54:42.960
+Mm-hmm, exactly.
+
+54:42.960 --> 54:45.600
+Dang it.
+
+54:45.600 --> 54:47.920
+Well, and the reality is whenever you wanna share stuff
+
+54:47.920 --> 54:50.680
+with family, oftentimes you're on the go
+
+54:50.680 --> 54:53.080
+or you've got five minutes while you're waiting
+
+54:53.080 --> 54:56.840
+on somebody else to do something or in a lineup at the bank.
+
+54:56.840 --> 54:58.440
+I say the bank, who goes to the bank anymore?
+
+54:58.440 --> 54:59.400
+But you know what I mean?
+
+54:59.400 --> 55:02.240
+Hey, I went and deposited a check in person this week
+
+55:02.240 --> 55:04.560
+for the first time in a long time.
+
+55:04.560 --> 55:05.400
+Where did you go?
+
+55:05.400 --> 55:07.400
+Caveman, welcome back.
+
+55:07.400 --> 55:10.760
+But I found even for me, like I'm sharing most of my stuff
+
+55:10.760 --> 55:15.440
+from mobile, not to clients, but to everybody else.
+
+55:15.440 --> 55:17.800
+And so that's an essential feature.
+
+55:17.800 --> 55:19.720
+I'll tell you what Brent, sharing images via link
+
+55:19.720 --> 55:23.080
+is actually a surprisingly difficult thing to get right
+
+55:23.080 --> 55:24.520
+apparently in this space.
+
+55:24.520 --> 55:26.440
+Lychee does this best in my opinion.
+
+55:26.440 --> 55:30.200
+It allows you to generate different URLs for social media,
+
+55:30.200 --> 55:32.240
+but also, and this is a really cool feature,
+
+55:32.240 --> 55:35.680
+Lychee will let you generate images automatically scaled
+
+55:35.680 --> 55:37.120
+to certain resolutions.
+
+55:37.120 --> 55:39.480
+That's directly in its sharing pane.
+
+55:39.480 --> 55:42.320
+That's Lychee, L-Y-C-H-E-E.
+
+55:42.320 --> 55:43.720
+And if you wanna see an example of it,
+
+55:43.720 --> 55:45.960
+you can go to gallery.selfhosted.show.
+
+55:45.960 --> 55:47.640
+And it's pretty straightforward.
+
+55:47.640 --> 55:49.960
+Do you think maybe this is the most straightforward
+
+55:49.960 --> 55:51.280
+of all of them to get up and running
+
+55:51.280 --> 55:53.120
+and just share photos with somebody?
+
+55:53.120 --> 55:56.320
+Yeah, I think it's probably my favorite app overall
+
+55:56.320 --> 55:58.040
+in this entire rundown.
+
+55:58.040 --> 56:00.560
+The downside is it has no machine learning features.
+
+56:00.560 --> 56:05.360
+So if you want that kind of search organization,
+
+56:05.360 --> 56:06.760
+it doesn't have that.
+
+56:06.760 --> 56:08.640
+Like you say in your article,
+
+56:08.640 --> 56:10.960
+it's a great front end to whatever else you're using
+
+56:10.960 --> 56:13.480
+to make your photos look great and organize them well.
+
+56:13.480 --> 56:14.720
+That's where it shines.
+
+56:14.720 --> 56:16.080
+So I have a link to some of these projects
+
+56:16.080 --> 56:17.200
+that we've mentioned here on the show.
+
+56:17.200 --> 56:19.000
+So that way you don't have to worry about the weird names
+
+56:19.000 --> 56:22.040
+at linuxunplug.com slash 409.
+
+56:22.040 --> 56:26.680
+Now, if I could just do one final little honorable mention.
+
+56:26.680 --> 56:29.560
+I came across an app called File Run on Self Hosted
+
+56:29.560 --> 56:31.120
+a few months ago,
+
+56:31.120 --> 56:34.440
+and I actually ended up using it quite a bit for photos
+
+56:34.440 --> 56:36.800
+because it has a bunch of image processing stuff
+
+56:36.800 --> 56:38.120
+in the background.
+
+56:38.120 --> 56:40.480
+And all File Run does is it's a web app
+
+56:40.480 --> 56:44.240
+that presents an underlying file system in the web browser.
+
+56:44.240 --> 56:47.560
+And it supports full text and has metadata search as well,
+
+56:47.560 --> 56:49.320
+which if you think about it,
+
+56:49.320 --> 56:51.760
+apart from the machine learning stuff it's missing,
+
+56:51.760 --> 56:53.360
+is actually half the battle.
+
+56:53.360 --> 56:55.120
+So this is at filerun.com,
+
+56:55.120 --> 56:57.300
+and this would totally be one of our tools
+
+56:57.300 --> 56:59.680
+in the total photo makeover for Brent, Alex.
+
+56:59.680 --> 57:02.760
+And the UI is surprisingly nice.
+
+57:02.760 --> 57:04.560
+For something that I've wanted for so long,
+
+57:04.560 --> 57:06.840
+just your files available in mobile
+
+57:06.840 --> 57:10.280
+or in a full web version in a really nice UI.
+
+57:10.280 --> 57:12.180
+And, although I don't really think
+
+57:12.180 --> 57:13.080
+you probably use this much,
+
+57:13.080 --> 57:16.160
+but it has plugins too for things like Google Apps
+
+57:16.160 --> 57:19.460
+and Office 365 and Autodesk and a lot of those things.
+
+57:19.460 --> 57:21.160
+Autodesk, what?
+
+57:21.160 --> 57:24.320
+Yeah, so you can pull in CAD files, isn't that funny?
+
+57:24.320 --> 57:25.280
+Why not, man?
+
+57:25.280 --> 57:27.540
+And if all you have lying around is a Raspberry Pi,
+
+57:27.540 --> 57:29.240
+this might be the way to go.
+
+57:29.240 --> 57:31.040
+Yeah, throw File Run on there,
+
+57:31.040 --> 57:33.040
+do your file uploads right there,
+
+57:33.040 --> 57:35.040
+and then maybe leechy on top of that
+
+57:35.040 --> 57:38.640
+to do some of the display and sharing.
+
+57:38.640 --> 57:39.960
+That could be a nice way to go.
+
+57:39.960 --> 57:42.880
+Absolutely, and I think it just highlights clearly
+
+57:42.880 --> 57:46.680
+that none of these apps check all of these boxes.
+
+57:46.680 --> 57:49.840
+You're gonna have to have probably NextCloud
+
+57:49.840 --> 57:51.680
+to get the images off your device,
+
+57:51.680 --> 57:54.920
+and then something else to organize and edit them.
+
+57:54.920 --> 57:56.520
+Well, actually something else to organize them,
+
+57:56.520 --> 57:57.980
+something else to edit them,
+
+57:57.980 --> 58:00.480
+like a DigiCam or whatever it might be.
+
+58:00.480 --> 58:02.680
+And then something else maybe to display them as well.
+
+58:02.680 --> 58:04.040
+So very quickly you've got a stack
+
+58:04.040 --> 58:06.000
+of three or four apps here.
+
+58:06.000 --> 58:08.440
+And I ended up coming to the conclusion
+
+58:08.440 --> 58:11.180
+that unless some of these apps
+
+58:11.180 --> 58:14.680
+are able to kind of pool together their resources,
+
+58:14.680 --> 58:18.980
+we're not gonna see a true Google Photos alternative
+
+58:18.980 --> 58:22.640
+that ticks all the boxes for some time.
+
+58:22.640 --> 58:24.760
+Yeah, and then it just has to, I suppose,
+
+58:24.760 --> 58:28.520
+be that question of pragmatism versus idealism,
+
+58:28.520 --> 58:32.440
+and how much work are you willing to put in for your photos?
+
+58:32.440 --> 58:35.840
+Right, here you get to and have to build your own pipeline
+
+58:35.840 --> 58:37.840
+with Google Photos, they've done it for you,
+
+58:37.840 --> 58:40.160
+but you don't get any input on how it works.
+
+58:40.160 --> 58:42.680
+And maybe for something like your photos
+
+58:42.680 --> 58:45.080
+that you wanna have a 25-year grasp on
+
+58:45.080 --> 58:46.840
+or something like that at a time,
+
+58:46.840 --> 58:49.760
+maybe that's worth getting out the old, you know,
+
+58:49.760 --> 58:53.880
+artisan, craftsman kind of mindset and building something.
+
+58:53.880 --> 58:55.000
+I think it might be for me.
+
+58:55.000 --> 58:57.160
+I've always been teetering on this.
+
+58:57.160 --> 58:58.920
+And I also sometimes wonder if perhaps
+
+58:58.920 --> 59:00.640
+it isn't maybe the perfect sweet spot
+
+59:00.640 --> 59:02.640
+to build something locally that's like this,
+
+59:02.640 --> 59:05.800
+and maybe still loop in some service to do backups,
+
+59:05.800 --> 59:07.960
+because that's how important the photos are to me.
+
+59:07.960 --> 59:10.520
+Well, Google Photos, I think, is still an excellent choice
+
+59:10.520 --> 59:11.680
+for your offsite backup.
+
+59:11.680 --> 59:15.720
+If you're following the 3-2-1 principle for your backups,
+
+59:15.720 --> 59:18.320
+Google Photos is a fantastic choice.
+
+59:18.320 --> 59:21.120
+I should also mention at this point that Amazon,
+
+59:21.120 --> 59:22.960
+if you're a Prime subscriber,
+
+59:22.960 --> 59:27.080
+has free unlimited photo storage for now.
+
+59:27.080 --> 59:29.240
+Yeah, exactly, exactly.
+
+59:29.240 --> 59:30.800
+Yep, that's just it.
+
+59:30.800 --> 59:33.080
+And it may be in some weird, twisted way,
+
+59:33.080 --> 59:35.520
+Google's transition to actually making you pay
+
+59:35.520 --> 59:37.920
+for the storage that you use for Google Photos
+
+59:37.920 --> 59:40.400
+may actually be the thing that makes it sustainable
+
+59:40.400 --> 59:41.880
+and stick around for a long time.
+
+59:41.880 --> 59:44.800
+And maybe that is in some weird ways a good thing.
+
+59:44.800 --> 59:47.080
+It doesn't mean they're not mining your data,
+
+59:47.080 --> 59:48.920
+but at least they're not just gonna randomly
+
+59:48.920 --> 59:50.480
+shut down the service on you.
+
+59:50.480 --> 59:53.040
+So if you wanna add it to your arsenal of photo options,
+
+59:53.040 --> 59:54.240
+that's a great way to go.
+
+59:54.240 --> 59:57.560
+I think it works best as a complimentary offsite backup
+
+59:57.560 --> 59:58.920
+and not the primary.
+
+59:58.920 --> 01:00:02.760
+And I think that's where having a local cache
+
+01:00:02.760 --> 01:00:04.600
+that I can then throw into these tools
+
+01:00:04.600 --> 01:00:05.720
+that we've just covered
+
+01:00:05.720 --> 01:00:07.400
+is gonna make me feel a lot more comfortable.
+
+01:00:07.400 --> 01:00:08.880
+So thanks for the rundown, Alex.
+
+01:00:08.880 --> 01:00:10.080
+Absolutely, you're very welcome.
+
+01:00:10.080 --> 01:00:11.280
+I mean, there's, like I say,
+
+01:00:11.280 --> 01:00:13.280
+there's loads and loads of other options
+
+01:00:13.280 --> 01:00:15.120
+we didn't get time to talk about today.
+
+01:00:15.120 --> 01:00:19.240
+You know, PyWeGo, PyGallery2, Pixel Fed,
+
+01:00:19.240 --> 01:00:21.920
+PhotoView, Thumbs Up, Koken.
+
+01:00:21.920 --> 01:00:23.400
+I mean, the list goes on and on.
+
+01:00:23.400 --> 01:00:26.400
+Let's UNLOCK and we'll get started.
+
+01:00:29.200 --> 01:00:31.960
+jupitrgarage.com is getting restocked
+
+01:00:31.960 --> 01:00:33.400
+with some brand new items.
+
+01:00:33.400 --> 01:00:35.240
+They're not in yet, but for the first time,
+
+01:00:35.240 --> 01:00:38.960
+we've reached that goal of clearing out a lot of the old,
+
+01:00:38.960 --> 01:00:41.360
+not everything, not everything,
+
+01:00:41.360 --> 01:00:43.800
+but we have made enough room to bring in some of the new,
+
+01:00:43.800 --> 01:00:45.760
+which was always, always the goal.
+
+01:00:45.760 --> 01:00:47.960
+We are beginning that process right now.
+
+01:00:47.960 --> 01:00:51.280
+I am gonna keep it simple and humble like we have been,
+
+01:00:51.280 --> 01:00:52.520
+you know, baby steps here,
+
+01:00:52.520 --> 01:00:55.460
+can grab the seasoned tux tee on sale right now.
+
+01:00:55.460 --> 01:00:57.020
+That's a shirt that I created.
+
+01:00:57.020 --> 01:00:57.700
+It's a new item.
+
+01:00:58.500 --> 01:01:05.860
+It is a all black t-shirt with a gray and dark gray bearded version of the tux
+
+01:01:05.860 --> 01:01:07.460
+holding the Jupiter broadcasting rocket.
+
+01:01:07.860 --> 01:01:11.420
+The, uh, the, the seasoned tux, as I call it.
+
+01:01:11.780 --> 01:01:14.080
+And, uh, it's on sale right now at Jupiter garage.com.
+
+01:01:14.100 --> 01:01:15.780
+If you'd like to grab one.
+
+01:01:15.780 --> 01:01:24.380
+And now for some feedback, Mark from Lenovo writes in.
+
+01:01:24.900 --> 01:01:26.620
+Hello, Chris and Wes.
+
+01:01:27.100 --> 01:01:31.740
+I'm the technical lead for the Linux PC team at Lenovo.
+
+01:01:31.860 --> 01:01:32.460
+Hello, Mark.
+
+01:01:32.700 --> 01:01:39.420
+I was listening to episode 405 and you mentioned the battery life on the X1 Carbon.
+
+01:01:39.980 --> 01:01:43.740
+I figured it would be interesting to reach out to the firmware slash hardware team
+
+01:01:43.740 --> 01:01:45.980
+here for their input.
+
+01:01:46.380 --> 01:01:52.220
+I've now got a bunch of battery related ACPI APIs that I need to go through and
+
+01:01:52.220 --> 01:01:54.620
+see how they fit into what the kernel has.
+
+01:01:54.660 --> 01:02:00.700
+Although most of them are there already, but I also got some feedback on battery
+
+01:02:00.700 --> 01:02:03.980
+charging thresholds looking through the docs.
+
+01:02:03.980 --> 01:02:10.460
+One of the things I noted is that charging thresholds really depend on typical usage.
+
+01:02:10.820 --> 01:02:11.980
+So here's the scenario.
+
+01:02:11.980 --> 01:02:17.300
+If you regularly fully discharge the battery, then actually the default setting
+
+01:02:17.300 --> 01:02:24.620
+of starting to charge at 95% and going up to 100% is apparently fine.
+
+01:02:25.140 --> 01:02:31.500
+But in a different scenario, if you regularly somewhat discharge the battery, but not all
+
+01:02:31.500 --> 01:02:37.700
+the way, say operating between 50% and a hundred percent, then the techs recommend
+
+01:02:37.700 --> 01:02:42.820
+starting charging at 75% and stopping at 80%.
+
+01:02:43.340 --> 01:02:48.300
+And for a final scenario, if you're connected to power the majority of the time, in that
+
+01:02:48.300 --> 01:02:51.780
+case, you want to start at 45 stop at 50.
+
+01:02:52.340 --> 01:02:55.780
+I was surprised, frankly, at how small the windows were.
+
+01:02:56.220 --> 01:03:00.180
+I expected to see something more like 30% to 80%.
+
+01:03:00.820 --> 01:03:06.260
+And I've also got some questions in to better understand typical degradation, like is
+
+01:03:06.260 --> 01:03:10.660
+dropping to 96% in the first six months actually normal?
+
+01:03:11.380 --> 01:03:14.180
+No idea what the curve looks like in most cases.
+
+01:03:14.660 --> 01:03:16.260
+Holler if you have any questions.
+
+01:03:16.660 --> 01:03:20.500
+Happy to forward those on to the hardware team to Mark.
+
+01:03:20.980 --> 01:03:21.740
+Well, thanks, Mark.
+
+01:03:21.740 --> 01:03:25.580
+I think the the the bit that stands out and that's from the Lenovo team that stands out
+
+01:03:25.580 --> 01:03:29.700
+to me is if you're connected to power the majority of the time with your ThinkPad, you
+
+01:03:29.700 --> 01:03:33.580
+should try to keep your battery charge in the 45 to 50% range.
+
+01:03:33.700 --> 01:03:35.420
+I wish I knew that earlier.
+
+01:03:35.420 --> 01:03:36.460
+Yeah. And Mark's right.
+
+01:03:36.460 --> 01:03:39.580
+That is a really that's a 5% range that is really small.
+
+01:03:39.940 --> 01:03:42.140
+I am achieving that with TLP right now.
+
+01:03:42.540 --> 01:03:47.140
+And it bit me once because, of course, I was I was off grid, open up the laptop.
+
+01:03:47.180 --> 01:03:49.300
+It only had 50% battery.
+
+01:03:49.300 --> 01:03:50.820
+Oh, right.
+
+01:03:51.060 --> 01:03:53.180
+I need to take action beforehand.
+
+01:03:53.420 --> 01:03:58.020
+But we got a bunch of feedback in about how people are extending battery life or managing
+
+01:03:58.020 --> 01:03:59.620
+TLP on Linux.
+
+01:03:59.620 --> 01:04:02.700
+So if you've already sent an email to that regard, we received it.
+
+01:04:02.700 --> 01:04:06.780
+But if you haven't yet and you have some battery management tips or the ways that you've
+
+01:04:06.780 --> 01:04:11.820
+used TLP or things that you found that have extended your Linux battery life, please get
+
+01:04:11.820 --> 01:04:15.780
+those in now at Linux unplugged dot com slash contact, because I think we're going to do
+
+01:04:15.780 --> 01:04:19.980
+a batch of feedback next week and kind of put a cap on this battery discussion because
+
+01:04:20.220 --> 01:04:24.180
+I have received a few cool tricks from the audience that I want to relay to everybody.
+
+01:04:24.380 --> 01:04:29.060
+And I went on this trip the entire time using TLP, have some regrets, but also I think
+
+01:04:29.060 --> 01:04:30.100
+there was some positives to it.
+
+01:04:30.100 --> 01:04:33.100
+So we'll follow up next episode on that.
+
+01:04:33.100 --> 01:04:37.300
+And thank you to Mark for reaching out from Lenovo and getting some info straight from
+
+01:04:37.300 --> 01:04:42.500
+the team. I really appreciate the ability to pass on that to the community because, you
+
+01:04:42.500 --> 01:04:45.700
+know, that's straight from, as they say, the horse's mouth.
+
+01:04:45.700 --> 01:04:50.420
+So Linux unplugged dot com slash contact for your feedback and whatnot.
+
+01:04:50.660 --> 01:04:52.580
+We are back to our regular live time.
+
+01:04:52.580 --> 01:04:58.740
+So if you'd like to join us for a live episode, we do them on Tuesdays at noon Pacific, 3
+
+01:04:58.740 --> 01:05:00.580
+p.m. Eastern over at J.B.
+
+01:05:00.580 --> 01:05:02.940
+Live TV. Thank you to our members.
+
+01:05:03.180 --> 01:05:06.580
+Those of you who have become members, you get access to the limited ad version of the
+
+01:05:06.580 --> 01:05:08.580
+show and the full live stream.
+
+01:05:08.940 --> 01:05:11.180
+So thank you very much to our unplugged core members.
+
+01:05:11.460 --> 01:05:12.980
+You all are the very best.
+
+01:05:13.260 --> 01:05:16.900
+See you next week. Same bad time, same bad station.
+
+01:05:17.100 --> 01:05:21.620
+That's right. Either way, it comes out every week over at Linux unplugged dot com.
+
+01:05:21.980 --> 01:05:25.820
+You can go to Linux unplugged dot com slash subscribe to get the feeds for all different
+
+01:05:25.820 --> 01:05:31.020
+players that you like, and you can follow the show on the Twitter at Linux unplugged.
+
+01:05:31.060 --> 01:05:35.660
+You can follow the West at West Paine can follow me at Chris Lass.
+
+01:05:36.220 --> 01:05:39.860
+But you know what? It's really if you want to get something to show, it's probably best to
+
+01:05:39.860 --> 01:05:42.740
+use the contact page that works probably the best.
+
+01:05:43.060 --> 01:05:46.260
+But, you know, I haven't mentioned the matrix in a while and the major community continues
+
+01:05:46.260 --> 01:05:48.180
+to grow. Despite that, shout out to them.
+
+01:05:48.380 --> 01:05:50.740
+Info at Linux unplugged dot com slash matrix.
+
+01:05:51.420 --> 01:05:53.820
+We're in there. We're hanging out. It's a great spot.
+
+01:05:53.820 --> 01:05:59.300
+So thanks so much for joining us and we'll see you right back here next Tuesday.
+
+01:06:23.820 --> 01:06:40.100
+So has anybody given the old Google take out a try to get their photos out, Alex?
+
+01:06:40.100 --> 01:06:41.380
+I know you were experimenting with that.
+
+01:06:41.700 --> 01:06:43.500
+We talked about it in the show briefly, didn't we?
+
+01:06:43.660 --> 01:06:51.220
+And my link came in today, funnily enough, and I have I'm now the proud owner of a hundred
+
+01:06:51.220 --> 01:06:54.300
+and forty four two gigabyte files.
+
+01:06:54.980 --> 01:06:57.300
+That's how they gave me the takeout stuff.
+
+01:06:57.380 --> 01:06:59.940
+Holy. And then how do you download that?
+
+01:06:59.940 --> 01:07:01.100
+What's the UI to download?
+
+01:07:01.180 --> 01:07:06.660
+Is it a URL? Like it's an email with one hundred and forty four individual links in it.
+
+01:07:06.700 --> 01:07:08.180
+There's no download all button.
+
+01:07:08.540 --> 01:07:10.500
+You just have to go through them one by one.
+
+01:07:10.700 --> 01:07:14.260
+That's interesting because with Google Play Music, you had the option of downloading
+
+01:07:14.260 --> 01:07:15.620
+everything as a large zip file.
+
+01:07:15.860 --> 01:07:18.020
+That doesn't really seem like that great of an option, Alex.
+
+01:07:18.060 --> 01:07:20.740
+I got to say. But, yeah, I mean, come on.
+
+01:07:20.740 --> 01:07:27.740
+I've I've got 10, 15 years worth of images in there and every SLR image I've ever taken,
+
+01:07:27.740 --> 01:07:30.180
+every mobile image. So there's a lot of data in there.
+
+01:07:30.180 --> 01:07:51.300
+So one massive zip file wouldn't really be very feasible, I don't think.
+

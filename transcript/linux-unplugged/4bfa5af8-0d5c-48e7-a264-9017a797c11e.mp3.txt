@@ -1,0 +1,917 @@
+I think I've made an interesting discovery regarding the Raspberry Pi 4 that I haven't
+seen a lot of people talking about.
+You know how they announced at the launch of the Pi 4 that it didn't yet support USB
+direct boot?
+Right, a lot of people have been waiting for that.
+Turns out it appears to be just a Raspbian kernel issue.
+It's not actually a hardware issue with the Raspberry Pi 4.
+No.
+Yeah, I just got Ubuntu 2004 flashed to a USB SSD and I have the SD card in there simply
+for boot and I have the SSD still plugged in and it's now booting and running entirely,
+the entire OS, from the SSD.
+I think I have to leave the SD card in there for boot.
+I should try pulling it out and see what happens.
+We've got some homework.
+Yeah, yeah, but it's been really interesting because I was going through this entire process
+of trying to figure out how to get the Pi 4 to run off of an external disk because the
+SD cards are so slow.
+So slow.
+So slow.
+And so I was looking at this and I started thinking, reading between the lines of what
+these people are talking about in these patches, it seems like I could just reboot and try
+it.
+And so I changed a couple of disk labels, reboot, and boom, there I was running the
+whole thing off of a USB disk.
+And I found a form thread where somebody else had announced that they had the same revelation
+that I just had because people are coming across this and in there they say, yeah, it's
+just a Raspbian kernel bug.
+I haven't found verification of that, but they say it's actually totally capable of
+doing it hardware-wise.
+I had no idea.
+Hello friends and welcome into Linux Unplugged episode 347.
+My name is Chris.
+My name is Wes.
+Hello, Wes.
+Hello.
+Looking sharp today.
+Nice to see you.
+I like that hat.
+You know, you got to try to dress up when you have the chance during quarantine.
+That's right.
+Listen, we have a show for you that has been many, many, many years in the making.
+I am very excited about today's community news.
+Plus we have another batch of fantastic community feedback as well as some early adventures
+in Ubuntu 2004 LTS on the Raspberry Pi 4 running from an actual proper SSD performance glory.
+I'll tell you about that in a little bit, but before we go any further, we got to say
+a big hearty hello to Mr. Bacon.
+Hey Cheezy.
+Hey Chris, Wes, and the Antinets.
+How y'all doing?
+Oh, we're doing all right.
+You holding in down there?
+Oh, I'm holding in, man.
+Just hanging out.
+I just picture you just like chilling, really, like anybody's going to handle this is going
+to be Mr. Bacon.
+Well, the only thing I'm missing is like actually being able to buy a brisket to smoke one,
+you know?
+Yeah, I agree.
+But other than that, I'm holding in pretty good.
+As long as you are stocked up on them brats.
+Also a big time appropriate greetings to a massive virtual log.
+Hello Mumble Room.
+Is this a record?
+I think we're breaking a record right now.
+We have 40 people in the Mumble Room.
+It's absolutely bananas.
+I would sit here and give a shout out to everybody, but I think that would take too long.
+I just want to make a specific mention that I think it's so awesome that those of you
+who can are showing up it's it's such a huge sign of direct report and I want to
+say a special shout out to Philip from manager who will be chatting with a
+little bit more hello Philip good to have you here today hello I'm happy to
+be here as well I am happy to talk about your news in just a short bit so before
+we get to that I want to mention my adventures with the Raspberry Pi 4 I I
+I have decided to yet again purchase another Raspberry Pi 4 I think this is
+my fourth now that's fitting I'm very happy with them and I just enough
+machine I really like the fact that I have three of them running and like
+collectively I think they take like 50 watts of power collectively maybe and
+that's with the switch and the router on the same meter it's like all of it with
+the full networking infrastructure it's it's how it's wonderful and for me be
+running off battery that really matters and so I just kind of scale out
+horizontally with these raspberry pies instead of getting one really big
+powerful box but the key thing that has really driven me crazy is SD card
+performance and then there's another thing that I I have lived with but not
+have not have been thrilled about can you guess what that might be you know me
+what's my key what am I complaining about with my Raspberry Pi 4 right now
+Raspbian yeah I mean I love the project I'm very grateful for it but just
+different enough right it doesn't always fit with your sys admin instincts
+exactly kind of feels I don't know it's consumer grade mean cheese is that the
+wrong way to put it it just doesn't seem like it's a server OS no I don't feel
+that it is but I feel that it's supposed to be an entry-level OS you know I think
+in with the Raspberry Pi you know from their conception they've been kind of
+entry-level devices for tinkers and and I think that the the OS they ship is is
+what we should expect them to ship you know yeah and they've done a great job
+with it but it is it is quite different you know their own config tool which
+is nice helps out a lot with a lot of things but but yeah it's it definitely
+feels consumer consumery to me and I had some weird breakage recently where it's
+complaining that my time zone data file has missing lines and that my Linux
+image packages are empty I have done nothing with this device it is a minimal
+Raspbian install that I've just kept up to date about once a month and then
+everything else is in containers there's nothing installed on the base OS and it
+broke on me I mean it just sort of suggests some of the problems from
+running a smaller distribution sort of customizing things versus just you know
+one of the big ones that's really well tested and perhaps it is something at
+some point I did maybe experimenting with WireGuard or something yeah and
+that is that is also why it's maybe not the best OS for me because those are not
+the mistakes I might make on Ubuntu I wouldn't make that mistake necessarily
+on Arch but because I'm just not as familiar with a Debian base these days
+I'm more familiar with Arch and some to some lesser extent Ubuntu right you're
+not installing Raspbian or Debian on any of your other systems right exactly
+exactly and so when the opportunity came around when Canonical made the
+announcement that they were making the Raspberry Pi like a full featured
+platform I was like all right well when 2004 gets close I'm gonna give it a go
+and so I think we should emphasize that because instead you're migrating away
+from a custom build operating system for the hardware that should be like a great
+match to a LTS release that hasn't even been released yet yeah I mean I'm not
+throwing this in production yet but I probably will if it all goes well and so
+I downloaded the Raspberry Pi image the current daily used gnome disk to your
+and wimpy suggestion to restore it quote-unquote it works pretty darn well
+now it does and I like seeing the transfer speed and it's nice not having
+to install anything extra it's just right there and I popped that SD card
+into the Raspberry Pi 4 and it is about what I expected because I've actually
+tried I've tried to get other versions of Ubuntu on the Pi 4 working before
+although everything works all the hardware works everything's detected
+that's wonderful the only problem was it was on that dang SD card and I want it
+on something much faster there's a lot of ways you could you can crack this
+including hats that give you SATA interfaces oh yeah I don't know if
+they're over USB or not I assume and as well as USB 3 adapters that plug
+directly into an MV and eDrive so it's just like raw MV me or whatever into a
+USB port and it looks ridiculous yeah I mean it must work well but I like to
+have my Raspberry Pi is nice and tight I got them in flirt cases they're velcro
+to the inside wall of my booth seat like it's all nice and tidy I have everything
+labeled you know it's like my one space where I've been able to really have a
+little craftsmanship and so I got one of those Samsung SSDs that must be just an
+MV me in the little enclosure and it's just a USB C port no power that goes to
+USB 3 port on the Raspberry Pi I wrote the same image that I wrote to the SD
+card I wrote that same image to the SSD I booted off the SD card first checked
+things out didn't update anything but I did change the default password
+generated an SSH key I eventually changed the hostname as a test then I
+plugged in the SSD that I just written the same image file to change to disk
+label I'll put the link to that in the show notes rebooted the box and the
+Raspberry Pi 4 from that point forward runs off of the SSD and it's fantastic
+and every operations faster yes it's USB 3 but that is something a limitation
+because of the type of workload these things are doing I'm willing to take
+mostly the applications I run they load up and RAM and then they only write to
+disk when they're logging I mean you could tell immediately just SSH out of
+the box that all right this feels like a regular system like an x86 box right
+that was my first thought is oh this feels like an x86 machine which is
+probably old thinking now obviously is but it's incredible when you look at the
+size of these things the power draw the only the only part it really fell down
+is I tried to go next level and I know this was a risk I didn't even know if
+would be possible so I'm not disappointed that it didn't work out but
+I thought to myself okay the ultimate setup I'll run my home assistant
+appliance in a VM on a Raspberry Pi 4 because this thing's fast you know it's
+fast it's legitimately fast so we could do that right that's got KVM on there
+yeah you got KVM for ARM Raspberry Pi CPUs are designed in a modern era surely
+they must have some VT and VTD type analogy and they're built into their
+CPU that makes virtualization so damn great on the Intel platform this should
+be a no-brainer get KVM installed I even get a remote vert manager from my
+laptop connected to it I'm setting up VMs I'm importing disk files it's
+looking really good power it up and it is unbearably slow things that when
+you're running off a native disk would happen so fast you could barely see them
+go across the screen we're happening at what would you say like a minute or two
+oh yeah yeah even though we weren't trying to emulate x86 we were just
+trying to run an ARM OS in an ARM VM still was so slow I don't know maybe I
+set something up wrong you can tell it's kind of on the you know edge here we had
+to hunt for some solutions of other people actually trying to do the same
+thing and you've got to carefully select a lot of the virtual machine parameters
+that it's actually going to start booting correctly yeah don't make it a
+SATA CD-ROM make sure it's a SCSI CD-ROM otherwise it won't boot and don't try to
+make it a spice remote viewer if you're using virtual manager because then it
+won't boot in fact don't even bother with graphics a serial console just go
+serial console or it's not gonna work if you follow these things you will get a
+ARM Ubuntu VM inside KVM running on the Raspberry Pi 4 it will just be so slow
+that it's unusable and maybe I did something wrong but I don't I had I had
+you take a look at it too and you didn't see anything it was a very good reminder
+of just all the little differences when you're running on a totally different
+platform so and the reason why I wanted to do this is I was only going to run a
+single VM I just wanted to have that snapshot capability so I could have a
+several layers of protection and also make it crazy super portable it's just
+nice to have right it's a pattern that's worked well over an x86 world and these
+pi 4s are just so cookie cutter the same that I could just move it over to
+another one powered up and everything's the same it's it's even simpler than
+like from I could buy I could probably buy a Raspberry Pi 4 in five or six
+years even because look how long some of the older players around you can't say
+that for like a Dell mini form factor PC or a NUC unless you go maybe on eBay
+maybe get lucky but these are like exactly to go yeah right you have your
+little Raspberry Pi VM image available gosh that was the dream so instead I
+will just dedicate the entire pie to the task which means I will continue to
+scale out horizontally I'm curious if anyone in the audience is maybe given to
+try know some things we're missing yeah I will say that canonical is making a
+smart decision doing this because it is a first-class experience now on the pi
+4 and it's it's great I think I'm as much as I appreciate Raspbian I think
+I'm probably done with it and I'm just for my comfort level and my knowledge
+level and just because I actually for some crazy reason to decide to use these
+as servers and not necessarily as desktop devices or devices I'm I'm not
+trying to configure the GPIO pins and I'm not trying to do all the things that
+raspy config does I just want something to run containers and so it does that
+for me so I'll just I'll just put LTS on there I could I could maybe do home
+assistant in container but I kind of want experience with the whole right
+you want the whole stack Alex has been talking me into that on self hosted so
+that's how I got down this hole you're just trying to find the laziest way to
+run containers that you can that's the real he convinced me that I got to try
+out the whole stack because I'm missing out on part of the overall thing and
+he's right he made his whole case and it's self-hosted and I was like I
+thought maybe he was wrong so then I listened back to the episode I was like
+damn it he's right this is the arm 64 version of Ubuntu right yeah 64 bit it
+was a four bit it was really nice seeing it over on their you know CD image
+server and daily pre-installed yeah here these ready-to-go daily images for the
+raspberry pi 4 yeah that's great Chris I was wondering about the hardware if you
+feel like you have enough personal experience now to speak to what you
+think might be the longevity of these boards I know some of the older ones
+just keep kicking but do you feel like you have heard enough in the community
+or have enough experience to speak to that at all I don't think I've heard of
+many failing I'm sure it happens I have at least three running 24-7 training
+maybe I even have yeah I think it's just three right now running 24-7
+definitely helps there's like no moving parts right so yeah and two of them are
+under pretty consistent high load I have one home assistant pie that's also
+running four or five other containers including ones that are constantly doing
+network diagnostics and logging that and visualizing that logging and then I
+have another pie that's running shinobi full-time and that's bringing in four or
+five yeah five camera streams into shinobi as RTMP and then in recording
+those pass-through recording but recording those to a USB disk
+simultaneously and then I have an I have another one that's just a network
+appliance that does my DNS my DHCP and runs pie hole and that one's probably my
+lowest usage but all three of them are required for my home network to function
+properly and I never have to mess with them I mean they just run 24-7 inside
+that little seat you know what I'm talking about the dinette there where
+it's just a it's a it's an enclosed seat and I've it opens up and it's hollow and
+I've put them in there so it's not even vented properly and it seems to be
+working great and part of the really nice thing for me is they're really
+they're really low power and eventually I'll be able to power them entirely off
+of DC so there's other advantages there may be more robust hardware in fact
+there's even more robust arm hardware Jesus just talked me into getting the
+pine rock 64 Pro which is I know anything about that thing really other
+than just what we read in the news I've never run one production either but it
+sounds like it's a hell of a board and so putting that into production too soon
+I'm trying other stuff but part of the thing I love about it is they're so
+swappable right and you've and we would talked a little bit about the value of
+having an operating system that sort of standardized across things and now
+you've got a standard platform too so you just have the fewest number of
+variables that you can yeah yeah so I'm gonna so I'm gonna try it out run it for
+a while and then I'll do my final thoughts in our Ubuntu 2004 review as
+part of that can I make a little late impromptu prediction here yeah I think
+you get two more pies before the end of the year I love them I really do in fact
+I want another one just for tinkering since all the ones I do have I end up
+putting in production so I want one just to mess around too you know all right
+well let's get into the community news we just have a couple of items and
+they're both just super super great news we start this week with the announcement
+of Linux kernel 5.6 which includes WireGuard 1.00 in the kernel
+I love that sound cool that's great I am so elated to announce this Wes and I
+have been explaining covering and introducing WireGuard over and over
+again since June of 2016 if you can believe it that's how long we've been
+talking about it on this show some of these things are really just long
+processes some things get integrated really fast but I think it's great that
+we've been following for that long because we've really documented the
+entire history of this project really wasn't that one of your predictions as
+well and the person must have been I believe having a WireGuard in the
+kernel was one of your predictions too this is so great it's so it's so great
+so you can check it out if you want to hear our early early coverage I actually
+did listen to it I meant to before the show started it's Linux unplugged comm
+slash 151 and here we are at episode 347 and it's almost like a new beginning now
+you know now that it's in the kernel it's gonna be deployed future embedded
+devices can start to take advantage of it there's other things in here though
+that are pretty neat you did a little bit of a West deep dive and found a few
+things I imagined that popped out at you I noticed one of the things I noticed
+was some nice performance improvements for butter FS for those that are using
+it including a smarter way to handle SSD trim yeah right before that was totally
+synchronous so you're writing and you have to wait for the trim operation if
+you've enabled it of course to succeed now that's asynchronous and gets
+handled in the background which should speed things up and I noticed came from
+Facebook so looks like they're still using butter FS over there huh and that
+wasn't the only file system to get some improvements f2FS that flash focused
+file system that's getting an experimental compression support which
+should speed things up and help improve the longevity of the of the SSDs and our
+favorite ext4 is even getting some performance work to improve things like
+database workloads which is really nice to see and it seems even XFS got a few
+32-bit fixes yeah it was kind of a little laggard there I know we like to
+talk a good XFS game here but it's finally ready for the future oh man and
+it seems there's some networking stuff in there as well right yeah multipath
+TCP support is finally making its way mainstream there's been out of tree
+support for a long time oh it's actually in yeah I don't know if it's everything
+but it's sort of the first batch of stuff that's gonna make it really start
+to work which is good because that iOS platform has had it for ages yeah yeah
+so you'll see that it is as a user facing feature on iOS it's implemented
+as as supplementing bad Wi-Fi with LTE something the phone will prompt you hey
+you know I can I can use both connections right and it's just protocol
+support built right into the protocol so that all this makes sense you don't have
+you know janky reconnect reconnections it's all understood yeah some stuff were
+a little slow on but some stuff we're like ahead of the curve on yeah there's
+a new some new changes a new scheduler so to help fight that buffer boat problem
+so you see stuff for you know devices as well as servers which really speaks to
+all the crazy ways that Linux is used one thing I know even though I don't use
+this very much you know virtual box that that Oracle product if you've ever used
+run a Linux VM inside one of the first things you have to go do is go get there
+get the you know the extension CD so it has all the nice support and features
+whatever right go to the Oracle website and download it and they make you sign
+you know agree to some license and all this horrible stuff yeah there are now
+there's now open source versions of that in the kernel we should make one in
+Linux VMs on virtual box a lot simpler yeah especially setting up those shared
+folders it looks like so that's really nice and before you get too excited no
+this work was not contributed by Oracle you can thank the community for this no
+I might not surprised I was surprised to see USB for support landing in kernel
+five six I I can't believe how far I don't know if any USB for device on the
+market yet yeah they're coming soon there's a couple of things in the works
+I've been able to find but it was the specification was little finalized I
+think back in September 2019 so it does help that it's basically just Thunder
+bolt 3 turned into a USB standard but sure but it has come along with some
+nice cleanup too for the existing Thunderbolt code in the kernel so that's
+good you know what else we're getting as well
+ex fat native in the kernel this is the release this is the release and it's not
+the Samsung written ex fat driver but it is ex fat so Brent another hallelujah we
+can actually read SD cards from cameras now that's great yeah you know that's
+only that's only a Canon problem I don't have trouble with that I'm I know listen
+to this guy listen I literally I literally solved this problem for my
+brother like three days ago wow it feels like the ex fat it's funny so
+that's an example wire guards is 2016 ex fat feels like it was what like middle
+of last year we talked about that and boom it's already there looks like
+actually it looks like it'll be in five seven oh so it's not quite they're not
+quite there but it has been emerged into the VFS next repository so it's coming
+so there could be okay so it could be very soon okay all right well you know
+what don't get my hopes up juice don't get my hopes up well that's a pretty
+solid release the only thing that is like kind of a come on about this
+release is that I just deployed Ubuntu 2004 and it's using kernel 5 4 which is
+fine it's fine and they're back porting wire guard right that's a thing yeah
+yeah back back ported to 2004 and then Debbie and Buster and then there's also
+by a different back port to five five dot four LTS release so it's all over
+the place all right you don't have an excuse not to be running wire guard
+frankly I think it's pretty freaking fantastic that it's 2020 and there's
+still things landing in the Linux kernel that we get excited about and this is
+something that you don't get on Windows and Mac OS like we we know about
+features sometimes years in advance you can plan for that you can start to build
+for that and you and I are already using wire guard nearly on the daily and it's
+you know it's something that we because we were able to follow this you're able
+to see the state of the technology you're able to read the mailing list
+sometimes you can get started ahead of the curve and it just gives you such an
+advantage the proprietary platforms don't have because yeah it's handy for a
+couple of podcasters here sure but imagine if you are building this at
+scale for an enterprise and you you could maybe already have a year two
+years experience with this tool as it lands and I just can't emphasize how
+freaking grateful we should be for that insight it is I think maybe reflective
+to know things get tend to get done in Linux it's definitely not always ready
+for everything right there are still a lot of enterprise use cases where by the
+nature of wire guard you're gonna have to roll some of the stuff like user and
+key management by yourself but that's also a great thing because it means you
+can totally take this rock-solid minimal secure technology in the kernel and
+build it into whatever you need and we're seeing tools almost every week
+now to help manage wire guard I just saw some crazy one that sets up a whole like
+home or small office network with a intranet and a wire guard page that
+generates the keys for you and gives you the QR codes to make it super easy for
+users to just scan with their iPhone or Android phone and set up wire guard and
+I think now that it's actually mainland we'll probably see even more of those
+yeah all right well let's shift gears and talk about some big news coming out
+of Manjaro felt welcome back to the show it sounds like we're gonna see some new
+hardware very soon preloaded with Manjaro on it what's the details exactly we
+launched our Intel laptop now with our partner Tuxedo and the new laptop is
+pretty slick yeah congratulations first of all and I noticed you said it's Intel
+for now so it sounds like an AMD version is also in talks yes I can even give you
+some details for that later on no problem is that oh interesting so I'm
+looking at it right now the Manjaro infinity book pro 15 it's got a really
+really slick I guess back to the to the to the top of the screen talk a little
+bit about that did you guys work with them to design this thing from like
+colors and logos and stuff like that well the logos and colors we designed
+together so yes the red version we already saw at the last export they did
+so we choose that model cause a red pops yeah and yes we we decided to make it
+like the logo from us and logo from them and join them together and decided also
+that we have to Manjaro super key and so on so it's really designed for the
+laptop the OS and the other way around as well well yeah that sounds like a
+real partnership yeah it's a tell me kind of big picture here is this is this
+kind of like a premiere Manjaro experience if I get this it's kind of
+like maybe gonna be eventually or is already like the best of the best well
+to see you has their own deployment system called Faye full automated
+installer and we managed to get Manjaro into that and yes we have to special
+wallpaper for it and the logos and the battery life and so on is optimized by
+Manjaro we have patched the kernel a little bit to make this machine really
+good working with it so yeah you will have a premiere Manjaro feeling when you
+have it and you can load it up with pretty premiere hardware to up to 64
+gigabytes of RAM you can get with a core i7 that has eight threads and up to 4.9
+gigahertz per core oh boy oh my gosh that's amazing and in a really nice
+looking machine so about how big and heavy is this thing if that's kind of
+hard to tell here on the site it doesn't look like it's too thick though it looks
+fairly thin yes person it's 1.6 kilograms heavy and it has an 15.6 inch
+monitor and it's matte no glare so you can even use it in the Sun and look at
+all those ports on the side I even see Ethernet there I see yes yeah we have
+either net we have also the new Thunderbolt 3 including this report and
+you can even hook up an external graphics card if you fancy for that oh I
+do fancy I do fancy that so you must have one of these right you must have
+gotten a test unit or got to try one out for a little bit or maybe even keep one
+tell me about that burns has one I have a different machine after MD machine so
+he's doing I'm doing the other one so we have to split it up of course somebody's
+got to take the AMD one I understand so what's next then so next is to watch for
+the AMD release do we have a kind of like a rough expectation to set for that
+it would be May if everything works at best based on the current situations and
+so on well congratulations I think this is this is not only kind of like a
+milestone for the project but it's also such a great service for new fans of the
+distribution especially people that are already in the market for a laptop
+they've heard so much about mangero maybe they've even you know seen
+something from Linus tech tips or something like that and they can get if
+they can get a complete package like this and it just looks like a great I
+mean I just love the design of it just looks like a great combination and a
+great partnership so congratulations Philip it's great I just think it's
+wonderful and maybe maybe a desktop someday in the future in hand hand we
+are working with a different partner on that as well so let's see what the
+future brings I find that fascinating I really I really do I mean I wonder if
+we'll see other distributions taking this up to also I seem to notice that
+there was a announcement around mangero arm is there a new update to that I see
+now too that there's 80 plus mirrors worldwide for the project that's
+fantastic yeah we bumped it up cause with the next Pinebook Pro we will be a
+stock image so we need some coverage so we decided to move our distribution from
+their infrastructure to our infrastructure and the sad news for the
+32-bit versions it's now a third-party distribution from mangero we have to
+find a new home for that so if people still fancy about 32-bit versions we can
+help us out to form the new team if it's still something we should go for yeah
+it seems fair you got it you got us you got to be careful you spend your
+resources I think I'm getting myself a Pinebook Pro and I think I'm putting
+manager I think that's the thing that's gonna happen you should definitely and I
+will say that I recently updated my mirrors list on my Pinebook which is
+running Manjaro already so and thankfully we have a nice group of
+listeners that you know directed me to that as soon as it happened so I was
+able to jump on that and fix get my mirrors fixed on my Pinebook oh good I
+I want one with manager up reloaded talk about the easiest way to run arch right
+just like ready to go you've got Manjaro going you've got this great ecosystem of
+available and up-to-date software I don't know if I ever thought I'd see it
+especially at the price points that's what's I mean with the Pinebook Pro
+that's what's so mind-blowing is the price points well and from my
+understanding all of the packages that are in the Manjaro repositories are also
+compiled for arm 64 so it makes it really easy to grab like you said all
+the cutting-edge software that you could want is it's already there hmm well that
+is a really maturing it's just what a what a good day to be a Linux user is
+it's nice to see so Phil thank you for joining us keep up the great work and I
+look forward to seeing that AMD laptop land to oh boy mm-hmm that's gonna be
+great do you want some details for that machine or not yeah if you got if you
+ready to share members I wasn't sure if you meant our fare you want to tell me
+off air but yeah if you want to me on air absolutely so we have it for a
+business line so it has a really great battery life so Winston's from tuxedo
+even popped it out to 25 hours in what what that's insane yeah it has a great
+91 watts per hour battery in it so it's more like the laptop is more battery
+than the laptop so she won't though how big is the screen the big it's 15.6 inch
+so it's a similar to the Intel based one and you have an rise in five three
+thousand five hundred you and a bigger eight and you can pop in up to 32
+gigabyte of RAM so yeah and probably no early word on rough price range at this
+point oh yes it's under 850 stop it stop it no oh oh boy oh boy see 2020 is gonna
+get better it's gonna get better everybody here this right here it's
+gonna get better oh man hmm man that's really great I'm really excited about
+that I kind of a kind of feel like that might be a perfect machine for me it is
+more for business like so if you if you want to casual gaming or something doom
+runs well and other games as well cause the vega graphics aid is also good for
+gaming and that's more for the business because it's that price range but I
+think with that price range and the horsepower it has it works also for
+gaming and coding and stuff like that so we will see how we go with that very
+cool no you go s got your next laptop picked out for you okay then you're
+welcome mine too probably I have a pine book for like my lightweight Chrome OS
+type tests I'll have myself a nice managerial AMD laptop we better go in
+for a bulk order yeah that'd be great kill me and well when it when it lands
+Philip you are you have a standing invitation to come on the show and tell
+us all about it okay sure we'll do and maybe ship out some test samples out to
+you so you can have it first hand and test it out would love to do that would
+love to run through the paces and give it a good review well I mean a good
+review honest review yeah give it a full go on the review because I tell you what
+it's got to be in that sweet spot for folks really I mean I just saw a video
+recently just going over some of the benefits of the new AMD laptop platform
+and the battery life is mind-blowing the performance is far beyond what you're
+getting on the Intel chips it's like AMD is finally there on the laptop in a big
+way so I'm very looking forward to laptops based around that platform I
+think it's gonna be fantastic so very good all right felt well would love to
+get a review love to give it a good go and let everybody know what we think and
+in the meantime let's do ourselves a little housekeeping here on the old show
+now mr. Payne got a couple of things we need to announce number one haven't
+mentioned user air for a long time error dot show slash 88 they go over the
+details that the guys think make a distro great things that make them wince
+which oh man I was driving when Pope he was describing what makes him wins and I
+was like twisting and turning in my seat and there's a bunch of other great
+things in there too like they just got some posture syndrome taking great
+photos etc user air is my favorite show to listen to when I'm on my way to work
+it just makes me smile my whole way and I get here I'm just in a great mood plus
+they don't mention that thing that everyone else is talking about so it's
+perfect entertainment right there's that too which you didn't say also do you
+know we're live because a lot of people are here and they're here rocking it
+live that's so awesome the virtual lug has has never been bigger it's okay it's
+huge and we'd love to have you here too you don't have to be even in the
+mother we can just watch live or join us in the chatroom it's a great way to get
+some extra show now if you want to know when we're gonna be live you can get it
+converted to your local time via robots at Jupiter broadcasting comm slash
+calendar we'd stream at jblive TV pow pow also I think we should get that
+telegram group over 2,000 we can do it we're around 1700 now but I think we
+should do it because now is the great great opportunity because telegram just
+enabled folders at least on mobile so you can put a lot of these group chats
+into folders and then you can just dip in when it's time to do that so between
+pinned chats and folders telegrams arrive for me now so they can have some
+more notice I won't say actually they can have some notification stuff they
+could clean up they could clean that up but now with folders it makes it so much
+cleaner to just jump in to get with just what you want so why not celebrate that
+by going to Jupiter broadcasting comm slash telegram join us in the chat it
+goes all the time it's persistent there's always fascinating stuff going on
+I mean a little bit too much sometimes I can't keep up with it but they're easy I
+mean here's the reality there's a universe that is going all the time
+you're not a participant of now I think you owe it to yourself and the entire
+human race to participate in every universe you can participate in I mean I
+think that's just it just behooves you to do that I don't I can't come up with
+any other reason Jupiter broadcasting comm slash telegram we miss you come
+join us yes now apparently cheese we get apparently we got telegram oh great so I
+just make that big pitch for telegram and now apparently there's been some
+telegram spam now listen you got folders don't mind the spammers cheese is doing a
+great job that's true that's true and we got a bot in that there thing now which
+everybody else has now for some reason anyways it's great Jupiter broadcasting
+comm slash telegram if you get a weird sketchy looking telegram that maybe is
+from just just pretend like it's not you know the internet rules apply yeah
+profile picture is a pretty pretty lady or something like that yeah just watch
+out yeah watch out let us let us know and we'll deal with them hmm there you
+go there you go that's a good idea cheese will cheese will bring down the
+Kraken chief telegram it's a cheese and Kraken all right thank you cheese
+appreciate I appreciate I appreciate you bringing the Kraken all right that's it
+that's all we got for you today I felt like there was something else in the
+housekeeping so I was stalling a little bit there at the end but I just got
+nothing they just got nothing let's do some feedback we got we got a bunch of
+that we should get into here we wanted to pick it up from last week by the way
+links to the Ubuntu 2004 LTS daily build for the Raspberry Pi 4 will be linked in
+the show notes should have mentioned that earlier I don't know why that was
+that's just difficult for me to find so I'm glad to have found it yeah now let's
+talk about switching from arch to free BSD this comes from John think about
+this Wes you're ready get ready to noodle on this I just wanted to throw my
+two cents in for your arch server I would be interested to see it replaced
+by a free BSD server I have heard some solid things about free BSD including
+positive reviews you all provided about BS at the BSD event you all tended wow
+that was like three years ago John dang he says I myself have really not made
+any sort of exploration into free BSD yet but I would be interested to hear
+and learn about the side of the OS familiarities it may be a solid
+discussion for an episode of the relationship between Linux and BSD
+communities as well now I had like two waves of thought there's a lot going on
+with this one now one of the reasons we went from free NAS to Linux was
+intentionally to move our server environment is something we're more
+familiar with which is exactly what I'm doing again with the Raspberry Pis and
+moving right I just I'm a more efficient admin and if it's not a detriment to
+move to that platform for me if it's both a good platform and I'm better at
+using it that sounds like a win however when I first read that that wasn't my
+line of thinking my line of thinking was free BSD on a Linux show what and I
+realized why not in fact then I started thinking now we're not doing this but I
+started thinking should I even be open to the idea of putting Windows Server on
+there like that never even crossed your mind did it no but like how far do you
+go with this and to be to be a legitimate critic of Linux we have to be
+willing to have an open mind about trying other things so that way we can
+genuinely compare two things right otherwise we're just going off things we
+read on the internet or comments or assumptions or old things we've tried
+years ago that maybe aren't current anymore it's no good pretending Linux is
+the best if it's not so then when I went down that line of thinking I thought
+well then maybe switching to free BSD on the old server isn't so crazy I mean we
+know it has a great ZFS support and it's a use case right it's a it's a server
+operating system we're running it as a server and that hardware was specifically
+purchased to run free and we know it runs yeah and to do that I checked it
+against BSD compatibility so we know it's a totally BSD compatible box I
+think it would be a really interesting experiment and I think it would be
+unique because part of the additional problems with running free nas was that
+we didn't be not understanding BSD that well and not understanding green as that
+well frankly we didn't know how those systems were interacting what we could
+tweak on the command line on the system level versus in the gooey in the app
+level so if we started from scratch and use the excellent handbook there might
+be a way to actually understand the system better and feel a little more
+comfortable man managing it the only thing about it is I don't feel like
+we're done with the arch experiment yet like part of what makes it a valid test
+is a prolonged use of arch as a server platform because anybody could do it for
+six months yeah I think we're actually do for some
+updates yeah I think we are too I know I know but I think we're good now right
+yeah it'll be fine you should and so what I almost feel like the answer to
+there should be like the next time we need to stand something up maybe we
+should do it on free BSD but these days what we would end up doing is what can
+you run you can't run a Linux container on free BSD can you well that's kind of
+boring I get what they do it in free NAS but they do it using beehive which is
+their virtualizer let me find a play with yeah I don't know if it doesn't run
+Linux containers I'm kind of out that might be it I mean actually wouldn't I
+wouldn't mind actually if a really if we really had all the time in the world
+what I'd like to do is stand up the entire infrastructure but do it with VMs
+or do it the non container route whatever we determine that be and and
+then comparing contrast the management the time well we could start playing
+with some jails you know yeah that just sounds like something that would be
+limited return on results like at the end of the day are all of us gonna
+switch to BSD no but I do like the angle of you know we appreciate a lot of open
+source technology and previous days out there doing a lot of good for the world
+very true I and I think it is worth trying I think it's worth staying
+current both from a skill standpoint but also just as somebody who's into
+technology well and I kind of think of it as the way with ZFS to you know pays
+to investigate the the less popular tools are not always open but sometimes
+you discover like ZFS some real gems that outperform a lot of the more
+mainstream options so if free BSD works really well for your use case it might
+be a step up against your competitors or against doing it another way okay all
+right artsful lodger in the chat room is linking a wiki page for free BSD
+about running Docker on free BSD it seems like it's possible however it
+currently says dockers currently broken we're working on a fix and then they
+linked the bug but it says its limits are 64-bit Linux compatibility subsystem
+will impact some Linux ABI containers so you have to be saying okay yeah it seems
+like it actually wouldn't they get the bug fixed whatever that bug whatever
+okay I suppose it depends on what that bug is I'm looking at the bug right now
+but it does look like they want they want to integrate Docker into free BSD
+well that's kind of it's kind of wild that's kind of wild right but great
+great I mean that I was kind of joking but that is actually kind of a
+consideration is being able to run your applications that you've right I mean
+they were they were first with the containerization technology in many ways
+yeah and to their credit way before WSL they had their own version of it run in
+Linux programs right you said it that's amazing they really were kind of a head
+on that a lot of things a lot of things huh yeah yeah so I think it is worth
+experimenting I don't know if it's worth or like what we're doing with arch right
+all the all the work we did to set up those ZFS snapshots and stuff mm-hmm
+easy peasy and BSD one mm-hmm I don't think it's worth throwing out the arch
+experiment because I think we need to continue it for a little bit longer in
+the fact that we haven't updated in a little bit so good because that's gonna
+happen every now and then like we need to so I think we got to live that for a
+little bit longer but I wouldn't be opposed to a future project using BSD as
+the host maybe you'll be running it on one of your raspberry pies be a good
+excuse to talk Alan the coming back on the show Paul writes in and has some
+good news about the raspberry pi forces even though I bought my raspberry pi 4
+after Christmas because I didn't get one as a gift oh I believe it has the USB C
+fix that everyone is just now talking about remember when it originally shipped
+there was a bit of a problem where if you had one of them e USB C chargers
+that's a little bit smarter it would actually not properly charge I think it
+would get like detected as like a display adapter or something right they
+used some non-standard setup in the USB port that needed to get fixed on the
+pieboard side yeah but Paul says it looks like the fix is in Wes he says
+when you cat proc CPU info it comes back with what appears to be a updated
+revision and he has a picture of the old one and looks like he's right they moved
+the voltage switch location yeah I'm gonna link in the show notes if you want
+to go see what the difference is what they look like on the actual physical
+board huh and I think this matters because we'd already heard that it had
+been fixed upstream but with you know supply lines how long does that take to
+filter down into what you're gonna buy on the shelf today and it sounds like if
+you gotta go go get a pie you'll get the new one hmm I wonder if mine is through
+the one that we were playing with today cuz that's a I just ordered that from
+Amazon last week so it could be I just bought I see when I buy a raspberry pie
+because I buy a lot of them I just buy it with a with a dedicated power adapter
+because I like I like my raspberry pies to have a power switch so my power
+adapters that I buy on Amazon for the Raspberry Pi include a little interrupt
+power switch so that's how I prefer to do it but this one's one revision behind
+so maybe there's maybe so you just hang it see that's what I thought is I
+thought that they would probably they would probably have a whole stock
+wherever I bought it from I uh I don't mind I bought it with a dedicated power
+adapter but I would like to see it fixed speaking of the pie for Jason writes in
+he says I've been playing with the pie and I just wanted to share with you my
+recent project based on the recent pie for discussions I've purchased the
+following geek worm x2 or I'm sorry x828 for my pie for I don't know what an x28
+it is do you know what you want to Google that he says I had some oh the
+next line gives us some context I had some spare SSDs laying around this is a
+backup ZFS node for my main ZFS server that's brilliant brilliant especially
+now with the dedicated bus for Ethernet instead of yeah to replicate the ZFS
+data storage and snapshots I'm using Jim's s-noid six noid or however you
+pronounce it okay thank you you would know Jim from tech snap and ours
+technica it says it works wonders very fast and that's just it it's simple and
+it's reliable I can very easily fail over to this and keep serving my VMs
+while I repair my main ZFS server I have a stack of this pi 4 4 512 gigabyte
+SSDs 2 mirrored and a terabyte total storage all in it's great
+says I run a boon to 1910 across the board on my edge device is Debian and my
+edge device is VY OS yeah the network focused which is based on Debian exactly
+so that's awesome you put a link to that x828 adapter in the show notes so thank
+you for doing that one other pleasant little note Jim Sanoid tool has now been
+packaged in Debian so it's easier than ever to get yeah can we just stop for a
+second and talk about that so you buy this $30 computer you if any and and
+this is if you want to do it fancy you buy this $37 raspberry pi NAS SATA
+adapter stack which has one two three four SATA ports on it that you then
+stack and it comes with all the parts I literally stack it and screw it down to
+the top of raspberry pi 4 and then you load it with this Debian based OS and
+this little sub $100 setup can be a full ZFS replication node that can keep a VM
+cluster online Wow guess arms really here the thing is obviously the hardware is a
+fundamental enabler here but that hardware would be nowhere without the
+free software that makes all this possible there is a thousand different
+free product software projects coming together to make something like that
+happen and there are thousands of people all over the world that are super
+hyper focused on their one area of open source maybe an area that doesn't even
+get that much recognition doesn't get that much attention and they're all just
+sitting there working away year after year and now here we are where something
+like this is possible where a consumer board for 40 bucks and then a stack add
+on board for another 40 bucks can run an enterprise grade OS and keep a VM
+system online it's just it's really remarkable so we'll put links that so I
+woof woof if you have some other raspberry pi projects you want to get
+started I talk about a lot of the different containers I run on my
+raspberry pi like renteo or renteo it's a open source simple markdown knowledge
+base for home you just you just save markdown files in a directory and then
+it renders them nice on a website I mean and to set that up for myself so that's
+how I do my home documentation I love smoke ping there are different projects
+that replace it but I think nothing's as good as smoke ping that's something I
+run from a raspberry pi I've have a bunch of others that I cover in self
+hosted three really early in the show's run I just went through a lot of this
+all of that stuff that I talked about in October of 2019 I'm still using and
+still happy with so the setup is still valid I've just added to it which I'll
+cover at some point self hosted show slash three for that episode I also just
+realized that in there I talk about my favorite travel router that supports
+WireGuard so speaking of WireGuard boom built right into there that was a good
+email I like talking I'm enjoying the raspberry pi chat these days as you can
+probably tell Jason finishes with some thoughts on network performance he says
+I have to say in my initial testing of the pi 4 the dedicated 1 gigabit NIC is
+well worth the upgrade I initially had 6 terabyte drive connected and moved over
+5 terabytes in 13 hours it cranks and it saturated that connection at 1.5
+gigabits at time my main server runs on a 10 gigabit back end and I've spent the
+past three weeks converting away from VMware to KVM I've been a longtime
+VMware user and a user of VMware at work but since running KVM I am much happier
+and it seems much faster I won't be going back at this time open v-switch is
+next on my to-do list oh yeah open v-switch would be really cool right in
+Jason when you do that let us know how that goes it sounds like Jason's having a
+lot of fun with his home web I love it there's a now there's a follow-up is
+this a follow-up to a conversation we had about the downsides of Jason in the
+show do you want to take this one yeah easy or writes in about episode 341
+where we talked about that tool I was really fond of called JC which wraps
+existing shell commands and converts their output to Jason there was also a
+follow-on blog that sort of described that we need to bring the Unix
+philosophy to the 21st century we talk a lot about PowerShell in reference to how
+it has you know fancy objects and not just raw unstructured text and that
+blog sort of explored the idea of well maybe maybe Jason is something that
+Linux could start adopting he's not sure that that's really the right way he
+writes about the bringing the Unix philosophy to the 21st century blog and
+the JSON tool from the last podcast I posted a reply to the blog with I like
+the JC tool very much and it makes sense for JSON usage but remember Unix tools
+have been tested time and time again JSON is great for REST API calls but in
+a shell environment I worry could provide some challenges text format is
+fundamental through any file system and the ability to read and write data in
+text requires very little the text way does not require additional tooling or
+programs and just about anything can read or write I agreed that having an
+additional output for JSON will increase the flexibility but I also
+think it will introduce complexity to the technology isn't all data in the
+form of text anyway wouldn't JSON create complexity to edit is read more
+critical than writing or editing files don't get me wrong I do believe there
+should be improvements but the questions of moving forward are more significant
+than just converting data to JSON hmm I think the fact that we just got a
+machine running over a tech serial console this morning may be coloring my
+perspective on this but I kind of see where it's coming from it's like text is
+just so simple and universal although I mean JSON's really just text right I
+mean I think it's pretty easy to edit and work with there's a lot of tooling
+around that I will say so for like the power of shell for instance that's got
+the whole dotnet system backing it you know it has it's much richer objects and
+this this JSON support it's kind of sort of just ad hoc with schemas and
+specifications and all kinds of relationships yeah it's a bigger ecosystem
+on the power shell site it's like it's born of that right designed in I will
+say however I don't support changing things where we should do this in a
+non-breaking way where we add JSON support and that I think just there's
+not that much overhead to it right if suddenly there's a flag or an additional
+text file sitting under proc that has the JSON version what's the harm I
+think that's it that's it right there that should be pretty low overhead right
+and that's probably where maybe JC the tool will find a sweet spot because
+it's sort of just at the very end of the stack where it's got parsers for a lot
+of you know core utils and other programs so if we maintain a large
+program of that or there's some way to sort of work that into the project
+eventually maybe we'll just end up with JSON and all the places we need it did
+you see wimpy wrote this massive bash script oh yeah that's I mean that's like
+peak bash script right there isn't that it's nice to see I mean it looks like
+some well-written bash it immediately reminded me of why I would never want to
+write a tool that large with bash that's pretty cool the Ubuntu podcast is back
+mentioned for those guys they're back there we were editing it for them but I
+think they've got a new guy now and they launched a new season and that's exciting
+I know I as somebody who feels like my week isn't quite right without the
+Ubuntu podcast in there like I've been feeling been trying to find something
+for the end of my week content and when there's not a user and there's not a
+text have to listen to what is a guy to do I think it sounds like a good week
+to get some curry and put on the podcast so let's talk about my favorite topic
+bulletproof Linux which always seems to really resonate with the audience and we
+have tried to build a bulletproof arch server and so it reignited the
+conversation and George wrote in on thoughts on episode 341 of the program
+where we talked about time shift he says time shift is great it also shows that
+Linux mint teeth the Linux mint team is focused on adding important user facing
+features it's worth noting that time shift is donation where I don't know if
+mint is paying developer Tony George but I didn't hear you guys recommending
+donating I have donated good point absolutely something we should probably
+keep an eye out for more I don't think we've made a good habit of that so I
+think George makes a good point there he says testing time shift I tested it but
+I have not yet had the kind of system failure from which it would provide a
+critical restore perhaps you guys could try it on something important like that
+arch server or where we have it implemented in a graphical way is here
+on our Reaper machine it's just such an important machine so we put it on there
+but I it's just been running we did do a little bit of testing although we
+removed some non-critical files rather than critical files yeah that's true
+that's true so as long as it just function the same way in the test it
+should be working I love the people right and I'd love getting people's
+feedback and ideas on how they bulletproof their Linux install different
+snapshot techniques or like I was trying with a VM like what are your solutions
+that is a topic there's something there about getting a server but also I think
+just as important a workstation that is guaranteed dialed in ready to go every
+time you sit down at the machine you move the mouse cursor the screen comes
+on it functions every single time every time always I love that and you have a
+very clear rescue path if for some reason it doesn't function like that I'd
+love people's ideas on that Linux unplug calm slash contact Cameron wrote in
+about time shift as well and he had time shift saved his save his bacon to
+preface this I am a novice and was monkeying around trying to create a
+script that resulted in me messing with permissions I shouldn't have hey we've
+all been there that's kind of the fun of Linux right and I accidentally deleted
+slash bin so I use time shift and it restored without issue so maybe that
+gives you a little bit of some clarification Cameron does run into some
+problems here though because you can use it to back up the system and you can
+have it include user directory stuff if you want to but there's no mechanism for
+separating those out at the time you want to go and roll it back so Cameron
+was kind of wondering are there ways to run two instances of time shift I'm not
+sure I've not tried that but that probably wouldn't be the route I would
+go I think I would leave time shift just for the system stuff and then use some
+other backup tools for your user data man all of this changes with 2004 this
+entire conversation is different now in just weeks like every time I install a
+package on my ThinkPad I have a snapshot of my system I have tons of snapshots I
+don't do anything it just it's there I can revert we've tried it it works it
+really changes the game on on how to get these systems more bulletproof our new
+answer is just install 20 24 on ZFS and there you go it's not there yet right
+because first of all one copy is no copy but second of all there's other pieces
+that need to be done it's not a complete implementation yet but he says it's still
+new we are getting to a point where between universal package formats
+snapshots and tools like butterfess and ZFS yeah there will be a time where
+maybe all you have to do is just install the dang distro and you're bulletproof
+you're not there yet so there's still some wiggle room but if the baseline is
+your OS has built-in snapshots and every major change invokes a snapshot pretty
+good baseline pretty good and I'd love to see other distributions start doing I
+know I know openSUSE it does I know yeah why did it take us so long yeah all
+right so Ryan says well forget all that stuff for the love of Linus will you
+please try out Nix OS I don't know if you ever heard it I don't think I've
+heard you guys discuss Nix OS I imagine Wes would be particularly interested in
+this distro as it uses a completely functional declarative build language
+for configuration all of the configuration is done in a single file
+or in a set of files you import into a single file and then the configuration
+is run through a build system determine what packages users etc files and other
+configuration should be generated to match the configuration that you've
+declared then a new snapshot of the OS is generated and can be switched into
+immediately for testing or just set up to boot in the grub menu the next time
+you reboot all previous configurations sit and grub until purged there's
+something very cool about having my entire configuration all contained in a
+single file I don't have to do less and grep to my get my way around Etsy I
+don't have to remember which format if it was a YAML was a JSON I just I think
+that is a fairly that like all that stuff is ticking my box he says there is
+far more to Nix OS than just that it looks like they have their own container
+management system but also they have robust support for talker as well it's
+definitely a strong contender for any future servers I might deploy all right
+Ryan I admit that actually has me more interested than free BSD yeah I started
+this thinking for you should try out free BSD but you're you know behind the
+scenes you and I've been talking about this for over a year it just hasn't
+really come up and I don't think we've had the perfect use case although the
+way Ryan just described it it does seem like it because right also sounds like
+backups will be some super simple with the you know on the one file anybody in
+the mumble room a Nix OS user or tried it out yeah I just set up Nix OS server
+running on digital ocean awesome there's a Nix OS infect script out there that
+just next to us on any digital ocean droplet and I'm currently running a ton
+of things on it you know mumble I'm running my own matrix server like it's
+really great sounds like there's a lot of things really that are pretty nice
+about it but what do you think is probably like the greatest thing that
+made you say all right I'm running an unsupported OS because I love it this
+much what was that what was that thing main thing is I can basically just blow
+away my entire droplet and have it back up with the same configuration in a few
+minutes yeah that declarative configuration where everything users
+everything and it sounds it's nice to see it integrated right I mean people
+are already doing that with configuration things like ansible or
+chef but you have to hack it on top right you got to go then like basically
+compiles down to a bunch of apt commands that you do or writes out all these
+files having it at the OS sounds pretty clean seems like it'd be really great
+for hosting providers you'd have like different different Nix base you know
+one-click deployments that all right just easy to document and store hmm you
+know there's also the canoe project has keeks I believe it's pronounced GUI X
+which is inspired by Nix but uses a uses scheme which is a lisp variant instead
+of the Nix OS language that it uses which hey that interests me a lot
+anybody got Nix of us working on a Raspberry Pi 4 cuz I mean how does this
+not seem like a especially if you're doing everything in containers like you
+really just want a super solid base OS and something that I love this idea that
+you could actually jump into a test snapshot before you reboot that blows my
+mind I mean what kind of what are they doing kexec magic they're like how is
+that possible how can they do that blows my mind like that's that's solid and the
+idea that I just do the configuration one spot and then I just save that and
+back that up somewhere and then just use that to deploy a new system peaks my
+interest really does I do see in open over on github open issue for Raspberry
+Pi 4 support and on their wiki they mentioned the Raspberry Pi 3 so maybe
+it's just a matter of time huh we should put this on our list of semi to-do
+soons I think right now we're deep in 2004 land but as that and then we'll
+probably have a new fedora pretty close after that but as that kind of cycle
+fades maybe there'll be a summer low in distribution releases and this will be
+the yeah I like it some fun summer projects with Nick's OS you know when we
+do it we should really go all out because we've been wanting to do it for
+a long time and maybe I then they'll have Raspberry Pi 4 support too yeah it
+looks like it's just starting to come online supported by the packaging system
+it's just sort of experimental maybe not well tested just yet sounds like it has
+good potential though so summer might just be perfect I think we have to do
+it let's try to remember that because I think that'd be really great well thank
+you everybody for sending that stuff in I like that we started at FreeBSD and we
+ended at Nick's OS it doesn't take FreeBSD off the table it just means we
+have multiple fun projects now we found something even more niche to play with
+all right we'd love to have you hang out live we do it every single Tuesday over
+jblive.tv it starts at noon Pacific but you can get it converted at Jupiter
+broadcasting comm slash calendar check out my personal site Chris last comm for
+my new projects and ways to get ahold of me get more Westpain at tech snap dot
+systems and also at Westpain and I just I don't know it's too easy that's why well
+honestly because if I was you I'd lead with the last name or the middle name
+with the last name just the middle name last name lead with that you know that I
+do use that and it was taken on Twitter oh okay okay yeah that's fair play then
+it's fair play what are you gonna do right anyways thanks so much for to this
+week's episode of the unplugged program and we'll see you right back here next
+Tuesday
+Something that we didn't sneak into the conversation there, but Cheese was telling me about last
+week is Armbian.
+Yeah, Armbian's great, man.
+If you got another board that may not be a Raspberry Pi, because I don't think any of
+the PIs are supported, so an Orange Pi, a Pine board, Odroid, etc, etc, check out Armbian.
+Armbian's freaking awesome.
+I think that's what I'll do when I get the new Pine board.
+I'll put Armbian on there.
+Armbian.
+Yeah, well, and then, you know, you got to think, too, you're going to have a PCIe slot
+with that Pine board, so should be able to do that.
+Oh, that's so cool.
+You know, because your bottleneck right now really is the USB 3.0 right on the Pi.
+I know, you're going to wreck everything for me.
+You know this.
+I'm going to realize the extreme performance difference and the minimal power increase,
+and I'm going to just redo the whole thing now on Pine boards.
+Well, maybe you just put your, you know, your little personal NAS Shinobi storage or something
+on a Pine board and then keep the PIs around for other things.
+Yeah, maybe.
+Yeah.
+Or we'll just have to go to your eBay page right here.
+Previously loved Raspberry Pi 4.
+You can sign them, maybe?
+Yeah, there you go.
+Yeah, you would want it.
+I think that would decrease the value.
+But if I do it, I'll do it with those silver paint markers, you guys are going to be real
+fancy.
+Yeah, you're going to be real fancy.
+Yeah.
+Yeah.
+Yeah.
+Yeah.
+Yeah.
+Yeah.
+Yeah.
+Yeah.

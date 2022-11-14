@@ -1,0 +1,1801 @@
+I know you were looking into how to migrate off
+of Silverlight, Wes, and I've got great news for you
+because a team of experts came together
+and created OpenSilver.
+Finally, a modern, plugin-free, open-source
+re-implementation of Silverlight just in time.
+That's great.
+I finally don't have to move on
+and learn any sort of new HTML5-based technology.
+Hello friends, welcome in to Linux Unplugged episode 344.
+My name is Chris.
+My name is Wes.
+Wes, this week, your weekly Linux talk show
+ended up running Windows 10.
+What?
+It's been quite the week.
+We figured to round out last week's episode,
+it'll only be fair to take a look at Windows 10
+and load it up with the latest and greatest
+that Microsoft has to offer
+and how perfect it happened to coincide
+with us both attending the very first WSLConf,
+the Windows Subsystem for Linux conference.
+It's really showcasing how people can get work done
+on Windows in Linux,
+or another way to put that is showcasing
+some of the work they'll be able to do soon.
+We'll tell you a little bit about that
+and what our experience has been like
+at a Linux event that has put together
+like a canonical Microsoft joint effort.
+It's been something.
+Oh yeah.
+We've been attending this morning
+and we'll tell you all about that.
+Of course, we've got community news and some app pics,
+but first I've got to say a hearty afternoon to Mr. Bacon.
+Hello Cheesy.
+Hello there.
+How are you?
+Oh, you know, pretty good.
+Been up early.
+We got in at 6 a.m. to do the WSLConf
+because even though it was a Pacific Coast event
+at Microsoft, once it went virtual,
+they opened it up to the world
+and so they made it East Coast time.
+And so it started really early for us.
+At 6 a.m. this morning?
+Yeah, your boys have been podcasting since 6 a.m.
+Is it still going on?
+Yeah, it's still going on right now,
+but we hit the old pause button to do this
+and then it continues tomorrow
+and we'll be attending again.
+So definitely still time to catch it,
+sign up, go check it out live if you want.
+Yeah.
+And also a huge time appropriate greetings
+to our virtual lug.
+Hello Mumble Room.
+Hello.
+Hey.
+Hey.
+Hello.
+Hello.
+Howdy.
+Well, howdy to Ace Nomad, Brent, Bight, Carl,
+Computer Kid, Frank, Colonel, Neon Popey,
+Stefan, Stewin, Tech Mav, Tyler, and Mr. Wimpy.
+Hello you all.
+It's so good to see you.
+Wow, what a crowd.
+We've been, have you been WSLing Popey or Wimpy?
+I've had it on in the background
+while I've been doing my other work, yes.
+Yes, yes.
+I've actually been sitting here
+and paying quite a bit of attention to it
+and cutting some clips and whatnot,
+which is one of the nice things of it being virtual
+is it's actually pretty easy for us to get audio.
+A lot less work.
+Yeah, probably the easiest conference I have ever attended.
+Yeah, but we'll get to that in a moment.
+First, I wanna cover something that Jim Salter posted about
+over at Ars Technica,
+and that is the ZFS Snapshot support
+that is landing in Ubuntu 2004.
+This is something you and I have been speculating a lot
+about where is this gonna go?
+And we've gotten some indications over the last few months
+about Snapshots getting built
+into the package management system of Ubuntu,
+so that way when you install a package,
+before that package is actually installed
+or the change is executed, a Snapshot is taken.
+Right, I mean, this is functionality
+we've been experimenting with,
+totally different world over with ButterFS and Snapper.
+It'd be nice to have it just built right in though.
+And the user doesn't have to worry about it.
+It's invoked by the package manager.
+Exactly.
+So Jim dug into how this works exactly.
+He says when you first get Ubuntu installed,
+there aren't any fresh Snapshots on the system yet,
+but if you do say apt-get install gimp,
+you'll see that ZSys has taken a Snapshot
+of every data set present in the R pool,
+and there's a lot of data sets.
+Oh, yeah.
+Thankfully though, having a Snapshot taken
+prior to installing any new packages
+means that something should go haywire,
+which I mean, it doesn't happen that often
+on Ubuntu these days, but it certainly can.
+You can easily revert the system back to its prior state
+before you had that package installed.
+Yeah, that's nice.
+Carving up the system into so many different data sets
+means in turn that we can roll back
+only those parts of the system
+affected by the package manager.
+You don't have to Snapshot your entire root partition
+because you've got these data sets parceled out,
+and that means you've got a lot more granularity and control.
+So it's a little more complicated
+by having more data sets,
+but it's less complicated from a restoration standpoint.
+And the idea in theory is that ZSys
+is going to be managing that for you,
+so unless something goes really wrong,
+you don't have to worry yourself
+about how many data sets there are.
+Yeah, that's kind of the whole thing that's nice about it
+is it's essentially transparent to the user
+until they need it,
+and Dydrox tweeted back to Jim and said,
+by the way, you can actually revert the system state
+from grub, too, which is a way for a user
+to actually just from a GUI revert back.
+Jim had some questions around,
+okay, I can see how you can take a Snapshot
+and trigger that all to happen,
+but how do I actually go back and restore that state
+without having to go to the low level
+and roll back each data set individually?
+Dydrox is sort of explaining,
+actually, we're planning to use grub for that.
+Pobay, I know you've been playing around with 2004.
+Have you played around with any of this stuff?
+Did you do the experimental ZFS support,
+or did you go extended four?
+So I did go ZFS on my main ThinkPad,
+so the machine I'm on right now,
+and every so often, I apt install something.
+Because it's clean, I've got to go through
+and install a few things,
+and I do that on demand as I need them.
+Every time I do that,
+I see the little line that says saved system state,
+and I'm thinking, ooh, that's nice.
+I haven't actually had to revert anything yet,
+and I think Dydrox is right to point that out.
+The whole grub thing is supposed to be the user-facing part
+so that that whole, oh, my system is broken.
+What on earth do I do?
+Well, you just reboot and choose a different snapshot,
+and then you're back in the game.
+It's brilliant.
+I love it.
+Kind of makes sense,
+instead of having to troubleshoot
+from a possibly broken system.
+Yeah, I think Jim's coming across it,
+coming to it as someone who is deeply technical
+and very much a ZFS expert,
+whereas we're trying to pitch it towards people
+who don't care about what technology is under the covers.
+They just know that if they need to go back in time,
+they can do.
+Right, they might not even know it's,
+or likely don't even know it's ZFS.
+Right.
+It's just happening.
+That's fascinating and totally makes sense
+for a broader audience.
+Wimpy, I'm kind of curious if you have thoughts
+on where the future of this stuff could go?
+Well, for 2010, it's going to be all about encrypted ZFS.
+Ooh.
+Hmm, hmm, hmm, hmm.
+That's great, and of course it would make sense
+to do that in the 10 release.
+Yeah, that's awesome.
+Hmm, I think I'm gonna do it.
+So we put Windows 10, I was actually,
+so I was gonna go to 2004.
+I had already even made the USB drive for you.
+Yeah, yeah, like I was gonna do it after the show,
+but then we were like, we should really round out
+our experiences learned from Mac OS
+with our experiences learned from Windows
+and give it a real fair shake.
+Try to remove as much bias as possible,
+try to take our time setting it up right,
+use the new Windows subsystem.
+Actually try to get work done with it.
+Try the new terminal, all that stuff.
+And I didn't end up on Ubuntu as a result of that,
+but once I take Windows off, and hint, yes,
+I will be taking Windows off,
+I'm gonna go with 2004, and I think I'm gonna do it.
+I'm gonna do the ZFS.
+It's neat to see some of this happening too.
+I think we all speculated, all right,
+is this gonna be an area that Ubuntu explores down the road
+when ZFS wasn't announced,
+as built right in way back when?
+It's finally here, I mean, it's nice to see.
+I agree, I agree, and gonna be fun to play around with.
+Something to look forward to.
+I'm trying to think of ways in which I can break my system
+so that I can test this,
+because it's pretty boring at the moment.
+Nothing's broken, so it's a bit of a challenge
+to see if I can exercise this thing.
+You just need to write a quick script
+that deletes random files,
+and you know, share that with everyone.
+Yeah, there you go.
+I think it's a pretty great idea for a workstation.
+I mean, obviously it's good for,
+I mean, I think when we talk about this,
+we're often talking about servers,
+and updates, and stuff like that,
+but I think it's really nice
+for a peace of mind from a workstation.
+Just to be able to roll back, and know like,
+okay, maybe I'll go deal with why that upgrade failed later.
+Right now I have work to get done.
+Yes.
+Oh, yeah, you know, like last night.
+I should never do this.
+Don't do like Chris does.
+Oh boy.
+But I'm having a problem with my Home Assistant app
+on my phone, can't connect to my Home Assistant server.
+The webpage works fine,
+and the system has needed rebooted recently
+a couple of times, so I thought, you know,
+I'm just gonna do a full update.
+It's been a little while since I've updated
+the Raspbian install on this box,
+and I'll get the latest Docker image,
+and reboot, and see if everything just works.
+Maybe I don't need to try much further than that.
+You know, just basic troubleshooting stuff.
+Right, update and see if it fix it.
+Until it's like bedtime, and I'm getting up super early
+to get in here to do WSL Conf,
+so I'm trying to go to bed early,
+and it's still taking forever to write the packages
+because of the slow SD card,
+and I think to myself, if this breaks,
+I'm gonna be up all night fixing this.
+Like, it's a very important system.
+It's those things where like, I know I shouldn't do it,
+but normally it works, so I'm just gonna take the risk
+and do it, and then it...
+It did work, it did work.
+No, everything was fine.
+It rebooted, everything was fine,
+but the thought I had was,
+oh man, I wish I had a snapshot right now.
+I wish I would've done, because like last week,
+I was talking, or the week before,
+I was talking about making an image backup of it,
+which I still haven't done.
+And I was really regretting it, but everything went fine.
+But those snapshots will just give me
+a little bit more peace of mind.
+All right, you're not allowed to watch anything new on Plex
+until you've got those backups.
+What about existing shows?
+Picard's on, Picard's on.
+I gotta watch Picard.
+I know, it's ridiculous.
+And to make matters worse, I'm heading off to go to Denver,
+so it's not like I'm gonna have time to do it anytime soon.
+Wait, you're going to Denver?
+I'm going to Denver, Wes.
+So it's been kind of like one of those,
+should I go, should I not go?
+But when I saw how successful
+the App Center for Everyone campaign was
+for the elementary OS guys, 190% funded.
+They raised $19,000. Wow.
+They're going for 10,000.
+And I started thinking about what it is here
+that's so appealing.
+And I mean, there's the factor of, you know,
+elementary OS is a proven project
+that has delivered results for years
+with a steady progression in improvements,
+but they've also delivered on these sprints in the past.
+So there's that aspect of it
+that makes it pretty much a sure bet.
+But my time on the Mac that just wrapped up
+was so freaking like perfect
+because it showed me how necessary
+a healthy third-party app ecosystem really is
+and how important developers actually paying to eat
+and feed their families actually plays a role
+in them staying committed and creating great software.
+And I think I was starting to buy into,
+well, we can have just everything that's a free ecosystem.
+It's a utopia and it's going to be fine.
+It'll just take a while.
+And then, and then I tried a few apps
+that are so far and above better
+than anything that I have used in years.
+I really had to have a think about it.
+And then this thing lands
+and it's so outrageously well-funded.
+I realized this could be the spark
+that sets off a very important fire
+because this is a cross distribution payment backend system
+done by a proven project.
+And if they're successful,
+they'll likely be others that crop up to compete with it.
+And we'll have multiples in the market,
+but somebody has to prove it out that it's worth it.
+And somebody has to make something
+that is easy for developers to digest.
+And these guys also have a track record of doing that.
+And I think I want to be there for whatever happens.
+If it's a huge success
+and it kicks off a new revolution of desktop Linux software,
+I want to be there for that moment.
+If it's nothing more than just watching
+a well-organized project execute
+on something that their community finds important,
+I want to document that.
+And if it's an utter failure,
+I'd like to have insights as to why.
+So I am packing up lady jupes.
+I'm getting out of the COVID-19 hot zone
+and I'm heading to Denver to document this thing.
+I'm doing it on my own dime.
+And I go into the rationale and all of that
+in the Chris Last cast, chrislast.com slash nine.
+I'm going to go there, I'm going to document it,
+I'm going to talk to the guys.
+I'm going to wrap my head around what they're doing
+because I think, especially after my recent time
+visiting the Mac, this is so important.
+And this is the first step.
+If they're successful, others will follow.
+And then we will have ourselves a real functioning system
+that it gives developers a path to monetization
+to create high quality software
+that can run on top of our free operating system.
+And I think there's something amazing about that,
+that this free operating system
+could become a viable economic platform
+for people to feed themselves.
+I want to see it.
+So I'm paying for it myself.
+It's not a work function.
+It's not really something that I think work
+probably is very interested in.
+It's not really in the core area of their interest,
+but I think it's important.
+Hey, I'm glad I'm going to live vicariously through you
+because you're right.
+I mean, the elementary project and Dan and Cassidy
+as developers and creators who, you know,
+obviously love the Linux platform
+and are trying to build things for it,
+they get those problems of, well, how do I get money?
+What framework do I target?
+How do I even build an app that's going to work
+with all the things that I need?
+I think they're a great team
+to try to take on this challenge.
+A hundred percent funded on day four,
+619 backers when I checked.
+That's pretty big.
+And this is the only way we're ever going to beat the Mac.
+If you want to be, if you want to become a popular platform
+for the average user, you got to get there.
+It's, you know, I think it's,
+I think it's a cliche to blame marketing.
+To say that it's a lack of organized marketing
+that has prevented Linux
+from getting adopted to the marketplace
+is a fundamental misunderstanding
+of what makes the market move.
+It's wishful thinking that that's all that has to be solved.
+The reality is, is this has to be solved first.
+Well, and I think that there's a ton of great apps already
+available in the App Center that are, in my opinion,
+on a different level than a lot of the free apps
+that you would get from any other distribution.
+Namely like Quilter.
+I love, I don't know if you've tried that one or not.
+I think the developer is asking like nine bucks for it.
+I gave them 10, but it's a Markdown editor.
+Super clean, super efficient Markdown editor
+with a preview toggle and a Markdown toggle.
+I actually picked it up from the JB Telegram.
+I was asking for an awesome Markdown editor.
+And I think it was Shicken who had suggested it to me.
+So I've been using that one.
+Cassidy's got some pretty cool apps out there.
+Palette is a pretty cool one that he's made.
+But there's tons of apps that are already out there
+that are excellent.
+Really nice.
+And I think that going forward,
+what they're starting to create is an environment
+where I can purchase these apps
+and then I can reload my whatever laptop
+and download all the apps that I've already purchased.
+Previously, I don't mind giving to that developer again,
+but if that app ends development,
+at least I've already got that purchase locked down.
+I try to make some examples of what I think are apps
+that just could not be replicated on the Linux side
+in that Chris Lastcast.
+So if you think I'm wrong,
+I first encourage you to check out episode nine,
+because I think I make the case of applications
+that are the prime example of things that you could only have
+if there was a monetization path.
+Well, that is the stability too.
+It's monetization and knowing that this platform
+is going to be around.
+I can enter here and I'll get some stuff back.
+And it's not all going to change out from under me.
+I can build a long-term customer base.
+That's really important.
+There's a culture shift that has to happen along with that.
+And that is that Linux users are willing to pay for software,
+but it's a chicken and the egg problem right now.
+And the advantage that the elementary OS guys have
+that I see over previous projects,
+and I'd like to get Popey's take on this here in a second,
+is they are well-liked throughout the community.
+They have good standing and they're creating something
+that is going to be generally available.
+It's not just distribution-specific here.
+And I think maybe that might be some
+of the fundamental difference here.
+Popey, what do you think?
+Yeah, they also have a solid developer story,
+which we've got some experience of making a paid app store
+in that we did it back in the 1204 days.
+And we didn't have a solid developer story.
+It was build a dev of anything and submit it
+to the store and we'll review it
+and maybe it'll go in, maybe it won't.
+And while there were paid apps in there,
+it was a mishmash of basically awful applications.
+There wasn't anything really compelling.
+And I think because the elementary guys
+have set their bar quite high for their expectations
+and they've set that their documentation is solid
+and they've made opinionated choices
+about what you need to do in order
+to be accepted in the store.
+I think they're going to end up with a bunch
+of beautiful functional applications
+that developers will get paid for.
+Whether they get paid enough
+and whether they get enough apps
+is the thing we can only tell by doing this for years
+and looking back on it.
+I agree.
+I think that's the yet to be seen.
+And if it will be enough to stop the natural momentum
+towards just publishing things
+as an electron application,
+which seems to be where we're building momentum to
+and is functional and will be generally accepted
+by those that just need to get work done,
+especially those in an enterprise environment,
+but it's not ideal in all cases.
+I think it's fine for some applications,
+but I don't think it's ideal for all applications.
+And that's why I really would like to see
+a healthy native application ecosystem.
+Even if we could only point to a dozen to 30
+semi-healthy applications that have been monetized.
+Like right now, when I think about applications
+that take direct money
+in the traditional sales transactional sense,
+I know I'm wrong on this,
+but the only commercial application I can think of
+off the top of my head is Crossover,
+where you download it on Linux,
+you get a 30-day trial,
+and then you pay your 50 bucks or whatever it is.
+Well, there are certainly paid apps
+in other Linux app stores.
+Sure, sure.
+The monetization system is something that already existed
+that the software vendor has implemented.
+It's not implemented in the store.
+So you pay a monthly fee for Spotify,
+or you pay a fee for Slack or Skype,
+but they all have their own ways
+of taking their funds out of you,
+which doesn't benefit the distro.
+Whereas what elementary are doing
+ensures that it's sustaining the distro
+as well as the developer.
+Great point.
+Yeah, services have really kind of brought
+a whole new wave of applications to Linux
+because when you're monetizing as a service,
+you want to bring on as many users as you can.
+So that that shift in monetization strategy
+has actually benefited Linux users to some degree,
+but I'm sick and tired of it.
+I'm so sick of subscriptions.
+I've been thinking like Hediana,
+when we get back from Denver,
+we're gonna have a calling where we just sit down
+and look at all those subscriptions right now
+and cancel stuff.
+It's like you need some subscription service
+to manage all your subscription services.
+There is one.
+I saw it advertised on Twitter.
+There is one.
+We'll give that a try.
+Yeah, just needs access to everything real quick
+to do that.
+So no bigs, right?
+No bigs.
+Anyways, I'm very excited about it.
+One of the things that we haven't really talked about
+and it's kind of a concern to me
+is how the community itself is gonna react.
+Obviously, I hope that this is kind of a change
+in which the community doesn't always have to
+have something that's free,
+that they can actually donate to something,
+donate to a project and help push these developers forward
+and instead of, I guess, expecting it to always be free.
+I think there will be a negative reaction though
+from a portion of the community.
+And I think that's one of the reasons I want to go.
+So that way, when I'm having a conversation about it,
+I have that on the ground insight into this.
+Plus, I think it's just really good to just reestablish
+in-person connections with this team
+and with all of the events getting canceled.
+There won't be an opportunity likely this year
+to actually go see Dan and Cassidy.
+Get it while you can.
+Are you really just going down there
+so that you can get your hoodie early?
+Yeah, they better have them.
+Swag pickup.
+Right.
+Yeah, I suppose, full disclaimer, I was a backer,
+but I think I said that earlier.
+So we'll see where it goes.
+I think it's still going to be good for me to do it
+and I'll talk about it here on the show
+and let you guys know how it went.
+I'm excited for them though.
+I think it's pretty tremendous that they got $19,000
+and it didn't quite make their next stretch goal,
+but I think they'll still be able to put that money
+to really good use.
+And one of the things that I think also was a takeaway.
+Oh, I want to mention this too.
+I know I'm going on about this,
+but I think there's a lot to learn here.
+I think there's things for other distributions
+to pay attention here that are working for them.
+Think about this.
+How many distributions do we know
+that have a couple of full-time staff
+and have these successfully community-funded sprints
+where they get together as a team
+and then produce something?
+That sounds like Ubuntu.
+It sounds like it's Ubuntu.
+Sure does.
+Fedora has Flock and there's some,
+but they really have figured out a recipe here
+that I think other distributions could look at
+as a pathway to success.
+And part of it is because of their special sauce,
+but I think there's things to learn here.
+And that's another reason I want to go
+is I think there's things for other distributions
+to learn here.
+And I want to learn what it is.
+And you just like Denver.
+That's true.
+That's true.
+Although when I'm going through Wyoming,
+it's supposed to get really cold.
+We're going to be up at like 8,000 feet
+and it's snowing right now.
+So I'm really going to be watching the weather
+very closely for that.
+It's not a great time of the year.
+You wanted an adventure, right?
+Yeah.
+All right, well let's do a little housekeeping.
+You know what I just realized?
+This is the best turnout we have ever had
+after daylight savings.
+Fantastic.
+You all did a tremendous job.
+Usually there's like four of you in here
+after daylight savings.
+No one's shown up grumpy and confused late in the show.
+Yeah, I was going to make a special reminder
+about daylight savings has happened now in the US.
+And so it'll take a little while
+before it changes everywhere else.
+And typically it messes up everybody's live schedule,
+but look at this rocking,
+like it's such a great showing
+that I didn't even cross my mind
+until we got to the housekeeping.
+So thank you everybody.
+We do this Tuesdays, jblive.tv.
+If all goes as planned,
+I'll be live streaming from Denver next week.
+I'll be remote at Denver in Lady Joops.
+There is an RV park called the Flying Saucer.
+I love it.
+It's right by where they're having a sprint.
+So just park up right there,
+do my shows, get my work done,
+head over to their place, do interviews.
+It's going to be great.
+It's just, so it's jblive.tv on a Tuesday.
+If you want to watch that train wreck in real time,
+because that one's going to be tricky,
+show up next week.
+Yeah, definitely a live one.
+Yeah, jupitabroadcasting.com slash calendar
+for your local time zone.
+So far, still chugging right along.
+FOSTOC live June 20th at the Harrison,
+which is near King's Cross in London.
+Some of your favorite Linuxy podcasters get together
+and have themselves a night.
+As far as I know, it's a go.
+Popeye and Wimpy, I believe you're going to be there.
+I don't know otherwise.
+Yeah.
+It's going to be there.
+Yeah.
+It may change.
+Who knows?
+Just need to figure out what the show is going to be.
+Small matter of that, but other than that, yeah.
+Pandemic pending.
+Pandemic pending.
+It should be going June 20th.
+Tickets are on sale now.
+Pay what you want for that.
+And I hear that the Ubuntu podcast
+is always one to catch live.
+Set expectations there.
+Thanks.
+Yeah.
+We've been bumped up the billing list this year.
+I hear, Adam, if you can only catch one show in the year,
+that's the show.
+This is the one.
+Oh, no.
+And we need everyone to go.
+I mean, we can't make it, unfortunately.
+So go in our stead.
+Go and tell us.
+Come back on the Mumble Room, on the podcast,
+and give us your full review.
+Also, a plug for Linux Headlines, linuxheadlines.show.
+Every single weekday, in three minutes or less,
+you get the news, and it's great.
+It's a great way to stay up to date.
+And then last but not least, join us on our Telegram
+at telegram.com slash.
+No.
+No.
+It's probably something like that.
+But it's Jupiterbroadcasting.com.
+Have you heard of that?
+Slash Telegram.
+Have you heard of that, Wes?
+Oh, yeah.
+You're familiar with that?
+Yeah.
+You know, Headlines is no joke.
+I try to stay up on the news, but already twice this week,
+I've learned things from Headlines.
+I know.
+It's quite the system.
+Things I needed to know.
+All right.
+So our ThinkPads have Windows 10 installed on them.
+Now, you have a dual boot, right?
+Oh, yeah.
+Of course I do.
+I went all in.
+I did it 100%.
+And then what I was thinking I might do later
+is when I go 2004, just resize the main partition
+and maybe keep them on there.
+It's a nice way to handle, too.
+See how Montu's installer does with that.
+Yeah, exactly.
+And what do I care?
+I mean, it'll handle it great, of course.
+Well, and if it doesn't, could not care less.
+Hey, I installed that.
+So I think we should start with WSLconf,
+because that's going on right now as we record.
+And then we should loop back and, I think,
+talk about our Windows 10 experiences,
+because a lot of it's centered around WSL, which is, of course,
+as you guys probably know, the Windows subsystem for Linux.
+And starting with version 2, which
+is rolling out on the Insider builds right now.
+So if you want to go get all up to date,
+you can grab an Insider ISO that is already
+at a build number high enough now
+that you can just install WSL2.
+The key thing, and there's a lot to it,
+but the key thing about WSL2 to take away is it's much faster
+and it's a proper tiny Hyper-V VM.
+And to that end, the different distributions and projects
+that ship on WSL have been working
+to take advantage of some of these improvements.
+And it's in a really good position right now.
+And so Wes and I were extremely curious what
+it's like to go attend a Linux event at the Redmond campus.
+However, because of the current corona concerns,
+it transitioned to a virtual event.
+And very quickly, which, I mean, that's
+difficult for any conference.
+Side note, when all of this is over,
+I would love to invite Hayden on the show
+and get the scoop from him on how the hell he pulled it off.
+Because the amount he must be working
+and the whole team behind this event because.
+Unbelievable to convert a in-person conference
+at the Redmond campus into a virtual event
+with presentations and hundreds of attendees.
+Way more viewers now.
+I got to get the story on that.
+But I figured I wasn't even going to ask him right now.
+Because he's just trying to get through the event.
+It's still going on right now.
+And I was very impressed because they pulled it off.
+And they ended up using Red Hat's blue jeans for it,
+which is the first time I'd ever used blue jeans.
+And so I get into the studio this morning.
+I bring it up here.
+And I started recording some clips.
+So that way we could share a bit of it with you.
+And we start with an introduction and a bit of history
+of the subsystem.
+OK, we are live.
+Welcome, everyone, to the first WSL Conf, now virtual.
+Welcome, attendees.
+Welcome, speakers who are joining us.
+And welcome, our friends from Microsoft.
+Thank you for your participation and your support
+for this event.
+And of course, this is Hayden Barnes from Canonical.
+Thank you, attendees, for coming out.
+Some of you from very far-flung time zones, we appreciate it.
+Speakers who have been flexible with us at this time,
+adjusting from in-person to virtual to shifting time zones,
+we know it's been a hassle, and we appreciate
+what you've done for us to bring us everything
+you're going to show us.
+Thank you to Canonical for sponsoring this live stream
+and to Microsoft for creating the WSL platform
+that we build on.
+We have come quite a ways on WSL, Windows Subsystem
+for Linux.
+Those of you may recall, Microsoft first
+announced Bash on Ubuntu on Windows in 2016.
+And then in 2017, it became Windows Subsystem for Linux,
+WSL as we know it today, with a growing ecosystem of distros
+on the Microsoft Store.
+Two years later, Microsoft announced WSL 2,
+and that was the version of WSL with a live Linux kernel.
+And we are looking forward to that shipping
+in April of 2020.
+Just coming up here soon.
+Might coincide if we make it with Ubuntu 2004.
+Now, of course, when you go from a physical event
+to a virtual event, you are still
+subject to the very things that many virtual events are
+subject to, like microphone issues.
+Craig, we're having issues with your audio, I think.
+And like so many presentation applications,
+they can be buggy, plugins can crash.
+Hello, there we go.
+Let's try this again.
+There we go.
+I had a plugin crash.
+OK.
+So thank you so much, Hayden.
+So one of the things, and then he crashed again.
+But one of the things, once Craig got going,
+he's a program manager for WSL.
+And Wes and I had this conversation
+about another program manager who also presented,
+these individuals at Microsoft really know these products.
+I thought when I heard the term program manager,
+I thought, oh, that's a fancy PMO.
+They probably don't know all the technical details.
+No, these individuals, they know the nitty-gritty details.
+That's just it.
+You can tell that they've worked on computers for a long time.
+They understand what the technology is.
+It's not just someone who's part of the business
+mechanics behind the scenes.
+Yeah, and I'm not just trying to blow smoke here.
+I have had this impression when I work with Microsoft
+individuals a couple of times that these people,
+they know their job in a way that is not
+typical in corporate America, if I could make that statement.
+So somebody that's maybe not actually hands on the code
+generally has a pretty high level
+abstracted understanding of the product,
+whereas these individuals truly understand the product.
+And so Craig begins to explain a bit of what he does in WSL.
+My name is Craig Lowen.
+I am a program manager here at Microsoft
+working on the Windows subsystem for Linux.
+And I wanted to say welcome on the behalf of the Linux
+community here at Microsoft.
+We're going to be here.
+Did you catch that part?
+He says welcome on behalf of the Linux community at Microsoft.
+During this presentation, something else
+that struck both of us was that some
+of the individuals at Microsoft are of an age
+where they maybe have not worked there
+before Microsoft was all in on both embracing and, I would
+say, monetizing open source.
+They've only been there since Microsoft existed in the state.
+They were not there in the bad old days.
+This is the only Microsoft they know.
+And there's something just that really strikes me
+about that, because it sort of shows
+like a new era of people that have entered the company
+in the last five years.
+Because this has been a, I don't know if we're almost
+into an eight, nine year transition now.
+And people that have joined in the last five day years
+have existed in this giant organization
+in its current state.
+And Force, and in the chat, as well as listening to you,
+if you have any feedback, we are also at linuxatmicrosoft.com.
+So you can send us an email there and talk to us.
+And thank you so much for coming out.
+We're really excited for this event,
+barring the technical instructions that we just had.
+And we're here to talk about the Windows subsystem
+for Linux, WSL.
+This is something that I work on directly.
+I hand a lot of the feedback and talk about WSL all the time.
+So for me personally, it's awesome to be here
+and to hear exactly why you're using WSL 4,
+what your feedback is, and how we can improve it.
+And we're excited to be talking about all the new stuff
+coming out with WSL, with WSL 2 coming out soon,
+and all of the details with that,
+as well as all the exciting new features coming up with WSL.
+In fact, as different contributors added,
+what they are changing, like Docker, for example,
+maybe some of the most significant changes
+are coming to Docker.
+Docker on Windows is transitioning to using
+the kernel that's built in WSL 2,
+instead of shipping their own kernel now.
+That's massive.
+It's a huge reduction.
+It's a big architecture change, yeah.
+It's a big reduction in complications,
+is what I was going to say, but it's also,
+it means Docker is no longer responsible
+for shipping their own kernel.
+They'll use the built-in subsystem stuff,
+which will have obvious performance advantages.
+As Craig wraps up, he added.
+And I kind of wanted to give a Microsoft showcase
+or highlight reel of the Linux activity going along
+inside of Microsoft besides just WSL.
+And he goes off a litany of projects
+that they're working on that are open source
+and individuals that are using Linux inside Microsoft.
+And then he wraps up with a bit of a shout out
+to the Linux community.
+So that's kind of the Microsoft core ecosystem
+of people that are building directly on WSL.
+There's also tons of other stuff going on
+with the WSL community, beyond just what's going on here
+at Microsoft specifically.
+There's all the distros that are running on it.
+Thank you to all of our distros, like definitely Canonical
+as well as OpenSUSE Alpine, Penguin, Debian, and more
+who allow all of your Linux binaries to run
+on the WSL platform as well, and Kali for sure,
+as well as WSL utilities, Docker desktop,
+which is building an experimental engine
+that uses WSL2 into their Docker desktop for Windows client.
+These are all people who are directly innovating on WSL.
+Yeah, a lot of software that makes it so simple
+to develop software for Linux that you never,
+but you never have to leave the Windows environment.
+Yeah, it's a little scary, spooky almost.
+I mean, we were watching a presentation about C++
+where they've just turned Visual Studio
+into an integrated GDB enabled debugger.
+And it's like the best visual interface
+to GDB you could ever want.
+Oh, you want to use GCC and CMake?
+That's fine, that's no problem.
+You're empowered to target Linux
+from these very powerful Windows tools.
+And you see some of Microsoft's competencies, I think,
+that we on the Linux side have kind of,
+maybe not ignored, but didn't interface with directly
+because that was for building Windows things
+that we weren't interested.
+And suddenly those are all just unleashed
+to target our platform.
+What triggered me and really struck me
+is when I realized that the example they were given
+where they were building an application,
+they were building a Linux only application
+in Visual Studio.
+And then the presenter, she was like,
+and then we could also, if we wanted to,
+if you wanted to target Windows, you can.
+And it's like, wait a minute, wow.
+And I thought, well, this just makes it possible
+to do all your Linux development
+and you never have to run a Linux desktop, ho hum.
+But I actually don't think these were ever people
+that were likely to switch to the Linux desktop
+to begin with.
+There is, and we all know this to be true,
+an entire world of free software, open source and Linux
+that exists that people make lots of money off of
+that doesn't involve the desktop world.
+You could be employed to write free software
+and never run desktop Linux.
+In fact, presenters who are contributors
+to multiple distributions like Gentoo and Kali Linux
+were running Mac OS and they were just running everything
+under VMs and Docker containers.
+Yeah, I think it's a sort of pragmatism
+we need to be more comfortable with.
+You know, there's things we kind of want to reactionarily.
+There's things we want and there's the way
+things actually are.
+Right, yeah, exactly.
+Here's reality.
+And I can also imagine it's useful too,
+I mean, just for people that, you know,
+you might have Linux at home or you have a Chromebook
+that you use on your couch, but your work machine's Windows
+because that's what IT provides.
+And you just have more abilities now,
+regardless of the philosophical implications.
+Yeah, you do have.
+And for people that were never gonna be able
+to switch to Linux, they can now write software for Linux.
+And I guess that means we worry
+that we lose a little bit of leverage, right?
+We have less of a way to say like,
+well, you gotta switch to Linux
+because we've got all these tools
+and now more and more of those are available on Windows.
+But you're right.
+I don't think that was really that big of a lever
+to begin with.
+And it's kind of a gross way to do things.
+You also saw different projects
+trying to tailor their particular project to the subsystem.
+So like example, the Penguin folks
+seem to be pivoting very hard to graphical environment,
+getting X applications and X FCE and Qt applications.
+With some impressive results.
+Yeah, that seemed to be a big focus for them.
+So that's, and then Kali Linux was trying to,
+Kali Linux did a presentation about essentially doing
+your penetration testing from the subsystem,
+from your Windows machine,
+which how many corporate guys that are forced to,
+and gals that are forced to run Windows.
+Right, or you might even wanna run Windows
+to run some Windows specific tooling
+to target a Windows network.
+It might be easier to run the subsystem
+than a whole Windows VM.
+Obviously this event is about the subsystem,
+but there is another star that is shining very bright
+in all these conversations.
+And it's something Wes and I used the hell out of
+in this last week.
+And that's the new Windows Terminal.
+You've probably heard about
+their new open source Windows Terminal.
+It's got retro term effects, all of that.
+Well, the program manager, Kyla Cinnamon,
+joined us to talk a little bit about that.
+So just a quick introduction.
+My name is Kyla Cinnamon
+and I am the program manager on Windows Terminal.
+So I work with Terminal every day,
+working with the community, working with developers.
+And we just wanna make the Terminal
+the best command line experience on Windows.
+And boy, is it just in every single demo.
+And I've been using the crap out of it.
+So I wanna talk about your experience
+with the Windows Terminal a little bit more.
+But it's so obvious how this plays
+into their overall strategy for developers now.
+It's what they're doing almost wouldn't be possible
+without this new Windows Terminal.
+It's such a key strategic piece of software
+because one of the essential things it does
+is this tab system allows you to jump right into a system.
+So for example, on my machine,
+when I start the Windows Terminal right now,
+it starts in an Ubuntu Abash environment,
+which is just fantastic.
+This is another area where is it suddenly easier
+to develop for multiple Linux environments
+from Windows than it is on Linux?
+I mean, you can set up charutes and all those things,
+but this is a tab.
+It quite frankly is.
+I have three different Linux distributions installed
+and I have each one of them in a tab.
+I mean, isn't that something?
+So Hayden comes back on in a bit
+and talks a little more about Ubuntu
+on the subsystem in 2020.
+On Ubuntu on WSL, we are moving towards Ubuntu 2004,
+Focal Fossa, that is the next major Ubuntu LTS,
+long-term support release.
+And those are the Ubuntu releases we release for WSL.
+You've probably seen 16.04, 18.04,
+while 20.04 is coming next, that's in April of 2020.
+18.04 under WSL 2 is what I was using for this week,
+but Hayden shares a little bit of the roadmap
+and you can get a feel from his statements here
+how seriously Canonical is taking the Windows subsystem
+for Linux as a target for Ubuntu.
+Ubuntu on WSL is now part
+of the official Ubuntu desktop roadmap.
+So this is very much part of the fabric of Ubuntu now.
+Ubuntu has been staffing up its WSL efforts,
+including the addition of Suhini Roy, the product manager,
+myself and engineering staff.
+Since we had to bail a little early,
+I don't feel like I have a complete take on the event
+and it's gonna continue tomorrow.
+I think overall though, it had less technical issues
+than you would expect if you've ever been
+in a company meeting where people are sharing
+and they have mic issues.
+I mean, they changed presentation software
+like a day before and it's working.
+It did work.
+I had to remind myself to participate in the chat
+because there was no hallway track.
+And I'm typically the guy that just watches
+and I never say anything.
+I never leave a comment.
+I never enter anything in the chat.
+And I had to remind myself, you gotta say something
+because this is the hallway track.
+That's all you're gonna get.
+Which I guess I feel like it was a,
+the information was conveyed,
+but the spirit of the event was a little muted
+because it's different when you're presenting
+at your computer with a webcam and a headset
+than when you're up in front of a room full of people.
+You don't have 40 eyes staring at you.
+There's a different energy for better or for worse,
+quite honestly.
+And there's just a different cadence.
+Like there maybe was more time in the schedule
+than necessary because everybody didn't need
+to move around and didn't have to swap out presenters
+and set up laptops and get projectors working.
+Everybody just pretty much for the most part
+just clicked on and started talking,
+which was great.
+It felt very low key, but very informational.
+And it felt like it was definitely targeted
+at the right crowd.
+People were getting a lot of good stuff
+out of every presentation.
+And I got a good sense of just how rich this ecosystem is.
+I think seeing the demonstration of Kubernetes
+and Ansible on WSL, it started like,
+oh, this is once this gets on Windows.
+And by the way, those demos were on Windows Server.
+Once this gets wider deployed on Windows Server,
+this could be a big deal.
+It's really becoming a legitimate target,
+not just for development.
+Yeah.
+We'll see how tomorrow goes,
+but I feel like I've learned a bit.
+Now let's talk about having actually used it.
+Because having actually used it,
+I'm not switching away from Linux anytime soon.
+It felt like something I would use
+if I didn't have any other option.
+I mean, here's the thing.
+To use it, you have to first use Windows.
+And you can't get around that.
+Let's start there.
+I didn't enjoy this as much as I was hoping I would.
+I thought maybe the time away coming back,
+I'd kind of like it a little bit more.
+First and foremost,
+the first thing that I always have to deal with
+on a Windows machine after I set it up
+is there's just way too many power options.
+Just way too much going on.
+The defaults are dumb.
+And then there's different sleep modes.
+There's sleep, there's hybrid sleep,
+there's hibernate, there's suspend.
+There's like fake shutdown, fastboot stuff.
+Yeah.
+It's too much.
+And I just hate having to fiddle with it.
+And the control panel is a freaking dumpster fire.
+However, the search has gotten pretty good.
+So if you just search for stuff, you find most of it.
+That is a nice surprise really,
+is I can just adopt the Linux workflow I have
+of Windows key and whatever I want to run.
+I was impressed how front and center the Linux stuff was
+in the Microsoft store.
+There's a whole Linux section.
+It's right there.
+Linux.
+All the Linux stuff.
+And I was like, whoa, they got like a big old logo,
+a banner for it.
+Like they're really embracing it.
+They're not hiding it at all.
+Right, I mean, you heard in one of those clips,
+thanking the distros for showing up.
+They're clearly excited about this ecosystem.
+If you want to go with WSL2, it's still a little rocky.
+It's clearly not fully released yet.
+Like I installed Ubuntu, but I didn't have WSL2.
+So then it didn't activate properly.
+So then I had to install WSL2,
+which didn't link me to the right information.
+I had to search for it myself.
+And then I had to rerun Ubuntu to get it all working.
+Had to be pretty dedicated to getting WSL2.
+That's basically it.
+I was like, okay, I'm really doing this.
+But once you have it up and installed,
+you got something kind of special.
+Like you combine that with the Windows terminal
+and you tell it just to jump right into the Ubuntu system.
+And the terminal takes longer than I'd like to launch,
+but once it's launched, it's fine.
+You know, those integrations are impressive
+and just something you can do when you control
+the whole stack that we don't always see on Linux.
+You know, you're just like, oh, right,
+you designed both parts.
+And so they work really well together.
+So I was thinking about why I didn't enjoy it as much.
+Because the Mac, I was like, oh, this is kind of fun.
+This is better than I expected, right?
+And what my experience so far,
+although it's been less time with Windows,
+has been this is exactly what I expected.
+And I had to think about it like I like to do these days.
+You know, I was on a walk with the old dog.
+Levi helps me work through these things better than you.
+It's always good to think about
+what you're gonna say before you say it.
+It is.
+I find that does fun.
+And also, Levi's a really good listener.
+You know, I get good feedback from him.
+Great questions.
+So Windows has really good big apps.
+You know, big enterprise apps, big commercial apps,
+like the Adobe stuff.
+It's got all of the standard work apps
+you'd need to participate in a workspace.
+It's got your Outlooks.
+It's got really good big apps.
+And I think if that's your need,
+it's sort of the, it's the champ there.
+And that's just something
+that Linux can't compete at right now
+because there's just not that same range of apps.
+But the fun little third-party tweak at utilities
+that I was poppin' like pills on Mac OS
+don't really quite exist the same for Windows.
+There's some, but they're more like fiddly little odd ones
+that look like Windows apps from 100 years ago
+or they're laced with totally wicked wild UIs.
+And they don't feel so much like clever tools
+that take advantage of built-in hidden API features
+that are ingrained into the OS.
+They feel more like hardcore tweaks
+that are altering the way Windows works.
+Right, I mean, you're like,
+this is kind of a hack, isn't it?
+It works, but it's kind of a hack.
+And they're just, they're not as fun.
+I know that seems silly, but,
+so on the Mac, and like it is when I distro hop
+every single time, and I think that's one of the reasons
+I like it, it's like a fun exploration
+of, oh, I can do this, oh, I can do this.
+Like every time I switch back to a desktop environment
+that I haven't used in years,
+when we recently tried Cinnamon, for example,
+I was like, oh yeah, I can do this.
+Oh, this is great.
+That's not how I feel in Windows.
+In Windows, it feels like a damn task.
+Like, oh, I've got to do this.
+Oh, now I've got to do this.
+Oh, now I've got to do this.
+And then once I get through all that crap, I have it.
+And it's okay, it's fine.
+It's got multiple virtual desktops now,
+which I think is pretty good.
+It's got, I could slam Windows into corners
+using the keyboard commands.
+It's, you know, it's funny enough,
+it's pretty good at doing Windows.
+Windows are fast, it pops them right up on the screen.
+We've had that nice snapping support for a long time now.
+Yeah, so once you get through the slog,
+well, all right, okay, all right.
+I mean, like the updates are still unpleasant.
+So much hasn't changed.
+And if anything, the settings
+and like control panel stuff is worse now.
+Yeah, and the file system's underwhelming,
+which it does matter to me.
+It doesn't matter to most users, but it matters to me.
+So I was trying to think of what I could learn.
+Like what I learned on the Mac experience
+was that Linux needs a healthy third-party app ecosystem
+if we want to avoid an Electron future.
+And I was trying to think, okay,
+well, what am I learning from the Windows experience?
+And what I'm learning from the Windows experience
+is we need to be a good tool for people.
+We need to provide a good utility
+that is predictable and reliable.
+But I think we're gonna get there in our own way
+with things like snapshots
+and the different kind of like improvements
+that we're seeing to the desktop environments,
+especially Gnome Shell and Plasma,
+and some of the app picks we're about to talk about.
+We're gonna get there,
+but we're getting there in sort of the Linux way,
+where Windows sort of started from that point.
+They started as a business purpose OS.
+And when you look at it from that way,
+when you look at what the whole point of the NT desktop was,
+it was to be a business workstation.
+And it makes a little more sense,
+especially when you consider the history of XP
+and how long it was around.
+Yeah, I don't know how we compete with that
+other than just trying to make our tools better,
+trying to make it a better and better workstation.
+Right, and there are those users that see already,
+Linux can get out of your way a little bit more
+than Windows can, and it might become more popular.
+So by then, they have a pretty decent multiple desktop,
+virtual desktop implementation, don't they?
+Yeah, but I find myself not using it that much.
+I'm more a guy of multiple screens and use it that way.
+I think when I just use Windows,
+I kind of don't think to use it.
+So I intentionally put some of my chat applications
+on different desktops,
+so that way I had to move over to see them.
+Get used to it.
+Get a terminal on a different one.
+So I think I could build the habit up
+just like I have on other desktop environments.
+And it's nice that it is built in,
+and it is a very quick, it's high performance.
+They're thinking way back to Windows.
+I will say it feels very stable.
+There's no weird lag in Explorer anymore,
+random problems.
+Well, we both are using fresh installs, though.
+That's a caveat.
+Okay, yeah, true.
+One week's not really enough to turn everything up.
+If we were doing this, if this was a year-long thing,
+which we could not survive, but if it was,
+there's no way it'd be as performant as it is, right?
+Isn't that just sort of, isn't that still true with Windows?
+I guess we're gonna have to find out.
+Well, I mean, you'd have to use it.
+I don't want to.
+I don't really want to.
+Do we have any volunteers from the audience?
+There must be people out there that,
+can you confirm if Windows 10 still suffers from that?
+Because I think it's just inherent
+to how Windows is designed, but what do I know?
+I guess here's another way to reframe
+this whole conversation that is also sort of reflective
+of my experience of WSL Conf so far.
+If you were always gonna be on the Windows platform,
+it is a better experience than it's ever been,
+and I say that as a bit of a Windows critic,
+but when you look at the work they're doing,
+their browser is competitive again.
+Their terminal is competitive again.
+The subsystem for Linux is looking
+like a really good piece of kit.
+Docker is really working on supporting the hell out of it,
+so essentially anything you can run in Docker,
+you can run on the subsystem.
+Canonical is focusing on it as a primary target
+for the Ubuntu platform.
+Kali Linux is targeting it as a primary target for them.
+It's clear that there is an ecosystem
+already building around this thing,
+and they haven't even gotten the second version out yet.
+So it's better than it's ever been for Windows users,
+and I think that's gonna lead to more Linux software.
+I think we will actually see more contributors
+to open source and free software
+because people won't have to leave their comfort zone
+or their mandated operating system to contribute now.
+I mean, it's gotta be better if more people are aware
+of Linux, right?
+You know, you start working on these Windows tooling,
+Linux is suddenly an easy, available, marketed option
+for you, and you're naturally, at some point,
+at least gonna wonder, oh, maybe I can use this
+in other areas of my life.
+Maybe you suddenly deploy a Raspberry Pi running Linux
+at home or explore the Linux desktop a little bit
+on that spare laptop that you have.
+Yeah, and you're already more familiar
+with the command line, so you've got an idea
+of what some of the commands are.
+Colonel, you have real-time follow-up
+on the Windows lag issue?
+Yeah, so due to college classes,
+I'm required to use Windows for certain things.
+I keep it in a VM, but even so, every time I run updates,
+it just seems to get slower and slower.
+I've actually taken to having a gold image
+that I then, it's the fresh install,
+and I run the updates on that, clone it off, and use it,
+and I snapshot that so that every time I go to run updates,
+it's coming from a fresh install.
+Otherwise, it starts slowing down like crazy.
+Interesting, okay.
+Yeah, I have a pretty recent build
+because I'm on the fast track, and I got the Insider ISO,
+so I haven't had to experience a lot of updates
+because it came pretty fresh.
+I have not this go-around played with Chocolaty,
+but Chocolaty is, it is like brute is to the Mac.
+It is a package manager for Windows,
+and last time around, I did a Windows test
+like two, three years ago.
+Maybe it wasn't even that long ago.
+Maybe a year ago, I tried out Chocolaty,
+and I was really impressed by it.
+Yeah, I installed it.
+I mean, almost just out of habit,
+I kind of think to myself, okay, Windows,
+let's get a package manager on there.
+And is there something like, is there like a go-to package
+that you install after you load it,
+or is it just you want to have it
+because you know you might call upon it?
+It just sort of helps complete the picture, you know?
+Like, I just expect that to be a part
+of an operating system, and I hate the sort of traditional,
+like, am I going to go around
+and go grab all these things individually?
+No, I can't do that.
+I'm not going to do that.
+And the default command prompt feels so just basic, and-
+I mean, they had to, that's why you needed this new terminal.
+Yeah, yeah, they really had to do this.
+I will say, using the new terminal,
+and I was trying to like,
+I did play around with the subsystem, obviously,
+but I was trying to use PowerShell 2
+just because, I mean, we're using Windows, right?
+I had to use it a little bit just to get WSL 2 working.
+It does, I mean, it's modern, you know?
+Even though there is plenty,
+especially in parts of the UI that has that Windows legacy,
+the command line is starting to feel first class.
+Yeah, I agree.
+And their new terminal adds, like,
+some nice search features that are similar
+to how you would search for something in a web browser.
+It can search back through your whole command line log.
+And then they've added silly things
+like the cool retro term.
+And then, of course, you can open up a terminal
+and have a tab that's in Ubuntu,
+a tab that's in Debian, and a tab that's in OpenSUSE,
+and a tab that's in Kali Linux,
+and a tab that's on the Windows command line,
+and a tab that's in PowerShell.
+It's pretty crazy.
+You could be running three or four Linux distros
+simultaneously.
+And you sit there and go, wow,
+that's something that's even hard to do on Linux itself.
+And look at Microsoft shipping it.
+Didn't really kind of make me go,
+well, all right, I'm done with Linux then.
+I'm gonna switch this.
+I'll do all, I love the Linux command line.
+I'll run it here, and I'll use the Windows UI
+and have all my Steam games.
+I thought like there was a risk of that for me
+because it'd be kind of nice to, you know,
+just have a really great desktop that has a,
+everybody talks about the Mac,
+how it's a great desktop
+with a real Unix terminal underneath.
+Well, here's a desktop with a Linux terminal underneath.
+No, no, it just still doesn't do it for me.
+It's the whole package.
+There's still too much Windows,
+and there is still weird Windows cruft lurking.
+You didn't have to go through the installation part,
+but I did.
+I mean, that's just unpleasant.
+The weird magic, the strange GUIDs everywhere.
+It's just such a foreign ecosystem,
+and I'm really grateful I don't need it.
+I'm glad that it's becoming more useful.
+That just seems like a good thing.
+But the dynamic is clear
+because we're Linux users coming to Windows,
+and we're going, oh, this stuff's all different.
+But if the situation was reversed
+and we were Windows users first coming to Linux,
+what they have now is so much more functional
+and it would be so much more appealing to me.
+I think for their customer base,
+for what they're targeting, they have fricking nailed it.
+And I'm not worried about it taking away Linux users
+because I think ultimately it'll make people
+more familiar with the Linux command line,
+and it will result in more people contributing to software.
+And I think ultimately it will lead to more Linux users
+because the Windows experience is still very much Windows,
+but this just shows you
+how much more power there is out there.
+And when you can tap into that,
+when you get involved in the communities,
+it's actually, it's just gonna be one more thing
+that draws people in.
+Kind of actually think it's a great thing overall.
+And I had a note that I wrote down like I do now
+on my old paper tab here, and I thought to myself,
+the way to explain what Microsoft is doing here
+is they say they love Linux and they love open source.
+But what it is is as a business,
+they've come up with a very clever way to monetize.
+Just like it's a cliche thing, but when this,
+if you wanna understand Microsoft's motivation,
+it comes down to one classic American cliche.
+And that is they are selling the picks, axes, and shovels
+to the gold miners.
+That's what they're doing.
+That's what Azure is, that's what VS Code is,
+that's what WSL is.
+They are tools for people that are in the gold rush,
+which is writing web applications
+in modern open source software.
+They are providing the tools.
+It's a brilliant strategy.
+It really is.
+And the whole thing, especially attending WSL Conf,
+is there wasn't a lot of discussion about licenses
+or philosophy, it's a pragmatic attitude.
+And sort of the change at Microsoft was dropping
+that anti-Linux philosophy and just realizing
+if we support more platforms,
+that's more places to sell our languages
+and our tooling and enterprise support contracts.
+And that's what they've done, and it's been very successful.
+Yes, and so their motivation is to continue this.
+That's their, and that's why it's not some secret plan
+to take over the Linux desktop and lock down everything.
+It's simply they wanna sell as many shovels as they can
+while the gold rush is in full swing,
+and they wanna capture that market.
+And by the way, have you tried Azure?
+Because there's some long-term revenue possibilities there,
+and it just, all this just plugs in real nice.
+I think it's a good strategy,
+and I think it's pretty easy to understand.
+And I think really the conversation
+around what's Microsoft's motivation
+and why are they doing this needs to come to an end.
+We just need to, we need to move past this
+and realize this is the new reality,
+because there are individuals that work at Microsoft now
+that have only ever worked there since it's been this way.
+Think about how that will over time
+change a company culture.
+It's pretty wild.
+It, for me, I mean, maybe I'm getting old,
+but I just, I remember visiting the Microsoft campus
+back in the late 80s, right after Windows 98 was released,
+things were on fire,
+and Microsoft was on top of the world.
+And they are now in a totally different position,
+and they've really figured out how to make it work for them.
+I'm looking forward to see what WSL day two has.
+Oh, yeah, I think there's a lot more to come
+out of this conference and the Microsoft and Linux ecosystem.
+Yeah, and in the meantime, in the meantime,
+I'm just gonna take advantage
+of all the great new software that'll run on Linux
+and be grateful for that.
+And when I do have to run Windows,
+first thing I do is get the subsystem going
+and get the latest Ubuntu environment installed.
+And I'm sitting there doing a Hapt update.
+And you know what?
+I can tell it's a little slower.
+It is a little bit slower, isn't it, Wes?
+Did you notice it's a little slower?
+Yeah, okay, a little bit.
+Yeah, it is a little bit slower, but it's there.
+That's how you tell it's not real.
+I'm curious of the overall impact on the Windows host
+when you're running all of these WSL environments
+in the new terminal, like you were talking about,
+you were running Ubuntu, Debian, OpenSUSE,
+and all these distributions.
+How does that impact the system itself?
+Do you notice a significant slowdown?
+Do you notice some herky-jerky action going on there?
+So when they're just sitting there idle,
+and Kelly was the other one,
+when they're just sitting there idle,
+it's pretty much just whatever memory bash takes.
+It's very, very low impact.
+If you start doing a lot of things,
+like you start spinning up environments inside there,
+you start actually adding a lot of software
+and things like that,
+it seems like the performance
+kind of starts to drop off a cliff a little bit,
+and that was definitely prevalent
+in the demonstrations we saw today too.
+Like when they were spinning up Kubernetes clusters
+inside WSL, things definitely slowed down.
+Right, or if you launched all of those WSL environments
+and updated each one at the same time,
+I'm sure that would significantly impact the host.
+But to that end, like when I launched the terminal
+and those tabs preload,
+it just almost happens immediately.
+It's not like you're sitting there
+waiting for them to spin up.
+And I know Microsoft's done a lot of work
+to sort of craft a well-integrated
+and super minimal sort of Hyper-V setup for WSL too.
+Yeah, yeah.
+And I think you're gonna see a lot of projects
+that will shift support over for it
+and get serious about it.
+I mean, Docker Desktop looked really good,
+and Penguin, for example,
+making it super easy with an end curses.
+So it starts, you get in the Penguin environment,
+there's an end curses prompt to get X11 working,
+and you can get a full Qt development environment going
+with X11, XFCE, it's pretty nice.
+And it's all just walks you right through it.
+You don't have to be an expert on getting that stuff going.
+And I'm very impressed by what the different projects
+are doing to stay competitive.
+I think I heard that Ubuntu will officially support
+their distro for WSL too.
+Yeah, that was something Hayden touched on.
+It's on their roadmap now, and it's an official target.
+Speaking of which, I need to get Ubuntu installed
+on this laptop now.
+Maybe rather fast too.
+Yeah, we've got some work for after the show.
+Okay, so we have two pics to cover before we go.
+Number one is if you have been lured
+into using Google Photos,
+that handy, super useful, incredible tool
+called Google Photos.
+I mean, it is.
+It's so handy and easy.
+And if you're a pixel user, they just give you storage.
+Your friends are on there,
+so you can share albums really easily.
+It's the best search.
+Christmas tree and dog,
+and it shows me all the pictures with Levi
+in front of the Christmas tree.
+I mean, it's just something.
+RV, I just searched for RV,
+all the pictures of lady jupes just come up.
+It's just, so, but you know, it's gooks.
+And maybe you wanna switch off,
+but you gotta get all your photos out of there.
+Or maybe you just wanna have your own.
+For when eventually they shut it down.
+You wanna have your own stash?
+Yeah, they're gonna shut it down.
+Or you just want your own copy.
+Well, you can safely back up your Google Photos
+with our app pick this week.
+It's really simple.
+You can install it as a snap too,
+because our buddy, Mr. Popey snapped it up.
+It's called G Photo Sync.
+It's probably in your repo or it's a snap.
+It's gphotos-sync, photos with an S dash sync,
+just snap install gphotos sync.
+And then you run that and it pulls down all your photos
+right off the old Google Photos.
+You know, he's got a great post written up about this tool.
+My only issue is we didn't get any fun photos.
+Yeah.
+He did have one in the tweet about it.
+That's actually maybe what's his,
+he had a picture of his cat made me click it.
+So, okay, he knows what's going on.
+He knows what's up for the tweet.
+And then our second app pick this week is,
+you know, we talked a lot about Docker and WSL integration
+and how Windows is doing all this.
+Well, let's show them one better.
+Let's show them how Plasma does it.
+So this is a Plasmoid for managing your Docker containers.
+Now listen, I know not all of you use Docker,
+but this is really nice because it's a little menu
+right there with a graphical environment
+that shows you the status of your different containers.
+I don't know where this accent's coming from,
+but it won't go away.
+And you can start and stop them right there.
+You can jump into an environment.
+You can take notes, edit them right there.
+What do you think of that, Wes?
+Isn't that nice?
+Yeah, I tried to get it installed before the show.
+On your Plasma?
+Uh-huh, but it needed a couple build dependencies.
+And for whatever reason,
+the KDE Store links weren't loading.
+Damn it, Wes.
+But hopefully by the time you see this,
+you can give it a try.
+Because I was curious,
+and especially if you're only running a couple containers,
+you don't need any complicated management, that's perfect.
+I think it is.
+I think it's, I don't know,
+we'll put a link in the old show notes
+if you could use one of them two tools.
+That's where you'll get them.
+Check it out.
+Linuxunplugged.com slash 344.
+That's right there.
+Links to everything we talked about today.
+Well, Wes, what do you say?
+You about ready to pack it up
+and go install Ubuntu water machines
+and go back to the conference?
+More than ready.
+All right, well, we will be live, hopefully,
+if all goes as planned.
+I'll be from Denver.
+I'll sneak out.
+I'll be down there for like one day.
+So I'll probably spend the morning
+with the elementary OS guys
+and sneak out to do a lot.
+Maybe I could bring one of them with me back to the RV.
+Take a prisoner.
+I should, right?
+That'd be fun.
+So check out that at jblive.tv,
+jupitabroadcasting.com slash calendar for the live time.
+But, of course, as we always do,
+we'll release the edited version
+with the audio all cleaned up,
+as our excellent editor, Mr. Joe Resington, does every time.
+Go to linuxunplugged.com slash subscribe
+to get the feed and get the episode every single week.
+Go get more Wes Payne at techsnap.systems.
+Oh, yeah.
+At Wes Payne.
+Check out my projects at chrislass.com.
+Sites over there, as well as the Chris Lass cast.
+And I'm at Chris Lass on the Twitter.
+Thanks so much for tuning in this week's episode
+of the Unplugged program.
+Oh, go check out the Ubuntu podcast.
+Rumor has it's coming back soon.
+Go get subscribed over there.
+Ooh.
+And we'll see you next Tuesday!
+The Unplugged.
+Unplugged program, 344, all right, JBtitles.com, the bot is up in the
+running and we've got lots of good title suggestions, so let's go pick our title.
+Go vote! Brent, how you holding up there in the north? Is it snowy? Is it cold? Is it all right?
+It's, there's lots of snow and it's always cold.
+Is it at the point where it's getting pretty old or are you still, can you enjoy it at all?
+You know, I will say this time of year, I really appreciate because it's, it's,
+it's longer sunny days. So I actually prefer this part of winter, you know, January and so
+is kind of depressive. But man, it's so sunny and there's still snow everywhere and it's just
+beautiful. So I actually decided before Linux Unplugged that I would go for a hike afterwards.
+So once we hang up here, I'm going for a hike.
+Nice. Good, good for you. I also have felt like the longer evenings have made a huge difference.
+Like I was just saying, I was barbecuing last night for the first time this year, I think.
+There's something about the sun being out, I sort of think to when it's going to be hot
+in the summer and it suddenly feels very refreshing now.
+Yeah. Oh, God, it was so nice. It was 50 degrees last night when I was out there barbecuing and
+it was no wind, you know, like the kind of wind where a light, you can, you can, your light doesn't
+even, you know, just stand straight up and barbecuing and sun setting. It was so nice.
+I was thinking to myself, why the hell am I driving to Denver? This is so nice right now.
+Wyoming's going to be just miserable.
+How many miles does that drive to Denver?
+Ah, I think 16.
+I'm on it. I'm on it.
+Thank you. That's the answer.
+A lot of gas. A lot of gas. Thankfully, the oil market is crashing right now and my trip
+will be slightly cheaper as a result. And I'm paying for it out of pocket too. So I'm very
+much watching the gas prices.
+From the studio, 1,334 miles.
+Do you get snow chains?
+I do not. That's what I'm, the number one concern with an underline I have is that we
+will get somewhere that requires chains. Now, last night we did a route sweep. We looked
+at all the webcams. We looked at all the route advisories and everything right now is, does
+not require chains, but obviously that could change any day. And that is a huge thing that
+I am concerned about and because we'll have no option but to turn around. And so, ah,
+I'm really hoping that doesn't happen, but it just depends on the weather.
+You said 1,334?
+Yeah.
+I think we should round that up to 1,337.
+And I'm going, yeah, that's right. And I'm going from like sea level to 8,000 feet and
+then I'll be going down to like 5,200 feet ultimately.
+Yeah, 11,000 is your delta in feet. That's crazy.
+Make sure to keep up on Wyoming 411. I-80 had a huge, oh my God, hundred car accident
+last week and was closed both ways. That's the exact kind of shit I don't want to have
+to deal with.
+You still got the, uh, the tracker going? The, the rover?
+No, the subscription expired. So I won't have the tracker for this trip. I know. And I went
+to go check it last night and their whole webpage is broken and busted. So I couldn't
+even work.

@@ -1,0 +1,1937 @@
+WEBVTT
+
+00:00.000 --> 00:04.480
+Coming up on this week's show, we talk through how too much automation can sometimes be a
+
+00:04.480 --> 00:06.000
+bad thing.
+
+00:06.000 --> 00:10.880
+Chris has a mini home assistant freakout and continues to collect Raspberry Pi's at frankly
+
+00:10.880 --> 00:12.440
+an alarming rate.
+
+00:12.440 --> 00:13.440
+I'm Alex.
+
+00:13.440 --> 00:16.280
+I'm Chris, and this is Self Hosted 19.
+
+00:16.280 --> 00:19.280
+I bought another Raspberry Pi for.
+
+00:19.280 --> 00:20.720
+Uh oh.
+
+00:20.720 --> 00:21.720
+Yeah.
+
+00:21.720 --> 00:28.120
+I just wanted a test rig that I could do some experiments with without affecting my production
+
+00:28.120 --> 00:29.400
+Raspberry Pi's.
+
+00:29.400 --> 00:32.520
+You know, the, the number on the end of the model name is not the number you're supposed
+
+00:32.520 --> 00:33.520
+to own.
+
+00:33.520 --> 00:34.520
+Good.
+
+00:34.520 --> 00:37.840
+Cause I think I've, I think this is my sixth, maybe.
+
+00:37.840 --> 00:39.560
+Your sixth Raspberry Pi four.
+
+00:39.560 --> 00:40.560
+I think it might be.
+
+00:40.560 --> 00:42.180
+Oh dude, you have a problem.
+
+00:42.180 --> 00:43.180
+The Self Hosted Discord.
+
+00:43.180 --> 00:44.180
+I blame them.
+
+00:44.180 --> 00:46.440
+They've been asking me questions and I was like, you know, I want to test this for these
+
+00:46.440 --> 00:49.840
+guys, but I don't want to do it on my production system.
+
+00:49.840 --> 00:50.840
+So it's their fault.
+
+00:50.840 --> 00:51.840
+Production.
+
+00:51.840 --> 00:53.880
+Oh, you're so cute.
+
+00:53.880 --> 00:54.880
+And no, it is.
+
+00:54.880 --> 00:58.000
+They're server grade pies and don't, don't you forget it.
+
+00:58.000 --> 00:59.520
+Um, sound delicious.
+
+00:59.520 --> 01:00.520
+Server grade pies.
+
+01:00.520 --> 01:01.840
+That should be the title right there.
+
+01:01.840 --> 01:02.840
+Does sound delicious.
+
+01:02.840 --> 01:08.400
+The thing that the Discord's been asking me is once you move your system over to the USB
+
+01:08.400 --> 01:13.960
+SSD, that's kind of a funny saying, a lot of acronyms there, but once you move over
+
+01:13.960 --> 01:19.700
+to that SSD that's on USB, uh, and you boot from it, is the SD card still required?
+
+01:19.700 --> 01:23.880
+This is a frequent question that's come in because the performance improvements by doing
+
+01:23.880 --> 01:29.320
+this, where you, you take the Raspberry Pi four image for say like Ubuntu 2004, and then
+
+01:29.320 --> 01:34.920
+you flash that to a USB SSD drive like you would an SD card.
+
+01:34.920 --> 01:36.840
+You can actually boot from that.
+
+01:36.840 --> 01:41.880
+But after some testing today with this new Raspberry Pi, I realized you absolutely still
+
+01:41.880 --> 01:46.080
+have to have in this current setup, the SD card in there to load the kernel.
+
+01:46.080 --> 01:51.560
+So the SD card is just necessary for the very, very early stages of the boot process.
+
+01:51.560 --> 01:56.960
+Once the kernel is loaded, it switches over to your external SSD drive and everything
+
+01:56.960 --> 01:57.960
+runs from that.
+
+01:57.960 --> 02:00.760
+And you in theory could probably remove the SD card.
+
+02:00.760 --> 02:01.760
+Yeah.
+
+02:01.760 --> 02:05.280
+Slash boot has to remain on the SD card.
+
+02:05.280 --> 02:07.800
+You can work around that with a pixie boot if you want to.
+
+02:07.800 --> 02:13.640
+So you could network boot the pies completely SD cardless if you really wanted to.
+
+02:13.640 --> 02:14.640
+So another option.
+
+02:14.640 --> 02:15.640
+Yeah.
+
+02:15.640 --> 02:19.040
+I mean, I find it to be a pretty good compromise though, Alex, because it's only using the
+
+02:19.040 --> 02:24.080
+SD card for a very short amount of time when the system's booting, and then after that,
+
+02:24.080 --> 02:25.080
+it doesn't even touch it.
+
+02:25.080 --> 02:29.580
+It's not making any rights to it unless you're doing kernel upgrades.
+
+02:29.580 --> 02:35.020
+So I guess the only time at which you'd be at risk is when you're actually writing data
+
+02:35.020 --> 02:36.880
+to the SD card of it failing.
+
+02:36.880 --> 02:37.880
+Yeah.
+
+02:37.880 --> 02:42.540
+And that's such a simple setup that it's no problem to just DD that to another SD card
+
+02:42.540 --> 02:45.220
+as a hot standby every now and then.
+
+02:45.220 --> 02:46.680
+And it doesn't need to be a big one.
+
+02:46.680 --> 02:51.840
+So how do you go about migrating the root file system from the SD card to the SSD?
+
+02:51.840 --> 02:53.520
+Is it our sink or what?
+
+02:53.520 --> 02:54.520
+How do you do it?
+
+02:54.520 --> 02:55.520
+Oh, it's even simpler.
+
+02:55.520 --> 03:00.120
+You just write the image that you would have written to the SD card to the USB drive to
+
+03:00.120 --> 03:01.120
+the SSD.
+
+03:01.120 --> 03:05.440
+What happens if the kernel gets out of sync with what's in slash boot and what's on the
+
+03:05.440 --> 03:06.440
+image?
+
+03:06.440 --> 03:10.960
+This is where you have to take careful precautions to mount the right boot and have that so you're
+
+03:10.960 --> 03:12.400
+updating the right slash boot.
+
+03:12.400 --> 03:13.400
+Okay.
+
+03:13.400 --> 03:14.400
+That makes sense.
+
+03:14.400 --> 03:18.040
+That's a pretty spectacular performance about the best performance you're going to get on
+
+03:18.040 --> 03:20.600
+a Raspberry Pi 4 without overclocking it.
+
+03:20.600 --> 03:23.560
+They are the little boxes that can I've mentioned it before.
+
+03:23.560 --> 03:30.080
+My 3D printer has been running a Pi 3B plus for the last year plus just works and it's
+
+03:30.080 --> 03:31.400
+been running from an SD card.
+
+03:31.400 --> 03:36.160
+So I really shouldn't worry too much about deploying to production with an SD card, but
+
+03:36.160 --> 03:39.600
+the right performance from an SSD is pretty great.
+
+03:39.600 --> 03:41.240
+It's hard to argue with that.
+
+03:41.240 --> 03:46.320
+Now Home Assistant, should we talk about that and the drama this week?
+
+03:46.320 --> 03:50.320
+Yeah, because this honestly would invalidate my entire setup if this had gone through.
+
+03:50.320 --> 03:55.000
+I really took this hard when they announced that they were deprecating the supervised
+
+03:55.000 --> 03:58.040
+mode of Home Assistant on generic Linux.
+
+03:58.040 --> 04:02.960
+Well before we get to explaining the nitty gritty of supervised and everything else,
+
+04:02.960 --> 04:09.320
+I think it's worth stating that Home Assistant lately have been on somewhat of a crusade
+
+04:09.320 --> 04:14.840
+to change things and do rebranding, kind of redefining their relationship as a project
+
+04:14.840 --> 04:16.620
+with the community.
+
+04:16.620 --> 04:21.320
+We had a few weeks ago a situation where they were doing a bunch of stuff around YAML in
+
+04:21.320 --> 04:27.200
+the UI, kind of taking away or abstracting away a lot of the YAML controls into just
+
+04:27.200 --> 04:29.920
+click click UI based stuff.
+
+04:29.920 --> 04:33.360
+And then that led to a whole series of blog posts and an episode of the Home Assistant
+
+04:33.360 --> 04:35.480
+podcast dedicated to it.
+
+04:35.480 --> 04:36.560
+And now we have this.
+
+04:36.560 --> 04:41.060
+So I don't know, there's a few things happened and let's break it down.
+
+04:41.060 --> 04:48.880
+So you have Home Assistant, which is a combination of Home Assistant Core and supervised DE,
+
+04:48.880 --> 04:54.040
+which manages a lot of things for Home Assistant, keeps it up to date, allows you to take snapshots,
+
+04:54.040 --> 04:56.440
+it allows you to install add ons.
+
+04:56.440 --> 04:58.840
+We've talked about that on the show before.
+
+04:58.840 --> 05:00.280
+That's Home Assistant.
+
+05:00.280 --> 05:04.560
+Home Assistant Core is just the base functional part of Home Assistant.
+
+05:04.560 --> 05:08.880
+You can get that as a Docker image on any Linux box today.
+
+05:08.880 --> 05:13.440
+And then you have the whole OS that they provide as an image that you can deploy to Raspberry
+
+05:13.440 --> 05:15.800
+Pis or in a VM.
+
+05:15.800 --> 05:19.960
+And the bit that they were deprecating, which they have now revised their plans, but when
+
+05:19.960 --> 05:24.640
+announced the bit they were deprecating was the ability to install the overall Home Assistant
+
+05:24.640 --> 05:29.700
+package that includes core and supervised DE on any Linux box.
+
+05:29.700 --> 05:34.720
+If you wanted Home Assistant on Linux, you could only get the core version, no plugins,
+
+05:34.720 --> 05:40.840
+no themes, no community add ons, no supervised DE to do the backups and the updates, just
+
+05:40.840 --> 05:44.440
+the Docker image of just the core Python application.
+
+05:44.440 --> 05:49.120
+Or you had to grab their pre-built image that includes an entire Linux OS.
+
+05:49.120 --> 05:52.760
+I think one of the things that wound me up a little bit about this announcement wasn't
+
+05:52.760 --> 05:58.720
+the announcement itself because open source projects are generally created by people volunteering
+
+05:58.720 --> 05:59.720
+their time.
+
+05:59.720 --> 06:04.680
+And if the project goes in a way I don't like, then I'm perfectly within my rights to fork
+
+06:04.680 --> 06:05.680
+it.
+
+06:05.680 --> 06:10.180
+But this time, Home Assistant is turning into a company.
+
+06:10.180 --> 06:14.760
+So we've got this Nabu Casa company who have been founded in the last year.
+
+06:14.760 --> 06:20.120
+They've hired a few people, Frank being one of them, the founder of Home Assistant is
+
+06:20.120 --> 06:21.120
+another.
+
+06:21.120 --> 06:25.200
+There's a few of the actual staff working on Home Assistant now.
+
+06:25.200 --> 06:29.020
+And so it's kind of going through growing pains of transitioning from a free and open
+
+06:29.020 --> 06:36.920
+source project entirely built off voluntary time donations to being almost like a pseudo
+
+06:36.920 --> 06:39.640
+product in a way.
+
+06:39.640 --> 06:44.480
+One of the key arguments in the blog post was developer's health.
+
+06:44.480 --> 06:48.480
+There was a line in there which just rubbed me up the wrong way.
+
+06:48.480 --> 06:53.080
+I know that this blog post will make a subset of our community angry.
+
+06:53.080 --> 06:58.660
+There are people that think they deserve other people's work, even if it costs them their
+
+06:58.660 --> 06:59.660
+health.
+
+06:59.660 --> 07:01.200
+You're wrong.
+
+07:01.200 --> 07:06.360
+Just as with our recent decision to limit the usage of YAML in some cases, Home Assistant
+
+07:06.360 --> 07:09.320
+will keep choosing health over features.
+
+07:09.320 --> 07:14.560
+Open source is not about us having to support every feature anyone on the internet can think
+
+07:14.560 --> 07:15.680
+of.
+
+07:15.680 --> 07:20.880
+Open source means that anyone can do that themselves and choose to share this or not.
+
+07:20.880 --> 07:27.240
+Now, that paragraph with the you're wrong section has since been removed from the blog
+
+07:27.240 --> 07:28.860
+post entirely.
+
+07:28.860 --> 07:35.160
+And for me, that's kind of a tacit agreement that, yeah, okay, perhaps we were a bit almost
+
+07:35.160 --> 07:36.720
+rude in that one.
+
+07:36.720 --> 07:39.880
+It feels like it's coming from a place of burnout, doesn't it?
+
+07:39.880 --> 07:40.880
+Yeah.
+
+07:40.880 --> 07:45.320
+And there was a comment, this was on Reddit, I mean, there was a huge number of comments
+
+07:45.320 --> 07:53.280
+on Reddit about this, saying that users are basically coming from a place of entitlement.
+
+07:53.280 --> 07:59.760
+But actually, if you think about it, the developers saying that the users are entitled is itself
+
+07:59.760 --> 08:01.640
+an entitled position.
+
+08:01.640 --> 08:05.920
+And I find it interesting how this happens with open source all the time that as project
+
+08:05.920 --> 08:13.260
+gains traction, the reason that it gained popularity was because it is what it was.
+
+08:13.260 --> 08:16.260
+And then if you take things away from it, it no longer is what it was.
+
+08:16.260 --> 08:20.040
+So of course, people are going to be upset, because they've built their lives around this
+
+08:20.040 --> 08:21.040
+thing.
+
+08:21.040 --> 08:24.360
+We're both Chris and I are feeling a bit locked in to Home Assistant these days.
+
+08:24.360 --> 08:26.580
+All right, well, let's zoom in on this for a moment.
+
+08:26.580 --> 08:30.720
+Because what I find interesting here is you have the burnout, you have the entitlement
+
+08:30.720 --> 08:33.300
+story that's quite common in the open source world.
+
+08:33.300 --> 08:36.800
+And then you also have this mismatch with user expectations.
+
+08:36.800 --> 08:41.680
+And in this case, which is not always true in these situations, but in this case, the
+
+08:41.680 --> 08:44.200
+change users might be right.
+
+08:44.200 --> 08:48.560
+From a security standpoint, I think you could make a pretty solid argument that if you have
+
+08:48.560 --> 08:52.920
+experienced system administrators who are deploying common operating systems with multiple
+
+08:52.920 --> 08:58.320
+years of support, and a standardized way to patch and monitor the vulnerabilities on those
+
+08:58.320 --> 09:04.440
+systems, those are probably likely more secure than Home Assistant's custom built OS, no
+
+09:04.440 --> 09:06.680
+matter how minimal it is.
+
+09:06.680 --> 09:14.220
+Because the reality is, a group like Canonical or Red Hat has entire teams of engineers just
+
+09:14.220 --> 09:19.080
+dedicated to building a production grade operating system.
+
+09:19.080 --> 09:25.400
+Nebuchadnezzar has a couple of guys who are making a massive, huge project that needs
+
+09:25.400 --> 09:27.060
+an OS to run on top of.
+
+09:27.060 --> 09:29.680
+The OS isn't their primary focus.
+
+09:29.680 --> 09:34.960
+As a longtime system administrator who runs all of my own systems now, I don't want to
+
+09:34.960 --> 09:36.880
+run somebody else's operating system.
+
+09:36.880 --> 09:43.440
+I want to run what is my standard deployment that I know how to maintain, patch, reproduce,
+
+09:43.440 --> 09:45.960
+backup, restore, etc.
+
+09:45.960 --> 09:48.280
+I don't want somebody else's custom OS.
+
+09:48.280 --> 09:53.040
+I want that kind of stuff out of my infrastructure as much as possible, actually.
+
+09:53.040 --> 09:57.240
+So there was a mismatch with what the end users wanted and expected, and potentially
+
+09:57.240 --> 10:02.000
+what looks like might be the widely deployed scenario, versus what the developers want,
+
+10:02.000 --> 10:06.240
+perhaps from a product standpoint and simplified development perspective.
+
+10:06.240 --> 10:11.500
+And I think this is a classic mismatch that we have here, only this time it's really complicated,
+
+10:11.500 --> 10:16.140
+because it does mean that Home Assistant was nearly about to make a change that would completely
+
+10:16.140 --> 10:18.140
+invalidate my setup.
+
+10:18.140 --> 10:24.240
+And I had one of those moments where I felt just as locked in to Home Assistant as I would
+
+10:24.240 --> 10:30.200
+any other cloud service or any kind of smart things central hub that has a subscription
+
+10:30.200 --> 10:36.800
+or has a license, I felt caught in a trap, because I was being told that my setup was
+
+10:36.800 --> 10:39.600
+deprecated and there were no plans to support it.
+
+10:39.600 --> 10:42.700
+And sorry, if you want to keep running it on your own OS, then you better switch back
+
+10:42.700 --> 10:47.700
+to core, which listeners of this show will note I just migrated from.
+
+10:47.700 --> 10:49.620
+So the timing on this was horrible.
+
+10:49.620 --> 10:52.180
+And I realized, well, I've just done it again.
+
+10:52.180 --> 10:55.800
+Only this time, I've spent all the money on the hardware, I've spent all the hours setting
+
+10:55.800 --> 10:57.960
+it up myself, and now I'm just as locked in.
+
+10:57.960 --> 11:02.180
+Well, what's wrong with them saying in that scenario, sorry, Chris, we're not going to
+
+11:02.180 --> 11:03.180
+support you.
+
+11:03.180 --> 11:06.860
+We'll still leave Supervisor there, we'll still maintain it.
+
+11:06.860 --> 11:12.120
+But if you get into a situation that you can't fix, well, you're on your own.
+
+11:12.120 --> 11:13.880
+I mean, that's kind of the Linux way, isn't it?
+
+11:13.880 --> 11:20.520
+I think there is a scenario where they would set a timeline, a 90-day window or something,
+
+11:20.520 --> 11:24.520
+where they would inform users that at this point, this will no longer be a supported
+
+11:24.520 --> 11:26.280
+deployment methodology.
+
+11:26.280 --> 11:30.600
+And in that 90-day period, there would be a call to action to create documentation to
+
+11:30.600 --> 11:34.800
+help users because that was, I think, the thing that really pushed this over the edge
+
+11:34.800 --> 11:42.960
+and made them roll this back is they realized very quickly there was a massive lack in documentation
+
+11:42.960 --> 11:47.400
+to actually support the way they were telling people to deploy it now.
+
+11:47.400 --> 11:50.560
+And the user base was rightfully upset about that.
+
+11:50.560 --> 11:55.060
+You just told me to go use this new method and the documentation is out of date and wrong
+
+11:55.060 --> 11:56.960
+in some cases.
+
+11:56.960 --> 11:58.320
+And so they had to reverse course.
+
+11:58.320 --> 12:02.740
+But I think if you had set a timeline, maybe it could be as short as 90 days.
+
+12:02.740 --> 12:06.680
+If you had made a good case for it, maybe had a call for support because, again, this
+
+12:06.680 --> 12:11.520
+is an open source project and people don't know to help until you ask for it.
+
+12:11.520 --> 12:16.360
+As silly as that sounds to the people making it, the consumers of the product are not aware
+
+12:16.360 --> 12:17.560
+of the day-to-day strife.
+
+12:17.560 --> 12:20.600
+They don't know where help is needed unless you tell them.
+
+12:20.600 --> 12:24.560
+That's why whenever we have developers on this show or other shows, we always say, how
+
+12:24.560 --> 12:25.560
+can people help?
+
+12:25.560 --> 12:26.660
+They don't know.
+
+12:26.660 --> 12:31.120
+So communicating that initially, even before it came to this, if you were to rewind the
+
+12:31.120 --> 12:35.680
+clock, would be the first step, then setting a timeline to migration, and then updating
+
+12:35.680 --> 12:38.440
+the docs and improving them in the short term.
+
+12:38.440 --> 12:41.080
+If you have to make the change, there is a way to do it.
+
+12:41.080 --> 12:45.160
+I still wouldn't have been thrilled, but it wouldn't have been this immediate pulling
+
+12:45.160 --> 12:48.640
+the rug out from underneath me saying it's already deprecated as of this post.
+
+12:48.640 --> 12:51.480
+And so who are these changes aimed at?
+
+12:51.480 --> 12:56.520
+It feels to me like Home Assistant's trying to pivot into this new friendly, new user,
+
+12:56.520 --> 13:01.120
+mythical new Linux user friendly product.
+
+13:01.120 --> 13:02.120
+Who are these people?
+
+13:02.120 --> 13:03.120
+Yeah.
+
+13:03.120 --> 13:04.120
+Deploy it on your Pi.
+
+13:04.120 --> 13:08.680
+It seems like they're targeting the people that have bought small board computers or
+
+13:08.680 --> 13:12.540
+perhaps they are targeting a product themselves.
+
+13:12.540 --> 13:17.560
+That was a sense I got from this is maybe if they're going to make a Home Assistant
+
+13:17.560 --> 13:23.120
+hardware device one day, it will need its own OS, and so if they're going to work towards
+
+13:23.120 --> 13:26.920
+that, that would be a logical focus of their resources.
+
+13:26.920 --> 13:30.120
+This is a point I made in the Linux spotlight that I did with Rocco.
+
+13:30.120 --> 13:35.520
+I think more people come to Linux these days through headless server apps like Home Assistant
+
+13:35.520 --> 13:39.040
+or Plex or whatever than they actually do through the desktop.
+
+13:39.040 --> 13:44.320
+Linux is dominant on the server side, and it feels to me like Home Assistant is leveraging
+
+13:44.320 --> 13:49.600
+that kind of Linux ecosystem to get them off the ground, and they've built up this reputation
+
+13:49.600 --> 13:56.840
+now and they're trying to abstract away a lot of stuff that made it great.
+
+13:56.840 --> 14:02.520
+Declarative configuration through YAML files is being abstracted away a little bit to the
+
+14:02.520 --> 14:07.540
+UI, and with this supervised de-change, okay, it's been rolled back, but it just feels like
+
+14:07.540 --> 14:13.360
+another screw that's being turned to make it a black box and appliance that can be productized.
+
+14:13.360 --> 14:15.960
+Yeah, it could go that way.
+
+14:15.960 --> 14:19.480
+I hope not because I think your analysis is correct.
+
+14:19.480 --> 14:24.520
+A lot of early adopters of Home Assistant pip installed it because it was a pip install
+
+14:24.520 --> 14:31.120
+away, and then the next wave came and it was Docker users that installed the containers,
+
+14:31.120 --> 14:35.400
+and now I think the area they're focused on, like some of their primary developers even
+
+14:35.400 --> 14:40.880
+for their main Home Assistant setups are using things like the Odroid or Raspberry Pis, or
+
+14:40.880 --> 14:43.800
+they're recommending people go buy a NUC and deploy their image on it.
+
+14:43.800 --> 14:47.560
+Yeah, so it's a worrying time for the Home Assistant project in general.
+
+14:47.560 --> 14:51.760
+I don't know what this means for the future because officially nothing's changed at this
+
+14:51.760 --> 14:56.840
+point, but you've got to imagine that something somewhere is going to give at some point.
+
+14:56.840 --> 15:01.340
+Whether it's the developer's health being used as an excuse, I'm not saying that people
+
+15:01.340 --> 15:07.040
+should work themselves into the ground for my benefit for free, but at some point I'm
+
+15:07.040 --> 15:11.900
+paying Nabu Casa five bucks a month, I've submitted a couple of pull requests to Home
+
+15:11.900 --> 15:16.120
+Assistant, I've been on their podcast, and I've still got told by people on Reddit that
+
+15:16.120 --> 15:18.440
+I didn't qualify to have an opinion.
+
+15:18.440 --> 15:24.360
+At what point do the users qualify for that opinion?
+
+15:24.360 --> 15:25.360
+I'm just worried.
+
+15:25.360 --> 15:30.640
+It's a red flag for me that maybe all is not well at the head of the project.
+
+15:30.640 --> 15:38.000
+I think it is a red flag, however, that flag is maybe not quite as bright red because they
+
+15:38.000 --> 15:41.760
+did dial it back, which means they're listening, and that's a good sign.
+
+15:41.760 --> 15:46.120
+It's more sort of burnt sienna now, right?
+
+15:46.120 --> 15:48.680
+And that feels like, okay, there's room for negotiation here.
+
+15:48.680 --> 15:53.300
+And I think that's important because the community around Home Assistant, especially when it
+
+15:53.300 --> 15:56.540
+comes to integrations and whatnot, is super important.
+
+15:56.540 --> 16:00.400
+And building that up in a competitor will take, I mean, how long has Home Assistant
+
+16:00.400 --> 16:01.400
+been around?
+
+16:01.400 --> 16:02.400
+Years.
+
+16:02.400 --> 16:03.400
+It would take just as long, I think.
+
+16:03.400 --> 16:05.400
+So long live Home Assistant.
+
+16:05.400 --> 16:06.400
+Yeah.
+
+16:06.400 --> 16:11.120
+Although I'm sure people, and actually we welcome, jump in the Discord at selfhosted.show
+
+16:11.120 --> 16:15.640
+slash discord or send us an email at selfhosted.show slash contact.
+
+16:15.640 --> 16:19.000
+Are you using something besides Home Assistant and how do you like it?
+
+16:19.000 --> 16:23.320
+Because there's commercial products out there, there's other open source projects.
+
+16:23.320 --> 16:24.600
+I'd like to hear from you.
+
+16:24.600 --> 16:29.000
+Now in the last episode, I promised you a reverse proxy roundup.
+
+16:29.000 --> 16:33.520
+I don't have one for you today, but what I do have is a plug for the latest episode of
+
+16:33.520 --> 16:34.520
+TechSnap.
+
+16:34.520 --> 16:38.600
+That's episode 429 at TechSnap.systems slash 429.
+
+16:38.600 --> 16:39.600
+Yeah.
+
+16:39.600 --> 16:44.040
+In the meantime, since our last episode, Wes and Jim did a pretty nice overview.
+
+16:44.040 --> 16:47.280
+They were talking about Caddy, which just dropped version two recently.
+
+16:47.280 --> 16:52.880
+I've taken a little look at it and I had a bit of a Twitter exchange with a developer.
+
+16:52.880 --> 16:56.040
+I'll keep my opinions to myself on that one for now.
+
+16:56.040 --> 17:00.520
+I don't think I'll be switching away from my beloved NGINX quite yet though.
+
+17:00.520 --> 17:02.800
+I'm still trying to get you to switch to traffic.
+
+17:02.800 --> 17:03.800
+Yeah.
+
+17:03.800 --> 17:04.800
+Yeah.
+
+17:04.800 --> 17:09.480
+Talking of the Discord, I want to give a quick shout out to user anther76.
+
+17:09.480 --> 17:15.160
+He has been really helpful in helping me figure out how to get past the host mode problem
+
+17:15.160 --> 17:18.240
+that I talked about in last episode with traffic.
+
+17:18.240 --> 17:22.680
+There's a couple of lines you can add to your config of the traffic container, which is
+
+17:22.680 --> 17:29.100
+extra underscore hosts, and then you put in the IP address of your Docker network.
+
+17:29.100 --> 17:34.440
+And then by doing that, you can run Plex in host mode and use traffic as a full reverse
+
+17:34.440 --> 17:35.440
+proxy.
+
+17:35.440 --> 17:39.240
+There is an example, which I'll have a link to in the show notes in my infrastructure
+
+17:39.240 --> 17:44.040
+GitHub repo of my example Docker compose file that I'm just using to test stuff.
+
+17:44.040 --> 17:46.840
+So if you're curious, take a look in the show notes.
+
+17:46.840 --> 17:48.820
+And I just mentioned those contact methods.
+
+17:48.820 --> 17:53.160
+Those are also perfectly viable if you want us to go more into reverse proxies, just let
+
+17:53.160 --> 17:54.160
+us know.
+
+17:54.160 --> 17:57.160
+We're just waiting for you to ask, selfhost.show slash contact.
+
+17:57.160 --> 18:00.480
+In the meantime though, you didn't have a chance to play with something else and they
+
+18:00.480 --> 18:07.420
+build themselves as your quote offline first privacy centric personal data center, Home
+
+18:07.420 --> 18:08.420
+Lab OS.
+
+18:08.420 --> 18:09.860
+So this is an interesting one.
+
+18:09.860 --> 18:15.960
+Home Lab OS proposes to be my favorite project of the year.
+
+18:15.960 --> 18:19.920
+If you think about all the technologies that are involved here, it's using Linux, it's
+
+18:19.920 --> 18:26.160
+using Ansible, it's written and configured in YAML, and it deploys lots of Docker containers
+
+18:26.160 --> 18:29.760
+and WireGuard and magic happens.
+
+18:29.760 --> 18:30.760
+Yeah.
+
+18:30.760 --> 18:35.880
+And it claims over 100 click deploy services, easy backup and restores, and it will automatically
+
+18:35.880 --> 18:37.980
+publish it all on Tor hidden services.
+
+18:37.980 --> 18:42.440
+So you basically don't need to worry about port forwarding as long as you got Tor.
+
+18:42.440 --> 18:45.440
+And you get the whole thing up and running with one line deployment.
+
+18:45.440 --> 18:48.040
+I mean, this is like everything that would be checking your boxes.
+
+18:48.040 --> 18:49.840
+It largely does, to be fair.
+
+18:49.840 --> 18:51.240
+I mean, what are we talking here?
+
+18:51.240 --> 18:53.520
+Is it a script that you run on top of Linux?
+
+18:53.520 --> 18:57.800
+It's a framework, I suppose is the best way I can think of to describe it.
+
+18:57.800 --> 19:01.020
+And largely speaking, that's my issue with it.
+
+19:01.020 --> 19:04.920
+It's using Terraform under the hood to create a bastion server to make the magic happen
+
+19:04.920 --> 19:09.940
+about having a remote endpoint that you can target and a bastion server.
+
+19:09.940 --> 19:14.520
+If you're familiar with that concept, it's something that you would connect to that is
+
+19:14.520 --> 19:17.200
+open to the internet without being your main box.
+
+19:17.200 --> 19:20.400
+So it's like a jump post is another word for it, you might hear.
+
+19:20.400 --> 19:24.620
+So you wouldn't connect directly to your server running on your LAN, you'd go through the
+
+19:24.620 --> 19:29.320
+bastion which then your firewall knows what the public IP address of that is.
+
+19:29.320 --> 19:35.160
+So you can limit internet facing traffic to a very specific place.
+
+19:35.160 --> 19:39.740
+So in terms of security and basic protocols like that, it's a good thing to have and it's
+
+19:39.740 --> 19:41.000
+pretty common in industry.
+
+19:41.000 --> 19:45.520
+And what's clear is that the developer of this project, Nick Busey, he really knows
+
+19:45.520 --> 19:46.520
+what he's doing.
+
+19:46.520 --> 19:50.600
+You know, I spent a good couple of days digging through the code here and he's using Ginger
+
+19:50.600 --> 19:55.320
+templating to template out all of the Docker compose YAML files.
+
+19:55.320 --> 20:00.200
+And it's really, you know, it must have been a lot of work to get to this point and it
+
+20:00.200 --> 20:02.960
+supports hundreds of applications.
+
+20:02.960 --> 20:09.680
+But the trouble is it wasn't invented here and I don't mean that as a necessarily a bad
+
+20:09.680 --> 20:12.740
+thing, but it's so complicated.
+
+20:12.740 --> 20:18.160
+Even though I've spent months working as a consultant on Ansible code bases, it took
+
+20:18.160 --> 20:21.760
+me a good few hours to get my head around just what this thing was doing under the hood.
+
+20:21.760 --> 20:23.420
+Now maybe that's not the point of this thing.
+
+20:23.420 --> 20:26.560
+Maybe I should just run the one line deploy and just go with it.
+
+20:26.560 --> 20:30.300
+But I like to know what things are doing under the hood and it's so complicated and so abstracted
+
+20:30.300 --> 20:33.280
+away from what's actually happening under the hood.
+
+20:33.280 --> 20:38.040
+In the end, I ended up kind of being a bit turned off from it, sadly.
+
+20:38.040 --> 20:41.120
+That was my impression as well, so that's interesting because I thought we were going
+
+20:41.120 --> 20:44.000
+to have two different views on this.
+
+20:44.000 --> 20:50.360
+I don't need all of this and I've kind of solved this in its own way for each one of
+
+20:50.360 --> 20:58.280
+these using, you know, duplicati and other just backup systems and having Docker containers
+
+20:58.280 --> 21:01.820
+where I've just hand deployed a handful of applications and I just manage it all from
+
+21:01.820 --> 21:03.560
+compose files.
+
+21:03.560 --> 21:05.840
+I don't particularly need this anymore.
+
+21:05.840 --> 21:11.040
+I do see it for somebody who is curious, like, hey, I got this box.
+
+21:11.040 --> 21:12.040
+I've heard about this Linux thing.
+
+21:12.040 --> 21:16.200
+I'll throw this Ubuntu on here and see how far I can get at replicating what I use the
+
+21:16.200 --> 21:17.200
+cloud for.
+
+21:17.200 --> 21:21.200
+I'll tell you where this thing I think actually is the most useful.
+
+21:21.200 --> 21:22.520
+It's for examples.
+
+21:22.520 --> 21:28.840
+It's for showing what's possible with automation and getting people involved in infrastructure
+
+21:28.840 --> 21:34.560
+as code and committing all of those configuration files to a Git repository somewhere.
+
+21:34.560 --> 21:39.200
+And so that when you're trying to do some kind of a server rebuild or, you know, save
+
+21:39.200 --> 21:43.680
+yourself writing bash scripts, which, you know, may or may not work, you're using Ansible,
+
+21:43.680 --> 21:48.640
+which is battle tested by Red Hat and millions of customers across the world.
+
+21:48.640 --> 21:52.200
+A lot of stuff that's in here is industry standard stuff.
+
+21:52.200 --> 21:56.400
+So if you can start looking at this sort of code base and understanding it and figuring
+
+21:56.400 --> 22:01.520
+out what it's doing, then, you know, you're pretty well set for a, you know, a DevOps
+
+22:01.520 --> 22:02.520
+job.
+
+22:02.520 --> 22:03.520
+It's a good point.
+
+22:03.520 --> 22:05.000
+It's a good example of what can be done.
+
+22:05.000 --> 22:07.640
+I mean, it's pretty neat to see something like this.
+
+22:07.640 --> 22:12.680
+That's not just the crazy like bash scripts or PHP command line scripts that are running,
+
+22:12.680 --> 22:16.840
+but it's actual, well, I mean, it's a combination of bash scripts, but it's actual best practices
+
+22:16.840 --> 22:19.200
+being applied to assemble these systems for you.
+
+22:19.200 --> 22:20.600
+It's kind of neat to watch it.
+
+22:20.600 --> 22:23.480
+I've seen simpler code bases as part of government projects.
+
+22:23.480 --> 22:25.080
+Let's just put it that way.
+
+22:25.080 --> 22:26.080
+Yeah.
+
+22:26.080 --> 22:28.200
+It's not a great learning tool in that sense.
+
+22:28.200 --> 22:31.040
+That said, the developer behind it, Nick, is a great guy.
+
+22:31.040 --> 22:36.480
+He hangs out on our discord and he quite often does Twitch live streams and stuff like that.
+
+22:36.480 --> 22:39.320
+And he's very open to feedback and stuff like that.
+
+22:39.320 --> 22:44.260
+I would say in general, he's a bit of a Steve Wozniak looking for a jobs.
+
+22:44.260 --> 22:48.440
+If you're, you know, willing to put some spit and polish and make it a little more consumable
+
+22:48.440 --> 22:53.000
+for mortals, then, you know, I think that's going to take the project to the next level.
+
+22:53.000 --> 22:54.920
+But for now it's a bit much for me.
+
+22:54.920 --> 22:58.920
+I'll tell you what though, I've made this point before on other shows, but I think it's
+
+22:58.920 --> 23:03.800
+something that's worth repeating is you do need projects like this to showcase open source
+
+23:03.800 --> 23:08.120
+and get it up and running because the barrier to running things like next cloud or your
+
+23:08.120 --> 23:13.320
+own mail server or a hosted Bitward installation, et cetera, is sometimes you don't even know
+
+23:13.320 --> 23:17.960
+the fundamentals to install software on a Linux box and you don't know if it's worth
+
+23:17.960 --> 23:19.200
+it to learn.
+
+23:19.200 --> 23:23.880
+And so when you can one line deploy something and then have a UI to go through and deploy
+
+23:23.880 --> 23:28.160
+applications and then experience things like setting up your own syncing or your own mail
+
+23:28.160 --> 23:32.680
+server, it can be a big motivator to learn and to go on a journey.
+
+23:32.680 --> 23:37.360
+You were touching on it, like it's a validation or it's a it's a way to prove out something
+
+23:37.360 --> 23:42.400
+before you begin a journey and open source software, there's such a need for showcasing
+
+23:42.400 --> 23:43.400
+like that.
+
+23:43.400 --> 23:44.560
+So I like it from that standpoint, too.
+
+23:44.560 --> 23:49.600
+I think what I'd like to see really with this type of project is to separate out the constituent
+
+23:49.600 --> 23:52.220
+components into building blocks.
+
+23:52.220 --> 23:58.140
+So let's say I want to generate a Docker compose file from, you know, a YAML dictionary for
+
+23:58.140 --> 24:00.720
+all of different variables, for example.
+
+24:00.720 --> 24:04.960
+So I don't have to keep typing in the path that I'm using, you know, for the Docker volumes
+
+24:04.960 --> 24:10.640
+or, you know, I don't want to expose my port numbers in my Git repo or whatever, so I can
+
+24:10.640 --> 24:12.640
+encrypt this kind of stuff, right?
+
+24:12.640 --> 24:13.640
+Right.
+
+24:13.640 --> 24:14.640
+Yep.
+
+24:14.640 --> 24:20.960
+If HomeLab OS was a series of, let's say, Ansible roles that you could consume and reuse
+
+24:20.960 --> 24:27.880
+different building blocks of that were written in a very generic, non-opinionated fashion,
+
+24:27.880 --> 24:32.400
+then I think this thing has huge, huge potential.
+
+24:32.400 --> 24:36.160
+But as it stands, I think the fact that it's got such strong opinions on the way things
+
+24:36.160 --> 24:43.320
+is done is great for it, but it means that it's very limited in terms of other use cases.
+
+24:43.320 --> 24:46.460
+But a cool project, and I definitely recommend trying it.
+
+24:46.460 --> 24:49.880
+You know, even if you just throw it in a VM for a bit, but HomeLab OS, we'll have a link
+
+24:49.880 --> 24:50.920
+in the show notes.
+
+24:50.920 --> 24:55.680
+I'm sorry I wasn't very nice, Nick, but I do like the project, promise.
+
+24:55.680 --> 24:56.680
+Great job, though.
+
+24:56.680 --> 25:00.680
+I mean, if this is the work of a single individual, it makes me feel like I have not accomplished
+
+25:00.680 --> 25:01.680
+much in life.
+
+25:01.680 --> 25:02.680
+Yeah, right.
+
+25:02.680 --> 25:03.680
+What have you been doing with your life, Chris?
+
+25:03.680 --> 25:04.680
+I don't know.
+
+25:04.680 --> 25:10.520
+Too many road trips, I guess, or too many installations of Ubuntu 20.04, so you and
+
+25:10.520 --> 25:17.000
+I both had a very different experience with remote installations this week of Ubuntu 20.04.
+
+25:17.000 --> 25:19.520
+Mine was really kind of tame.
+
+25:19.520 --> 25:26.040
+Flashed an image, threw that image on a headless box, waited for the DHCP server to issue
+
+25:26.040 --> 25:30.600
+a new lease, and then I just grabbed that IP from the log, SSHed into it, and began
+
+25:30.600 --> 25:31.600
+my setup.
+
+25:31.600 --> 25:34.720
+And I was in a nice, comfy SSH session, can't complain.
+
+25:34.720 --> 25:37.260
+I think your experience was a little different, though.
+
+25:37.260 --> 25:42.480
+Before I immigrated, I made some plans with different servers and stuff like that, and
+
+25:42.480 --> 25:47.240
+I managed to convince my dad to leave my old server in his house.
+
+25:47.240 --> 25:50.240
+It's in a Fractal Define R5 case.
+
+25:50.240 --> 25:56.720
+The motherboard that's in there is an X8 Super Micro something, the Xeon chip that's in there
+
+25:56.720 --> 26:02.520
+is a V1, so it's quite old, it's only got 16 gigs of RAM, and it's really just designed
+
+26:02.520 --> 26:07.120
+to be a remote endpoint for my storage.
+
+26:07.120 --> 26:11.020
+I had about 50 terabytes worth of storage in my server in the UK before I left, so I
+
+26:11.020 --> 26:15.560
+just left it all there and bought new drives when I came here.
+
+26:15.560 --> 26:21.400
+It's got, I think, five or maybe four 8-terabyte drives and a couple of 6-terabyte drives.
+
+26:21.400 --> 26:24.640
+No SMR drives, I did check after the drama lately.
+
+26:24.640 --> 26:28.960
+Yeah, you never know, they might sneak in, that's a TechSnap reference.
+
+26:28.960 --> 26:33.680
+And before I immigrated, as I just said, I left this at my dad's house, I installed Debian
+
+26:33.680 --> 26:40.260
+on it, and it's been working absolutely flawlessly, but recently I decided to start investigating
+
+26:40.260 --> 26:44.400
+WireGuard and then thought, well, wouldn't it be cool if I could do some of the ZFS send
+
+26:44.400 --> 26:48.920
+and receive stuff that Jim and Alan Jude keep talking about?
+
+26:48.920 --> 26:55.040
+So then I started having to install DKMS modules on Debian, and this was, I don't know, a couple
+
+26:55.040 --> 26:56.040
+of months ago.
+
+26:56.040 --> 27:01.780
+And for some reason, last night, apt was just getting its knickers in a complete twist.
+
+27:01.780 --> 27:07.120
+The DKMS stuff was just not working, I couldn't fix it, and in the end I thought to myself,
+
+27:07.120 --> 27:09.800
+you know what would solve all of my problems?
+
+27:09.800 --> 27:14.440
+Just going from Debian 9 to Ubuntu 20.04.
+
+27:14.440 --> 27:18.120
+Which of course, there's no direct upgrade path, that's nothing you're gonna be able
+
+27:18.120 --> 27:19.120
+to do.
+
+27:19.120 --> 27:21.380
+No, you have to wipe and start from scratch.
+
+27:21.380 --> 27:23.200
+And this is in London, right?
+
+27:23.200 --> 27:24.200
+This box is in?
+
+27:24.200 --> 27:31.040
+In a closet in my dad's house at 2am British time, so it's quite high stakes game of poker
+
+27:31.040 --> 27:32.040
+here.
+
+27:32.040 --> 27:34.240
+Did you consider not going with WireGuard?
+
+27:34.240 --> 27:35.240
+No.
+
+27:35.240 --> 27:37.000
+No, of course not, of course not.
+
+27:37.000 --> 27:40.800
+So I'm running PFSense as the firewall at his house.
+
+27:40.800 --> 27:46.020
+So I've got an open VPN tunnel I mostly use to stream iPlayer, because iPlayer requires
+
+27:46.020 --> 27:47.880
+a residential IP block.
+
+27:47.880 --> 27:51.240
+So if you try and go through DigitalOcean or something like that, they know that those
+
+27:51.240 --> 27:53.960
+IPs aren't residential, so it won't work.
+
+27:53.960 --> 27:58.080
+So you have to go through, you know, like a parent's house or something like that.
+
+27:58.080 --> 27:59.620
+That works great for us.
+
+27:59.620 --> 28:05.080
+But so I connected through open VPN from a crusty old Windows VM that's running Java
+
+28:05.080 --> 28:11.400
+8 to the IKVM IPMI Java interface.
+
+28:11.400 --> 28:12.400
+Oh boy.
+
+28:12.400 --> 28:19.460
+I then downloaded the ISO to the VM that was running in my basement here, mounted remotely
+
+28:19.460 --> 28:28.200
+the Ubuntu ISO into the virtual storage media manager that's part of this IPLI client.
+
+28:28.200 --> 28:31.280
+It then took about 25 minutes to boot.
+
+28:31.280 --> 28:32.740
+So I just got to visualize all of this.
+
+28:32.740 --> 28:37.000
+So first of all, it's like one of the worst interfaces ever created on the planet, right?
+
+28:37.000 --> 28:38.760
+For the IPKVM, I'm assuming.
+
+28:38.760 --> 28:40.880
+Yeah, it's about three frames per second.
+
+28:40.880 --> 28:41.880
+Yeah.
+
+28:41.880 --> 28:42.880
+Yeah.
+
+28:42.880 --> 28:43.880
+Okay.
+
+28:43.880 --> 28:48.380
+So you're on your desktop and you're accessing the ESXi console where inside there you're
+
+28:48.380 --> 28:54.040
+remotely viewing a Windows VM, which is remotely running this Java IPKVM.
+
+28:54.040 --> 28:55.040
+Yes.
+
+28:55.040 --> 28:57.240
+That sounds really horrible.
+
+28:57.240 --> 28:59.000
+It's pretty inception, isn't it?
+
+28:59.000 --> 29:00.600
+It's pretty inception.
+
+29:00.600 --> 29:08.600
+I'm running Windows on ESXi, accessing Windows through Firefox in a browser session, accessing
+
+29:08.600 --> 29:16.040
+the console output of my server in England through a Java client, mounting an Ubuntu
+
+29:16.040 --> 29:21.760
+ISO through the virtual media manager, and somehow I managed to get booted into the ISO
+
+29:21.760 --> 29:22.760
+on the third try.
+
+29:22.760 --> 29:27.220
+It was quite fun because my upload here is only 30 meg, which is, you know, it's still
+
+29:27.220 --> 29:33.760
+reasonable for cable, but it's not the gigabit that I had last year, and it was just absolutely
+
+29:33.760 --> 29:40.000
+pegging at 30 meg the entire upload whilst it booted the ISO, which I found really interesting,
+
+29:40.000 --> 29:41.000
+but it worked.
+
+29:41.000 --> 29:43.360
+Now, did you go with the server ISO or did you go with the net?
+
+29:43.360 --> 29:47.320
+I went with the server ISO, and I think that was critical to my success.
+
+29:47.320 --> 29:48.480
+There was no clicking required.
+
+29:48.480 --> 29:53.640
+I could just press one button on the keyboard, wait for the latency to catch up, and then
+
+29:53.640 --> 29:58.680
+press the next arrow button or press the next tab, wait for that keystroke to actually
+
+29:58.680 --> 30:02.800
+occur and update and refresh, and then move on to the next one.
+
+30:02.800 --> 30:06.760
+I think if you're trying to do this with an actual UI, you might struggle.
+
+30:06.760 --> 30:07.760
+Right.
+
+30:07.760 --> 30:09.680
+That would be horrible with the GUI.
+
+30:09.680 --> 30:12.200
+And then you also get to take advantage of some of the server's other features during
+
+30:12.200 --> 30:13.200
+the installation.
+
+30:13.200 --> 30:14.200
+Yeah.
+
+30:14.200 --> 30:18.600
+I mean, the installation of Ubuntu itself was relatively uneventful until I got to the
+
+30:18.600 --> 30:24.280
+point where it asked me if I wanted to import my SSH keys, and then my mind exploded.
+
+30:24.280 --> 30:27.520
+So this is something I've relied on Ansible to do for years.
+
+30:27.520 --> 30:34.040
+I keep all of my SSH keys up to date on GitHub, and then I use the authorized keys module
+
+30:34.040 --> 30:40.160
+to import all of my GitHub public keys onto specific hosts.
+
+30:40.160 --> 30:45.680
+But there's a new command I learned about called ssh-import-id, which will do the same
+
+30:45.680 --> 30:46.920
+damn thing for you.
+
+30:46.920 --> 30:47.920
+Isn't that great?
+
+30:47.920 --> 30:51.720
+And to make it even better, they've built it into the Ubuntu server installer.
+
+30:51.720 --> 30:57.440
+So all I type in is my GitHub username, press go, and then the cloud init file that it generates
+
+30:57.440 --> 31:01.520
+imports all of the SSH keys from GitHub that I have.
+
+31:01.520 --> 31:06.080
+So then I'm kind of curious, did you use ZFS for the entire thing, or did you do Extended
+
+31:06.080 --> 31:09.640
+4 on the root OS and ZFS on the data drives?
+
+31:09.640 --> 31:10.640
+What's the approach here?
+
+31:10.640 --> 31:15.120
+Because I assume there must have been a pool already existing that you were hoping you
+
+31:15.120 --> 31:17.440
+could reconnect to once the installation was done.
+
+31:17.440 --> 31:22.800
+I just made a very simple mirror of the two six terabyte SSDs that I had in that box and
+
+31:22.800 --> 31:26.000
+then used that as my ZFS volume.
+
+31:26.000 --> 31:29.440
+I did install root on Ext4.
+
+31:29.440 --> 31:35.760
+I didn't see an option exposed in the server installer for ZFS on root, so I didn't think
+
+31:35.760 --> 31:36.760
+to do that.
+
+31:36.760 --> 31:37.760
+Yeah.
+
+31:37.760 --> 31:38.760
+I didn't even think about that.
+
+31:38.760 --> 31:39.760
+Well, very interesting.
+
+31:39.760 --> 31:43.920
+And I suppose now you've been able to play around with some of the ZFS send and receive
+
+31:43.920 --> 31:46.760
+things that you were initially attempting to get to.
+
+31:46.760 --> 31:47.760
+Yeah.
+
+31:47.760 --> 31:48.760
+Yeah.
+
+31:48.760 --> 31:54.200
+So I've now got WireGuard configured not to connect through the PSN's firewall.
+
+31:54.200 --> 32:00.480
+It's a point to point, you know, my media VM connects directly to the server that runs
+
+32:00.480 --> 32:04.140
+in my dad's house, you know, through WireGuard, so it's a point to point tunnel.
+
+32:04.140 --> 32:07.600
+And now ZFS send and receive will work over that tunnel.
+
+32:07.600 --> 32:15.360
+So I started using Jim Salter's Sanoid tool and Syncoid tool to manage not only the snapshots
+
+32:15.360 --> 32:21.200
+in terms of like a configurable hourly, daily, monthly, weekly type situation, but also to
+
+32:21.200 --> 32:22.260
+send them as well.
+
+32:22.260 --> 32:27.840
+So one of the really cool things about ZFS that's blowing my mind a little bit is that
+
+32:27.840 --> 32:36.160
+I can send data from one server and it will arrive in the same exact layout on the other
+
+32:36.160 --> 32:37.160
+server.
+
+32:37.160 --> 32:41.320
+That doesn't sound amazing until you realize that includes all the data sets, all the permissions,
+
+32:41.320 --> 32:48.200
+all of the snapshot history, all of the ACLs, every single parameter that is attached to
+
+32:48.200 --> 32:52.400
+those files in America is now attached to those files in England.
+
+32:52.400 --> 32:53.400
+Right.
+
+32:53.400 --> 32:54.400
+And your file system is doing this.
+
+32:54.400 --> 32:58.380
+It's not some demon you're running in the background like rsync or something that's
+
+32:58.380 --> 32:59.380
+like me.
+
+32:59.380 --> 33:03.560
+I use sync thing to move stuff around between my boxes, but this is being managed at a file
+
+33:03.560 --> 33:04.720
+system block level.
+
+33:04.720 --> 33:05.720
+Yeah.
+
+33:05.720 --> 33:10.480
+I've always kind of scoffed a little bit at the hidden cost of ZFS, you know, that you
+
+33:10.480 --> 33:14.520
+have to set pools up up front and that the penalty for getting it wrong, you know, let's
+
+33:14.520 --> 33:17.120
+say you set your a shift wrong for example, or something like that.
+
+33:17.120 --> 33:21.120
+So your partitions don't quite match the cylinders on the disk and stuff.
+
+33:21.120 --> 33:26.080
+The penalties are quite high, but I tell you what, when it works, it's amazing.
+
+33:26.080 --> 33:28.600
+It's cheaper than glassier too, I think doing it this way.
+
+33:28.600 --> 33:29.600
+Yeah.
+
+33:29.600 --> 33:31.040
+If you have a place to send it to, for sure.
+
+33:31.040 --> 33:36.320
+I have this hybrid setup where at the studio I have this big super micro box that has the
+
+33:36.320 --> 33:40.560
+ZFS array where everything is ultimately stored.
+
+33:40.560 --> 33:47.620
+But then in my mobile RV setup, I have a pool of XFS for the storage drives and extended
+
+33:47.620 --> 33:54.880
+for the OS and SD cards because I just want as minimal overhead as possible on those boxes.
+
+33:54.880 --> 34:02.380
+And then I use sync thing and duplicati and other tools to move data around and just sort
+
+34:02.380 --> 34:04.680
+of negate the benefits of ZFS in the mobile setup.
+
+34:04.680 --> 34:06.880
+But I find that user space tools, you know, they work for me.
+
+34:06.880 --> 34:10.820
+They move data fine, backup happens, I have snapshots, it's all fine.
+
+34:10.820 --> 34:14.600
+It's just not as tight and integrated into the file system as it could be.
+
+34:14.600 --> 34:16.320
+But here at the studio, I do take advantage of that.
+
+34:16.320 --> 34:20.640
+So I kind of have been enjoying the differences of these setups because there's things I like
+
+34:20.640 --> 34:21.640
+about both of them.
+
+34:21.640 --> 34:22.640
+And I think they're both pretty valid.
+
+34:22.640 --> 34:26.680
+It just sort of, I think it is worth the time to investigate if you keep hearing people
+
+34:26.680 --> 34:28.400
+talk about it a lot.
+
+34:28.400 --> 34:33.620
+They just did a really good butter FS compared to ZFS roundup on two and a half admins.
+
+34:33.620 --> 34:36.800
+And I think that's worth checking out too, if you're curious about that, because there's
+
+34:36.800 --> 34:39.080
+a lot of trade-offs there as well.
+
+34:39.080 --> 34:41.120
+And it really comes down to the workload.
+
+34:41.120 --> 34:44.680
+But if you haven't tried it, like Alex is saying, it's so easy to do now.
+
+34:44.680 --> 34:46.440
+It's so easy to just give it a go.
+
+34:46.440 --> 34:54.080
+Yeah, that's over at 2.5admins.com with Alan Jude, Jim Salter, and the beloved Joe Ressington.
+
+34:54.080 --> 34:57.360
+But of course, I just run APFS on everything.
+
+34:57.360 --> 34:58.360
+You mad man.
+
+34:58.360 --> 35:03.840
+Now, it's not like ZFS has completely replaced everything on my file servers.
+
+35:03.840 --> 35:07.840
+Media, you know, like movies and TV shows and that kind of stuff, stuff that's easily
+
+35:07.840 --> 35:13.200
+replaced is still being handled by merger FS.
+
+35:13.200 --> 35:16.260
+What I'm using ZFS for is stuff that's irreplaceable.
+
+35:16.260 --> 35:20.040
+So I'm talking like photos, drone footage.
+
+35:20.040 --> 35:23.200
+Also I'm using it for container app data.
+
+35:23.200 --> 35:27.380
+So I have a different data set for each container that I'm using.
+
+35:27.380 --> 35:31.160
+And then that way, before I make a change to the configuration of a particular app or
+
+35:31.160 --> 35:37.040
+something like that, I have a snapshot now that gets taken with Sanoid.
+
+35:37.040 --> 35:41.440
+If I screw up the configuration change, I can just roll back to the previous snapshot
+
+35:41.440 --> 35:43.760
+and I'm good to go.
+
+35:43.760 --> 35:48.700
+There's lots and lots of different things that you can do when you're using ZFS.
+
+35:48.700 --> 35:53.600
+And the checksumming and, you know, the data integrity checks that it does for me on stuff
+
+35:53.600 --> 35:59.640
+like photos and music that I've ripped from my CDs, I don't physically own anymore, stuff
+
+35:59.640 --> 36:00.640
+like that.
+
+36:00.640 --> 36:04.000
+It's just I want to take every precaution I can with that stuff.
+
+36:04.000 --> 36:08.080
+One thing I have yet to implement and I'm going to look into something, I'm curious,
+
+36:08.080 --> 36:11.860
+Alex, if you have any advice is I still would like to have checksums as well, because that's
+
+36:11.860 --> 36:15.720
+something ZFS offers when you talk about bit rot.
+
+36:15.720 --> 36:19.160
+Really what you're talking about, especially with spinning media, but I suppose theoretically
+
+36:19.160 --> 36:24.360
+possible with solid state, is a failure of a block over time or an area of the disk that
+
+36:24.360 --> 36:28.640
+becomes unreliable and the things you stored there are lost.
+
+36:28.640 --> 36:33.160
+And that's something that you have to check against if you're using spinning media, but
+
+36:33.160 --> 36:36.100
+I think it's worth checking against with solid state as well.
+
+36:36.100 --> 36:41.740
+And that's something ZFS includes, XFS and ButterFS and other file systems include checksumming
+
+36:41.740 --> 36:46.120
+for the metadata, so they sometimes are labeled as checksummed file systems, but they're not
+
+36:46.120 --> 36:51.360
+actually checksumming at the block level at each individual file all the way down the
+
+36:51.360 --> 36:52.360
+file system tree.
+
+36:52.360 --> 36:57.520
+They're just checking the metadata head, which is nice, but isn't going to tell you the entire
+
+36:57.520 --> 36:58.520
+picture.
+
+36:58.520 --> 37:03.800
+Before I moved to ZFS last year, this was after Linux Fest Northwest actually, Alan
+
+37:03.800 --> 37:09.160
+and Jim were very persuasive, I actually had been using SnapRaid and I still do use SnapRaid
+
+37:09.160 --> 37:14.640
+and that does do checksumming every day for me on my movies and TV shows.
+
+37:14.640 --> 37:20.280
+And that is snapshot parity calculation, so it knows when stuff has changed.
+
+37:20.280 --> 37:26.640
+I'm never super 100% convinced it's as effective as ZFS, I've not really got any way to check
+
+37:26.640 --> 37:32.160
+or any real way to know, because if the bit changes overnight, well, when I run the SnapRaid
+
+37:32.160 --> 37:35.280
+sync the next day, it'll go, oh, that bit's changed, I'll just recalculate that bit of
+
+37:35.280 --> 37:37.320
+parity, no?
+
+37:37.320 --> 37:42.000
+So I don't know if that's how it would work or whatever, but SnapRaid does claim to do
+
+37:42.000 --> 37:43.000
+that.
+
+37:43.000 --> 37:45.880
+I remember you talking about SnapRaid and it's something I've been meaning to try.
+
+37:45.880 --> 37:51.800
+I also, I know in the past I've come across tools like MD5 deep and hash deep, which will
+
+37:51.800 --> 37:55.560
+go through, they'll crawl your whole file system, generate checksums and then they can
+
+37:55.560 --> 37:57.280
+check against that.
+
+37:57.280 --> 38:00.960
+But hit those contact links or the Discord and let me know what you use.
+
+38:00.960 --> 38:06.520
+I would like something that I could cron or get some kind of output that would run every
+
+38:06.520 --> 38:11.760
+night on these pies, but isn't going to totally abuse the disk IO and the CPUs.
+
+38:11.760 --> 38:13.440
+So if you have any suggestions, let me know.
+
+38:13.440 --> 38:16.800
+If you're doing those jobs on cron, you should check out healthchecks.io.
+
+38:16.800 --> 38:21.480
+You can self-host that as a container and that will let you check in with curl every
+
+38:21.480 --> 38:24.320
+night and send you an email if that cron job fails.
+
+38:24.320 --> 38:26.800
+You're going to get me to use health checks one of these days.
+
+38:26.800 --> 38:27.800
+You're right.
+
+38:27.800 --> 38:29.160
+I think I'm heading down that path.
+
+38:29.160 --> 38:30.160
+I like it.
+
+38:30.160 --> 38:32.080
+We'll put a link to that in the show notes as well.
+
+38:32.080 --> 38:48.280
+Everything we talked about is at self-hosted.show slash 19.
+
