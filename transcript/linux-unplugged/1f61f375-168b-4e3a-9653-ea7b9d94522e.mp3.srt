@@ -1,0 +1,3424 @@
+1
+00:00:00,000 --> 00:00:06,000
+This is Linux Unplugged Episode 12 for October 29th, 2013.
+
+2
+00:00:30,000 --> 00:00:46,000
+Welcome to Linux Unplugged, Jupiter Broadcasting's weekly talk show that believes sometimes the esoteric aspects of your operating system can be the most important aspects of your operating system.
+
+3
+00:00:46,000 --> 00:00:47,000
+My name is Chris.
+
+4
+00:00:47,000 --> 00:00:48,000
+My name is Matt.
+
+5
+00:00:48,000 --> 00:00:49,000
+Hey there, Matt.
+
+6
+00:00:49,000 --> 00:00:55,000
+Episode 12, buddy, and we're chugging right along into pretty technical territory this week.
+
+7
+00:00:55,000 --> 00:00:58,000
+Oh, it's pretty deep stuff, let's just put it that way.
+
+8
+00:00:58,000 --> 00:01:08,000
+I'll be curious to see if we can pull this episode off because first of all, it's hard to be experts in either one of these topics we're talking about today because they're moving fast and they are very esoteric.
+
+9
+00:01:08,000 --> 00:01:13,000
+They're very low level stuff and a lot of people either don't know what they are, don't know why they should matter or feel like it'll never impact them.
+
+10
+00:01:13,000 --> 00:01:17,000
+But I hope after this week's episode, we change that line of thought.
+
+11
+00:01:17,000 --> 00:01:18,000
+That'd be great.
+
+12
+00:01:18,000 --> 00:01:20,000
+Kind of a big goal, but we'll see.
+
+13
+00:01:20,000 --> 00:01:28,000
+This week, Debian's been asked to make a choice to pick between two different startup systems.
+
+14
+00:01:28,000 --> 00:01:33,000
+One created by Canonical that's used in Ubuntu, Red Hat Enterprise, Linux 6, Chrome OS, called Upstart.
+
+15
+00:01:33,000 --> 00:01:39,000
+Obviously, Ubuntu is a major derivative of Debian, so it's a pretty important decision for those guys.
+
+16
+00:01:39,000 --> 00:01:48,000
+And then SystemD, created primarily by Red Hat, Intel, and others, that is shipping in Arch and it's going to be shipping to Red Hat Enterprise, Linux 7, SUSE.
+
+17
+00:01:48,000 --> 00:01:52,000
+A lot of different distros are picking up SystemD and they all do different things.
+
+18
+00:01:52,000 --> 00:01:56,000
+SystemD does a lot of things and that's one of the actual criticisms against it.
+
+19
+00:01:56,000 --> 00:02:04,000
+But people are really now watching Debian to see which way they're going to go because whichever way Debian goes, probably the rest of the market's going to go in whole.
+
+20
+00:02:04,000 --> 00:02:15,000
+Because if Debian goes with SystemD, then it's almost de facto standardized across all of Linux, except with the exception of the large distribution that some of you might have heard of called Ubuntu.
+
+21
+00:02:15,000 --> 00:02:18,000
+It's going to be interesting.
+
+22
+00:02:18,000 --> 00:02:26,000
+Yeah, because if they go with Upstart, then there's two very large distributions that many other distributions are based off that will not be using SystemD.
+
+23
+00:02:26,000 --> 00:02:31,000
+And it will sort of introduce sort of this long-term differentiator between the two sides.
+
+24
+00:02:31,000 --> 00:02:37,000
+So it's kind of all eyes are on Debian at the moment and this is a topic that has been being debated within Debian.
+
+25
+00:02:37,000 --> 00:02:51,000
+I remember reading a post on LWN.net, which after my comments in last week's episode, I went over and purchased a year subscription to LWN.net, which is once you get in behind the paywall, it is a totally different experience.
+
+26
+00:02:51,000 --> 00:02:54,000
+So they should tease some of that out a little more because it is actually really great.
+
+27
+00:02:54,000 --> 00:03:03,000
+Anyways, I read an article at LWN back on July 27th of 2011 saying that Debian was debating if they would switch to SystemD.
+
+28
+00:03:03,000 --> 00:03:08,000
+So this has been going on for a really long time, but it's getting serious this week, Matt. It's getting serious.
+
+29
+00:03:08,000 --> 00:03:10,000
+You said 2007?
+
+30
+00:03:10,000 --> 00:03:13,000
+Oh, I'm sorry, 2011. It was July 27th, 2011.
+
+31
+00:03:13,000 --> 00:03:15,000
+Okay, I was going to say, my goodness.
+
+32
+00:03:15,000 --> 00:03:18,000
+Yeah, it feels like that. It feels like that, honestly.
+
+33
+00:03:18,000 --> 00:03:22,000
+And you know, it's funny because I actually, I remember covering Upstart.
+
+34
+00:03:22,000 --> 00:03:35,000
+Upstart landed in edgy, what was it, like Ubuntu 6.10, I think, and of course they weren't fully converted over from System 5 in its scripts until I think like version 9 something of Ubuntu.
+
+35
+00:03:35,000 --> 00:03:42,000
+But I remember like talking for a very, very long time saying, man, Ubuntu's main feature is just a boots faster, a boots faster.
+
+36
+00:03:42,000 --> 00:03:46,000
+Well, during that period of time was when they were transitioning to Upstart.
+
+37
+00:03:46,000 --> 00:03:48,000
+And meanwhile, Debian's just been hanging back.
+
+38
+00:03:48,000 --> 00:03:53,000
+Been like, you know what, we'll let the kids figure it out. And we rolled Debian stable here.
+
+39
+00:03:53,000 --> 00:03:58,000
+We rolled Debian stable, so we let the kids figure it out and then we package it all up once they've got it all sorted out.
+
+40
+00:03:58,000 --> 00:04:03,000
+Now, of course, SystemD and Upstart have both been available in Debian testing for a while.
+
+41
+00:04:03,000 --> 00:04:04,000
+So we're going to talk about that.
+
+42
+00:04:04,000 --> 00:04:10,000
+But before we talk about this week, I wanted to get into our follow up because we like to continue the threads from previous week's episodes.
+
+43
+00:04:10,000 --> 00:04:12,000
+We want to do that right up here at the top of the show.
+
+44
+00:04:12,000 --> 00:04:21,000
+And we talked last week about sort of the sad state of Linux news and how it was so personality driven, so cult of personality driven.
+
+45
+00:04:21,000 --> 00:04:24,000
+And you talked a lot about it from a writer standpoint.
+
+46
+00:04:24,000 --> 00:04:29,000
+I did, because you got to understand that a lot of times what I put out there is assigned.
+
+47
+00:04:29,000 --> 00:04:34,000
+And then I have the option of saying I would like to eat this week or I would not like to eat this week.
+
+48
+00:04:34,000 --> 00:04:38,000
+And I basically and usually it's a pretty straightforward decision for me that I enjoy food.
+
+49
+00:04:38,000 --> 00:04:42,000
+And it's actually not as evil as that, because that kind of makes it sound evil.
+
+50
+00:04:42,000 --> 00:04:45,000
+But really what it is, it's like, well, if my editor or I don't know who's telling you.
+
+51
+00:04:45,000 --> 00:04:51,000
+But if the editor, whoever it is that gives you your assignment, aren't they basing that on what they perceive to be interest from their audience?
+
+52
+00:04:51,000 --> 00:04:52,000
+It's not the editor's fault.
+
+53
+00:04:52,000 --> 00:04:54,000
+It all rolls downhill from way above.
+
+54
+00:04:54,000 --> 00:04:57,000
+And basically it comes down to eyeballs, eyeballs, eyeballs.
+
+55
+00:04:57,000 --> 00:04:58,000
+That's really what it is.
+
+56
+00:04:58,000 --> 00:04:59,000
+So he's no more at fault than I am.
+
+57
+00:04:59,000 --> 00:05:00,000
+But he does.
+
+58
+00:05:00,000 --> 00:05:03,000
+He is the one that basically is the gatekeeper there as to what I know better.
+
+59
+00:05:03,000 --> 00:05:10,000
+One that you know better, but again, he's in a he's in a fairly stable position and he's not necessarily in a position that he wants to rock that boat.
+
+60
+00:05:10,000 --> 00:05:13,000
+Because he is managing things that aren't Linux related as well.
+
+61
+00:05:13,000 --> 00:05:14,000
+It's funny, though.
+
+62
+00:05:14,000 --> 00:05:15,000
+But yeah, so he's not an expert.
+
+63
+00:05:15,000 --> 00:05:22,000
+But it's funny because like in this episode, you know, if this is probably not the topic you pick to get a bunch of people to listen to your podcast.
+
+64
+00:05:22,000 --> 00:05:24,000
+System D and Upstart, right?
+
+65
+00:05:24,000 --> 00:05:29,000
+I mean, people you could see like how an editor would never want you to write an article about that because that's not a guaranteed win.
+
+66
+00:05:29,000 --> 00:05:36,000
+Right. But something about, you know, top 10 lists for something or whatever, top 77 lists like I saw today, a top 77.
+
+67
+00:05:36,000 --> 00:05:38,000
+OK, those drive clicks.
+
+68
+00:05:38,000 --> 00:05:41,000
+Exactly. And that's just one example.
+
+69
+00:05:41,000 --> 00:05:49,000
+It's one example. And also the fact that a lot of the sites, because as you're well aware of, tux machines being sold off and all this, the landscape's changing.
+
+70
+00:05:49,000 --> 00:05:53,000
+A lot of people are finding, oh, wow, this is so not a money making thing.
+
+71
+00:05:53,000 --> 00:05:54,000
+It's really not. Yeah.
+
+72
+00:05:54,000 --> 00:05:56,000
+So, you know, at least from the writing perspective.
+
+73
+00:05:56,000 --> 00:06:06,000
+So I think that folks are beginning to try for more of an SEO grab, sometimes to try for a title grab, and neither are necessarily working super awesome.
+
+74
+00:06:06,000 --> 00:06:09,000
+Even I found even on my own site, you know, it's been affected.
+
+75
+00:06:09,000 --> 00:06:16,000
+And sometimes it's this it's this horse race that you run and you run into with where, you know, people try different things to grab headlines and those quit work.
+
+76
+00:06:16,000 --> 00:06:22,000
+And then they have to switch to something else. And this is sort of the point that Matt, not you, but a different Matt who wrote into the show was making.
+
+77
+00:06:22,000 --> 00:06:27,000
+He said, you know, dear Chris and Matt, by the way, I'm a JB lurker, regular listen to unplugged and a regular viewer of last.
+
+78
+00:06:27,000 --> 00:06:29,000
+I also enjoy text napping photo from time to time.
+
+79
+00:06:29,000 --> 00:06:34,000
+But he points out he just finished listening to some plug level where we talked about this.
+
+80
+00:06:34,000 --> 00:06:40,000
+And he thinks that, you know, this whole driven by personalities talking about scandal instead of honest news.
+
+81
+00:06:40,000 --> 00:06:46,000
+This is really just sort of a slice of what's going on on a much larger scale, say on Fox News and MSNBC and everything in between.
+
+82
+00:06:46,000 --> 00:06:50,000
+Profit driven news outlets are only interested in viewership.
+
+83
+00:06:50,000 --> 00:06:52,000
+Yeah, that's factual.
+
+84
+00:06:52,000 --> 00:06:56,000
+And he said, anyway, just my two cents. Thanks for the great shows and for reporting Linux news.
+
+85
+00:06:56,000 --> 00:07:00,000
+It is important, if not always sexy. That's what we're going to try to do today.
+
+86
+00:07:00,000 --> 00:07:03,000
+That is true. And I think I would counter that, too, and saying he's absolutely correct.
+
+87
+00:07:03,000 --> 00:07:06,000
+A profit driven news center definitely has to take that into account.
+
+88
+00:07:06,000 --> 00:07:15,000
+But I also think that even if you go nonprofit, you do have to have some kind of funding source because you have fixed expenses, even if everybody was volunteering, which isn't always plausible.
+
+89
+00:07:15,000 --> 00:07:17,000
+So, you know, all those things come together.
+
+90
+00:07:17,000 --> 00:07:20,000
+There's a lot of things under the hood that people have to really stop and think about.
+
+91
+00:07:20,000 --> 00:07:28,000
+So Andreas wrote in. Oh, by the way, I think we probably got maybe 30, 35 emails just on that news topic alone.
+
+92
+00:07:28,000 --> 00:07:30,000
+We got so much email on that.
+
+93
+00:07:30,000 --> 00:07:36,000
+Linux unplugged this week generated more email feedback than last did when we did the Synology review.
+
+94
+00:07:36,000 --> 00:07:42,000
+And now now now cinnamon is last as we reclaim the crown with the cinnamon topic.
+
+95
+00:07:42,000 --> 00:07:47,000
+But for one week, Linux unplugged pulled ahead for episode 11 with the amount of feedback volume that we got.
+
+96
+00:07:47,000 --> 00:07:52,000
+So Andreas wrote in. He says, I need to get feedback on the question you asked in Linux unplugged.
+
+97
+00:07:52,000 --> 00:07:59,000
+Which distro will take the lead in a few years when Steam OS is out and Ubuntu continued to fail on the desktop?
+
+98
+00:07:59,000 --> 00:08:02,000
+I don't think we said that, but OK, we'll roll with it.
+
+99
+00:08:02,000 --> 00:08:05,000
+He says, I'm pretty sure it will be Steam OS.
+
+100
+00:08:05,000 --> 00:08:09,000
+Almost every Linux gamer might have at least a dual boot partition with Steam OS.
+
+101
+00:08:09,000 --> 00:08:13,000
+OK, there will be ones who refuse to use it because of the Steam DRM stuff.
+
+102
+00:08:13,000 --> 00:08:18,000
+But there might be a lot of Steam boxes sold and self-built out at this time point.
+
+103
+00:08:18,000 --> 00:08:21,000
+If I got the question wrong, please ignore this feedback. But I think this might be it.
+
+104
+00:08:21,000 --> 00:08:27,000
+I think, Andreas, you know, maybe you know what, at least as far as desktop deployment,
+
+105
+00:08:27,000 --> 00:08:33,000
+it's going to be hard to beat Ubuntu and Red Hat on the server deployments and Suice Enterprise Linux and even Debian.
+
+106
+00:08:33,000 --> 00:08:36,000
+You know, and I just I kind of disagree.
+
+107
+00:08:36,000 --> 00:08:40,000
+I don't know. I mean, so for me, it's like I think it depends on the location and actual the task.
+
+108
+00:08:40,000 --> 00:08:44,000
+Usually most people use a computer to actually accomplish a set of tasks.
+
+109
+00:08:44,000 --> 00:08:47,000
+If it's Steam OS, you're trying to accomplish getting some games going.
+
+110
+00:08:47,000 --> 00:08:50,000
+OK, if you're using Ubuntu, you're probably trying to get real work done.
+
+111
+00:08:50,000 --> 00:08:52,000
+You're trying to actually do something from a desktop experience.
+
+112
+00:08:52,000 --> 00:08:59,000
+I don't see Steam OS being really popular at your local nonprofit or at a school that's actually trying to get real work done.
+
+113
+00:08:59,000 --> 00:09:01,000
+I mean, the kids would love you for it, but I don't see that happening.
+
+114
+00:09:01,000 --> 00:09:04,000
+I see Ubuntu having a much bigger impact.
+
+115
+00:09:04,000 --> 00:09:07,000
+All right. Fair point. Fair point. So I was just looking.
+
+116
+00:09:07,000 --> 00:09:14,000
+Total console sold total total Xbox 360 console sold to date is looks like a fifty nine million.
+
+117
+00:09:14,000 --> 00:09:18,000
+I don't know. Is that right? Total and the original Xbox twenty four million.
+
+118
+00:09:18,000 --> 00:09:21,000
+There's thirty one million Xbox subscribers.
+
+119
+00:09:21,000 --> 00:09:26,000
+So almost sixty million Xbox 360 sold to date. OK.
+
+120
+00:09:26,000 --> 00:09:29,000
+And then, you know, twenty four million original Xboxes.
+
+121
+00:09:29,000 --> 00:09:33,000
+That is an S ton of Xboxes. Don't get me wrong.
+
+122
+00:09:33,000 --> 00:09:38,000
+But to put that into some perspective, there's been one hundred and seventy something a million iPads sold.
+
+123
+00:09:38,000 --> 00:09:44,000
+Right. And there's been and which which works out to be I can't remember the number now because I got a third.
+
+124
+00:09:44,000 --> 00:09:51,000
+I got a third hand, but it works out to be something like represents six months worth of desktop PC sales.
+
+125
+00:09:51,000 --> 00:09:54,000
+So you put it in perspective of desktop PC sales.
+
+126
+00:09:54,000 --> 00:10:00,000
+It's a it is not even it is not even half the year worth of so it is.
+
+127
+00:10:00,000 --> 00:10:04,000
+Yeah, I think, you know, SteamOS could get some good traction on the console,
+
+128
+00:10:04,000 --> 00:10:08,000
+but I don't know if it's really going to change the tide at this point in any one direction.
+
+129
+00:10:08,000 --> 00:10:10,000
+I think it's just going to be a strong contender.
+
+130
+00:10:10,000 --> 00:10:13,000
+Definitely a high number, but I don't think it's going to be number one.
+
+131
+00:10:13,000 --> 00:10:19,000
+I tend to agree with that. I think, you know, you're trying to undo time and undo progress that's already taken place.
+
+132
+00:10:19,000 --> 00:10:22,000
+And so if that does happen, it's going to be a five year plan.
+
+133
+00:10:22,000 --> 00:10:27,000
+If it doesn't happen, they'll maintain a real comfortable standing, but it may not ever become the big thing.
+
+134
+00:10:27,000 --> 00:10:31,000
+And hey, you know, if it did, that'd be that would be pretty interesting times.
+
+135
+00:10:31,000 --> 00:10:34,000
+Yeah. Oh, it'd be awesome. I would I'm totally rooting for him.
+
+136
+00:10:34,000 --> 00:10:36,000
+I want to see them absolutely just mop floor with everybody.
+
+137
+00:10:36,000 --> 00:10:39,000
+But, you know, I think that'd be great because what an exciting thing to watch.
+
+138
+00:10:39,000 --> 00:10:41,000
+You know, people are really passionate about it.
+
+139
+00:10:41,000 --> 00:10:44,000
+But, you know, we have to kind of wait and see how things play out.
+
+140
+00:10:44,000 --> 00:10:48,000
+Now, we got, like I said, so much email and I'm going to be totally upfront with you guys.
+
+141
+00:10:48,000 --> 00:10:52,000
+I didn't get a chance to read it all. So if you didn't get a response from me,
+
+142
+00:10:52,000 --> 00:10:57,000
+I watched a lot of videos on system D and upstart in the last couple of days. I'm not even kidding.
+
+143
+00:10:57,000 --> 00:11:00,000
+So I actually didn't get too much of my email.
+
+144
+00:11:00,000 --> 00:11:06,000
+I used my email time to do that because I was I just kind of fell down the rabbit hole of these things because it's actually pretty interesting stuff.
+
+145
+00:11:06,000 --> 00:11:10,000
+So if you if you want, you have my permission to resend.
+
+146
+00:11:10,000 --> 00:11:16,000
+And also, I encourage you to go to LinuxActionShow.Reddit.com.
+
+147
+00:11:16,000 --> 00:11:21,000
+And while you're over there, start a thread if you think it's something maybe the broader community could could chime in on.
+
+148
+00:11:21,000 --> 00:11:27,000
+Now, Matt, before we get into our main topic today, I want to thank our sponsor, and that is Ting.com. Matt? Yes.
+
+149
+00:11:27,000 --> 00:11:30,000
+Ting is mobile. It makes sense. They're my mobile service provider. They're Matt's mobile service provider.
+
+150
+00:11:30,000 --> 00:11:37,000
+And I'll tell you, Matt and I, we are men who prefer to be free agents. That's right.
+
+151
+00:11:37,000 --> 00:11:41,000
+I don't like being in a contract, Matt. I don't like early termination fees. What is it, some kind of scam?
+
+152
+00:11:41,000 --> 00:11:46,000
+Oh, totally. Yeah, that's I like having control over how I use my phone. Exactly.
+
+153
+00:11:46,000 --> 00:11:52,000
+And you know what's great about Ting is it's so not only is there no early termination fee, not only is there no contract. I mean, that's a great start.
+
+154
+00:11:52,000 --> 00:11:55,000
+I'd take that right there. Oh, totally. You also only pay for what you use.
+
+155
+00:11:55,000 --> 00:11:59,000
+So they take your minutes, your megabytes and your messages at the end of the month.
+
+156
+00:11:59,000 --> 00:12:04,000
+They'll just add it up, whatever bucket you fall into. And they've got some great examples on the Ting website.
+
+157
+00:12:04,000 --> 00:12:09,000
+My bill right now, for example, and it it is it is up in four days.
+
+158
+00:12:09,000 --> 00:12:12,000
+The Ting dashboard tells you they have an amazing dashboard over at Ting.
+
+159
+00:12:12,000 --> 00:12:21,000
+It's it's got to be it's not just like it's not just like good from like an interface standpoint, but it's also good from like Ting knows the Internet.
+
+160
+00:12:21,000 --> 00:12:29,000
+Like they are one of the first companies that are on board with Mozilla personas, which is a very, very great authentication system.
+
+161
+00:12:29,000 --> 00:12:35,000
+That sort of is an alternative to open ID and other things like that. Ting was on board right away. Ting knows about this kind of stuff.
+
+162
+00:12:35,000 --> 00:12:39,000
+So they not only do they have a very awesome dashboard, but they actually get Web standards.
+
+163
+00:12:39,000 --> 00:12:44,000
+They really get this kind of stuff and you go right in. They say, yeah, you got this much time left on your account.
+
+164
+00:12:44,000 --> 00:12:50,000
+You've got you know, you're currently at this and they have nice like gas gauges that tell you exactly where your usage is at.
+
+165
+00:12:50,000 --> 00:12:53,000
+And oh, by the way, this is your billing period. It'll be up in three days.
+
+166
+00:12:53,000 --> 00:12:58,000
+So when I go in there right now, it says my billing period has forty one or four days left. I'm at twenty one bucks.
+
+167
+00:12:58,000 --> 00:13:05,000
+I'm at twenty one bucks. And now I every time I'm in the car, I usually have an audio stream going and I usually have ways going.
+
+168
+00:13:05,000 --> 00:13:11,000
+I don't pretty much go anywhere without ways going all the time and even still. Now, I'm not a big voice user because I'll use Skype and things like that.
+
+169
+00:13:11,000 --> 00:13:17,000
+But that's what's so awesome. As the holidays come up, I'm going to start using my voice plan minutes a lot more.
+
+170
+00:13:17,000 --> 00:13:22,000
+Now, I'm not paying into some sort of plan. So it's like, OK, well, I get I get 200 minutes this month.
+
+171
+00:13:22,000 --> 00:13:28,000
+And if I use more than 200 minutes, I have to pay extra. And then, of course, when I'm not using the phone very much, I not the holidays.
+
+172
+00:13:28,000 --> 00:13:31,000
+I don't pay for that phone usage. It's just a flat six dollars a month.
+
+173
+00:13:31,000 --> 00:13:36,000
+I love the fact that they have a fluid bucket that will adjust to my month to month needs because they do fluctuate.
+
+174
+00:13:36,000 --> 00:13:39,000
+I mean, it really does fluctuate for me. So I love that.
+
+175
+00:13:39,000 --> 00:13:42,000
+Absolutely. So go get started over at Linux.ting.com.
+
+176
+00:13:42,000 --> 00:13:46,000
+That'll take twenty five dollars off your first device or twenty five dollars off your first month.
+
+177
+00:13:46,000 --> 00:13:50,000
+If you're going to bring your own device, they've got a bunch of compatible devices.
+
+178
+00:13:50,000 --> 00:13:54,000
+Also, right now, if you actually think this is sticking around for a while, go take advantage of this.
+
+179
+00:13:54,000 --> 00:13:58,000
+Go to ting.com slash ETF. They have an early termination relief program.
+
+180
+00:13:58,000 --> 00:14:02,000
+They're going to give you up to seventy five dollars off per line that you have to get terminated.
+
+181
+00:14:02,000 --> 00:14:05,000
+If you're going to move over to Ting and trust me, you're going to want to move over to Ting.
+
+182
+00:14:05,000 --> 00:14:12,000
+If you just go to Linux.ting.com, they got a savings calculator that'll show you the awesome amounts of money you'll save over the long run.
+
+183
+00:14:12,000 --> 00:14:17,000
+And by the way, that savings will include hotspot and tethering right with the plan.
+
+184
+00:14:17,000 --> 00:14:23,000
+No extra no extra package you have to get into. And it'll also include real personal phone support.
+
+185
+00:14:23,000 --> 00:14:28,000
+When you call a Ting agent, they answer the phone and they see your problem all the way through to the end.
+
+186
+00:14:28,000 --> 00:14:33,000
+It's like a real Canadian. I love that. I love the one on one connection you can make with these folks.
+
+187
+00:14:33,000 --> 00:14:38,000
+Because instead of talking to a machine, you're actually talking to someone that not only gives a rip, but can actually solve your problem.
+
+188
+00:14:38,000 --> 00:14:41,000
+They're also, as far as telcos go, the most transparent you're ever going to find.
+
+189
+00:14:41,000 --> 00:14:43,000
+So go over to their blog and just check out some of the posts over there.
+
+190
+00:14:43,000 --> 00:14:45,000
+They've just an introduction to one of their team members.
+
+191
+00:14:45,000 --> 00:14:48,000
+You get a little bit of behind the scenes info about Ting.
+
+192
+00:14:48,000 --> 00:14:55,000
+And as somebody who considers themselves a researcher of things before I buy, I really appreciate that they expose that kind of information to me.
+
+193
+00:14:55,000 --> 00:14:57,000
+Because it helps me make an informed decision.
+
+194
+00:14:57,000 --> 00:15:00,000
+So go over to linux.ting.com and thanks to Ting for sponsoring.
+
+195
+00:15:00,000 --> 00:15:02,000
+Linux Unplugged.
+
+196
+00:15:02,000 --> 00:15:04,000
+Ish. Good stuff.
+
+197
+00:15:04,000 --> 00:15:07,000
+So let's get down and dirty in the plumbing of Linux this week.
+
+198
+00:15:07,000 --> 00:15:11,000
+And I want to talk about SystemD and Upstart and this whole Debian's Choice.
+
+199
+00:15:11,000 --> 00:15:13,000
+So I'm going to read you something.
+
+200
+00:15:13,000 --> 00:15:18,000
+And it's so funny because you're going to find the same blurb all over the entire internet.
+
+201
+00:15:18,000 --> 00:15:21,000
+And it's even all over on the Ubuntu wiki on their SystemD page.
+
+202
+00:15:21,000 --> 00:15:22,000
+It's on Arch's wiki.
+
+203
+00:15:22,000 --> 00:15:25,000
+It's even on the main SystemD page and it's on the free desktop.org.
+
+204
+00:15:25,000 --> 00:15:28,000
+It is the explanation of what SystemD is.
+
+205
+00:15:28,000 --> 00:15:30,000
+It might not help, but I'm going to give it to you.
+
+206
+00:15:30,000 --> 00:15:32,000
+And then maybe we'll parse it a little bit.
+
+207
+00:15:32,000 --> 00:15:33,000
+So what is SystemD?
+
+208
+00:15:33,000 --> 00:15:39,000
+SystemD is a system and session manager for Linux compatible with System 5 and LSB init scripts.
+
+209
+00:15:39,000 --> 00:15:46,000
+SystemD provides an aggressive parallelization capability that uses sockets and Dbus activation for starting of services,
+
+210
+00:15:46,000 --> 00:15:50,000
+offers on-demand starting of daemons, keeps track of processes using Linux cgroups,
+
+211
+00:15:50,000 --> 00:15:53,000
+supports snapshotting and restoring of the system states,
+
+212
+00:15:53,000 --> 00:15:55,000
+maintains mount and auto-mount points,
+
+213
+00:15:55,000 --> 00:16:00,000
+and implements an elaborate transactional dependency based service control logic.
+
+214
+00:16:00,000 --> 00:16:03,000
+It can work as a drop-in replacement for System 5 init.
+
+215
+00:16:03,000 --> 00:16:06,000
+Now to sort of parse some of this for you.
+
+216
+00:16:06,000 --> 00:16:11,000
+So it uses socket and Dbus activation for starting of services.
+
+217
+00:16:11,000 --> 00:16:12,000
+What socket and Dbus?
+
+218
+00:16:12,000 --> 00:16:14,000
+Well, let's focus on the socket part.
+
+219
+00:16:14,000 --> 00:16:21,000
+So for example, if you have a very lightly used Apache web server,
+
+220
+00:16:21,000 --> 00:16:27,000
+SystemD can actually open up the port 80 socket and listen for incoming connections on 80
+
+221
+00:16:27,000 --> 00:16:34,000
+and leave Apache as completely closed so it's not taking any CPU or memory until that very first connection comes in.
+
+222
+00:16:34,000 --> 00:16:38,000
+SystemD will answer that connection on the port that the daemon uses,
+
+223
+00:16:38,000 --> 00:16:42,000
+and then it will go start up Apache and then serve the page for the person that they need.
+
+224
+00:16:42,000 --> 00:16:45,000
+And the user never notices any kind of interruption.
+
+225
+00:16:45,000 --> 00:16:49,000
+Additionally, it allows you to restart services without breaking the connection
+
+226
+00:16:49,000 --> 00:16:52,000
+because since SystemD is managing that socket,
+
+227
+00:16:52,000 --> 00:16:56,000
+you can have the underlying daemon restart without interrupting it.
+
+228
+00:16:56,000 --> 00:17:00,000
+So that's what socket-based activation for starting services is.
+
+229
+00:17:00,000 --> 00:17:05,000
+Dbus would be message-based, event-based driven, which is also upstart,
+
+230
+00:17:05,000 --> 00:17:12,000
+is things like network state changes or hardware state changes or user command changes.
+
+231
+00:17:12,000 --> 00:17:14,000
+Those are sort of the more event side of things.
+
+232
+00:17:14,000 --> 00:17:19,000
+And SystemD is, like I mentioned earlier in the show, primarily being developed by Red Hat,
+
+233
+00:17:19,000 --> 00:17:25,000
+but it has contributors from all over, including a large group from Intel.
+
+234
+00:17:25,000 --> 00:17:30,000
+It is almost a new layer of the operating system to just give you an abstract.
+
+235
+00:17:30,000 --> 00:17:35,000
+It takes care of a lot of these things like mounting of file systems, logging.
+
+236
+00:17:35,000 --> 00:17:37,000
+A lot of multi-purpose stuff under the hood, it sounds like.
+
+237
+00:17:37,000 --> 00:17:40,000
+Yeah, it can replace syslog. They have a journal that it replaces,
+
+238
+00:17:40,000 --> 00:17:43,000
+which some people don't like. We'll get into that.
+
+239
+00:17:43,000 --> 00:17:44,000
+So there's a lot to it.
+
+240
+00:17:44,000 --> 00:17:48,000
+And the core question that now Debian is facing is, do we go with upstart or do we go with SystemD?
+
+241
+00:17:48,000 --> 00:17:52,000
+And I want to play a clip for you, Matt, because we played this on the pre-show,
+
+242
+00:17:52,000 --> 00:17:56,000
+and I think you and I both agreed it was worth playing even though it's pretty meaty in the show.
+
+243
+00:17:56,000 --> 00:17:58,000
+We're going to play this and we'll kind of parse it.
+
+244
+00:17:58,000 --> 00:18:01,000
+This is Lenart Pottering, the primary developer behind SystemD.
+
+245
+00:18:01,000 --> 00:18:06,000
+And he was at a Debian conference in August, and they held two talks at this conference.
+
+246
+00:18:06,000 --> 00:18:12,000
+The first talk was a SystemD talk, and the talk was why Debian should or should not switch to SystemD.
+
+247
+00:18:12,000 --> 00:18:15,000
+And I have that linked in the show notes.
+
+248
+00:18:15,000 --> 00:18:19,000
+And the second talk the next day was why Debian needs upstart.
+
+249
+00:18:19,000 --> 00:18:22,000
+Obviously, one was from Lenart and one was from the canonical rep.
+
+250
+00:18:22,000 --> 00:18:25,000
+And we have both of those linked. They're about an hour long if you want to watch them.
+
+251
+00:18:25,000 --> 00:18:30,000
+And as we talk about this, keep in mind that this is from Lenart.
+
+252
+00:18:30,000 --> 00:18:35,000
+He says, whether Debian chooses SystemD or upstart, it has major implications for the future.
+
+253
+00:18:35,000 --> 00:18:38,000
+So you shouldn't only look at what is now, but keep in mind what will come next.
+
+254
+00:18:38,000 --> 00:18:44,000
+And there are at least two areas where opting for upstart will mean that you shut Debian out of major changes.
+
+255
+00:18:44,000 --> 00:18:48,000
+So in this clip I'm about to play, it's from this 55-minute talk.
+
+256
+00:18:48,000 --> 00:18:50,000
+It's about three minutes long.
+
+257
+00:18:50,000 --> 00:18:55,000
+He gives some examples of where he feels, and this is Lenart's opinion, the creator of SystemD,
+
+258
+00:18:55,000 --> 00:18:59,000
+where he feels that upstart falls short to SystemD.
+
+259
+00:18:59,000 --> 00:19:03,000
+Of course, if you compare it to the other contender, which is upstart,
+
+260
+00:19:03,000 --> 00:19:10,000
+we believe that, I mean, the reason we initially created SystemD actually is because we believe that the upstart design was wrong.
+
+261
+00:19:10,000 --> 00:19:13,000
+A little bit about the history there.
+
+262
+00:19:13,000 --> 00:19:18,000
+We started, like I played around with a little project I called BabyKit.
+
+263
+00:19:18,000 --> 00:19:21,000
+You know, it was back at the time where everything had to be a kit.
+
+264
+00:19:21,000 --> 00:19:27,000
+This BabyKit thing was supposed to be like an experiment, how we think that it should work.
+
+265
+00:19:27,000 --> 00:19:34,000
+And then upstart came along, and then I put that aside because we actually believed that upstart would be the big and great future.
+
+266
+00:19:34,000 --> 00:19:40,000
+However, over a year or so, and after talking with seeing Scott a couple of times...
+
+267
+00:19:40,000 --> 00:19:46,000
+And I actually, I buy Lenart here where they actually bought into upstart as a solution because they shipped it with Red Hat Enterprise Linux 6.
+
+268
+00:19:46,000 --> 00:19:48,000
+Like their premier product, they shipped it.
+
+269
+00:19:48,000 --> 00:19:51,000
+They actually backed it up by putting it to work, sure.
+
+270
+00:19:51,000 --> 00:19:55,000
+The plumber's con, we've eventually figured out that Scott's probably not giving us what we want,
+
+271
+00:19:55,000 --> 00:19:58,000
+and we believe that inherently it had the wrong design.
+
+272
+00:19:58,000 --> 00:20:08,000
+The reason what exactly is broken there is basically what upstart does is you have a language how you can express how events happen
+
+273
+00:20:08,000 --> 00:20:10,000
+and what's supposed to be done that way.
+
+274
+00:20:10,000 --> 00:20:14,000
+What systemly does instead is you express relations between things.
+
+275
+00:20:14,000 --> 00:20:24,000
+Now, one is a lot more flexible and powerful than the other because in one thing you basically have the administrator figure out what should happen,
+
+276
+00:20:24,000 --> 00:20:27,000
+or the developer, what should happen in which case.
+
+277
+00:20:27,000 --> 00:20:30,000
+You write that down, and then upstart will just execute it.
+
+278
+00:20:30,000 --> 00:20:33,000
+However, in the system design where you have the dependency tree,
+
+279
+00:20:33,000 --> 00:20:38,000
+basically you just say these are the dependencies, and then the system will figure out what to do at what place.
+
+280
+00:20:38,000 --> 00:20:43,000
+So what Lenart is considering a feature, some of the critics of systemd actually say is a disadvantage.
+
+281
+00:20:43,000 --> 00:20:47,000
+And I'll give you my old crotchety sysadmin, everything should be conservative.
+
+282
+00:20:47,000 --> 00:20:50,000
+I don't like a lot of changes in perspective because boy do I have it sometimes.
+
+283
+00:20:50,000 --> 00:20:59,000
+Upstart, and you picked up on this on the pre-show, upstart relies a lot more on the sysadmin or the developer
+
+284
+00:20:59,000 --> 00:21:03,000
+giving it a good set of chain of events to follow, rules if you were right.
+
+285
+00:21:03,000 --> 00:21:09,000
+Whereas systemd you say, okay, well, I want to start MySQL, and MySQL is going to need network connectivity,
+
+286
+00:21:09,000 --> 00:21:12,000
+and network connectivity is going to need that these lower level things start up.
+
+287
+00:21:12,000 --> 00:21:16,000
+So here's what I want. I want all these things. The end result is I want MySQL.
+
+288
+00:21:16,000 --> 00:21:24,000
+And then supposedly there's some black magic that happens there where systemd can actually figure out dependencies in some cases.
+
+289
+00:21:24,000 --> 00:21:31,000
+And so there's advantages to that because systems nowadays can be a lot of different things at different times.
+
+290
+00:21:31,000 --> 00:21:36,000
+In the case of a laptop, it can be a Wi-Fi device that runs on battery.
+
+291
+00:21:36,000 --> 00:21:41,000
+And then 20 minutes later it can be hardwired into a gigabit connection with an AC power line.
+
+292
+00:21:41,000 --> 00:21:46,000
+And with maybe a second monitor attached. There's a lot of different things that can happen.
+
+293
+00:21:46,000 --> 00:21:51,000
+So you could see why maybe a more flexible system could be advantageous as computing starts to change.
+
+294
+00:21:51,000 --> 00:21:58,000
+But I just wanted to kind of draw attention to the fact here that these are major differences here in how these two things are structured.
+
+295
+00:21:58,000 --> 00:22:06,000
+This has a couple of effects. Like, for example, in systemd, if you want to have a minimal boot, you want to just start that and that and that.
+
+296
+00:22:06,000 --> 00:22:14,000
+It's a relatively easy thing to do because you simply look at the dependency graph, figure out what you want, pull in all the dependencies, and run it in the right order.
+
+297
+00:22:14,000 --> 00:22:21,000
+This, of course, is systematically more difficult with Avster because the Avster rules in the first place have to express what actually happens on the system.
+
+298
+00:22:21,000 --> 00:22:29,000
+This eventually becomes even more problematic. Like, for example, something very recent is the rearrangement of cgroups.
+
+299
+00:22:29,000 --> 00:22:42,000
+I'm not sure if you guys have followed that. Cgroups are this thing how you can attach a label to a set of processes and then optionally set a couple of resource values to it.
+
+300
+00:22:42,000 --> 00:22:52,000
+Like, for example, you can say Apache gets as much CPU time as MySQL regardless of how many processes Apache starts and how few MySQL will start.
+
+301
+00:22:52,000 --> 00:23:03,000
+Cgroups, I think, are probably, in terms of server deployment, one of the most important things that Debian has to keep in consideration when they're making this choice.
+
+302
+00:23:03,000 --> 00:23:16,000
+Not that they can't take advantage of cgroups if they're not using Upstart, but what cgroups are, as Lennart just said, they allow you to apply labeling to processes.
+
+303
+00:23:16,000 --> 00:23:25,000
+The advantage is if systemd starts a process, it can label that, say Apache, from start to finish so that the system always knows this group should have these rules applied to it.
+
+304
+00:23:25,000 --> 00:23:35,000
+If Apache has some CGI workers and those spawn 30 sub-threads, normally, in some cases, we completely lose track of what's attached to what.
+
+305
+00:23:35,000 --> 00:23:40,000
+But systemd, because it's being involved in all of that, will keep it all coherent, will keep it all labeled.
+
+306
+00:23:40,000 --> 00:23:47,000
+Now, this has big ramifications for, say, I only want MySQL to use X amount of CPU so that way it can't clobber my whole system.
+
+307
+00:23:47,000 --> 00:23:55,000
+Or I want Wayland to be able to do a whole bunch of stuff, but I need to make sure I keep track of all of its processes because if somebody ever compromises Wayland, I want to follow where that goes.
+
+308
+00:23:55,000 --> 00:24:00,000
+So there's a lot of different advantages to cgroups. Not that you don't get them. You could still have them.
+
+309
+00:24:00,000 --> 00:24:05,000
+You could even make Upstart-cgroups, which would integrate cgroup capabilities into Upstart.
+
+310
+00:24:05,000 --> 00:24:16,000
+But what you lose is systemd is going to sort of provide this API-level access to it that you're just going to kind of get it as a developer if the system uses systemd.
+
+311
+00:24:16,000 --> 00:24:31,000
+So with the resource handling with cgroups, you suddenly have this problem that if you have multiple services, which basically should be handled the same way, you need to propagate certain things between these services.
+
+312
+00:24:31,000 --> 00:24:41,000
+For example, if you have Apache and you have MySQL running in the same slice, as we call it, then you need to make sure that either both of them have CPU limits applied on neither of them.
+
+313
+00:24:41,000 --> 00:24:50,000
+And this gets more complex as an entire dependency tree where you have to walk up the tree to the root and do enable and things like that.
+
+314
+00:24:50,000 --> 00:24:55,000
+Now with systemd, with the design, this is very, very easy because we have the dependency tree so you can just walk it.
+
+315
+00:24:55,000 --> 00:25:04,000
+And Upstart, again, this dependency tree doesn't exist, and you cannot just do that. I don't know. I figure the Upstart people will eventually figure that out themselves.
+
+316
+00:25:04,000 --> 00:25:15,000
+But yeah, the summary of it all is I can talk about that for a long, long time. I figure if you haven't looked at the details of what Upstart and systemd do there, you probably can't really deal with much of what I say in this regard.
+
+317
+00:25:15,000 --> 00:25:24,000
+But inherently, we believe the Upstart design and the systemd design before it was inherently flawed at its core.
+
+318
+00:25:24,000 --> 00:25:29,000
+It's not how we should do these things. We should have a dependency tree so that we can figure out all the right things.
+
+319
+00:25:29,000 --> 00:25:39,000
+And yeah, that's the reason why systemd was invented and why we believe that it technically is the right thing. And none of the current contenders, other contenders can do that.
+
+320
+00:25:39,000 --> 00:25:48,000
+I want to give one more example of why cgroups are pretty important and why having systemd provide an API level access to them and also just having it be cgroup aware is really important.
+
+321
+00:25:48,000 --> 00:25:55,000
+There's a project that I have really been talking a lot about, especially on Quota Radio. You and I did an episode about it on the Linux Action Show called Docker.
+
+322
+00:25:55,000 --> 00:26:04,000
+And Docker allows for a completely isolated environment on your Linux box, sort of like BSD jails.
+
+323
+00:26:04,000 --> 00:26:09,000
+So for example, in the show, I can't remember exactly, I think what I did is I had my Arch machine installed.
+
+324
+00:26:09,000 --> 00:26:15,000
+And then on my Arch machine, I had a self-contained Ubuntu 12.04 environment running inside a Docker instance.
+
+325
+00:26:15,000 --> 00:26:24,000
+That Docker instance is using cgroups to label all of the processes in that Docker instance as belonging to that Docker instance.
+
+326
+00:26:24,000 --> 00:26:31,000
+So they are running completely and totally isolated from the rest of my system because they've all been labeled via cgroups.
+
+327
+00:26:31,000 --> 00:26:43,000
+And that allows, for example, Linode or GoDaddy or DigitalOcean, you could have a lot higher density on your Linux boxes.
+
+328
+00:26:43,000 --> 00:26:53,000
+You could have maybe potentially hundreds of more clients on there because if you get rid of virtualization and you go right back down to the metal and you do process isolation,
+
+329
+00:26:53,000 --> 00:27:02,000
+this allows for you to get completely isolated environments that are individually different operating systems with different package configs and different versions of stuff,
+
+330
+00:27:02,000 --> 00:27:05,000
+all in the same box at metal speeds, right?
+
+331
+00:27:05,000 --> 00:27:12,000
+And then when you combine that with something like SystemD where it supports socket activation, you could be DigitalOcean and say,
+
+332
+00:27:12,000 --> 00:27:20,000
+I've got 35 users on this server, but these are my low-end users and only three of these systems are ever active at once on average.
+
+333
+00:27:20,000 --> 00:27:27,000
+Well, in today's modern setup on a Linux box, all of those instances would just be running, taking CPU and memory, waiting for a connection.
+
+334
+00:27:27,000 --> 00:27:35,000
+But with Docker and SystemD, they could sit idle until that first visitor comes and they immediately spin up and they serve the page.
+
+335
+00:27:35,000 --> 00:27:38,000
+And then you can also apply resource limitations within there.
+
+336
+00:27:38,000 --> 00:27:43,000
+So you can see in the server space how it could be massively beneficial.
+
+337
+00:27:43,000 --> 00:27:48,000
+And I would be surprised if Debian didn't sort of weigh that in their decision process.
+
+338
+00:27:48,000 --> 00:27:51,000
+Now, there are some criticisms of SystemD.
+
+339
+00:27:51,000 --> 00:27:54,000
+And one of them would be probably the one I've heard the most.
+
+340
+00:27:54,000 --> 00:27:55,000
+I can't remember.
+
+341
+00:27:55,000 --> 00:27:56,000
+Oh, it was Linux Today.
+
+342
+00:27:56,000 --> 00:27:57,000
+I pulled this one.
+
+343
+00:27:57,000 --> 00:28:03,000
+I love it, too, because whenever somebody – usually the person criticizing SystemD generally mistypes how you spell it.
+
+344
+00:28:03,000 --> 00:28:05,000
+SystemD is all lowercase.
+
+345
+00:28:05,000 --> 00:28:08,000
+It's funny because whenever I see somebody criticizing it, they get that wrong.
+
+346
+00:28:08,000 --> 00:28:09,000
+And in this case, the guy got it wrong.
+
+347
+00:28:09,000 --> 00:28:17,000
+He says, SystemD is one program that is a garbage dump of a lot of functionality which used to be provided with shell scripts and special tools.
+
+348
+00:28:17,000 --> 00:28:21,000
+He says, and it consumes more memory doing nothing more than system five init.
+
+349
+00:28:21,000 --> 00:28:25,000
+And he says, by the way, the SystemD journal is in binary format.
+
+350
+00:28:25,000 --> 00:28:26,000
+Boom.
+
+351
+00:28:26,000 --> 00:28:27,000
+Oh.
+
+352
+00:28:27,000 --> 00:28:28,000
+Now, that is true.
+
+353
+00:28:28,000 --> 00:28:32,000
+So gone are the days of text files for your logs.
+
+354
+00:28:32,000 --> 00:28:34,000
+And a lot of people hate this.
+
+355
+00:28:34,000 --> 00:28:35,000
+And I can understand.
+
+356
+00:28:35,000 --> 00:28:44,000
+Now, journalctl supports like a really sweet API and a really sweet like parsing syntax and also supports exporting out to text.
+
+357
+00:28:44,000 --> 00:28:48,000
+So all of your existing shell scripts could just bang on that text if you wanted to.
+
+358
+00:28:48,000 --> 00:28:50,000
+But it also adds like really nice formatting.
+
+359
+00:28:50,000 --> 00:28:57,000
+Like it clearly will enunciate like here was a reboot executed by this user.
+
+360
+00:28:57,000 --> 00:29:01,000
+And then it'll do a nice break in the log and see all of the events that happened from there.
+
+361
+00:29:01,000 --> 00:29:05,000
+So it's like you lose some stuff, but then you also gain some stuff.
+
+362
+00:29:05,000 --> 00:29:08,000
+And maybe if tools are built to take advantage of that API, it'd be –
+
+363
+00:29:08,000 --> 00:29:10,000
+I think that's what's going to be needed.
+
+364
+00:29:10,000 --> 00:29:11,000
+Yeah.
+
+365
+00:29:11,000 --> 00:29:16,000
+And maybe Red Hat and companies like that would do that as part of their enterprise offerings.
+
+366
+00:29:16,000 --> 00:29:17,000
+I don't know.
+
+367
+00:29:17,000 --> 00:29:18,000
+I think so.
+
+368
+00:29:18,000 --> 00:29:19,000
+Okay.
+
+369
+00:29:19,000 --> 00:29:25,000
+So his argument, though, that it's kind of a garbage dump of different functionality, you know, I kind of –
+
+370
+00:29:25,000 --> 00:29:28,000
+I would argue the same as far as going back to the old school way of it.
+
+371
+00:29:28,000 --> 00:29:29,000
+It was a mess.
+
+372
+00:29:29,000 --> 00:29:31,000
+I mean, other platforms used to make fun of us for it.
+
+373
+00:29:31,000 --> 00:29:32,000
+That's true.
+
+374
+00:29:32,000 --> 00:29:33,000
+I mean, they did.
+
+375
+00:29:33,000 --> 00:29:36,000
+And I'm not saying that's accurately – they're not accurately making fun of us or not.
+
+376
+00:29:36,000 --> 00:29:38,000
+I'm just saying that was the perception.
+
+377
+00:29:38,000 --> 00:29:46,000
+And so, you know, it's really going to – for me personally, I think System D has a lot of benefits, and it's compelling.
+
+378
+00:29:46,000 --> 00:29:48,000
+Upstart, you know, has its way of doing things as well.
+
+379
+00:29:48,000 --> 00:29:49,000
+All right.
+
+380
+00:29:49,000 --> 00:29:50,000
+But let me ask you a question.
+
+381
+00:29:50,000 --> 00:29:51,000
+No, I don't.
+
+382
+00:29:51,000 --> 00:29:53,000
+And I also – I make this available to the Mumble Room as well.
+
+383
+00:29:53,000 --> 00:29:54,000
+Sure.
+
+384
+00:29:54,000 --> 00:30:00,000
+If the Unix philosophy of a lot of small individual tools working in concert has gotten us this far,
+
+385
+00:30:00,000 --> 00:30:03,000
+System D is really taking all of this stuff that people didn't want to do.
+
+386
+00:30:03,000 --> 00:30:04,000
+And let's be fair.
+
+387
+00:30:04,000 --> 00:30:08,000
+Some of the stuff they're replacing was sort of abandoned and hasn't been getting worked on.
+
+388
+00:30:08,000 --> 00:30:10,000
+So they're just integrating that functionality in here.
+
+389
+00:30:10,000 --> 00:30:13,000
+But it depends on things like cgroups, which are only available on Linux,
+
+390
+00:30:13,000 --> 00:30:16,000
+which means if you write something that depends on System D and System D depends on Linux,
+
+391
+00:30:16,000 --> 00:30:18,000
+then it's not portable to one of the BSDs.
+
+392
+00:30:18,000 --> 00:30:24,000
+So there's a downside, okay, which is probably one of the main downsides for Debian because they want to run on multiple kernels.
+
+393
+00:30:24,000 --> 00:30:25,000
+So there's a downside.
+
+394
+00:30:25,000 --> 00:30:31,000
+The second downside is you take a lot of stuff that used to be individually separated out, like, you know, individual componentized,
+
+395
+00:30:31,000 --> 00:30:38,000
+and you bring it all into one conglomerate that manages everything, almost like making a lower level OS that sits above the kernel.
+
+396
+00:30:38,000 --> 00:30:40,000
+Okay, so there's another downside to it.
+
+397
+00:30:40,000 --> 00:30:44,000
+Then the third downside I see is this binary file format.
+
+398
+00:30:44,000 --> 00:30:47,000
+That's a bit of a step back, I think, in some ways.
+
+399
+00:30:47,000 --> 00:30:50,000
+Now, so those are sort of the negative aspects of System D.
+
+400
+00:30:50,000 --> 00:30:54,000
+Because if you look at Upstart, it's deployed, it's tested.
+
+401
+00:30:54,000 --> 00:30:55,000
+Those are things Debian loves.
+
+402
+00:30:55,000 --> 00:30:57,000
+Okay, that's good stuff.
+
+403
+00:30:57,000 --> 00:30:59,000
+It's essentially fairly straightforward.
+
+404
+00:30:59,000 --> 00:31:04,000
+You know, I've had some experience with Upstart, I've had some experience with System D.
+
+405
+00:31:04,000 --> 00:31:06,000
+Either way, it seems like they both work.
+
+406
+00:31:06,000 --> 00:31:08,000
+I actually kind of prefer the way System D works.
+
+407
+00:31:08,000 --> 00:31:15,000
+I do for myself, but I think that from a Debian's perspective, based on the way they like things to work in general from their side of things,
+
+408
+00:31:15,000 --> 00:31:21,000
+I think, and of course with other factors as well, I think they're probably reluctantly going to go with Upstart.
+
+409
+00:31:21,000 --> 00:31:23,000
+I think it'll happen.
+
+410
+00:31:23,000 --> 00:31:29,000
+So I'm not saying Upstart, so Cheeseburg's asking in the chat room, Upstart is not usable for BSDs.
+
+411
+00:31:29,000 --> 00:31:38,000
+What I'm saying is if you build an application, or if a project has dependency, and there are already projects that have dependency on System D.
+
+412
+00:31:38,000 --> 00:31:39,000
+Sure.
+
+413
+00:31:39,000 --> 00:31:46,000
+Like Login D, like Time Data D, like Locale D, Hostname D, Udev and more, all are now projects that depend on System D.
+
+414
+00:31:46,000 --> 00:31:52,000
+They will no longer work or function on a BSD system because System D itself is dependent on the Linux kernel.
+
+415
+00:31:52,000 --> 00:31:54,000
+So that's one downside.
+
+416
+00:31:54,000 --> 00:31:57,000
+However, so Leonard's response to this is, well, I'm not worried about that.
+
+417
+00:31:57,000 --> 00:32:00,000
+I just want to make the best operating system possible.
+
+418
+00:32:00,000 --> 00:32:04,000
+And System D does have a bit of a home turf advantage.
+
+419
+00:32:04,000 --> 00:32:08,000
+Number one, it's used as an API by more and more projects, like I just mentioned.
+
+420
+00:32:08,000 --> 00:32:13,000
+It takes advantage of C groups, the control groups in the Linux kernel, which is pretty important.
+
+421
+00:32:13,000 --> 00:32:19,000
+And they've, maybe to court Debian, I'm not sure, have implemented some Debian designs into System D.
+
+422
+00:32:19,000 --> 00:32:22,000
+Like how the hostname gets set and other things like this.
+
+423
+00:32:22,000 --> 00:32:25,000
+They looked over at Debian and said, you know what, they do that better than the Fedora project does it.
+
+424
+00:32:25,000 --> 00:32:27,000
+We'll do it that way in System D.
+
+425
+00:32:27,000 --> 00:32:29,000
+And that might be a way to court it.
+
+426
+00:32:29,000 --> 00:32:38,000
+But the main advantage that System D has, well, it actually comes out in this clip from the Upstart talk at the recent Debian conference.
+
+427
+00:32:38,000 --> 00:32:43,000
+I'd like to, you know, System D had their promo talk yesterday.
+
+428
+00:32:43,000 --> 00:32:49,000
+This is Upstart's promo talk, so I think there are other things that I want to talk about.
+
+429
+00:32:49,000 --> 00:32:56,000
+The most significant obstacle, it seems to me, from a Debian point of view, is the contributor agreement.
+
+430
+00:32:56,000 --> 00:32:59,000
+I notice you didn't mention that at all.
+
+431
+00:32:59,000 --> 00:33:01,000
+Is there any possibility of movement on that?
+
+432
+00:33:01,000 --> 00:33:03,000
+Because that's going to be a big problem for Debian.
+
+433
+00:33:03,000 --> 00:33:06,000
+I think I'm speaking for many people here.
+
+434
+00:33:06,000 --> 00:33:12,000
+Wow.
+
+435
+00:33:12,000 --> 00:33:18,000
+Let's talk about the licenses with you, Ian.
+
+436
+00:33:18,000 --> 00:33:19,000
+What is it with Debian and licenses?
+
+437
+00:33:19,000 --> 00:33:21,000
+I don't understand.
+
+438
+00:33:21,000 --> 00:33:22,000
+You bloody well ought to.
+
+439
+00:33:22,000 --> 00:33:23,000
+Sorry?
+
+440
+00:33:23,000 --> 00:33:27,000
+You bloody well ought to by now.
+
+441
+00:33:27,000 --> 00:33:30,000
+I didn't see you on Debian legal helping out.
+
+442
+00:33:30,000 --> 00:33:33,000
+That's not the place that decisions get made, is it?
+
+443
+00:33:33,000 --> 00:33:34,000
+No.
+
+444
+00:33:34,000 --> 00:33:44,000
+So to make sure everybody understands the status of Upstart, Canonical has a policy of requiring a contributor license agreement,
+
+445
+00:33:44,000 --> 00:33:49,000
+which is not the same thing as copyright assignment, but we do require, in terms of upstream contributions,
+
+446
+00:33:49,000 --> 00:33:55,000
+anything that's going to be contributed upstream to Upstart does have to be granted.
+
+447
+00:33:55,000 --> 00:34:02,000
+A contributor license agreement has to be signed, giving Canonical, as the copyright holder of the overall work,
+
+448
+00:34:02,000 --> 00:34:05,000
+the right to, for instance, relicense.
+
+449
+00:34:05,000 --> 00:34:15,000
+It provides for certain capabilities of making sure they can deal with any litigation that might come up and various other aspects.
+
+450
+00:34:15,000 --> 00:34:22,000
+It's not something that is actually negotiable in terms of whether Upstart, as an upstream, is going to change that license agreement.
+
+451
+00:34:22,000 --> 00:34:28,000
+This is not actually altogether different from lots of other projects that Debian ships.
+
+452
+00:34:28,000 --> 00:34:33,000
+Of course, we can compare and contrast with the FSF's position,
+
+453
+00:34:33,000 --> 00:34:41,000
+particularly in that FSF is, of course, a non-profit dedicated to free software, whereas Canonical is a corporation.
+
+454
+00:34:41,000 --> 00:34:45,000
+So I recognize that people are not necessarily okay with this,
+
+455
+00:34:45,000 --> 00:34:49,000
+but I will point out there's lots of other people in the ecosystem doing this.
+
+456
+00:34:49,000 --> 00:34:53,000
+The FSF's promise not to take it norm-free as a norm.
+
+457
+00:34:53,000 --> 00:34:56,000
+I'm sorry, but we are running out of time.
+
+458
+00:34:56,000 --> 00:35:00,000
+So I suggest we continue this discussion in the hallway track.
+
+459
+00:35:00,000 --> 00:35:03,000
+The FSF's contributor agreement, the copyright license,
+
+460
+00:35:03,000 --> 00:35:10,000
+the FSF legally, bindingly promise not to take anything that you sign over to them in that way, non-free.
+
+461
+00:35:10,000 --> 00:35:14,000
+Canonical specifically intend to be able to do that.
+
+462
+00:35:14,000 --> 00:35:17,000
+We've heard Mark Shuffleworth tell us that that's the purpose,
+
+463
+00:35:17,000 --> 00:35:21,000
+and that this is a thing that companies like Canonical should be allowed to do.
+
+464
+00:35:21,000 --> 00:35:30,000
+So I think he was speaking in a general philosophical sense that it is something that companies should be allowed to do.
+
+465
+00:35:30,000 --> 00:35:34,000
+Well, it's a thing that the Canonical contributor agreement allows Canonical to do,
+
+466
+00:35:34,000 --> 00:35:39,000
+and when Mark, who is in charge of Canonical, tells us he thinks companies should be allowed to do it,
+
+467
+00:35:39,000 --> 00:35:45,000
+when the FSF tell us, not only do they not think it's a good idea, they also promise, in a legally binding way, not to.
+
+468
+00:35:45,000 --> 00:35:47,000
+So that's a very clear distinction.
+
+469
+00:35:47,000 --> 00:35:52,000
+Okay, so submit your patches for upstart, don't sign the CLA, and we'll see what happens.
+
+470
+00:35:52,000 --> 00:35:54,000
+Well, let's...
+
+471
+00:35:54,000 --> 00:35:57,000
+Well, submit them to the Debian maintainer.
+
+472
+00:35:57,000 --> 00:35:59,000
+So we're out of time.
+
+473
+00:35:59,000 --> 00:36:01,000
+Thanks.
+
+474
+00:36:01,000 --> 00:36:10,000
+Please thank Steve and James for their presentation, and we'll continue the discussion later, I'm pretty sure of it.
+
+475
+00:36:10,000 --> 00:36:17,000
+Yeah, I'm pretty sure of it too. So the CLA is probably going to be a pretty big sticking point for Debian.
+
+476
+00:36:17,000 --> 00:36:20,000
+I don't know what can be done there, actually.
+
+477
+00:36:20,000 --> 00:36:22,000
+That's a great point, yeah.
+
+478
+00:36:22,000 --> 00:36:29,000
+For reference, the people who were talking there, the guy in the audience was, I think, Ian Jackson.
+
+479
+00:36:29,000 --> 00:36:32,000
+Well, wait, wait, for reference, who are you?
+
+480
+00:36:32,000 --> 00:36:37,000
+So I'm Popey, Alan Pope. I work for Canonical as an engineering manager, not a developer.
+
+481
+00:36:37,000 --> 00:36:44,000
+And I've seen some of both of those videos, and I think the guy who was asking the question from the audience is Ian Jackson,
+
+482
+00:36:44,000 --> 00:36:48,000
+who's an ex-Canonical employee and is a Debian developer.
+
+483
+00:36:48,000 --> 00:36:56,000
+The guy answering the questions was Steve Langecek, who is one of the upstart maintainers and is a Canonical employee
+
+484
+00:36:56,000 --> 00:37:02,000
+and has been a Debian developer longer than he's been an Ubuntu contributor or Canonical employee.
+
+485
+00:37:02,000 --> 00:37:07,000
+Is he on the technical committee of Debian? Because that's been one of the criticisms, is that a couple of Canonical employees
+
+486
+00:37:07,000 --> 00:37:13,000
+are sitting on this technical steering committee, and if they vote, I think it's like three of them are Canonical employees.
+
+487
+00:37:13,000 --> 00:37:18,000
+Two, I think. So Steve Langecek and Colin Watson, both of which.
+
+488
+00:37:18,000 --> 00:37:25,000
+I think Colin's actually the longest, after Mark Shuttleworth, he's the longest serving employee of Canonical now.
+
+489
+00:37:25,000 --> 00:37:29,000
+And before that, he was a Debian developer, and he still is a Debian developer.
+
+490
+00:37:29,000 --> 00:37:33,000
+He contributes heavily to Debian, as does Steve Langecek.
+
+491
+00:37:33,000 --> 00:37:37,000
+And yes, they're both on the technical committee. They both have a vote as to which way this goes.
+
+492
+00:37:37,000 --> 00:37:43,000
+And yes, it would be incredibly surprising if either of them decided to vote for System D.
+
+493
+00:37:43,000 --> 00:37:52,000
+However, that said, I know if you read the mailing list thread on Debian Devil, which is very long,
+
+494
+00:37:52,000 --> 00:37:58,000
+Colin has actually said, you know, if I thought that I was going to get any pressure from my employer,
+
+495
+00:37:58,000 --> 00:38:00,000
+I would pull myself out of the vote.
+
+496
+00:38:00,000 --> 00:38:07,000
+Exactly. So I don't question either of those guys' integrity at all.
+
+497
+00:38:07,000 --> 00:38:15,000
+So here we sit now, though, kind of at a spot where you can see there's multiple sides to the argument.
+
+498
+00:38:15,000 --> 00:38:20,000
+It's not quite a black and white situation. And Debian finds themselves in kind of a sticky spot
+
+499
+00:38:20,000 --> 00:38:26,000
+where they have Red Hat and a lot of the other Linux on one side, but they also have some good arguments for upstart, for one.
+
+500
+00:38:26,000 --> 00:38:31,000
+I mean, not just because of their connections to the Ubuntu distribution,
+
+501
+00:38:31,000 --> 00:38:35,000
+but also because they want to support KFreeBSD and Herd and all these kinds of things, right?
+
+502
+00:38:35,000 --> 00:38:41,000
+Like, they just want to be packaging all this stuff up and don't necessarily want to be tied to just the Linux kernel.
+
+503
+00:38:41,000 --> 00:38:44,000
+But my question about that is, like, really?
+
+504
+00:38:44,000 --> 00:38:52,000
+I mean, at this point, it seems like that doesn't, I don't know, does that really hold water to you?
+
+505
+00:38:52,000 --> 00:38:59,000
+No, my response to that, if I could interject for a moment, is why don't they use SystemD for the Linux kernel
+
+506
+00:38:59,000 --> 00:39:03,000
+and then stick to what they have for everything else?
+
+507
+00:39:03,000 --> 00:39:06,000
+Yeah. I don't know how hard, that would probably be a huge pain in the ass, though.
+
+508
+00:39:06,000 --> 00:39:07,000
+Yeah.
+
+509
+00:39:07,000 --> 00:39:10,000
+That'd be way too much maintenance for them.
+
+510
+00:39:10,000 --> 00:39:16,000
+What they want to do is completely, like it is quite a big task to do.
+
+511
+00:39:16,000 --> 00:39:17,000
+To switch.
+
+512
+00:39:17,000 --> 00:39:27,000
+Yes, to switch. I think that, well, me personally, I'd prefer them to do the work to support SystemD because they don't know.
+
+513
+00:39:27,000 --> 00:39:30,000
+People are looking at it from an init point of view.
+
+514
+00:39:30,000 --> 00:39:32,000
+Only an init point of view.
+
+515
+00:39:32,000 --> 00:39:40,000
+SystemD is an abstract scheduler with before and, like, pre- and post-dependency management.
+
+516
+00:39:40,000 --> 00:39:49,000
+It is a scheduler in its core, which init is a simple instance of a scheduling problem, or CRON is a scheduling problem.
+
+517
+00:39:49,000 --> 00:39:51,000
+That's what SystemD is.
+
+518
+00:39:51,000 --> 00:39:56,000
+Well, Android still does use initD, and it just uses bash scripts.
+
+519
+00:39:56,000 --> 00:39:59,000
+I understand it needs to be changed, but I don't know why it needs to be changed.
+
+520
+00:39:59,000 --> 00:40:02,000
+Right? Gen2 has OpenRC.
+
+521
+00:40:02,000 --> 00:40:08,000
+Yeah, it's the same thing. They all do their init however they want, but that's why this SystemD is so invasive,
+
+522
+00:40:08,000 --> 00:40:12,000
+because it does cover a lot of ground. It can be very powerful.
+
+523
+00:40:12,000 --> 00:40:16,000
+I agree. I don't know, but okay, so invasive or appropriate?
+
+524
+00:40:16,000 --> 00:40:23,000
+Because first of all, I think what Lenard and his team have tackled are honestly some plumbing stuff that until Upstart came along,
+
+525
+00:40:23,000 --> 00:40:27,000
+nobody was addressing, and SystemD went beyond what Upstart accomplished.
+
+526
+00:40:27,000 --> 00:40:36,000
+So I think, first of all, I feel like it's a modernization of the Linux core, and I do find it to be a little foreign.
+
+527
+00:40:36,000 --> 00:40:44,000
+It feels a little foreign, but at the same time, it also seems like without some of these features, we lose a certain competitive edge.
+
+528
+00:40:44,000 --> 00:40:56,000
+I think it's fair to say a few things have in modern times come across as foreign, like for example, PulseAudio, which is also a Lenard offering,
+
+529
+00:40:56,000 --> 00:41:02,000
+which I think we can all pretty much agree is a fantastic thing now.
+
+530
+00:41:02,000 --> 00:41:07,000
+And at the time, I think Ubuntu was one of the first distros to put it in.
+
+531
+00:41:07,000 --> 00:41:17,000
+And yeah, we put it in the distro and put our backing to it. And yeah, we got some flack for that, and so did Lenard.
+
+532
+00:41:17,000 --> 00:41:22,000
+Oh, yeah. I mean, back when it came out, it was a pain in the butt to use or configure.
+
+533
+00:41:22,000 --> 00:41:29,000
+But some of these things are painful decisions, painful switches, and that's why Debian are deliberating about it so hard.
+
+534
+00:41:29,000 --> 00:41:39,000
+When we switched Ubuntu to Upstart, I remember you mentioned earlier about the work done to reduce the boot time on Ubuntu.
+
+535
+00:41:39,000 --> 00:41:47,000
+I remember being on a flight from London to America, and Scott James Remnan was working on reducing boot time,
+
+536
+00:41:47,000 --> 00:41:55,000
+and he was sat there for most of the flight on a Dell Mini 9, and every so often he'd get up and come back further down the back of the plane
+
+537
+00:41:55,000 --> 00:42:01,000
+and talk to us about how he'd like shaved off a few seconds here or a few milliseconds there or something.
+
+538
+00:42:01,000 --> 00:42:09,000
+And, you know, this was leading edge stuff at the time, and we made that big switch, and that was a painful switch to make.
+
+539
+00:42:09,000 --> 00:42:16,000
+And everyone keeps on us saying, oh, Ubuntu is the only distro that uses Upstart, which, you know, is...
+
+540
+00:42:16,000 --> 00:42:19,000
+Chroma West also uses it. Chroma West also uses it.
+
+541
+00:42:19,000 --> 00:42:24,000
+Yeah, no, that's the point I was just about to make, Ant. Thank you.
+
+542
+00:42:24,000 --> 00:42:36,000
+We're not clearly the only distro that uses it, because every derivative distro of Ubuntu uses it as well, as does Chroma West and RHEL 6, as Leonard said.
+
+543
+00:42:36,000 --> 00:42:44,000
+And it is sort of also similar to the boot system that OS X uses, so it's sort of a cousin of it, so that's also widely deployed.
+
+544
+00:42:44,000 --> 00:42:54,000
+Well, Leonard clearly takes inspiration from OS X a lot with launch D, you know, system D and zero-conf of RHE, you know.
+
+545
+00:42:54,000 --> 00:42:57,000
+Yeah, but I mean, why not, right? I mean, why not?
+
+546
+00:42:57,000 --> 00:43:00,000
+Oh, yeah, I'm not complaining. You're inspired by good design.
+
+547
+00:43:00,000 --> 00:43:06,000
+Yeah, and so I feel like that is kind of like one of the funny...
+
+548
+00:43:06,000 --> 00:43:17,000
+I guess maybe part of what it comes from is Upstart relies on a library that's literally titled Not Invented Here, so maybe that's part of why people get on them for it, because, you know, that is kind of a funny thing.
+
+549
+00:43:17,000 --> 00:43:25,000
+Yeah, but what people forget is Upstart actually was the first person, well, the first project to devise from, like, in a day.
+
+550
+00:43:25,000 --> 00:43:32,000
+I mean, like, system D came afterwards, so they were actually working on the principles of what Upstart started.
+
+551
+00:43:32,000 --> 00:43:46,000
+And this is the basis, after watching all of this, you know, I look at it and I think maybe system D is the superior answer because it is based on experiences with Upstart, which was good, right?
+
+552
+00:43:46,000 --> 00:43:49,000
+So it's like, okay, we went this far, now we want to go further.
+
+553
+00:43:49,000 --> 00:43:57,000
+And I also think there is a big advantage to the Linux community as a whole if we standardize on some of this stuff.
+
+554
+00:43:57,000 --> 00:43:58,000
+Go ahead.
+
+555
+00:43:58,000 --> 00:44:08,000
+So it's okay if someone takes an existing project, like, for example, Upstart, and makes something brand new to make it better.
+
+556
+00:44:08,000 --> 00:44:13,000
+But it's not okay if someone takes something existing, like, I don't know, Wayland, and makes something new like Mir.
+
+557
+00:44:13,000 --> 00:44:14,000
+Right, but...
+
+558
+00:44:14,000 --> 00:44:32,000
+All right, hold on, hold on.
+
+559
+00:44:32,000 --> 00:44:46,000
+This is the big thing, right, is especially if Debian buys in on system D, then it is essentially all Linux will be, well, with the exceptions of Slackware and Gentoo and other things, but all Linux will be using system D, right?
+
+560
+00:44:46,000 --> 00:44:51,000
+So it's sort of, but in the case of Wayland and Mir, I think it's apples and oranges there because it's...
+
+561
+00:44:51,000 --> 00:45:02,000
+Yeah, I mean, I could use Ubuntu with Upstart, I could use OpenSUSE with system D, I could use Debian with system five and still use all the applications that I need.
+
+562
+00:45:02,000 --> 00:45:07,000
+But if the display servers were different and had different callings, then what am I going to be stuck with?
+
+563
+00:45:07,000 --> 00:45:12,000
+It was a somewhat facetious comparison.
+
+564
+00:45:12,000 --> 00:45:21,000
+Okay, it got brought up, I have to mention this, and this is going to be very, very quick. The thing is, is like, Linux in general has less than 1% of the desktop market.
+
+565
+00:45:21,000 --> 00:45:33,000
+When companies like AMD, NVIDIA, Intel, when they have to make drivers to make this software or these display drivers work with a hardware, it costs money.
+
+566
+00:45:33,000 --> 00:45:50,000
+They're not going to, at the moment, they do it because there's only one display driver and it's Xorg and that's it. But when it comes to when it's a decision between Wayland and Mir, they're not going to fund a project to support both display drivers.
+
+567
+00:45:50,000 --> 00:46:00,000
+Dragging it back on topic to system D, you know, saying that the switch to Mir will cost companies money, do you think the switch to system D will cost nobody any money?
+
+568
+00:46:00,000 --> 00:46:08,000
+Right, that is actually a good point because it, for companies that have massive deployments and with custom init scripts and things like that, this is going to be a big transition.
+
+569
+00:46:08,000 --> 00:46:19,000
+I'm actually curious, actually, I mean, does like, you know, init D or system or upstart or system D, does that have as much effect as like a display driver?
+
+570
+00:46:19,000 --> 00:46:25,000
+Not necessarily because there are compatibility layers which allow you to run the old init scripts in a lot of cases.
+
+571
+00:46:25,000 --> 00:46:31,000
+It's actually backwards compatible with init D, so you could just link D, it can be, but that's questionable.
+
+572
+00:46:31,000 --> 00:46:41,000
+Well, so the official word is that system D is quote unquote 95% compatible with system 5 init scripts. I doubt that.
+
+573
+00:46:41,000 --> 00:46:43,000
+No, that's about true.
+
+574
+00:46:43,000 --> 00:46:55,000
+And I'm kind of arguing this from a user end perspective where when it comes to the display server discussion, I'm worried whether my applications are going to work or not. I don't usually have that worry when it comes to the init scripts.
+
+575
+00:46:55,000 --> 00:47:06,000
+Well, the package, the packager will take care of that. So the package, okay, so I want to zoom out for a second because this is another benefit of system D being widely deployed is this, this makes a lot, this makes it a lot easier for packagers, right?
+
+576
+00:47:06,000 --> 00:47:20,000
+Because let's take BitTorrent Sync, right? They just make a BitTorrent Sync, here's your basic system D startup file, and then the arch user repo guy and the guy that's making the PPA for Ubuntu or, well, I guess Fedora, the guy's making the package for Fedora.
+
+577
+00:47:20,000 --> 00:47:29,000
+They just have to tweak it specific for the details of their specific distro, but otherwise they can just take directly from upstream the init script for system D.
+
+578
+00:47:29,000 --> 00:47:33,000
+So it kind of like, it sort of makes that process easier for those guys.
+
+579
+00:47:33,000 --> 00:47:39,000
+Not only that, but from that standpoint, system D is a whole lot better documented than Upstart when it comes to that type of thing.
+
+580
+00:47:39,000 --> 00:47:40,000
+Yeah.
+
+581
+00:47:40,000 --> 00:47:41,000
+Oh, yes.
+
+582
+00:47:41,000 --> 00:47:51,000
+Well, okay, I think you guys are shortchanging the benefits of deployment in the field and how many people that end up working with that and then document stuff about it and blog about it and know how to work with it.
+
+583
+00:47:51,000 --> 00:48:03,000
+Because the advantages to that in IT are huge. I mean, that's why Windows gets such a big deployment. So Upstart definitely has the leg up in terms of on the ground, already out deployed, people working with it and know how to use it.
+
+584
+00:48:03,000 --> 00:48:05,000
+Oh, there's just documentation.
+
+585
+00:48:05,000 --> 00:48:07,000
+System D, doesn't it?
+
+586
+00:48:07,000 --> 00:48:14,000
+Well, I'd say system D will get that advantage once it's rolled out into newer versions of Red Hat and SUSE and such.
+
+587
+00:48:14,000 --> 00:48:16,000
+Yeah, that's true. That's true.
+
+588
+00:48:16,000 --> 00:48:18,000
+Well, fine, fine, fine.
+
+589
+00:48:18,000 --> 00:48:25,000
+There's also one thing for the encoding, for the binary logging, everything is encoded anyway.
+
+590
+00:48:25,000 --> 00:48:32,000
+You have a character set, which is UTF-8 or ISO whatnot, or little Indian and big Indian when it comes to the CPU.
+
+591
+00:48:32,000 --> 00:48:38,000
+It's all just the encodings. Even the logs have to be deciphered by their encoding.
+
+592
+00:48:38,000 --> 00:48:39,000
+Okay.
+
+593
+00:48:39,000 --> 00:48:42,000
+They can export it out to normal ASCII text.
+
+594
+00:48:42,000 --> 00:48:43,000
+Exactly.
+
+595
+00:48:43,000 --> 00:48:44,000
+Can I just say something real quick?
+
+596
+00:48:44,000 --> 00:48:45,000
+Yeah, go ahead.
+
+597
+00:48:45,000 --> 00:48:52,000
+I just want to say that I've really had no problems with Upstart. I mean, I run Ubuntu on my server.
+
+598
+00:48:52,000 --> 00:48:59,000
+Upstart's been pretty good. I mean, it's really easy to just type in the commands, but it's also easy to do that with system D.
+
+599
+00:48:59,000 --> 00:49:09,000
+The thing that I think is going to happen is Upstart's kind of going to be left in the dust because system D is more of the –
+
+600
+00:49:09,000 --> 00:49:13,000
+I believe it came out of the Fedora project. Is that correct?
+
+601
+00:49:13,000 --> 00:49:14,000
+Yeah, Fedora, yeah.
+
+602
+00:49:14,000 --> 00:49:21,000
+Yeah, yeah. So usually, PulseAudio came out of there as well, I think, right?
+
+603
+00:49:21,000 --> 00:49:25,000
+A lot of things. Network Manager, LibVert, a lot of things that come out of it, yeah.
+
+604
+00:49:25,000 --> 00:49:31,000
+So I think that overall, this is going to become the standard in the long term.
+
+605
+00:49:31,000 --> 00:49:36,000
+I think Upstart is just what people are using right now, and like I said, I don't have a problem with it.
+
+606
+00:49:36,000 --> 00:49:47,000
+It's just that I just don't know – once system D evolves and becomes more stable and all this stuff and gets more features and everything like that,
+
+607
+00:49:47,000 --> 00:49:56,000
+down the road, I think that people are going to be switching to system D simply because it's going to be where everyone's going.
+
+608
+00:49:56,000 --> 00:50:08,000
+That could well happen. I mean, for us, we've got 1204 LTS out, and we've got however many years left on that because it's got five years of support.
+
+609
+00:50:08,000 --> 00:50:16,000
+And then there's all the servers out there that have Ubuntu on, all the cloud deployments that are Ubuntu-based that have Upstart on them.
+
+610
+00:50:16,000 --> 00:50:28,000
+I would hate to see those bit rot and not get any love, but the fact is that with the next release of Ubuntu, it's going to be another LTS.
+
+611
+00:50:28,000 --> 00:50:32,000
+So there's going to be another five years of maintenance of Upstart.
+
+612
+00:50:32,000 --> 00:50:36,000
+I think we should be able to choose our voice, and I don't know how hard it is on the technical side.
+
+613
+00:50:36,000 --> 00:50:38,000
+I mean, you know what I'm saying?
+
+614
+00:50:38,000 --> 00:50:40,000
+I think it's pretty hard to do those out.
+
+615
+00:50:40,000 --> 00:50:51,000
+Yeah, well, the interesting thing about Upstart, if you're on about Ubuntu derivatives, so we're talking about Linux Mint and Xeon and all these other ones.
+
+616
+00:50:51,000 --> 00:50:54,000
+I mean, they ship with Upstart.
+
+617
+00:50:54,000 --> 00:51:04,000
+But the thing is, if the default desktop environment is actually GNOME 3, it has a parent because it's part of the dependencies.
+
+618
+00:51:04,000 --> 00:51:10,000
+It does actually use SystemD, so Upstart kicks in, and then it starts up SystemD.
+
+619
+00:51:10,000 --> 00:51:25,000
+Well, it's not very efficient, so if you want to use a different desktop environment that's not Unity, and all these other desktop environments are actually using SystemD,
+
+620
+00:51:25,000 --> 00:51:31,000
+basically, Ubuntu starts up, uses Upstart, and then you need to use a parent.
+
+621
+00:51:31,000 --> 00:51:32,000
+Yeah, good point.
+
+622
+00:51:32,000 --> 00:51:38,000
+Good point about the GNOME point, too, because I think the official desktop of Debian is still GNOME, right?
+
+623
+00:51:38,000 --> 00:51:42,000
+And SystemD is becoming a dependency.
+
+624
+00:51:42,000 --> 00:51:45,000
+GNOME is becoming dependent on SystemD, and that's only continuing, right?
+
+625
+00:51:45,000 --> 00:51:51,000
+That's starting in 3.10 and not impossible to avoid now, but starting in 3.12, it looks like it could be.
+
+626
+00:51:51,000 --> 00:51:55,000
+Literally, a dependency of GNOME 3.12 could be SystemD.
+
+627
+00:51:55,000 --> 00:52:02,000
+Yeah, well, if you use the PPA to install GNOME 3.10, it actually installs dependencies for SystemD.
+
+628
+00:52:02,000 --> 00:52:10,000
+Now, if I could just make a prediction, I think Debian, because they tend to go along with the standards, will probably eventually go with SystemD.
+
+629
+00:52:10,000 --> 00:52:13,000
+Yeah, that would be interesting to see. I'm not sure.
+
+630
+00:52:13,000 --> 00:52:19,000
+A lot of people are always going with Upstart just because they didn't have an option back when it was created.
+
+631
+00:52:19,000 --> 00:52:20,000
+I'm going to do a poll.
+
+632
+00:52:20,000 --> 00:52:23,000
+SystemD wasn't around yet. They didn't have a choice.
+
+633
+00:52:23,000 --> 00:52:27,000
+Let's do a poll, and I'll embed it in the show notes too, so the people on the download audience.
+
+634
+00:52:27,000 --> 00:52:28,000
+Yeah, I'll do a straw poll.
+
+635
+00:52:28,000 --> 00:52:34,000
+Which way, let's see, Debian's Choice, I'll call it Debian's Choice, okay?
+
+636
+00:52:34,000 --> 00:52:38,000
+There's two options, Upstart or SystemD, and I'll let everybody vote.
+
+637
+00:52:38,000 --> 00:52:41,000
+I wanted to sort of pick up on something that Mollusk was talking about.
+
+638
+00:52:41,000 --> 00:52:45,000
+This was sort of the point I was going to wrap up this topic, so then we'll read some email and then we'll run.
+
+639
+00:52:45,000 --> 00:52:54,000
+But I think it's unavoidable that not only does SystemD have multiple distro momentum now,
+
+640
+00:52:54,000 --> 00:53:03,000
+but Lenart and Remy and other people involved are extremely passionate about it, and it is their main focus.
+
+641
+00:53:03,000 --> 00:53:08,000
+It is all they are working on in a grand scheme of things.
+
+642
+00:53:08,000 --> 00:53:13,000
+Whereas Upstart is a component of the Ubuntu distribution.
+
+643
+00:53:13,000 --> 00:53:18,000
+It is a feature, it is an important feature, but it is only an aspect of that distribution,
+
+644
+00:53:18,000 --> 00:53:23,000
+where SystemD is these guys' life, and they go out to every conference and they promote it,
+
+645
+00:53:23,000 --> 00:53:27,000
+they answer questions, they make posts about it, they live and breathe it, they are continually evolving it,
+
+646
+00:53:27,000 --> 00:53:32,000
+they do frequent releases, they engage outside input and make changes based on that.
+
+647
+00:53:32,000 --> 00:53:40,000
+Not always, sometimes they don't, but it is sort of like what my argument has been against Gnome and Unity in a sense too,
+
+648
+00:53:40,000 --> 00:53:44,000
+Unity is awesome and it is a great feature and it is one of my favorite Linux desktops,
+
+649
+00:53:44,000 --> 00:53:49,000
+but the reality is the Gnome projects and the KDE projects, all they do are their desktops.
+
+650
+00:53:49,000 --> 00:53:55,000
+That is all they do, that is their only job where it is not just a feature or a package in their distribution.
+
+651
+00:53:55,000 --> 00:54:03,000
+And when you have that kind of passion and momentum and focus and multi-distro and quote-unquote industry buy-in on something,
+
+652
+00:54:03,000 --> 00:54:06,000
+it seems pretty risky to go against the tide.
+
+653
+00:54:06,000 --> 00:54:12,000
+Yeah, I think SystemD is definitely the future. I think Upstart was an easy answer early on,
+
+654
+00:54:12,000 --> 00:54:22,000
+but just like everything else in the Linux community over the years, we all make patches, we all make remedies,
+
+655
+00:54:22,000 --> 00:54:31,000
+we all make things to make the short term better, but I think overall SystemD is good for Linux.
+
+656
+00:54:31,000 --> 00:54:39,000
+I really enjoy init scripts and being able to make specific scripts to what I need it to do,
+
+657
+00:54:39,000 --> 00:54:49,000
+but overall I think that SystemD is going to help a lot because it makes things a lot easier and we are still in early days here.
+
+658
+00:54:49,000 --> 00:54:51,000
+Yeah, totally.
+
+659
+00:54:51,000 --> 00:55:01,000
+One thing I come across when I install, like go for a very basic Debian installation or if I want to install Arch,
+
+660
+00:55:01,000 --> 00:55:09,000
+isn't one of those things when you are doing a very basic installation is during the installation you have the choice to set things up like that
+
+661
+00:55:09,000 --> 00:55:12,000
+where you could choose the init manager or whatever?
+
+662
+00:55:12,000 --> 00:55:19,000
+Yeah, you can do that with Gen2, but Gen2 almost forces OpenRC on you, so I don't think it matters.
+
+663
+00:55:19,000 --> 00:55:27,000
+So I guess at the end of the day, if we move forward and we look at where things are going to take us,
+
+664
+00:55:27,000 --> 00:55:33,000
+SystemD is still not as fully mature as Upstart, and I'll give you what I mean in that sense.
+
+665
+00:55:33,000 --> 00:55:39,000
+In an Ubuntu box, if you really screw the pooch and you need to reboot into a rescue mode,
+
+666
+00:55:39,000 --> 00:55:44,000
+that rescue mode you go into is Upstart aware.
+
+667
+00:55:44,000 --> 00:55:51,000
+It can look at your system and communicate to the Upstart system and pull out bits of information it needs to rescue your system, right?
+
+668
+00:55:51,000 --> 00:55:57,000
+That is a very nice complete user end feature that works great for users and system admins and developers.
+
+669
+00:55:57,000 --> 00:56:04,000
+It is a very handy feature and it is the result of something that has multiple years of production where you build stuff around it.
+
+670
+00:56:04,000 --> 00:56:06,000
+SystemD is not there yet.
+
+671
+00:56:06,000 --> 00:56:09,000
+There's not tools that fully take advantage of the API.
+
+672
+00:56:09,000 --> 00:56:11,000
+There's not things that expose certain functionality.
+
+673
+00:56:11,000 --> 00:56:16,000
+SystemD has the ability to fully log everything that happens on your system if it's an EFI box.
+
+674
+00:56:16,000 --> 00:56:20,000
+It doesn't require it, but if you have an EFI BIOS and it wants to talk to SystemD,
+
+675
+00:56:20,000 --> 00:56:26,000
+it can literally time how long it took for you to boot at the BIOS screen all the way up from the bootloader to the kernel to your desktop.
+
+676
+00:56:26,000 --> 00:56:28,000
+It can pull metrics and diagnose all of that.
+
+677
+00:56:28,000 --> 00:56:30,000
+It is a full end system, right?
+
+678
+00:56:30,000 --> 00:56:36,000
+That's really cool and fancy, but there's nothing yet really fully built to expose any of that to the end user.
+
+679
+00:56:36,000 --> 00:56:42,000
+Well, the thing is SystemD is widely used within the community.
+
+680
+00:56:42,000 --> 00:56:45,000
+It's used by pretty much every distro.
+
+681
+00:56:45,000 --> 00:56:48,000
+There's only two distros that don't use it.
+
+682
+00:56:48,000 --> 00:56:52,000
+I mean, it's Ubuntu-based distros and Chrome OS.
+
+683
+00:56:52,000 --> 00:56:55,000
+Saying Ubuntu-based distros doesn't account for much.
+
+684
+00:56:55,000 --> 00:57:00,000
+It accounts for a significant chunk of all the people who happen to run Linux.
+
+685
+00:57:00,000 --> 00:57:03,000
+It's a massive number of people.
+
+686
+00:57:03,000 --> 00:57:08,000
+But Red Hat's worth a few billion, so if they think that Upstart's not worth using...
+
+687
+00:57:08,000 --> 00:57:10,000
+Well, my dad's bigger than your dad.
+
+688
+00:57:10,000 --> 00:57:14,000
+I don't think that really makes a difference.
+
+689
+00:57:17,000 --> 00:57:19,000
+These technical arguments can only go so far.
+
+690
+00:57:19,000 --> 00:57:22,000
+There's a 1.3 billion company.
+
+691
+00:57:22,000 --> 00:57:24,000
+It doesn't matter about the price.
+
+692
+00:57:24,000 --> 00:57:32,000
+I think Poby makes a fair point, though, is that it is hard sometimes to totally wrap your head around the fact that it is a huge...
+
+693
+00:57:32,000 --> 00:57:36,000
+It is way bigger than I think any of us fully realize, because at least my metrics tell me that.
+
+694
+00:57:36,000 --> 00:57:42,000
+And they tell me that Ubuntu still has more market share than the other three distros next to it combined.
+
+695
+00:57:42,000 --> 00:57:43,000
+Combined, yeah.
+
+696
+00:57:43,000 --> 00:57:50,000
+I just wanted to point out that at the end of the day, especially with Debian considering this,
+
+697
+00:57:50,000 --> 00:57:52,000
+I think it's really just going to come down to two choices.
+
+698
+00:57:52,000 --> 00:57:58,000
+Either they're going to find a way to work out the CLA and go with Ubuntu's thing,
+
+699
+00:57:58,000 --> 00:58:02,000
+or they're just going to go and go to their next choice down and just look at SystemD.
+
+700
+00:58:02,000 --> 00:58:05,000
+At the end of the day, I still want init scripts.
+
+701
+00:58:05,000 --> 00:58:15,000
+Now, my question is, if they were to go with SystemD, what are they going to do about, let's say, their variants based on the BSD or the herd kernels?
+
+702
+00:58:15,000 --> 00:58:17,000
+Right, that's the problem.
+
+703
+00:58:17,000 --> 00:58:19,000
+This is what no one's really touching on.
+
+704
+00:58:19,000 --> 00:58:24,000
+Everybody's going at this from an emotional point of view, and that's wrong.
+
+705
+00:58:24,000 --> 00:58:31,000
+All this passionate nonsense aside, factually speaking, they want something established and stable.
+
+706
+00:58:31,000 --> 00:58:32,000
+Which one is that?
+
+707
+00:58:32,000 --> 00:58:36,000
+I'm starting to have a leg there because it's deployed and it supports multiple kernels.
+
+708
+00:58:36,000 --> 00:58:40,000
+And it also adheres a little more closely to that overall Unix philosophy.
+
+709
+00:58:40,000 --> 00:58:41,000
+Exactly.
+
+710
+00:58:41,000 --> 00:58:47,000
+And so that's the whole point of it is that when you vacuum pack all the emotional hot air out of this
+
+711
+00:58:47,000 --> 00:58:53,000
+and really look at it logically for what Debian's goals are, not what your goals are, but what Debian's goals are as a project,
+
+712
+00:58:53,000 --> 00:58:59,000
+I think that they're definitely, definitely going to go with what makes sense from a stability point of view.
+
+713
+00:58:59,000 --> 00:59:06,000
+Now, five years down the road, they may completely 180 on that, but at this point, it will not be SystemD for Debian, I promise you.
+
+714
+00:59:06,000 --> 00:59:15,000
+And you also have to, even understandably, got to figure maybe there's a little pressure indirectly or directly, probably indirectly,
+
+715
+00:59:15,000 --> 00:59:25,000
+to have at least a very serious consideration as to how it affects Ubuntu since they're based on Ubuntu.
+
+716
+00:59:25,000 --> 00:59:28,000
+And that's just one quarter or even an eighth of the pie.
+
+717
+00:59:28,000 --> 00:59:30,000
+That's not even all of it, but it's a big chunk of the pie.
+
+718
+00:59:30,000 --> 00:59:34,000
+Now, that being said, personally, on my own machines, I do prefer SystemD.
+
+719
+00:59:34,000 --> 00:59:36,000
+I like what they're doing. I like where they're going. I think it's awesome.
+
+720
+00:59:36,000 --> 00:59:38,000
+Yeah, I do too. I like it too.
+
+721
+00:59:38,000 --> 00:59:44,000
+But again, taking my own emotion out of it and looking at it logically, there's no question Debian's not going to go with SystemD.
+
+722
+00:59:44,000 --> 00:59:46,000
+They're going to go with Upstart. I know that for a fact.
+
+723
+00:59:46,000 --> 00:59:49,000
+I'm wrong on some things, but I'm right on others.
+
+724
+00:59:49,000 --> 00:59:57,000
+My track record on the show has been reasonable, so I'm going to say I'm excluding my monkey suit thing, but that put aside.
+
+725
+00:59:57,000 --> 01:00:01,000
+So right now, the audience is voting in 82%, Matt, think it's going to go SystemD.
+
+726
+01:00:01,000 --> 01:00:06,000
+Oh, yeah. They're voting with their heart, Matt, with their heart.
+
+727
+01:00:06,000 --> 01:00:10,000
+Yeah, I don't have one, so I win, right?
+
+728
+01:00:10,000 --> 01:00:20,000
+I will embed this into the show notes, so those of you on the podcast, if you want to go vote, go to episode 12 of the unplugged program and scroll down the show notes.
+
+729
+01:00:20,000 --> 01:00:23,000
+We'll vote in there and we'll cover it on the follow-up. We'll see what happens.
+
+730
+01:00:23,000 --> 01:00:27,000
+All right, Matt. Well, I thought maybe before we ran, we could solve a problem for Jim.
+
+731
+01:00:27,000 --> 01:00:33,000
+So Jim wrote into the show, and he's hunting for a replacement for Ubuntu 10.04.
+
+732
+01:00:33,000 --> 01:00:34,000
+Yeah, 10.04.
+
+733
+01:00:34,000 --> 01:00:41,000
+He says, I was wondering if you could give me some advice on choosing a distro to replace my Ubuntu 10.04 installation since it's no longer supported.
+
+734
+01:00:41,000 --> 01:00:44,000
+I figured I should upgrade. However, I'm not a big fan of Unity.
+
+735
+01:00:44,000 --> 01:00:46,000
+I wonder how he knows that.
+
+736
+01:00:46,000 --> 01:00:52,000
+He says, I've been fat dumb and very happy with Ubuntu 10.04.
+
+737
+01:00:52,000 --> 01:00:56,000
+I love that he's just been hanging out forever on this old version.
+
+738
+01:00:56,000 --> 01:00:58,000
+He says, it's for me the perfect distro.
+
+739
+01:00:58,000 --> 01:01:02,000
+I am hooked on having a top panel to which I add a ton of launchers.
+
+740
+01:01:02,000 --> 01:01:05,000
+I love Nautilus. I like the long-term support from Canonical and a community support.
+
+741
+01:01:05,000 --> 01:01:09,000
+I also like the wide range of software available for Ubuntu.
+
+742
+01:01:09,000 --> 01:01:12,000
+He said he tried Unity and I really don't like it.
+
+743
+01:01:12,000 --> 01:01:13,000
+All right, so he tried it.
+
+744
+01:01:13,000 --> 01:01:15,000
+Okay, that's all we say. That's all we ask.
+
+745
+01:01:15,000 --> 01:01:17,000
+It does not increase my productivity.
+
+746
+01:01:17,000 --> 01:01:20,000
+I am using a desktop, not a smartphone or a Mac.
+
+747
+01:01:20,000 --> 01:01:22,000
+Wow, I didn't read this far.
+
+748
+01:01:22,000 --> 01:01:24,000
+Maybe I need to give it more time.
+
+749
+01:01:24,000 --> 01:01:29,000
+This is unfair to Unity. After all, Unity is actually an impressive software, but why use it on a desktop?
+
+750
+01:01:29,000 --> 01:01:31,000
+I have also tried Ubuntu 12.04 in fallback mode.
+
+751
+01:01:31,000 --> 01:01:35,000
+However, a few things I use, a lot seems broken.
+
+752
+01:01:35,000 --> 01:01:38,000
+Mint 13, mate, seems like the best fit for me.
+
+753
+01:01:38,000 --> 01:01:42,000
+My hesitation is that Mint installs with a lot of extra stuff I don't want or need.
+
+754
+01:01:42,000 --> 01:01:47,000
+Anyway, I'll likely go with Mint 13, mate, unless you guys give me a good suggestion.
+
+755
+01:01:47,000 --> 01:01:50,000
+He said, by the way, he left Windows when Vista came out.
+
+756
+01:01:50,000 --> 01:01:51,000
+Oh, yeah.
+
+757
+01:01:51,000 --> 01:01:53,000
+Started with Firefox, switched to Thunderbird Open Office,
+
+758
+01:01:53,000 --> 01:01:56,000
+and then he made the jump to Linux after he'd made the transition to all that stuff.
+
+759
+01:01:56,000 --> 01:01:59,000
+That's the recipe. That's how you do it, Jim.
+
+760
+01:01:59,000 --> 01:02:00,000
+Good work, Jim.
+
+761
+01:02:00,000 --> 01:02:03,000
+You know what? Mint mate is probably a pretty good idea.
+
+762
+01:02:03,000 --> 01:02:06,000
+Yes, that's where I would go. I'd say Mint mate is fine.
+
+763
+01:02:06,000 --> 01:02:08,000
+Even sentiment is another option.
+
+764
+01:02:08,000 --> 01:02:10,000
+What do you think about XFCE?
+
+765
+01:02:10,000 --> 01:02:13,000
+I would say probably mate is going to be more his speed.
+
+766
+01:02:13,000 --> 01:02:15,000
+XFCE is awesome, but it is different.
+
+767
+01:02:15,000 --> 01:02:19,000
+While visually it has a lot of similarities, there are some core differences.
+
+768
+01:02:19,000 --> 01:02:24,000
+I think that mate is probably going to be more what he's looking for coming from where he's coming from.
+
+769
+01:02:24,000 --> 01:02:26,000
+As far as the extra stuff is installed,
+
+770
+01:02:26,000 --> 01:02:30,000
+unless you have a really small hard drive, I don't think you care.
+
+771
+01:02:30,000 --> 01:02:33,000
+It's not like anything is running in the background.
+
+772
+01:02:33,000 --> 01:02:36,000
+He was a little more worried about future security vulnerabilities,
+
+773
+01:02:36,000 --> 01:02:38,000
+but as long as you stick with the updates.
+
+774
+01:02:38,000 --> 01:02:40,000
+Okay, let me throw this one at you.
+
+775
+01:02:40,000 --> 01:02:42,000
+Just a curveball because we haven't talked about it much.
+
+776
+01:02:42,000 --> 01:02:43,000
+Sure.
+
+777
+01:02:43,000 --> 01:02:47,000
+It's been rebooted months ago, the Ubuntu GNOME edition.
+
+778
+01:02:47,000 --> 01:02:50,000
+The thing is, starting in GNOME 3.8, they have the classic mode.
+
+779
+01:02:50,000 --> 01:02:52,000
+I don't think they call it that.
+
+780
+01:02:52,000 --> 01:02:56,000
+It is a two-panel GNOME 2.0-ish setup, but it's based on GTK 3.
+
+781
+01:02:56,000 --> 01:03:00,000
+It takes advantage of the newer GNOME applications and things like that.
+
+782
+01:03:00,000 --> 01:03:06,000
+It's one foot in the new stuff, and it's one foot in maybe your wang into the old stuff.
+
+783
+01:03:06,000 --> 01:03:09,000
+That GNOME Ubuntu edition could be,
+
+784
+01:03:09,000 --> 01:03:12,000
+but I think his instinct with Mint and Mate edition,
+
+785
+01:03:12,000 --> 01:03:14,000
+like Matt said, is probably the way to go.
+
+786
+01:03:14,000 --> 01:03:15,000
+I think it's the way to go.
+
+787
+01:03:15,000 --> 01:03:19,000
+He's got a butt groove in his chair, and he's really happy with that groove.
+
+788
+01:03:19,000 --> 01:03:21,000
+He's not necessarily wanting the latest and greatest.
+
+789
+01:03:21,000 --> 01:03:23,000
+He's just kind of forced into an upgrade.
+
+790
+01:03:23,000 --> 01:03:25,000
+I think that's where he's going to be happiest.
+
+791
+01:03:25,000 --> 01:03:26,000
+One last thing.
+
+792
+01:03:26,000 --> 01:03:28,000
+Cheeseburg emailed into the show on the whole topic.
+
+793
+01:03:28,000 --> 01:03:31,000
+He was one of the people that chimed in about the state of Linux news,
+
+794
+01:03:31,000 --> 01:03:34,000
+and then now he also joined us in the IRC, so he reminded me today.
+
+795
+01:03:34,000 --> 01:03:37,000
+He was traveling, I think he was in Japan,
+
+796
+01:03:37,000 --> 01:03:42,000
+and he saw a good old-fashioned print magazine called PointLinux.
+
+797
+01:03:42,000 --> 01:03:44,000
+He heard about it over there.
+
+798
+01:03:44,000 --> 01:03:46,000
+I can't remember the details of it.
+
+799
+01:03:46,000 --> 01:03:48,000
+Somebody emailed in about PointLinux.
+
+800
+01:03:48,000 --> 01:03:50,000
+Anyways, Cheeseburg reminds me of PointLinux.
+
+801
+01:03:50,000 --> 01:03:54,000
+It's a distribution that aims to combine the power of Debian
+
+802
+01:03:54,000 --> 01:03:59,000
+with the productivity of Mate or the GNOME 2 desktop environment.
+
+803
+01:03:59,000 --> 01:04:04,000
+So it is essentially it's Debian under the hood with Mate on top of it.
+
+804
+01:04:04,000 --> 01:04:08,000
+Now, the reason why I think PointLinux could be a good –
+
+805
+01:04:08,000 --> 01:04:12,000
+one nice thing about it is – what was he on?
+
+806
+01:04:12,000 --> 01:04:14,000
+Ubuntu 10.04, I think.
+
+807
+01:04:14,000 --> 01:04:15,000
+10.04.
+
+808
+01:04:15,000 --> 01:04:19,000
+All right, so obviously Jim is not a man who likes to reinstall very often.
+
+809
+01:04:19,000 --> 01:04:23,000
+And the problem with Mint is you got to reload to go to the next release every time.
+
+810
+01:04:23,000 --> 01:04:24,000
+True, true, true, true.
+
+811
+01:04:24,000 --> 01:04:26,000
+Whereas PointLinux being based on Debian,
+
+812
+01:04:26,000 --> 01:04:29,000
+you're going to get updates and you're just going to roll with that for a long time.
+
+813
+01:04:29,000 --> 01:04:30,000
+He just rolls.
+
+814
+01:04:30,000 --> 01:04:31,000
+That's a really good point.
+
+815
+01:04:31,000 --> 01:04:32,000
+I like that.
+
+816
+01:04:32,000 --> 01:04:35,000
+Because of the fact that he likes a comfortable place to be,
+
+817
+01:04:35,000 --> 01:04:39,000
+he has more control over those updates versus being having to go full upgrade.
+
+818
+01:04:39,000 --> 01:04:40,000
+That's a good point.
+
+819
+01:04:40,000 --> 01:04:43,000
+I haven't tried this one myself, but both Cheeseburg and –
+
+820
+01:04:43,000 --> 01:04:45,000
+and we got an email about somebody who was traveling in Japan,
+
+821
+01:04:45,000 --> 01:04:46,000
+I don't know if that was Cheeseburg,
+
+822
+01:04:46,000 --> 01:04:48,000
+who also saw it deployed there and thought it was awesome.
+
+823
+01:04:48,000 --> 01:04:49,000
+So there you have it.
+
+824
+01:04:49,000 --> 01:04:50,000
+There you go.
+
+825
+01:04:50,000 --> 01:04:52,000
+I think it would be worth grabbing a pen drive
+
+826
+01:04:52,000 --> 01:04:55,000
+and just DD that sucker up in there and just see how that runs.
+
+827
+01:04:55,000 --> 01:04:56,000
+Totally.
+
+828
+01:04:56,000 --> 01:04:57,000
+All right, Matt.
+
+829
+01:04:57,000 --> 01:04:59,000
+Well, as we prepare to – whoa, hi there.
+
+830
+01:04:59,000 --> 01:05:00,000
+Hi.
+
+831
+01:05:00,000 --> 01:05:01,000
+Hello.
+
+832
+01:05:01,000 --> 01:05:02,000
+As we prepare to wrap up, the music just like kicks in.
+
+833
+01:05:02,000 --> 01:05:05,000
+It's like I guess it's playing us out like we're on the Oscars here, Matt.
+
+834
+01:05:05,000 --> 01:05:07,000
+Get your award and get off stage, clown.
+
+835
+01:05:07,000 --> 01:05:10,000
+Listen, now we'd love to have you join us live for Linux Unplugged.
+
+836
+01:05:10,000 --> 01:05:12,000
+You can go over to jblive.tv.
+
+837
+01:05:12,000 --> 01:05:14,000
+We're live at 2 p.m. Pacific.
+
+838
+01:05:14,000 --> 01:05:16,000
+And of course go to jupiterbroadcasting.com.calendar
+
+839
+01:05:16,000 --> 01:05:18,000
+because the time zone changed.
+
+840
+01:05:18,000 --> 01:05:20,000
+That daylight savings thing is about to hit us.
+
+841
+01:05:20,000 --> 01:05:23,000
+So prepare yourselves over at jupiterbroadcasting.com.calendar.
+
+842
+01:05:23,000 --> 01:05:25,000
+While you're visiting us live, you can also get info to join our Mumble Room
+
+843
+01:05:25,000 --> 01:05:27,000
+so you can hang out and participate in the conversation.
+
+844
+01:05:27,000 --> 01:05:30,000
+A big thanks to everybody who joined us live in the IRC
+
+845
+01:05:30,000 --> 01:05:32,000
+and a big thanks to the folks in the Mumble Room.
+
+846
+01:05:32,000 --> 01:05:34,000
+We'd love to see you live here next week, but you can also email us.
+
+847
+01:05:34,000 --> 01:05:37,000
+Just hit the contact link at the top of the Jupiter Broadcasting website.
+
+848
+01:05:37,000 --> 01:05:40,000
+Hey, Matt, I got an okay from the lead dev of OwnCloud
+
+849
+01:05:40,000 --> 01:05:42,000
+to join us on Sunday to talk about OwnCloud 6.
+
+850
+01:05:42,000 --> 01:05:43,000
+Sweet.
+
+851
+01:05:43,000 --> 01:05:44,000
+Good stuff.
+
+852
+01:05:44,000 --> 01:05:45,000
+I know.
+
+853
+01:05:45,000 --> 01:05:46,000
+Sounds good.
+
+854
+01:05:46,000 --> 01:05:47,000
+All right, everyone.
+
+855
+01:05:47,000 --> 01:05:49,000
+Thank you so much for tuning this week's episode of Linux Unplugged.
+
+856
+01:05:49,000 --> 01:06:16,000
+We'll see you right back here next week.
+

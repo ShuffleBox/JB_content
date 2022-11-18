@@ -1,0 +1,1296 @@
+Wes found this article about desktop compositing latency.
+It's real and annoys me, says the headline.
+So the guy measures latency input on Windows 7 and Windows 10,
+Windows 7 without DWM, and then talks with
+some people, Pavel Fatin, which
+has also written about this before. He summarizes the difference between a stacking and a compositing
+window manager as follows. Stacking window managers orchestrate
+drawing of overlapped windows in such a way that the background windows are painted
+first. While this approach has some drawbacks
+window content has to be restored explicitly, it introduces
+no additional delays because applications draw directly in
+the frame buffer. Examples of stacking window managers
+are the classic theme in Windows and Openbox in Linux.
+Compositing window managers substitute the frame buffer
+with a dedicated off-screen buffer for each window.
+Then display all of the windows together
+when and how they see fit. This separation
+is inevitable and leads to some latency increase.
+Examples of compositing managers are Aero in Windows and Compiz
+in Linux. The thing with compositing
+window managers is they seem to also enforce vertical synchronization, v-sync.
+This means we need to wait until a picture is displayed on the screen before we can start drawing
+the next one. This causes some latency. How much?
+Well, according to Fatin, we might expect an additional delay before the frame
+buffer update when vertical sync is turned on. A maximum delay
+is 17 milliseconds. An average one is around 8 milliseconds
+for a 60 Hz refresh rate. 8 milliseconds is on average,
+which isn't too bad, but actually the average seems to be two times that. Roughly
+17 milliseconds and the minimum latency is actually 8 milliseconds.
+I don't know if the 8 milliseconds is the
+processing latency of the compositor or bias in my frame capture method.
+Even with v-sync enabled, the minimum should be close to zero because sometimes we simply
+get lucky and happen to send key presses before the picture is sent to the display.
+Anyway, the point is there is a measurable difference in key input
+latency between Windows 10 and Windows 7 with no DWM.
+The difference is small but noticeable and affects
+every user of Windows 10. In general, UI input latency
+is a known problem and a reason why e.g. your mouse cursor
+uses a special rendering path under Windows.
+So they've measured composited
+desktops and they've seen an explicit difference in performance.
+This is Linux Unplugged, episode 224
+for November 21st, 2017.
+Oh, welcome to Linux Unplugged, your weekly
+Linux talk show that's busting out all the classics this week. My name is
+Chris, no Wes, but we do have a beard. Hello beard!
+Hey Chris, how's it going? Thank you, Wes, thank you for being here. Wes should be here soon though
+so it won't be all on you. You won't have to keep me calm, insane, and
+rational all on your own. That's a hard task.
+Because I'm a ball of energy, you just gotta keep me contained. We have a real
+classic episode for you this week. We're gonna start with some community news that's actually
+breaking today as we go on the air. Tuesday seems to be a good day for that lately.
+After we get through a few
+important stories, I'll just put it that way, including one that we're gonna have to...
+I can't believe it. We also have, not one,
+but two, that's right, two everybody. Two app picks this week, looking really good.
+One for video, one for audio. So we're gonna have all the bases covered.
+And then, I'm gonna reach back into the old
+toolbox, my tackle box, from when I
+was doing penetration testing and Linux security auditing, and we're gonna talk about how
+you can easily audit your Linux box
+using a tool that will give you reproducible reports, tell you about
+vulnerabilities and best practices that you could be implementing on your system,
+it does an extensive security overview, and then writes it
+all up and tells you what you gotta fix. And then,
+and then, if time allows, and I sincerely mean this,
+if time allows, it's really all up in the air because Wes isn't here yet,
+but we are going to attempt to kick off the Gen 2
+challenge. We've got a great idea, we're really looking forward to how we're gonna do it. You know,
+we've been meaning to do it for a couple of episodes now, and
+today was the day. Legitimately, even if you're watching the video version, have
+a screenshot right there, ready to go, of the system we'll be
+loading Gen 2 with, but our driver
+isn't here yet. I don't know. You know, Wes was on assignment.
+That's what they say, right? That's what you're supposed to say? He's on assignment?
+Just checking it out. Yeah. Maybe he got stuck building Gen 2.
+Stuck. Yeah. That's what happens when you do a stage one. But never fear,
+we have a mumble room here with us. Time appropriate greetings, mumble room.
+Hello. Time appropriate greetings. Hello guys. Hi there. Hello.
+Now we have news right off the top of the show that I think we should probably get into.
+You know me. I love doing a little breaking news on the Unplugged program.
+This is CNN Breaking News. And if any of these
+stories actually really matter, we'll cover them more extensively in Linux Action News.
+But let's start with an update on the quote-unquote Android problem. This is a
+play on an earlier story that went around about a year ago.
+And it starts like this. Android has been a great boon to the Linux
+kernel community, having brought a great deal of growth in both the user and development
+communities. But Android has also been a problem in devices
+running it. They ship with kernels containing large amounts, often millions of lines of
+out-of-date tree code that fragments the developer community and makes it impossible
+to run mainline kernels on this hardware.
+Yep, that's about right. The problematic side of Android was discussed
+at the 2017 Maintainer Summit. That's what just wrapped up. But what actually
+came out of the summit was a rather optimistic
+look towards the future. We have a couple of positive trends developing
+right now. This could be interesting, especially in light of what we're about to
+talk about. So this starts with
+some quotes from Greg KH. You remember Greg? He's been on the Linux Action
+Show before, and he's also the maintainer of the long-term
+support edition of the kernel that we've been talking more about.
+And he says that there's... he started out the
+talk really by saying that they've been working some time with a system on a chip vendor to try
+to resolve a core problem, which he says the real issue
+is the shipping out-of-tree unpatched code
+is primarily Qualcomm. They decided not to work upstream.
+And Qualcomm has
+since concluded that that was a mistake on their part, and they have also
+apparently become determined to fix it. But the process of fixing it is going to take
+years. And here is the funny thing.
+See, before kernel 4.14,
+the longest support
+that the kernels got on these system-on-a-chips was two years.
+And the catch-22 is, it takes the system
+on a chip makers about two years to get their shit out the
+door. So by the time their chips shipped in Android
+devices, it was just about at the end of the two-year lifetime support
+for the LTS kernel. So by the time they could even ship, the kernel they were using
+is losing support. And somebody asked in the crowd, has anybody
+ever successfully done a major kernel upgrade
+on an Android phone in the wild?
+What do you suppose the answer to that is? Pretty much.
+It's close. The only phones in the wild that have gotten over-the-air
+updates that were pushed out by Google and carriers and the OEM,
+the Galaxy Nexus, and
+Galaxy S phones, some of them, have seen major kernel upgrades.
+So it's technically possible, but when you upgrade the kernel, there's a number
+of regulatory certifications that have to get redone.
+So the idea with this new six-year support cycle
+we will be able to ship code fixes
+and bug fixes and security fixes to these Android handsets
+for years after they've gone into the market. They won't be just going to the market as
+they are going out of support, but
+it's not a perfect situation yet. In fact,
+Greg says that if
+vendors don't follow Google's new project treble rules, and
+they don't really fix this behavior, he's going to eventually stop maintaining this
+six-year LTS release. I mean, why bother? I mean, for him, it's like that's a lot of work.
+But for now, he's running an experiment, and he's going to support
+the 4.4x kernels for a period of
+six years, which I think is going to be a huge
+boost for Android security. A bunch of other interesting things
+in here. It was interesting to see Linus Torvalds chime in. He noted
+that there's a lot of Android devices that are not necessarily phones. Tablets, for example,
+could prove to be a better development device.
+So there was a good back and forth. Linus also asked about the
+status of the Mali GPU driver, and that there is a person working
+on reverse engineering that device, but he didn't work
+out well with other developers. So now somebody else is making progress
+on the older GPUs, but nobody's working on the current generation devices. And Linus pointed
+out that if we could get that solved, the community as a whole would be in good shape.
+So that's also an interesting story, that Mali GPU driver issue.
+Yeah, so they walked away from the summit feeling much more positive, as long as
+vendors get on board with Project Treble and ship an LTS kernel.
+This issue where there's millions of lines of code outside the mainline
+kernel tree. The core problem with that is it's fracturing developer time
+and resources. So instead of working on the main kernel, you have a lot of really
+high-end, well-paid, commercially-backed
+software developers that are working on a kernel code tree
+that may never see the main tree. It may just be
+lost work. I've got an example.
+A 2014 Motorola phone
+is just getting the Vibe support added to the kernel for its
+Taptic engine in a 2014 Motorola phone.
+Because the driver for that always existed in another tree, another branch
+of the kernel that never made it to mainline. And just in the last kernel
+update, somebody came around and got that code into mainline kernel.
+And so now it's in there.
+The core issue is that it's been fracturing developer focus.
+Now, unless anybody has anything to say on that, there's not probably much
+to add. I want to talk about this story, because it's also Android
+related, and it affects all of us that use Android.
+It affects you if you have location services turned off. It affects you if you
+pulled the SIM out of your phone.
+Google is still collecting your location and the address
+of cell towers around you. I want to be clear, even if you've turned off your location services,
+even if you've removed the SIM card,
+when you take all those precautions, phones running Android software gather data
+about your location and send it back to Google whenever they get connected to the Internet.
+Since the beginning of this year, in January of 2017,
+Android phones have been collecting the addresses of nearby cellular towers,
+even when location services are disabled, and sending that data back to Google.
+The result is that Google, a unit of Alphabet behind Android, has access to data
+about individuals' locations and their movements that go far beyond reasonable
+consumers' expectation of privacy. Now, quartzqz.com
+did a whole bunch of actual journalism, including
+doing data captures and getting the information that
+was directly collecting, contacting Google and finding out what the hell is going on.
+So, this is Google's statement. This is their answer.
+In January of this year, we began looking into using cell ID codes as an additional
+signal to further improve the speed and performance of our message delivery.
+I think they're talking about push notifications.
+The Google spokesperson said in an email that however we had incorporated
+cell ID into our network sync system, we hadn't incorporated cell ID into
+our network sync system. So, that data was immediately discarded and we
+updated it to no longer request cell ID. So, they're going to phase
+it out, they say, by the end of this year. The location sharing
+practice does not appear to be limited to any particular type of Android phone or tablet.
+Google is apparently collecting cell tower data from all modern Android
+devices. Even devices that have been reset to factory default
+settings and apps with location services disabled were
+observed by Quartz sending nearby cell tower addresses to Google.
+Devices with cellular data or Wi-Fi connections appear to send the data to Google
+each time they come within range of a new cell tower. When Android
+devices are connected to a Wi-Fi network, they will send the cell tower address to Google
+even if they don't have a SIM card installed.
+Which is really my favorite part of this whole thing.
+They say this is to improve
+push notification delivery, but this also feels like the time
+that they were just driving around a whole cloth collecting everybody's Wi-Fi data and network
+information for anybody that had it. Oops, sorry, yeah, we just accidentally left that
+whole TCP dump thing running in the background. That was our bad.
+Sorry, oh, you want to fine us for that? Oh, because this is
+going to be outside the US too. I mean, there could be other governments that don't have such a favorable view
+of Google that want to respond to this. This came out today at
+QZ.com and they did
+a really good job. They did packet capture, they contacted Google.
+It's been like this for 11 months according to a Google spokesperson.
+What are your thoughts on this? I'm not surprised, I take it. No, not really.
+It seems like Google does things
+and then just forgets to turn them off. Oh,
+you're being charitable then. You think they didn't mean to do this. Well, I mean,
+you can't really tell one way or the other. Oh, I feel like you implicitly
+build this into your system and then you had to, I mean, think about
+the system they had to build to monitor this, resolve it to an address, collect that
+data, batch it up, and queue it to be sent back to Google once a Wi-Fi connection
+was there. That's pretty intentional. That's a pretty sophisticated system.
+Well, I mean, they already admitted that they intentionally built this system to potentially use it.
+They just didn't end up using it. So this is what weirds me out about
+using Android is there's probably a dozen other things like this about it.
+And is it part of the Play services? Does it
+happen if you're on a different ROM that's still using Android?
+You know, I don't know. And why this stuff isn't optional?
+Go ahead, were you going to say, was somebody in the moment going to jump in?
+Yeah, I was just going to mention, isn't this our concern about
+closed source software in general? Like, completely inclusive
+of all closed source software? That the developers have put in back doors
+that they can just flip on and start siphoning data whenever they
+jolly well please, and we can't go and audit for it. It also feels like there's an
+additional risk when that company is primarily
+profited by advertising, so they really have
+a ton of business incentive to know a lot more about you.
+And because they're a public corporation, they're always trying to find new paths to revenue. They're always
+trying to increase their bottom line. If they're sitting on this information,
+there could be a discussion at some point that says, could we integrate this into their advertising profile
+somehow?
+That would be really weird, like you start seeing ads when you drive by a place Verizon was trying to work on that.
+Yeah, so the one thing I couldn't
+get out of the Quartz article was if this was a Play services thing, or if
+this was deeper in Android. My gut says it's
+probably any device that supports Play services. So if you're running
+on a ROM and you don't have GApps, then you might be in the clear.
+But if you're using an alternative ROM and you have the Play API stuff,
+then you probably are getting tracked.
+I think the push notification stuff is in stock Android.
+Yeah, it must be. I mean, it would have to be. But it doesn't necessarily mean that's where the tracking is.
+The thing I don't get is why...
+In January, across multiple generations of Android devices, that almost has to be a Play API thing.
+Why is this still enabled even if you don't have a SIM card though?
+Because if they're using it for improving the messaging...
+You don't need that.
+If you're on Wi-Fi only, then you're on Wi-Fi. It doesn't matter what cell tower.
+Do they really have the ability to route to a specific cell tower?
+Isn't it just all TCP IP data packets and they send it to the carrier
+and then it's the carrier's job to track where my device is and route it to the proper cell tower?
+It doesn't seem like Google's involved in that process at all.
+My guess would be that if they were to enable this, they'd be sharing that data with the cell carriers.
+Well, that's even creepier.
+Yeah, push notifications are in Play Services, of course.
+But I think you can still get push notifications if you don't have the Play APIs.
+But they can't really update Android unless it's through the Play Services.
+And then, on the other end of the spectrum...
+So we go from ARM devices to Intel devices.
+I haven't seen a lot of write-ups on this yet, but today...
+Really yesterday night, but today, Google...
+Or I'm sorry, Intel, we're switching gears here, posted a revised update
+to a cumulative review that they have done on the Intel Management Engine.
+Yeah, you know that ME thing you hear everybody talking about?
+Everybody's working to bypass right now.
+I just got a tweet from Carl at System76 today saying they're working to bypass Intel ME on their systems.
+Of course, we've talked about how Purism did that recently,
+and Google has launched a project to do this as well.
+So Intel writes, in response to issues identified by external researchers,
+Intel has performed an in-depth, comprehensive security review of our own shit.
+And as a result, Intel has identified several security vulnerabilities
+that could potentially place impacted platforms at risk.
+Systems using the ME versions of basically all of them are impacted.
+It's anything with a 6th or 7th or 8th generation Intel Core processor,
+or a few of the Xeon and one or two of the Celeron CPUs.
+So if you have anything older than a 6th generation Intel CPU,
+this doesn't apply to you.
+You're not running one of the systems that have Minix embedded.
+It's only on the systems that are on the last three generations of Intel CPUs.
+So it's not as widely deployed as some would have you believe,
+but it's still a major problem.
+And it's getting bypassed and exploited at a faster rate
+because the management engine is now built around
+an Intel Edison system on a chip design.
+And that's an x86 platform, which means all of the x86 debugging tools
+and memory reading tools and just the
+huge amount of tribal knowledge around how x86 applications work
+all apply now to hacking this management engine. And that's why we're starting to see
+a big influx of bypasses and exploits.
+So Intel thought, hey, you know what we should do? We should take a look and see if we can find anything.
+Now I would have expected them to find stuff, say nothing, and push out a minor update,
+but it turns out they found multiple buffer overflows,
+multiple privilege escalations, multiple buffer overflows in
+one of their other chips, and a buffer overflow in the active management technology
+in the mini versions of the Intel management
+engine that allow remote access on server systems.
+So there's actually some shit in here that needs to get fixed. And now as a Linux user
+you've got to figure out what particular dance you've got to do to get your firmware updated.
+Some systems will just get it through GNOME software, others
+I don't know how you're going to get it.
+I mean, I applaud Intel on their transparency at least.
+Yeah, I have a more skeptical take on this.
+Not to be frying bacon here in the
+unplugged program, but
+isn't this exactly how you'd fix all these little loopholes and workarounds
+that people are using to disable the management engine in the first place? Is you'd push out
+security fixes? Because these are legitimate security flaws.
+I mean, what's the difference if you're using an exploit or a buffer overflow
+to disable the management engine versus take it over? You're using the same attack
+vector. So to Intel, they're both attack vectors. One is used to bypass
+the management engine, one is used to take over the management engine. It needs to be fixed either way in
+Intel's book. But you could take away
+some of these OEM's ability to ship a system without the management engine.
+Maybe Intel creates
+a product that doesn't have a management engine for people who care? Could you see them doing that?
+Could you see them releasing a chip without a management engine? Or just add an
+option to disable it? Would you trust it?
+If there was a software setting to disable it, would you trust that it was actually disabled?
+I don't know. I mean, would you trust that
+there isn't a hidden management engine in new
+hardware? No. I almost kind of think it's just sort of spooky.
+It's almost in everything now. If you think it's bad on there,
+just think about phones and stuff. Yeah.
+I think you're probably right. Hopefully I'm
+just being extra cynical and Intel really just wants to keep the security on this good and they're not
+looking to sort of shut down these exploits. I feel like Intel doesn't have a choice
+but to fix these problems. Of course. Because if they don't do it, they get
+lambasted for having a vulnerable product.
+Yeah. And if they do do it, then they get lambasted for
+by people wanting to disable the management engine. So Intel
+can't win, basically. Despizzoni? How do I say it again? You'll have to remind me.
+Despizzoni? I forget. I'm sorry. I like... Despizzoni.
+Okay. I like what you just put in the Discord. Say it out loud because that's good.
+Yeah. I mean, if you let it just
+leave it up to the software to say it's disabled, it's not going to be a different thing. Google saying
+sure, your location's disabled. Yeah. I feel like our last story has taught us that
+lesson. You're exactly right. Anybody else have thoughts on either the Android story
+or anything we've talked about so far in the news? Big news
+day today.
+There's nobody. That's fine. I guess that, you know, I take that
+to mean I've comprehensively covered the stories. Is that what that means? Can I take
+that? You know, Chris, I would guess that the best way to disable the Intel
+management engine is to buy an AMD product.
+Yeah, except for now Intel and AMD chips are going to be
+shipping together, Rikai. So they're taking that peanut butter and that chocolate and they're
+shipping a single product. So who knows? Cats and dogs, Rikai. You can't
+count on anything anymore. So what you're saying is ARM chips? Yeah. I don't know if that
+bag is much better. That's also an equal bag of hurt. You know what isn't though? Linux Academy.
+linuxacademy.com slash unplugged. Go there to get a free seven-day trial
+for the platform about Linux. Also support the show. Coincidentally.
+linuxacademy.com slash unplugged. Everything you need
+to learn and get hands-on experience with Linux. Self-paced, in-depth video courses
+on every Linux cloud and DevOps topic. It's so awesome.
+When I logged in there I'm like, what is something that I've always been sort of a little
+I won't say afraid, but apprehensive about getting into?
+It would be development. I just always felt like I just, I can't wrap my head around it.
+I don't have the focus. So when I went to Linux Academy and they're able to break different topics
+down to like four hours, six hours. Course one, basics. I'm like
+finally, to me, it clicks. It's not this huge nebulous thing. It's just
+six hours of my time that I need to dedicate. And then they have a course scheduler
+where you can pick a course and set a time frame and then they'll help you stick to it.
+Set some learning goals. If you want to go for certifications, they've got learning paths just for that.
+Instructor mentoring real human beings when you need it. It's a great service.
+LinuxAcademy.com slash unplugged. Go there, sign up, and get a free
+seven day trial. Also, grab their IOS and Android app. You can study on the go
+and they have lesson audio and personal notebooks, other tools to help you study that are all
+downloaded. You have them with no internet at all. You can go out
+and camp and learn about Linux for all I care. In fact, I recommend it. LinuxAcademy.com slash
+unplugged. Big thank you to Linux Academy for sponsoring the Unplugged
+program. You guys keep it up. Maybe I'll get a quieter chair. Do you hear this chair today?
+Can you hear this? I can hear this, but more importantly,
+I can do something tech related and it doesn't require the cloud. Dude, you know how
+people were saying they were hearing farts in TechSnap? It might be this chair.
+No, it was too consistent. Okay, but listen. Okay, listen.
+So, hold on. I'm going to turn off my gate. Okay, you hear that? That's my...
+I mean, this thing's just like falling apart.
+We need new chairs, Chris. I know. Yeah, you see that?
+We've got to get a chair fund. We really do. Or we just need more patrons so we can dedicate
+some of that to chairs because they are just falling apart. Patreon.com slash Jupiter signal. Okay.
+So, speaking of kernels, 4.14 arrived recently
+and there was sort of this throwaway line that Linus had that I thought would be
+interesting to dig into. And it was just
+sort of simple. He says when he announced the release of kernel 4.14,
+it's probably worth pointing out, Linus writes, that the zero-day
+robot has been getting even better. It was very
+useful before, but it has been working on making it even better
+and reporting the problems it found. A robot?
+A zero-day robot? Working on the Linux kernel, I thought to myself when I read Linus'
+email and I thought, let's take a look into this. So, the reg has an
+article about it. The said robot is an automated vulnerability checker that scours the kernel
+code for issues. With version 4.14 slated to be the next kernel to receive
+long-term support, and that support now being six years, it was even more important
+than ever. And so, I found out
+that this is essentially an Intel open source project.
+It's 01.org, which stands for Intel Open Source.
+And the zero-day service is an automated Linux kernel test service
+that provides comprehensive test coverage of the kernel. It monitors various kernel trees
+spanning the mainline tree, the next tree, maintainers trees,
+key developers trees, it watches all of those for changes, and
+also monitors the Linux kernel mailing list itself. It performs builds
+and boots and functional tests and performance tests and power tests
+whenever it detects a change. Whenever there are any boot, functional performance
+or power issues detected by the test infrastructure, kernel developers receive
+an email report from the KBuild
+test robot. This is a service
+from the zero-day that automatically reports build failures of Linux code.
+What's also cool is when one is successful, it then tries to actually build it on physical hardware
+and boot it. And that's kind of a neat thing. If there's any failure during the build
+stage, zero-day will bisect the failure
+to the first code patch that introduces the failure. The patch author is then notified
+with the failure information and the steps to reproduce the problem.
+This allows developers to reproduce the problem in their local environment and then verify
+their fixes. This thing's just always going there, scanning all the time, getting better
+and better, and learning more about their quirks. So when you hear the kernel
+developers talk about the zero-day bot, this is what it is.
+Looking into this, I would say it's more like dozens
+of different functions and services that are all kind of working together. I guess
+that's kind of a bot now these days. I guess you could call that a bot.
+And it's neat because the performance tests are one
+thing, like 80 different functional test suites, the benchmark stuff
+that it generates and gives people like a, hey, before this patch we were running
+this fast, and now after this patch we're running like this. That's pretty good stuff.
+And it helps you scale as the kernel gets huge.
+And it sounds like it's actually functional stuff because something tells me that if it was crap,
+Linus would be calling it crap in the mailing list and not giving it props at the top of his release announcement.
+So that also serves well for it.
+Also kind of another feature that flew under the radar for 4.14
+is this heterogeneous memory management.
+You're going to like this, Beardsley. It allows GPUs to access an application's
+memory space. Yeah, so it's good for like GPU intensive stuff.
+Yeah. Isn't that cool? That's a pretty cool feature. And also the
+Droid 4 phone is the phone that got that vibrator driver that I was talking about. Not that kind of
+thing. It kind of goes in a phone. Jeez, guys.
+That mumble room is dirty today.
+I do like that in this article they referred to Linus
+at one point as the Linux Lord. Really? Is that what they say?
+Yeah, well, I suppose. I suppose.
+Yeah, he was in the news quite a bit this week, but mostly for his language again.
+Not for the code that got released. I thought maybe we'd just focus on the code.
+We've talked positively about BcashFS on this
+show. Bcash is an up and coming project. I'm a
+patron of the developer. Big fan. I think it's going to be
+a fantastic desktop file system.
+I think it's going to be the choice. It's going to be the choice. People will be talking about
+Hammer. People will be talking about ButterFS and ZFS. Those are all great in their own
+rights, but BcashFS is where I'm betting the future.
+Especially on MV&E. I mean, it's just going to be a good future, guys.
+It's going to be really good. The present, however, is bad. It's real bad.
+In fact, Bcash is destroying file systems, at least on Gentoo.
+Speaking of the Gentoo challenge, using Bcash can destroy the file
+system. Mine was gone after a third non-successful try to mount the
+rootFS. It was not possible to recover any files.
+These things happen, and so a
+Gentoo user found it, submitted a bug, and they're looking
+into it right now. Could be nothing. Could be bad. Could be
+pretty bad. I mean, to be fair, doesn't the Bcash developers
+say that you shouldn't use this as an important file system?
+Yeah. That's why you've got to have backups when you're doing this kind of stuff. Absolutely. That's why I'm a patron
+and not a user. You know what I mean? You know what I'm saying? Those kind of
+things happen. Remember when we talked about ButterFS? I'll eat some systems, too. When these
+things are in development, I think it's something that
+you don't really fully appreciate until you've lost some data to something like this, and then you don't
+tend to experiment with file systems.
+When you hear bad things about a file system, you tend to stay clear of it.
+I was listening to Noah's interview
+yesterday with Wendell from Level One Techs in Ask Noah. What episode
+was that, Bear? Was that 34? 35.
+Episode 35 of Ask Noah, where he had Wendell on.
+I was happy to hear Wendell give a plug to my favorite desktop file system right now,
+which is XFS. I think that is, it has been my go-to
+now for over a decade. Really solid file system,
+still under active development. We've mentioned it before on the show, but you guys ask, you write in and
+ask all the time. Extended is fine, too, but if you're going for the desktop, you don't need
+a big fancy setup, I really think XFS is a super solid file system.
+It's got journaling for the metadata, it's got online defrag, it's got
+extended attribute support. It's fast, too.
+Yeah, it's feature-wise in between EXT and
+ZFS. Yeah, and I think they've got, it's got a bright
+future, put it that way. Alright, let's do some app picks.
+I'm feeling like we're going to run out of, I'm feeling like we're moving so fast that we're
+going to run out of time, and Wes will get here and we'll be out of time for the
+Gentoo Challenge, and then we're going to have to punt another episode of the
+Gentoo Challenge. I can't even believe it. I can't believe it. We should just do a special episode.
+Like a 24-hour Gentoo-a-thon or something. Well, you know,
+if you want to waste some time, I can give you a surprise app pick, Chris.
+Oh, really? You want to do three app picks? Sure. Let's do it. Yeah.
+So, a friend of mine was trying to figure out
+the frequency of their CPU.
+Oh, yeah. And it turns out that proc CPU info
+is not always accurate. In fact, that was mentioned in
+the 4.14 release. Yeah, so there's a third party
+tool called I7Z. Yeah.
+That is specifically for the I series Intel processors
+that gives very, very accurate
+frequencies for your stuff, so you can tell if it's
+respecting power states correctly and stuff.
+Yeah, so you're talking about the I7Z tool, right?
+Which is, I think, is the official page, the code.google page?
+Yeah. Okay, I'll put a link to that in show notes. This I have used myself when doing
+reviews and stuff. It's nice to have it up, because I think it's a cute app, and I just
+happen to like just the way it displays the information, too. There's a command line app, too.
+Really? Yep. Cool. Am I thinking of a different app
+then with the Google? No, it has a GUI version as well. Oh.
+I actually kind of prefer the command line, because then I could use it on like VPS systems
+and stuff. I think at least on Arch there's I7Z and then I7Z-GUI.
+Oh, that's totally what I did. You know me. You know me back.
+You know that I was rolling Arch back then. All right, so are you ready for my... I got two.
+I got one for video folks. Let's do this. And I got one for audio folks. The first
+one, I don't know how this is... I'm listening. Yeah, maybe you've heard of this, Eric.
+I had not, I don't think. And I'm not really sure how this is possible, because it's their
+fifth release. And I follow this stuff pretty closely.
+But it's called VidCutter. And it's a free video trimmer app that
+traditionally has been available for Mac and Windows, and I guess
+Linux for a fair share of time. And it's a Qt 5
+application that uses ffmpeg underneath. That's the core of it.
+And this is an article over at OMG Ubuntu. But if you want to
+split video trim video or join video clips into a single montage, this is like
+VidCutter's power zone. The app lets you perform these tasks as well as
+a bunch of others super quick. It's got a really nice timeline UI that makes it
+easy and simple even if you're not a video editor. You can create frame accurate
+cuts using the new smart cut feature that's in the latest release, which makes
+the feature makes use of re-encoding and can be toggled on and off by clicking
+on a little icon so you can either keep the straight video or recode the
+video like if it's a flash video or whatever ffmpeg supports.
+And it's got a nice fancy progress bar down below where you can see which clip
+is... Beard, you see that on the main screen there? You see how they put the progress bar over the
+actual part of the clip that's rendering? That's an interesting UI
+approach. I like that. So you can see what it's helping. And then they have a feature called
+stream mapping, which helps ensure all source media streams are included
+in the finished export. Yeah, that's inherited from ffmpeg.
+That is a pretty nice looking app. So it's a free video trimming app for
+Windows, Mac OS, and Linux desktop, Joey writes, and you can get it as an app image.
+Geez, it's a 200 meg app image, but you can also get it as a PPA.
+That's probably where you are in all the other places. For real world usage
+I can see people using this to very quickly make GIFs. Oh yeah.
+Oh yeah. Or, you know, this is always my go-to example,
+is you're going to go to xgiving. How do you like that, xgiving?
+It's like Thanksgiving, and the Christmas holiday, and the xgiving.
+What else do you call it? You've got to have some sort of generic term for the next month and a half.
+Happy Holidays, Chris. Yeah, you go to the family holiday thing, and you've got a couple of videos
+on your new fancy smartphone, because you're a geek, so you've got one of them phones maybe
+has a 4K camera, maybe it's 1080, I don't know what you've got. But you go there, you get your camera, you get your video,
+now you can put it together. You can put a little music to it, you can cut in and out,
+you can get that embarrassing moment cut out or keep it in, depending on your family,
+and then you can crap that thing out in just a couple of seconds,
+because you can choose to not re-encode or re-encode, and post it up on your family
+page or whatever the hell you've got, and now you're the holiday superstar.
+Or say there could be this guy doing a podcast about politics
+that needs to cut clips real quick, that doesn't want to re-encode things.
+That's of course my personal reason. Yeah, that is
+my personal reason, of course. I've got a years case as well.
+This might come in handy, like if I have to
+import a huge, huge file into some
+video editor and don't want to spend like years waiting for
+it to decode and go into whatever
+native file format it needs to. Absolutely, absolutely.
+And then every time you can avoid re-encoding, you avoid losing quality too.
+Yeah, exactly. Yeah, I do like that they
+offer a toggle. Okay, well you guys liked that one. I like it when I have an
+app pick that you guys actually enjoy. I think this next one might be a bit of a thud, but
+I'm going to give it a go. Now I've got one for you audio fans out there,
+and this could be just simple if you like listening to stuff, and then
+you hit pause, and if you're somebody like me, after you like
+pause a podcast or a radio show or whatever you're listening to, I like to
+back it up like a few seconds, so that way I don't miss anything
+and just back it up a couple seconds. Well, this
+is Paralletype. It's a minimal audio player. It's built for
+speech transcription. It's written for the GNOME desktop,
+and it plays audio files and then lets you transcribe them in your favorite
+text editor, but here's a cool thing. It
+has two features I really like. Number one, when you pause, it
+rewinds a few seconds, so when you hit play, you're like three seconds
+back. That is great. I wish I could have that in a video
+player, because I would use the crap out of that for our shows. And then the other
+thing I like is that it can play back
+as fast or as slow as your typing,
+and it has the ability to speed up the playback
+without altering the pitch of
+the sound, so you don't get the chipmunk effect.
+That's a game changer for closed captioning.
+Huge, dude. It's huge. And it also has a bunch of great features.
+It produces timestamps, which you can insert into a transcription.
+It has LibreOffice helpers. They recommend you use LibreOffice
+because they have a set of macros that can be assigned to key bindings, and
+you can insert timestamps or jump to timestamps, and of course it's using
+GStreamer on the back end, so whatever you can play with GStreamer, you can
+play with this thing. This could just be a great way to listen to podcasts,
+and then you can use it for transcription if you want. Transcription is something
+that all podcasts could use. They really could
+use it because it opens it up to another audience, number one. It makes it
+accessible to an audience that otherwise is just totally left out, but it also helps with
+search. Google doesn't search audio files, it searches text.
+And so podcasts that can do transcription
+can be better discovered. It's a great
+way to like, if there's a podcast you love, it'd be a great way to help them out.
+So there you go, it's Paralletype, and I'll have a link
+in the show notes. Seems pretty nice. Seems like, and
+I guess for those of you that are not visualizing, it's one of those minimal Gnome 3
+applications, but it's got everything you need. Play and stuff is in the client
+side decoration. In the middle is a waveform, below that is a
+really accurate time scale, and then you have playback controls in the bottom half and a speed
+slider. Pretty nice, pretty clean, pretty simple. It would fit on your
+screen while you're working and not take up a lot of room.
+So I'm going to just probably do it to listen to local podcasts that I download the MP3 of, you know what I'm saying?
+I'm looking forward to that. Parallel play.
+You know what we should do? Paralletype, I'm sorry. Paralletype. We should
+take a second here. If you're listening live, if you're in Discord or you're in the IRC,
+and wish Angela, tag her and wish her a happy birthday, because today as we're recording
+is her birthday. There you go. Another little breaking news, right?
+So yeah, Architect points out that Antennapod
+also has speed up. I wonder how many people listen to our shows
+at double speed. I've recently taken to doing it for a couple of things that I'm trying to catch
+up on, and man does it devastate the music. It just
+wrecks the audio. Anybody in the Mamba Room
+like a 2X listener of podcasts? There's
+an article today about it actually. It's actually a news story about people
+who listen to podcasts at 2X.
+I wonder if I could find it really quick. No, I don't think. Speedcasters
+is what they call them I think. They called them speedcasters or something like that. It turns out that
+almost nobody goes over 1.8% for some reason though. Really? Yeah.
+Yeah, because it starts sounding pretty bad. Most people stick to like
+1.5%. People who listen to podcasts
+at 2X or something like that. I know there was an article today about it.
+Yeah, here it is. Of course it's BuzzFeed. Of course it is.
+It's meet the people who listen to podcasts at super fast speeds.
+That's what it is.
+They say 2X, but yeah, I think you're probably right.
+They say most people listen to five podcasts a week, but some people
+listen to a lot more. Some people, 20% of podcast
+consumers listen to more than six podcasts a week. They call them podfasters.
+That's what it was, podfasters. Isn't that obnoxious?
+Of course, leave it to BuzzFeed. Nobody in the Mamba Room will own up to it.
+Nobody in the Mamba Room is going to own up to being a podfaster. Who's a podfaster?
+As bitmucks,
+I don't quite make 2X, but really it depends on the speed of the podcaster.
+I will do easily 1.5, 1.6.
+Really? I would think I would sound way too fast at that speed.
+I would put me like a 1.3 max.
+I do it accidentally.
+There's a Boing Boing article that says some people listen to it up to 300%.
+Well, I actually will sometimes listen to audiobooks
+at a pretty fast clip because my
+ADD brain has to listen just a little bit more intently
+and I retain the information better. So it's a little bit of a brain hack.
+If I listen faster, I can't let my brain drift because I will miss it.
+And because it's more challenging, I find it more satisfying to stay focused on.
+So there is some logic to it when you're getting through it like an audiobook.
+I just find with podcasts it wrecks the flow of the conversation.
+Apparently there are some other potential benefits besides speed.
+Apparently higher tones are less likely to be masked by low-pitched street noises,
+HVAC or low-flying planes. So it's easier to hear in loud situations.
+That's weird. Huh. Okay.
+I can't argue with that. That's ear science, right?
+You know what's really strange is when you
+listen to the theme music of various podcasts for so long at high speed
+and then you listen to that same podcast live, it feels like the theme music is just dragging.
+See, I have the opposite feeling.
+When I hear it, I'm like, oh my gosh. Oh, I was going to try to do it.
+What's the command in MPV to double speed? Is there a command? I don't know what it is.
+I'm sure there is one.
+It also says if you speed it up to 2x or 3x,
+your comprehension really starts to break down. But the exception to this is blind people.
+Because they're used to only listening so they can speed it up faster than
+sighted people and still understand it.
+I'm just thinking right now of the Ask Noah show at 2x. I'm just thinking how fast that would
+be. That would be rapid-fire podcast right there.
+I feel like if you speed it up at all, you can't understand it.
+It would be in a half hour. That would be good.
+I'm going to try it real quick and then we'll move on.
+No, I didn't do it.
+Oh well. People listening just sort of lazily
+will be like, what the hell is going on? What's the matter? I wonder if you'll get a comment
+about bad editing. That would be good.
+You could, if you wanted to, take a moment
+while we're waiting for Wes and head over to Digital Ocean. This might be a good use of our time.
+Because what else is there to do with life other than wait for Wes Payne
+and set up Digital Ocean? DigitalOcean.com. You go there, you create your account,
+and then use our promo code DOUNPLUGGED. That helps Rekai's beard
+grow. And really that's what this whole show is about. It's really a long
+play to grow that beard. You go to Digital Ocean,
+you create the account, and then you apply that beard
+oil called DOUNPLUGGED. One word.
+And that will give you a $10 credit. You can get started in less than 55 seconds.
+And you'll have a fast system on their infrastructure. Everything's SSDs.
+40 gigabit connections to the hypervisor. Object storage and block storage.
+Hey Chris, you know, this beard is pretty big, and you know what it could use?
+Some space. Oh yeah, well then you need to check out their new
+spaces system. It's object storage. Beautiful and simple. You can use
+it programmatically like a boss, or you can just generate URLs in their
+dashboard. And by the way, hell of a dashboard it is. They got a dashboard for days
+over there. You've got a long time, sort of like a barnacle of the IT
+industry. Got kind of like this sort of skeptical outlook on
+everything. All this new fangled web stuff. Let Digital Ocean treat you to how
+to do it right. You build a product around an amazing API. And then that results
+in a gorgeous dashboard. And it results in an easy, simple,
+I'm going to say, not having done a lot, but the work we have
+done, very comprehensive API. Like the things that we can
+do with the API. I don't even know why I'd even need to go to the website if I didn't want to.
+And it's so simple and well documented. So, while I haven't set up like
+10,000 systems, every single day I'm controlling multiple
+Digital Ocean systems using that API, and I don't ever use that dashboard. And then when I go back
+there, I'm like, damn, look at this thing. This isn't a dashboard for days.
+This is a dashboard for years. DigitalOcean.com, use our promo code DOUNPLUGGED
+and a big thank you to Digital Ocean for sponsoring this
+here unplugged program. You use spaces, don't you? Yeah, I have.
+I've only done light testing with it, because I don't have a big need for it.
+But I did use it to share some pretty large files, and it's super fast.
+And the link, I had it automatically destroy after like
+I don't remember, it was like a time period I set in there. I think it might have been a couple of days, because I was trying
+it out. And then the files are gone. Boom. Just destroyed.
+I feel like such a boss when I know my data's got a self-destruct. I feel like it's mission impossible.
+Speaking of mission impossible,
+let's do a little break into your system before somebody else does. This is, I think, one of the
+best security practices. You can keep your system patched. You can use
+the right account privileges, don't run as rude, all this kind of stuff. But
+if you're not checking, if you're not probing your system, you're not really fully confident
+that it's secure. And who doesn't want to just sort of take a look, do a little audit?
+It's a little checkup, like going to the mechanic. Only you can do it yourself.
+The tools have changed over the years, but
+Linus, L-Y-N-I-S, is an open source security auditing tool.
+And you run this on a FreeBSD box,
+a Solaris box, an AIX box, a Mac
+NetBSD, oh yes, and Linux.
+You can run that on these systems, including things like a QNAP storage device.
+And it will come back with an extremely comprehensive report. Now, this isn't
+going to be the all-in-all solution. You run this, and now your box is perfectly secure.
+But if IT security isn't your day job,
+you will get a pretty good education running this thing. Because not only will it check
+for some best practices, like what's listening on the network, what version
+your patches are, what CVEs your system is vulnerable to,
+it will also audit things like your SSH configuration, and make sure that you're
+following some of the best practices there, because things change. And they keep this program
+up to date. So it's basically a six-step system
+after you install it. You run it, and it determines your operating system. It will search for available
+utilities and updates. You then run the test based on some plugins that it ships with out of
+the box, and you get different categories to choose from, and then you get the report.
+And I thought we'd just do it right here on the show, because it's pretty
+quick, and I've already installed it. It's not a PPA, but there is a repository
+available for Debian and Ubuntu systems, probably
+in a lot of repos, or you can just download it from them. Once you have it installed,
+you get the linus command, l-y-n-s, and you can do linus show commands,
+and I'm showing it here on the video version, if you'd like to check at this point in the show. If you're
+listening on audio, you can go refer to YouTube if you'd like, or just install it
+and run linus show commands, and you'll see what I'm talking about. It's pretty straightforward. So the first
+thing we're going to do is... I'm going to try not to do anything
+in sudo until it tells me to, by the way, and you can follow along if you like. I'm going to do
+a linus update first, to make sure that all my stuff is updated.
+And we'll do update for info. So this will be all the vulnerability
+info that it can know about. Alright, so I am up to date. So if I'm up to date,
+then I can go ahead and I can run the audit. Now that I am going
+to run as root, sudo linus audit. You type
+that in. I give it my crazy super secure password.
+And, oh! I should mention
+one of the things they've recently added to linus is the ability to also audit
+docker files. So you can download a docker file and then run this against
+those containers. And that is super, super, super useful. But
+in this case, I need to actually specify system now. So I'm going to specify
+linus audit system. Now it begins to run. It checks the operating system
+and it's finding all kinds of stuff already. It's going to generate
+a text report that I can read at my leisure. It's going to be in
+var and you're going to need root privileges to be able to read it. But if you can do that,
+then you just give the, it'll give you the path. You just give that to your favorite
+text editor. Nano! And then you can read the full report.
+But right now linus takes, it'll take anywhere from, oh! Just found some stuff. Anywhere from
+a minute took what? About 25, 30 seconds to run it here on my system.
+Now I can get a report here in my browser. So I got a couple of dings already.
+There is right off the top here some recommendations for how I could
+harden my SSH configuration. There is some
+auditing changes I could make and some changes to logging on my
+system it's recommending. It's also recommending that I install
+rootkit hunter or check rootkit and then cron that, which is just sort of a best
+practice. So it ranges from things that I actively need to do or patch to best practices.
+And in fact, here's some on permissions.
+Here's a warning. Found one or more vulnerable packages. And then it gives me the
+package that it found and a URL to read more about it. It also recommends
+that I set a password on my grub bootloader to prevent altering boot configuration.
+And it also goes through and identifies all of the package files
+that have changed since I've installed them on my system. And software
+that might have a suggestion, like
+my log level, my max sessions, my permit root login settings,
+X11 forwarding settings, allowing agent forwarding
+settings. It has suggestions for all of those. It does have a warning
+for file permissions with CUPS on my printing. Something I need to fix.
+And of course, like I mentioned, I have a vulnerable package. But
+it looks like I'm pretty good as far as listening to remote hosts
+and looking at my DNS stuff, looking at my IP stuff.
+That all checks out. I had 43 ports open on TCP
+or UDP. It checked promiscuous interfaces. I passed all of those.
+No ARP monitoring software was running. It'll also do an IPv6
+audit if I have one. And then at the very bottom here, I get this
+output where I could actually throw that into my
+text editor of choice. It's at var log linus.log
+and I could get the whole thing in there. So we could take a look at that too. Because
+this is sort of the thing you would want to, if you were actually doing
+this for work, you would use this as documentation that you've completed the audit.
+Oh yeah, I just said I had to have root permissions.
+This is right here, your documentation that you completed the audit, but this is also now your
+comparison. So you save this, you set it aside, you make the changes that it recommends,
+and then you run it again. And you see how you do on the next pass. And then you
+find what's missing, you make those changes, and then you save that, you set it aside, and you
+run it again. And you just keep doing that. And you can do it on your digital ocean
+droplets, you can do it on your laptops, you can do it on your servers. It supports
+tons of different operating systems. It's based on stuff that I have been using for over a decade.
+Some of you might remember Bastille and other tools that have been around
+for a very, very long time. And the
+funny thing about actual IT security, the
+dirty truth about it is, you don't have to get it right.
+You just have to show that you're actively trying to mitigate risk,
+and you're actively taking corrective action when you find an issue.
+And if you can show that to auditors, or management, or whoever it is
+in your particular dynamic, that's
+really the benchmark. That's the bar.
+I'm not arguing, I'm not advocating it. I think it should be you strive
+for optimum security in every case. But the reality is, in a large production
+environment, you need a tool where you can have a baseline to work off,
+something you can modify and add your own things. That's the other thing you can do with Linus is
+you can add your own kinds of checks that are maybe specific to your environment.
+And you can also say we're using this to check docker images
+when we pull them down. So when management comes to you, or when
+an auditor, in my case, had come to us, we could say, we are using this, this is
+a process we've developed, this is a tool we've used, this is the tool, and this is what we
+do when we document a mistake, and this is what we do when we document a fix.
+And it gave us a trail, a paper trail,
+of IT security auditing. And that not only saved our
+butts several times from an auditing standpoint with the FDIC, but it also
+showed like producible work that the IT people were doing. Like here's this thing,
+and here we ran it several days later, and we fixed these things. And so that was great too.
+But now I can just run it on my own systems and go, oh yeah, right, I should change that about SSH.
+I never use that feature in SSH. Why do I have that on?
+Yeah, they say that they also use it for like ECI and HIPAA compliance testing.
+Yep. Oh yeah. Yeah, yeah. That's basically, I wasn't doing HIPAA. Well, I had
+to actually use it for some HIPAA systems. It also just gives you a great report of all of the
+background system daemons that are running. I forgot I installed
+X2GO on this machine. So that was good to see that.
+And the developers have kept it updated throughout the years
+now with systemd support, and like I mentioned, they recently got Docker support in there.
+It's a pretty cool tool. L-Y-N-I-S.
+And you can find it at, oh boy,
+it's CISOFY.com slash
+sysify slash linus. And it's pretty neat.
+You could also cron something like this and then get reports, which is something we've done.
+So you could have a system. Oh really?
+Oh, good to know. Good to know, Echo. Thank you. You could have this
+run on a remote system, a VPS or something like that,
+and just use it to check in and make sure nothing changes. If you've got a rig that you don't log
+into very often, you don't get a lot of eyes on, why not have this thing running in the background
+every Sunday sending you a report telling you if anything's gone wonky?
+It's pretty nice. You can start to think about ways you could use this
+from all kinds of different scenarios.
+And since it's open source and free, it also has a plug-in system, but I think
+you start getting into the commercial
+territory. I have never really dug into that with Linus as much as I did with some of the previous tools.
+The main difference with Bastille, for those of you that remember,
+is this is
+more comprehensive. This is more of an in-depth security scan.
+You kind of pick a level of security that's appropriate for your environment
+and then Linus holds you to that. It supports way more operating systems than Bastille
+did. It won't actively break your system like Bastille did in some cases.
+And the audit is significantly more in-depth.
+I don't know if you guys, maybe, probably nobody remembers these tools like Nessus
+and some of these tools that I used back in the day, but Nessus is another tool you could run against
+your own system. The thing is, in that case, or OpenVAS would be
+one you could use today, but again, in Linus it's going to be significantly faster.
+You're not going to bang out your log files because you're slamming on these ports.
+And because you're running it on the host,
+you're running it with privileges that Nessus or OpenVAS wouldn't normally have.
+And since you're running this yourself, you want to know what's there, so you get some more
+comprehensive search of the entire system.
+They do have an enterprise. They should contact me. We'll talk.
+I'll do some of the marketing for their enterprise products. I'm all in.
+Like a remote core system and all that, that's
+probably incredibly fancy. Anyways, I've read it on enough now
+about my old security
+proclivities, but it's fun, and it's a neat way to just check your system out and see
+what's going on. If you're on the Mac system,
+you know, one of the Macintoshes, it's in Homebrew. And if you're on FreeBSD,
+it's in Ports, and it's available as a deb and an rpm and a tarball
+as well. As well as, like I said, a deb repo for the Ubuntu's.
+What do you think, Beerbert? Oh, go ahead. I wonder if there's an API
+for that. I think that'd be really interesting. That would be good. It'd be really interesting
+if we could, you know, build a GUI for that so that regular
+users could be able to do that kind of audit, that kind of
+check. You know, just be able to see little green check boxes or whatever. It's
+GPL too, so I wonder if there's any distro out there that's pre-shipping this
+and emailing the users with a report or something. Because you could even modify it
+a bit to kind of clean it up and make it more presentable, I suppose. It looks like for at least their premium
+software as a service offering, they do offer an API. Oh, yeah, I figured.
+Yeah, I figured. Isn't that how it always goes now? I'm guessing
+their self-hosted version also offers an API, considering
+you have to receive a custom quote to get it. Oh, yeah.
+Oh, yeah. Yeah, the API is where the money's at these days, right? So you always
+have to throw that behind the enterprise product. It is pretty affordable, though. Three dollars
+per system per month. Hmm.
+That's for their premium offering. This is the way this works. So the GPL
+sort of like the core product that you just run on your own on the command line that you could
+automate if you knew some shell scripting and cron and, you know, you could get it
+done. And so they tease you with that, and then you get like a big huge infrastructure
+that like, you know, if you just, you could use the enterprise product. It's the same core technology, but
+we've added additional value, and we have an API. It's only three dollars a month.
+How do you not go, I'm doing that, right? If you start using this at the enterprise level,
+sure, if you're on a laptop, you're on a couple systems here in the studio, probably not worth it, but
+you start getting more beyond 10, 15 systems, you start getting to 25, 30, 35
+systems, that enterprise offering is all of a sudden starting to look pretty tempting. I mean, I know
+Noah's going to be in just because there's a self-hosted option. Oh, really? There is?
+I should call in. I should call in to ask Noah, and I should
+ask him what Linus is, and he'd start explaining who Linus Torvalds is,
+and right? No, no, no, not Linus. Linus. What?
+I could just see how that conversation goes. Yeah, yeah, there you go,
+Dan. Build it into elementary OS, okay? Just build it right in there, and
+we'll give us a mess. Yeah, I gotta go poke. Now I gotta talk to some people.
+I'm on a mission now. It would be a pretty cool like headline feature, elementary OS,
+self-auditing security, you know? Wouldn't that be pretty sweet?
+It would. I wonder if you could like run this stuff on against the
+elementary OS ISOs to see how secure they are?
+Yeah, I'm going to have to start a whole witch hunt now.
+We're going to change some default settings.
+I think it'll be fun to watch. You tell us how it goes, Dan. You report back, okay?
+Alright, well, so check it out, Linus. You can find a link in the show notes, and
+yeah, I actually did pretty good. Some of my other systems that I ran this on did
+not pass the audit as well, but it's all pretty readable. It's all
+pretty understandable if you've worked with this stuff in the past. It's like, go change the permissions
+on this file. Go change this line in the config. Go install this package.
+Does it give you like a description of why this is a bad setting?
+Yeah, so what they generally do, I was trying to find one that I could refer you to, but
+boy, there's just a lot when you look in the full log, but what they generally do is they'll say
+this is a best practice for XYZ reasons. See more here
+on this URL, and they'll give you a URL to their website with like a knowledge base article,
+or they'll link you to a CVE, so you can go read the CVE
+on that particular vulnerability.
+Of course, it also supports SE Linux and things like that. I probably should not get back into all the things it supports, because
+I could really do an entire episode just on this.
+I wonder if it's possible to run it on the Windows
+subsystem for Linux. That's a great question. I want to see what that would
+return. I sometimes wonder if we should have that installed
+somewhere on one of these systems, if we're missing some aspect of Linux now.
+Do you think that's a thing? Are we missing out on something there?
+Maybe. I mean, I feel like there's a silent group of people
+that are using it, but they're not talking about it. I've definitely had a
+couple of conversations where people are, it starts like this, it's like, you know how
+you were saying on air that you were worried that Ubuntu on Windows would just keep
+people on Windows? Well, that's me. And I've had that a few times now. And they're like,
+you know, I was thinking about switching, and now I don't have to.
+I mean, but at the same time, those are technically also now Linux users.
+Don't give me that crap. Don't give me that. I hate that. I hate it when people do that. It's like calling Android
+users Linux users. You just don't like Linux being in a sandbox.
+Yeah, don't put Linux in a box. I know. Well, unless it's a box on your Linux box.
+But you're perfectly fine with running Windows in a VM. Why does that need to be in a sandbox?
+Because Windows is a toy operating system. It's actually almost irresponsible to run
+Windows on physical hardware. You should always be running Windows under Linux
+virtualization, I think. Maybe with hardware pass-through.
+On the flip side, though, I think Linux is the most popular
+virtualized operating system. Damn it. Damn it. Yeah, you're probably right.
+And of course, I'm just having a bit of fun. The only time I would ever really run Windows
+is actually when I needed to be on physical hardware. So I don't often have use for
+Windows in a VM anymore. Or when you need Skype to not suck. Yeah. Yeah, that's been
+a thing. Yeah. I was trying to debate if we should have a no Skype
+policy, like talking about Skype in the show. But we recently, just because it is kind of
+newsworthy-ish, is we recently had the
+new version of Skype for Linux. The rest upon us. Yeah, the version that
+they shipped out to everybody now. Windows, Mac users. We've all gotten the new Electron
+based Skype. We don't have a choice but to use it because the old Skype
+doesn't work right anymore. Yeah, and it has totally borked audio
+on our Ubuntu 16.04 system, ironically. We finally
+stabilized on the Ubuntu 16.04 system. Well, to be fair, it could be
+on any Linux version. We haven't tested it yet. Yeah, we've only tried it on 16.04.
+That's true. But I haven't heard everybody else complaining. But what happens is, is you run Skype for a
+bit. A few minutes. It's an instant problem.
+And how would you describe this problem? How would you describe what happens to the audio?
+The audio slows down, so things are
+pitched down a few octaves. But it's also only the highs of the
+audio. So it's slowed down, but it's like, okay, well there's two things.
+The audio that gets recorded and the audio that we hear are two different things. Yeah. You're talking about
+the audio that gets recorded. Correct. Yeah. So just finish describing that. I'll describe the
+other audio. So it slows it down. Yeah, it slows it down so the audio
+is down a few octaves and it's slower, noticeably slower, like when you put
+if you're recording on another system, like if you're
+recording two ends of a Skype conversation, you put them in the timeline, one will be
+longer than the other. And then there's also the
+other issue that Chris is going to explain. So on the sound output from the system
+that's now running Skype, everything is high pitched. It's slowed a bit and it's
+high pitched. So it's more chip monkey, kind of
+screechy, scratchy kind of sounding. And it's
+all application output after Skype's been loaded. It's fine. I could
+demonstrate it right now. If I loaded Skype, it would break the audio from the mumble room
+for everybody. Everybody would sound like their microphones are broken. Until you reboot.
+Yeah. Can't even just close applications and reopen them.
+You've got to reboot. And then if you
+open Skype again, you've got to reboot again. And the weird thing is
+even if you're, well since you're recording externally from Skype,
+like it will, if you have good audio
+when you start from another application and you open Skype,
+it will affect that audio as well from the other application. Yes.
+So I mean our solution has been don't use Skype. But what happens is
+every now and then we end up in a situation where one of our remote hosts
+has happened a couple of times recently, is at a client's network and the client
+has outbound firewall rules.
+And when that happens, we're kind of limited.
+Yeah. So it's most time
+it's just been Skype. They only allow us to use Skype. They have like, or Slack.
+But we're not going to use Slack to record podcasts. So it's like Slack or
+Skype. So we went with Skype. Yeah, for example, the user error that just came out
+on Sunday, we ended up recording that
+on mumble because we had the first issue that Chris described. And then
+we switched to mumble, but then we opened Skype and that messed up the recording
+over mumble. You know what? I think InagoGo might have it. And I wonder if I could fix
+it with Puva control. So InagoGo postulates, or perhaps
+he knows, that Skype is changing the sample rate in pulse.
+Well that seems testable. Yeah, that's possible.
+And that seems like something, I wonder why that would be, but I wonder if we could, if we
+change it back, I wonder if Skype would sit there and fight with us and flip it? Well, we also noticed
+that Skype was changing levels every time we started it. Yeah, that's true.
+And then after, and then after some of this bouncing around, it was
+just, we were just, okay, we just, it's not like we want to sit here and waste a lot of time
+trying to make stupid Skype work, you know? It's not like it's some high priority, but
+go figure. It's like, it's, the purpose of this system is to
+have multiple avenues of communication. Discord, mumble, Skype,
+Hangouts, Jitsi, whatever
+cockamamie SIP application Noah wants me to use this week.
+This is our communications rig that we bring in for remote hosts, and so Skype is one of
+the many applications it's supposed to work with. Now hopefully
+InagoGo goes right. Hopefully he's onto something, and we can fix it.
+Because I want to keep it 16.04, I don't want to have to switch to something like Windows. Which is probably where
+we might end up. Which would be, nobody would want that. Nobody would want that.
+Alright, Beardsley. Well, so I thought, since we don't have
+Wes, we could, we could lay, you know what we could do is
+we could lay the groundwork for how we're doing the Gen 2 challenge. And cover that,
+and cover the software setup we're doing, and cover what stage install we're starting with and why.
+And the plan that we're going to have for going forward, so that way
+it doesn't like monopolize the whole show, but we're still going to get to it. So anyways,
+we'll do that. We'll do that in place of actually kicking off the challenge, is we'll lay the
+groundwork for the challenge, and then we can just go full force. So, let's thank
+Ting for sponsoring this here show. Go to linux.ting.com.
+Linux.ting.com. You've heard that word before, Linux. You want to put that in your browser.
+Because then, when people start typing L, they get Linux
+sites and not, I don't know, other things that can start with an L.
+Linux.ting.com. You go there and you learn more about a better way to do mobile.
+Average bill, $23, and it's delicious!
+Like a turkey dinner? Oh! Like a turkey beard over there.
+You pay for what you use. It's just however much you talk, however many
+text messages you may or may not send, and however many megabytes
+you may or may not use. Wi-Fi! And then it's nationwide coverage, no
+contracts, no determination fees. It's just $6 for the line, Uncle Sam's
+cut, and then your usage. You know, with three lines, three lines,
+we're almost always under $35. It's great because
+all three of us are always on Wi-Fi, and we're always on Telegram,
+or some other VoIP system when we want to make calls.
+I mean, it just works so great for us. And if you're in a small business, it's kind of like in our setup, where you have a few
+savvy users, it's just such an awesome way to
+give, not just like phone services, but to really keep everybody
+in contact on the team. Because you have, like in our case, you have Telegram and
+Slack, or whatever apps you guys in your organization might be using.
+But now everybody is connected all the time, and so
+Joe and I were just talking about Linux Fest Northwest just before the show started, and
+that's the time where I go, you know, I'm thinking I might buy a few Ting Sims ahead of time. I don't even
+know what we'd use them for, but they're $9, and I don't pay a contract, there's no determination
+fee, so I just put, when the guys get here, we put them in a device and we're good to go.
+And you can get them on Amazon, they're primeable too, which is a great way to give them out for
+holiday presents as well. That's kind of cool. And then when they want to sign up, just send them to
+linux.ting.com, and they'll get our deal. That's pretty cool. So what's great
+about that is if they've got a device already, then they could get a $25
+service credit and their first month's going to be free. That's a pretty great gift.
+linux.ting.com. linux.ting.com?
+Here's my question, Chris. You saved a whole lot of money on Ting. Do you know
+of any delivery turkey services? That is a great
+question. I know places where you can get really good turkey meals, but you've got to pick them up.
+And it's pretty far from here. Boy, turkey
+delivery. I don't know. You know, really what you should
+do is you should get a grocery store delivery and just get one of their turkeys and
+just go that route. But I want somebody else to make the turkey for me.
+Yeah, just get the pre-made one and you can microwave it. I mean, nobody's counting.
+Microwave turkey!
+Indiegogo says he was just guessing, by the way, but I think that's a good guess. It's something I might check.
+And yeah, if you have time to check it yourself, Mr. Gogo, please go for it.
+I have done some research, Chris. There apparently is mail-order turkey.
+Yeah, but it seems like you'd have to get on that like a while ago. Maybe.
+This is like hours away now. Turkey Day is hours away.
+There's probably Amazon next day delivery.
+I wonder if she's looking to Boston's. See what they offer. You know, they're not too far away.
+So let's talk about this Gen 2 challenge. Not Turkey Day.
+Although it is funny, Turkey Day is getting on our minds more and more. It's big for my family.
+This is the one that we really like. Because we like to eat, to be honest.
+Anyways, we're going to do the Gen 2 challenge in some, I hope, in a way that's fun.
+And also sort of gives you a real taste of what life with Gen 2 would be like.
+So it's kind of a delicate balance, because we don't want it to be boring to people who don't give two craps about Gen 2.
+And at the same time, we want to give it its proper due.
+We are going to take an approach that I think you guys will like, especially once it's up and rolling.
+And that is, I'm going to build a VM here for Mr. Wes Payne.
+And it's running here in the studio.
+And at the beginning of each show, Wes will fire it up and he'll begin building the Gen 2 system.
+As the show goes on, he'll sort of tend to it. Keep things rolling.
+Keep it installing.
+And then when the show's over, we'll pause the virtual machine.
+You know, we might pause it a few minutes after the show. Maybe let it build, finish, or something.
+We'll pause the virtual machine and we'll go home. We'll go about our day.
+And then the next episode we'll come back, we'll continue the build.
+Now the idea here is to demonstrate, if you take a few hours a day, or a week, a couple hours a week,
+how long does it take you to get a running Gen 2 system all the way up to X, and then make it usable?
+So we're basically doing a real-time Gen 2 install over a series of weeks.
+Yeah, and so we'll sort of just check in on it. It won't be the main topic, but it'll be part of the show each week for a couple of weeks.
+We'll just check in on it and give everybody a sense of what that's like.
+And we were looking at it, and you start with a Stage 1 because that'd probably be the most entertaining.
+And then we could poke the most fun at Gen 2 with a Stage 1, right?
+Look at Gen 2. Look how long it takes. That would be, of course, the most entertaining.
+We did some digging around, and it seems like that Stage 3 is basically – that's the way the project recommends now, right, Beard?
+Because when I did this, it was like, go whichever way you want, but Stage 3 is like –
+that's the recommended path now, and they make it hard to even do a Stage 1 or 2.
+So the differences in the stages are how far along the system is.
+With a Stage 1, you're just doing everything. You're building everything.
+With a Stage 2, the tarballs that you get contain some packages that the Stage 1 might have had. They're built from that.
+And then it's a little bit further along. You have more tools in the chain.
+Then you have a Stage 3, which is – of course, it's everything the Stage 1 and Stage 2 tarballs have, but it also contains a system set.
+And Portage includes quick references for this set based on packages that might be in the atSystemSet operator.
+It has architecture-specific downloads available, so you can get it for like the 64-bit version of an Intel CPU or 32-bit, or you can get it for ARM.
+And it's more of a complete system ready to go.
+Basically, they use Stage 1 to build out Stage 3, and Stage 2 is basically just Stage 1, except they built Stage 1 with itself to make sure it could build itself.
+Right. So it really is not Stage 1 and 2 combined so much as it's a completely built Stage 1.
+And it's kind of like now you partition the disk and lay these things out on the disk, and you just have to then do your partition magic.
+And look who walks in right now. Hello, Mr. Wes Payne.
+I could tell you needed me, gentlemen.
+Yeah, did your Gen 2 ears start itching?
+Oh, yeah, yeah.
+Yeah, so I was just telling the folks about our strategy. So I've set you up a virtual machine here.
+Oh, look at this.
+And I've got you a Stage 3 ISO.
+I decided – oh, hello there – I decided for simplicity's sake just to do VirtualBox for the VM because it's got the easy pause option.
+It sure does, yeah.
+I just thought that for simplicity's sake, we'll go VirtualBox.
+I haven't used VirtualBox in a while, and they've got a built-in setting for Gen 2.
+And so, yeah, we're going to essentially just – I bet next episode I think you'll have it booting.
+And then it's just going to be how long does it take to build from there, and we'll just sort of check in on the project as we go.
+And you can follow along, too, if you'd like. In fact, I think that'd be a really fun aspect if you want to build a VM and start it up while you listen to the show and see how far you get.
+Oh, we can build together.
+That's what I was thinking. Wouldn't that be really cool? I mean, it's nerdy, but I mean, that's what this is all about, right?
+That's right, it is.
+It wouldn't be a virtual lug if we weren't doing things like compiling Gen 2.
+Yeah, and I totally – seriously, if you guys – anybody in the Mumble Room wants to do it along with us as well, you can check in when we're doing our check-in.
+Or if you're going to do it at home and decide you want to join the Mumble Room, you can go to – it's mumble.jupitercolony.com to get the setup guide and information you need to join our Mumble Room.
+mumble.jupitercolony.com if you want to do it along with us. I think that could be pretty cool.
+Well, I'm glad you made it, Wes. How about that Washington traffic?
+Oh my, that was some of the worst I've seen in a long time.
+Everybody gives credit to New York and Los Angeles for their traffic, but nobody gives proper credit to how awful Washington is.
+See, we need to spread this more so people stop moving here.
+Yeah, exactly, because they don't know about this.
+It's horrible, don't come.
+But you did bring us a beer, huh?
+I did.
+That is – jeez, a winter ale.
+It's even called Kitten Mittens.
+You know, okay, so I was just about to wrap up the show, but since you're here, I thought we should mention that everybody, all of you, even if you're not a TechSnap regular, should probably check in on episode 346 because there's some news in there.
+Some changes are coming to the TechSnap program, and it may be relevant to listeners of this program.
+It sure might.
+I'll just put it that way.
+And also possibly the next episode of User Error?
+Right, yes, yes, yes, because Wes will be joining us for the next episode of User Error, so we'll have details about big secret plans that we've been working on for several months behind the scenes.
+Oh, so secret.
+So get the news, get the announcement in TechSnap 346, which we have not recorded yet, but we'll have more details in User Error 36, which will probably be out like Saturday or Sunday of this week.
+So something to maybe listen to over the holiday weekend.
+There's always changes happening here at the JV network.
+Well, Wes, it's good to see you.
+Oh, yeah.
+Thank you for making it.
+Thank you for doing a wonderful show.
+I was enjoying it listening while I was trapped.
+That's good.
+Did you do the JV Live FM, or did you do the YouTube stream?
+What's your in-the-car choice?
+Normally it's the FM stream.
+This time it was YouTube because it was just the easy, I told Google and it brought it to me.
+And the nice thing is you lock the screen and it basically converts to an audio stream.
+Yeah.
+And that's pretty nice, too.
+And then you unlock the stream, boom, back to a video.
+That's only if you have YouTube Red, though.
+Yes, true.
+Good point.
+But then otherwise go to jvlive.fm.
+Yeah.
+You can listen that way.
+All right, gentlemen.
+Thank you, Mumble Room.
+Thanks, guys.
+Go check out Mr. Dan there over at the Elementary Project.
+Of course, they've just got that app center just rocking these days.
+New apps are landing all the time over there.
+Go check those out, too.
+I just saw a new one going by, a new weather app that looks real slick.
+Ooh.
+It's good to see you, Dan.
+Thank you for making it again.
+I appreciate it.
+Of course.
+Now, thank you, everybody, for making the Mumble Room.
+We had a light turnout this week, but we had a great crew.
+So I really appreciate everybody that did make it.
+And again, you're welcome to join us, mumble.jupitercolony.com.
+If you have story suggestions or show, like, episode-specific feedback,
+the subreddit is great for that.
+Go to linuxunplugged.reddit.com, and you can send your emails.
+Go to jupiterbroadcasting.com slash contact,
+and choose Unplugged from the dropdown.
+Go get more beard at wretch.net.
+Hey!
+God, that's a good one.
+So good.
+How did he get that?
+And you're at Westpaint.
+That's right, I am.
+You got your name on there.
+That's pretty good, too.
+Clear, simple, easy.
+That's pretty good.
+I'm at Chris LAS.
+The network is at Jupiter Signal.
+And I feel like I probably should mention this from time to time.
+We also have a telegram group, jupiterbroadcasting.com slash telegram,
+where you can join in some of the shenanigans there.
+Thank you for joining us on this week's episode of the Unplugged program.
+Go grab our RSS feed.
+That way you can see us next week, because otherwise we're going to miss you.
+Goodbye!
+and we'll see you next week.
+Bye!
+Get it out of here.
+Well, Wes, I think obviously you should title the episode.
+I mean, that seems like, I mean, I don't know.
+Anybody got some suggestions we need to title this monster?
+Let's get a name.
+Let's get a name for this thing.
+Let's not make it awful this time.
+Not like last week.
+What happened?
+I'll tell you what.
+I'm going to just clickbait.
+Wes panning for Gen 2, Gen 2 test scam.
+And simple tricks to audit your Linux system.
+We could get really good at this.
+We should just do like a whole like rash of those.
+What about, are you getting that impressive emoji support or are you using the...
+I'm using the web browser for that impressive emoji support.
+Yes.
+I'm using the Discord app in the web browser.
+No escape from Google.
+That's kind of good.
+That's kind of good.
+That is pretty good, actually.
+Architect kills it with those titles sometimes.
+Dude, he's a ninja.
+He comes in there and he's like, boom, right in the nuts.
+And by nuts, I mean things suggested.
+What about B caching your file system?
+Well, I don't want a dog on the B cache because it loves it.
+I got nothing but love.
+Yeah, I saw some good replies to people being snarky about that in some comments elsewhere
+and like pointing people to like, here's the code.
+Can you spot the problem with it?
+And then like the one line patch that actually fixed it.
+Still a shame though.
+What about Android colon location aware?
+I don't know.
+I don't think that's better than no escape from Google.
+So you mean we peaked at the top of the show then, huh?
+Is that what that means?
+I thought the Linux stuff was pretty neat.
+I mean, you know, I thought that was neat.
+No, you're right.
+You're right.
+I think sometimes I Google out on the security stuff more than people care.
+That might be what's up.
+That might be.
+That might be true.
+But to me, it's just so handy.
+It's so handy to be able to check your box and just get like a, even if it's not a totally
+comprehensive, it's more than you were probably looking at.
+That's what I like about it.
+Yeah, absolutely.
+And it's fun to play around with that stuff and compare your different distributions.
+Like, you know, you installed one distro and then you installed the other distro and you
+can see how they're kind of set up out of the box differently.
+Maybe we can bring that back around on this here Gentoo business.
+Oh, that would be interesting.
+Yeah.
+I, we have to have a yin and yang for architect.
+He also suggests titles like Google way up your butt.

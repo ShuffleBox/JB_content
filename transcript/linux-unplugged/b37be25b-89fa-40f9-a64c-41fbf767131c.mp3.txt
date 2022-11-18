@@ -1,0 +1,3062 @@
+Now that we're through the holidays, it's the season of events.
+And there's one that I was just looking through our list that we don't have in here.
+And maybe it's because it's like outside the US.
+But we got to include everybody, right?
+Of course we do. That just wouldn't be fair.
+No, exactly.
+Oddcamp 2019. That didn't make our list for this week's episode.
+It's going to be in Manchester October 19th.
+Jeez, that's like forever from now. That's like forever from now.
+It is. So you have plenty of time to plan your trip.
+Oddcamp is an unconference celebrating free culture,
+free and open source software, hardware hacking, digital rights,
+and all manner of collaborative cultural activities.
+It'd be pretty fun to go, Wes.
+I mean, I'm just saying.
+I know.
+Chris and Wes, mess up Manchester.
+I can hear it now.
+Yeah, you said it first.
+This is Linux Unplugged, episode 285, for January 22nd, 2019.
+Oh, hey there, and welcome into Linux Unplugged,
+your weekly Linux talk show that's all over the world recording live
+and mostly has its crap together.
+My name is Chris.
+My name is Wes. And speak for yourself, Chris.
+Hello, Mr. Payne.
+You know, I should, I should.
+It's just, when I look at today's episode,
+I think we must be going at an unbelievable,
+unstoppable pace, if you will.
+We have a bunch of really interesting community news,
+some that's getting a lot of attention.
+I don't know why it's getting so much attention,
+but we'll have Wes break it all down for us.
+Then we have a bunch of great updates,
+so many things to announce and to cover today.
+A lot of stuff going on in the community.
+Then we'll chat with someone, an individual,
+one crazy person out there,
+who hopes to make the next design tool for Linux
+to build applications, not just for Linux,
+but for other operating systems as well.
+And it's one of those tools that when you talk to developers,
+Linux desperately needs.
+And the plan to fund this thing is rather unique
+and seems like they could actually pull it off.
+So we'll bring on Alex, the main developer and originator
+behind this project,
+and see what he has planned.
+Then, in the second half of the show,
+it's undeniable that open source is facing a new,
+quote-unquote, headwind.
+Yeah, there's your business speak for you.
+And it's obvious when you look at things like
+the recent MongoDB relicensing,
+AWS's announcement of DocumentDB,
+which is a MongoDB rip-off,
+and so many other things that open source projects
+that are server-side projects
+that we're hoping for some significant funding
+once they grew to a certain size
+are being replaced by commercial products
+that offer all of the wonderful benefits
+of these commercial products
+and none of the openness.
+And it's a massive problem
+that's actually impacting the way
+these open source projects get funded.
+So we'll talk about that,
+and I'll give you my first impressions
+of Ubuntu 19.04 Disco Dingo,
+which I've been running here for a few days.
+And it's fast.
+I'll tell you a little bit about that.
+But before we go any stinking further into the show,
+we must bring in that virtual lug.
+Time-appropriate greetings, Mumble Room.
+Good morning, everyone.
+Greetings.
+Hello.
+Hello, Bruce and Cubicle Nate
+and Mini Mac and Sean and Brent.
+It's good to see you back as well.
+How has your travels gone?
+I'm still traveling.
+It's kind of a crazy, crazy time.
+Wow, of course you are.
+I know.
+I know it's nuts.
+But good to be a little bit closer
+to you guys in the world.
+Where are you?
+That's a great question.
+I'm currently in...
+That doesn't sound like you know, Brent, honestly.
+I'm starting to piece it together.
+I'm currently in B.C.,
+sort of like southeastern B.C.
+Next week I'm in Quebec City,
+and we'll see after that.
+Okay, I'm in Texas,
+and Wes is in Seattle,
+so it's a good spread.
+We've got a good spread going here today.
+So let's start with the story
+that you may see shared the most right now.
+If you're listening around the time
+this episode is released,
+which is around the last
+or second week of January-ish,
+depending on when you're listening to this,
+there is a lot of discussion right now
+about vulnerabilities in apt,
+including remote code execution,
+which is also leading to other discussions
+about using HTTP versus HTTPS.
+So Wes, I was hoping maybe you could break down
+like what is the big hoopla about right now
+in regards to remote code execution
+and the man-in-the-middle attacks with apt.
+Oh yeah, it's been making the rounds today.
+And a security researcher by the name of Max
+found a remote code execution vulnerability
+in apt and apt-get.
+And really the first thing you should acknowledge,
+and we've talked about this before,
+is when you install packages,
+well, at least in the apt system,
+they have root access to your file system
+so bad things can happen.
+It's important to trust where your packages come from
+and go through the hoops to verify
+that that package actually came from the source you expect.
+Now combine that with the fact that,
+by default, at least in Ubuntu and Debian,
+your system is generally not set up
+to use an HTTPS mirror.
+So just plain text over HTTP.
+Now, most of the time that's just fine, right?
+As we said, there's usually at least checksums
+and almost always a GPG signature involved.
+So you can go check and verify
+that the package is valid.
+Yeah, so the actual packages,
+even if it's coming down over HTTP,
+the actual packages have signatures.
+Yes, okay, so here's where it gets a little bit trickier.
+Now, internally, when apt runs,
+it has an internal helper for HTTP.
+So the main process sort of spawns it off
+and says, here's all the packages I'm working on.
+Go do all the HTTP stuff.
+And then that process responds back over a socket
+to the main process with, like,
+oh, here's the URL or, you know,
+there was a redirect or 404,
+whatever the particulars of the transaction might be.
+What you didn't expect, though,
+is that, of course, it's an older utility
+and it's not a nice protocol
+and no, no, it's just line delimited plain text.
+Yeah, exactly.
+And the HTTP helper doesn't really handle the redirects.
+It reports the redirect
+and then the main process decides what to do,
+usually then issues a new request,
+you know, for wherever the new resource
+can actually be found after the redirect.
+There's like a multi-process architecture here
+where there's one part of apt
+that becomes aware of a redirect.
+It captures that and then it delivers it
+to another part of apt which then makes the decision.
+Yes, and also the helper is responsible
+for handling, like, unencoding,
+unescaping all the URL parameters,
+but it just blindly includes that in its output.
+It doesn't sanitize it.
+It doesn't make sure that it's carefully delimited.
+It just hands that right back to the main process.
+And so someone could sneak something in there, basically.
+Exactly.
+So if you construct a malicious URL in your redirect,
+you can basically tell the main process
+to go download any arbitrary package you want,
+which includes any arbitrary signature
+and because as we talked about,
+packages have root access,
+that's a remote code vulnerability.
+Okay, okay, okay.
+So really, it's a couple of things here.
+I mean, essentially, at the core of it,
+it's a man-in-the-middle attack
+which perhaps something like using HTTPS
+would potentially help with.
+So even though the packages have signatures,
+doing everything over HTTP means
+that the things aren't getting verified as they would
+if they was using HTTPS, correct?
+Right, so yeah, basically, there's two possible attacks
+and one is a compromised mirror itself, right?
+Somebody takes over the mirror that you're using
+and HTTPS doesn't help you there.
+You're kind of just screwed and your trust is broken.
+But the bigger thing and the thing that HTTPS
+can protect against is network attacks,
+things like BGP hijacks or anytime someone
+is able to be a man-in-the-middle,
+change your connection so that you are presented
+with someone who's not real.
+If you've got an HTTPS connection,
+then you have a root certificate somewhere
+that presumably your man-in-the-middle attacker
+can't attack or at least it's a lot harder to do that
+than just to, say, put a man-in-the-middle
+between you and your corporate firewall.
+Okay, so what's going on here?
+Because I did a little looking around.
+OpenSUSE's zipper uses HTTPS, DNF uses HTTPS.
+Why is Ubuntu and Debian not using HTTPS?
+Seems like they should be.
+You know, that's a good question
+and it's kind of been quite the debate
+for a number of years.
+Now, of course, you can use HTTPS.
+It makes some things like setting up,
+easily setting up caches in between,
+it makes those things harder.
+So there are some downsides.
+And you might have less mirror selection, of course.
+But security really comes down to defense in depth.
+And so while most of the time signatures are enough,
+HTTPS can really be helpful.
+So it seems like why not make that the default?
+You can still have HTTPS available as a fallback.
+That's fine.
+Just let users have the most security right out of the gate.
+I think it's worth mentioning
+that this isn't just a theoretical threat.
+On March 9th, 2018,
+there was a report that a Turkish ISP
+had swapped the downloads of popular software
+with their own hosted spyware infected versions.
+Now, this was mostly targeted at Windows users
+so us Linux users don't really need to worry about it that much.
+But the concept is the same.
+And a lot of tools that you would download
+to just make your Windows box run decent
+were replaced with their own infected versions of the applications
+where the download links were just using HTTP.
+And it does kind of make you think
+like this could be done on a larger scale.
+Say, this could be an attack against all Ubuntu users potentially.
+It might not be a common threat, but it is a very real threat.
+Well, you still, remember, have the package signatures here.
+You still have to have a valid package
+that passes the signature check.
+But that assumes that everything from the get-go
+was set up without a man in the middle.
+Right. And with this vulnerability,
+it was possible to add additional...
+Because you can have these same problems,
+let's say, if you started off with something
+that was affected from the ISO,
+which is often also not served over HTTPS.
+Oh, no. Oh, no.
+Now we're going down a rabbit hole of paranoia.
+But it is something I think that is worth thinking about.
+And it's gotten a lot of attention.
+We should note, too, that this is already patched
+in recent versions of apt.
+And you can mitigate it just by enabling HTTPS
+and using an HTTPS repo.
+So go do those things if you need to.
+In both Debian and Ubuntu, this has been patched,
+but you have to be on a supported version, obviously,
+to get those fixes.
+Do you think this is something that they'll address?
+Do you think in a period of time we'll see HTTPS apt mirrors?
+Or is this something that will just kick down for a while?
+This is a can that will continue to get kicked.
+What do you think?
+Oh, that's hard to say.
+You know, I could see it certainly in Ubuntu.
+The times, the landscape, it's changing.
+HTTPS is just about everywhere.
+There's been a lot of pushers browser side.
+I think everyone's just a little more comfortable with it.
+So the time's ripe.
+Yeah.
+Yeah.
+All right.
+Well, let's shift gears and talk about something
+that I think is the Linux user's version of defragging your disk.
+At least it is for me.
+You know, when you talk to Windows users,
+they'll talk about how they love watching disk defrag
+because it's sort of peaceful,
+like just to sit there and watch the data reassemble.
+And then they used to debate, like, when should you defrag the disk
+and all these kinds of things.
+Well, I do this myself with the Linux scheduler.
+I'm constantly wondering, like, am I using the best IO scheduler?
+Am I using an IO scheduler for a server when I'm in a desktop environment?
+I've also heard that Manjaro will ship a desktop optimized IO scheduler.
+And I guess, Wes, while we're still having you break things down for us,
+I wanted to have you break down this story.
+To the best of your ability, what the hell is an IO scheduler?
+And then kind of related to that,
+could you talk about this article that we found
+where they attempted to use eBPF,
+which is a new feature in the Linux kernel,
+which is super cool that we should talk about too.
+They attempted to use eBPF to determine which IO scheduler is the best.
+Yeah, absolutely.
+Okay, so there you are, Mr. Chris Fisher,
+and you're doing a recording, you're making Linux unplugged,
+and you got to save those bytes to disk.
+So you tell your operating system.
+I mean, really, you request your operating system,
+go save these files to the disk, please.
+But of course, you know, there's multiple blocks involved there.
+Your disk is probably already doing other things from other processes
+and maybe users running on that system.
+So you got to have a schedule, in this case, an IO schedule.
+And that's basically the kernel takes the input blocks
+and the requests coming in and orders those
+and then actually ships them out physically to the disk
+to go get written to disk through whatever firmware is involved with your fancy SSD.
+eBPF is a handy new feature that you see in modern kernels that does bytecode.
+So you get to write cool little programs that get loaded into the kernel
+and the whole idea is to be able to instrument and get statistics
+on all the things happening in the kernel.
+Basically, think of it as the building block we needed
+to have D-Trace-like functionality on Linux.
+This case, Fred over at Circonus, which is a monitoring company,
+well, he's always been curious, right?
+What is the best IO scheduler?
+Because you've got a couple options here.
+You've got the completely fair scheduler.
+There's deadline. There's no op.
+There can be more options in general,
+but those are the ones he's looking at here today.
+There's got to be differences on your workloads, right?
+So eBPF is something that you can use.
+Circonus has their own monitoring agent,
+so he installs that on some Ubuntu systems.
+You wouldn't have to do that.
+They just happen to have a fancy eBPF plug-in for it
+because eBPF is the new hotness, right?
+And that lets him make easy graphs.
+He sends it up to their service, and he can make charts and stuff.
+What's funny is that ends up biting him in the butt,
+as you'll see later on.
+But it is still a pretty handy feature,
+and I think it shows that those sorts of functionalities
+are now becoming common even in commercial products.
+Yeah, so the real story here isn't really the results
+that they got from the test
+because it doesn't really tell us much, unfortunately.
+But perhaps the real story is,
+holy shit, eBPF is awesome,
+and now we have this functionality built in
+to the fricking Linux kernel.
+People probably will be familiar with the Berkeley packet filter.
+Super quick version.
+How is this different than what the BSDs have
+with the Berkeley packet filter?
+What is eBPF, and why is it way better
+and so cool that we have it in Linux?
+Well, eBPF is extended BPF.
+And really why it's neat is it's always been super helpful,
+and it's something you can use to write little programs
+to go catch network traffic.
+So it's what you're using under the hoods
+when you're using TCP dump.
+You write your little TCP dump command line,
+which is basically just a DSL for writing this stuff.
+TCP dump under the hood compiles it into BPF,
+into bytecode, and then runs it against the network traffic,
+and then you can set up these really tight little routines
+to match, like, oh, I don't know,
+only UDP traffic on port 53, for example.
+Yeah, and that bytecode is running inside the kernel
+in a safe way.
+It's incredible.
+You can do a lot of fancy analysis to sort of prove,
+you know, this won't loop forever
+and other sort of escape analysis.
+And what's neat about it is that it's extended
+because it's not just for network stuff.
+You can load it all over the kernel.
+So you finally get access to a bunch of information
+that you couldn't do without manually instrumenting
+and recompiling your kernel before.
+I think that's a really important point to make there.
+It's not just about networking.
+In fact, we did a deep dive in TechSnap.
+Go to TechSnap.systems slash 388.
+It's the one about eBPF.
+It's like a super competitive game-changing feature
+that's coming, well, it's arrived.
+And it's so nice that there's really high-end hardware
+being built around this functionality now.
+And so it's not something that's probably on your radar,
+but it's such a cool thing that Linux can do now,
+and I really recommend you go check out that episode
+of TechSnap.
+But in the meantime, it appears it's getting easier
+than ever for Linux workloads on Windows 10.
+Now, the Windows subsystem for Linux
+has been around for quite a while,
+but it has one huge limitation.
+And that is it's actually lacking a functional Linux kernel.
+Now, of course, you could fire up an Ubuntu VM or a Debian VM
+or what have you in Hyper-V.
+But it's not quite as functional and as easy
+to script and control as you would, say,
+be able to fire up a VM on Linux.
+That's where Canonical's multipass comes in,
+which today is coming out of private beta.
+And it looks pretty nice.
+Oh, yes.
+Multipass, at its core, is a service to manage Linux
+and really, in this case, Ubuntu.
+Linux, Ubuntu, they're virtual machines running on Windows 10
+but without the overhead of having to deal with Hyper-V yourself.
+Maybe, especially, I think, in our case,
+if you are a Linux user who might just have to use Windows 10
+for some reason, for whatever job or particular workflow,
+but you still want your Linux.
+I'm not an experienced Hyper-V administrator.
+I respect it, but I don't know it very well.
+So multipass is awesome.
+Right.
+It's sort of using Hyper-V as an implementation detail
+to just get really fast VMs fired up on a Windows box
+that you can now access and control from the command line.
+And once they're launched,
+a PowerShell user could fire off commands and scripts
+at multipass and the VM itself,
+including things that run inside the VM,
+applications that should be loaded
+and features that can allow you to scale up multiples of these
+or reproduce VMs for development purposes.
+Yeah, I mean, really, that's it right there.
+David Chalmers, a product manager over at Canonical,
+told The Register that that's exactly what multipass is aimed at,
+developers in a corporate environment.
+There's a lot of challenges to do.
+It's not a good workflow normally, right?
+You might have either a horrible command line experience
+that doesn't have like a full kernel and it's sort of confusing
+or you've got this full virtualized GUI,
+which again is not what you want.
+It's nice to see Linux everywhere, isn't it?
+Like this is becoming the runtime.
+This is becoming the runtime of the enterprise environment
+and that's why this is important.
+This isn't really at desktop Windows 10 users
+that want to play Steam games.
+This is designed for people in the corporate environment
+that want to use Linux as sort of a runtime
+that they can get everywhere.
+And you have all kinds of options now on Windows.
+It's sort of amazing.
+You have the subsystem for Linux,
+which gets you a pretty usable Linux environment.
+Now you've got these easy optimized Hyper-V VMs
+that are the graphical way to do this
+where Microsoft has worked with upstream distribution creators
+like Canonical to make an optimized environment for Hyper-V,
+which gives you nice things like keyboard and mouse
+and copy and paste integration and alt-tabbing in and out
+amongst other things.
+And if that's not your flavor,
+you prefer to work on the command line and script
+and shell script things, you've got multi-pass now.
+And it really is a sort of what works best for you
+kind of option on Windows.
+In this weird way, Windows 10 gives you ubiquitous Linux.
+You can have a window that has Ubuntu up,
+that has OpenSUSE up, that has Fedora up
+and is running multiple types of different virtual environments
+all on Windows 10.
+There's no excuse, right?
+As a Windows user, you can have Linux
+in all or some of the ways that you like.
+We're looking at a kind of modularity here.
+It's Linux modularity on Windows.
+But what if this went even deeper?
+What if this went to the core of Windows itself?
+And that might just be what's happening
+thanks to what may go down as one of history's
+most ridiculous technology story leaks ever.
+Think about this in context.
+A massive story about Microsoft open sourcing
+core components of Windows itself.
+Windows itself.
+What are you talking about?
+What are you talking about?
+That cannot be true.
+I know.
+And then, get ready for this part,
+it gets leaked by some mid-level employee
+who's just updating his LinkedIn profile
+because that is apparently what has happened this week.
+We've never talked about Windows core before.
+It has been a rumor for a couple of years.
+I have heard it kicked around for a couple of years now.
+But we've never seen anything about it.
+And LinkedIn is advertised as a place
+where people can share their work experience,
+find jobs, and mingle with their peers.
+And it's also over and over again
+a roundabout way to leak information
+about what massive corporations are working on
+because one Microsoft employee profile mentions
+the quote, open source components in Windows core OS.
+Yeah, the profile in question
+is a security program manager tasked with managing quote unquote
+the security of Windows core OS
+from malicious actors and code.
+Hmm, now that's a little confusing
+since Windows core OS hasn't been announced yet.
+And that is the exact name of rumors
+that I have personally heard
+from people that would be familiar with the matter.
+So I'm a little confused
+because they were just rumors that I was dismissing until now.
+And that same security program manager then said quote
+that he improved the security posture
+of Windows open source components
+through initiatives that investigate vulnerabilities
+found and establish a process for redemption.
+So if you connect the dots between the two
+you have reason to suspect that the Windows core OS
+is going to rely on some mysterious open source components
+which essentially brings us to the story now.
+Yeah, I mean there's been rumors about core OS
+I think since 2017
+essentially people are suspect anyway
+that it's kind of the core of a modular version of Windows
+customized for all kinds of devices.
+Microsoft already tried something like that with Windows 10.
+Remember Windows 10 mobile, Chris?
+Yes, I do.
+But Windows core OS seems to be purpose built
+for more cross-platform, if anything.
+What do you think of this, Wes?
+I mean Windows core, could you imagine Windows core OS being free
+and the next version of the
+and even they speculate in this article over at Tom's Hardware
+they speculate about the next version of Windows desktop
+being based on this Windows core OS.
+This lines up, right?
+It does and it doesn't.
+I think it lines up because we've seen huge moves by Microsoft
+in the world of open source, right?
+They clearly understand, at least in their modern tooling
+that open source is useful
+and they take advantage of it and contribute to it.
+But we haven't really, excluding some of the.NET stuff
+.NET Core and PowerShell
+we haven't really seen any inroads into the world of Windows
+and that's where the Windows branding on this makes it kind of stand out.
+Yeah, I think it's also worth mentioning Visual Studio Code
+has been pretty well received.
+In fact, when you look at their open source project
+remember they just recently released Azure Sphere
+which is based on Linux.
+They open sourced the old MS-DOS recently
+TypeScript, WinForms,.NET Core
+They keep writing all those little handy command line utilities for Linux?
+There's a lot of little things that over the years
+have been sort of adding up
+and this Core nomenclature has been the direction they've been going
+PowerShell Core,.NET Core, Core, Core, Core
+I could possibly see it.
+The reason why I don't get extremely excited about it
+is simply because you know it wouldn't be GPL
+and I don't mean to be that guy
+but, you know, it's not going to change the world if it's not GPL
+The GPL is that special kind of license that really made Linux grow
+because when Samsung was contributing to the GPL
+or was contributing code that was GPL
+they had to also work with competitors at the same exact time
+whereas if Linux wasn't GPL licensed
+they could have just kept all those innovations for themselves
+not necessarily shared them upstream if they didn't want to
+and I don't know if we would have had the same success story
+with say the Linux kernel on Android or etc.
+Right, I think it's less of a really big philosophical moment
+and probably just Microsoft being practical
+Yeah, exactly, and it's still good
+I don't mean to like diminish
+Oh yeah
+Yeah, but it's not like change humanity good
+It's more like it's a practical kind of good
+That all said
+I kind of want to ask Brent this question
+This is really out there
+This is really out there
+But let's just say we're 10 years down the road after this thing happened
+If you could sit there and say
+I can switch to Windows
+and say it's Windows 15 or Windows 25 at this point
+and it's got an open core
+I can run an operating system with an open core
+and I can use Adobe Photoshop
+I can use Adobe Lightroom
+I can use Adobe Premiere
+But when I open up my file manager
+when I browse the internals in my operating system
+when I open up my web browser
+that's all open source software
+when I open up my text editor
+that's open source software
+It's just Windows open source software
+Do you think that would be a compelling proposition to you?
+I'm throwing in my mind
+how is that different than the Linux I'm using currently
+You can run proprietary software on the top
+and all the base is mostly open
+The only difference here might be that it's going to be Win32 compliant
+It can run Windows traditional software
+I suppose would be the major difference
+That and the fact that it's a different type of license
+Your Linux desktop is GPL software
+where this might be BSD, Apache or some Microsoft license
+Yeah, interesting
+I think it would hit some of my
+partly some of my ideals
+I know the difference in GPL is huge
+But for some people
+simply the idea that they can have open source
+and see it and modify it is enough
+But I wonder
+So maybe I'll throw a question back at you guys
+What would be the advantage for some Linux users like us
+to have simply an open source Windows
+and how would that be any different
+from a usability standpoint from what we have today
+I don't think it is a net win
+I don't know
+I'm not fully convinced of this
+LinuxUnplugged.com slash contact changed my mind
+I feel like if it's not GPL
+then it doesn't really stand the chance
+of the long term infinite time scale
+humanity scale kind of contribution
+When we talk about Richard Stallman
+and when he's talking about free software
+I've never installed GNU slash Linux
+He's talking about
+He's talking about keeping something from humanity
+He's talking about making software code
+that is sustainable long term by humanity
+versus something that is closed and proprietary
+and that doesn't advance humanity
+And when you think about it
+in those larger long term contexts
+I don't see the net positive of it
+A GPL desktop with a full GPL software stack
+could be around for a thousand years
+But a commercial operating system
+even if components of it are open source
+much like Mac OS
+is inherently tied to the commercial whims
+and the ebbs and flows of
+the United States stock market
+It's not at the same scale
+What do you think Wes?
+I see what you mean
+It's not going to take over the world in that way
+It's sort of just incremental change
+and it's nice to see
+but probably we can all just stick to
+our wonderful world of Linux
+and our free and open source desktops
+I find that interesting
+It's nice to see
+but doesn't really change that much does it?
+It's kind of like something to talk about
+but it doesn't really affect too much
+Okay, well we should probably
+we should probably stop at this point
+because this is all just rumor
+related to some LinkedIn stuff
+but it just got us thinking about this kind of thing
+You can never tell with modern Microsoft
+It just makes you wonder
+Right?
+Where is it going to go next?
+Like that is legitimately
+what is at the core of the story
+is at this point
+I think we're ready for anything
+in Windows core
+and that even in itself really tells you something
+Now, I think also
+we could continue this conversation
+into our next couple of major topics
+including an application designer for Linux
+as well as this whole S-storm
+around MongoDB
+which we've been covering pretty diligently
+in Linux Action News
+but I'll recap for you
+in a wider context
+that I think I'm a little concerned
+could affect the fundamental funding
+of future large scale open source projects
+because it just seems like we'd come to a new normal
+and now all of that's out the window
+but I want to do a little housekeeping
+because there's so many community events coming up
+that I want to make sure we have one episode right here
+where we really kind of bust through this stuff
+All of what I'm about to tell you
+will be linked up
+at linuxunplug.com
+slash 285
+So let's bust through some of the things
+that are coming down the road
+First up, extremely proud
+happy, thrilled, excited
+to say that our
+live audio stream
+is now once again in working order
+and sounding better than ever
+jblive.fm
+You can plug that into your mobile web browser
+and it'll just start streaming
+You can go into VLC, like open network
+and plug in http://jblive.fm
+Boom, enter
+and you're now streaming our audio stream
+And Wes has been working on some cool stuff on the droplet
+to kind of like make it so that way
+even when we're like at Linux Fest
+or when Alan's streaming BSC Now
+it's all up in there
+Is there any open source in any of that
+that you're doing?
+Yeah, I mean, whatever we decide on
+There's multiple interesting tools
+They're all open source that we're using
+It's kind of a hot race right now
+between a couple to see
+which will actually end up in production
+The good news is they all work
+They all sound great
+And it means that if it's on jblive.tv
+it'll be on jblive.fm
+Yeah, and we
+I'm just super happy with the way it sounds
+We were very picky with where we went
+and I think it sounds great
+It took us a little bit to get there
+But if you're on the road
+and you know we're doing like Linux Unplugged
+or something like that
+just plug in jblive.fm and listen live
+It's really nice
+And also, just a little other bit of
+network related housekeeping
+I'm really very, very happy to announce
+that Jim Salter has joined Mr. Wes Payne
+as the full-time co-host for TechSnap
+Oh, yeah
+Yeah, you guys did
+You just put out your first episode
+Episode 395, TechSnap.Systems
+Slash 395
+All about Let's Encrypt
+You guys do a deep dive
+I love it
+I love it, it was great
+You know, yeah, Jim is great
+I'm really excited for where this is going to go
+because he has a lot of experience
+a lot of knowledge
+and some great stories
+So expect a lot more from the TechSnap program
+coming right up
+Yeah, Jim's coming to Linux Fest too
+so I'm excited to get to meet him in person
+He's an author
+He's a writer over at Ars Technica
+He's been running Apache himself
+on his own hosted systems
+since FreeBSD 3.1
+and he's been a fierce advocate
+of free and open source software since then
+and he's published some books
+he's published some work
+and, of course, you can read him on Ars Technica
+and he covers everything from Wi-Fi
+to NAS distributions
+and next generation file systems
+And our favorite, WireGuard
+Yes, he's just like you and me
+he's a big WireGuard fan
+so I don't think we could have found a better co-host for you
+and that first episode is out
+and go check it out
+TechSnap.Systems slash 395
+go subscribe
+because they're going to a new fortnightly schedule
+so it's not too much
+but when they do an episode
+it's information dense
+and I loved it
+Alright, so I mentioned Linux Fest
+You know, we're going to Linux Fest Northwest
+LinuxFestNorthwest.org
+It's April 26th through the 28th
+although I don't really know what's going on on the 26th
+26th is a Friday, right Wes?
+Am I wrong on that?
+But 26th is a Friday
+No, you're absolutely
+Normally it's like two days
+this time it's three
+so I'm not sure either
+but I guess that means there's no reason
+not to be in Bellingham on Friday
+Does that mean we're supposed to be set up Thursday?
+That fundamentally changes everything
+You know, I suspect it's going to be just slightly more official
+because in times past
+they've had things like game nights on Friday
+or other get-togethers
+so it's probably just a little formalization of that
+Yeah, it's going to be the 20th anniversary
+of Linux Fest Northwest
+and we have a huge Jupiter broadcasting crew
+We have team members that you haven't even met yet
+that we're still trying to get them on air
+so you can meet them
+We have, everybody really is coming
+with pretty much the exception of Michael Dominic
+from Koda Radio
+Alan is going to make it
+Jim Salter is going to make it
+Popey and Wimpy are hoping
+I think they're making it
+I think they're like 95% locked in
+Joe's going to be out here
+Noah's going to be out here
+Wes will be there
+Angela will be there
+It's going to be a huge
+There's people I'm not even
+because I could just sit here and go on and on
+There's a huge crew coming
+and we're going to have our Saturday evening
+parking lot barbecue outside of Lady Jubes
+Huge hit
+I mean, how many people do you think were there last year, Wes?
+Oh, I don't know
+It was probably right around 50
+and it was a great time
+People were coming and going and hanging out
+and there was always someone new to meet
+someone friendly to hang out with
+I suspect there'll be a Levi friend again this year too
+You bet
+You bet
+Yeah, I've already talked to Emma at System 76
+when you and I went out there to do the Thaleos coverage
+We made sure we were on the same page
+and we're going to do an even bigger cookout
+We'll have multiple grills going
+Lady Jubes will be there
+Bring your drones
+and bring a friend
+and come hang out with us
+I have the Meetup page up right now
+You can find that at meetup.com
+It'll also be linked in the show notes
+Let us know if you're going to make it
+We also have a Telegram group
+that is now linked in the show notes for Linux Fest
+So we have an official Linux Fest 2019
+community Telegram group
+linked in the show notes
+as well as the Meetup
+This stuff is getting official
+We're getting excited
+There's probably going to be several of your
+broadcasting friends hosting talks
+at Linux Fest this year
+Definitely going to be a big show
+Really encourage that you go to it
+All the details are linked up in the show notes
+Now, moving right along
+Like I said, we've got a lot of community events
+A couple of more to go over
+At the Pasadena Convention Center
+March 7th through the 10th, 2019
+is Scale 17x
+Again, we're going to be there
+We won't have a booth necessarily
+but we'll be at the event
+One of our team members at least
+Maybe more will be giving talks
+I think both Wes and myself
+I think, Wes, you want to go, Wes?
+Yeah, why not?
+Let's do it
+Wes and I will be there
+as well as another one of our team members
+that you have yet to meet will be there
+And it's going to be a great show
+The convention center is beautiful
+The location next to it has great places to eat
+Always a great community at scale
+So Jupiter Broadcasting is going again
+March 7th through the 10th, 2019
+at the Pasadena Convention Center
+ScaleExpo.org
+We have a link in the show notes
+And we also have a telegram group
+already set up for that
+which is also linked in the show notes
+I encourage you to participate
+in these telegram groups
+because this is really where you get
+all of the information as it's developing
+A lot of times we're at these events
+and things change quick
+And that telegram group is the most up-to-date spot
+And now, last but not least
+May 31st through June 1st
+at the Irving Convention Center
+right there by Dallas
+Texas Linux Fest 2019
+We will be there
+And I'm very excited to say that again
+Talks will be had
+Meetups will be had
+We will have a telegram group
+All of that as it gets closer
+We actually have a telegram group
+JupiterBroadcasting.com slash Texas
+for that one
+And we'll do a meetup as it gets closer
+And yeah, I don't know how many of us
+are going to go there because it's in May
+And we have Linux Fest in scale ahead of us
+But a couple of us at least
+will also be at Texas Linux Fest this year
+So that's a lot of cool events, eh Wes?
+Like, boom!
+Oh my god, there's so much going on
+So many great opportunities
+to just meet people, hang out
+and chat about our love for Linux
+You know, we give time to these kinds of things
+in the show because these events
+build stronger connections in the community
+And in a community where people are
+dedicating their passion and their time
+and they're scratching their own itch
+to create software for other people
+It is so fundamentally important to do that
+It matters way more than it does
+in other contexts
+Like in the business world
+there's this profit motive that forces
+everybody to be fake nice to each other
+and get along because
+everybody wants to earn a buck
+and nobody wants to take any big risk
+or loss
+But in the open source community
+we don't have that fake pretext
+that forces us to get along
+People can be jerks to each other
+and it's very counterproductive
+But these events
+and not just chatting with other people
+even if you're anti-social
+just going there and being around other people
+that like the same things you like
+or are giving you information
+about things you need to know about
+like through the talks and whatnot
+It changes the game
+And if you've never participated
+in an event like this
+it will take your passion for Linux
+and open source up to an entirely new level
+And if you haven't been in a year or so
+it will re-energize you
+That's why we talk about this
+It does move the needle
+And one last thing in the show notes
+If you've ever considered
+maybe giving a talk
+but didn't know how to start
+didn't really have any resources
+for public speaking
+Go check the show notes again this week
+Linux Unplugged dot com slash 285
+Link in there to a Github
+that has so many great resources
+about getting started
+how to find a place to give a talk
+just figuring out the best idea
+how to write a CFP which is a call for papers
+how to handle that and submit it
+and write it in a way that's going to get accepted
+and then tools to use for your presentation
+I'm pretty sure you found this link, Wes
+and it's just a killer resource
+Yes, and that's because our little
+local homegrown conference, Seagull
+provides that link
+and I came across it when I did a talk
+for that last year
+and it really is helpful
+There's a ton of great things about
+how to understand who are you presenting for
+what should your talk be about
+and how do you get started?
+There you go
+I know it was a lot to go through
+in the housekeeping section
+and I know that some of these regional events
+aren't applicable to most of the people listening
+but I hope our enthusiasm for them
+at least encourages you to participate
+in the ones in your area
+or maybe go do a talk even
+I think we could use a lot more of that out there
+One last bit of housekeeping
+I was just doing
+I'm down here in Texas right now
+for a bunch of content releases
+I was co-hosting the live stream today
+and I had a chance to announce
+a new course that Linux Academy released
+called the Linux Operating System Fundamentals
+First of all, it's done by
+a training architect named Kenny
+He's a great guy
+He loves Linux
+but better than that
+he's got a great voice
+and he's got great production quality
+The reason why I wanted to mention this course
+and I'll have it linked in the show notes
+is it's about the Linux Operating System Fundamentals
+but a good 40% of the course
+I've taken it myself already this afternoon
+before we went on air
+is about the history of Linux
+and the history of the operating systems
+that existed before Linux
+and then what led to Linux
+and then also GNU
+and the Free Software Foundation
+and the Open Source Initiative
+and then the Linux distributions
+that came after that
+and the tail end of it
+is the uses of Linux
+that we have now today
+but I just didn't expect
+this great history of all this stuff
+and as somebody who's been using Linux
+since the 90s
+I have to say there's areas
+that being self-taught I missed
+and especially some of this history stuff
+I just really loved it
+so I'll put a link in the show notes
+Right, that's what's really hard
+when you are self-taught
+you don't learn that
+when you go read bash tutorials
+it doesn't tell you about
+where all this great software
+you're learning to use actually came from
+Yeah, it was great
+and if you're not a Linux Academy student
+they do have a seven day free trial
+I remember that from the ads
+I used to do for many years
+so you can sign it for free
+for seven days and take it
+but I was talking to Kenny about it
+when we were prepping for the stream
+and I was like, oh, I'm taking this
+and then I actually did take it earlier today
+because being in Texas
+I have two extra hours before the show
+so I'm like, what am I going to do?
+I'll take Kenny's course
+because it's like an hour and a half total
+and so I took it
+and he just has a great voice
+and he has a great production
+so anyways, good job to him
+and it was a good release
+and I'm hoping, by the way
+kind of related
+I'm hoping that Kenny makes it out
+to Linux Fest Northwest too
+so that's possible
+we could see him there
+Now, there's a lot of talk this week
+about a new design application
+for our beloved Linux
+something that's really missing
+the ability to sort of sketch out
+a general design for other applications
+and it's called, is it Arkea, Wes?
+Akira
+Akira, of course
+of course I missed it
+of course
+of course I missed it
+and do I have sort of the general premise right?
+It's like a sketch application
+for UI design?
+Yeah, yeah, exactly
+it's not something you're going to use
+to actually make actual interfaces
+it's for designers to play around with
+to mock up designs
+to ship to your client as an image
+to say, does this look about right?
+So Akira has been getting a lot of attention
+because this is an area
+that there's a lot of commercial solutions for
+including ones from Adobe and many others
+and there's not a lot of options
+for GNU slash Linux
+and Wes had a chance to sit down with Alex
+and talk to him about his Kickstarter
+that he's doing to try to raise money
+and to try to get people
+to develop for this thing full time
+it's a fascinating idea
+is there anything else we need to know
+before we listen to the interview, Wes?
+No, I don't think so
+Alex is the lead
+there's a broader team
+which he'll talk about
+Awesome, so here we are
+Welcome to the show, Alex
+and thank you for joining us today
+Thank you so much for having me
+it's a pleasure, absolutely
+Okay, well you're obviously here
+I mean, one, because you make a lot of good stuff
+actually I first saw your taxi application
+it's really pretty handy
+it's not what you're here to talk about today
+but it might come up again
+because you've got quite the background
+we're here to talk about Akira
+Yes, absolutely
+so just a little digression about taxis
+it's not 100% mine
+it's an old project that I took
+and I'm redeveloping
+and I'm refactoring and trying to update
+so I don't want to take all the credits for taxis
+it's not 100% mine
+but yes, I'm here to talk about Akira
+so I just launched a Kickstarter campaign
+for Akira
+or someone likes to call it Akira UX
+which is a UX design tool for Linux
+100% native for Linux
+it's not an electron app
+and UX design tools means
+that it's something similar to Sketch
+or Figma
+or Adobe XD
+that is not for creating GTK
+or Qt interfaces
+user interfaces like code
+is not made to speed out code
+That's a great point
+so it's not like something like Glade
+or Qt Creator
+it's not going to make a QXML file
+or anything like that for you
+so what formats are we talking about here?
+So basically, if I'm going to be a user
+what are we going to have as the output?
+Okay, the output
+the name probably is going to be
+like.Akira
+like a custom extension
+but it's just an SVG
+everything is going to be based on SVG
+we want to go the route of having a custom extension
+because we're going to try to save the file
+with a JSON format
+in order to have version control
+baked into your file
+that you can activate or deactivate
+based on your necessities
+so you can keep track of all the different versions of your file
+in the same file
+you don't have to have a dedicated repository
+or like the things that we used to do
+having version 1
+version 1 final
+version 1 final underscore reviewed
+version 1 final
+this is the actual final
+all this kind of good stuff
+when you do some design
+for a long time
+for a client that is never
+100% sure what to do
+That's fascinating
+obviously on the development side
+and you play in both these worlds
+on the development side version control goes back ages
+but I don't see it as often in the design community
+or at least not as standardized
+Exactly
+Sketch
+from like
+the Sketch app application
+that is currently only available on Mac OS
+has something like that
+but it's terrible
+because every time you save something
+like you move a square
+or you change one letter
+and you save the file
+it saves completely the entire file
+in itself
+so you end up with having a Sketch file
+that even if you have just one single artboard
+it waits for gigabytes
+Oh wow
+It's terrible
+yeah it's like
+it's really handy if you lose stuff
+and you can go back
+but there's no way of
+manually controlling what you can
+what you can save
+or if you want to pause
+the version control of this file
+and just like
+activate it only if you have some major release
+or stuff like that
+I'd say it's like
+it's the first approach
+of version controlling design
+but it's not that great
+That makes sense
+Okay well let's pivot back to Akira then
+and we were just starting to get there
+before I went down the other road
+of explaining just what you're targeting
+so you'll be outputting SVG
+so Akira is for designing interfaces
+and then producing vector images
+that you then might go share
+with the people downstream
+who actually built the thing
+Exactly
+It's mostly for designers
+which
+someone raised an eyebrows
+that oh why developers cannot use it
+why
+a lot of questions they were asked
+why Akira cannot generate code
+because we already have those things
+we already have those alternatives
+and those options
+something specifically targeting designers
+that they need to create
+just images
+they can share with developers
+or they can put
+online
+and create presentations
+or do some quick mockups
+and prototypes
+we don't have something like that
+right now on Linux
+Oh yeah right
+so maybe you can talk a little bit more
+because this is something
+you obviously know well
+as a professional
+and a Linux user
+can you talk a little bit about
+the pain of trying to have
+both of those things
+in today's world
+Oh my god it's terrible
+okay
+so feel free to interrupt me
+because I can go on forever
+I don't want to annoy everyone
+but I'm
+I've been doing development
+and design at the same time
+for more than 13 years
+professionally
+I was forced throughout my entire
+career to just use
+all Windows and Mac OS
+just because of applications
+I tried in
+digital studios
+or creative agencies
+that I worked in the past
+to go in and say
+hey let's not use Adobe
+let's use GIMP
+to do our photo retouching
+and everyone started laughing at me
+not because those tools
+like GIMP, Inkscape
+or Krita are bad tools
+those are amazing tools
+and they work great
+but the problem
+is the workflow
+is the user interface
+you can
+that's something that I always say
+you can do a square
+gray
+like a gray rectangle
+you can build a gray rectangle
+in Inkscape
+in GIMP, in Krita
+in Sketch, Figma
+it doesn't matter
+it will always be
+a gray rectangle
+but
+if you want to build
+a user interface
+with 20 different artboards
+and shared assets
+and design system
+and something that you can
+collaborate with other designers
+your options are really limited
+and there's nothing like that on Linux
+so it's all about
+optimizing the workflow
+of designers
+with a modern tool
+that offers a modern interface
+that's the main purpose
+so making Linux
+a habitable platform
+for designers
+so that someone
+you can have everything
+you can have your cake
+you can eat it too
+and design all your applications
+whether it's for another platform
+or for Linux natively
+absolutely
+and also the main purpose is
+helping Linux
+being like
+turning to a mainstream
+operating system
+that is not
+unfortunately for
+how we want to wish
+that this is the year
+of the Linux desktop
+it will never come
+if we don't have
+proper native
+alternative softwares
+that are
+comparable
+or even better
+than what are available
+on Windows and Mac OS
+and Akira wants to do that
+wants to say
+okay you don't want to use Sketch
+you don't want to pay
+$30 a month
+to use Adobe XD
+come on Linux
+we have exactly the same thing
+that works as well
+but it's open source
+it's free
+and we don't ask money for it
+so that's it
+so will Linux be
+the only targeted platform
+or will someday
+I will be able to run Akira
+on my MacBook
+that's a really good question
+for now
+it's 100% it's Linux
+because on MacBook
+or Windows
+you have
+20 different alternatives
+that can do the same
+but it's open source
+so if there's a crazy user
+out there
+that decides to compile
+and run GTK
+on Windows
+or Mac OS
+they can totally do it
+we're not opposed to that
+absolutely
+but it's not our goal
+okay well then
+while we're on this subject
+what about Linux distribution
+is it for all distributions
+I also happen to notice
+it looked like an older branch
+but a branch called
+AppImage on there
+so are there
+are there plans
+for these universal formats
+yes absolutely
+so by default
+we're going to start
+PPA
+like on LaunchPod
+we're going to release
+daily builds
+so pretty much
+all the Debian based
+distribution
+will be able to install it
+then in the team
+we have
+Flatpak maintainer
+really great guy
+his name is Bilal
+we're going to be sure
+to release
+daily Flatpaks
+or like
+weekly Flatpaks
+installed everywhere
+it's going to be released
+on the elementary OS
+App Center
+and we're open to
+we don't have the
+skill level
+right now to do it
+but we're open
+to contribution
+to release also
+a SnapImage
+and an AppImage
+so a SnapPak
+and an AppImage
+perfect
+okay well
+that pretty well
+answers my question
+yeah we want to try to
+cover as many
+distributions as possible
+and
+that's also why
+we want to
+buy as much hardware
+as possible
+in order to test it
+and be sure that
+every single Linux users
+it doesn't matter the distribution
+it doesn't matter
+how modern
+and performant
+their laptop
+or computer is
+they can run Akira
+because
+yeah
+we want to be just
+available
+to anyone
+okay so you said
+we there
+and that's another thing
+we should talk about
+it's not just you working here
+it sounds like you've got
+a great team behind you
+yes
+I'm the crazy guy
+that decided to start
+this thing
+like a couple of years ago
+and I was like
+oh it's actually harder
+than I thought
+like everything
+so in the past year
+I started
+releasing
+native Linux applications
+like SQLer
+and taxi
+like you mentioned
+and throughout this year
+I started collaborating
+with a lot of
+different developers
+in particular
+I feel really comfortable
+and
+these are great people
+other three developers
+that they helped me a lot
+with my applications
+or
+I contribute to
+their own applications
+by
+offering design and development
+stuff like that
+the team is
+there's myself
+of course
+and then there's
+Felipe Escoto
+which is
+a Mexican developer
+for Elementor US
+he released
+SpiceUp
+and NodeTap
+two amazing applications
+oh yeah
+mind blown
+yeah and these
+it's a kid
+like this guy is
+20-ish something
+he's like the smartest kid
+I've ever met
+I feel like
+so old
+and so behind
+when I talk to him
+a wonder kid
+yeah a wonder kid
+absolutely
+and then there's
+Alberto Vangiole
+which is
+a software engineer
+Agnome Foundation member
+is the maintainer
+of GitG
+which is
+a visual
+Git repository manager
+and then we have Bilal
+and I always butcher
+his last name
+Elmousaoui
+sorry Bilal
+I apologize deeply
+he's a developer
+and is an
+Agnome Foundation member
+and
+he's an engineer
+student
+so it's like
+the smartest of the bunch probably
+and
+he's one of the maintainer
+of a lot of
+Flatpak
+applications
+so if
+FlatHab
+is a
+great repository
+it's mostly thanks to Bilal
+wow that is impressive
+clearly a lot of people
+who know what they're doing
+and have experienced
+building these kinds of
+applications before
+and maybe
+that explains my next question
+how far along
+is Akira
+what should users know
+is it ready for use
+is it
+just starting out
+where are you
+that's a really good question
+okay Akira
+there's a
+barely working prototype
+that you can
+download
+from the
+open source
+GitHub repository compile
+and run
+what we're missing
+is basically the core
+in order to
+be actually usable
+which is the hardest part
+is the canvas
+right now
+it doesn't exist
+a canvas library
+that does
+what we need
+it doesn't exist
+a canvas library
+that by default interacts
+with SVGs
+and
+whenever you create an object
+it creates
+separated layers
+that you can manipulate
+without
+having an issue
+oh I see
+right you need this
+sort of
+rich environment
+the canvas to go interact
+so you can make shapes
+and drag them around
+and layer them
+and actually get the work done
+yeah right now
+it doesn't exist
+there are a lot of projects
+that they do that
+but are really limited
+or discontinued
+or
+it's all
+it's not a
+reusable library
+it's all like math based
+and it's C code
+there's nothing that
+we can simply
+grab and integrate
+inside Akira
+it's something
+that we need to create
+from scratch
+so yes
+the application
+is up and running
+it's a sort of like MVP version
+which
+comes with
+a built-in canvas
+that you can
+start to interact with
+but you cannot
+yet
+create shapes
+and save files
+and manipulate
+layers
+so
+the majority of the work
+is going to be about
+creating this canvas library
+which
+we want to make it available
+as
+like
+a package
+that everyone
+if they want to create their own
+mock-up
+design tool
+they can incorporate
+that library
+and reuse it
+oh great
+so just sort of a spin-off project
+of here you go guys
+here's a great little canvas
+you can use
+yes exactly
+because it doesn't exist
+something like that
+so yes
+it's going to be used
+in Akira
+but it's going to be available
+to anyone
+that they want to incorporate
+in their own project
+of two to three months
+to release
+the first usable
+alpha version
+that
+I'm trying to push it
+and not being
+an alpha version
+but probably
+it's going to be an alpha version
+but version one
+is going to be available
+if the Kickstarter campaign
+is successful
+in three months
+after the end
+of the Kickstarter campaign
+well let's talk a little bit more
+about that
+you've got a Kickstarter campaign
+going on
+and I know
+our listeners
+are going to want to know
+what's the money
+going to be used for
+is there some
+corporate structure
+behind the scenes
+do you have plans
+for exactly where
+everything's going to go
+and how you'll use it
+tell us more
+yes absolutely
+so I
+in the Kickstarter
+description
+I wrote down
+a breakthrough
+of how
+all the money
+will be used
+because
+honestly I'm asking
+for a lot of money
+it is
+totally 65,000
+Canadian dollars
+which
+roughly translate
+to fifty thousand
+US dollars
+and
+a lot of people
+thirty percent will go in taxes
+because
+I'm not a corporation
+we didn't
+create a foundation
+on anything like that
+on a non-profit
+I'm just like
+a single user
+so
+that money
+will be
+for the Canadian government
+is like
+income
+and I have to declare taxes
+on that income
+and I have to pay
+thirty percent
+ish
+that money
+so already thirty percent
+is gone forever
+burned
+and gave it to the government
+but it's fine
+then
+two thousand dollars
+will be used
+to hire
+these three developers
+for three months
+that's the main purpose
+I want to
+pay them
+as a full-time job
+so they can work on this
+eight hours per day
+five days a week
+for three months
+non-stop
+is the only way
+we can
+be able to deliver
+something like that
+they cannot work
+part-time
+one hour per day
+or during the weekend
+right
+they need time to focus
+if you're going to get
+good quality work out quickly
+absolutely
+so I asked them
+I'm going to cover
+the entire rate
+and then we have an extra
+twenty thousand dollars
+which
+ten thousand
+will be
+to pay
+my
+paycheck basically
+and
+sustain myself
+for three months
+so I don't need to
+I can take
+some three months
+off of work
+and I need to work
+I can focus on Akira
+a hundred percent as well
+and the rest of the
+ten thousand dollars
+will be used
+to buy
+hardware
+because
+yes every one of us
+has a laptop
+but we just have
+a laptop that it's
+probably not the best
+we don't have
+graphic tablets
+we don't have
+4k monitors
+we don't have
+touch
+touchpad interfaces
+and all this kind of stuff
+that
+are
+standard
+in
+a professional
+design world
+when you work in an agency
+it's normal
+having a 4k
+or 5k monitor
+it's normal
+having
+a Wacom tablet
+with a digital display
+how good
+are
+those things currently
+working
+on Linux
+not that great
+they work
+but
+they're not the best
+so
+having the ability
+to purchase
+that hardware
+and
+develop Akira
+since day one
+on
+that
+different hardware
+all those
+different resolutions
+and different
+input interfaces
+will give us
+the ability to
+release Akira
+working
+in every
+single environment
+possible
+right you won't have to just
+try to retrofit
+it literally on down
+down the stream later
+you're going to be planning for it
+because you know professionals
+want to use it
+exactly and
+how many times
+you use a project
+and you go into
+their repositories
+and there are issues like
+this doesn't work
+with my
+tablet
+or this
+doesn't work with my laptop
+because I have this resolution
+and the answer is
+sometimes
+I'm sorry
+I cannot test it
+because I don't have
+that hardware
+right yeah exactly
+yeah we want to try to avoid that
+it's like
+no we cannot fix it
+because we don't know
+how to recreate the issue
+so
+that's the main thing
+yeah on the Kickstarter page
+there's a full breakdown
+of everything
+percentages
+all the money
+and
+a lot of users
+were kind of like
+weirded out
+by the amount
+and
+the fact that I actually
+wrote down the money
+they didn't believe that
+30% goes in taxes
+or
+some didn't believe
+oh ten thousand dollars
+for
+your rent and your food
+and I'm like yeah
+I have to eat
+for three months
+but
+I want to reiterate the fact that
+I'm not trying to
+get rich
+or
+buy a Tesla
+or
+I don't know
+get a bunch of money
+and then disappear
+I really want
+to make this happen
+because it's literally
+the only thing
+that it's preventing me
+from using Linux
+every day
+I have one MacBook
+left in my apartment
+just because
+of one application
+the design application
+that I have to use
+Wow okay Linux users
+out there
+if you weren't going to fund the Kickstarter
+because you're not going to use
+Zekira
+you're not a designer
+I think that's a pretty good reason
+right there
+get you
+get you Alex
+right off that MacBook
+help me
+yeah that's it
+and you know
+I mean to just put it
+in a little perspective
+if you think about
+you know several developers
+working for
+a significant part of a year
+at like a major
+development company
+well that's going to be
+a lot more money
+than you're asking for
+yeah exactly
+I'm not paying benefits
+to them
+I'm not paying
+paid vacations
+or something like that
+so the cost is really
+is really limited
+compared to
+what you're going to get paid
+if you work on a full-time job
+on an actual
+company but
+yeah that's
+that's the amount of money
+I wanted to be
+as honest and clear
+as possible
+I put the full breakdown
+of how I'm going to use the money
+and also my wife
+told me like
+you shouldn't do that
+because a lot of people
+will question you
+and will start like
+having doubts
+of what you wrote
+it's
+I want to be
+open source
+also with the money
+so if we reach the goal
+I'm going to
+constantly do weekly updates
+of how I'm going to
+spend the money
+where the money will go
+and of course
+if I end up
+not spending all those
+all the money
+in taxes
+or I can use the
+accountant
+to help me out
+to save something
+all the money
+that I have left
+will be funneled back
+inside
+the application itself
+I'm going to
+we're going to set up
+some bounty sources
+to help other developers
+that want to
+contribute to get paid
+in order to work on Akira
+so
+it's not
+yeah it's not to
+get rich
+or
+take some time off work
+and go on vacation
+that's not the goal
+that makes sense
+I certainly wish you luck
+I've actually already
+backed it
+so I hope it goes through
+yeah
+and we'll have links
+to everything we've talked about
+in this interview
+in the show notes
+is there anything else
+you want the audience to know?
+just one thing
+everyone probably
+the majority of the audience
+is on Linux
+and
+in our entire life
+we always
+found ourselves
+using an application
+and thinking
+oh this is great
+but it doesn't do
+what I actually want
+Akira wants to fill that gap
+Akira
+we want to
+give you the freedom
+of saying
+I'm on Linux
+and I don't need
+anything else
+I don't want Adobe
+to
+create a port
+for Linux
+of the Adobe creative suite
+because
+I don't need it
+I'm fine with this
+that's our goal
+professional caliber
+Linux design application
+that could be
+the future of Akira
+yes
+where should people go
+to find more from you Alex?
+yes
+there's my Twitter account
+which is
+at alecad
+ddd
+with 3d
+and then
+I'm on YouTube
+I do actually
+tutorials about Linux
+design and development
+because
+I
+don't like to sleep
+but it's fine
+and
+that's it
+pretty much
+I'm everywhere online
+so people start
+getting really
+really annoyed
+by my
+online presence
+perfect
+well thank you so much
+for joining us
+and good luck
+awesome
+thank you so much for having me
+such a great idea
+and I like how
+much Alex
+has this together
+he's got a real
+plan of attack here
+and
+as Linux users
+we're often in this position
+of trying to decide
+do I want to take a risk
+on funding
+this thing
+although I know
+that this is something
+we really need
+it's good
+it's good to hear Alex
+really seems to have it
+we've debated a lot of
+kind of questionable
+kickstarters
+over the years on this show
+I don't think this is one of them
+no
+no you seem like
+you had it figured out
+so
+I'm really glad
+you had a chance to chat with him
+and
+we'll have a link
+to their fundraiser
+in the show notes
+probably worth doing
+if you're a developer
+because I think
+it would be an investment
+in a possible workflow
+and I like that
+he's thinking about
+multi distro packaging too
+I think that's a good thing
+I'm looking at our time here
+and I'm thinking
+we're going to have to wait
+on the Ubuntu 19.04
+first look
+I've been running it now
+since
+pretty much
+since our predictions episode
+but you won't talk about it
+I keep asking you
+off air
+you say no
+no Wes
+I'm going to tell you on air
+and once again
+no
+I guess it's kind of good
+it gives me more time
+I just
+I feel like by the time
+we finally get around to this
+it's going to be
+just near release time
+I just wanted to give a first look
+at what's coming down the road
+for GNOME
+it's
+it's
+for those of us
+that have had
+GNOME problems
+there's a lot of good stuff
+in the works
+so we'll talk about that
+in the future
+but I wanted
+while it's still fresh
+I want to take a moment
+and wrap up the show
+with this
+interesting challenge
+that
+I think is facing
+open source software
+and I think what we'll do
+is
+we'll open it
+and if we
+if we get some good responses
+we'll conclude it
+next week
+and
+if you followed
+me on Twitter
+you know that recently
+MongoDB
+went through
+a series of changes
+in attempt to
+relicense in a way
+that
+that forced
+providers that are
+re-hosting MongoDB
+to have to pay
+a certain fee
+get a certain kind of
+relationship with MongoDB
+and it's resulted
+in
+Red Hat
+and Fedora
+and Debian
+and other distributions
+deciding to no longer
+include MongoDB
+in the repositories
+because they believe
+that license conflicts
+with free software
+and
+at the same time
+another shoe has dropped
+and that is that
+Amazon has released
+AWS
+DocumentDB
+which is a straight up
+competitor to MongoDB
+and even
+implements
+compatibility with
+MongoDB's
+MongoDB's
+API
+from the
+version right before
+they made the licensing
+changes
+I have all that right so far
+right Wes?
+Yeah I mean
+it's not just MongoDB
+Redis, Kafka
+there's been kind of
+a long line of projects
+that are
+you know came
+from companies
+that were all
+all in on this
+they had this open source
+product kind of
+freemium right
+trying to sell
+additional enterprise
+services or different
+licenses on top
+it kind of varies
+from company to company
+and then
+well the cloud behemoths
+came into the room
+and it turns out
+everyone wants them
+to run the software
+for them so
+how do you make money?
+Great idea
+but now running at scale
+is sort of what's happening
+oh that open source project
+there
+great idea
+now let's just take that
+and implement it
+on our own systems
+and really
+Microsoft kind of
+did this first
+with their Cosmos DB
+over on Azure
+it just
+didn't quite get
+the same attention
+that AWS's DocumentDB
+did
+but they kind of
+just straight up
+did the same thing
+did a MongoDB competitor
+that's now an Azure branded
+service that you pay for
+and what they're selling
+isn't the software
+what they're selling
+is the reliability
+and the infrastructure
+of AWS
+or Azure
+in this case
+and
+this is
+I think
+a huge threat
+to open source software
+not because
+these large commercial
+companies
+are taking
+open source software
+and
+re-implementing it
+or even just
+re-hosting it in some cases
+and then calling it
+their own service
+and charging for it
+like that's
+that's going to happen
+but
+in a much
+much
+bigger picture way
+it could fundamentally
+undermine
+how open source projects
+that need to build
+at a certain scale
+get funded
+kickstarters
+don't build MongoDB
+patreons
+don't build MongoDB
+large
+corporate
+VC backed
+funding
+builds things
+that are at that scale
+it's just the nature
+of the software industry
+and I want to
+play a clip
+from Ben Thompson
+who in his
+podcast
+Exponent
+which we will link
+in the show notes
+he's talked about this
+and written
+we'll link to this
+in the show notes
+I want to play this
+and then Wes and I
+are going to chat
+about it a little bit
+and then
+I'm going to leave it
+to the audience
+in the podcast
+where he talks about
+this VC funding issue
+this is
+driving a lot of angst
+sort of in the open source
+world
+which is
+we kind of got this
+cool new model
+where
+open source projects
+could
+not just be
+sort of developed
+by hobbyists
+or people in their free time
+or
+people supported by
+foundations
+or grants
+or whatever it might be
+but actually
+like
+getting VC money
+and VC makes
+so much sense for software
+because
+software is a lot of work
+and tools
+and if Amazon's coming along
+and basically leveraging
+their massive scale
+and what they're selling
+to enterprises
+which is
+the sort of
+reliability
+and scalability
+and all those things
+that Amazon offers
+is that business model
+going where
+are we losing
+what seemed to be
+a workable business model
+for open source
+and that'd be a bummer
+frankly
+it'd be a bummer for everyone
+it'd be a bummer for Amazon
+huge bummer
+I mean here's the concern Wes
+is if
+if I'm a VC firm
+and I'm looking at backing
+a massive threat to that project
+as if they ever get
+any kind of market share
+one of the big commercial
+hosting companies
+will just re-implement it
+See I got a little bit
+of a contrarian take here
+I think Ben's totally right
+and that's a great episode
+of the show
+but the key
+is long term
+he says
+VC makes sense
+for software
+because you have to spend
+a lot of money
+and then you try to be profitable
+over the long term
+but the VCs of today
+that's not how we operate
+and I think we all got a little too hopeful
+that
+things like Mongo
+things on the billion scale
+things that
+you know San Francisco VCs
+are funding
+was actually a sustainable
+business model
+but
+Amazon was
+you know AWS didn't start
+till like 2007
+so we're really only
+one tick in here
+we've gone through one cycle
+and we're seeing
+we got really hopeful
+because it is great
+you do want
+companies that can be like
+you know like Elasticsearch
+for instance
+they're like this is a great product
+we've hired great developers
+to build it
+and now you can have it for free
+and it's open source
+but it turns out
+it's
+it's a lot more complicated
+I think you can still have
+those things
+but not at the scale
+of you know making huge amounts of money
+for people
+you might be able to build a sustainable consultancy
+on some open source software
+but I think the days of
+giant
+multi-billion dollar companies on them
+questionable
+it seems like it could be
+a huge issue
+because then it means
+only certain companies
+will have the scale
+to build those kinds of projects
+and
+it also makes me wonder
+if this doesn't
+have something to do with the Red Hat sale
+to IBM
+here's here's what
+before I
+before I sound the alarm
+and I say that these large commercial cloud companies
+are going to consume
+open source projects
+that ever get successful
+I would like to get the audience's take
+but it does require
+like some serious homework
+and thought around this
+but I would really love
+to either have you join us
+next week in the mumble room
+or
+just go to linuxunplug.com slash contact
+but do consider the homework
+we'll have it linked in the show notes
+the first up is exponent
+episode 159 of
+Ben Thompson's podcast
+where they talk about this
+then
+I would encourage you
+to read his piece on
+Stratechery
+which we will also have linked
+in the show notes
+and then additionally
+one last thing
+is I would encourage you
+to listen to
+Late Night Linux
+episode 55
+where the boys just debate
+cloud lock-in
+versus on-premises
+to give you a fully
+rounded picture
+of the issue here
+and then
+I would really encourage you
+to at least engage in that
+even if you're not going to participate
+in the podcast
+and but then
+if you do have the time
+come join us
+in email and let us know what you think
+I would throw into
+Brian Cantrell
+of all kinds of open source fame
+he's been blogging about this stuff too
+and it's a little bit different
+it's a little more focused on the licenses
+but I think it's an important component
+from someone who's been through
+the open source
+and trying to make money
+process
+yeah
+there's a lot of different
+moving pieces right now
+around this discussion
+and it's at a different scale now
+because
+essentially
+the thing that
+companies like AWS
+are benefiting from
+is the open source
+community nature of a project
+like MongoDB
+and Redis and others
+has led to
+strong developer adoption
+but then
+and that developer adoption
+is super beneficial
+for like
+creating applications
+that use that type of database
+it's great for that
+right
+you want to make it easy
+to just pull down a Docker container
+so that you can try it out
+if you're going to decide
+am I going to use this software
+in my new project
+yeah maybe you're building a prototype
+or you're learning
+and then
+when it comes time
+to put it in production
+for millions of users
+to bang on it
+and you want to tell your boss
+what system they should use
+I mean
+who's going to fire you
+for suggesting DocumentDB
+you could go do
+your own bespoke
+implementation of MongoDB
+up on a VPS somewhere
+and manage it
+but then who's on call
+you?
+yeah and really
+if AWS has an issue
+that's not on you
+nobody gets fired
+for choosing AWS
+just like nobody got fired
+for choosing IBM
+and Microsoft
+back in the day
+and so just by being AWS
+I think they're going to have
+massive success
+with what is essentially
+a MongoDB
+competitor slash ripoff
+I mean
+ripoff is a little bit strong
+but yes right
+I mean they implement
+the same interface
+or at least largely compatible
+and they do that
+with other things right
+they've got Aurora
+their database
+and has a coming backend
+that they implement
+some like Postgres
+compatibility layers
+on top of
+so it's just
+the commoditization
+the world of cloud
+where once you've hired
+the one ops team
+to run your stuff
+you don't really want
+to branch out
+yeah man
+I just feel like
+there's a lot of expectations
+for really large scale
+open source
+I would love to have
+a reality
+and a future
+where Red Hat
+wasn't the largest
+open source company ever
+free software company
+wouldn't that be great
+if we could have another
+free software
+open source success story
+that's even larger
+than Red Hat
+right yeah
+let's hope we haven't peaked
+right
+and that's my concern
+is that this sort of
+stifles the long term
+ramp
+and how big these companies
+can get
+when
+we want to the audience
+if we get good engagement
+people do their homework
+and turn around
+and give thoughtful responses
+we'll continue this
+conversation
+in next week's episode
+and hopefully we'll get
+the Ubuntu 19.04 first look
+in there too
+it's the Gen 2 challenge
+all over again
+I apologize about that
+in the meantime
+go get more Wes Payne
+and now Jim Salter
+over on the TechSnap
+TechSnap.Systems
+I'm really happy about that
+we've already talked about it
+but I just think
+it's super great Wes
+I wanted to mention
+well thank you
+good work on the first episode
+and there is more to come
+and of course you can go get him on Twitter
+he is at Wes Payne
+I am at Chris Elias
+and the network
+at Jupiter Signal
+LinuxUnplugged.com
+slash 285
+for all the links
+to everything we talked about
+the community events
+the news stories
+the Kickstarter
+for the
+I'm not going to try to mispronounce it
+but you know what I'm talking about
+Akira
+the Akira Kickstarter
+we've got it all
+I'm hopeless Wes
+but you try
+and that's what counts
+I think
+I'm starting to give up
+starting to
+and also thank you to Alex
+for joining Wes
+to tell us about his project
+best of luck to him
+and links to
+all of the homework that we have
+in the show notes as well
+LinuxUnplugged.com
+slash 285
+for all the links
+to everything we talked about
+the community events
+the Kickstarter
+for the
+I'm not going to try to mispronounce it
+but you know what I'm talking about
+Akira
+the Akira Kickstarter
+we've got it all
+I'm hopeless Wes
+but you try
+and that's what counts
+I think
+I'm starting to give up
+starting to
+and also thank you to
+Alex
+for joining us
+to tell us about
+all of the homework that we have
+in the show notes as well
+LinuxUnplugged.com
+slash 285
+for all the links
+to everything we have
+in the show notes
+I'm not going to try to mispronounce it
+he was the one right before Jim
+Whitehurst
+and
+what's really interesting about it
+it's a new
+model
+of
+supporting
+open source projects
+so
+you know the Red Hat model is
+you buy a subscription
+for Linux
+and that goes to
+basically towards
+Linux development
+for the most part right
+but the
+this one
+it's far more broad
+so like if you have
+like a lot of
+open source dependencies
+in your application
+you can
+go to
+Tidelift
+and say hey
+I need
+to make sure that
+this is
+getting developed
+and Tidelift will go
+and pay
+the
+project maintainer
+to continue
+to maintain the project
+it's like
+it's like a
+like not a foundation
+but
+yeah
+it's an interesting way
+of looking at it
+I think
+you know
+they just got
+Series B funding
+so we'll see
+you know
+where it goes
+I just heard about them
+a couple weeks ago
+they've been around
+apparently
+for a
+little over a year
+so
+yeah
+we'll see
+where it goes
+I'm really interested
+to see
+where it goes
+What's their website?
+It's Tidelift.com
+Good one, thank you
+that's good to know about
+thank you Brandon
+I've got to take on
+the whole licenses
+MongoDB thing
+Yeah, do share
+Yeah so
+you know
+the typical model
+that has become
+common for
+open source companies
+is that
+they basically create a market
+for their skills
+by
+creating a product
+that
+is
+sufficiently complicated enough
+that
+other people require
+their skills to support
+and also
+that they want updates
+to that software
+so
+the problem being is that
+you have companies
+that
+also have the same amount
+of skills that you have
+and if your project
+is popular enough
+that
+they don't want to wait for you
+to do updates
+or they find your support
+too expensive
+on their own
+they lose that control
+and then
+you know
+groups like
+Mongo and
+there's been countless in the past
+there's the very real chance
+that they'll lose the control
+and then they're losing
+the whole reason
+that they created it
+in the first place
+I mean there's other
+more altruistic reasons
+for creating FOSS software
+but the typical
+I need to make money
+using FOSS software
+how do I do it
+this is a typical
+breakdown
+path
+that happens
+but you have to be prepared
+for that to happen
+if you want to delve
+in the world of open source
+novels
+every open source company
+has a
+cash flow
+issues
+especially
+with getting people
+to buy their products
+because
+you can just go
+get it for free
+I mean
+Canonical
+could easily be
+larger than Red Hat
+if they could just
+figure out a way
+to monetize
+every Ubuntu license
+out there
+every Ubuntu
+installation
+out there right
+but that's just
+not going to happen
+same with MongoDB
+MongoDB would probably be huge
+but
+people can just
+go run their software
+for free
+so that's
+it's
+got to figure out
+a better way of
+getting
+money in the hands
+of developers
+I think that
+that's the big
+that's the big
+problem
+is
+you have to
+one of the things
+that I always
+have to remind people
+is that
+software
+is not
+it's people's time
+it's people's
+you can't
+and they can't just
+keep working for free
+yeah it's like
+the Venn diagram
+that's existed
+ever since like
+1990s when they started
+doing this stuff is
+there's software
+that's
+the triangle
+you pick two
+of the three things
+you can have it
+high quality
+you can
+have it free
+and
+you can't have both of them
+like if you want
+good quality
+FOSS software
+you have to be able to pay the people
+that are making the FOSS software
+to create it well
+otherwise
+it'll be slow
+it'll be somebody working
+on their evenings and weekends
+it's a fundamental
+competition between
+people who are quite happy
+to use stuff for free
+and not
+fund the development of it
+and
+people who aren't willing
+to just spend all their time
+doing nothing
+and not eating
+and not living in a house
+developing software for you
+this is negative

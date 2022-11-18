@@ -1,0 +1,3095 @@
+WEBVTT
+
+00:00.880 --> 00:07.520
+Wes's adventures with IP tables. What happened? Oh, no, I just I just had a machine running some old monitoring software
+
+00:07.520 --> 00:13.520
+I need to just it's just terrible. I'd love to kill it, but it's the thing receiving SNMP traps right now
+
+00:14.720 --> 00:20.200
+But it doesn't use I mean like wraps net SNMP, but it doesn't use SNMP trap T
+
+00:20.200 --> 00:25.320
+So it wasn't that I couldn't just have it stop listening or I couldn't set up my own proxy without having to take it down
+
+00:25.320 --> 00:31.960
+for some times, but I was able to use IP tables with the dash dash T, which I'd never used before and
+
+00:33.480 --> 00:37.760
+Then that sense it sends it over to a secondary host which then does a
+
+00:38.840 --> 00:41.120
+pre-routing rule on it to change the
+
+00:41.720 --> 00:46.200
+Where it's addressed to which then sends it off to my actual house where I'm going to capture all these so I know
+
+00:46.520 --> 00:48.520
+You know, hey, what's actually hitting this machine?
+
+00:48.880 --> 00:53.040
+But I was really it was like two commands. It was really yeah, I didn't have to oh, I know it
+
+00:53.040 --> 00:55.520
+No, that's Wes. You had me at IP tables
+
+00:56.000 --> 00:58.000
+This is Linux unplugged episode
+
+00:58.880 --> 01:00.880
+190 for March 28th
+
+01:01.240 --> 01:03.240
+2017
+
+01:13.200 --> 01:19.680
+Welcome to Linux unplugged your weekly Linux talk show that's converting file systems in real time. My name is Chris. My name is Wes
+
+01:19.680 --> 01:26.800
+Hello, Wes. Keep your hands off my file system. Haha. I know I don't just there's actually a few file system things coming up today, but
+
+01:27.360 --> 01:29.080
+First we're gonna get through some updates
+
+01:29.080 --> 01:33.360
+There's a project that's been on the back of my mind for months that we haven't talked about
+
+01:33.920 --> 01:37.440
+Saving it a big huge change up with free NAS this week
+
+01:37.440 --> 01:40.360
+We're gonna talk about that kind of kind of fit in with some other topics that we have
+
+01:40.680 --> 01:46.280
+Coming up down the road just some overall stuff really kind of like major changes for a few projects. We talked about then
+
+01:46.280 --> 01:49.920
+I'm really looking forward to this. I'm very excited about this
+
+01:50.640 --> 01:52.640
+towards the end of the show
+
+01:52.720 --> 01:54.720
+We're gonna spend a little bit of Wes's money
+
+01:55.680 --> 02:03.200
+Yeah, yeah, Wes Wes has entered that wallet at home. Haha, you know, we've all been there like I think it's time for a new laptop
+
+02:03.200 --> 02:06.520
+Yeah, I gotta get a new computer and it this can be like a multi-month search
+
+02:07.200 --> 02:10.240
+Sometimes it can be a couple of days search depending on your situation
+
+02:10.240 --> 02:15.060
+And so this week Wes is on the search for the ultimate Linux machine
+
+02:15.060 --> 02:18.240
+we're gonna find out what his requirements are and then our
+
+02:18.780 --> 02:24.920
+Panel of Linux experts the virtual lug will chime in with their ideas on what might be a fitting machine
+
+02:24.920 --> 02:29.680
+And there happens to be some new Linux hardware releases coming very soon that may fit
+
+02:29.680 --> 02:32.880
+We'll talk about those we all of that to go through plus
+
+02:33.560 --> 02:34.840
+kind of a
+
+02:34.840 --> 02:38.840
+kind of an out there futurist kind of idea about how maybe we could
+
+02:39.560 --> 02:45.040
+Sort of take Linux and mobile Linux to the next level and some really like taking some low-end machines and just giving them huge upgrades
+
+02:45.040 --> 02:48.280
+So we'll talk about that in a little while too. So we got it
+
+02:48.280 --> 02:51.920
+I'm got some good hardware stuff got some good file server stuff coming up
+
+02:51.920 --> 02:56.560
+Got some huge project changes that people need to know about like stuff. That's like relevant to all of our interests
+
+02:56.560 --> 02:58.600
+I think it's gonna be I think it's gonna be a great show West
+
+02:58.600 --> 03:01.960
+So let's get started by bringing in that virtual log. Hello time appropriate greetings virtual log
+
+03:07.720 --> 03:12.880
+Hello, holy that was that was that was I wake you up that was a moment right there
+
+03:12.880 --> 03:16.320
+So Wes if we're gonna talk about hardware that might work for you this week
+
+03:16.360 --> 03:22.760
+We got to start with the zero terminal a tiny Linux PC that you can build using a Raspberry Pi and a smartphone keyboard
+
+03:22.760 --> 03:25.720
+Look at how cute that is. It is super cute called the zero terminal
+
+03:25.720 --> 03:32.640
+It's an all-in-one handheld computer that features a 3.5 inch screen and it gives you remarkable portability with a Raspberry Pi
+
+03:32.880 --> 03:37.240
+Yeah, you got HDMI out. You can put a big old battery in there to run this thing
+
+03:37.240 --> 03:42.960
+I don't have a tab key. That's what I want to do. Does it have an escape key? That's what you really want
+
+03:42.960 --> 03:45.760
+Yeah, and it's got a video. That's always a win
+
+03:47.200 --> 03:50.000
+Yeah, you see that? Oh, yeah. Yeah, that's your massage. Yeah
+
+03:52.600 --> 03:55.920
+This is the third iteration of the handheld Linux terminal project
+
+03:55.920 --> 03:57.360
+I've been working on for a while now
+
+03:57.360 --> 04:01.960
+Like the others the aim is to create a small all-in-one computer that is both portable and usable
+
+04:02.280 --> 04:07.160
+One of the main problems with the last version was that it took way too long to make and some of the finishing
+
+04:07.160 --> 04:09.700
+Wasn't as good as it could have been. I like this idea actually
+
+04:10.280 --> 04:15.060
+Node plans to release the files for the 3d printed parts soon. So that's kind of neat but maybe
+
+04:15.560 --> 04:21.080
+Maybe that's not really your style West. Maybe you want something more laptop style. So keep this in mind. I
+
+04:21.600 --> 04:28.040
+Also saw this week. There is like a laptop like concept where you could snap something like that in
+
+04:28.040 --> 04:29.920
+So you take a like a standard laptop?
+
+04:29.920 --> 04:34.280
+Maybe in this case the Acer travel mate. Yeah, sure and you cut it open
+
+04:34.280 --> 04:37.480
+and so you get it off eBay and you install a
+
+04:38.280 --> 04:43.840
+Raspberry Pi into this thing and take advantage of its keyboard its screen you can use HDMI to drive the display
+
+04:43.840 --> 04:47.440
+You can hook up keyboards and stuff like that and you put a Raspberry Pi inside a laptop
+
+04:47.880 --> 04:50.960
+Okay, I'm just putting these out here as options. I know you're in the early that first one
+
+04:52.360 --> 04:53.880
+That actually
+
+04:53.880 --> 04:57.280
+Would be you like that because you can put it in the pocket. Yeah, you could put it in the pocket
+
+04:57.280 --> 05:00.460
+I like that idea too. Okay, there's a few of these out there right now
+
+05:00.460 --> 05:04.840
+There's one we covered on last recently too that's trying to build that in your pocket computer
+
+05:04.840 --> 05:10.120
+That one was a more straight-up like we were gonna run Ubuntu and I don't I can't remember if it was arm or not
+
+05:10.120 --> 05:16.280
+Yeah, a GPD pockets pretty cool. Yeah. Yeah, that's what it was. Do you remember William? Is that arm? It's just an atom
+
+05:16.280 --> 05:21.040
+No, it's just like cheap low-end atoms like five watts or something. It's meant for like tablets and phones
+
+05:21.160 --> 05:26.360
+Yeah, the GPD is atom and the Gemini is arm and these are all kicking around right now
+
+05:26.360 --> 05:34.840
+They're both being crowdfunded at the moment. Yeah. Yeah, isn't that funny? Yeah, the GPD is like really funded like 2.5 million raised
+
+05:34.840 --> 05:38.620
+Yeah, yeah. Yeah 1200 percent over their goal. Yeah
+
+05:41.240 --> 05:43.240
+You have with these days
+
+05:43.520 --> 05:50.100
+All right, so wait, okay, so it's been so funded man because at what point does it become a liability, you know
+
+05:50.100 --> 05:55.280
+Like how how can they fulfill all those orders, you know, they were expecting to fulfill a few thousand now
+
+05:55.280 --> 05:59.360
+They've got to fill a few tens of thousand. That's just a logistical nightmare
+
+05:59.360 --> 06:04.120
+So that's what's kind of put me off the GPD. So here's it looks awesome. So that's a great point Joanne
+
+06:04.120 --> 06:08.000
+So here's what I want to do because we have a unique opportunity Todd from purism is joining us right now
+
+06:08.000 --> 06:11.320
+So I want to get to him because I think you could be our resident expert on crowdfunding
+
+06:11.320 --> 06:15.640
+But at first before we go to Todd, I wanted I want to ask wimpy. Are you hedging your bets?
+
+06:15.640 --> 06:23.000
+You're you're backing two different portable hardware devices. Like you sir are crazy. What you must really want this form factor
+
+06:23.000 --> 06:27.260
+I do really want this form factor. And also as I've said before just recently
+
+06:28.120 --> 06:29.680
+Bitcoin is
+
+06:29.680 --> 06:31.680
+Trending really nicely
+
+06:32.160 --> 06:40.440
+I'm making a few luxurious purchases around backing. Yeah, I've also bought something old and crusty as well
+
+06:40.440 --> 06:43.040
+Which I can talk about later if you're really yeah, I am
+
+06:44.400 --> 06:51.800
+So I saw the GPD and I thought that looks very interesting and I'm sort of 5050 as to whether or not we'll ever see it
+
+06:51.800 --> 06:57.940
+Because there's a lot of renders and maybe they've now they've got you know, loads of backers there. Maybe it'll happen
+
+06:57.940 --> 07:04.380
+Well, we'll we'll see what happens, but I'm not sure it's a little bit almost shady some of it. Yeah
+
+07:05.180 --> 07:06.540
+the actual
+
+07:06.540 --> 07:08.060
+prototypes now
+
+07:08.060 --> 07:14.580
+Yeah, yeah, though they have shipped a product in the past that's very similar and it was on indiegogo and it did ship
+
+07:15.140 --> 07:20.580
+Yeah, too many hackers. So they do at least have successful products in the past sure that were crowdfunded
+
+07:20.580 --> 07:26.220
+It was it was when it was first announced that there was lots of renders and not much substance and it was just a little case
+
+07:26.220 --> 07:31.820
+We're indiegogo. Yeah. Anyway, so that's that one's that looks interesting, but then the Gemini
+
+07:32.500 --> 07:37.380
+Again, so this is an organization that really has sort of previous in in this area
+
+07:37.740 --> 07:40.020
+They've worked in this space a lot before
+
+07:40.820 --> 07:47.860
+And I bumped into them at MWC as well. So I had the had the opportunity to press the flesh
+
+07:47.860 --> 07:49.540
+so
+
+07:49.540 --> 07:57.220
+Yeah, I I've backed that because I think that that I think that will probably arrive later than they're hoping because they don't have all
+
+07:57.220 --> 07:59.220
+of the manufacturing pipeline
+
+07:59.460 --> 08:03.300
+Arranged yet unless they get you know, really good at that and that all comes together quickly
+
+08:03.900 --> 08:08.880
+But I think when that one ships it will be the better device in terms of the way
+
+08:08.880 --> 08:14.520
+It's designed and the ergonomics and things. Yeah, okay. It's interesting to hear how everybody now
+
+08:14.520 --> 08:19.820
+I think we've all sort of we've shifted our expectations in what we get from crowdfunding here
+
+08:19.820 --> 08:21.820
+Everybody's like well, this is kind of rolling the dice here
+
+08:21.820 --> 08:24.500
+But Todd I wanted to toss to you first of all
+
+08:24.500 --> 08:28.380
+Welcome to Linux unplugged and to Joe's point when you have phenomenal success
+
+08:28.380 --> 08:31.700
+You have almost you've almost gone too far. You can't as a small company
+
+08:31.700 --> 08:38.980
+Is it difficult to sort of now meet that demand which could start with what could possibly start a whole snowball effect of bad PR
+
+08:38.980 --> 08:43.700
+Struggling for a new company. What are your reflections on this story Todd?
+
+08:44.460 --> 08:47.020
+Yeah, well, thanks for having me on
+
+08:48.220 --> 08:53.420
+So it obviously is a can be a challenge crowdfunding is you know?
+
+08:53.580 --> 08:58.400
+Still really relatively new as a way to start a business and a lot of times
+
+08:59.860 --> 09:03.060
+What will end up happening is, you know, especially if they're just you know
+
+09:03.060 --> 09:06.740
+If we're talking about like a developer who says hey, I always want to do this or they get together with their buddies
+
+09:06.740 --> 09:12.540
+And they're like, yeah, we think we think our cost is probably around, you know X dollars and what ends up happening is
+
+09:13.620 --> 09:17.820
+To operate a business. Of course, it's you know, it's X times four usually
+
+09:18.980 --> 09:21.580
+right, so it so that's one of the things that
+
+09:22.340 --> 09:28.180
+Tends to to underfund you meaning on a per quantity basis. So they might know a lot of
+
+09:29.860 --> 09:31.860
+Projects that
+
+09:31.860 --> 09:38.660
+That they get overfunded and oversubscribed which of course is a great problem initially when you think hey, this is awesome
+
+09:38.660 --> 09:40.660
+People are really excited what we're doing
+
+09:40.820 --> 09:46.580
+but then I think to Wimpy's point was that when you're actually looking at a per
+
+09:47.020 --> 09:51.580
+Cost per item that you need to start scaling your operations, right?
+
+09:51.580 --> 09:53.580
+You have to start dealing with how you're managing inventory
+
+09:53.900 --> 10:00.380
+Right the entire operational side of things which a lot of those types of campaigns don't end up having so it
+
+10:00.380 --> 10:01.620
+you
+
+10:01.620 --> 10:06.980
+know the sadly a crowdfunding track record is is not as good as
+
+10:07.780 --> 10:12.460
+As we'd all like it to be because obviously it's such a great way to you know to get these things
+
+10:12.580 --> 10:16.420
+Off the ground and you know see projects and it's sort of a new way to start businesses
+
+10:17.020 --> 10:19.020
+really what they tend to do is
+
+10:19.980 --> 10:27.140
+kind of stay in the hobby area or obviously, you know delivery is I think I think I could safely say that
+
+10:27.140 --> 10:30.340
+99% of the projects are delivered late
+
+10:31.580 --> 10:35.140
+Because that's just you know, the nature of the beast, especially when you're dealing with hardware
+
+10:35.140 --> 10:35.740
+Yeah
+
+10:35.740 --> 10:36.260
+Yeah
+
+10:36.260 --> 10:41.300
+especially it seems to when it's something that's pushing the edge a little bit where you might have to get manufacturers on board with
+
+10:41.300 --> 10:44.660
+A new idea or a new way of doing something or shipping in a way
+
+10:44.660 --> 10:49.820
+They've never shipped before it seems like the the the difficulty gets exponentially tougher
+
+10:50.300 --> 10:56.340
+Do you agree with that assessment Todd? Yes, I think you're exactly right and and so like in our case
+
+10:56.340 --> 11:00.820
+We actually I've had a previous company use the same exact supply chain
+
+11:01.620 --> 11:02.820
+and
+
+11:02.820 --> 11:04.820
+but that's that
+
+11:04.900 --> 11:10.460
+You know just made it where I had the contacts to be able to do things that we were trying to do
+
+11:10.620 --> 11:15.180
+But but you know, we obviously had a lot of learning curves along the way
+
+11:15.860 --> 11:17.860
+Mostly it was around
+
+11:18.780 --> 11:21.820
+You know delivery times or what products were actually available
+
+11:21.820 --> 11:28.100
+And obviously even one of the things Chris that you might remember is that we were originally slated to get 4k screens
+
+11:28.180 --> 11:31.300
+So we said yeah, we can do 4k screens because we heard from the supply chain
+
+11:31.300 --> 11:34.060
+We can do 4k screens and then that ended up turning into
+
+11:34.860 --> 11:41.220
+You know constant delays because the the actual source manufacturer of Samsung was getting bought up by
+
+11:41.620 --> 11:43.620
+much larger suppliers
+
+11:43.900 --> 11:48.820
+Or much larger buyers and so so we kept kind of falling to the back burner
+
+11:48.820 --> 11:52.180
+and then at some point we just had to you know, cut our losses and say, you know
+
+11:52.180 --> 11:55.660
+what we're gonna have to we're gonna have to ship what we can right now and then
+
+11:56.260 --> 11:57.860
+and then
+
+11:57.860 --> 12:05.620
+Basically place another order with a more reliable supply chain. So it really that supply chain management is an area that is
+
+12:06.980 --> 12:08.980
+Really difficult to manage through
+
+12:09.060 --> 12:15.620
+you know and now we ended up after we've just because we've grown to the point where we can have a really solid supply chain and
+
+12:15.620 --> 12:18.740
+Through negotiation and really to some degrees trial and error
+
+12:19.460 --> 12:21.460
+But a lot of the new new
+
+12:22.660 --> 12:26.840
+Crowdfunded campaigns that that is I think wimpy's point is exactly right when you start to get
+
+12:27.900 --> 12:33.820
+Oversubscribed then they introduce all sorts of new problems, right? It's not just like a hobby putting this together
+
+12:33.820 --> 12:37.820
+They're trying to actually now start to form a business and if they didn't get their pricing, right?
+
+12:38.300 --> 12:40.060
+It could end up being
+
+12:40.060 --> 12:46.020
+That that they won't be able to actually fund the entire process, right if they don't have if they don't have
+
+12:46.620 --> 12:48.620
+experience working with manufacturers and
+
+12:49.180 --> 12:52.220
+Like to your point which I don't really think a lot of us think about
+
+12:52.580 --> 12:57.180
+if they get to a certain size now all of a sudden they have to also have experience with managing inventory and
+
+12:57.260 --> 13:04.380
+Tracking support issues and support staff that if you don't have the past experience standing those groups up and integrating those employees into your business
+
+13:04.620 --> 13:05.180
+You know
+
+13:05.180 --> 13:09.300
+It's gonna be a huge learning curve while you're also trying to ship the product that you just promised everybody
+
+13:09.300 --> 13:11.580
+It's like zero to medium-sized business today
+
+13:11.580 --> 13:16.620
+So I'm glad wimpy is risking the Bitcoin on it because I really want to see both of these be successful because I love the form
+
+13:16.620 --> 13:19.220
+Factor idea totally. So thanks with me. Yeah
+
+13:19.300 --> 13:24.340
+Yeah, and you know if I end up with two of these then one will be for my daughter. So that'll be fun. That's nice
+
+13:24.340 --> 13:28.580
+Yeah, that's that's brilliant. Well Todd. Thanks for being here and I hope you stick with us
+
+13:28.580 --> 13:30.180
+We got a whole bunch of stuff coming up
+
+13:30.180 --> 13:34.020
+I just want to give a quick heads up to folks that may be using last pass
+
+13:34.140 --> 13:37.380
+I've been looking at different password managers recently if that wasn't obvious and
+
+13:37.380 --> 13:38.900
+And
+
+13:38.900 --> 13:45.220
+It's that time again, and I keep coming back when it comes to mobile integration and stuff like that. I keep preferring last pass
+
+13:45.780 --> 13:47.460
+So I this applies to me
+
+13:47.460 --> 13:52.640
+I don't know if some of you are out there but over the weekend a Google security researcher reported a new client side vulnerability
+
+13:52.900 --> 13:55.900
+So this is in the browser side, which could be potentially dangerous
+
+13:56.900 --> 14:00.860
+There is an update now last pass is not giving us the details
+
+14:00.860 --> 14:04.420
+Maybe those tech snap guys will keep an eye out for the details on what the actual vulnerability was
+
+14:04.420 --> 14:06.900
+But right now as of yesterday
+
+14:07.740 --> 14:12.420
+The the word from last passes is just update and we'll tell you all the details soon
+
+14:12.460 --> 14:17.100
+Or maybe Google actually will because a lot of times that Google project zero blog. Yeah sure has that stuff
+
+14:18.420 --> 14:22.060
+Speaking of tech snap we should mention more often that you can find more of mr.
+
+14:22.060 --> 14:27.380
+Wes on the tech snap program was it last week you guys did a deep dive was it or is the week before last week?
+
+14:28.060 --> 14:32.300
+Broke from the traditional format and did a deep dive into bacula, which is such a badass
+
+14:32.300 --> 14:38.980
+Backup system that Dan knows very well. Yes, he does. Yeah, he's a bacula guy and I tell you what?
+
+14:38.980 --> 14:43.780
+If you've ever been curious about a really rock-solid backup system, it can do bare metal restores
+
+14:43.780 --> 14:45.180
+It can do individual file restores
+
+14:45.180 --> 14:48.060
+It can it can really manage a lot of day sets of data
+
+14:48.540 --> 14:52.340
+Bacula and check out the last week's episode tech snap about it, which is an open source. I
+
+14:52.980 --> 14:57.940
+Used to use bacula. Oh, really? Yeah, I used to use it to back up a company that sold antivirus
+
+14:57.940 --> 15:01.740
+Nice yeah, that makes sense and it works great for something like that. Yeah, and it was perfect
+
+15:01.740 --> 15:06.460
+It really was so that's a different time. You don't know now I might use it with digital ocean
+
+15:06.460 --> 15:09.180
+I could picture it digital ocean comm go over there
+
+15:09.180 --> 15:10.780
+In fact do me a favor after you sign up
+
+15:10.780 --> 15:15.900
+You can get a $10 credit and support the show by applying the promo code do on a plug to your account
+
+15:15.900 --> 15:19.100
+I like the way that this works too because you can you fund the account?
+
+15:19.100 --> 15:24.020
+Yeah, so this is just one of the funding methods you can find it with PayPal or credit card or probably pixie dust
+
+15:24.020 --> 15:28.900
+But use the promo code. I'm not sure about that last one do unplugged one word you get a $10 credit
+
+15:29.340 --> 15:33.540
+You can spin up a linux rig up on their infrastructure all SSDs for the storage
+
+15:34.740 --> 15:37.940
+Wes it makes a difference. It sure does you know what also would help with that bacula thing
+
+15:37.940 --> 15:42.300
+They're private networking dude you mean for like backing up your own droplet stuff
+
+15:42.300 --> 15:47.120
+Yes, because also that's brilliant a because then your backup server isn't on the public net
+
+15:47.120 --> 15:53.300
+But be the transfer all over the private networking doesn't count towards your total data transfer. Oh, that's money right there
+
+15:53.300 --> 15:55.580
+That's a good idea yeah check that out
+
+15:55.580 --> 16:00.500
+So one of the many great features of digital ocean go over there use our promo code do unplugged and spin up a rig you
+
+16:00.500 --> 16:03.940
+Can try out bacula for just a few pennies on the dollar if you want to run it for a few hours?
+
+16:04.220 --> 16:07.180
+Try out the $5 rig two months for free it's gonna be all SSD
+
+16:07.180 --> 16:10.420
+So it's nice and fast and if you want to back up to digital ocean
+
+16:10.420 --> 16:15.260
+They have block storage which you can add up and add up and add up and just keep growing as you need or even reduce
+
+16:15.260 --> 16:19.300
+Or this is brilliant didn't realize this until recently move it to another droplet
+
+16:19.300 --> 16:25.540
+Freaking mind-blown in the context of backups freaking mind-blown
+
+16:25.540 --> 16:28.780
+It's and that's just the beginning to if you're into this kind of stuff
+
+16:28.780 --> 16:31.900
+You might also fight you might also favor their new monitoring system coming soon
+
+16:31.900 --> 16:34.620
+It's gonna be coming I little birdie tells me very soon
+
+16:34.620 --> 16:39.260
+And you can sign up for early access when you go to digital ocean comm go there create an account big
+
+16:39.260 --> 16:43.300
+Thank you digital ocean have a great interface for managing all of this an API that really works
+
+16:43.300 --> 16:50.780
+Hell of a good service at digital ocean comm use our promo code do unplugged and thanks to them for sponsoring the unplugged program
+
+16:51.520 --> 16:53.520
+okay, so I want to talk just briefly about
+
+16:54.500 --> 16:57.820
+File servers, I know I know some people's eyes are gonna glaze over
+
+16:58.220 --> 17:01.740
+But there's one that we don't talk about very much, and I want to give it a little love right now
+
+17:02.060 --> 17:07.060
+And that's rock store. I've mentioned it once before but a couple of days ago. I missed it first
+
+17:07.100 --> 17:09.300
+They had a new release and I think it's worth mentioning
+
+17:09.300 --> 17:14.140
+Because they've put a ton of release a ton of effort into this they have now six contributors coming together
+
+17:14.500 --> 17:21.160
+To work on bug fixes and performance improvements the code quality is from what people tell me has had a big jump in this one
+
+17:21.620 --> 17:24.340
+They've had a lot of improvements to their Python back-end stack
+
+17:24.340 --> 17:31.300
+They are still and this could be actually I think a feature to some of you all in on butter FS for the NAS file server
+
+17:31.700 --> 17:35.540
+File system so if you're a big fan of butter fest which people remain fans
+
+17:35.540 --> 17:42.540
+This is a great file server for you potentially they also seem to offer some some commercial products or offerings
+
+17:42.540 --> 17:47.860
+I'm not totally familiar with support available as well. Yeah, maybe we'll make you feel a little more secure. Yeah
+
+17:48.540 --> 17:50.900
+But if that's file system underneath so rock store
+
+17:50.900 --> 17:55.980
+Just had a had a new release with which sounds like a lot of nice refinements and improvements
+
+17:55.980 --> 17:59.980
+Which is pretty much exactly what you want from your NAS yeah now on the other end
+
+18:00.660 --> 18:02.020
+there is
+
+18:02.020 --> 18:05.740
+Free NAS coral, which is also known as free NAS 10. This is a
+
+18:06.300 --> 18:10.820
+Massive release in my opinion for free NAS. It's it's big
+
+18:10.820 --> 18:18.260
+It's it's sort of in some ways a total revisioning of the way the UI works. It's got a brand new slick UI
+
+18:19.100 --> 18:21.840
+it's got a rewritten middleware architecture and
+
+18:21.840 --> 18:31.840
+The big and probably one that has gotten the most discussion changes. There's they're transitioning from using jails for plugins to
+
+18:32.440 --> 18:37.860
+Using Docker can say what Docker containers isn't that a Linux the Docker?
+
+18:38.480 --> 18:43.040
+containers with full ZFS integration and a new command line and
+
+18:44.220 --> 18:48.200
+There is some caveats if you're migrating from free NAS 9
+
+18:48.200 --> 18:51.600
+Your plugins that you have installed via jails. They don't get deleted
+
+18:52.320 --> 18:58.840
+They just get deactivated and you'll have to kind of come up with your own solution to maybe converting those into Docker containers
+
+19:00.200 --> 19:06.760
+Now this is this is interesting because I think this is probably one of the biggest competitors in this sort of rock store sort of Linux
+
+19:06.760 --> 19:09.680
+You know the household date. Yeah. Yeah friend free NAS is
+
+19:10.680 --> 19:14.680
+Making huge changes and along those are also some of the changes on the back end team
+
+19:14.680 --> 19:19.560
+Jordan Hubbard, who I've had the pleasure of meeting and watching a presentation on free NAS 10 at
+
+19:20.080 --> 19:23.400
+meet BSD who seemed to me a big part of the project he's
+
+19:24.640 --> 19:26.400
+He's moving on
+
+19:26.400 --> 19:32.600
+Now he was the main dev. So he's also the CTO of IX systems. So that's a that's a big change
+
+19:32.600 --> 19:35.960
+He's sounds like he's you know moving into something that he's gonna be super passionate about so
+
+19:36.800 --> 19:42.240
+He's going into I think like that. Yeah, he says the nanotech biomedical field. It's a complete career change
+
+19:42.240 --> 19:46.400
+Wow, yeah, yeah, which that's got to be nice from time to time. So really reinvigorate. Yeah
+
+19:46.920 --> 19:51.960
+Good for him, but it's got to be a huge change also back in December. They had another long-time
+
+19:53.240 --> 19:58.520
+Free NAS developer who was with free NAS since version 8 7 years
+
+19:59.160 --> 20:01.440
+He's also moving on from free NAS
+
+20:01.440 --> 20:06.440
+So some big changes Jonathan says that he will not be or Jordan not Jonathan. Sorry, Jordan Hubbard
+
+20:06.440 --> 20:12.360
+Jordan says that I don't know Jonathan Jordan Hubbard says that he won't be a developer anymore, but he'll still be part of the community
+
+20:12.360 --> 20:17.120
+So Jordan's still gonna be in the you know as a user, right says he'll be filing bugs and yelling at those devs
+
+20:18.120 --> 20:24.640
+And some people have speculated. Well, is this because of all of the breakage from upgrading from free NAS 9 to 10, but I
+
+20:26.120 --> 20:29.480
+Don't buy it. I don't buy it because free NAS free NAS
+
+20:29.480 --> 20:33.560
+9.10 is still available for download still supported like you don't have to upgrade
+
+20:33.560 --> 20:39.720
+Yeah, and you can roll back your upgrade if it goes wrong, so I don't really buy that like Jordan was pushed out
+
+20:39.720 --> 20:44.840
+Which is what read it there right at the reddit conspiracy theories right now that the free NAS 10 was such a failure that it pushed
+
+20:44.840 --> 20:49.240
+Jordan out which seems a little a little over the top, but if he was just pushed out
+
+20:49.240 --> 20:54.680
+He'd probably go to a company with similar interests or do something in a similar vein not change careers completely
+
+20:54.680 --> 20:56.800
+Yeah, I agree. I just I don't know
+
+20:56.800 --> 21:00.040
+I think what it was is he what he worked on this until it was done
+
+21:00.040 --> 21:03.640
+And he got you know something he sort of got it some stuff wrapped up, and now he's a natural type
+
+21:03.640 --> 21:06.120
+It's like it's like a nice smooth transition. Yeah
+
+21:06.840 --> 21:08.840
+and it I
+
+21:08.880 --> 21:13.560
+The but all that is my way of saying there is there is some there is some
+
+21:14.600 --> 21:18.000
+Some pushback on this new release this free NAS coral. I'm sure there is yeah
+
+21:18.000 --> 21:24.240
+And I wonder if things like unraid or another Linux out-of-the-box file server could step up to fill the gap
+
+21:24.240 --> 21:27.520
+I don't know a free NAS is got a pretty big lead at this point and
+
+21:27.520 --> 21:32.280
+Like I said version 9 still perfectly good still perfectly usable still perfectly
+
+21:32.280 --> 21:37.120
+But you do have to wonder I mean there was even a question to the Texas program about what's that support cycle gonna be which I?
+
+21:37.120 --> 21:41.720
+Was I'm sure it's gonna be very reasonable. You know especially since there's a community around it
+
+21:41.720 --> 21:42.840
+That's what it seems not that worried
+
+21:42.840 --> 21:47.320
+But you do have to think like you know like you've been talking about like if you're planning in the next five years
+
+21:47.320 --> 21:50.240
+I mean it would probably still work for that time frame, but ten years
+
+21:50.800 --> 21:53.840
+What do you think about Docker? I mean that's an interesting
+
+21:53.840 --> 21:59.520
+Interesting the doctor just win right there the doctor just win like I can't see it from their perspective of does that
+
+21:59.520 --> 22:04.160
+Much easier like if it's packaged at Docker is it now pretty easy for them to make sure it works in their environment
+
+22:04.160 --> 22:09.360
+Versus having to put together plugins with their own custom jail format that kind of thing
+
+22:11.160 --> 22:18.000
+To me it seems to represent like sort of the industry even even the people on the BSD side of the fence coming to a
+
+22:18.000 --> 22:19.000
+recognition that
+
+22:19.000 --> 22:24.040
+Well, if you want to be able to distribute software that runs across multiple platforms
+
+22:24.840 --> 22:26.240
+Dockers
+
+22:26.240 --> 22:30.920
+Just the container technology we're gonna use and it's not so much that they're like betting on Docker so much as they want to
+
+22:30.920 --> 22:38.120
+Make all of the stuff that's already in a container available to free nas so they instead of having reaches
+
+22:38.120 --> 22:42.800
+Yeah, instead of having to have a plug-in author who creates something specifically for a free nas now
+
+22:42.800 --> 22:45.480
+Just exactly Joe free nas using a container
+
+22:45.480 --> 22:50.240
+Specifically for a free nas now just exactly Joe free nas user can pull down a Docker container
+
+22:50.240 --> 22:55.680
+Do we know yet how they're doing it? Is it using it's probably still using jail. That's what I would others
+
+22:55.680 --> 23:00.960
+It's just that the Docker format gives you this like universal format to package the thing up with and then she you know
+
+23:00.960 --> 23:03.080
+I wonder I don't look controls that just work
+
+23:03.080 --> 23:06.700
+I wonder because the way they say listen to the way they put this
+
+23:07.440 --> 23:13.440
+Support for Docker containers its own built-in hypervisor that supports virtualization with full ZFS integration
+
+23:13.440 --> 23:18.120
+So to me, it sounds like they're using a hypervisor to run this and they would have like a Linux kernel
+
+23:18.120 --> 23:23.080
+It'd be you think they're able to run Linux Docker images. This is where they're going with this. They are Linux dockers
+
+23:23.160 --> 23:27.920
+No, they are Linux dock because you're because they're making it available for you to pull down pre-created Docker containers
+
+23:27.920 --> 23:31.560
+Then it's probably yeah beehive with Linux running on top of it. Yeah
+
+23:32.400 --> 23:36.200
+That's to me is a huge statement. Yeah. Hmm. Don't you think?
+
+23:37.960 --> 23:39.680
+That's pretty cool
+
+23:39.680 --> 23:44.560
+That's sort of like when Microsoft started shipping Docker support and bash on Windows. It's just sort of like this
+
+23:44.920 --> 23:49.680
+Linux is the runtime Linux is the runtime and however you get that runtime on your machine sure
+
+23:49.680 --> 23:53.200
+Yeah, and the container technology is the is how you get the runtime right now
+
+23:53.200 --> 23:56.960
+But it's really but those half of those containers are running Ubuntu, right?
+
+23:56.960 --> 24:03.040
+So it's it's really Linux is the platform. Yeah, and in a lot of those cases, it's Ubuntu 70% There you go
+
+24:03.040 --> 24:04.040
+Yeah
+
+24:04.040 --> 24:10.000
+So it's that's that I think they came up with a way to run Ubuntu on free NAS
+
+24:10.000 --> 24:11.120
+Let's look more into this
+
+24:11.120 --> 24:14.360
+I'm very curious about it because I wonder if it'll create any pressure for their
+
+24:14.800 --> 24:17.720
+Compact layer to implement those primitives, you know
+
+24:18.120 --> 24:20.440
+Is they're just using beehive with a Linux kernel, right?
+
+24:21.800 --> 24:23.800
+Didn't have to run a whole hypervisor
+
+24:24.560 --> 24:28.120
+Support like OCI or other types of things that suddenly you could have like hey
+
+24:28.120 --> 24:33.160
+I want to run for BSD as my you know base platform for Kubernetes or whatever most reliably
+
+24:33.160 --> 24:35.500
+Using the hypervisor route is probably the best way
+
+24:35.500 --> 24:40.760
+Yeah, don't yeah to start and maybe down the road they allow you to pick whether it's using the ABI or using a hypervisor
+
+24:40.760 --> 24:43.440
+Yeah, and I think that's what Microsoft is doing up and at
+
+24:44.120 --> 24:46.800
+230 the file system upgrade just finished on the phone
+
+24:47.200 --> 24:52.320
+So in from to hot. Yes. There you go. The real the file system in real time is completed
+
+24:52.320 --> 24:57.120
+Oh, geez, now I got to sign in. What is this crap just for one point release?
+
+24:57.840 --> 25:00.480
+Does this mean if Ubuntu is running on freedom?
+
+25:00.480 --> 25:06.040
+Yes, does that mean we can get snaps running as well? Well, if you I wouldn't you if you could run Docker containers on there
+
+25:06.040 --> 25:08.080
+Couldn't you just run essentially like a small Ubuntu system?
+
+25:08.800 --> 25:13.320
+And that's the stage. Yeah, you could and you could make snaps on it as well if you wanted to
+
+25:14.240 --> 25:20.120
+Fascinating that is interesting. I really want to see what the web UI I've looked at the early betas
+
+25:20.680 --> 25:25.400
+I would don't know they have supported this do you all right? So it would make sense that they might
+
+25:25.400 --> 25:29.700
+Yeah, they have another built-in via they have a section called VMs, right? Exactly. Exactly
+
+25:29.840 --> 25:32.200
+It's just that's what I would think it just another built-in VM
+
+25:32.280 --> 25:35.800
+So it's something I think I'm gonna play around with now that I can get Linux on my free NAS
+
+25:35.800 --> 25:37.800
+This is a game changer for me
+
+25:38.200 --> 25:41.560
+But it's a big controversial feature in the free NAS community right now. Oh, I'm sure
+
+25:42.160 --> 25:47.760
+All right. Well, there you go. I thought that was oh, oh and by the way, if you are going to upgrade
+
+25:47.760 --> 25:49.760
+Let me see I have
+
+25:49.760 --> 25:56.440
+Somewhere in this mess of show notes. Here we go. I have a migrating from free NAS 9 to free NAS coral
+
+25:57.280 --> 26:02.320
+Entry on the free NAS wiki place that covers all of it and like issues you have
+
+26:04.600 --> 26:07.560
+Especially for using encryption maybe just give this a read doesn't sound like it's gonna be too complicated
+
+26:07.560 --> 26:12.480
+But probably stuff you should be aware of so check that out. I have all that go try the new version
+
+26:12.480 --> 26:15.160
+I'd love to hear you think about it. Do you have a file server at home?
+
+26:16.280 --> 26:18.280
+not anything
+
+26:18.280 --> 26:19.800
+pre built like this
+
+26:19.800 --> 26:25.400
+Hmm. I have a I have a box that has a container that runs my router and that it has a container that you know
+
+26:25.400 --> 26:30.480
+Yeah, if you just if you just built a big desktop PC, you could put a bunch of disks in it
+
+26:30.480 --> 26:33.440
+I sure could and you could just use that
+
+26:34.080 --> 26:37.600
+Like a double duty. Hmm. All right, listen to that. We're gonna talk about your new machine
+
+26:37.600 --> 26:41.320
+We're gonna go spend your money here. We're gonna go spend your money here just about now actually
+
+26:41.320 --> 26:44.000
+So, uh, I think it's just about time. Let's so let's do that
+
+26:44.000 --> 26:48.760
+Let's let's actually let's mention Linux Academy Linux Academy comm slash unplugged then we're gonna go home man
+
+26:48.760 --> 26:52.680
+West see my favorite thing to do is to spend other people's money and I'm gonna get you set up much more fun
+
+26:52.680 --> 26:53.600
+We're gonna get you hooked up
+
+26:53.600 --> 26:57.280
+We're gonna get you hooked up with a good machine and then when you're ready to put that machine to use and you want to
+
+26:57.280 --> 27:01.560
+Do more I want you to go to Linux Academy and learn more Linux Academy comm slash unplugged
+
+27:01.560 --> 27:05.280
+You land there to support the show and sign up for a free seven-day trial
+
+27:05.280 --> 27:07.280
+It's a platform to learn more about
+
+27:07.280 --> 27:15.120
+The Linux with self-paced in-depth video courses hands-on real-world scenarios that help shake off that test anxiety because you've got actual
+
+27:15.120 --> 27:16.560
+Expertise I love it
+
+27:16.560 --> 27:19.400
+They spin up the lab server when you need it you SSH into that shenanigans
+
+27:19.480 --> 27:25.600
+You get a real environment seven plus Linux distros you choose from the servers and the courseware. I'll snap
+
+27:26.280 --> 27:29.960
+See what I did there to that distro. I'll snap to that distro
+
+27:29.960 --> 27:33.120
+You can also take practice exams to like prepare for a cert test
+
+27:33.120 --> 27:37.960
+You can get note cards have been forked by the community improved you get nuggets
+
+27:37.960 --> 27:42.880
+Which are just tiny bits of wisdom you just do a little deep dive into a singular topic for five minutes or an hour depending
+
+27:42.880 --> 27:45.960
+On the subject which is great when you've got a busy week speaking of busy weeks
+
+27:45.960 --> 27:49.520
+They have course schedulers to work with you to help match content to your busy
+
+27:50.040 --> 27:56.840
+Schedule a community stacked full of Jupiter broadcasting members downloadable tools like guides and lesson audio that you can take with you
+
+27:56.840 --> 27:59.440
+iOS and Android apps to study on the go damn
+
+27:59.440 --> 28:04.040
+Damn, the list just keeps getting longer and longer, and they're always adding more courseware
+
+28:04.040 --> 28:05.960
+You can just look at their Twitter feed to see that
+
+28:05.960 --> 28:11.640
+It's just it's so awesome that something like this where you sign up once and then they just keep working their butts off to get
+
+28:11.640 --> 28:17.160
+You more and more stuff Linux Academy comm slash unplugged and a big thanks to Linux Academy for sponsoring the unplugged program
+
+28:17.680 --> 28:23.660
+Linux Academy comm slash unplugged so if we're not gonna do the Raspberry Pi with a keyboard for you Wes
+
+28:23.680 --> 28:27.940
+It sounds like you are what can you tell people what you got right now give people a base?
+
+28:27.940 --> 28:30.080
+So they know what you're coming from right now. I've got a
+
+28:30.960 --> 28:32.920
+core i5
+
+28:32.920 --> 28:40.520
+Was it second generation third what generation is this one? I think first that might be my first yeah first gen XPS
+
+28:40.840 --> 28:46.040
+Yeah, with a I think that was the first gen i5 yeah 13 inch screen 13 inch screen
+
+28:46.040 --> 28:52.000
+And what's the resolution of the screen 13 whatever yep? Yep, so that's the icing on this horrible cake
+
+28:52.000 --> 28:55.600
+Oh my good, which at home. I have external monitors, so it's not that big of a deal
+
+28:55.600 --> 29:00.160
+But has the monitor hookup display port yeah, okay, all right, so that'd probably still be the same. Yeah, so that's fine
+
+29:00.160 --> 29:05.040
+I'm SSD SSD and four gigs eight gigs four gigs of room. Oh my god. Oh
+
+29:06.000 --> 29:09.640
+My god, okay, wow yeah, we really got a talk
+
+29:10.960 --> 29:17.160
+So 13 inch now. What do you like most about that form factor? I mean it is very convenient. It's not a heavy machine
+
+29:17.360 --> 29:21.560
+It's easy to throw in a bag. I think I could do up to a 15-inch
+
+29:21.560 --> 29:27.040
+As long as it wasn't you know crazy. I would like to like you don't be able to easily take it to a coffee shop
+
+29:27.040 --> 29:29.520
+Or a bar to do some work, okay, okay?
+
+29:30.080 --> 29:34.080
+All right, well see I was I was going to recommend. I was gonna recommend something a little bigger
+
+29:34.080 --> 29:39.900
+I was gonna recommend you've ever seen this Acer here with the with the 20 inch curved screen
+
+29:44.920 --> 29:50.960
+Okay, maybe not maybe not it looks like it has a nice keyboard though are those is that like a real keyboard yeah, man
+
+29:50.960 --> 29:55.880
+Yeah, yeah, that's legit right there. Not the dumb pad not the dumb. No. It's the rest. It's like a mechanical keyboard
+
+29:55.880 --> 30:00.440
+That's also the numpad actually comes out and can be a trackpad. Oh wow it flips over
+
+30:02.520 --> 30:08.080
+Yeah, isn't that sweet so not that that's too big yeah, so what do you like least about the form factor?
+
+30:08.200 --> 30:11.040
+Did you feel constrained on the screen and you must oh yes?
+
+30:11.040 --> 30:14.140
+So it's not it's not that bad like I honestly spent a lot of the time
+
+30:14.140 --> 30:17.120
+I have like you know a chat program or two
+
+30:17.120 --> 30:20.800
+But once at a time a terminal and a web browser, so it's not that bad
+
+30:20.800 --> 30:23.840
+But when I'm away from home, and I'm trying to do some development
+
+30:23.840 --> 30:28.400
+Which I need you know like a couple terminals and a web browser then suddenly I'm all tabbing over the place
+
+30:28.400 --> 30:32.680
+It's you see okay, so on not just because they're friends of the show
+
+30:32.680 --> 30:34.680
+But it seems like something like the galago pro
+
+30:34.960 --> 30:41.120
+Would be a pretty strong contender for you what you have to decide here is do you want to go bigger than 13 inch screen or
+
+30:41.120 --> 30:43.780
+Not because I think that's that's the classifier
+
+30:43.780 --> 30:47.300
+It sounds like you're leaning 15 inch I mean
+
+30:48.820 --> 30:54.620
+The 13 inch I like 13 14 even I think I think I would be okay with a 15 inch
+
+30:54.780 --> 30:57.740
+That's where it kind of forks the discussion. Maybe a little bit as well
+
+30:59.140 --> 31:02.660
+Do I also want to consider building a new desktop rig right?
+
+31:02.660 --> 31:07.300
+Okay, I haven't built a desktop and a desktop or or you know maybe not of the laptop
+
+31:07.300 --> 31:12.060
+I guess there's both option. I would still like a new laptop
+
+31:12.060 --> 31:17.140
+but if I have a nice desktop at home that beats I could have a you know a different yeah, I would probably want a
+
+31:17.140 --> 31:18.260
+13 inch or
+
+31:18.260 --> 31:22.820
+But how are these options with Thunderbolts e GPUs and I'm gonna be for your laptop
+
+31:22.820 --> 31:25.340
+So here's what I think so I think we should I think we should do this
+
+31:25.340 --> 31:28.380
+I think we should do this since people at home are probably thinking some of the same stuff
+
+31:28.380 --> 31:35.220
+I think we should break that particular the desktop into a separate conversation because I think we can quickly get there because I think that might
+
+31:35.220 --> 31:41.060
+Be the way to go. Although although there are some super nice laptops. Like is it called Kratos?
+
+31:41.060 --> 31:46.260
+Is that how you pronounce it wimpy the Kratos Kratos? Yes, it's the entroware Kratos
+
+31:46.260 --> 31:52.240
+That looks like a nice real. Yeah, if you're on this side of the Atlantic so in Europe
+
+31:52.980 --> 31:56.440
+They've just released their new updated version of that which
+
+31:57.180 --> 32:01.780
+Is an i7 and it goes up to 32 gigs of RAM and it's got an Nvidia
+
+32:01.780 --> 32:04.780
+1050 in it GTX 1050
+
+32:05.900 --> 32:07.900
+15 inch display that matters
+
+32:08.460 --> 32:14.640
+Yeah, 15 inches kind of tasty. I think I think Wes you really deserve dedicated graphics if you can
+
+32:15.660 --> 32:17.660
+There's something there's another route you could consider
+
+32:18.580 --> 32:21.140
+This is something I know you've been looking at. That's why I bring this up
+
+32:21.140 --> 32:24.820
+So audience behind the scenes Wes has been reading up a little bit about using
+
+32:25.380 --> 32:30.220
+Say like a Thunderbolt cable to hook up an external GPU. You could also go this route
+
+32:30.220 --> 32:34.860
+So if we go if we if we keep this in mind, this also opens up your your possibilities
+
+32:34.860 --> 32:36.940
+I just don't know how well this kind of thing works with Linux
+
+32:36.940 --> 32:42.860
+I'd love to know if anybody in the audience or in the Mamba room has any any information about external Thunderbolt
+
+32:43.240 --> 32:49.500
+GPUs with Linux looks like WWS get something you do www. I got something on the windows side
+
+32:49.500 --> 32:57.740
+Okay, so from I've only seen one person on YouTube actually test what Thunderbolting an external video card
+
+32:57.740 --> 33:04.180
+What the performance is actually like and from that one series of like two videos?
+
+33:04.780 --> 33:09.740
+It's a 30 to 40 percent decrease from desktop performance
+
+33:10.100 --> 33:17.860
+For a 4 to 12 percent gain and that is if you're using the monitor hooked up to the external
+
+33:18.660 --> 33:24.620
+Right right GPU unit. So I mean that's all windows your performance could vary wildly
+
+33:24.620 --> 33:31.660
+Very you happen to know what what connection interface they're using if it was Thunderbolt 2 or 3 because I mean I think it was
+
+33:32.100 --> 33:33.100
+Thunderbolt 3
+
+33:33.100 --> 33:36.660
+Wow, I think most of the gear is Thunderbolt 3 driven
+
+33:37.500 --> 33:42.420
+Thunderbolt 3 those 40 gigabits it is it what's cool is if you get a laptop that has the Thunderbolt 3
+
+33:42.420 --> 33:44.500
+But it also has the reverse feed display port
+
+33:44.500 --> 33:47.540
+So the graphics card can feed a display port back in and power the screen
+
+33:48.420 --> 33:53.100
+Because like the Apple I want to say just the MacBook or the MacBook Pro can do that
+
+33:53.100 --> 33:54.980
+And I know there are other laptops
+
+33:54.980 --> 33:59.340
+I think like the razor blade and stuff can do that where you can plug in the external GPU and still use the laptop
+
+33:59.340 --> 34:04.300
+Monitor with the external GPU feeding it instead a lot of people in the chat room have been suggesting razor blade
+
+34:04.300 --> 34:09.580
+Have you looked at razor? I have done. I mean, I'm really aware of the price. Aren't they horrible with Linux though?
+
+34:09.580 --> 34:11.580
+Are they are they so?
+
+34:12.660 --> 34:19.220
+see this is this is this is the thing Wes is I I would I would encourage you to really get your head around what screen
+
+34:19.220 --> 34:20.940
+size you want and
+
+34:20.940 --> 34:25.700
+Really draw the line somewhere for me personally over the years having right next to me
+
+34:25.700 --> 34:30.980
+I have my Librem right right now and I and I have the Apollo and one is a 13 inch and one is a 15 inch and
+
+34:31.340 --> 34:33.660
+It if I want something that I take on the couch
+
+34:33.660 --> 34:37.740
+I like the 13 inch if I want something that I'm gonna work from I like the 15 inch
+
+34:37.740 --> 34:40.140
+It's just so it's really what you're gonna use it for. What are you gonna?
+
+34:40.140 --> 34:44.260
+Is it more of a work machine or is it more of a browse the web have fun machine?
+
+34:45.900 --> 34:47.720
+Honestly probably more of a work machine
+
+34:47.720 --> 34:51.940
+I mean, I will use it in a casual capacity but portability do you take it with you to work?
+
+34:52.380 --> 34:57.980
+Not to work, but I like to work out of the house a lot of my own personal projects show work that kind of thing
+
+34:57.980 --> 35:03.920
+Yeah, that's where this really fails. How much time do you spend looking at the screen when you're doing that sort of stuff?
+
+35:05.360 --> 35:06.740
+What do you mean?
+
+35:06.740 --> 35:11.620
+When you're working on your own stuff and you want to use it, you know for working on your own projects
+
+35:11.620 --> 35:15.820
+How much time might you be spending at the computer then those those moments?
+
+35:15.820 --> 35:20.220
+Uh, I would say anywhere from two to six hours. Whoa
+
+35:20.740 --> 35:25.700
+Depending okay. Jeez. I can't believe you've put up with that resolution for this long. I would not I would not man
+
+35:25.700 --> 35:28.500
+That's gotta be rough. Well, that's how I find myself here today
+
+35:29.740 --> 35:32.340
+Good for you. I'm really proud of you for taking so what?
+
+35:32.980 --> 35:37.420
+So I've effectively got the same machine. I've got a 13 inch and a 15 inch variant
+
+35:37.420 --> 35:44.620
+so it's the 13 inch XPS and the 15 inch XPS and the 13 inch XPS is what I take out when I'm going
+
+35:44.620 --> 35:48.480
+Traveling that's the device. I sure because it's small. It's powerful
+
+35:49.300 --> 35:51.300
+It's no compromise
+
+35:53.180 --> 35:58.900
+But for extended periods working on that machine, it's not so great because 13 inch screen
+
+36:00.140 --> 36:03.700
+You do find yourself, you know, you can't quite get close enough to it now
+
+36:03.700 --> 36:07.100
+That's probably compounded by the fact that that's a high DPI screen
+
+36:07.100 --> 36:15.100
+That's right. So I've actually been thinking about potentially selling that XPS 13 and getting the version with the
+
+36:15.420 --> 36:17.180
+1080p screen
+
+36:17.180 --> 36:19.340
+Because I think that would be better to work on
+
+36:20.220 --> 36:22.740
+For longer periods. Oh, yeah, that's an interesting point
+
+36:23.660 --> 36:27.580
+Yeah, and I'm not like I don't need a touchscreen. I don't have I mean, they're nice
+
+36:27.580 --> 36:31.140
+I would maybe occasionally use it but not a deal breaker
+
+36:31.140 --> 36:38.500
+I says it looks like razors working the razor core which is their external eGPU with a 970 in it hooked up to an XPS
+
+36:38.500 --> 36:44.340
+13 running on arch looks like it's working to power an external monitor. That's in the XPI, you know interesting
+
+36:44.340 --> 36:48.060
+I really like these most links for that somewhere. He put in the chat room. I
+
+36:48.660 --> 36:54.780
+Really like I really like the XPS 13, but if it was my only computer
+
+36:54.780 --> 36:58.180
+I would probably opt for the 15. Yeah, and wimpy
+
+36:58.180 --> 37:01.380
+What was the battle like to put because this thing only ships with Windows
+
+37:01.380 --> 37:03.980
+So what was the what was the process like to put Linux on?
+
+37:03.980 --> 37:09.220
+Is it just a format nuke pave install Linux or is there some did you replace Wi-Fi and whatnot?
+
+37:09.820 --> 37:12.220
+so I got my
+
+37:13.140 --> 37:18.260
+machines both from Adele reseller and they were able to sell the
+
+37:18.460 --> 37:26.460
+XPS 15 with a configuration that had the same Wi-Fi chip in it as the XPS 13 developer edition
+
+37:26.460 --> 37:28.700
+So I didn't have to do any
+
+37:29.580 --> 37:34.860
+Monkeying around it obviously arrived with Windows 10 on it, which was actually quite helpful because
+
+37:35.700 --> 37:38.660
+Around the time I got mine sort of September last year
+
+37:38.780 --> 37:42.740
+they were just working out the last of the firmware bugs in the BIOS and
+
+37:43.140 --> 37:44.940
+So you did it anyway?
+
+37:44.940 --> 37:47.540
+So yeah, I needed to do the updates anyway
+
+37:47.540 --> 37:53.060
+So it was quite handy to have that do the updates and then it's just been running Ubuntu ever since hmm
+
+37:53.060 --> 37:59.160
+Hmm. Yeah, I I wonder if even now if the latest model even would have if you'd have to replace the Wi-Fi
+
+37:59.740 --> 38:03.420
+That may not be an issue anymore. Yeah, and I mean I'm comfortable doing that
+
+38:03.780 --> 38:09.660
+It'd make me happier if it had a if it had a 10 series card. It has a GTX 960. It's not a hard swap
+
+38:09.660 --> 38:12.700
+I've done it. You just take the bottom off and it's right there
+
+38:12.700 --> 38:17.860
+It's not a hard swap at all and you can just get a replacement card on Amazon for like 35 bucks 60 bucks
+
+38:18.180 --> 38:22.980
+But that seems like that seems like a decent way to go. Alright, so that is I so
+
+38:22.980 --> 38:26.780
+You're so if you go if you go into like the 15 inch range that you know
+
+38:26.780 --> 38:28.540
+There's some there's some nice machines there
+
+38:28.540 --> 38:34.200
+but you said something that I think is probably the more exciting thing to consider because it's something I've gone through myself is
+
+38:34.340 --> 38:39.740
+What if I do something like an ultrabook or even this is crazy, but even like a chromebook
+
+38:39.940 --> 38:40.420
+Yeah
+
+38:40.420 --> 38:44.940
+And then I get myself like a six core or more I seven machine
+
+38:45.100 --> 38:50.580
+32 gigs of RAM lots of storage and you just go all out and plus it's kind of fun if you haven't done it for
+
+38:50.580 --> 38:52.580
+A while to build a PC like when's the last time you built a PC?
+
+38:52.580 --> 38:56.980
+Ages yeah ages. Yeah, it's like seven years or something. So if you've been on laptops for years now
+
+38:57.660 --> 38:59.660
+Okay, so we got to talk about this because I did this
+
+38:59.980 --> 39:05.700
+There's like a gaming rig kind of thing, but it's not like new has a nice graphics card, but older processor
+
+39:05.700 --> 39:10.540
+So yeah, it's not where you're working. It's not where I'm working. No. Yeah. Hmm. Okay. All right, so
+
+39:11.340 --> 39:16.100
+So I I I recently made this transition myself where I was on all laptops for years
+
+39:16.100 --> 39:19.260
+Even the machines here at the table, right? Oh, yeah looking back at it seems
+
+39:19.260 --> 39:22.980
+Really crazy. Yeah ludicrous. It seems ludicrous
+
+39:23.580 --> 39:27.420
+Absolutely ludicrous and now cuz now you just it blows my mind
+
+39:28.220 --> 39:31.940
+Yeah, so let's ludicrous. That could be your new handle Chris ludicrous
+
+39:32.740 --> 39:34.340
+Like that
+
+39:34.340 --> 39:39.220
+That's not bad. That's not bad. You know, what else is ludicrous ting go to linux.ting.com
+
+39:39.220 --> 39:42.340
+You'll save twenty five dollars off your first device and support the show
+
+39:42.340 --> 39:47.780
+If you already have a GSM or CDMA device that works check their BYOD page you get twenty five dollars in service credit
+
+39:47.780 --> 39:52.820
+That's nice because it's six bucks for the line and then just your usage on top of that for minutes messages megabytes
+
+39:52.820 --> 39:57.340
+I was having a telegram conversation today with I think it might have been it might have been Cory
+
+39:57.340 --> 40:01.840
+I can't remember it on telegram. You see Chris is my mom does not want data on her phone
+
+40:02.500 --> 40:04.100
+And he says can I use ting anyways?
+
+40:04.100 --> 40:08.900
+I said actually thing would be perfect because you can just go in and completely turn data off
+
+40:08.900 --> 40:11.500
+I guess I guess his mom like had a bad experience with data
+
+40:12.580 --> 40:17.100
+Happens but and not Brent Spiner data, but what that one time you get that extra bill. Yeah
+
+40:17.100 --> 40:22.140
+Hey, that's it. I just want phone calls. And so he goes in there can turn it right off boom
+
+40:22.140 --> 40:23.780
+That's the thing team makes it so easy
+
+40:23.780 --> 40:27.780
+And if you do want it, it's super easy to set like hey, let me know what I've crossed this boundary
+
+40:27.780 --> 40:29.980
+Yeah, or if you just want to turn it back on just go check a box
+
+40:29.980 --> 40:31.540
+They got apps for the phone to manage all of it
+
+40:31.540 --> 40:36.500
+They've also got a great website and customer service that really sets the bar you get to talk to real human beings
+
+40:36.540 --> 40:40.580
+So all of that combined with the fact that they're a really cool company with geeks that work there
+
+40:40.580 --> 40:43.580
+They're really into this stuff and they follow stuff like on their blog all the time
+
+40:43.580 --> 40:48.180
+They've got the moto g5 plus available now for pre-order that could be kind of quick
+
+40:48.180 --> 40:52.960
+That could be kind of a cool device. It's got two. It's got a two gigahertz octa-core processor four gigabytes of RAM
+
+40:54.980 --> 40:59.620
+It's like around what I think it's like what 300 bucks for a nice moto smartphone with
+
+41:00.260 --> 41:05.500
+With damn four gigs of RAM. Damn. I think that's as much as the iPhone's got as much as my laptop
+
+41:05.500 --> 41:10.620
+Oh, that's so horrible. Oh my god. We got out. We got a talk West. We got a talk
+
+41:10.620 --> 41:13.420
+All right. Thank you to Ting for sponsoring the show Linux dot ting.com
+
+41:13.420 --> 41:18.420
+Oh, yes, I tell you when I made that transition from I know what these are nice laptops, right?
+
+41:18.420 --> 41:25.980
+Yeah, but no bo's XPS is you have been for laptops now. No, they're good. Yeah, I five I seven processors SSDs
+
+41:26.620 --> 41:31.940
+This is why I thought and like the bonobos, you know for a while. They were dedicated GTX 510
+
+41:31.940 --> 41:36.220
+And like the bonobos, you know for a while. They were dedicated GTX graphics cards
+
+41:37.620 --> 41:39.580
+What could that in my mind?
+
+41:39.580 --> 41:45.020
+I understand that some of these things are clock slightly slower and they run slightly slower for for for heat, right?
+
+41:45.220 --> 41:51.580
+But in them not necessarily in the bonobo, I I don't I couldn't really conceptualize that there would be a
+
+41:52.340 --> 41:57.900
+noticeable difference in my day-to-day usage couldn't really I even in my main workstation upstairs. I was using a laptop and
+
+41:57.900 --> 42:02.780
+I'm not just doing that, you know and filter editing show editing. Yeah
+
+42:03.300 --> 42:08.540
+Try and reviews and then when when it came time like I think I guess it was last year
+
+42:08.540 --> 42:11.580
+I can't like was it last year the year before we built new rigs for the last week
+
+42:11.580 --> 42:16.340
+Yeah, and I one of the things I can if I if it's possible whenever I can I'll buy two of everything
+
+42:16.340 --> 42:18.140
+So that way we have a backup because we're live right?
+
+42:18.140 --> 42:23.540
+I want to have a production machine and a backup machine. And so I bought and so you know what?
+
+42:23.540 --> 42:28.300
+What if we're gonna build these anyways, I'll buy a third one because I mean I'm like I'm using Bitcoin, right?
+
+42:28.300 --> 42:31.100
+It's not like I'm using actual cash here. It's not real money. So it's like
+
+42:32.540 --> 42:35.220
+Yeah, looking back at it has it been money for ages
+
+42:36.380 --> 42:41.260
+anyway, so we build a third one slightly nicer configuration because it's my personal workstation and
+
+42:42.220 --> 42:47.380
+Put it in and I sit down to start working on it and now looking back at it
+
+42:47.380 --> 42:55.620
+It is it's it's a it's a totally different computing experience. Wow. There is a just a it's something about the just the amount of
+
+42:55.780 --> 43:03.460
+Sheer work. I can have this one system doing because not only am I doing like things like video encoding and editing and transferring large
+
+43:03.460 --> 43:04.980
+Files around the network all at once
+
+43:04.980 --> 43:10.380
+I've also got YouTube streams telegrams like all this regular desktop my email my web browser like all this huge
+
+43:10.380 --> 43:15.980
+I've got all this regular desktop stuff going to and then in the back end. I've got usenet. I've got indexers
+
+43:15.980 --> 43:19.780
+I've got downloaders extractors. I've got I've got sonar monitoring feeds
+
+43:19.780 --> 43:24.540
+Like I've got all this other server stuff that this thing's doing that in the past would have been like on its own dedicated machine
+
+43:24.540 --> 43:29.900
+And it's doing that all of it while I'm doing all this other stuff and it never misses a beat and it's just the sheer
+
+43:29.900 --> 43:35.100
+Amount of productivity I get out of one machine. I for my main computer. I will never ever
+
+43:35.700 --> 43:38.300
+Well, I shouldn't say that I cannot
+
+43:38.940 --> 43:44.060
+Yeah, I cannot see me going back to laptop for my main work. That's a pretty that's a pretty strong opinion
+
+43:44.060 --> 43:47.580
+Plus it takes the pressure off the laptop pick right which is so hard just right
+
+43:47.580 --> 43:51.020
+Yeah, it doesn't have to be perfect anymore. Just has to yeah fill that niche
+
+43:51.020 --> 43:55.420
+So that's anybody in the mumble room have a opposite or similar experience like, you know
+
+43:55.420 --> 43:59.320
+You switch over to a desktop and it's just a totally different amount of work you get done for me personally
+
+44:00.020 --> 44:03.740
+Especially working with video and stuff. I love the fact that I can start an encode job
+
+44:03.740 --> 44:05.600
+I get I just gonna run for 15 minutes
+
+44:05.600 --> 44:09.020
+I switch over to another desktop and it's like you start even worry about it don't not at all Wow
+
+44:09.020 --> 44:15.380
+So as someone who's building a lot of software, it's invaluable to have like a dually five machine sitting in a closet somewhere
+
+44:16.140 --> 44:20.700
+Sort of SSH and for my laptop to be able to build software on 32 threads. Yeah
+
+44:22.620 --> 44:24.900
+My my bill I just have to change into everything
+
+44:25.520 --> 44:31.540
+My build machine is my intro where Athena which is an absolute monster. So that's a laptop
+
+44:31.940 --> 44:33.940
+And it's my gaming laptop
+
+44:33.940 --> 44:39.780
+But when it's not being used for gaming which is infrequently it sits on the desk behind me during the day
+
+44:39.780 --> 44:43.080
+And that's the machine that I do all of my builds and what have you on?
+
+44:44.620 --> 44:46.220
+See that would be nice because
+
+44:46.220 --> 44:50.900
+That's a big machine like the one I used to be able to get like a nice ultrabook with a huge battery say like
+
+44:50.900 --> 44:56.940
+An x270 from Lenovo and be able to go 13 hours without plugging in and you're just SSH ing into your powerful box
+
+44:57.100 --> 44:59.960
+So you can get a lot of work done, but still go forever on battery
+
+44:59.960 --> 45:05.760
+It would be nice as well to have that kind of home base because I don't find this laptop
+
+45:05.760 --> 45:10.240
+Especially like when I format it for the show or distro reviews or whatever like it's just not that consistent
+
+45:10.240 --> 45:14.600
+So it ends up that I have to promote some like cloud server or droplet or other thing to be my kind of like
+
+45:14.640 --> 45:19.840
+That's where I do ansible runs from that's where my main backups from my sink thing are taken or whatever
+
+45:19.840 --> 45:21.840
+That might not be a bad strategy
+
+45:21.880 --> 45:22.440
+Yeah
+
+45:22.440 --> 45:26.680
+But it would be nice for some things to have like a home base that I could that's like me is like I just end up
+
+45:26.680 --> 45:30.480
+There's some things. I just want to run on my local machine. Yeah. Yeah, I agree. I think you should
+
+45:30.480 --> 45:34.320
+I think you should give the idea a serious consideration because if you've made it this long on this machine a
+
+45:35.000 --> 45:41.480
+Fairly modest laptop would be a pretty big spec bump so you could do a modest laptop bump and really invest in the desktop
+
+45:41.480 --> 45:43.480
+You know it's not it's not all fun though
+
+45:44.040 --> 45:48.320
+You know I also I mean you you know we got a stack of dead motherboards right there that right there is a
+
+45:48.680 --> 45:52.000
+It's not I don't feel like it's quite as good as it used to be I feel like I get a lot more
+
+45:52.000 --> 45:57.440
+Dead-on-arrival parts when I when I custom build now than we used to but you know I guess
+
+45:58.080 --> 46:00.280
+It doesn't seem like it's as big as an industry find to me
+
+46:01.520 --> 46:07.240
+Yeah, so Wes how important is battery life to you um I don't need like
+
+46:07.920 --> 46:12.320
+Crazy battery life. I would like you know like five plus
+
+46:12.960 --> 46:14.320
+More would more would be nice
+
+46:14.320 --> 46:18.800
+But I am usually in a position where I could find power or know of you know like my favorite
+
+46:18.800 --> 46:22.280
+Establishments to work have a pretty readable power outlets that sort of it
+
+46:22.720 --> 46:26.280
+Right so the reason I asked the question is when I got my
+
+46:26.800 --> 46:33.280
+Entrower Apollo I suddenly walked into a new era of battery endurance that I'd not
+
+46:33.640 --> 46:39.640
+Experienced before and I got used to having like seven hours plus battery life, and that was pretty great
+
+46:40.280 --> 46:45.080
+When I got the XPS 13 I was looking for
+
+46:45.080 --> 46:48.880
+Touchscreens and high DPI because I wanted to play with all the new toys
+
+46:48.880 --> 46:55.840
+right and I I'm somewhat jaded because the the trade-off there that you make is
+
+46:56.320 --> 47:00.480
+Battery endurance because those high DPI screens and the touchscreen
+
+47:01.400 --> 47:09.220
+Just arriving in more power. Yeah, so I I will get comfortably four and a half hours on the XPS 13
+
+47:09.220 --> 47:17.180
+Maybe five at a push, but nothing more than that and that's another reason why I've been considering for the
+
+47:17.540 --> 47:22.620
+for the XPS 13 perhaps the 1080p model which
+
+47:23.740 --> 47:30.100
+Doesn't have the touchscreen has a low res screen and the battery life is almost double. Yeah. Yeah, I think I could do
+
+47:30.100 --> 47:32.100
+That's my observation as well also
+
+47:32.900 --> 47:38.580
+You just there's more Linux software that works better at at right regular DPI
+
+47:38.580 --> 47:40.140
+You cannot you can definitely make it work
+
+47:40.140 --> 47:44.860
+Especially if you're working with cute five apps or GTK three apps you really you're gonna have a fine
+
+47:44.860 --> 47:48.740
+You're gonna have a fine experience, but almost all of them will screw it up out of the box
+
+47:48.900 --> 47:51.020
+So you're gonna you're gonna have to make some tweaks
+
+47:51.220 --> 47:55.940
+But and I still I still I'm making small refinements to my plasma desktop on the XPS 13
+
+47:55.940 --> 47:58.940
+I would I would also agree if you if you don't need it
+
+47:58.940 --> 48:04.460
+I personally think it's you know, I don't know of any laptops that have the screen resolution, but 2k is perfect
+
+48:04.460 --> 48:10.860
+Yeah, perfect. Yeah, perfect. It's perfect. Hmm. I really wish we had more 2k screens on laptop
+
+48:10.860 --> 48:13.060
+The other thing to consider is on the high DPI
+
+48:13.260 --> 48:19.980
+laptops most of the 13 inch laptops when you've pixel doubled them are like the equivalent of 1600 by 900 in terms of
+
+48:20.260 --> 48:28.020
+You know, yeah usable, you know equivalent resolution. Yeah, so you actually have more screen space on a 1080p
+
+48:28.020 --> 48:30.020
+hmm when we know it's
+
+48:30.020 --> 48:36.060
+I'm just I'm just mentioning these things because these are things that I hadn't considered going into my purchasing decision
+
+48:36.060 --> 48:38.480
+Yeah, I'm now aware of having having made it
+
+48:38.480 --> 48:41.580
+I mean I wanted to I in fact, I still want I still want a machine
+
+48:41.580 --> 48:44.780
+I can try out high DPI stuff on for review purposes. Yeah, no that makes sense
+
+48:44.780 --> 48:46.580
+But if you're not doing that, I don't know
+
+48:46.580 --> 48:49.940
+Depends like most of my time is at the terminal maybe some like photo editing
+
+48:49.940 --> 48:52.140
+But if I had a desktop I could do that there too. Yeah, dude
+
+48:52.140 --> 48:54.940
+You can also get a 2k screen for a reasonable price on the desktop
+
+48:54.940 --> 48:59.980
+That's so I have the new x1 carbon is a 2k screen 14 is it? Oh in case you're curious lick
+
+49:01.300 --> 49:03.300
+What now I might have to sell something
+
+49:05.420 --> 49:10.740
+It's like the infinity display right it's got the thin bezel. Yeah, we were just talking about in the pre-show that pretty cool
+
+49:10.940 --> 49:12.940
+Take a look at it. Excellent
+
+49:13.620 --> 49:17.980
+See charging on the new ones. Oh, I love that. I'm that would be that would be awesome
+
+49:17.980 --> 49:21.820
+That would feature the XPS 13 and this that way see charge. Did I take Bitcoin?
+
+49:21.820 --> 49:24.500
+Seriously, cuz yeah that oh
+
+49:27.340 --> 49:31.100
+70 I'm curious if that also type-c charges off the type-c port on it
+
+49:31.100 --> 49:33.860
+So I'm so done with John to type-c me too
+
+49:33.860 --> 49:39.740
+I was just having a conversation last night with Noah about how I just want everybody to go all in on USB C
+
+49:39.740 --> 49:41.740
+Let's just do it. Yeah
+
+49:41.820 --> 49:44.140
+That's why when I saw the Gallego ultra pro with the new one
+
+49:44.580 --> 49:47.820
+See, I was like you guys you better fix this before you ship this
+
+49:47.820 --> 49:51.180
+I would really love to see them have USB C on that. Maybe the next rev can do it
+
+49:51.180 --> 49:55.700
+I'm not sure why they can't do it now, but it is time. It's time for cameras. It's time for everything
+
+49:55.700 --> 50:01.380
+I want I want to charge my remotes with USB C my phone with USB C my camera my laptop
+
+50:01.380 --> 50:03.940
+The thing that did it for me was I bought one of those battery packs
+
+50:03.940 --> 50:09.820
+But it had one that you could use to jumpstart a car on it and it was chargeable and it used USB C
+
+50:09.820 --> 50:15.940
+So I was like so in theory if I had my phone I could charge this battery from my phone and then start my car
+
+50:15.940 --> 50:21.700
+Maybe yeah Wow drain your phone though. Yeah, but whatever I can go drive somewhere. Yeah, exactly
+
+50:22.620 --> 50:29.220
+Okay, somebody at Chris Ellie asked me a Lenovo reseller that sells the x1 carbon with the end accepts Bitcoin
+
+50:29.300 --> 50:34.040
+Okay. All right. So there's there's that now wimpy though. You were teasing earlier that you got new hardware
+
+50:34.040 --> 50:35.820
+You got something a new device
+
+50:35.820 --> 50:40.500
+Yes, I have I can't tell you much about it other than what it is, but I have bought a
+
+50:41.060 --> 50:43.060
+an old computer
+
+50:43.060 --> 50:45.900
+I have bought an IBM x200
+
+50:46.820 --> 50:49.860
+But this x200 has Libre boot
+
+50:51.220 --> 50:53.560
+It's an FSF approved laptop
+
+50:54.000 --> 50:57.740
+Now this is a brand new purchase. Oh, you just got you got this old new device
+
+50:57.740 --> 51:04.940
+This new old arrived it arrived today and other than getting it out of the box and the bubble wrap and turning it on
+
+51:04.940 --> 51:06.460
+I haven't done anything with it
+
+51:06.460 --> 51:13.580
+well hasn't that just isn't that just perfect because Todd's here and I just recently saw news from from purism about
+
+51:13.780 --> 51:18.580
+Work on Libre boot Todd. Can you bring us up to speed what's going on over with with Libre boot?
+
+51:19.820 --> 51:21.260
+Yeah, so
+
+51:21.260 --> 51:27.460
+Well Libre boot of course is just the port from core boot that removes the binary blobs. So right, right
+
+51:27.460 --> 51:32.640
+So so which which I guess to I guess can you back up and explain more binary blobs of what?
+
+51:33.220 --> 51:34.360
+so
+
+51:34.360 --> 51:35.860
+Anything that's built?
+
+51:35.860 --> 51:39.820
+Pre 2008 you can actually have a core boot
+
+51:40.540 --> 51:43.580
+Running without any binary blobs, which are of course
+
+51:44.140 --> 51:46.320
+mystery code that runs at the BIOS level
+
+51:47.180 --> 51:53.300
+And obviously this is getting more and more attention. Yeah, especially with vault 7 releases where about 90% of those
+
+51:54.140 --> 51:56.140
+security based exploits were
+
+51:56.700 --> 51:58.580
+EFI or UEFI
+
+51:58.580 --> 52:00.580
+exploits so
+
+52:00.580 --> 52:07.180
+And then obviously so one of the biggest ones and the biggest worry is called the Intel management engine
+
+52:07.780 --> 52:11.060
+Then there's also something else called Intel AMT
+
+52:11.420 --> 52:16.040
+That is that actually allows for remote access of your machine when it's even powered off
+
+52:16.100 --> 52:20.700
+So those are a couple of things that are binaries at the lowest level
+
+52:20.780 --> 52:25.700
+And the way that I like to describe that is basically from a security standpoint. It's kind of how deep do you go?
+
+52:26.460 --> 52:28.940
+and so some people, you know, they'll just like install a
+
+52:28.940 --> 52:33.900
+You know ad blocker and they think that they're you know happy as it can be
+
+52:34.420 --> 52:35.460
+And then you know
+
+52:35.460 --> 52:38.200
+Then you can go deeper down to the operating system where you you know
+
+52:38.200 --> 52:41.740
+Do you have binaries that power your wireless card or your graphics, etc?
+
+52:41.740 --> 52:45.400
+and then you can go deeper than that which of course gets you to the bootloader and then the
+
+52:45.540 --> 52:51.880
+Lowest level is the firmware on the machine, which of course is the BIOS or EFI or in our case is core boot
+
+52:51.880 --> 52:53.340
+so we actually just
+
+52:53.340 --> 52:57.340
+ported core boot for the Purism Vibram laptops and
+
+52:57.340 --> 53:00.520
+And and then we have also
+
+53:01.180 --> 53:05.560
+What's called neutralized the management engine which means we've removed the network stack remove the kernel
+
+53:05.620 --> 53:12.940
+So we have a very small bit of code to reverse engineer or actually just get to the point where we can disable the management
+
+53:12.940 --> 53:15.020
+engine and at that point we'd actually qualify for
+
+53:15.820 --> 53:20.760
+Respects your freedom certification on a brand new i7 6th gen
+
+53:21.940 --> 53:23.740
+CPUs. Yeah
+
+53:23.740 --> 53:27.780
+Yeah, that that's that's how I feel. I just disable the damn thing. Just turn it off. I don't
+
+53:28.700 --> 53:32.460
+Yeah, that's exactly what's funny about it. Is that I mean, it's one of those things that
+
+53:33.140 --> 53:37.580
+Initially, I don't think it was like really a nefarious reason why the management engine was initially started
+
+53:37.580 --> 53:39.940
+It was part of this sort of business push to
+
+53:40.500 --> 53:47.140
+To make it where sysadmins and you know remotely control a device at a lower level than the operating system to you know
+
+53:47.140 --> 53:49.860
+To reinstall or repair etc
+
+53:49.860 --> 53:55.100
+And then it turned into this, you know, wow, this can actually be this black box that does a tremendous amount
+
+53:55.100 --> 53:58.140
+So that actually now has a separate its own separate core
+
+53:58.700 --> 54:00.620
+It's an art core
+
+54:00.620 --> 54:05.220
+But the thing at the end of the day is that it can be completely removed, right?
+
+54:05.220 --> 54:08.580
+So we've actually proven it can be completely removed and the machine can operate
+
+54:09.260 --> 54:15.180
+But it happens to operate for 30 minutes because there's a little watchdog timer that disables the CPU actually powers it off
+
+54:15.460 --> 54:17.460
+so now we have
+
+54:17.460 --> 54:23.300
+Ninety three percent removed the last seven percent is a this watchdog timer
+
+54:23.300 --> 54:24.100
+So okay
+
+54:24.100 --> 54:26.460
+So you're telling me just to just a pause there
+
+54:26.660 --> 54:33.140
+In the process of trying to figure out how this damn thing works and how to how to disable it or just bypass it all
+
+54:33.140 --> 54:38.120
+Together you're getting down the path. Oh my god. I think we got this working high fives all around everybody
+
+54:38.120 --> 54:42.460
+We did it and then 30 minutes into it. It shuts the system down and it's like then you discover
+
+54:42.460 --> 54:48.780
+There's a timer in there this that's yeah, that's exactly right. So there is a separate watchdog timer that basically
+
+54:49.260 --> 54:54.700
+when the machine first powers on there's a signature check against one of the partitions within the
+
+54:55.180 --> 54:59.580
+Management engines you can think of it like as like a zip file of partitions
+
+54:59.740 --> 55:05.500
+so but the signature check is only on the very first file or partition of the
+
+55:06.060 --> 55:10.900
+Management engine so the networking stack and the kernel are in other partitions
+
+55:10.900 --> 55:15.600
+So we can actually zero out all the partitions except the one that has a signature check
+
+55:16.340 --> 55:22.940
+And then if the signature check fails, then this watchdog timer triggers for 30 minutes
+
+55:23.540 --> 55:29.820
+But because we manufacture the motherboard we actually have fusing capabilities that get us a little bit deeper than
+
+55:30.260 --> 55:32.740
+Then what would otherwise be there?
+
+55:32.820 --> 55:39.500
+So we can actually start to really debug and say we can put the CPU in a debug mode or the management engine in a disable
+
+55:39.500 --> 55:42.940
+Mode, so we're starting to test those features out
+
+55:42.940 --> 55:50.660
+And obviously the end goal for us is we want to have a device that can operate with completely free software throughout the entire stack
+
+55:51.140 --> 55:58.540
+From the very first firmware loaded all the way through all the operating system and all the applications that run Todd my my
+
+55:59.860 --> 56:03.340
+Capitalist sense would tell me that there would be some other
+
+56:03.340 --> 56:09.660
+Market leader that would seem to want to jump to the call of organizations that want to have more secure
+
+56:10.220 --> 56:12.700
+Laptops, especially in a post Snowden era
+
+56:12.700 --> 56:18.420
+It seems like there could be even entire governments that would want computers that are rid of management engine
+
+56:18.420 --> 56:25.000
+That's controlled by a US corporation. Why in your estimation? Is this something that's not being why is Lenovo not leading this charge?
+
+56:25.660 --> 56:31.900
+It's yeah, it's such a great question and I don't happen to know the answer because obviously we're focusing on that
+
+56:31.900 --> 56:37.140
+the the area that I think the only way I can really sort of answer that is that
+
+56:38.460 --> 56:39.740
+for us
+
+56:39.740 --> 56:43.020
+We need it. We we need to have the entire stack and it's really a game of depth
+
+56:43.020 --> 56:46.260
+So if your operating system if you're gonna be running, you know Windows 10
+
+56:46.260 --> 56:50.340
+well, then you're exploited at the operating system level, so it's right so it's
+
+56:50.780 --> 56:54.380
+hmm, so the for us we look at it as
+
+56:55.780 --> 56:57.860
+The game of security is a game of depth
+
+56:57.860 --> 57:05.560
+And so we want to have all of our applications running free software the entire operating system itself the kernel
+
+57:05.780 --> 57:11.660
+not running any binaries for wireless or for GPU and then of course the bootloader being freed and then the
+
+57:12.380 --> 57:14.620
+firmware at the lowest level being freed so
+
+57:15.140 --> 57:19.180
+And obviously the more these documents get leaked. It just really
+
+57:22.340 --> 57:24.340
+It seems to me Todd like it's such a
+
+57:24.340 --> 57:29.760
+Herculean effort to actually do this that by the time you get to completely done
+
+57:30.100 --> 57:35.400
+there's there's the real honest potential that the market could shift out from underneath you and like
+
+57:35.700 --> 57:40.020
+AMD's PSP system the system that you know a lot of people are talking about now that risins getting more attention
+
+57:40.340 --> 57:45.700
+could all of a sudden start showing up in a lot of laptops and now the market demand might start leaning that direction right as
+
+57:45.700 --> 57:49.100
+We finally get this problem checked off. Is it do you see what I'm saying?
+
+57:49.100 --> 57:55.300
+Like it feels like as long as we're finding this uphill battle. It's we might never really be on time with the market demand
+
+57:55.300 --> 57:57.300
+Do you think it's possible?
+
+57:57.300 --> 58:01.980
+So I absolutely think it's possible and of course with AMD right now. It's a lot of potential
+
+58:02.780 --> 58:07.720
+But we're not at the point where even if they were to say tomorrow. Yeah, well, let's go ahead and release this
+
+58:07.720 --> 58:11.900
+You're talking about 2018 by the time they actually have something that's you know into a product
+
+58:11.900 --> 58:14.780
+Yeah, and and I also think feel like right now
+
+58:14.780 --> 58:20.980
+It's a lot more talk than it is actual product and the reason is because now is the time where they can talk about it
+
+58:20.980 --> 58:24.780
+And have the you know, the theories start, you know spewing around and at the end of the day
+
+58:24.780 --> 58:30.180
+It's going to be a business decision and you know and where in their triage list is it going to be to release the source
+
+58:30.180 --> 58:34.420
+Code for the a Giza binary, right? It's going to be it's going to be way down their triage list
+
+58:35.060 --> 58:39.200
+You know, but we but we're still we're pushing for AMD to to release it
+
+58:39.820 --> 58:43.420
+And as well as pushing with Intel to say we want an emulous design
+
+58:43.420 --> 58:49.640
+The you know the cryptographic bond and the goal for a lot of these corporations to you know
+
+58:49.640 --> 58:52.620
+Really lock up a lot that you can start to see
+
+58:53.420 --> 58:56.680
+especially with the CIA vault 7 release that
+
+58:57.060 --> 59:02.060
+It's clear that at least the CIA as well as the tools that they were using
+
+59:03.220 --> 59:05.820
+That they have the philosophy right if you were to ask me
+
+59:06.180 --> 59:12.260
+Hey, you know, I want to I want to hack all the encrypted communication services on Android phones
+
+59:12.260 --> 59:13.460
+How should I do that?
+
+59:13.460 --> 59:19.540
+I would say go a level lower than the application right target the operating system and you own everything above it or the base
+
+59:19.540 --> 59:21.020
+man goes more
+
+59:21.020 --> 59:23.020
+Yeah, so the same way goes for
+
+59:23.780 --> 59:28.300
+Management engine or obviously phones which with the baseband which were we're working on
+
+59:28.300 --> 59:31.940
+We actually have all of our hardware specification ready for manufacturing a phone
+
+59:32.900 --> 59:37.180
+That'll come out in 2018. So these are all things that that we're really concerned about
+
+59:37.180 --> 59:43.540
+But to answer your question about you know, where's the market demand? Is it going to shift from underneath us?
+
+59:43.540 --> 59:46.380
+I think where everything is trending right now is
+
+59:47.100 --> 59:51.900
+That digital rights for users are getting stripped privacy is getting worse
+
+59:52.780 --> 59:55.220
+and and the
+
+59:56.140 --> 01:00:03.900
+Those who want to have access to your data or your devices is growing in number. Mm-hmm. Yeah, I think it's a market
+
+01:00:03.900 --> 01:00:05.940
+I think it's a market that's gonna just get and more and more leaks
+
+01:00:05.940 --> 01:00:09.900
+They're just gonna keep coming out Joe you had a question about working with Intel. Go ahead
+
+01:00:11.140 --> 01:00:19.340
+Yes, so Todd when you originally launched your crowdfunding campaign and everything you were very positive and very optimistic about working with Intel
+
+01:00:19.340 --> 01:00:21.340
+and trying to get the
+
+01:00:21.340 --> 01:00:23.620
+You know the various binaries freed
+
+01:00:24.580 --> 01:00:27.820
+Presumably you've come up against quite a lot of walls with Intel
+
+01:00:28.380 --> 01:00:31.780
+You know, I just wanted to ask, you know, is your optimism still there?
+
+01:00:31.780 --> 01:00:38.260
+I mean you've talked about what you want to happen. But I mean what you realistically think can happen and that's really what I'm getting at
+
+01:00:38.260 --> 01:00:40.420
+here sure, that's a great question, so
+
+01:00:41.260 --> 01:00:46.080
+One of the great things about buying product from Intel is that we're cutting checks to Intel
+
+01:00:46.080 --> 01:00:50.340
+And so therefore we have account managers and we have therefore dollar leverage now
+
+01:00:50.340 --> 01:00:53.040
+Our dollar leverage is obviously a whole lot smaller than Google
+
+01:00:53.460 --> 01:01:01.480
+but the as we grow then our dollar leverage starts to increase where we can start making demands to Intel and they'll start to
+
+01:01:01.480 --> 01:01:07.540
+Actually listen, so we have submitted, you know a petition. We've talked with Intel about you know, creating an MULS design
+
+01:01:07.540 --> 01:01:14.680
+Actually, that's they came up with the name from us discussing it that there wasn't anybody talking with Intel about having an MULS design
+
+01:01:14.680 --> 01:01:22.780
+So as an example Google once they had core boot running then they were perfectly fine with getting using the MRC bin that they
+
+01:01:23.900 --> 01:01:26.860
+used from Intel's FSP binary, so
+
+01:01:26.860 --> 01:01:34.100
+Google at that point was, you know, content with core boot running even though they're using that binary and we're just
+
+01:01:34.100 --> 01:01:36.100
+digging levels deeper, so
+
+01:01:36.660 --> 01:01:38.660
+for us we're looking at
+
+01:01:40.660 --> 01:01:42.660
+Having our solution in parallel
+
+01:01:43.660 --> 01:01:45.060
+There's actually three parallel paths
+
+01:01:45.060 --> 01:01:52.060
+The first is communicating to Intel our intent and what we want and then they in turn actually share documentation
+
+01:01:52.060 --> 01:01:57.660
+You know BIOS writing documentation so that we can start to find
+
+01:01:57.660 --> 01:02:03.940
+Oh, you know, maybe there is something actually within the existing documentation that nobody's been able to really exploit
+
+01:02:04.420 --> 01:02:10.460
+Such an example as the being able to disable the management engine from NVRAM
+
+01:02:11.060 --> 01:02:14.180
+fuses on the CPU so those are
+
+01:02:15.620 --> 01:02:18.060
+Some things that Intel is helping with
+
+01:02:18.060 --> 01:02:23.260
+Oh, so the fusing tip came from Intel's documentation?
+
+01:02:23.260 --> 01:02:30.260
+That's correct. Oh, okay. Yes. So that's one where by having an account manager and having access to
+
+01:02:31.060 --> 01:02:34.860
+Documentation allows us to have more knowledge than let's say just you know
+
+01:02:35.180 --> 01:02:38.500
+Someone else just trying to you know, plunk away and hack or reverse engineer
+
+01:02:38.500 --> 01:02:44.380
+Yeah, try to trigger things out that way. So and their their documentation Intel's documentation is
+
+01:02:44.980 --> 01:02:46.980
+immense, right so
+
+01:02:46.980 --> 01:02:51.540
+So we have a lot that we can end up doing that way. That's the first Avenue
+
+01:02:51.540 --> 01:02:57.420
+That's basically working with Intel saying hey, you know, you're not the enemy right? We we want to continue to use your hardware
+
+01:02:58.140 --> 01:02:59.700
+We want to purchase from you
+
+01:02:59.700 --> 01:03:07.220
+But these are the goals that we want then the second option is you know that that we by using the documentation?
+
+01:03:08.380 --> 01:03:13.760
+Find our own way to you know, either modify code or disable the ME
+
+01:03:13.760 --> 01:03:20.860
+one of the nice things here is that since it's not actually hostile towards Intel because we're not trying to reverse engineer and release like
+
+01:03:20.860 --> 01:03:26.540
+A management injury and replacement, right? What we're trying to do is just not use it period so that's
+
+01:03:27.220 --> 01:03:30.700
+Not a hostile relationship with Intel to go down that path
+
+01:03:30.700 --> 01:03:34.620
+And then the third path of course is is looking at alternatives, right?
+
+01:03:34.620 --> 01:03:39.500
+What do we end up wanting to use AMD or do we want to actually scrap it and go to something?
+
+01:03:39.500 --> 01:03:46.660
+It's really low-powered. So with AMD's talk that ends up helping us with the leverage where we could possibly switch to AMD or
+
+01:03:47.540 --> 01:03:51.220
+continue to talk with Intel about you know about switching so
+
+01:03:52.340 --> 01:03:58.260
+So I am very optimistic because you know, I get to read through the documentation on you know
+
+01:03:58.380 --> 01:04:03.940
+The me design for BIOS writing guide. It's a you know, 192 page document
+
+01:04:03.940 --> 01:04:12.040
+So Intel has very deep knowledge and and documentation on on areas that you'd be really surprised about so
+
+01:04:13.740 --> 01:04:19.340
+So that to answer your question is that Intel is I'm very optimistic because Intel has been helpful
+
+01:04:20.060 --> 01:04:23.460
+In providing documentation and the long-term game
+
+01:04:23.460 --> 01:04:29.380
+It might very well be that they don't put out an ME list design and we end up finding it something ourselves through their documentation
+
+01:04:29.380 --> 01:04:36.020
+Or maybe in you know in a much later version that they say that there is a market demand for that and then they then
+
+01:04:36.020 --> 01:04:42.540
+They offer that up. So I guess Todd. Here's what I here's here's the pessimist in me because I see it almost feels like two
+
+01:04:42.540 --> 01:04:43.540
+scenarios
+
+01:04:43.540 --> 01:04:45.540
+scenario one is a
+
+01:04:46.300 --> 01:04:48.300
+triumphant
+
+01:04:48.780 --> 01:04:50.780
+Arrival at some solution that
+
+01:04:51.660 --> 01:04:58.500
+Essentially gives people the ability to use Libre boot to bypass and disable Intel management engine and and everybody's happy less blobs
+
+01:04:58.500 --> 01:04:59.900
+Everybody's happy
+
+01:04:59.900 --> 01:05:05.500
+but all of that work will just quickly be snapped up by vendors like system 76 and intro where and so
+
+01:05:06.140 --> 01:05:10.180
+There won't be a there won't be a market advantage that lasts very long. So that's scenario one
+
+01:05:10.180 --> 01:05:15.820
+Oh scenario two though, but scenario two would be that Intel just decides to do this and then everybody gets it and
+
+01:05:16.740 --> 01:05:22.380
+Market advantages also lost there. So what's the what's the upside for purism long-term here, right?
+
+01:05:22.380 --> 01:05:25.100
+So there's a couple pieces. So first of all, you have to be running core boot
+
+01:05:25.100 --> 01:05:30.660
+So if your machines not ported to core boot, then you're then you have to do that port
+
+01:05:30.740 --> 01:05:37.300
+So it's not like by us disabling the ME. Okay, and it's right that you still have that would be within the range of other
+
+01:05:37.580 --> 01:05:42.740
+OEMs or especially those that are getting more serious about their own manufacturing. It seems like they could be within their capability
+
+01:05:42.740 --> 01:05:47.260
+Oh, yeah, absolutely. They would just need to say I'm gonna invest and actually have that ported. So that's that's step one
+
+01:05:47.780 --> 01:05:51.500
+But of course right now you're there. There isn't it. Everybody's using
+
+01:05:51.500 --> 01:05:57.620
+EFI or UFI except except Chromebooks, right? So or you know
+
+01:05:58.780 --> 01:06:01.700
+Pre 2008 machines right lever boot based machines. Yeah
+
+01:06:01.700 --> 01:06:08.060
+So so that is obviously an advantage that we would end up having over others is that we're investing in that space
+
+01:06:08.260 --> 01:06:15.000
+To have a really depth of credibility on the security side. That's true. Yeah, so okay then so that's you know point one. So but
+
+01:06:15.000 --> 01:06:20.920
+Yes of system 76 or or even you know, let's say Dell decided. Hey, you know what?
+
+01:06:20.920 --> 01:06:26.760
+We we don't like all these threats coming in from vault 7 where all of our machines are gutted because it's an EFI threat
+
+01:06:26.880 --> 01:06:34.400
+That they could end up putting core boot on at that point then they would still be using the default installs from Intel
+
+01:06:35.080 --> 01:06:40.580
+Then they would have to actually go through the fuses that we have and of course we'll publish what you know fuses word targeting
+
+01:06:40.580 --> 01:06:42.580
+Because it actually helps users so
+
+01:06:42.580 --> 01:06:45.540
+So then it would basically they'll be paying playing catch-up
+
+01:06:45.540 --> 01:06:52.100
+But the question is are they gonna want to have the same depth of credibility that we have if they're installing Windows the depth of
+
+01:06:52.100 --> 01:06:55.340
+Credibility is completely right. Yeah, it seems like you yeah
+
+01:06:55.340 --> 01:06:57.940
+I guess your point there is by by dredging this journey
+
+01:06:57.940 --> 01:07:02.860
+you'll establish the purism brand as sort of being like that not only one of the first on the scene with it, but also
+
+01:07:03.420 --> 01:07:07.140
+Having expertise with it, which is obviously going to give it some credibility
+
+01:07:07.140 --> 01:07:09.420
+So I I guess I guess that is a good point
+
+01:07:09.420 --> 01:07:14.300
+But what about if Intel just decides to play ball? Do you feel like? That's still a net win for purism
+
+01:07:14.300 --> 01:07:19.180
+I do and the reason is because then it actually allows the users to control it
+
+01:07:19.180 --> 01:07:23.660
+Which would be that the ME is going to be on by default. That's just how it's going to be so
+
+01:07:24.820 --> 01:07:30.820
+You know a manufacturer or reseller who has access to being able to fuse the CPU
+
+01:07:31.540 --> 01:07:38.380
+Would be able to so our proposal to Intel is actually to opt to add one of the fuses that we have
+
+01:07:38.380 --> 01:07:43.940
+One of the fuses that we get as a manufacturer because we get the CPUs in manufacturing mode
+
+01:07:43.980 --> 01:07:48.100
+So then we have the capabilities to fuse the CPU and right now
+
+01:07:48.100 --> 01:07:53.500
+we have 14 fuses that we can fuse and I were saying make a 15th fuse that allows us to actually disable the ME and
+
+01:07:53.940 --> 01:07:58.220
+You can ship it where they'll be you know that it can be fused by default
+
+01:07:58.220 --> 01:08:05.620
+But we can we can achieve it'll have the ME by default and then we can fuse the CPU during the fabrication process
+
+01:08:05.620 --> 01:08:11.140
+To disable the ME and then that that's all we need so in that case then you know it it
+
+01:08:11.660 --> 01:08:13.660
+Accomplishes a few things the first is that
+
+01:08:14.420 --> 01:08:17.140
+We would then have a CPU that from Intel
+
+01:08:17.140 --> 01:08:23.220
+It's Intel supported that would allow us to be able to disable at the lowest level a core that we don't need
+
+01:08:23.700 --> 01:08:28.940
+The second piece is then it doesn't change that for any of their other
+
+01:08:28.940 --> 01:08:37.620
+Buyers right because they would they would get what they had to be in and then they would likely would not be all that
+
+01:08:37.780 --> 01:08:42.340
+Encouraged or motivated to make a change like going back to Lenovo or somebody because they are even pushing this if they were
+
+01:08:42.700 --> 01:08:46.520
+Yeah, that's exactly right. Okay. That's a that makes sense all right Wow okay?
+
+01:08:46.520 --> 01:08:51.700
+Well, I'm glad you guys are working on this because you know I go back going back to wimpy
+
+01:08:51.700 --> 01:08:57.460
+I imagine wimpy your goal here is to have something that's sort of a unique fully open source stacked machine, right?
+
+01:08:57.460 --> 01:09:02.500
+Are you gonna put like triskel on this thing, or what's what's your plan wimpy? It was shipped with triskel seven oh?
+
+01:09:03.380 --> 01:09:08.540
+Really? Yeah, yeah, are you gonna get it or is this a mate test machine like what's going on here wimpy?
+
+01:09:08.580 --> 01:09:14.220
+What's your what's your and why why this machine? It's it's a curiosity okay?
+
+01:09:14.580 --> 01:09:18.820
+You know I as we said earlier. You know there's some Bitcoin
+
+01:09:19.420 --> 01:09:20.980
+value at the moment
+
+01:09:20.980 --> 01:09:24.740
+there are some unusual items floating around and this was one of them and
+
+01:09:24.740 --> 01:09:30.420
+I was interested to have one of these and actually have a poke around with it and that yeah retrofitting
+
+01:09:30.420 --> 01:09:34.900
+You know the the core boot Libre boot on these devices is not is non-trivial
+
+01:09:34.900 --> 01:09:39.420
+Oh, so I wanted to have a play and see what it can do and what it's doing the first thing
+
+01:09:39.420 --> 01:09:44.740
+I've noticed boots very fast that that initialization piece is I bet shockingly quick
+
+01:09:45.900 --> 01:09:51.540
+It makes that old machine seem quite pokey. I've heard that yeah, I've heard that I've had the same curiosity as you
+
+01:09:52.100 --> 01:09:54.100
+and so is this
+
+01:09:54.100 --> 01:10:00.100
+Is that is the end goal here to experiment with just the just the process?
+
+01:10:01.940 --> 01:10:08.460
+Yeah, it's just it's just another interesting bit of technology. I'd like to learn more about and I've had a helping hand in that
+
+01:10:08.460 --> 01:10:10.460
+I haven't had to
+
+01:10:11.340 --> 01:10:18.700
+Wrestle the laptop open and put it under my rather dodgy soldering skills somebody else has done that for me is an SSD
+
+01:10:18.700 --> 01:10:24.660
+Yeah, so it's been refurbished. So they they've fitted it with a qualcomm atheros
+
+01:10:26.020 --> 01:10:28.340
+wireless end card and a Samsung
+
+01:10:29.380 --> 01:10:34.540
+850 256 gig and it's got eight make eight gigs of RAM in it as well. So it's like a full
+
+01:10:39.020 --> 01:10:45.260
+Yeah, yeah, actually better not your laptop where's I could yeah, I bet you the performance is not that bad
+
+01:10:45.260 --> 01:10:48.980
+It's actually very decent. It's actually very decent. Yeah, and I've got a I've got a
+
+01:10:49.740 --> 01:10:51.940
+An X to a one which I've had for a while
+
+01:10:51.940 --> 01:10:56.860
+So I I know how to compare the performance, you know, because the tour ones a little bit newer
+
+01:10:57.740 --> 01:10:58.740
+And yeah
+
+01:10:58.740 --> 01:11:05.900
+The thing that surprised me because it's obviously got the SSD in it is just how quick the machine comes on and actually starts
+
+01:11:05.900 --> 01:11:07.900
+Booting so it comes up fast
+
+01:11:07.900 --> 01:11:13.300
+But it's just not having to sit around and wait around for the BIOS and EFI to happen
+
+01:11:13.300 --> 01:11:15.300
+It's very quick
+
+01:11:16.060 --> 01:11:18.060
+But it's still a core to do isn't it?
+
+01:11:18.740 --> 01:11:19.740
+Yeah, yeah
+
+01:11:19.740 --> 01:11:20.860
+I mean I've not done much with it
+
+01:11:20.860 --> 01:11:25.820
+Like I say, I've literally turned it on being impressed by the boot speed and done the updates on the box
+
+01:11:25.820 --> 01:11:27.820
+I've not actually tried to use it for anything
+
+01:11:28.260 --> 01:11:34.780
+Serious. Yeah, I'll get to that. Huh? I kind of want to check back in if I remember I won't be here next week
+
+01:11:34.780 --> 01:11:39.300
+Oh, I won't be yeah, so I'm gonna be on the road next week. I think we're gonna I don't know who's gonna guest
+
+01:11:39.300 --> 01:11:42.260
+I haven't we get to find out. Yeah, I so much going on
+
+01:11:42.260 --> 01:11:46.540
+I haven't it might just be West so everybody show up in the Mamba room. Everybody everybody have a lot of fun
+
+01:11:46.540 --> 01:11:47.940
+However, I do have this computer set up
+
+01:11:47.940 --> 01:11:51.300
+So if we do have a guest they'll be able to call in and they'll be able to talk to mom
+
+01:11:51.300 --> 01:11:53.620
+We'll be able to hear them. So we'll see we'll see what happens
+
+01:11:53.620 --> 01:11:56.780
+We may have a surprise guest host next week, but maybe in a couple weeks
+
+01:11:56.780 --> 01:12:00.300
+I'll check in wimpy and see what you think. I think that I think I think
+
+01:12:00.860 --> 01:12:04.780
+I think we may talk about it on the Ubuntu podcast. So you can
+
+01:12:05.780 --> 01:12:12.140
+Surprise go find wimpy over there surprise and also poppies on there so you can find poppy also, but he's not here today
+
+01:12:12.140 --> 01:12:16.020
+Oh, yeah, the Ubuntu podcast a one of the one of the podcast
+
+01:12:16.020 --> 01:12:20.140
+I am subscribed to you can also Joe Joe is on Linux late-night Linux
+
+01:12:20.140 --> 01:12:22.820
+I almost call the Linux after dark again, because I keep thinking the screensaver
+
+01:12:23.460 --> 01:12:28.300
+I know I'm sorry. I'm sorry and that's a great show too. So go subscribe to that as well
+
+01:12:28.540 --> 01:12:32.500
+It turns out it turns out despite what might be going on with those guys over at Linux action
+
+01:12:32.500 --> 01:12:37.020
+She can't trust him. Don't trust those guys. The unplugged show is sticking around here. So what will be here?
+
+01:12:37.020 --> 01:12:41.020
+I might not be here, but we'll all be next week. It's a community. That's what makes it
+
+01:12:41.020 --> 01:12:46.620
+You know, I thought about trying to join in mumble, but I was looking at the timing for next week. Yeah, and I
+
+01:12:47.540 --> 01:12:50.500
+Just you'll be driving like a bad man. I think it's gonna be like peak driving
+
+01:12:50.500 --> 01:12:56.060
+I think it's gonna be like an 11-hour day for me driving. Well Dylan's going along right just pop him up at the wheel
+
+01:12:56.060 --> 01:13:01.860
+Yeah, well Hadid offered like oh I could drive for a bit. Oh, yeah, you know the thing is it's not just driving
+
+01:13:01.860 --> 01:13:05.620
+It's like then you don't know where you're gonna be reception wise either because you're moving so much
+
+01:13:05.660 --> 01:13:07.900
+So I just feel like I would be a board in the past
+
+01:13:07.900 --> 01:13:13.800
+I'm sorry from a car man. That would be unbelievable, wouldn't it? Yeah, somebody no never that would never happen Joe
+
+01:13:13.800 --> 01:13:18.300
+That would never happen. That's I'm heard of somebody joins from a car never crazy. Yeah
+
+01:13:18.940 --> 01:13:21.740
+Hey, by the way mumbles on Android, so we'll see what happens
+
+01:13:21.740 --> 01:13:26.000
+But I think well something something something will happen next week. Just got to tune and find out
+
+01:13:26.000 --> 01:13:30.180
+We'll keep it fresh there will be sure there will be a show as long as these guys can figure out how to turn on
+
+01:13:30.180 --> 01:13:32.380
+The studio which I think you've got I think you got it
+
+01:13:32.380 --> 01:13:37.420
+I just stroked the beard the magic beard and everything comes up when I asked the beard about he said yeah
+
+01:13:37.420 --> 01:13:41.460
+I mean, I think so. I mean the show might just be late. Yeah
+
+01:13:46.700 --> 01:13:48.620
+That's fine, I suppose that really is fine
+
+01:13:48.620 --> 01:13:51.820
+You tune in over JB live TV and you don't have to worry about it
+
+01:13:51.820 --> 01:13:55.260
+You just get to watch the show go down and I know it won't be here to bail you guys out
+
+01:13:55.260 --> 01:13:58.080
+Yeah, cuz he's gonna be flying right? Yeah, we're gonna be in Tejas
+
+01:13:58.700 --> 01:14:03.980
+Meeting up with Dell. I wonder if they'll have any XPS 15s in the lab that I can check out go fine
+
+01:14:03.980 --> 01:14:07.340
+If you see one of the hallway just snag it. Yeah, man. Totally. All right
+
+01:14:07.340 --> 01:14:10.000
+Well that does bring us to the end of this week's episode of the unplugged program
+
+01:14:10.000 --> 01:14:15.180
+Thank you for joining us. You can go to Jupiter broadcasting comm slash calendar to get our live time in your local
+
+01:14:15.820 --> 01:14:17.820
+time of neck of the woods thing
+
+01:14:18.020 --> 01:14:21.860
+Time zone thing also Jupiter broadcasting comm slash contact for feedback
+
+01:14:22.420 --> 01:14:26.500
+Linux action show at our reddit comm for potential updates and projects
+
+01:14:26.620 --> 01:14:30.480
+Yeah, join us live in the mumble room to get information in our chat room. See you next week
+
+01:14:30.480 --> 01:14:34.240
+Well, they will I'm out of here
+
+01:14:34.240 --> 01:15:04.040
+See you guys
+
+01:15:04.680 --> 01:15:08.340
+And we canonical a lesson
+
+01:15:18.640 --> 01:15:24.180
+Bob it up that Bob it up. Alright, so JB titles calm. Let's go do our title thing now
+
+01:15:24.180 --> 01:15:28.900
+I know that Nick lob who I almost want to call Nick Bob in the show had a question
+
+01:15:29.360 --> 01:15:31.920
+Regarding the Intel management engine probably for Todd. So Nick go ahead
+
+01:15:31.920 --> 01:15:34.440
+Are you I saw you asking you get first go?
+
+01:15:36.720 --> 01:15:38.120
+Hello
+
+01:15:38.120 --> 01:15:41.360
+Thoughts left actually just a second ago. Oh
+
+01:15:42.000 --> 01:15:46.260
+He did. Oh, was it for him? Okay. Well, thanks Todd for joining us. Goodbye
+
+01:15:48.160 --> 01:15:50.240
+Maybe it was our sick tunes drove them away
+
+01:15:50.920 --> 01:15:56.000
+Jail that whale. What's that a reference to? Oh the docker stuff. That's pretty good. That's pretty good
+
+01:15:56.360 --> 01:15:59.160
+Boot free or die trying that was my suggestion
+
+01:15:59.160 --> 01:16:01.160
+Like it
+
+01:16:06.040 --> 01:16:12.580
+Who should I have a guest co-host next week, who should I ask because obviously I can't make them do it, right? Who should I invite?
+
+01:16:21.040 --> 01:16:23.280
+Takes we won't put my lap on right now
+
+01:16:23.280 --> 01:16:29.800
+Chase just to throw it as a wild card. I feel like I feel like I could ask Joe
+
+01:16:29.800 --> 01:16:31.720
+But I feel like it's a lot asking that's a lot of Joe
+
+01:16:31.720 --> 01:16:34.720
+I mean, that's a lot asking a lot of Joe. But yeah, that would be good
+
+01:16:34.720 --> 01:16:38.200
+That would be good for people to get to meet Joe. That's a good mix it up. Have my core
+
+01:16:38.200 --> 01:16:41.920
+I'd have to not be in my car, but I could work something out
+
+01:16:41.920 --> 01:16:47.080
+Yeah, that we don't want to impose too much on you. So I have Skype set up here and Joe could call it
+
+01:16:47.080 --> 01:16:49.080
+All right. I like this Joe
+
+01:16:49.080 --> 01:16:53.960
+The bus I'm gonna go with it Joe if you're down for it boy that shirt so that solves my problem right there and I
+
+01:16:53.960 --> 01:16:56.880
+Actually probably is a good chance for the JB honest to get to meet you. Yeah
+
+01:17:00.600 --> 01:17:04.720
+Digital ocean is like and honestly, there you go. Yeah, that helps
+
+01:17:04.720 --> 01:17:10.680
+I heard the read in the plug for the affiliate in late night Linux in it. Yeah, it's legit
+
+01:17:13.680 --> 01:17:16.160
+All right, awesome, well, that's awesome Joe, thank you
+
+01:17:16.160 --> 01:17:20.200
+Alright, so I'll just you can just be able to Skype to Jupiter broadcasting it in West
+
+01:17:20.200 --> 01:17:22.720
+You'll be able to just should I think I'll set it to automatically login
+
+01:17:24.560 --> 01:17:32.080
+Cool well, that's awesome. Thank you guys. Well, that's that's excellent and wimpy. I'm glad I'm officially Joe's agent now. Yeah, right
+
+01:17:32.800 --> 01:17:34.320
+financial attractions
+
+01:17:34.320 --> 01:17:36.320
+transactions
+
+01:17:36.800 --> 01:17:39.800
+Whoa, there's Skype there's Skype, you know, I'm gonna do I'm gonna log into Skype
+
+01:17:39.800 --> 01:17:46.840
+I'm gonna turn off all of the notifications for you right now West. I'm gonna hook you up with those. Yeah, I hate those so much
+
+01:17:46.840 --> 01:17:50.400
+And wimpy I owe you a beer or two. That's for sure
+
+01:17:51.440 --> 01:17:54.640
+But yeah beers only redeemable at Linux fest Northwest
+
+01:17:54.640 --> 01:18:10.280
+I'm gonna pull my finger out and sort my travel out this weekend at a boy. I'll be in touch
+

@@ -1,0 +1,1680 @@
+This is Linux Unplugged Episode 16 for November 26th, 2013.
+Hi everyone and welcome to Linux Unplugged, your weekly Linux talk show that already has one foot out the door this holiday week.
+My name is Chris.
+My name is Matt.
+Hey Matt, so we've got a fun show today, a lot of things happening.
+Even though it's a holiday week, you'd think, it's turkey, it's turkey day, tomorrow? Yeah, tomorrow here in the United States.
+Tomorrow's turkey day.
+No wait, no, Thursday.
+No wait, Thursday.
+Sorry, I got my...
+There's turkey all week long for us.
+I've already got tryptophan all in my blood system.
+I'm a wreck over here, Matt, because all I can think about is that bird.
+And then just planning my turkey strategy so that I leave enough room for pumpkin pie, but not so much room that I eat too much pumpkin pie, right?
+It's all about finding the right bandwidth for your stomach.
+Right, and this is what you would think we would be concerned about right now.
+But no, my friends, no.
+We have more important matters.
+Some big things are happening in the land of Linux infrastructure.
+You might be familiar with Docker.
+Now, that could be because I talk about it all the time.
+I talk about it too much.
+Maybe we should just call this Docker Unplugged.
+But this week, something big happened on the day we record live.
+A new version of Docker is out, and it promises to bring Docker to all Linux distributions.
+And there's only one way I thought to get the appropriate official word on the new version of Docker, and that was to bring on Solomon from Docker.
+He is the co-founder and CTO of the Docker project, I guess?
+What is the organization behind Docker, Solomon?
+So it is now officially Docker Inc, Docker.com.
+And that was a transition from?
+Yes, from.Cloud.
+Ah, right.
+.Cloud was actually, that actually sort of signifies a big transition in how you guys are structuring your business because it wasn't before.
+Weren't you guys more of a software of a service platform, and now you're kind of transitioning to the Docker project?
+Yeah, so we're.Cloud launched in 2010 a platform as a service.
+So if you're familiar with Heroku or Google App Engine, a hosted service that runs other people's web applications, basically.
+And so we've been doing that for several years.
+We still do it.
+The product is still there.
+We have lots of customers.
+It's a growing business.
+The change of name is really to indicate that Docker is just going so crazy and growing so fast that the only way we can do a good job at maintaining it is making that the number one focus of the company.
+So can we give just a real quick elevator pitch on what do you, when somebody says, hey, what is Docker?
+What do you tell them that just sort of makes it click for them?
+Well, it depends how technical they are.
+Go technical.
+Don't be afraid.
+We have a brave crew with us.
+So Docker is a container engine.
+It's a way to package and deploy your application in a sort of a unit that can be moved around very easily from server to server and then executed on any of those servers in a very repeatable way.
+And it uses a sandbox execution environment that I like to compare to how iOS or Android sandboxes its application.
+So it's really that notion of it's one thing, you execute it, and it's running in its own little sandbox.
+It's not interacting in any way with other applications that may be running on the same server.
+And so that gives you a lot of flexibility, a lot of power in how you deploy your applications.
+It makes it much easier to automate.
+And Docker is sitting on top of some new ish Linux technologies to accomplish this.
+Is that correct?
+Yeah, that's right.
+And what are those technologies?
+So I mean, there is there's three main low level technology.
+So the first is namespaces and it's the ability for the Linux kernel to execute processes and have them not see each other basically,
+to kind of sandbox them so that the you know, simplistically, the process thinks it's alone.
+And so you've got a bunch of different namespaces, PID namespaces, network namespaces, et cetera.
+So a process can have its own network interfaces, its own process space.
+So when it lists all processes on the system, it sees only its own, et cetera.
+So that's the first. The second is one called cgroups or control groups.
+And that is that is a subsystem in Linux that deals with everything resource allocation and resource accounting.
+So if your process can get a certain amount of something and and another process can have another amount, that's cgroups.
+So anything from memory allocation to CPU priority to how much IO you're allowed to consume, et cetera, that's all cgroups.
+And so that's what allows you to run a bunch of applications side by side and do things like, hey, this application gets 100 megs of RAM.
+This one gets a gig and they don't walk on each other's toes.
+That's number two.
+And the third feature that we we've been using aggressively is copy on write file systems based on the ability to take a directory,
+to take a file system and create any number of copies, a lot of copies potentially of that file system.
+It almost instantly with very little performance overhead.
+And in starting in version, if I'm correct here, starting with the version that came out today, 0.7, is the file system area one of the areas that we're seeing some of the biggest changes for this release?
+Yeah, that's correct. And these changes are what?
+So what we've done is we've taken the the underlying copy and write file system that we have been using from the very beginning,
+the UFS and making that moving that from a hard coded default to an optional driver and shipping multiple drivers so that you can pick and choose from one.
+You can pick one of those drivers depending on what your system supports.
+So we're talking multiple Linux distribution support, almost all Linux distribution support.
+Yes, that was a big that was the big the headline of the 0.7 release today.
+There is there's a lot there's a lot going on in that release.
+I'll just start with that. You know, we kind of made a list of seven really important features that that that that shift of zero seven.
+Yeah, but you know that definitely the one at the top is the fact that this is the first version that runs on a on a non modified standard Linux kernel.
+Which means that Docker runs on basically every every Linux distro, which was not the case before.
+That's awesome. I mean, that's a that's that.
+So to me, what reason that takes Docker in a sense not to diminish the other features, the other six features,
+but that takes Docker to a sense to sort of in a way becomes the great normalizer amongst Linux distributions because I can I can build up an application
+and its environment on a Fedora box. I can I can get everything running and then I can pick that up and I can move it over to a to a Debian box or an Ubuntu box
+and have the same exact performance results, et cetera, et cetera, that I should have on the other operating system.
+Correct. On the other distro. Yeah, it's it's like one of the big.
+Goals of Docker is to make that mobility easier, right, that the goal is really that across all the machines that you have access to from your laptop to your production
+servers to your QA servers across multiple data centers, multiple infrastructures, in-house, public cloud, et cetera,
+that the commonality between all of those is that they can run Docker and then you have this kind of big, really, really flexible playing field where you can just move containers around.
+Right. And that's really, you know, we keep using the metaphor of shipping containers.
+And I think at this point, everyone's sick about sick of hearing about shipping containers and Docker being the shipping container of computing.
+But that's really it's really relevant beyond the hey, let me explain to you containers for dummies. It's a really good analogy because a container shipping system is only as valuable as the sum of places where you can ship.
+You know, no one would care about a shipping infrastructure, a worldwide shipping infrastructure that that was supported by two cities.
+Right. No one cares about that. It's valuable because you can ship anything anywhere.
+And so that's that, you know, if you look at our roadmap for Docker, that's basically the goal that you can install Docker on any of your machines on one hand.
+And on the other hand, whatever it is that you're developing and packaging that Docker can can package it.
+So and this part of it, this packaging part of it is sort of one of the comparisons you always see thrown out whenever I talk about Docker in our chat room is jails.
+People compare it to BSD jails.
+One of the differentiators here and maybe you could go into a little detail here is I could build a Docker container that has Apache and MySQL all set up, ready to go.
+And then there is a way, a very Git like way for me to take that entire instance and publish it and then go to another machine or have or have a coworker or a fellow developer or whatever the scenario is, pull it down to their computer using another Git like command.
+Right. Yep. That's exactly talk about that a little bit.
+Yeah, I think there's a there's kind of this constant, you know, over time, we've been we've been Docker has been has been tested and used by a lot of people.
+And there's I don't know how many conversations about Docker I've been in, but it's a lot.
+And so there's kind of a pattern. There's kind of a pattern in the kinds of questions and reactions we get.
+And there's definitely one particular threat of reaction, which is basically, hey, this is nothing new.
+Jails. Well, even in Linux, OpenVZ has been around forever.
+Vserver before OpenVZ has been around forever.
+You know, Solaris zones, et cetera, et cetera.
+Even LXC, which is the kind of the newest of the bunch, has been around for a couple of years.
+So, you know, there's that question of, well, OK, you know, big deal.
+What you know, I will concede me, the expert sysadmin who has been using all these these amazing things for years, I will concede that, OK, this makes it easier for the beginner.
+But beyond being training wheels for the real deal, what the hell is Docker all about?
+And I hear that all the time. And I think there's a big misunderstanding, which is that, you know, Docker, we don't pretend to have invented this stuff.
+And we try really hard to make sure that constantly credits the you know, that the all the people building the really hard, important stuff that Docker is built on top of.
+So really, we're standing on the shoulder of giants here. What's really valuable, what's really new about Docker is that it's not just it's not just a new like a lighter VM, right?
+It's not just, hey, I can I can start a machine faster. I can I can sell a VPS for for less because there's less overhead.
+It's it's about using it's about creating a new unit of software delivery.
+Right. And the key word is delivery. It's moving things around, having that portable format and and and a portable runtime where you can specify in advance to the developer.
+Here's what's going to happen when when this application is run by Docker and everything that I'm telling you now about what's going to happen will be true for every single installation of Docker everywhere.
+And that's kind of a big deal. Do you suppose looking into your crystal ball of craziness going way out in the future as hard drives and bandwidth just become more and more plentiful?
+Could actual desktop applications be delivered this way?
+Oh, I think so. I mean, you know, our focus is definitely the server first. But and if you had asked me six months ago, I said, well, you know, maybe one day, but but it will it will be a long time.
+Meanwhile, we have an entire subgroup, like an entire underground community without within the community that is porting Docker to to Raspberry Pi.
+Oh, wow. That was my next question, because it seems like the Raspberry Pi is it is the perfect device for this because the overhead of virtualization is just way too much. Right.
+And it's a perfect thing. And you there's plentiful. You could have dozens of them. You could move Docker instances around on all of them. I mean, so is that happening? Is Pi happening?
+Yeah. So there was a big blog post. I keep reading about it. I'm just like, wow, who are these people?
+But yeah, it's it's it's Docker. We don't officially support 32 bit architectures, mostly not because it can't it doesn't work.
+It's basically there's an if statement in there. And if it's if 32 bit, then fail. And, you know, they've removed it and then kind of went through fixing problems as I find them.
+And yeah, there are people running Docker on Raspberry Pis today. Wow.
+And likewise. So embedded systems, I think there's a huge opportunity for that. And desktop applications, I see I see a lot of that going on.
+Not delivering, you know, not directly running the desktop application. A lot of the intermediary use case that I'm seeing is people want a desktop environment on the server.
+You know, they want a remote. They want a remote desktop. But, you know, but they don't want to junk up their main server OS.
+Yeah. And they don't and they also don't want to set up like this one kind of special case desktop remote VM.
+They're like, you go you have to go and click around to make it work. They just like Docker run.
+There was this blog post about, you know, putting a like I forget the name that, you know, an open source alternative to the to the Microsoft suite, like all ready to go.
+So you would Docker run it and then you had an X window remote session, which would be, you know, tunnel through SSH.
+And then optionally, on top of that, you could have a VNC viewer, which itself had an HTML5 client.
+Wow. Wow. So a little desktop in the browser and, you know, under the hood, it was just a Docker container.
+So while we still have that crystal ball out, you know, looking at the future of Linux, this is such a great Linux solution.
+It seems to be that more and more people are getting behind, especially on the SUSE side of the fence, getting behind ButterFS.
+Any future plans? How does ButterFS play in with Docker? Because I know that there's some challenges there, isn't there?
+Like you couldn't use ButterFS in place of, say, an AUFS system, right?
+So the short answer is that I'm pasting a link to you right now, and that's a pull request for ButterFS support.
+Oh, wow. There it is. And so we're probably going to merge it this week as, you know, under the experimental label.
+But the blocker, there was a blocker, you're right. And the blocker was really in the internals of Docker and how our code was organized.
+It just had to do with the fact that, you know, Docker had AUFS built in, hard coded,
+and it took a little bit of reworking to make that part optional and pluggable and find the right API and all that good stuff.
+And it took us a while. Initially, 0.7 was supposed to come out a little earlier, but eventually we figured it out.
+And now that we went from one to two drivers, going from two to three and three to ten is really not that hard.
+And so there's people experimenting with, you know, a possible ZFS driver.
+Oh, wow.
+SEF, GlusterFS. There's some crazy guy doing something that has to do with automatically syncing to bit torrents.
+I don't know exactly what's going on there.
+Wow. That could be pretty cool, too, though.
+There's a lot of cool stuff you can do.
+So that's really like if I had to summarize what's going to happen going forward since I saw the crystal ball, right?
+Yep.
+Before I get back to you, there's just going to be more of that, of taking things that are hard coded in Docker today
+and moving that to an optional plugin, defining an API and shrinking the core.
+And we're going to do that for storage, for networking, for sandboxing, for service discovery,
+all of these things that, you know, there's no single true way of doing it.
+There is 10, 20.
+And everyone has a favorite, you know, everyone has a way they need to customize storage or networking or whatever.
+They should all be able to do it through Docker.
+I'm going to be deploying some Docker instances here probably in the beginning of the year because I'm a crazy guy
+and I like to have kind of a really rapidly rolling system as my main system, but I can bring up in Docker,
+I can bring up a Zimber installation and keep it nice and steady and stable running on top of a supported distribution.
+And I just look at this and I think this solves so many enterprise problems.
+This solves small business problems.
+This solves developer problems.
+And it also solves end user problems.
+And I think Docker is one of the most exciting things happening at the lower levels of Linux.
+So happy to see version 7 out.
+But you guys are still not technically saying, hey, this is ready for production, are you?
+You're still kind of saying we're still working on it.
+Yeah.
+I don't know how long we're going to get away with that.
+Because people are using it.
+Yeah.
+And I can tell you, I got an email.
+I mean, there are a lot of people who are very comfortable saying publicly that they use Docker in production.
+Yeah.
+And, you know, basically we're saying, hey, we're not saying we're not forbidding you.
+Just a warning.
+If you do it, you better know what you're doing because we're not guaranteeing that anything will work properly.
+There is no particular reason.
+So people sometimes get suspicious.
+I mean, why are you saying that?
+What's going to happen?
+There is no one thing that's going to.
+It's just engineering good practice, right?
+You code and we're an ops shop, right?
+We run people's apps in production.
+Right.
+We've been in that situation of, oh, cool, let's try that.
+Let's use it.
+It'll be fine.
+And then it blows up, of course.
+So, you know, but at the same time, you've got Yandex, you know, the Google of Russia, and they're freaking huge.
+You got Baidu of China, and they've got Docker in production on thousands of servers today.
+We got an email from a startup called Runnable.
+And they do like snippets of code like the Google, like, oh, how do I do this and that?
+And but then there's a run button and you click and you get to look a live running version of it.
+And they emailed us saying, hey, we have half a million Docker containers in production.
+Wow.
+Holy cow.
+So, yeah.
+Then, you know, what do you say to that?
+Right.
+OK, well, let me know if you have a problem.
+So a question from our chat room.
+They wanted to know, have you heard any indications that maybe this is one of the larger projects
+running using Go?
+I think it's the biggest in GitHub, at least.
+I don't know.
+We talked to the Go team, the core Go team a lot.
+I think, you know, we used Go as a very kind of pragmatic decision process.
+We're a Python shop originally.
+We're not, you know, Go fanatics.
+We're not really fanatics of any language.
+And we kind of reached the conclusion of using Go and started using it and liked it.
+We kind of had that kind of gut feeling that it was cool, you know, as systems engineers,
+that this was something we could rely on.
+Yeah.
+And so far, it turned out to be completely true.
+It's a great language.
+But, you know, what happened is, you know, Docker kind of blew up.
+It became popular very unexpectedly, very quickly.
+We were certainly not ready for it.
+And we're still paying the price now.
+I mean, there's chunks of code that, you know, you'll see, you know, fix me.
+This should not exist.
+And it's been there for, like, four months because we didn't have time to get around
+to just cleaning it up.
+Well, you know, I talked to a couple of guys from the Docker project three, four, five
+months ago, can't remember now, on the Coda radio show that we have on the network.
+And my comment then was, are you guys ready for how big this is going to get?
+Because, you know, I was a sys admin for 14, 15 years.
+And this, I mean, let me tell you, I saw all of the problems this solved.
+So I can see how it's blowing up.
+Do you feel pressure to get to 1.0?
+Do you feel like it's building?
+Oh, yeah.
+Oh, yeah.
+A lot of pressure.
+I mean, there is just the pressure of, hey, a lot of people using it.
+You don't want to let them down.
+You know, you want that to be worth it.
+And now there's the additional pressure.
+You know, as a company, as an organization, a lot of businesses are betting their technology
+platform on Docker, right?
+So it's kind of this double, you know, you don't want to let down your fellow maintainers
+and the community and give them crappy coding and kind of disappoint them.
+And you also, you know, you want to make sure that the businesses betting their technology
+future on this.
+I mean, it seems kind of it is pretty crazy just how rapidly things happen.
+I think it's just a matter of good timing.
+So, yeah, the pressure is definitely there.
+But, you know, it's healthy.
+It's good.
+It's also some of it's also one of the sexier demonstrations of recent low level functionality
+we've gotten in Linux itself.
+And it's kind of a neat way to see this, see several like you like the three core components
+you touch on.
+It's a neat way to see all three of them used.
+Yeah, very compelling use case.
+And so I think a lot of that's resonating with a lot of people.
+And the fact that you're sitting on top of these established technologies like namespaces
+and C groups, I think people feel a little more comfortable with that.
+Yeah, I think it's just a natural fit.
+Yeah, it's a that's where I'm comfortable personally, that kind of that that junction
+between low level systems and higher level APIs and platforms.
+And it's a very delicate it's really it's all about the art of, you know, finding the
+right balance.
+If you go to too low level, then you kind of lose the end developer.
+What's the point?
+I don't care about this.
+And if you go to high level, then you kind of lose touch with the technical reality.
+And, you know, you start doing crazy abstractions that are pointless.
+It's a really hard line to follow.
+But, you know, I think it's a really cool challenge.
+Yeah.
+And the ultimate reward is when you talk to, you know, really hardcore systems guys and
+say, oh, you know, I'm glad you guys exist.
+You kind of showcase what's possible with the hard work we're doing.
+Yeah.
+Yeah, that's very true.
+That's pretty it's it's it's pretty cool.
+Well, the last I just have a last couple of questions.
+One comes from the chat room, Bacon Flaps, which is always a great name.
+He wants to know if you could share a little bit about your teams, the ID you use and the
+any kind of tool chain info you could share.
+So we're all we're first of all, it's very different from person to person.
+I am the least like what's the word like I'm the least sophisticated person you can find
+in terms of working environment.
+Yeah.
+I use stock V.I. on my little digital ocean V.M. right.
+And I'm happy.
+Awesome.
+And I think like seriously, people make like everyone in the team makes fun of me is like,
+what?
+You didn't tune this.
+Like, no, I'll have to remember how to do it again.
+Yeah, exactly.
+I totally know what you mean.
+So and then it's funny because the rest of the team is kind of split between super, super
+intense, super jacked up.
+Emax set up and then super tunes V.I. set up.
+And I'm like there in the middle, like, you know, with my with my shitty set up.
+No, no, no other ideas really.
+I mean, you know, it's it's it is systems work.
+So we write and my rule of thumb is, you know, for example, I don't even have C tags configured.
+So when I, you know, when I when I want to look up the definition of a function, I'm
+calling I got to remember which file to go to and go look it up manually.
+And I also something that everyone else makes fun of me for.
+But I like it that way.
+That's kind of my my canary when I when I can't keep it on my head just by moving around
+in files.
+I know it's time to refactor.
+The code's too complicated.
+Oh, you know, that's that's my thing.
+Good point.
+Good point. All right.
+Well, is there anything you want else you want to touch on before we let you get back
+to your Tuesday?
+Let's see.
+Yeah, there is one.
+I mean, yeah, there's a whole list.
+Well, we wrote a blog post about the 07 release.
+Yeah.
+You want to go through some of that?
+Yeah.
+There's there's there's a lot.
+So I don't want to go through all of it.
+Oh, you know, I'll just encourage everyone to go look at it.
+I'll have I'll have that linked in the show notes as well as a getting that you're getting
+started guide.
+You guys have is great.
+And also a little info about this.
+We'll have the link to this which you're about to cover in the show notes.
+So go ahead.
+Yeah.
+Any parts you want to go through?
+I'm all for it.
+I love it.
+I love the support for links.
+That's because it's a it's a it's a it's a small incremental improvement, but it's the
+beginning of a really important part of the roadmap, which is orchestration and service
+discovery and basically going from one container in isolation to lots of containers working
+together on lots of machines and forming a stack that you can manipulate as as a cohesive
+entity.
+Interesting.
+So is this like network networking ports like a turn on networking ports and open for everyone
+in that stack?
+Yeah.
+So.
+So this first step is very simple.
+It's basically and the feature is called links.
+And what it allows you to do is basically connect container A to container B. OK.
+So that one can discover and connect to discover the open the ports exposed by the other and
+connect to them in a standard way.
+Oh, that's really nice.
+That makes it much easier.
+Yeah.
+So basically you do, you know, Docker run database and then you'll say Docker run front
+end dash link database and then that the database is linked into the front end and then the
+front end can now connect to the database in a simple standard way.
+And it's you know, it's it's very simple for now.
+It's it's local to one machine only for now.
+It uses the simplest possible means of discovery and its environment variables, which is both
+simple and easy to start using and also limited like it can't change dynamically at through
+as the as the process continues to run right.
+If you want to attach a new dependency, you have to restart.
+So all of that we're going to fix in future versions.
+But the fundamentals are there and it's a super, super important part of Docker's roadmap
+because here's the thing contained the way people use containers.
+Is is as a group, right, increasingly, if you got a single container, you can you can
+do things, but pretty quickly, like, OK, this is great.
+I want more of them and I want to wire them up together.
+Absolutely.
+Here's the risk.
+The risk is that, you know, the risk is fragmentation.
+We put a lot of effort in in in building this runtime that is standardized and works the
+same way everywhere.
+That way, once I have a dozen of them, I don't have a nightmare of management on my hands.
+Right.
+Yeah, because it could start to become it could start to get really wily after you have
+four or five, six, seven, a dozen, 20 of these things that could be really nuts.
+Yeah.
+And so in the same way that we you know, we want any container, any image you get from
+the index, from anyone that produced a produce an image from using Docker anywhere that that
+should run on a 100 percent of all Docker deployments the same way.
+Right.
+And now we're reaching the point where a lot of these containers, part of their functionality
+is to be connected to other containers.
+If I if I build the off the most awesome Postgres container you can think of and I share it
+with you, you know, what you want to do with that database is connect to it from from another
+container.
+So how containers can be plugged into each other needs to be standardized.
+Otherwise what will happen is I'll give you this that Postgres container and say, hey,
+here's my standard database container.
+Oh, by the way, you can only use it if you happen to use ZooKeeper and and and Mezos
+because that's what I use for orchestration or you need open stack heat or you need whatever.
+So but to solve that problem we need to just put in there just one does that the smallest
+possible amount of standardization so that every container uses the same mechanism for
+finding another container and then machine by machine you can customize how it's done.
+You can still use Mezos, you can still use a pack, you know, open stack heat, you can
+still use all of those different orchestration tools, but the container doesn't need to know.
+So anyway, that's that's a really important part of it.
+Awesome.
+There's gonna be a lot more.
+I can't wait to watch as more comes out and I'd love to keep a line open to you guys just
+to come on in the future when you get closer to 1.0 as you build towards that because it's
+an awesome project.
+Thank you.
+We have gotten a lot of good response from our audience too.
+I think there's a lot of people out there are finding use cases for it too.
+Definitely and and one call to action if I could just add one more thing is that if there's
+one place that I recommend anyone go if you want to learn more about Docker or just interact
+more or ask questions or complain or anything at all.
+It's the IRC channel.
+It's just it's the one place, you know, pound Docker on on free node.
+There is a lot of people.
+It's super active and people are very nice and I don't know about you guys, but I sometimes
+I kind of get a bad first experience from open source IRC channels because it can be
+elitist and kind of it can make you feel stupid if you're a beginner and I'm very it's up
+there in my top three, you know, things I'm most proud of in Docker is the fact that everyone
+is super helpful and nice on that channel and there's like 600 people there.
+That's awesome.
+That's awesome.
+I would say first thing if you have if you're interested in any way just go there and talk
+and just or hang out and see what's what's what's going on.
+Very good.
+All right.
+Well, thank you very much Solomon for coming on the show today and congrats on the new
+release.
+Thank you.
+Appreciate it.
+And folks can find more at Docker dot IO will also have links to all of that good stuff
+in the show notes and I cannot wait to see as it at version dot eight comes out and then
+dot nine.
+And I don't know.
+I don't think I'm going to wait till dot one Solomon.
+I just have to warn you.
+I think I'm going to be putting in production before then, but I won't tell you I won't
+stress you out.
+All right.
+You know where to find me if you have a problem.
+Okay.
+Well, thanks so much for coming on the show.
+Okay.
+Thanks.
+Appreciate it.
+All right, Matt.
+Well, that was fun.
+And how great was that?
+That was all worked out because I know they're pretty proud of that new release and it sounds
+really great.
+So I mean, it was great.
+It was fantastic.
+Yes, it was.
+You know, he mentioned he mentioned something in our chat with him that I think maybe now
+be a good time to take a little break and mention to the good folks at home.
+And that is our sponsor this week.
+And that's digital ocean.
+Digital ocean is simple cloud hosting that you control.
+I'm talking you get the root account of this bad mama jamma and it is yours.
+And digital ocean loves Docker.
+So if you're not familiar with digital ocean, let me let me give you the background here.
+Digital ocean, simple cloud hosting provider dedicated to offering the most intuitive and
+easy to spin up cloud servers ever use users like, you know, you, me, I do it in 45 seconds,
+but maybe you'll get it done in 55 seconds to spin up a totally your own server.
+Pricing plans are great, too.
+They start around five dollars per month.
+Five dollars per month gets you five hundred twelve megs of RAM, a 20 gigabyte SSD drive,
+one CPU and a terabyte of transfer.
+Digital ocean has data centers located in New York, San Francisco and Amsterdam.
+In fact, I've got last time I checked, there's two data centers in New York.
+And the way I've done it is since I'm here on the West Coast, I decided I have some stuff
+here on the West Coast that I host out of my own house on my files business connection.
+And then for the stuff that I need to have a little bit better performance on or stuff
+I just want to help supplement me on the West Coast, I set up a digital ocean VPS in and
+I think there's like their New York, New York number two server.
+And now I've got it on both ends of the continent, it's on the continent, both ends of the United
+States of America.
+It is it is really great for the functionality I'm using for in this case, it's BitTorrent
+sync with some supporters and a few other a few other functionalities they need internally
+to the network.
+I just I pay five dollars a month.
+But what's awesome is if you're like, yeah, I think maybe there's some things I could
+use this for.
+I'm not quite sure.
+Well, we can get you a ten dollar credit.
+And if you get the five dollar a month system like I've got, that'll get you two months
+for free when you use the code Linux 13.
+One word Linux.
+You know about Linux.
+You like Linux, right?
+So use that code Linux.
+And then 13.
+Why 13?
+Lucky number.
+Actually, that's just the episode they joined us like Linux 13.
+Digital Ocean also offers a vast collection of tutorials in their community section.
+And you can submit you can submit to that community section and get paid fifty dollars
+per published piece.
+So if they decide they want to publish what you've written, you can get a fifty dollar
+fifty dollar bone.
+I think they probably give you and I don't think of your bones or if they give you credit,
+but you get fifty dollars from Digital Ocean.
+I will have a link to that in the show notes.
+But I wanted to back up.
+So we were just talking about Docker and with Solomon from Docker.
+And one of the things that's really nice, in fact, I'm going to go log in and show you
+this right now.
+Just take a second.
+But so one of the challenges I've had is I'll get something all set up here at the house
+and then and then it works well enough that I don't actually ever go put it public because
+the time it would take to to go reset it up again is just I'm not interested.
+I've already spent my time setting up.
+It works like I started experimenting.
+The experiment was a success.
+And then it ends up in production.
+Right.
+And it's always like, well, this is just going to be temporary and then it never ends up
+being temporary.
+You can get right.
+So this is what this is why I think Docker is going to be really brilliant is I could
+take Docker, I could set up the instance that I want to create.
+So maybe in my case, it's a BitTorrent sync.
+Maybe it's a Zimbra server.
+And here I'll show you if you're watching the video version.
+I go in, I name my host name on DigitalOcean and I'll just call this Helper.
+And I'm going to choose the five dollar month, five twelve megs of RAM, one CPU, 20 gig SSD,
+one terabyte of transfer for five bucks a month.
+Oh, they they also have hourly rates.
+They have hourly rates.
+If you just want to try something for a little bit, I'm going to choose New York, too.
+Now, so on the select your image, I can choose Ubuntu, CentOS, Debian, Arch, Linux or Fedora.
+Yeah, Arch.
+That's not any crazier than Fedora on a server, right?
+That's awesome.
+I mean, come on.
+Not at all.
+Not at all.
+Nothing wrong with that.
+No.
+But they also have application images.
+And look at this.
+Which is very, very cool.
+Big time saver.
+Saves you time, right?
+Yeah.
+WordPress on Ubuntu 12.10, Docker 0.7.
+The version that came out today.
+That's crazy.
+Right there.
+Ubuntu 13.10, or I'm sorry, 13.04, 64 bit.
+And if I just if I click create droplet, I now have a Docker system ready to go.
+And I would just use that Docker check in and check out process.
+I would check in my Docker instance, log in over SSH and just check it in on this machine.
+And I'm done.
+I started and it's running.
+It's like I'm all done.
+All that work I did set up on my local machine.
+I just upload it.
+I started.
+It's brilliant.
+And this shows you how sophisticated DigitalOcean is to have version 0.7 today.
+And what's beautiful is inside that Docker container, even though this is a Ubuntu 13.04
+image that would be running in the host operating system, I could have a CentOS base in there,
+right?
+I could have I could have an arch base in there.
+I could have anything inside that container.
+It's just so awesome because it totally normalizes the underlying operating system and DigitalOcean
+is down with it.
+And you load that on top of their super fast SSD drives and the crazy great bandwidth and
+the terabyte transfer you're getting for five dollars per month.
+That's cheaper than a lunch at Jack in the Box.
+And you have an awesome VPS server that can just load anything you need.
+It's totally ready to go and is totally a quantified cost.
+I think that's awesome.
+So use our code Linux 13 when you're checking out over DigitalOcean and you'll get two months
+of credit.
+And a big thank you to DigitalOcean for sponsoring Linux Unplugged.
+Oh, definitely.
+And you got to love the fact that you are able to not only find yourself among the most
+bleeding edge stuff possible, but I mean, but it actually happens today.
+I mean, like, I mean, the fact that it's being released today, we thought we had the big
+scoop because we got the CTO on the day it comes out.
+Meanwhile, DigitalOcean is like, yeah, what else?
+We already have in production.
+Let's go.
+Hey, Matt.
+This is CNN breaking news, a little breaking news here in the unplugged headquarters.
+Turns out Jack in the Box does not exist in the Southeast.
+So seriously, I did not know that.
+My apologies.
+I made a I made a reference to a crappy burger joint that I still sometimes eat out.
+But that's not even in the Southeast.
+So I'll take it up a notch.
+Did you know that the Waffle House doesn't exist up here?
+Yeah, I don't know, though, because I would tell you what, to my knowledge anyway.
+Well, here's why.
+Here's why.
+It's so funny.
+You bring that up.
+That's kind of weird, actually.
+So there's this site I just heard about called Coinmap.org and Coinmap.org is a Google Maps
+overlay.
+I think it's Google Maps that shows you all the places around you that accept Bitcoin.
+And since Bitcoin is the only form of currency I now have to my name, I thought I maybe should
+get familiar with the places that accept it.
+And I kid you not.
+And I don't know.
+It's ironic that you brought this up because I was seriously looking at this like two hours
+before the show.
+We hadn't talked before the show.
+But two hours ago, I was looking on a Coinmap.org and oh, this is Waffle Stop.
+All that build up and it's not Waffle House.
+It's Waffle Stop.
+But there's a Waffle Stop in Bellingham that takes Bitcoins for waffles.
+Oh, is there really?
+Yeah.
+Bellingham is pretty, they're pretty good at adopting new technology.
+I'm not terribly surprised.
+I'm surprised there's not a few medical cannabis stores on this map.
+That seems like a match made in heaven.
+No, that's on the way to Anacortes.
+I mean, not that I know anything about that.
+So anyway.
+You know, they get a drive through going, right?
+Okay.
+Yeah.
+If you guys want to check out Coinmap.org, it also uses, if your browser supports location
+APIs, it'll be creepy and figure out where you're at.
+So okay, Matt, here's what I did.
+I brought in the Mumble Room, our online Linux users group, and I figured they could help
+us answer some of our emails.
+Since we're doing the show a little out of order, I wanted to get our guest on and talk
+about that because I'm a bit of a docker slut, so I felt like I needed to chat with
+him.
+Well, aren't we all?
+Right.
+Right.
+Well, it is pretty cool.
+So Eric the Great wrote in, and sometimes I make jokes here on the show.
+And what I'm about to tell you is not a joke at all, I'm 100% serious.
+Eric the Great wrote in a very long email and he wanted to talk about how the problem
+with Linux on the desktop is that it's lacking apps.
+Ironically, Eric sent the email as an attachment in a doc X format.
+Now I got to believe he's screwing with me a little bit here, right?
+Maybe, maybe.
+But he may have a point to a degree.
+Let's hear what he has to say.
+All right.
+It's been so, so long that I can't read all of it, but he says, industry specific apps
+are either not available for Linux desktops or not as mature as they are on their Windows
+counterparts.
+Number two, there's not enough software that's configured to work by de facto standards.
+Don't know what he means by that.
+There's no good desktop groupware clients for the Linux that replace Outlook.
+Okay.
+Arguably true.
+Except for Zimber desktop is pretty good.
+Number four, the other thing that's a good Linux desktop needs is properly integrated
+features.
+Many times there's a piece of software that Linux just works, that works well.
+MakeFS is one of these encrypted NFS, unlike TrueCrypt, it provides it.
+Okay.
+Anyways.
+And the thing to remember is the desktop should be usable offline.
+Oh, is Pope in here?
+Oh, is Pope in here?
+Oh, the desktop should be usable offline for a small business when the server or internet
+connection goes down.
+You know, I feel like his main complaint was the applications he wants to buy aren't available
+for Linux.
+Well, here's the meat and potatoes of it that everybody fails to get is.
+And Linux users do it, Windows users do it, OS X users do it.
+If it doesn't meet my requirements, then it affects the entire world around me.
+And it just drives me nuts.
+It drives me nuts.
+It's like for myself, honestly, 99.99999% of what I do is in Linux.
+I mean, like I literally, the only time I actually run Windows is when I need to run
+for business purposes, multiple video conferences in Skype.
+And because it doesn't happen to be supported in Linux, that's literally for myself the
+only reason that I would.
+So and there's other people that have other needs.
+Maybe they have an AutoCAD need or maybe they have other specific things.
+But I think it's more task oriented.
+To claim that the platform is flawed or not usable based on the fact that he's not finding
+it meeting his needs is ridiculous.
+I agree, although you can apply that same argument to the Mac.
+But here's my take on it.
+It's like if I'm Eric the Great, I'm good for probably the next 10 years, right?
+I got Windows seven's got support till until I don't know when, like for a while, right?
+And then even then, yeah.
+Oh wow.
+Wow.
+That's amazing.
+And then even then, like if I really, really still loved Windows in 2020, I can probably
+jump on the eight dot one bandwagon, install some crappy extra software to give me a start
+menu and make it even for a few more years.
+Right?
+Yeah.
+But like there is a path.
+But even then, Eric's got to be sitting here going, man, I'm really about to get screwed.
+This is this is not going in the right direction.
+I mean, he's got to be sitting here thinking, what am I going to do?
+Maybe I mean, not immediately, right?
+No, but he hasn't experienced that he hasn't experienced the pain point yet for him.
+His pain points that he's experiencing is that he's missing specific applications that
+do certain things that he's used to the way he's doing it or that even its availability
+and that may be the case.
+And I think history will look back and go, boy, look at all of the things Microsoft did
+to enable their own downfall because I actually think extending Windows seven support to 2020
+what you're doing is you're giving time for alternative ways of doing things to develop
+and people are going to come up with replacements.
+And I talk about this more and more now where I think like video editing on Linux is a good
+example of something that will never match the proprietary commercial offerings.
+I mean, you can now buy like I don't actually know what the actual price is, but I think
+Final Cut 10 is like ninety nine bucks and motion is like ninety nine bucks and you could
+make TV grade productions from that from those products.
+It's not going to happen on Linux and if it does happen on Linux, it's going to be too
+far too late because things like Google Hangouts are going to get better and WebRTC where it's
+not really taken off yet.
+There is such industry support for that that there's going to be products built around
+WebRTC and today when we say video editing in the cloud, that sounds effing crazy.
+Well by 2020, it's not going to sound that effing crazy because it's going to be so doable
+that there will be software packages that clowns like me that broadcast from a garage
+can buy that use WebRTC and I do all of it through my web browser and then I just download
+the final file to my Linux box and apply any final touches to it.
+And what my point here is, is this is going to completely change the way video editing
+is done.
+So it's not that the existing method of video editing is going to come to Linux.
+We're just going to do video production in new ways and Linux will be there when those
+new ways are developed.
+And I believe it is the same for CADs and all this kind of stuff.
+It's just going to take a really long time.
+And it'll all run on Docker, obviously.
+Well, I mean, you know what I'm saying, it could totally happen.
+Yeah, I mean, I've already seen early attempts at like online video editing, very young,
+very much not ready for primetime and it's very, you know, Windows Movie Maker level.
+But the stuff does exist.
+It's already beginning to happen whether people want it to or not.
+Yeah.
+Visit the Google Chrome extension store sometime.
+I think you'd be surprised.
+There's a lot of stuff there.
+Not Jupiter Broadcast, you know?
+No, not there.
+All right.
+So Craig writes in.
+Go ahead.
+Well, that's the thing.
+Today, like connectivity is extremely simple.
+We've got LTE, we've got 3G.
+So it's not hard to be wireless and connected now.
+The whole Microsoft ad as well is just stupid.
+It's like, oh, yeah, if you're not connected to the internet, you can't use it.
+That's not entirely true.
+But when are you not connected to the internet?
+I mean, I'm always connected to the internet now.
+Like anywhere I go, even if I go into like the woods where like it's all Blair Witchy.
+Well, and I guess maybe the better question is what are you doing in the woods?
+Whoa.
+Yeah.
+Whoa.
+With your laptop, too.
+I would challenge him to run a Linux distro for a month and find those alternatives because
+it doesn't sound to me like he's done his research.
+No, I'm going to wager that this is someone who has, it's what I call a drive-by review.
+Well, basically they stuck their toes in it.
+Well, come on.
+I mean, I don't know, like if I went to work every day and needed After Effects, I mean,
+it comes down to needing After Effects.
+No, that's fair.
+But I think he was happy where he was at.
+Someone probably recommended he check it out.
+He half-assed it.
+He tried it.
+And it was kind of like, eh, not really for me.
+I'm happy where I'm at.
+He gave his honest opinion.
+We got a lot of emails from people who say that converting to Linux is like, you got
+to understand, it's not just an alternative software selection, it is an alternative way
+to use your computer.
+Oh yeah, God, me using OS X is like newbies trying to use Linux.
+I understand the frustration of stuff.
+Believe me, I scream at Mac all the time.
+I can't deal with it.
+So I understand like that switching platforms frustration.
+I totally get that.
+But then again, when I'm yelling at the Mac, it's because I'm half-assing it.
+I'm not trying.
+I'm like, this is hard.
+I give up and I go back to Linux.
+It's fine.
+Well, the thing about the Mac, and this is sort of the truth about the Mac, there's two
+ways to do things.
+There's Apple's way that they let you do it, and then there's no way to do it.
+And if you're okay with the Apple way, then the Mac will work for you.
+And if you ever kind of want to go outside that box, that's where it starts to become
+a frustrating experience.
+But I'm a special kind of idiot.
+And you know, when it comes to using OS X, I can, can I do it?
+Yeah, I can do it.
+Do I find it to be the most ass backwards way of doing pretty much everything?
+Yeah, I do.
+I just, I can't deal with it.
+The way they, the way they lay things out, I've always frustrated me.
+I've always gotten grief on it.
+Well, idiot, it can use a Mac.
+Well, then I'm a special kind of idiot.
+I don't know.
+That's okay.
+You know, I was like, you can use it and want to, or two different ways.
+Well, Mac is also genius because when you make, you move files and drag and drop files,
+it doesn't, it doesn't make a copy for you.
+It makes a shortcut, which everybody wants.
+They lost me when I started ejecting stuff by dragging it to a trashcan.
+I'm done at that point.
+It's like, you know what?
+Hey, I know Apple is, he used Ubuntu and then he saw those Amazon ads and was like, what?
+Oh, hell yeah.
+Yeah.
+There's that controversy, but that's just a jab.
+Craig writes and he says, Hey Chris and Matt, I love Linux Unplugged and I haven't missed
+an episode yet.
+Converting to Linux, even for a veteran admin is something no one really wants to do.
+There are just too many distros to choose from.
+Going through the late nineties, like you said on episode 15 is hardly, is hardly heard
+of losing him here about this.
+Let me read ahead a little bit.
+Upon switching, I had no issue at all as I became more and more interested in computers
+and learning what the command line was.
+However, my situation was as almost perfect situation as it could ever be for a Linux
+convert.
+My girlfriend can log into a Ubuntu 13.04 and open up a new tab to research something
+for college.
+My mother calls me with her wireless mouse, battery's dead and proceeds to tell me she
+needs a new computer.
+And that's essentially all I have to worry about.
+But he brings up the point that it's just a big hassle to switch over and, and it's
+not even a matter of being better.
+It's a matter of, uh, being a, of a familiarity, right?
+It's a matter of that.
+I agree with.
+Yeah.
+So I go back to, I go back to, I look at this and I think, uh, uh, he thinks that, uh, you
+know, as you, as you make the switch over, it's just kind of all going to be based on
+what your motivations are.
+Um, he says, uh, I, he said, if, if, if East East, well, this is one part of that was interesting.
+He said, if each distro came together and focused on the major issues like video drivers,
+auto audio drivers, audio, video editing, software, gaming, then Linux would be a thousand
+fold better than windows or Mac, uh, hands down.
+I, you know, well, and see, there's another one of those statements.
+It's like, okay, the video drivers and audio drivers, again, based on someone's personal
+experience where they running a machine, which clearly is giving them some grief with it.
+I have no problems, but I run, I run computers that I fortunately are compatible with what
+I'm using.
+So, you know, is it truly a widespread problem?
+Honestly, you really want to get the brass tacks.
+I would say windows has more, uh, retroactive, uh, compatibility issues with driver support
+than Linux ever will.
+So, you know, so yeah, it's kind of like, it's all perspective, I suppose.
+So I mean, yeah, absolutely.
+There are people out there that will find that, you know, they get a black screen when
+they boot from a live distribution.
+Hey, wait a minute.
+Did you install the drivers first or did you connect the USB device first?
+Because if you connected the USB device before you installed the drivers, it's not going
+to work.
+Sorry.
+And it's really important when you have a Palm Pilot to not install the drivers and
+plug that in first because that always works really well.
+I remember those days well.
+God, it used to frustrate the hell out of me.
+My wife has a MacBook pro and sometimes it'll sit on her lap and she'll shut the lid and
+go to put it underneath the sofa and I'll see the light still on and I'll say, hang
+on a minute.
+That's, that's not right.
+And my, my game OS, uh, desktop windows seven doesn't suspend.
+It flat out won't suspend.
+I've tried to spend the energy, it just doesn't, I've gone through all the knowledge base articles
+and I cannot make it work.
+And no matter how many drivers or firmware or BIOS updates I put on it, it just doesn't
+work.
+It's just me that the windows and OS 10 outclass Linux on the driver department is talking
+out of their ass.
+Yeah.
+I've got, I've got one windows machine left in the house.
+I booted into it, uh, two weeks ago for Koda radio.
+And after I was done with that episode of Koda radio, I went to shut it down and it
+would only go back to the login screen.
+If I restart or shut down, it would only go back to, that's all they could do is log out
+and then just hold the power button down.
+It didn't matter what I clicked.
+And it's just like, what really?
+This is, this is ridiculous.
+Well, and the one last one, my wife's Mac, her Mac specifically, it never fails.
+I put, we go ahead and we put it in suspend as soon as we're ready to go to bed, it comes
+to life all by itself.
+Hey, are you sleeping?
+Are you sleeping?
+And it's always Facebook that kicks it on.
+It's like, what the hell?
+You know?
+It misses you, man.
+It misses you.
+Oh, clearly.
+Yeah.
+It's, it's beckoning me.
+Have you checked the iTunes store?
+Come log into iTunes.
+I got a very special crowbar with its name on it.
+I'll tell you, man.
+All right.
+So Bob wrote in, this is just a quick one.
+He says, great show my experience with mom and dad users that they not only need to use
+a web browser, but also an office suite.
+I know many of these users who struggle with windows eight.
+So I moved a few of these people to Ubuntu 12.04 where they're all able to get by without
+any tinkering with the default install.
+These users were unable to learn windows eight at all.
+So I disagree with some of the statements on Linux unplug that new users need to tinker
+more with Linux.
+I think the intermediate users probably do, but certainly not new users.
+Ubuntu and Mac are only two OSs that I found new users can just pick up with no help.
+Yeah.
+I think, I think it depends on how you define new user.
+My favorite new user is someone that has zero experience with a computer because they have
+no perceived misconceptions.
+Fewer and fewer of those people now though.
+Yeah, they're still out there, but it's nice and nice.
+Unless you live out where I live out in the backwoods.
+Right.
+Yeah.
+You go out in the country or, you know, you go up into the older demographics and you
+can find them still.
+I mean, we still have people chasing cows around with USB cords.
+It's scary.
+But yeah.
+Well, windows eight really is.
+I mean, I'm sure I probably overshared this story, but I'll just share it again because
+I haven't told it on this show.
+When windows eight came out, actually when it was, when it was like, I guess it was done
+with RC or whatever, where you could download a trial for a limited time.
+You didn't have to buy it.
+And so I had a client that had five computers.
+So they had this room where they had QA people because they ran a website where they posted
+things that had to be QA'd all the time because they came from outside sources.
+So they had a team of about a dozen QA people and they had about five computers that were
+not being used because they would only kick them into gear during the heavy season.
+And then during the slow time they would, it was temp staff and they wouldn't, those
+computers wouldn't be in use.
+So I took those five computers and per the client's request, loaded the eight one demo
+or trial on it and which you could re extend a couple of times.
+And I did have to extend it one time.
+So we put these five users of various proficiency.
+One that I would say is he's definitely not a technical user, but he knows windows seven
+so well that he showed me a couple of things and I know windows pretty well.
+I've, you know, used to support it for years.
+And so he's, he's definitely sophisticated.
+I mean, he'd never know anything about like event viewer or, you know, any of that kind
+of stuff, but he probably knows about device manager and he can definitely install printers
+and all that kind of stuff.
+Then I had a user who, you know, is pretty much still struggling with the fact that the
+mouse has two buttons and one of them does something different than the other button.
+So good range, right?
+And none of them, none of them could figure out how to shut down the windows eight computer.
+Oh, it's confusing.
+None of them could.
+Cause the thing is, is they won't, they won't just go poking in the corners.
+They won't just go down there if there's no visual indications for them.
+And none of them even paid attention to the tutorial, even though I played the tutorial
+for all of them that comes with windows a, they didn't, they didn't help at all.
+And the other thing that was constantly confusing for them was the, the thing they were QAing.
+They had to QA a version of it in IE and a version of it in Firefox and a version of
+it in Chrome.
+Well, cause the IE one uses active X, only the problem was the Metro version of IE doesn't
+use active X. So, and they kept getting confused between, wait, am I in IE on the desktop?
+Am I in IE in Metro?
+And the, why is the address bar on the bottom and this UI and why is the address bar on
+the top in this UI?
+And totally disconnected from it.
+And these same people, these same users for a, for a short period of time were on an XFCE
+desktop and had none of these problems because it, because first of all, who the hell uses
+hot corners?
+I mean, that's the problem.
+So.
+Yeah.
+Uh, Chris Lee, uh, my friend was looking up, looking to update his laptop.
+So we went online, we found the model.
+We ended up with a HP Smudge, I believe, and it came with Windows 8.
+He's not overly familiar with Windows because when he was first getting into computers,
+I actually convinced him to actually use Ubuntu.
+So he's always been an Ubuntu user.
+He used it for a week and he said there was so many weird things, like because there was
+a touch screen, he said we'd type stuff and then Metro would just pop up for no reason
+at all.
+And he said, it was just, I'm like, yeah.
+And he's just like, he got so frustrated and like a stupid things like when he's trying
+to do like the HTMI out, um, he didn't quite understand you got to slide the bar over and
+then you've got like the mirror, but like, it's not just mirror.
+You've got like options for like screen resolutions, but the screen resolutions was wrong for the
+TV and it killed like the screen on the monitors when it was on the TV.
+He had so many hassles.
+He said, look, he said, I don't care anymore.
+He said, just come over, put that operating system on that I've been used to because I
+absolutely hate Windows 8.
+I explained to him that like, you know, I'm not going to be able to draw a boot properly
+because it's got U F I E problems.
+I said, I can do the thing where you do like escape.
+He said, no, I do not want Windows 8 at all.
+He said, I absolutely hate it.
+He said, I don't want it.
+So you know, people, and he's not very computer literate.
+He's pretty useless on the computer, but he can work his way around it perfectly fine.
+I think it's what you get used to using.
+I realized something when Chris said earlier that people didn't know how to do the shutdown
+and I have messed with a Windows 8 and 8.1 and I've helped people like walk them through
+things and when you said that, I realized that I have never shut it down on Windows
+8.
+I have no idea how to do it.
+It's a, I I've worked with eight and it's definitely a, but first you got to do the
+hokey pokey and then you shake it all about, twirl around in a couple of circles and then
+finally it will appear.
+It's the weirdest thing, but yeah, it's about, it's about three different options.
+It's be dug into.
+Yeah.
+Yeah.
+The funny thing about Windows 8.1 is that they brought back the start button but not
+the menu.
+Yeah.
+So when people who have a start menu, like a third party installed, that it, they're,
+the buttons are in the same place on top of each other, so there's like a 50 50 chance
+which one you click.
+What a train wreck.
+What a train wreck Windows is becoming.
+It is so, wow.
+Oh, it abuses me.
+I'm, I'm fine with it.
+I mean, let's be honest.
+I mean, I used to do PC repair and Windows is what drove me to Linux.
+I mean like actually repairing other people's stupidity is just, that's literally what drove
+me to it.
+You know?
+So two, two more emails and then the grand question I want to ask you and the, and the
+mumble room.
+But first we should, we should thank our second sponsor this week.
+So everybody knows about Ting now, right?
+Everybody knows about Ting cause Ting is sponsoring Linux Unplugged.
+Now Ting is mobile that makes sense.
+And I want you to go over to linux.ting.com linux.ting.com will get you $25 off your first
+device or $25 off your first month of service if you already have a sprint compatible device.
+Now.
+Oh, guess what?
+My Nexus 5 shipped today.
+My Nexus 5, I'm supposed to, freaking UPS is I'm going to get it tomorrow.
+I don't know if that's possible.
+I am so jealous.
+I am so excited.
+Are you going to be cackling at the poor man as he watches it?
+Oh, well I'm going to give him a handy.
+Are you kidding?
+I'm, he's, I'm excited to get my Nexus 5 and here's why I think this is a better time than
+ever to sign up for Ting.
+First of all, if you have the internet phone with the iOS 4 or 4S, iPhone 4 or 4S and now
+compatible with the Ting network, you go over to the BYOD page, which you can find over
+at linux.ting.com and they'll give you all the info you need.
+If you've got a sprint compatible iPhone, if you've got the Nexus 5, this is what is so
+awesome about Ting is they've been very transparent about the entire process because first of
+all, they're a CDMA network, which is a huge boon here in the US because that gets the
+signal through areas that GSM just doesn't generally penetrate as well.
+And so one of the things that a CDMA carrier has had to deal with for sort of the first
+time is a phone that requires a SIM card because that's generally something that's only on
+the GSM networks and it's been really awesome and encouraging to watch the Ting folks very
+publicly in their forums and in their blogs work with their community, work with the experts.
+It's so awesome to see a cell phone company recognize that people in their audience know
+a lot about these Android devices and are very savvy and very capable of helping them
+have a better service.
+It's huge for me as a Ting user and to see them work to get the Nexus 5 with their community
+has been awesome and it's what gave me the final push to make my Nexus 5 purchase.
+I cannot wait to combine the power of purchasing directly from Google on Google Play and unlocked
+Google experience Nexus 5 phone and then bring it over to Ting, which is no contracts, no
+early termination fees and you only pay for what you use.
+That is such an awesome combination and I want you to go over to linux.ting.com to get
+started and by the way, if you're in a contract now and you've been thinking about switching,
+Ting is going to give you some early termination relief.
+You can get more information at ting.com slash ETF.
+They're going to give you about up to $75 I believe it is per line that you have to
+get canceled.
+All you got to do is grab your Ting device, port your number, then submit your ETF claim
+and Ting will help you get out of that contract and then you're only paying for what you use.
+They include hotspot, they include tethering, their customer support is amazing.
+You can call them at 1-855-846-4389 anytime between 8am and 8pm and just talk to them
+about the Nexus 5.
+They'll just talk to you about the Nexus 5 like you got questions on how that's going
+to work, how's picture messaging, all that kind of stuff, you just talk to them.
+They'll give you, they'll help you out.
+They've also got help.ting.com which gives you lots of resources.
+You can find out more information, do discovery and exploring on your own.
+So go over to linux.ting.com to get started.
+You're going to love Ting.
+It makes sense.
+It's no BS.
+No hidden fees.
+You can pay for what you use, $6 per line and you can share it pooled minutes.
+It's really awesome.
+So I want you to go try it, linux.ting.com and go get started now because the sooner
+you switch, the more money you'll save in the long term.
+I love those guys.
+They keep my bills stupid cheap.
+It's great.
+I know.
+It really is awesome.
+I kind of feel like I'm cheating a little bit.
+I don't know.
+Well, that could be interpreted depending on what you have in mind for the UPS guy.
+I don't know.
+Once you're mentioned in there, it's like, wait, what?
+So Carl wrote and he said, dear Linux, please keep on breaking.
+What?
+He says, my typical day is I fire up windows when I'm at work because there's no efficient
+way to get around the fact that they have like a dozen proprietary windows only apps
+they require me to run.
+And since I already have windows set up for work, I also get caught in playing steam games
+on windows because well, F, if I got the windows installation, why not?
+He says.
+However, as soon as the clock strikes five and the workday is over, I hit the switch
+on my desktop and boot into Linux.
+The best way I can describe that moment is coming home from a hard day's work and throwing
+off a stiff suit before putting on your sweatpants and cracking up a cold one.
+Heading out to the garage to restore that car or something like that, Linux will always
+fight me, which is to be expected since I have a multi-headed setup with three monitors
+of different sizes and resolutions.
+And I'm also sending my sound over HDMI to the one of the monitors connected to my Nvidia
+card.
+In other words, I'm begging for trouble with broken X, but that's fine.
+That's part of why I love it, because when stuff breaks and has to be fixed, that's when
+you learn how it works, why it broke, and how you can configure it better than before.
+Hell, half the time I'm almost hoped for something to behave unexpectedly, so I'll have a reason
+to sit down and have a puzzle to solve, he says, walking out knowing a lot more than
+I did before.
+And I think it's one of the hidden charms that keeps a lot of people away from the platform.
+Oh, okay.
+He says, and that allowed me to move quite quickly from hand-holding Ubuntu installation
+to running two servers, a laptop, and a desktop under arch.
+I had everything just working.
+I might have gotten bored and jumped back full-time to Windows, but now with the challenge,
+I press on.
+He says, most people can live with Linux.
+Tinkers can hardly imagine living without it.
+Also, all this time spent on Linux has taught me a few still valid tricks on how punching
+my Mac in the face through the terminal when it's ill-behaved.
+Nice.
+Which is also a reward to itself, he says.
+Keep up the good work.
+Once again, thanks for the great show, Carl.
+Good time.
+I'm going to be honest.
+I think one of the things that keeps me on Linux is the tinkering factor.
+Yeah, I mean, for me, well, see, for me, I think it's different.
+It's the consistent behavior.
+And like I said, what drove me to it initially was the fact that I was watching, I don't
+want to say de-evolution of humanity, but it felt like it at some days, to where people
+were not only being dumbed down using these other operating systems, but quite honestly,
+it was like it was more operating system than they needed, that Linux could in fact fill
+these needs.
+And a lot of people, when I actually retired from it, I switched them over to Linux, and
+then occasionally provide some remote support, and it works out really well.
+I don't have the problems I used to have with it.
+So different strokes, different folks.
+In fact, to put it all in perspective, Terence wrote in, and the headline was...
+Oh, go ahead.
+Yeah, Matt, I completely agree with that.
+If you're going to install Linux onto someone's laptop or computer, definitely install Team
+Viewer.
+So when you do...
+Oh, yeah.
+Yeah.
+So you could just...
+It takes two seconds.
+Team Viewer in, click, click, done.
+And you sort that PC out.
+Exactly.
+Yeah.
+Yeah.
+Or Splashtop.
+Yeah, Splashtop.
+Remote access, regardless of what system they're running.
+Yeah.
+Exactly.
+Yeah, totally.
+That was a real game changer for a lot of folks, for sure.
+Mm-hmm.
+You know, all of that's going to get real crappy, by the way.
+I believe.
+Yeah.
+I believe that Landon and Mir both proposed to make those remote viewers much more challenging.
+Well, that's important.
+Yeah.
+Because, you know, I mean, we have something we can really be proud of, but let's break
+it.
+Good news, everybody.
+Yeah, right.
+It's like, okay, Dr. Nick.
+Good to know.
+And then we'll have to go back into the virtual machine remoting.
+Yeah.
+You know, I help people out in Birmingham and stuff on Team Viewer.
+Team Viewer is like a must if you're trying to wean someone off like weaned Hazel Mack.
+Yeah.
+It really is, yeah.
+You've got to have that hand-holding experience.
+Yeah, I have not used Team Viewer as much because I don't like the... Isn't the client
+on Linux a wine app?
+It is a wine, it's a self-contained bottle, yeah.
+Yeah, yeah.
+Yeah.
+And see, with Splashtop, they actually have a native Linux app, and I just... I use that
+to get into my mom's machine, and it's click, click.
+You know, it's so fast.
+I like that.
+So in terms of... You mentioned Mir and remote desktoping.
+That won't be a problem for a while because the next LTS release we're going to is going
+to still have X.
+So for the next five years after 2014, it's not a problem.
+Right.
+Yeah, true.
+Yeah.
+That's a good point.
+I mean, I guess that's the silver lining.
+Good enough for me?
+Good enough.
+Whalen, however, proposes to introduce that problem.
+They are working on...
+Yeah, those guys.
+Oh, come on.
+Whalen at Whalen today.
+Actually, I think the Whalen guys are working with somebody from one of the VNC groups to
+figure something out, but it is good times.
+But I think all of this... I think we all need a little perspective right now.
+So Terrence writes in.
+He says, back in my day, insert old man's voice, back in my day, when I installed Linux,
+there was a distro called Slackware, and it was an unholy beast in its infancy during
+the late 90s.
+One of my beloved 386 XSs.
+It took 10 hours to compile the Linux kernel, and one misstep would ruin your install.
+Consider yourselves lucky whiny Nancy boys that you even have a window manager or a graphical
+settings manager.
+There's no Google back then.
+All I had was a 500-page Slackware book that came with way too many floppy disks for the
+installation.
+Installing Linux...
+Yeah.
+We want it, Nancy boy.
+That won me over.
+Installing Linux back in those days was a blast because it was an adventure with numerous
+pitfalls.
+You used Linux with pride because it was your baby made with your sweat and tears.
+Linux is far from perfect, but I feel sorry for people who are locked up in Apple and
+Microsoft's jails.
+They are narrowing their dimensions of yourselves every day, and eventually all that will be
+left with their services that they'll sell at a premium.
+Linux is the wild, wild west of operating systems, and may God bless Linus.
+Wait.
+Linus is our God.
+Terrence.
+Wow.
+Tell us how you really feel.
+Praise Linus.com.
+Yeah.
+Really.
+Yeah.
+I like to hold you.
+That was pretty good.
+Thank you.
+Thank you.
+I was just connecting with him there.
+Yeah.
+So I have one... We're getting a little tight on time, but one of the things that we've
+been looking forward to on the Linux Action Show is getting our hands on that new Leopard
+Extreme from System76.
+Oh, yeah.
+Well, so we just got word from System76.
+It's better than that.
+Oh, yeah.
+We're also going to get the new Kudu, right?
+That's what it's called, the Kudu?
+Yep.
+Kudu.
+And we're going to get their Ultrabook with a brand new keyboard arrangement that they've
+just set up for it based on their purchaser feedback.
+So I thought I'd ask you guys, as we get ready to review these... And I'm going to start
+with Matt to give the mumble room time to think.
+Matt, what for you... If you were going to buy a computer, what are some of the key things
+you need in a Linux workstation?
+Well, and I think we already know that, obviously, compatibility is already set with Ubuntu, so
+that's a no-brainer.
+That's done.
+But I think a keyboard's a really big thing for me.
+Keyboard and the actual touchpad placement itself, how that feels.
+Do those keys feel responsive?
+Are they working for me?
+Because I'm really crazy.
+So if you were in the market right now, would you buy a desktop or a laptop?
+Based on current needs, laptop and a stone cold second, yeah.
+But based on if I needed both, I would probably say desktop first, because I'm kind of weird
+like that.
+But yeah, based on current needs, totally laptop.
+And I'm really, really specifically weird when it comes to keyboards and laptops.
+And System76 has been really good overall.
+If I only had one keyboard, I wasn't really in love with, but most of them are really
+awesome.
+All right.
+Just a couple of things for me, I would love... Because you don't really see it on a laptop
+keyboard.
+I'd love a keyboard with backlight.
+I could see the keys and stuff.
+Yeah, yeah, right.
+I understand that.
+You guys are all really focused on laptops.
+Yeah.
+I want the Bonomo.
+Screen resolution or laptops suck.
+They still suck.
+Many of them not even 1080p.
+Yeah.
+Yeah.
+The high resolution on the laptop's important.
+Sure.
+I mean, I got a tablet in a higher screen resolution and most tablets, not to use laptops
+on the market.
+It's ridiculous how low screen resolution laptops are.
+So what about on the desktop though?
+Like what do you look into for a desktop, like for the ultimate desktop?
+Quiet.
+Yeah.
+That's what I was thinking too.
+Quiet.
+That's what I was thinking.
+Quiet and power.
+And also not having to wonder, okay, how much of what am I maxing out now?
+Or do I have enough resources to do this?
+So expandability.
+Yeah.
+Powerful.
+Yeah.
+Power and expandability and quiet.
+Those are two different things.
+Case quality too.
+Case quality.
+Case quality.
+While I want the quietest computer, I want the loudest clacky keyboard to show that I'm
+actually working.
+Right.
+I know what you mean.
+Old IBM style clacky.
+Yeah.
+They've got to get the jerry switches.
+There's a few people in Mumble with very loud keyboards, so I can.
+Yeah.
+Yeah.
+Yeah.
+On TechSnap, I often joke that Alan's keyboard is the third host because he's got one of
+those Razer with the clackies.
+Yeah.
+So this is what I'm thinking for a desktop's quiet expandability, case quality.
+It sounds like on a laptop, we got keyboard, backlight.
+It's funny because so far nobody said battery life or wireless.
+Oh, that's a good point.
+Yeah.
+The battery life, yeah.
+That would be helpful.
+I always want an SSD no matter what, desktop or laptop.
+No way I'll ever go to a hard drive now.
+SSD is kind of getting just the only way to go now.
+The only feature on a laptop that is a go no go for me is if the keyboard doesn't have
+a touch point on it, I don't want it.
+Like the little nipple?
+Yep.
+If it hasn't got one, I don't want it.
+Really?
+Yeah.
+I've spoken to the System76 guys about it and I was like, dude, last time I bought a
+laptop, I bought a ThinkPad and if you had a nipple on your laptop, I would totally have
+bought it.
+I'm the opposite, I hate those nipple things.
+It hurts my finger.
+Yeah.
+Well, with all due respect, you're wrong.
+For me, I feel like I should be buying it dinner first or something.
+It just feels weird.
+It just feels incredibly intimate and awkward.
+I don't know.
+Pope is all about his nipples.
+It's how you caress it, whether it's good or not.
+I'm Scaramanga.
+I have three.
+For Chandler.
+Going back to the Touchpad, I would say the clickable buttons, I cannot stand Touchpads
+without clickable buttons.
+Right.
+Actual clicks.
+That's how my H is.
+You need that tactile.
+Yeah.
+Yeah.
+Yeah.
+Yeah, the Trackpad.
+I feel like right now, which is funny because it doesn't match what you're saying, even
+though I completely agree with you, I feel like the only people who have the one button
+Trackpad really great is Apple because even on my Bonobo, I totally can use it.
+In fact, I appreciate that it has two finger touch scrolling because that is a very natural
+kind of way to scroll a web page and stuff.
+But generally, if I'm going to sit down like what I'm doing last, and it's partially how
+I sit too, but I still prefer to go to a physical mouse.
+That's why I'm... Is the Trackpad or the nipple, is it really that big of a deal?
+Is it a make it or break it?
+It's kind of like the Touchpad that you can do like a zoom in for like a Google Earth
+and we can see the multi-touch on the Touchpad.
+The nice thing about the nipple is with the middle mouse button, you can hold your... If
+you imagine holding your index finger on the nipple and your thumb on the... Don't... Steady.
+And your thumb on the middle mouse button, you can use that for scrolling.
+Usually when I'm laying on the sofa and I've got my laptop, I'm making such minimal movement,
+I look like I'm dead.
+So your thumb is on the Trackpad still?
+So your thumb is scrolling on the Trackpad?
+No, the middle mouse button.
+It's got three mouse buttons below the space bar.
+Oh, right, right, right, right.
+Okay.
+So for you, it's about effective behavior.
+It's about an effective experience.
+Totally.
+Yeah.
+Okay.
+Okay.
+Hmm.
+I have my... The only thing I want on a laptop is the button to turn off the Trackpad.
+Right.
+Oh, yeah.
+Yeah.
+Yeah.
+You can just install an app for it.
+I forget what the hell it is, but yeah.
+Yeah.
+I have... It's funny.
+I have a button on my Bonobo.
+If I hold down Function F1, it turns off the Trackpad.
+And if I hold down Function 1, Function 1 turns all the fans on at full blast, which
+is funny because-
+Oh, really?
+The Bonobo is quite well ventilated.
+It has two big fans in the bottom of it, and then it has these big vent outtakes in the
+back.
+So I've never actually heard it kick up to full fan speed until the day I accidentally
+pressed Function 1, and I was like, whoa, this thing really is... I was going to take
+off.
+It's like air wolf in your lap or something.
+Right.
+But now that I know, it's like every now and then I'm like, yeah, I'm about to do something
+that's a lot of work.
+Maybe I'll just kick the fans up for a second.
+Yeah.
+And then I just smack it.
+That's pretty cool.
+That's pretty cool.
+Rev the engine, Matt.
+Vroom, vroom.
+Yeah.
+And there's also those apps you can install that will actually keep it... When you're
+typing on your keyboard and your touchpad's being bumped into, you need to be able to
+disable that, too.
+Yeah.
+So sorry, I didn't mean to go there.
+I was talking about laptops, so make sure it has enough ports, too, because a lot of
+times you want to get one or two USB ports in a one-way...
+Oh, yeah.
+Okay.
+Let's talk about it.
+Let's talk about it.
+That's a big one, actually.
+For both workstations and laptops.
+So let's first do laptops.
+I'm writing all this down for our review.
+So okay, on laptops, connectivity.
+So we're talking USB is a must.
+Now, USB... Now, remember, we're getting less and less ports these days, so we've got to
+keep it realistic.
+Yeah.
+HDMI out?
+Is that a must?
+No.
+Not for me.
+Yeah.
+Yes.
+Whoa.
+That's what I was going to say the other week.
+I want USB ports just like... I want it to look like a UFO.
+So maybe we'll just put the difference and say we have to have good video out.
+Yeah.
+So video out.
+Yeah.
+Because it's really handy if you've got like HDTV, you've got Netflix or... Well, because
+it works on Linux now.
+You can just shove your laptop, put it underneath your TV, connect a wireless keyboard or mouse,
+and then you can just sort of like surf on your laptop and use it as sort of like a home
+feature PC.
+Oh, yeah.
+Basically.
+Yeah.
+So if it's got Bluetooth built in, that's amazing because I just flip on a Bluetooth
+mouse and go.
+Firewire at 100.
+The bacon flaps is mentioning none of us... Nobody said anything about price yet.
+I guess that's a scaling kind of requirement.
+That's a scaling thing.
+It depends on what you value.
+But honestly, I want this thing to look like a hub.
+I want USB ports all the way around it.
+I mean, don't talk... I want danglers dangling and I mean, yeah, I'll give up HDMI any day
+because I don't need it.
+No, sorry.
+What would you use the USBs for?
+I never know.
+I never need them until I'm missing them.
+It's wicked.
+Yeah, that's the thing.
+See, that's... I have the same question because my laptop only has two USB ports.
+Mine has three.
+Mine is filled with a Bluetooth.
+How about a DVD drive?
+How about a DVD drive?
+How about a DVD drive?
+I've just bought a seven port USB three hub from Amazon that's arriving tomorrow because
+my laptop only has one USB three port and I want more.
+More.
+Yeah.
+Yeah.
+Well, I have like an old 2008 era system 76 laptop here and it's got four, which is
+good but I would be perfectly happy with like 12, eight, you know.
+Yeah, that'd be good.
+What's people's views on a DVD drive?
+I'm not really that big anymore.
+Not anymore.
+Optical is dead.
+All right.
+Legacy media.
+Optical is dead.
+All right.
+So I go with that.
+I don't keep it around.
+I keep it around.
+That's just because I burn DVDs for people.
+Well, that's why you need that USB port.
+Yeah.
+And I have external what not for that.
+That's what I do now too.
+And that's true.
+So, um, you, so, uh, you know, when I, when I expect the bonobo, I went the direction
+of getting a drive, a disc drive.
+And now looking back on it, I do wish I had gone with like a third disc in that spot because
+like with the Cuda machine, they're saying this, you can actually do an S there.
+They have two slots for SSD for drives and then they have, you can swap out the optical
+bay for a drive if you want to.
+So you can do three SSDs and a laptop, which if you think about it, like you could, you
+could dedicate an entirely separate OS to one of those drives if you wanted to.
+You could do anything.
+So yeah, I agree.
+Optical is probably dead and I'm going to, all right, so that's a good list right there,
+you guys.
+Thank you.
+So that'll be, just kind of wanted to get some updated requirements from folks.
+I was going to have passive 3d, but that's a little bit different for laptops.
+There is one, there's, you know, your microphone and headphone port merged together nowadays
+on the more recent.
+Yeah, they are.
+You're right.
+Audio jacks.
+Yeah.
+So if you want the two separate jacks or one which is combined together.
+Right.
+The one that's combined together, you can get an adapter for pretty cheaply on Amazon.
+So that's really not too much of a factor.
+Yeah.
+Well, some people have these very specific mics, simply just how they don't ever want
+to change programs.
+Sometimes they have this special microphone that they want to plug in, which is not, you
+know, like what they're used to.
+Very true.
+True, true, true, true.
+All right.
+Anything else for me?
+Yeah.
+Make sure, like, also like no weird proprietary connectors, like ethernet adapters.
+Oh, yeah.
+Right.
+Oh, yeah.
+Got to have ethernet.
+I'm gonna write that down.
+You got to have ethernet.
+I think.
+Serial port?
+Absolutely.
+This is totally serious.
+I would love to have multiple eSATA USB combos.
+Yeah.
+Yeah.
+Yeah.
+That's a nice to have for sure.
+I love having eSATA on the Bonobo.
+Just curious.
+You know, like the old laptops used to have these PCIe slots.
+Do anyone use them anymore?
+No.
+PCMCIA.
+Just for the...
+Yeah.
+No.
+Just for, like, what?
+For the wireless.
+I'm staring at an old Orinoco wireless card.
+SSD drives on there.
+I've seen some hacks where people set out Nvidia, like, graphics cards using the PCIe
+socket on a laptop.
+Oh.
+That'd be kind of wild.
+Yeah.
+Q5 Sys in the chat room votes for parallel port.
+All right.
+Well, we'll...
+Now, I don't think we're gonna have these in time for next LAS.
+I think they're gonna...
+I think they're arriving Monday or so.
+So we'll probably have them in the following LAS.
+But I'm looking forward to it.
+So I think what we're probably gonna do is we'll go after the laptops in one episode
+and then we'll abuse the heck out of the Leopard in the following episode after we've
+thrown a week of just battery of battery of batteries of tests at it.
+So I think that'll be good.
+All about punishing it.
+Yeah.
+Yeah.
+Absolutely.
+All right.
+Well, thank you to our Mumble Room for joining us today.
+And thank you to Solomon from the Docker Project for calling in at the beginning of the
+show.
+That was great to get an update from them.
+And don't forget, guys, you can watch the show live on Tuesdays.
+We begin at 2 p.m. Pacific over at jblive.tv.
+Show up about a half hour early to get the pre-show.
+And you can contact us.
+Go over to jupitabroadcasting.com, pop that contact link, and just use Linux Action Show.
+I don't even know if we have a separate entry for Unplugged in there.
+And then fill out the contact info and send it in and we'll read it on a future show.
+We'd love to get your follow-up.
+That way we have a thread through each episode.
+All right, Matt.
+We'll have a great week.
+I'll see you on Sunday, okay?
+Sounds good.
+See you then.
+All right, everyone.
+Well, thank you so much for tuning this week's episode of Linux Unplugged.
+Don't forget to download us, subscribe to us, and even rate in some of those other places,
+including Stitcher now.
+All right, everyone.
+Thank you so much for tuning this week's episode of Linux Unplugged.
+See you next week.

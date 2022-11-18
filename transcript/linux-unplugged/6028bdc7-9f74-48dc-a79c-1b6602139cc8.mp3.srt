@@ -1,0 +1,5332 @@
+1
+00:00:00,000 --> 00:00:05,520
+Wes found something that I'm gonna be using the heck out of, but potentially, it's YouTube DL
+
+2
+00:00:05,520 --> 00:00:11,920
+web server. It's a web server for downloading YouTube videos. You fire up a Docker container,
+
+3
+00:00:11,920 --> 00:00:17,520
+you give it a YouTube URL, and it's pretty much off to the races. You then are re-hosting your own
+
+4
+00:00:17,520 --> 00:00:22,640
+downloaded instances of the YouTube videos. And I think right now one of the things it does is
+
+5
+00:00:23,280 --> 00:00:28,320
+it re- or transcodes, I guess would be the way to put it. Not re-encode, but it transcodes
+
+6
+00:00:28,320 --> 00:00:33,680
+them to mp3. So then you can download them from a web UI as mp3 files, which kind of be a cool way
+
+7
+00:00:33,680 --> 00:00:37,760
+to convert long videos into like a podcast. You know, and there are things to do this,
+
+8
+00:00:37,760 --> 00:00:43,200
+various sites out there or bookmarklets or just the command line. But if you're like me,
+
+9
+00:00:43,200 --> 00:00:47,360
+you have others in your life who frequently have sources that are YouTube videos. I can't be
+
+10
+00:00:47,360 --> 00:00:53,280
+bothered to ffmpeg them mp3s all the darn time. So here you go. Pop it in that web UI and you're
+
+11
+00:00:53,280 --> 00:00:57,120
+off to the races. Now, of course, right now you can't really choose, you know, does it give you
+
+12
+00:00:57,120 --> 00:01:01,440
+the full video? And there's a ton of options. There's dash videos, there's, you know, YouTube
+
+13
+00:01:01,440 --> 00:01:05,840
+has a lot of downloading options. So hopefully those features show up in a later release. I've
+
+14
+00:01:05,840 --> 00:01:11,680
+got a very, oh, so shameful bash version of this that I have been using. So maybe after the show,
+
+15
+00:01:11,680 --> 00:01:15,840
+I can replace it. Yeah, I love YouTube DL. And this just makes it even better and more
+
+16
+00:01:15,840 --> 00:01:21,520
+accessible to friends and family and lazy Chris, which lazy Chris always appreciates making things
+
+17
+00:01:21,520 --> 00:01:37,440
+a little easier. This is Linux Unplugged, episode 268 for September 25th, 2018.
+
+18
+00:01:39,440 --> 00:01:43,920
+Ooh, welcome to Linux Unplugged, your weekly Linux talk show that's got a studio full of brown bears.
+
+19
+00:01:43,920 --> 00:01:49,280
+My name is Chris. My name is Wes. Hello, Wes. We have a packed show today, multiple guests
+
+20
+00:01:49,280 --> 00:01:54,800
+stopping by the show, some community news, and something that we don't get to enough,
+
+21
+00:01:55,680 --> 00:02:00,000
+the audience's feedback and emails and questions. We'll do a little bit of that too, do some follow
+
+22
+00:02:00,000 --> 00:02:06,080
+up on some recent topics. And I'll tell you about a new rig that just showed up in the studio.
+
+23
+00:02:06,080 --> 00:02:10,560
+It's a monster. I haven't told you about it yet. So I'm excited. I'll tell you in the show,
+
+24
+00:02:10,560 --> 00:02:16,640
+you'll get to find out. So, and maybe the most important thing at all, on top of all this,
+
+25
+00:02:16,640 --> 00:02:21,680
+is after the show, we're going to do an unplugged barbecue. Noah's in town. He's hanging out at the
+
+26
+00:02:21,680 --> 00:02:26,880
+studio. Wes is here. He's brought his pups. We're going to go get Levi, go get some food.
+
+27
+00:02:26,880 --> 00:02:31,040
+There's some meat in the cooker right now. This is prep for the big public barbecue we
+
+28
+00:02:31,040 --> 00:02:35,840
+want to do once I'm back up on my feet, feeling better. Got to get it right in before the holidays.
+
+29
+00:02:35,840 --> 00:02:39,840
+So the timing is going to be tricky. So this will be our test run at a big barbecue,
+
+30
+00:02:39,840 --> 00:02:43,440
+a big community barbecue. We'll do a trial. I mean, you got to rehearse if you want to get it right.
+
+31
+00:02:43,440 --> 00:02:47,600
+You already got the sous vide going. Yeah, that's right. All right. Well, before we get any farther
+
+32
+00:02:47,600 --> 00:02:51,760
+into the show, you know what we got to do. We got to bring in that virtual lug. Time,
+
+33
+00:02:51,760 --> 00:03:02,640
+appropriate greetings, mumble room. Amazing. We have a great turnout in there. Mr. Dahr is back.
+
+34
+00:03:02,640 --> 00:03:09,040
+Brent's there, of course. Cassidy from Elementary OS. Longtime contributor Eric is there. Hayden is
+
+35
+00:03:09,040 --> 00:03:12,320
+here from an interesting project we'll be talking about in just a little bit. Mr.
+
+36
+00:03:12,320 --> 00:03:18,800
+Minimac, true contributor to the, I mean, needs no introduction. Just here all the time. And
+
+37
+00:03:18,800 --> 00:03:23,680
+returning to the show, Mr. Ryan Sipes. Ryan, welcome back to the show. It's good to be back.
+
+38
+00:03:23,680 --> 00:03:29,120
+We got Sean in there and TechMav as well. So we got a big crew today. We're really looking
+
+39
+00:03:29,120 --> 00:03:33,920
+forward to today's episode. So let's start with the thing that people are sort of the most on edge
+
+40
+00:03:33,920 --> 00:03:39,280
+about this week. We'll just get this out of the way. People are pretty upset that Google seems to
+
+41
+00:03:39,280 --> 00:03:45,280
+be, quote, secretly logging users into Chrome whenever they log into a Google property. So you
+
+42
+00:03:45,280 --> 00:03:49,920
+go into Docs, you go to Gmail. I do that all the time. You go to YouTube. Yeah, right. I mean,
+
+43
+00:03:49,920 --> 00:03:55,120
+what don't they own? Starting with Chrome 69, whenever a Chrome user would access a Google
+
+44
+00:03:55,120 --> 00:04:00,720
+own site, the browser would take that user's Google identity and log the user into the Chrome
+
+45
+00:04:00,720 --> 00:04:06,480
+browser account system. Now with this revelation, obviously there's a large number of users who are
+
+46
+00:04:06,480 --> 00:04:11,600
+just kind of angry. It feels like a sneaky behind the back modification. And you worry that it could
+
+47
+00:04:11,600 --> 00:04:16,400
+allow Google to link your traffic to a specific browser and then to a specific account. And as
+
+48
+00:04:16,400 --> 00:04:20,240
+someone with multiple Google accounts, there's some things I searched that, well, maybe not
+
+49
+00:04:20,240 --> 00:04:25,680
+necessarily bad. I don't need on my work account. Right. Well, and Dar in the mumble room today was
+
+50
+00:04:25,680 --> 00:04:30,240
+just talking about on the pre show about how he's on a machine that shared by multiple people. So
+
+51
+00:04:30,240 --> 00:04:35,120
+how does that work now when multiple people sit down? Is it bouncing between Google accounts every
+
+52
+00:04:35,120 --> 00:04:38,960
+time you change a Google sign? Somebody else sits down, logs into Gmail and now it's a different
+
+53
+00:04:38,960 --> 00:04:42,480
+account signed into the browser. That's a very good question. Now there is something we should
+
+54
+00:04:42,480 --> 00:04:48,000
+be clear about here. Google engineers have clarified that this auto login operation does not
+
+55
+00:04:48,000 --> 00:04:52,560
+start the process of synchronizing local data to Google servers. That still requires you to
+
+56
+00:04:52,560 --> 00:04:58,400
+explicitly click something. Right. Exactly. That's a big difference. Yeah. Oh, sorry. I forgot to
+
+57
+00:04:58,400 --> 00:05:03,120
+call out Alex. Mr. Ironic Badger is also sorry, Alex. I didn't mean to skip you. I just don't read
+
+58
+00:05:03,120 --> 00:05:06,880
+the screen very well from that far away. I know, you know, and I, we and I were just, we're just
+
+59
+00:05:06,880 --> 00:05:11,360
+having a nice chat too. So, well, I'm very glad you're here. It's nice to see you. Alex, of course,
+
+60
+00:05:11,360 --> 00:05:16,560
+was, he was joining us for quite a while after Texas Linux Fest, but then took some time off to
+
+61
+00:05:16,560 --> 00:05:22,800
+travel to the States and move to the States, uh, down in a Raleigh area. So, and I'm now dealing
+
+62
+00:05:22,800 --> 00:05:30,800
+with establishing a us credit history, which is unbelievably pain in the ass territory. Welcome.
+
+63
+00:05:30,800 --> 00:05:37,840
+Our sympathies, sir. Um, then there's another thing that's now brewing today. Uh, Christoph
+
+64
+00:05:37,840 --> 00:05:43,120
+Tavin tweeted out that when you clear all cookies in the new version of Google Chrome,
+
+65
+00:05:43,120 --> 00:05:50,240
+it clears out all cookies except for the Google cookies. Um, and to be clear, what it actually
+
+66
+00:05:50,240 --> 00:05:56,000
+seems to do is it wipes out all of the cookies on your file system and then immediately recreates
+
+67
+00:05:56,000 --> 00:06:01,120
+the cookies for Google's properties and repopulates them. Interesting. Now I did see some defense out
+
+68
+00:06:01,120 --> 00:06:04,960
+there. There's clearly some, some privacy implications here that people are rightfully
+
+69
+00:06:04,960 --> 00:06:08,800
+concerned about. I did see some people trying to justify it from the developer side of you,
+
+70
+00:06:08,800 --> 00:06:12,240
+you know, making the argument that, well, users are confused that they're logged into Chrome,
+
+71
+00:06:12,240 --> 00:06:16,880
+but they're not logged into our Google sites and vice versa. And then, well, once you,
+
+72
+00:06:16,880 --> 00:06:20,560
+if you are logged into the browser and you do clear your cookies on the very next request,
+
+73
+00:06:20,560 --> 00:06:24,000
+it's pretty much going to go check and be like, Hey, am I signed in? It's going to agree to grab
+
+74
+00:06:24,000 --> 00:06:28,080
+those cookies. So you can see them being like, well, it's simpler if we just warm them up front
+
+75
+00:06:28,080 --> 00:06:32,560
+that maybe those cookies aren't, are always going to be there. Yeah. It's, it's sort of like, uh,
+
+76
+00:06:32,560 --> 00:06:38,720
+in iOS when you turn on airplane mode now, it, it leaves Bluetooth on to connect to your watch or
+
+77
+00:06:38,720 --> 00:06:43,600
+your AirPods. There's not like true airplane mode anymore. And what that feels like to me
+
+78
+00:06:43,600 --> 00:06:52,160
+is design and product overruling engineering. I think the most accurate and cutting criticism
+
+79
+00:06:52,160 --> 00:06:58,000
+about both of these changes is that when asked, Google engineers could not articulate a very clear
+
+80
+00:06:58,000 --> 00:07:03,440
+reason why this change has happened and why it was kind of snuck in, which causes people to lose
+
+81
+00:07:03,440 --> 00:07:09,280
+trust. I think they cannot say what it is because Google hasn't made this public statement about it
+
+82
+00:07:09,280 --> 00:07:14,640
+and generally contracts for them to do so. So they were limited in what they could legitimately say.
+
+83
+00:07:14,640 --> 00:07:18,880
+I mean, they are making some suggestions, but they all don't really pass the sniff test. Yeah.
+
+84
+00:07:18,880 --> 00:07:22,640
+And do you think you're right? I mean, at this point, Chrome feels a bit more of like a Google
+
+85
+00:07:22,640 --> 00:07:27,120
+product that happens to have a browser inside of it and less of like a browser first sort of thing.
+
+86
+00:07:27,120 --> 00:07:32,080
+And it was the good engineering of a lot of Google's products that, you know, made me switch
+
+87
+00:07:32,080 --> 00:07:36,080
+to Chrome for a long time is it was a great browser initially. And that was because of great
+
+88
+00:07:36,080 --> 00:07:40,720
+engineering. Does anyone know is Chromium also affected by that or only the Chrome
+
+89
+00:07:40,720 --> 00:07:46,000
+proprietary version? Most likely it will be. Looks like it is on Chromium now.
+
+90
+00:07:46,000 --> 00:07:49,520
+Now, but I've also heard a lot of people saying they're using a version of Chromium that avoids
+
+91
+00:07:49,520 --> 00:07:53,120
+all of this. I think there's some patches out there to remove that. Yeah.
+
+92
+00:07:53,120 --> 00:07:58,480
+Know that Debian's version actually disables the Google services unless you go there manually
+
+93
+00:07:58,480 --> 00:08:03,680
+and enable them. So. Okay. Only the Debian version or also the Ubuntu version?
+
+94
+00:08:03,680 --> 00:08:08,480
+I can't talk for other stuff. I haven't tested it. Okay. Okay. So I have to check that.
+
+95
+00:08:08,480 --> 00:08:12,800
+Now, Cassidy, you point out that this behavior isn't necessarily new for some group of users.
+
+96
+00:08:12,800 --> 00:08:18,640
+Yeah. As far as I know, this is how it's been from day one on Chrome for Android. Like, and it
+
+97
+00:08:18,640 --> 00:08:22,480
+maybe it was a little more forthcoming on Android when you sign in. It says, Hey, we're also going
+
+98
+00:08:22,480 --> 00:08:26,960
+to sign you into the Chrome browser to sync your bookmarks and everything. So I don't know if
+
+99
+00:08:26,960 --> 00:08:30,640
+people are freaking out about it here on the desktop, why that's very different from freaking
+
+100
+00:08:30,640 --> 00:08:35,360
+out about it on Android. Yeah. I guess it does make it more in line with the Android version.
+
+101
+00:08:35,840 --> 00:08:39,680
+That's an interesting point. It's kind of a weird one. Yeah. We have different conceptions on our
+
+102
+00:08:39,680 --> 00:08:44,640
+different devices, I guess. You know, practically speaking, the very first thing I do is I log into
+
+103
+00:08:44,640 --> 00:08:50,400
+the Chrome browser. So this is not necessarily a move that I find personally offensive. I am
+
+104
+00:08:51,360 --> 00:08:55,360
+dumb enough, I guess. I don't know what people would label me who think Google is spying on them
+
+105
+00:08:55,360 --> 00:09:01,040
+constantly, but I am willing to risk it. And I use the sync service. I sync my history and my
+
+106
+00:09:01,040 --> 00:09:07,360
+bookmarks because I find that to be a very useful feature of the browser. And it's a good sync
+
+107
+00:09:07,360 --> 00:09:15,040
+system, too. So I just have been all in from day one when they turned that on. So I don't really
+
+108
+00:09:15,040 --> 00:09:18,480
+find this to be offensive, but I do understand people that are concerned about it. And it's just
+
+109
+00:09:18,480 --> 00:09:22,640
+good to know, you know, and assess when you do have options out there, which is nice. So when
+
+110
+00:09:22,640 --> 00:09:27,120
+you're looking when you're weighing Firefox versus Chrome, this is another data point. And I think
+
+111
+00:09:27,120 --> 00:09:32,080
+it's an important one. Something else that I found really handy in the past has been play on Linux.
+
+112
+00:09:32,080 --> 00:09:37,520
+Play on Linux is a wrapper around a series of scripts to make it really easy to install a lot of
+
+113
+00:09:37,520 --> 00:09:44,480
+different Windows applications and use Wine. I've been wondering where does Play on Linux go now
+
+114
+00:09:44,480 --> 00:09:51,120
+in a post-proton world? How about that, Wes? As a saying, a post-proton world. I like it.
+
+115
+00:09:52,640 --> 00:09:57,920
+So where does Play on Linux go? And it appears that they're making some massive changes. Alpha
+
+116
+00:09:57,920 --> 00:10:05,280
+One is out this week, along with a Play on Mac build as well. And there has been some big changes.
+
+117
+00:10:05,280 --> 00:10:11,200
+Play on Linux version 5.0 Alpha has been completely redesigned, a new user interface,
+
+118
+00:10:11,920 --> 00:10:17,680
+and a new platform they're calling, I guess, Phoenix? Am I saying that right? Phonics? I'm the
+
+119
+00:10:17,680 --> 00:10:22,480
+worst. I'm just the worst. I shouldn't be allowed to speak. The new platform is, quote, decentralized,
+
+120
+00:10:22,480 --> 00:10:28,960
+Git-based, and improves their script engine greatly. The new Alpha has support for about 135
+
+121
+00:10:28,960 --> 00:10:33,760
+different games right now. They're also investigating using virtualization or container
+
+122
+00:10:33,760 --> 00:10:38,480
+technologies to improve the gaming experience. So, hey. That could be interesting if you want
+
+123
+00:10:38,480 --> 00:10:43,760
+to isolate a series of libraries or a specific version of Wine. There's a bottle system now,
+
+124
+00:10:43,760 --> 00:10:48,000
+but that's more at the software layer. So this would be more at the systems layer. Yeah, so
+
+125
+00:10:48,000 --> 00:10:53,200
+something to keep an eye on, playonlinux.com for more. I've used it on and off over the years. I've
+
+126
+00:10:53,200 --> 00:10:58,400
+also used Crossover quite a bit over the years. And now it's like, well, how can these projects,
+
+127
+00:10:58,400 --> 00:11:03,200
+Proton, how can these projects, Play on Linux, and Crossover Office, integrate Proton?
+
+128
+00:11:03,200 --> 00:11:07,120
+Yeah, right. Can they further the value add and make it even easier to get some great games on
+
+129
+00:11:07,120 --> 00:11:10,400
+Linux? I suspect there might be a way, at least, to take some of the upstream improvements that
+
+130
+00:11:10,400 --> 00:11:14,880
+have been in Wine, and we'll probably start seeing those benefits. I'm curious to see where
+
+131
+00:11:14,880 --> 00:11:20,080
+that goes. There's another thing I'm also watching to see where this goes. It sort of seems to me
+
+132
+00:11:20,080 --> 00:11:25,920
+like elementary OS is positioning themselves as a family-safe, family-first distribution.
+
+133
+00:11:25,920 --> 00:11:32,160
+And I started thinking that after I read a post by Cassidy on their Medium blog about
+
+134
+00:11:32,160 --> 00:11:36,960
+App Center and content ratings that are coming in Juneau. They say, starting with Juneau,
+
+135
+00:11:36,960 --> 00:11:41,920
+Cassidy writes, will display a content warning when a user goes to download an app that meets
+
+136
+00:11:41,920 --> 00:11:48,320
+or exceeds a certain level of the OARS data. Think of that as like nudity, violence, and language
+
+137
+00:11:48,320 --> 00:11:53,280
+content. In addition, these apps will not be featured on the App Center homepage as recommended
+
+138
+00:11:53,280 --> 00:11:58,480
+installs. They will remain in the search results and category pages, so if you really want to find
+
+139
+00:11:58,480 --> 00:12:02,640
+them, they're definitely still there. And we should note here that they want to be clear that
+
+140
+00:12:02,640 --> 00:12:06,720
+elementary is not intending to be the content police. They could never make as informed of a
+
+141
+00:12:06,720 --> 00:12:10,560
+decision about what's acceptable as, you know, yourself or a parent of a child.
+
+142
+00:12:10,560 --> 00:12:15,760
+This is just a small step toward more robust content controls and informed consent, as they put it,
+
+143
+00:12:15,760 --> 00:12:19,600
+for their users. So Cassidy, this seems like an interesting differentiating feature of the
+
+144
+00:12:19,600 --> 00:12:25,680
+distribution, sort of making it safe for parents to deploy elementary OS for their kids. And it
+
+145
+00:12:25,680 --> 00:12:29,920
+seems like this could go much deeper than just the App Center too. Yeah, exactly, and that's the
+
+146
+00:12:29,920 --> 00:12:36,880
+plan. We've had parental controls in Loki now for a couple years, and it's, you know, it's kind of a
+
+147
+00:12:36,880 --> 00:12:44,160
+first take on the concept where you can set up certain restrictions for apps for a managed account.
+
+148
+00:12:44,160 --> 00:12:49,600
+But I think we're looking at these digital wellness features that we've talked about that are coming
+
+149
+00:12:49,600 --> 00:12:54,640
+to like Android and iOS, and we're kind of reconsidering how we could build this feature into
+
+150
+00:12:54,640 --> 00:13:00,880
+the OS itself for both child accounts, but also for people to be able to control what they're
+
+151
+00:13:00,880 --> 00:13:06,640
+comfortable installing or seeing in the OS. I was talking to somebody recently, and they said that
+
+152
+00:13:06,640 --> 00:13:12,640
+their friend has PTSD from like combat-related trauma. And so that's an example I gave here of,
+
+153
+00:13:12,640 --> 00:13:18,880
+you know, if you want to prevent yourself from seeing very violent content, you should have the
+
+154
+00:13:18,880 --> 00:13:23,680
+control over your OS to do that. And it's always in your hands to be able to do that.
+
+155
+00:13:23,680 --> 00:13:28,320
+And Ryan, you also are making the case it's not just for kids. Yeah, I just wanted to pair what
+
+156
+00:13:28,320 --> 00:13:35,440
+Cass said. We actually had a conversation about this the other day. My girlfriend is really
+
+157
+00:13:35,440 --> 00:13:42,560
+careful about this stuff, because she was over in Lebanon assisting Syrian refugees and was exposed
+
+158
+00:13:42,560 --> 00:13:49,520
+to a lot of, you know, violence. And so it really triggers her to see, you know, really graphic
+
+159
+00:13:49,520 --> 00:13:55,600
+violence. And so I think a lot of people benefit from being able to set what they're comfortable
+
+160
+00:13:55,600 --> 00:14:02,080
+with seeing and appearing in front of them on their own machine when they're using it.
+
+161
+00:14:02,080 --> 00:14:05,200
+Yeah, I hadn't thought about that, but that does make that makes a ton of sense.
+
+162
+00:14:05,200 --> 00:14:08,080
+It's not an angle we usually think of, right? Like, control usually means like,
+
+163
+00:14:08,080 --> 00:14:12,480
+I want unrestricted things, but restrictions for yourself, well, that's still control.
+
+164
+00:14:12,480 --> 00:14:17,840
+It's a new idea that we've played with a lot recently, mostly in the mobile context. Like,
+
+165
+00:14:17,840 --> 00:14:21,520
+should I start using the built-in OS features to limit screen time in the evening?
+
+166
+00:14:21,520 --> 00:14:26,320
+In some way, things like secure boot are almost analogous.
+
+167
+00:14:26,320 --> 00:14:31,200
+Oh, yeah, yeah, you're right. We have sort of been building this, it's like, I don't mind
+
+168
+00:14:31,200 --> 00:14:35,200
+optional controls that I have total authority over that I can choose to put in place or not.
+
+169
+00:14:35,200 --> 00:14:37,280
+Like, that's totally fine in my book.
+
+170
+00:14:37,280 --> 00:14:41,200
+It points out problems in human social structures, right? We get a little nervous when we know those
+
+171
+00:14:41,200 --> 00:14:45,840
+controls are there and easy to use, especially when we're not in a situation where we have total
+
+172
+00:14:45,840 --> 00:14:46,400
+control.
+
+173
+00:14:46,400 --> 00:14:51,760
+I also think it's really important that we build these tools to put the control in the hands of
+
+174
+00:14:51,760 --> 00:14:56,960
+the users because if we don't build it in that way, I think there's too much of a temptation
+
+175
+00:14:56,960 --> 00:15:01,280
+for people to control it at the service level. For example, if, you know, we thought, oh,
+
+176
+00:15:01,280 --> 00:15:05,680
+we shouldn't have explicit content in the store, we might restrict all explicit content from the
+
+177
+00:15:05,680 --> 00:15:08,800
+whole app center. And I don't think that's the right way to go.
+
+178
+00:15:08,800 --> 00:15:13,360
+Ah, I see what you're saying is it also makes room for the other way. So there can be
+
+179
+00:15:13,360 --> 00:15:16,880
+content that is explicit, but there is an easy way for people to opt out of it.
+
+180
+00:15:17,600 --> 00:15:23,600
+Right. So that's a great point. So Cassidy, I guess this is one of many new things that are
+
+181
+00:15:23,600 --> 00:15:26,960
+coming to Juno and we're kind of going to see this in the early stages, it sounds like with Juno.
+
+182
+00:15:26,960 --> 00:15:32,080
+It'll be specific to the app center in Juno, but then future releases expanding from there?
+
+183
+00:15:32,080 --> 00:15:36,160
+Yeah, the idea is kind of this tiered progression. At first, we're doing this kind of minimum
+
+184
+00:15:36,160 --> 00:15:41,200
+viable. It's just a warning that says, hey, here's a heads up, according to the data in the app,
+
+185
+00:15:41,200 --> 00:15:45,840
+that it has some explicit content. But after that, I think, yeah, we're going to look at
+
+186
+00:15:45,840 --> 00:15:52,240
+really building in both in app center itself, listing out what actual ors tags are there.
+
+187
+00:15:52,240 --> 00:15:56,480
+And so what, you know, whether it's explicit due to violence or nudity or language.
+
+188
+00:15:57,840 --> 00:16:02,080
+And then after that, yeah, in the future is more system-wide controls. So you can,
+
+189
+00:16:02,080 --> 00:16:06,560
+you know, this could theoretically apply to your video player or your music app as well.
+
+190
+00:16:08,000 --> 00:16:10,240
+That's an interesting idea. And I think, like I said at the beginning,
+
+191
+00:16:10,240 --> 00:16:16,000
+it's a good differentiator. I have found elementary OS to be a fantastic OS for my son.
+
+192
+00:16:16,000 --> 00:16:21,200
+It's been on his laptop now for a couple of years, at least. Just super solid. So I really
+
+193
+00:16:21,200 --> 00:16:25,040
+like this. And I plan to, you know, just keep them on elementary OS because it just
+
+194
+00:16:25,040 --> 00:16:28,720
+worked out perfectly. So great, Cassie. Well, thanks for coming on and explaining that.
+
+195
+00:16:30,000 --> 00:16:34,000
+Man, am I looking forward to seeing Juno land. It's got to be getting close. You guys must be
+
+196
+00:16:34,000 --> 00:16:40,640
+in like the big final push, right? Yeah, it's coming. It's sure coming. I will say I've been
+
+197
+00:16:40,640 --> 00:16:45,200
+working on the big release announcement post, you know, because there are certain things we know
+
+198
+00:16:45,200 --> 00:16:49,680
+are obviously in this release and we can start taking some screenshots and things. But you are
+
+199
+00:16:49,680 --> 00:16:55,920
+in that phase. You're in that phase. It's like a 20 minute read right now. Wow. So it's intense.
+
+200
+00:16:55,920 --> 00:17:00,080
+There's a lot of new stuff, a lot of great stuff. Wow. Congratulations. Looking forward to it.
+
+201
+00:17:00,080 --> 00:17:05,760
+Thanks. Speaking of other new stuff, we've been covering the development of PipeWire,
+
+202
+00:17:05,760 --> 00:17:11,920
+which has recently had a couple of large growth spurts when it was adopted to provide remote
+
+203
+00:17:11,920 --> 00:17:19,120
+desktop access to GnomeShell and now to also the Plasma desktop for Wayland. This was always the
+
+204
+00:17:19,120 --> 00:17:24,240
+big question is, you know, I love X11's network capabilities. Wayland has nothing. How are we
+
+205
+00:17:24,240 --> 00:17:32,640
+going to achieve this? And PipeWire is a back end plumbing system, I guess, for video right now.
+
+206
+00:17:33,760 --> 00:17:41,200
+But that's about to change. PipeWire is going to also provide audio support. And that work has
+
+207
+00:17:41,760 --> 00:17:46,960
+started to be formed. There is pretty much everything in place they need for video,
+
+208
+00:17:48,000 --> 00:17:52,880
+including patches for Firefox and Chromium, which are in the development stages right now.
+
+209
+00:17:52,880 --> 00:18:00,480
+So the video part being pretty well solved, and at least at a near 1.0, the PipeWire creator
+
+210
+00:18:00,480 --> 00:18:06,800
+himself, Wim Tamus, and the pulse audio developer, core pulse audio developer, and a few others
+
+211
+00:18:07,680 --> 00:18:13,360
+are getting together at a hack fest this fall to start the core work on building what they're
+
+212
+00:18:13,360 --> 00:18:20,320
+calling a production audio pipeline for Linux. That's what that work is going to start at the
+
+213
+00:18:20,320 --> 00:18:26,400
+end of October. And they're traveling to Edinburgh, and they're all going to get together. And I think
+
+214
+00:18:26,400 --> 00:18:33,360
+this is a massive, massive moment, because macOS has a very competitive audio subsystem,
+
+215
+00:18:33,360 --> 00:18:37,920
+like core audio is what they call it. And Linux has gotten pretty good with pulse audio in Jack.
+
+216
+00:18:37,920 --> 00:18:43,280
+In fact, we use it extensively in production and are pretty happy with it these days. But I wouldn't
+
+217
+00:18:43,280 --> 00:18:48,800
+say it's a cohesive API that you can easily write to like core audio is. Right. I mean, you have
+
+218
+00:18:48,800 --> 00:18:52,720
+different use cases that are segregated, and a lot of your users will end up having to install
+
+219
+00:18:52,720 --> 00:18:57,680
+different software and learn how to configure it if they have a new use case. So Christian here is
+
+220
+00:18:57,680 --> 00:19:01,840
+blogging on one of the known blogs that I got off the known planet feed. And he writes that he's
+
+221
+00:19:01,840 --> 00:19:06,240
+feeling very optimistic that we can come out of this event with both a plan for what we want to do,
+
+222
+00:19:06,240 --> 00:19:10,640
+and the right people involved to make it happen. The idea is we can have a shared infrastructure
+
+223
+00:19:10,640 --> 00:19:16,800
+for consumer level audio and pro level audio. Under Linux, it really excites me he writes,
+
+224
+00:19:16,800 --> 00:19:22,160
+and I do believe that if we do this right, Linux will take a huge step forward as a natural home
+
+225
+00:19:22,160 --> 00:19:27,200
+for pro audio desktop users. Amazing. I'm that is really exciting. Now, of course,
+
+226
+00:19:27,200 --> 00:19:31,200
+it's really it's it's just early days. That's that's where it's at. We do have good audio
+
+227
+00:19:31,200 --> 00:19:36,640
+solutions. But this is what we need that we have had missing abstractions. And I think that's what
+
+228
+00:19:36,640 --> 00:19:43,360
+this is showing. And something to keep in mind is this solves the issue of a proper way of providing
+
+229
+00:19:43,360 --> 00:19:49,280
+audio and video hardware access for for sandboxed applications, which we're going to start seeing
+
+230
+00:19:49,280 --> 00:19:55,040
+more and more with flat packs and snaps and Wayland applications. This is going to be pretty
+
+231
+00:19:55,040 --> 00:20:00,640
+nice. Secondarily, it provides a unified solution for user space and pro audio, which means pro audio
+
+232
+00:20:00,640 --> 00:20:05,280
+users will no longer have to read all these crazy how tos and guides to get jack going on their
+
+233
+00:20:05,280 --> 00:20:11,360
+system, which is what Wes and I are doing right now. It will just be all be programmatically
+
+234
+00:20:11,360 --> 00:20:16,480
+achievable. And third, it provides a video equivalent of pulse audio, which makes dealing
+
+235
+00:20:16,480 --> 00:20:21,840
+with different cameras, screen capture and a lot of other things, including doing all that under
+
+236
+00:20:21,840 --> 00:20:26,960
+Wayland possible. So that's what pipeline is bringing is a unified audio and video subsystem
+
+237
+00:20:26,960 --> 00:20:32,400
+that works across sandbox applications, works with Wayland and gives an API for developers to
+
+238
+00:20:32,400 --> 00:20:37,280
+build towards. It's a pretty big deal. I don't want to crap on the initiative, but it sounds like,
+
+239
+00:20:37,280 --> 00:20:43,600
+hey, we have too many standards. Let's make a standard to fix. And lay it on top of all the
+
+240
+00:20:43,600 --> 00:20:48,160
+other existing things. Yeah, there is that definite potential. But the thing that seems
+
+241
+00:20:48,160 --> 00:20:54,880
+encouraging to me is this is involving people from the KDE project. This is involving the core
+
+242
+00:20:54,880 --> 00:20:59,440
+pulse audio developer, which I always mess up his name, but I came I became a patron of him.
+
+243
+00:20:59,440 --> 00:21:07,040
+No, no, no. No, it's now run by Arun. I can't, I can't even I don't know, I can't even take a
+
+244
+00:21:07,040 --> 00:21:12,400
+stab at his last name, but he's on Patreon. And he's now the core developer of pulse audio.
+
+245
+00:21:12,400 --> 00:21:16,800
+And they're coming in together. If it's going to work, this is the right group of people.
+
+246
+00:21:16,800 --> 00:21:21,040
+Yeah, they have the right heads in the room trying to build a coalition here,
+
+247
+00:21:21,040 --> 00:21:25,280
+lay good foundations. It'll probably be a long time just like just like Wayland was before we
+
+248
+00:21:25,280 --> 00:21:30,000
+really see it in a desktop OS or us. But yeah, it may be a long time before it's totally feature
+
+249
+00:21:30,000 --> 00:21:34,560
+rich too, right? It's going to be probably a minimum viable product for a while. And then
+
+250
+00:21:34,560 --> 00:21:39,360
+they'll build on top of it. So you and I will probably be writing out pulse audio and Jack for
+
+251
+00:21:39,360 --> 00:21:46,560
+probably another year or two. Well, we'll be early testers. I guarantee that guarantee that I still
+
+252
+00:21:46,560 --> 00:21:51,360
+am just I don't know, Jack is the vernacular is rough. It's just different. It's different.
+
+253
+00:21:51,360 --> 00:21:55,200
+But in a year or two, Microsoft will finally have a Linux distro. Come on.
+
+254
+00:21:57,920 --> 00:22:02,240
+Dar, you just never let it go. Hey, it's three years have passed. Two are missing.
+
+255
+00:22:02,240 --> 00:22:05,360
+I said five years. Come on. That's true. I know. I know. I mean,
+
+256
+00:22:05,360 --> 00:22:09,280
+we can't fault you there. It still could happen. I give you that. In the meantime,
+
+257
+00:22:10,320 --> 00:22:15,280
+I can't believe this new rig that has come into the studio shipped to us by Dell for review.
+
+258
+00:22:15,280 --> 00:22:25,360
+It is the Dell Precision 5530. And it is a 15 inch screen infinity edge to edge screen in a 14 inch
+
+259
+00:22:25,360 --> 00:22:31,920
+chassis. Oh, and you can get it with Xeon processors if you want. You can get it with 32 gigs of RAM.
+
+260
+00:22:31,920 --> 00:22:37,200
+I'll save the spec of ours for the review next week. But it just arrived in the studio today.
+
+261
+00:22:37,200 --> 00:22:41,040
+So I'm going to be loading it up. It has a boon to 1604 installed from the factory.
+
+262
+00:22:41,040 --> 00:22:45,360
+That looks like an XPS. It does. It looks exactly like an XPS 13,
+
+263
+00:22:45,360 --> 00:22:50,960
+only a little bit bigger. Well, because it's a 14 inch chassis and a little bit thicker.
+
+264
+00:22:50,960 --> 00:22:58,480
+But for that, you get a competent cooling system, which I'll be testing, and way more horsepower.
+
+265
+00:22:58,480 --> 00:23:01,360
+The desktop replacement version of the XPS you've always wanted.
+
+266
+00:23:01,360 --> 00:23:06,560
+Yeah. And you can get crazy fast processors in this thing.
+
+267
+00:23:06,560 --> 00:23:12,800
+It's got the infamous i9 as an option, I see. Can that thing really dissipate the heat?
+
+268
+00:23:12,800 --> 00:23:14,240
+Is it really capable of that?
+
+269
+00:23:14,240 --> 00:23:17,520
+I've got the... I'll give you a little spoiler. I've got the i9 version that
+
+270
+00:23:17,520 --> 00:23:20,800
+turbos up to 4.8 gigahertz, and I'm going to be testing that very thing.
+
+271
+00:23:21,840 --> 00:23:26,160
+Don't take it across the border to that crazy Canadian that drops iMacs all the time though.
+
+272
+00:23:26,160 --> 00:23:28,640
+Yeah, I know, right? I know. I'm pretty excited.
+
+273
+00:23:28,640 --> 00:23:30,720
+Which Dell are you referring to?
+
+274
+00:23:30,720 --> 00:23:35,680
+Well, hello, Mr. Wimpress. The Precision 5530, their 15 inch mobile workstation,
+
+275
+00:23:35,680 --> 00:23:37,040
+just arrived here at the studio.
+
+276
+00:23:37,040 --> 00:23:40,720
+Oh, really? Very interesting. Can you hurry up on that? Because
+
+277
+00:23:41,280 --> 00:23:46,800
+I've got Bitcoin burning a hole in my wallet, and I'm about to slam down on a new laptop,
+
+278
+00:23:46,800 --> 00:23:55,280
+and it's either going to be that, or the 7350, the new one, or the ThinkPad X1 Carbon Extreme.
+
+279
+00:23:55,280 --> 00:23:57,120
+Oh, man. You really are running...
+
+280
+00:23:57,120 --> 00:23:59,440
+Get the ThinkPad. I love ThinkPads.
+
+281
+00:23:59,440 --> 00:24:05,120
+So I'm seriously considering a return to ThinkPads, having been a ThinkPad user
+
+282
+00:24:05,120 --> 00:24:08,960
+for many, many years prior to the whole Dell XPS thing.
+
+283
+00:24:10,000 --> 00:24:13,280
+So yeah, I'll be really interested to hear what you have to say, Chris,
+
+284
+00:24:13,280 --> 00:24:16,720
+because literally I've got them in a spreadsheet side by side,
+
+285
+00:24:16,720 --> 00:24:19,840
+and there's only a few things that are splitting hairs between them.
+
+286
+00:24:19,840 --> 00:24:23,040
+Wow, you've even assembled a spreadsheet for this, you're telling me?
+
+287
+00:24:23,040 --> 00:24:27,520
+Oh, yeah. I need to work out exactly how many one Bitcoin
+
+288
+00:24:27,520 --> 00:24:29,680
+I'm going to spend on each of these laptops.
+
+289
+00:24:29,680 --> 00:24:33,360
+Oh, that's... You know, I completely understand where you're at,
+
+290
+00:24:33,360 --> 00:24:36,960
+because you feel like you've got a limited amount of time right now with the Bitcoin, too.
+
+291
+00:24:36,960 --> 00:24:39,520
+Now's the time to pull the trigger.
+
+292
+00:24:39,520 --> 00:24:42,640
+This time last year, it could have bought all of those laptops
+
+293
+00:24:42,640 --> 00:24:44,720
+and had change out of one Bitcoin,
+
+294
+00:24:44,720 --> 00:24:48,960
+and this time this year, it's like spec those to the max for one Bitcoin.
+
+295
+00:24:48,960 --> 00:24:52,320
+Yeah. Well, I'll be trying it out starting now.
+
+296
+00:24:52,320 --> 00:24:55,440
+Even though I just got a brand new laptop, this would be like...
+
+297
+00:24:55,440 --> 00:24:58,480
+This could have been me in the future if I'd stayed into editing,
+
+298
+00:24:58,480 --> 00:25:02,720
+and I was doing video editing, or I was doing a lot of audio editing under Linux.
+
+299
+00:25:02,720 --> 00:25:05,600
+Yeah, and it's like demanding Linux workload. Perfect.
+
+300
+00:25:05,600 --> 00:25:07,600
+This could have been in my future, so I'll give it a review.
+
+301
+00:25:07,600 --> 00:25:09,440
+I'll load it up. I'll put it through its paces.
+
+302
+00:25:09,440 --> 00:25:13,600
+It's got a brilliant 4K display, so I'll get a good taste of that,
+
+303
+00:25:13,600 --> 00:25:16,720
+and I'll give you my full report in the next episode of Unplugged.
+
+304
+00:25:16,720 --> 00:25:18,960
+So hopefully then, Mr. Wimpy, you could make your choice.
+
+305
+00:25:18,960 --> 00:25:21,520
+I will wait for one week and one week only.
+
+306
+00:25:22,800 --> 00:25:26,720
+All right. Well, I had a great chance to chat with Nate Graham,
+
+307
+00:25:26,720 --> 00:25:28,480
+and if that name rings a bell,
+
+308
+00:25:28,480 --> 00:25:31,360
+it's because he's pretty involved with the Plasma project,
+
+309
+00:25:31,360 --> 00:25:37,360
+and he is the individual who's been posting weekly usability updates about Plasma
+
+310
+00:25:37,360 --> 00:25:42,400
+that really showcases all of the goodies that are coming to the Plasma desktop.
+
+311
+00:25:42,400 --> 00:25:45,600
+And it's the kind of things that have gotten me really hyped about Plasma
+
+312
+00:25:45,600 --> 00:25:50,000
+and make me want to keep using it and keep trying out the next version,
+
+313
+00:25:50,000 --> 00:25:53,920
+the next version, which actually ultimately maybe end up choosing Neon again.
+
+314
+00:25:53,920 --> 00:25:59,440
+And so I had a chance to chat with Nate about the history of his mission
+
+315
+00:25:59,440 --> 00:26:04,320
+to make Plasma more usable and also funding of that type of work.
+
+316
+00:26:04,320 --> 00:26:06,960
+I've been wanting to get Nate Graham on the show for a while,
+
+317
+00:26:06,960 --> 00:26:10,080
+and this week we had an opening and I emailed him late last night,
+
+318
+00:26:10,080 --> 00:26:12,560
+and he took me up on the chance to come on the show
+
+319
+00:26:12,560 --> 00:26:15,520
+and talk about some of the work that he's been doing with Plasma.
+
+320
+00:26:15,520 --> 00:26:20,080
+And I love this, Nate, your self-described mission to make KDE Plasma
+
+321
+00:26:20,080 --> 00:26:26,720
+the best and most widely used computer operating system interface on the planet Earth.
+
+322
+00:26:27,280 --> 00:26:28,560
+That's a great mission.
+
+323
+00:26:28,560 --> 00:26:29,680
+Nate, welcome to the show.
+
+324
+00:26:29,680 --> 00:26:31,440
+Thanks so much. It's great to be here.
+
+325
+00:26:31,440 --> 00:26:34,720
+So how are you accomplishing this mission?
+
+326
+00:26:34,720 --> 00:26:37,840
+I've noticed what really caught my attention
+
+327
+00:26:37,840 --> 00:26:43,920
+was you seem to have a big focus on polishing the usability rough edges of Plasma.
+
+328
+00:26:43,920 --> 00:26:46,240
+In fact, it seems like this is something
+
+329
+00:26:46,240 --> 00:26:50,480
+that's been kicking around in your head since 2017 at least.
+
+330
+00:26:50,480 --> 00:26:55,680
+I saw a post where you're proposing improving usability,
+
+331
+00:26:55,680 --> 00:27:00,960
+and then in September of 2017, there was a post of KDE's goals for 2018,
+
+332
+00:27:00,960 --> 00:27:04,960
+and in there was a piece from you advocating for usability improvements.
+
+333
+00:27:05,520 --> 00:27:06,960
+What's behind this mission?
+
+334
+00:27:07,520 --> 00:27:08,240
+That's right.
+
+335
+00:27:08,240 --> 00:27:11,360
+So it looks like you did a pretty good job of summarizing the history.
+
+336
+00:27:11,360 --> 00:27:12,960
+I'll just fill in a couple of details.
+
+337
+00:27:12,960 --> 00:27:13,760
+Please do.
+
+338
+00:27:13,760 --> 00:27:20,800
+So back in late 2017, the KDE leadership basically asked the community,
+
+339
+00:27:20,800 --> 00:27:25,040
+hey, what do you think we should focus on for the next couple of years?
+
+340
+00:27:25,040 --> 00:27:27,120
+And I was a relatively new member at the time.
+
+341
+00:27:27,120 --> 00:27:30,720
+I had done really hardly anything, but I thought, why not?
+
+342
+00:27:30,720 --> 00:27:33,760
+Here's what I think we need, and I'm just going to put it out there.
+
+343
+00:27:33,760 --> 00:27:36,800
+So I proposed my usability and productivity goal,
+
+344
+00:27:36,800 --> 00:27:40,320
+and to my pleasant surprise, it seemed to have resonated,
+
+345
+00:27:40,320 --> 00:27:42,640
+and people liked that, and it was chosen as a formal goal.
+
+346
+00:27:43,760 --> 00:27:48,800
+So after that, a month or two passed, and not much really happened.
+
+347
+00:27:48,800 --> 00:27:52,480
+And I realized if this was actually going to get done,
+
+348
+00:27:52,480 --> 00:27:56,240
+I had to take the initiative on it because I was the one who proposed it.
+
+349
+00:27:56,240 --> 00:27:59,200
+Nobody else was really going to do it before me,
+
+350
+00:27:59,200 --> 00:28:01,120
+and I'd never really done anything like this before.
+
+351
+00:28:01,120 --> 00:28:02,320
+But I said, you know what?
+
+352
+00:28:02,320 --> 00:28:03,440
+Let's give it a try.
+
+353
+00:28:03,440 --> 00:28:04,560
+I'm going to see what happens.
+
+354
+00:28:05,760 --> 00:28:08,720
+And I decided to just start making lists.
+
+355
+00:28:08,720 --> 00:28:11,920
+I made a list of things that I thought we needed,
+
+356
+00:28:11,920 --> 00:28:14,960
+and I decided to start kind of poking people
+
+357
+00:28:14,960 --> 00:28:18,080
+to see if I could get other people interested in it,
+
+358
+00:28:18,080 --> 00:28:20,160
+and I started submitting some patches myself.
+
+359
+00:28:20,160 --> 00:28:23,840
+And then as this went on, and things actually started to happen,
+
+360
+00:28:23,840 --> 00:28:26,160
+I thought, hey, maybe people out there in the community
+
+361
+00:28:26,160 --> 00:28:27,840
+might want to know what's going on.
+
+362
+00:28:27,840 --> 00:28:30,080
+So I decided to start a blog about it
+
+363
+00:28:30,080 --> 00:28:32,080
+after several other people urged me to.
+
+364
+00:28:32,080 --> 00:28:36,480
+And well, we've pretty much been going from there for about,
+
+365
+00:28:36,480 --> 00:28:38,720
+I would say, since like January of this year.
+
+366
+00:28:38,720 --> 00:28:39,200
+Right.
+
+367
+00:28:39,200 --> 00:28:40,720
+And there's no stopping me.
+
+368
+00:28:40,720 --> 00:28:41,920
+I'm going to keep going forever.
+
+369
+00:28:41,920 --> 00:28:42,960
+Good.
+
+370
+00:28:42,960 --> 00:28:45,200
+And now you're 37 additions in.
+
+371
+00:28:45,200 --> 00:28:46,160
+I know.
+
+372
+00:28:46,160 --> 00:28:50,720
+And each one wets my appetite for the next release of Plasma.
+
+373
+00:28:50,720 --> 00:28:54,160
+That's really like the net effect it's having here is this.
+
+374
+00:28:54,160 --> 00:28:54,640
+I know.
+
+375
+00:28:54,640 --> 00:28:55,760
+Isn't it amazing stuff?
+
+376
+00:28:55,760 --> 00:28:56,240
+Me too.
+
+377
+00:28:56,240 --> 00:28:58,720
+When I'm putting this together, I'm always thinking,
+
+378
+00:28:58,720 --> 00:29:01,040
+holy crap, this is amazing stuff.
+
+379
+00:29:01,040 --> 00:29:04,800
+I just cannot believe how amazing KDE contributors are.
+
+380
+00:29:04,800 --> 00:29:10,400
+I mean, for example, right before we started doing this interview,
+
+381
+00:29:10,400 --> 00:29:12,720
+I got an email notification about a patch
+
+382
+00:29:12,720 --> 00:29:16,000
+that somebody submitted to fix a bug that was filed yesterday.
+
+383
+00:29:16,000 --> 00:29:16,500
+Oh.
+
+384
+00:29:17,760 --> 00:29:19,520
+So that kind of thing is amazing.
+
+385
+00:29:19,520 --> 00:29:22,080
+And I feel like I'm seeing more and more of this
+
+386
+00:29:22,080 --> 00:29:24,880
+as more people get interested and excited.
+
+387
+00:29:24,880 --> 00:29:26,560
+And it's just an awesome thing to see.
+
+388
+00:29:26,560 --> 00:29:28,080
+Now, are you still pretty heavily involved
+
+389
+00:29:28,080 --> 00:29:29,600
+with the Kubuntu project as well?
+
+390
+00:29:30,320 --> 00:29:30,960
+Yes, I am.
+
+391
+00:29:30,960 --> 00:29:32,800
+Kubuntu is actually my home distro.
+
+392
+00:29:32,800 --> 00:29:35,040
+It's the one that I'm talking to you on right now.
+
+393
+00:29:35,840 --> 00:29:39,920
+And I personally feel that Kubuntu is a really great choice
+
+394
+00:29:39,920 --> 00:29:46,160
+for KDE made sort of accessible for the average person.
+
+395
+00:29:46,160 --> 00:29:47,840
+Rolling release distros are fantastic.
+
+396
+00:29:47,840 --> 00:29:50,160
+And rolling release distros are, in many ways,
+
+397
+00:29:50,160 --> 00:29:53,840
+the best way to get all of these usability and productivity upgrades
+
+398
+00:29:53,840 --> 00:29:55,040
+that I blog about all the time.
+
+399
+00:29:55,040 --> 00:29:59,680
+But for ordinary regular people who just kind of want to get stuff done,
+
+400
+00:29:59,680 --> 00:30:03,440
+I think nothing beats the stability of a discrete release distro.
+
+401
+00:30:03,440 --> 00:30:06,240
+And I think it's really important that Kubuntu provide that experience
+
+402
+00:30:06,240 --> 00:30:09,120
+with a really high level of polish and integration
+
+403
+00:30:09,120 --> 00:30:13,760
+so that it can kind of become the de facto KDE distro, in my opinion.
+
+404
+00:30:13,760 --> 00:30:14,800
+I think that's fantastic.
+
+405
+00:30:14,800 --> 00:30:17,920
+You know, when I think about deploying Plasma
+
+406
+00:30:17,920 --> 00:30:20,160
+at like a workplace and office environment,
+
+407
+00:30:20,160 --> 00:30:23,440
+I think here in our studio, for example,
+
+408
+00:30:23,440 --> 00:30:26,160
+all of our production machines are on Kubuntu 18.04.
+
+409
+00:30:26,160 --> 00:30:27,600
+Oh, that's wonderful.
+
+410
+00:30:27,600 --> 00:30:28,800
+That's fantastic news.
+
+411
+00:30:28,800 --> 00:30:30,240
+Rock solid, rock solid.
+
+412
+00:30:30,240 --> 00:30:33,680
+Best, really, it's the best distro I think we've ever used in production.
+
+413
+00:30:34,480 --> 00:30:37,840
+Now, on my personal machine, I got to admit, I roll KDE neon.
+
+414
+00:30:37,840 --> 00:30:39,760
+But that's just because, really, it's your fault, Nate,
+
+415
+00:30:39,760 --> 00:30:40,560
+because you get me excited.
+
+416
+00:30:41,760 --> 00:30:42,880
+That's actually totally on you.
+
+417
+00:30:43,920 --> 00:30:46,320
+Sometimes I actually tempt myself to use it.
+
+418
+00:30:49,600 --> 00:30:50,960
+There are many times when I feel like,
+
+419
+00:30:50,960 --> 00:30:54,320
+oh, man, I want to actually use some of these improvements myself,
+
+420
+00:30:54,320 --> 00:30:57,200
+particularly to the input stack,
+
+421
+00:30:57,200 --> 00:31:05,200
+which has gotten a lot of improvements in Plasma 5.13 and 5.14.
+
+422
+00:31:05,200 --> 00:31:08,320
+And I'm stuck on 5.12 and I'm kind of chomping at the bit to do it.
+
+423
+00:31:09,040 --> 00:31:11,920
+I kind of feel like if I don't eat my own dog food,
+
+424
+00:31:11,920 --> 00:31:13,360
+it's a pretty shameful thing.
+
+425
+00:31:13,360 --> 00:31:15,360
+So I'm going to definitely keep doing it.
+
+426
+00:31:15,360 --> 00:31:16,880
+Yeah, yeah, there's always ways,
+
+427
+00:31:16,880 --> 00:31:19,280
+like VMs and Docker containers and whatnot.
+
+428
+00:31:19,280 --> 00:31:20,240
+In fact, that's what I do.
+
+429
+00:31:20,240 --> 00:31:23,520
+I actually do all my development inside a KDE neon VM
+
+430
+00:31:23,520 --> 00:31:26,160
+with everything built from source.
+
+431
+00:31:26,160 --> 00:31:33,120
+And I think KDE neon is basically a near perfect development tool in that respect.
+
+432
+00:31:33,120 --> 00:31:37,840
+It gives you great isolation from your host system
+
+433
+00:31:37,840 --> 00:31:39,600
+and it lets you make all kinds of changes
+
+434
+00:31:39,600 --> 00:31:41,520
+without worrying about blowing stuff up.
+
+435
+00:31:41,520 --> 00:31:45,040
+You get everything that's KDE related pretty much rolling.
+
+436
+00:31:45,040 --> 00:31:45,840
+So I mean, it's just great.
+
+437
+00:31:45,840 --> 00:31:47,280
+I love developing in KDE neon.
+
+438
+00:31:47,280 --> 00:31:48,080
+That's fantastic.
+
+439
+00:31:48,080 --> 00:31:48,880
+I love hearing that.
+
+440
+00:31:48,880 --> 00:31:49,680
+That's so great.
+
+441
+00:31:49,680 --> 00:31:55,120
+And that means there's room for all types of KDE Plasma-powered distros
+
+442
+00:31:55,120 --> 00:31:57,280
+or metadistros, don't call it a distro.
+
+443
+00:31:57,280 --> 00:31:59,280
+Now, I noticed too in the bio,
+
+444
+00:31:59,280 --> 00:32:00,480
+I was reading your Patreon page,
+
+445
+00:32:00,480 --> 00:32:02,000
+which I want to talk about in a moment,
+
+446
+00:32:02,000 --> 00:32:03,200
+a former Apple engineer.
+
+447
+00:32:03,200 --> 00:32:06,240
+Does that change, you think, the look you have
+
+448
+00:32:06,240 --> 00:32:08,000
+when you come in and look at the Plasma desktop?
+
+449
+00:32:08,000 --> 00:32:11,600
+Did that influence the way you view visibility as a former Apple engineer?
+
+450
+00:32:12,240 --> 00:32:13,760
+In fact, that was the core reason.
+
+451
+00:32:14,480 --> 00:32:16,320
+In addition to being a former Apple engineer,
+
+452
+00:32:16,320 --> 00:32:20,880
+I had been an Apple fan for pretty much my entire life starting at age six.
+
+453
+00:32:22,240 --> 00:32:26,800
+And I think that the work that I did at Apple
+
+454
+00:32:26,800 --> 00:32:28,640
+gave me a really great opportunity
+
+455
+00:32:28,640 --> 00:32:32,240
+to see how really focused development teams work
+
+456
+00:32:32,240 --> 00:32:35,120
+to produce software that's of high technical quality,
+
+457
+00:32:35,120 --> 00:32:37,680
+but also exceptionally high usability.
+
+458
+00:32:37,680 --> 00:32:39,280
+Apple has that reputation in the world.
+
+459
+00:32:39,280 --> 00:32:41,200
+And I feel like for the most part, it's justified.
+
+460
+00:32:41,760 --> 00:32:45,920
+And when I left Apple in late 2016,
+
+461
+00:32:45,920 --> 00:32:50,960
+I decided that I just wanted to start working on Linux full time.
+
+462
+00:32:50,960 --> 00:32:52,320
+And I kind of bounced around for a little bit.
+
+463
+00:32:52,320 --> 00:32:53,520
+I started with Gnome and-
+
+464
+00:32:53,520 --> 00:32:54,560
+What was that draw?
+
+465
+00:32:54,560 --> 00:32:56,080
+What was the draw to Linux there?
+
+466
+00:32:56,080 --> 00:32:58,720
+I mean, especially coming from a long history with Apple,
+
+467
+00:32:58,720 --> 00:33:00,720
+what drew you to Linux there, do you think?
+
+468
+00:33:00,720 --> 00:33:02,480
+Well, that's a really good question.
+
+469
+00:33:02,480 --> 00:33:04,000
+There were a number of things.
+
+470
+00:33:05,520 --> 00:33:09,920
+I started to feel like open source, just as a movement,
+
+471
+00:33:09,920 --> 00:33:11,280
+made a lot of sense for me.
+
+472
+00:33:11,920 --> 00:33:16,880
+And I started to feel like the inherent problem
+
+473
+00:33:16,880 --> 00:33:20,400
+with closed source software is that regular people
+
+474
+00:33:20,400 --> 00:33:23,600
+don't have much of an impact on it unless they're on the inside.
+
+475
+00:33:23,600 --> 00:33:26,480
+And a lot of my friends and family had gotten in the habit
+
+476
+00:33:26,480 --> 00:33:28,720
+of telling me their favorite Apple bugs
+
+477
+00:33:28,720 --> 00:33:31,280
+and file this bug for me, see if you can get this fixed.
+
+478
+00:33:31,280 --> 00:33:33,360
+And for a while I was actually doing that
+
+479
+00:33:33,360 --> 00:33:34,640
+and I felt like that was really good.
+
+480
+00:33:34,640 --> 00:33:37,200
+But after a while, I started to take a longer view
+
+481
+00:33:37,200 --> 00:33:39,760
+and it was like, well, what is this like for people
+
+482
+00:33:39,760 --> 00:33:41,440
+who don't have a person on the inside?
+
+483
+00:33:42,480 --> 00:33:45,280
+How are they going to get their pet issues resolved?
+
+484
+00:33:45,280 --> 00:33:47,760
+Because despite the fact that Apple products offer
+
+485
+00:33:47,760 --> 00:33:50,480
+exceptionally high usability, nothing's perfect, right?
+
+486
+00:33:50,480 --> 00:33:52,480
+And people are going to find bugs in any software.
+
+487
+00:33:52,480 --> 00:33:55,040
+And if you don't happen to have somebody on the inside,
+
+488
+00:33:55,040 --> 00:33:56,560
+you don't really have that many options
+
+489
+00:33:56,560 --> 00:33:58,160
+when it comes to closed source software.
+
+490
+00:33:58,160 --> 00:34:02,160
+And I just, the more I learned about the open source movement,
+
+491
+00:34:02,160 --> 00:34:03,920
+the more I just sort of liked the idea
+
+492
+00:34:03,920 --> 00:34:07,040
+of participatory software development
+
+493
+00:34:07,040 --> 00:34:10,080
+and an open attitude and the opportunity
+
+494
+00:34:10,080 --> 00:34:11,600
+for anybody to contribute.
+
+495
+00:34:11,600 --> 00:34:14,560
+And not only to contribute, but to go through a pipeline
+
+496
+00:34:14,560 --> 00:34:19,760
+of starting as a user and then becoming a connected user
+
+497
+00:34:19,760 --> 00:34:22,880
+who's engaging with developers and then eventually morphing
+
+498
+00:34:22,880 --> 00:34:24,240
+into a developer themselves.
+
+499
+00:34:24,240 --> 00:34:25,760
+And that was exactly my path.
+
+500
+00:34:26,320 --> 00:34:27,840
+When I started with all this stuff,
+
+501
+00:34:27,840 --> 00:34:30,800
+I mean, I'll be the first to tell you I was not a programmer
+
+502
+00:34:30,800 --> 00:34:33,440
+and I'm still not that much of a programmer today.
+
+503
+00:34:33,440 --> 00:34:35,680
+I'm a build and release engineer by trade
+
+504
+00:34:35,680 --> 00:34:36,960
+so I can do some scripting,
+
+505
+00:34:36,960 --> 00:34:41,520
+but being able to learn how to do software development
+
+506
+00:34:41,520 --> 00:34:44,240
+from the KDE community has been absolutely tremendous.
+
+507
+00:34:44,240 --> 00:34:47,520
+And I feel like if somebody as dumb as I can do it,
+
+508
+00:34:47,520 --> 00:34:48,720
+anybody can do it really.
+
+509
+00:34:48,720 --> 00:34:52,560
+Well, I mean, it seems like you have gotten your hands
+
+510
+00:34:52,560 --> 00:34:53,600
+on all kinds of different apps.
+
+511
+00:34:53,600 --> 00:34:56,240
+It looks like, I mean, just reading over some of your profile,
+
+512
+00:34:56,240 --> 00:34:58,960
+there's a lot of areas you've touched now recently.
+
+513
+00:34:58,960 --> 00:35:03,360
+And I think that's where the Patreon thing
+
+514
+00:35:03,360 --> 00:35:05,680
+is sort of a fascinating opportunity
+
+515
+00:35:05,680 --> 00:35:06,880
+for open source developers.
+
+516
+00:35:06,880 --> 00:35:09,680
+I'd like to get your thoughts on this because it seems to me,
+
+517
+00:35:09,680 --> 00:35:13,040
+so right now you've got, as we record, 81 patrons.
+
+518
+00:35:13,040 --> 00:35:15,120
+Proudly, I'm saying I'm one of them.
+
+519
+00:35:15,120 --> 00:35:16,720
+And I think it's a great idea
+
+520
+00:35:16,720 --> 00:35:19,360
+because if that were to grow,
+
+521
+00:35:20,000 --> 00:35:22,560
+you could proportionately dedicate more of your time
+
+522
+00:35:22,560 --> 00:35:25,360
+to learning what you need to learn to help more,
+
+523
+00:35:25,360 --> 00:35:28,240
+to triage more bugs, to touch more projects.
+
+524
+00:35:28,240 --> 00:35:31,520
+So what are your thoughts on using Patreon as a funding platform?
+
+525
+00:35:31,520 --> 00:35:35,360
+Even in 2018, where there seems to be some Patreon fatigue,
+
+526
+00:35:35,360 --> 00:35:38,000
+people are not as willing as they might have been
+
+527
+00:35:38,000 --> 00:35:40,240
+back in 2017 or 2016,
+
+528
+00:35:40,240 --> 00:35:42,160
+but it still seems like a great opportunity.
+
+529
+00:35:42,160 --> 00:35:45,040
+I don't have a lot of experience with the cultural side.
+
+530
+00:35:45,040 --> 00:35:48,320
+So it's news to me that people have Patreon fatigue.
+
+531
+00:35:48,320 --> 00:35:51,920
+So if that's the case, that's a little bit unfortunate.
+
+532
+00:35:51,920 --> 00:35:55,680
+But I feel like this can be a really great supplement.
+
+533
+00:35:55,680 --> 00:36:00,160
+But ultimately, that's all it really can be is as a supplement.
+
+534
+00:36:00,160 --> 00:36:03,600
+Software development is an incredibly challenging
+
+535
+00:36:03,600 --> 00:36:04,560
+and difficult field.
+
+536
+00:36:04,560 --> 00:36:06,320
+And out there in the private sector,
+
+537
+00:36:06,320 --> 00:36:09,280
+people routinely make six figures doing this.
+
+538
+00:36:09,280 --> 00:36:12,640
+And I mean, I think with some private sector experience,
+
+539
+00:36:12,640 --> 00:36:15,280
+we've all known people who bring home fat paychecks
+
+540
+00:36:15,280 --> 00:36:16,800
+without actually doing all that much.
+
+541
+00:36:16,800 --> 00:36:19,120
+And you compare and contrast that with so many people
+
+542
+00:36:19,120 --> 00:36:22,480
+in the open source community who are just being absolute rock stars
+
+543
+00:36:22,480 --> 00:36:25,360
+and getting paid nothing or very little for it.
+
+544
+00:36:25,360 --> 00:36:27,280
+So I think Patreon is fantastic.
+
+545
+00:36:27,280 --> 00:36:29,600
+And I also have several other ones set up.
+
+546
+00:36:29,600 --> 00:36:33,440
+I've got LiberoPay, I've got PayPal as well.
+
+547
+00:36:33,440 --> 00:36:36,720
+But I think the best funding model is for
+
+548
+00:36:36,720 --> 00:36:38,640
+is what essentially the Krita people are doing.
+
+549
+00:36:38,640 --> 00:36:41,120
+They have a foundation, the Krita Foundation,
+
+550
+00:36:41,120 --> 00:36:42,560
+and they aggregate donations.
+
+551
+00:36:42,560 --> 00:36:45,280
+And they actually use this to formally pay developers
+
+552
+00:36:45,280 --> 00:36:46,960
+with actual real salaries.
+
+553
+00:36:47,680 --> 00:36:50,000
+I believe the Linux Mint people have done this too.
+
+554
+00:36:50,000 --> 00:36:51,600
+And in my personal opinion,
+
+555
+00:36:51,600 --> 00:36:55,280
+this is really the only payment and funding model
+
+556
+00:36:55,280 --> 00:36:57,280
+that makes sustainable long-term sense,
+
+557
+00:36:57,280 --> 00:37:02,160
+which is that if you want developers,
+
+558
+00:37:02,160 --> 00:37:04,320
+you're pretty much going to need to pay developers.
+
+559
+00:37:04,320 --> 00:37:05,760
+And if you're not going to pay developers,
+
+560
+00:37:05,760 --> 00:37:08,080
+what you're going to get are interested,
+
+561
+00:37:08,080 --> 00:37:10,400
+passionate volunteers, which are fantastic,
+
+562
+00:37:10,400 --> 00:37:12,240
+but it's a hit and miss proposition.
+
+563
+00:37:12,240 --> 00:37:14,960
+And even the most interested volunteer
+
+564
+00:37:14,960 --> 00:37:16,960
+will eventually go through stages of their life
+
+565
+00:37:16,960 --> 00:37:18,560
+where they're not going to have time for it anymore
+
+566
+00:37:18,560 --> 00:37:19,280
+if they're not paid.
+
+567
+00:37:19,840 --> 00:37:22,000
+I mean, now that I've been doing this for a little while,
+
+568
+00:37:22,000 --> 00:37:25,600
+not anywhere near as long as many people in the KDE community,
+
+569
+00:37:25,600 --> 00:37:28,400
+I've noticed that people who are really passionate at first
+
+570
+00:37:28,400 --> 00:37:30,240
+often just drop out after a couple of months,
+
+571
+00:37:30,240 --> 00:37:31,360
+not because they're bored of it
+
+572
+00:37:31,360 --> 00:37:32,480
+or they don't want to do it anymore,
+
+573
+00:37:32,480 --> 00:37:36,320
+but because they got married, they started having kids,
+
+574
+00:37:36,320 --> 00:37:38,720
+they got a new job that requires them to commute
+
+575
+00:37:38,720 --> 00:37:40,560
+and they can't be in front of a computer all day,
+
+576
+00:37:40,560 --> 00:37:41,280
+that sort of thing.
+
+577
+00:37:41,280 --> 00:37:42,640
+And those are the generous scenarios.
+
+578
+00:37:42,640 --> 00:37:43,680
+There can be other reasons too.
+
+579
+00:37:43,680 --> 00:37:44,320
+That's right.
+
+580
+00:37:44,320 --> 00:37:46,160
+Exactly, many other reasons.
+
+581
+00:37:46,160 --> 00:37:50,640
+And so relying on volunteers is an inherently fragile proposition
+
+582
+00:37:50,640 --> 00:37:53,200
+and it relies on having existing members
+
+583
+00:37:53,200 --> 00:37:56,640
+being willing to constantly train and retrain new people
+
+584
+00:37:56,640 --> 00:37:59,200
+as they come in and leave and come in and leave.
+
+585
+00:37:59,200 --> 00:38:03,600
+I think if there was a dedicated core of paid developers,
+
+586
+00:38:03,600 --> 00:38:06,000
+you could see that they develop a real culture
+
+587
+00:38:06,000 --> 00:38:08,640
+of a sort of self-sustaining culture
+
+588
+00:38:08,640 --> 00:38:11,360
+where other people help out as well
+
+589
+00:38:11,360 --> 00:38:13,200
+and the knowledge becomes distributed
+
+590
+00:38:13,200 --> 00:38:14,560
+and you don't see so much churn.
+
+591
+00:38:15,920 --> 00:38:18,160
+That sort of happens right now in the KDE community
+
+592
+00:38:18,160 --> 00:38:19,600
+with Blue Systems.
+
+593
+00:38:19,600 --> 00:38:23,360
+Blue Systems sponsors a whole bunch of Plasma developers.
+
+594
+00:38:23,360 --> 00:38:26,080
+They're all paid, they work, they do it all the time.
+
+595
+00:38:26,080 --> 00:38:28,240
+And that's one of the reasons why the quality of Plasma
+
+596
+00:38:28,240 --> 00:38:31,600
+is now so high and constantly getting better.
+
+597
+00:38:31,600 --> 00:38:33,360
+And these guys aren't just working on Plasma,
+
+598
+00:38:33,360 --> 00:38:35,440
+they're working on frameworks, they're working on apps,
+
+599
+00:38:35,440 --> 00:38:36,560
+they're doing all kinds of stuff.
+
+600
+00:38:37,120 --> 00:38:40,480
+So I think that's the sort of payment paid development model
+
+601
+00:38:40,480 --> 00:38:43,520
+that we need to try to make happen everywhere else.
+
+602
+00:38:44,720 --> 00:38:45,920
+It does take some admin,
+
+603
+00:38:45,920 --> 00:38:47,920
+but I could completely see what you're saying,
+
+604
+00:38:47,920 --> 00:38:51,120
+how it's more sustainable and it's more like a real job
+
+605
+00:38:51,120 --> 00:38:52,720
+to the developers involved.
+
+606
+00:38:52,720 --> 00:38:54,480
+It takes a large funding initiative
+
+607
+00:38:54,480 --> 00:38:57,040
+and a foundation to admin all of that.
+
+608
+00:38:57,040 --> 00:39:01,440
+But if major projects like KDE seem like a good sized project
+
+609
+00:39:01,440 --> 00:39:03,280
+for something like that and others as well,
+
+610
+00:39:03,280 --> 00:39:04,480
+that's a fascinating idea.
+
+611
+00:39:04,480 --> 00:39:08,240
+So Patreon in a way is sort of not a stopgap,
+
+612
+00:39:08,240 --> 00:39:11,120
+but it's an intermediary solution
+
+613
+00:39:11,120 --> 00:39:13,120
+where direct consumers of the product
+
+614
+00:39:13,120 --> 00:39:15,840
+can still try to help fund the development
+
+615
+00:39:15,840 --> 00:39:18,800
+until a larger solution comes along perhaps.
+
+616
+00:39:18,800 --> 00:39:20,240
+That's exactly how I see it.
+
+617
+00:39:20,240 --> 00:39:21,760
+You just phrased it perfectly
+
+618
+00:39:21,760 --> 00:39:24,480
+with about a thousand times fewer words than I did.
+
+619
+00:39:25,680 --> 00:39:28,080
+Well, Nate, I really appreciate
+
+620
+00:39:28,080 --> 00:39:29,280
+all of the work you've been doing.
+
+621
+00:39:29,280 --> 00:39:32,400
+I will link to your blog if folks haven't seen that yet,
+
+622
+00:39:32,400 --> 00:39:35,200
+linuxunplug.com slash 268.
+
+623
+00:39:35,200 --> 00:39:37,840
+We'll have a link in there to Nate's usability posts.
+
+624
+00:39:37,840 --> 00:39:40,480
+Also, you can go to planet.kde.org
+
+625
+00:39:40,480 --> 00:39:42,800
+if you want to see some of the other developers posts
+
+626
+00:39:42,800 --> 00:39:43,440
+to their blogs.
+
+627
+00:39:43,440 --> 00:39:45,600
+It's a great aggregator of all of that stuff.
+
+628
+00:39:45,600 --> 00:39:48,240
+And we will have a link to Nate's Patreon,
+
+629
+00:39:48,240 --> 00:39:51,200
+which is ngram, right?
+
+630
+00:39:51,200 --> 00:39:52,880
+It's ngram, patreon.com slash ngram.
+
+631
+00:39:52,880 --> 00:39:54,400
+Yeah, if you want to just go there directly,
+
+632
+00:39:54,400 --> 00:39:56,080
+but we'll have a link in the show notes.
+
+633
+00:39:56,080 --> 00:39:57,600
+Nate, thanks so much for coming on the show
+
+634
+00:39:57,600 --> 00:39:58,560
+and stay in touch.
+
+635
+00:39:58,560 --> 00:40:00,240
+I'd love to chat again in the future.
+
+636
+00:40:00,240 --> 00:40:01,200
+Thanks so much, Chris.
+
+637
+00:40:01,200 --> 00:40:02,080
+It was fantastic.
+
+638
+00:40:02,080 --> 00:40:03,040
+I had a great time.
+
+639
+00:40:03,040 --> 00:40:04,560
+He had some really interesting ideas
+
+640
+00:40:04,560 --> 00:40:07,520
+around how to fund long-term sustainably
+
+641
+00:40:07,520 --> 00:40:09,360
+large open source projects.
+
+642
+00:40:09,360 --> 00:40:12,560
+And I thought that was a particularly new and good
+
+643
+00:40:12,560 --> 00:40:16,240
+insight on a potential solution there.
+
+644
+00:40:16,240 --> 00:40:18,880
+And it's sort of interesting timing, too,
+
+645
+00:40:18,880 --> 00:40:22,400
+because it's lining up right with a new venture that's
+
+646
+00:40:22,400 --> 00:40:24,640
+launching that I want to tell you about in just a moment.
+
+647
+00:40:24,640 --> 00:40:26,160
+But I just want to say thank you to Nate.
+
+648
+00:40:26,160 --> 00:40:28,640
+He also is stopped by the live show.
+
+649
+00:40:28,640 --> 00:40:30,320
+So he's chatting away with folks in the chat room,
+
+650
+00:40:30,320 --> 00:40:31,120
+which is awesome.
+
+651
+00:40:31,120 --> 00:40:31,840
+Just so great.
+
+652
+00:40:31,840 --> 00:40:34,960
+It's incredibly exciting to have someone like that
+
+653
+00:40:34,960 --> 00:40:37,840
+with the commercial experience he's got with Apple
+
+654
+00:40:37,840 --> 00:40:39,360
+coming into the open source community
+
+655
+00:40:39,360 --> 00:40:41,040
+and bashing on something like KDE.
+
+656
+00:40:41,840 --> 00:40:43,040
+That's fantastic.
+
+657
+00:40:43,040 --> 00:40:43,440
+Yeah.
+
+658
+00:40:43,440 --> 00:40:48,720
+And I think the posts do a lot for encouraging people
+
+659
+00:40:48,720 --> 00:40:52,960
+to check out and stay tuned into what Plasma Desktop is doing.
+
+660
+00:40:52,960 --> 00:40:57,360
+Just in a sort of, I don't know, it's not like a tease,
+
+661
+00:40:57,360 --> 00:41:00,160
+but it's a bit of you get, you're
+
+662
+00:41:00,160 --> 00:41:02,880
+able to appreciate all of the work that's going into it.
+
+663
+00:41:02,880 --> 00:41:03,920
+That's probably what I'm trying to say.
+
+664
+00:41:03,920 --> 00:41:06,800
+Like we were just talking with Cassidy about how so much stuff
+
+665
+00:41:06,800 --> 00:41:08,880
+is going into Juno that he's struggling to even
+
+666
+00:41:08,880 --> 00:41:10,960
+write up to outline it all.
+
+667
+00:41:10,960 --> 00:41:14,960
+But this way, this weekly approach that Nate's taken
+
+668
+00:41:15,680 --> 00:41:19,120
+gives you the space to sort of enjoy
+
+669
+00:41:19,120 --> 00:41:20,880
+some of the finer, smaller little things,
+
+670
+00:41:20,880 --> 00:41:23,840
+like new icons and when you right click in the menu
+
+671
+00:41:23,840 --> 00:41:25,920
+and things that are nice to know about
+
+672
+00:41:25,920 --> 00:41:28,560
+but would otherwise get lost in a much larger noise
+
+673
+00:41:28,560 --> 00:41:29,600
+around a new release.
+
+674
+00:41:29,600 --> 00:41:34,240
+And so it helps build appreciation for all of the work
+
+675
+00:41:34,240 --> 00:41:36,560
+that these people are contributing to a project.
+
+676
+00:41:36,560 --> 00:41:37,840
+And it creates hype.
+
+677
+00:41:37,840 --> 00:41:40,160
+And I think it's in part responsible for,
+
+678
+00:41:40,160 --> 00:41:42,480
+as Wimpy puts it, the ascendancy we're seeing
+
+679
+00:41:42,480 --> 00:41:44,160
+of the Plasma Desktop right now.
+
+680
+00:41:44,160 --> 00:41:46,880
+And it's got people like us going on a podcast
+
+681
+00:41:46,880 --> 00:41:49,920
+and talking about it, which amplifies the hype a bit.
+
+682
+00:41:50,560 --> 00:41:51,760
+And we're using it in production.
+
+683
+00:41:51,760 --> 00:41:52,720
+We're using it in real life.
+
+684
+00:41:52,720 --> 00:41:54,560
+Yeah, it seems like it's a good position, right?
+
+685
+00:41:54,560 --> 00:41:55,680
+They've got a great community going.
+
+686
+00:41:55,680 --> 00:41:58,720
+They've got active users and their software these days
+
+687
+00:41:58,720 --> 00:41:59,440
+is just great.
+
+688
+00:42:00,400 --> 00:42:04,320
+I keep getting a steady stream of one or two,
+
+689
+00:42:04,320 --> 00:42:05,600
+at least a week.
+
+690
+00:42:05,600 --> 00:42:08,800
+And this is months after we did our Plasma episode
+
+691
+00:42:08,800 --> 00:42:10,080
+of people saying, all right, I'm trying it.
+
+692
+00:42:10,080 --> 00:42:11,840
+I'm taking the Plasma challenge and I'm really liking it.
+
+693
+00:42:11,840 --> 00:42:13,120
+I'm still getting that.
+
+694
+00:42:13,120 --> 00:42:14,320
+I'm still using it over here.
+
+695
+00:42:15,840 --> 00:42:17,840
+I've been using it for about three months every day.
+
+696
+00:42:17,840 --> 00:42:19,520
+I have my first lockup today.
+
+697
+00:42:20,320 --> 00:42:22,080
+But other than that, it's been fantastic.
+
+698
+00:42:22,080 --> 00:42:23,200
+Really, really fantastic.
+
+699
+00:42:23,200 --> 00:42:24,320
+It could have made it one more day
+
+700
+00:42:24,320 --> 00:42:25,680
+and then that wouldn't have gone on out there.
+
+701
+00:42:25,680 --> 00:42:28,720
+Yeah, that's how it always works.
+
+702
+00:42:28,720 --> 00:42:30,000
+Well, it's better than no.
+
+703
+00:42:30,000 --> 00:42:31,440
+Yeah, well, I suppose so.
+
+704
+00:42:31,440 --> 00:42:33,120
+It does last a little bit longer.
+
+705
+00:42:33,120 --> 00:42:35,760
+So the conversation there at the end was kind of about funding
+
+706
+00:42:35,760 --> 00:42:37,600
+and what's a sustainable approach for somebody
+
+707
+00:42:37,600 --> 00:42:40,080
+who's making a nice contribution,
+
+708
+00:42:40,080 --> 00:42:42,080
+doesn't even need to be their primary revenue source.
+
+709
+00:42:42,080 --> 00:42:42,800
+Of course, that'd be great.
+
+710
+00:42:42,800 --> 00:42:48,800
+But just as like a secondary to really justify the time investment.
+
+711
+00:42:48,800 --> 00:42:52,400
+Well, a new startup called Tidelift hopes to help
+
+712
+00:42:53,200 --> 00:42:55,360
+these developers achieve just that
+
+713
+00:42:55,360 --> 00:42:59,680
+and get paid with a business model the company compares to Netflix.
+
+714
+00:42:59,680 --> 00:43:01,360
+So Tidelift is a startup right now.
+
+715
+00:43:01,360 --> 00:43:04,960
+It just got 30 million in funding, at least I think.
+
+716
+00:43:04,960 --> 00:43:08,960
+And the idea is that a company pays a subscription to Tidelift,
+
+717
+00:43:08,960 --> 00:43:10,320
+which then takes a cut
+
+718
+00:43:10,320 --> 00:43:12,800
+and then distributes the remainder to open source projects
+
+719
+00:43:13,600 --> 00:43:18,160
+and the subscribers will in exchange get assurances
+
+720
+00:43:18,160 --> 00:43:21,200
+that the software will be properly maintained, quote unquote.
+
+721
+00:43:21,200 --> 00:43:25,040
+So customers pay Tidelift and then their pitch here
+
+722
+00:43:25,040 --> 00:43:28,000
+is developers can focus on code instead of sales and marketing,
+
+723
+00:43:28,000 --> 00:43:29,760
+getting their income from Tidelift.
+
+724
+00:43:30,560 --> 00:43:33,200
+And then when a customer signs up for Tidelift,
+
+725
+00:43:33,200 --> 00:43:34,720
+they go analyze your code base,
+
+726
+00:43:34,720 --> 00:43:37,280
+go see all the neat open source projects you're using
+
+727
+00:43:37,280 --> 00:43:40,320
+and then bill you based on funding each of those projects.
+
+728
+00:43:40,320 --> 00:43:40,880
+Right.
+
+729
+00:43:40,880 --> 00:43:43,520
+Do they contribute any of that work back upstream
+
+730
+00:43:43,520 --> 00:43:46,160
+or is it, you know, you pay for it, you get to keep all that work?
+
+731
+00:43:46,160 --> 00:43:50,240
+No, the idea is you're paying an open source developer's time.
+
+732
+00:43:50,240 --> 00:43:52,800
+So they look at how many open source projects
+
+733
+00:43:52,800 --> 00:43:55,440
+your company is dependent on, Tidelift then says,
+
+734
+00:43:55,440 --> 00:43:59,280
+all right, your fee is X because of the amount of projects that you use.
+
+735
+00:44:00,160 --> 00:44:01,760
+You cut that check to Tidelift.
+
+736
+00:44:01,760 --> 00:44:04,800
+They then go engage with the open source developer and say,
+
+737
+00:44:04,800 --> 00:44:08,560
+we can pay you X a month if you will then commit
+
+738
+00:44:08,560 --> 00:44:11,600
+to maintaining the software for X period of time
+
+739
+00:44:11,600 --> 00:44:15,680
+and to also keep Tidelift and our customers informed of major changes.
+
+740
+00:44:15,680 --> 00:44:19,520
+And then Tidelift goes back to the subscriber, the customer and says,
+
+741
+00:44:19,520 --> 00:44:21,680
+all right, here's the pledge by the open source developer
+
+742
+00:44:21,680 --> 00:44:24,400
+to maintain these super important projects that you depend on.
+
+743
+00:44:24,400 --> 00:44:25,840
+That's kind of the idea, right?
+
+744
+00:44:25,840 --> 00:44:30,080
+Have they got any track history in how much they're paying developers
+
+745
+00:44:30,640 --> 00:44:32,880
+for their commitment to these projects?
+
+746
+00:44:32,880 --> 00:44:36,720
+Yeah, that has been the very thing that Wired tried to get from them
+
+747
+00:44:36,720 --> 00:44:40,640
+and they didn't really have much to offer there.
+
+748
+00:44:40,640 --> 00:44:43,520
+They've made a couple of blog posts about developers
+
+749
+00:44:43,520 --> 00:44:45,200
+that they've got brought in on the team,
+
+750
+00:44:45,200 --> 00:44:48,720
+but they haven't really been clear on the amount of money the developers get.
+
+751
+00:44:48,720 --> 00:44:52,320
+They say, so, okay, here's the numbers, they got 15 million in venture capital.
+
+752
+00:44:52,320 --> 00:44:53,520
+Sorry, it's not 30.
+
+753
+00:44:53,520 --> 00:44:58,560
+And they announced last week that they set aside a million of that 15 million
+
+754
+00:44:58,560 --> 00:45:00,640
+for new developers that join the program
+
+755
+00:45:00,640 --> 00:45:06,000
+and the developers will be paid at least $10,000 over a two-year period at least.
+
+756
+00:45:06,000 --> 00:45:08,480
+That's all they've said publicly in terms of funding.
+
+757
+00:45:08,480 --> 00:45:10,160
+$5,000 a year.
+
+758
+00:45:10,160 --> 00:45:10,720
+Yeah.
+
+759
+00:45:10,720 --> 00:45:11,200
+I'm spying.
+
+760
+00:45:11,200 --> 00:45:12,640
+Between hundreds of people.
+
+761
+00:45:12,640 --> 00:45:13,920
+It's not even a cup of tea.
+
+762
+00:45:13,920 --> 00:45:15,760
+Here's the other big problem with this.
+
+763
+00:45:15,760 --> 00:45:17,760
+That's just called a consultancy company.
+
+764
+00:45:17,760 --> 00:45:21,680
+And of course, I can see why investors would put money into it.
+
+765
+00:45:21,680 --> 00:45:24,320
+If they acquired the developer base,
+
+766
+00:45:24,880 --> 00:45:27,760
+of course, they will be a powerful consulting company
+
+767
+00:45:27,760 --> 00:45:32,000
+because there is a brain shortage of skilled developers.
+
+768
+00:45:32,000 --> 00:45:34,320
+So eventually they would be able.
+
+769
+00:45:34,320 --> 00:45:37,760
+And what are the conditions for the developers to be tied into them?
+
+770
+00:45:37,760 --> 00:45:40,800
+Because otherwise I don't see them making money long-term anyways.
+
+771
+00:45:40,800 --> 00:45:45,680
+It seems to me this is a middleman in a business negotiation
+
+772
+00:45:45,680 --> 00:45:48,720
+with open source developers that doesn't need to be there.
+
+773
+00:45:48,720 --> 00:45:54,480
+And companies are serious about engaging with a project that they're dependent on.
+
+774
+00:45:55,040 --> 00:45:56,720
+Just go and contact.
+
+775
+00:45:56,720 --> 00:46:04,240
+It's very easy to find the key people behind a project or a foundation or whatever.
+
+776
+00:46:04,240 --> 00:46:06,800
+Just find those people, approach them directly,
+
+777
+00:46:06,800 --> 00:46:09,920
+and that's probably the best way to invest your money
+
+778
+00:46:09,920 --> 00:46:12,240
+behind a technology that you're dependent upon.
+
+779
+00:46:12,240 --> 00:46:15,120
+And more foundations on the open source side would help, I think.
+
+780
+00:46:15,120 --> 00:46:17,120
+I think the other thing to consider here is the pitch.
+
+781
+00:46:17,760 --> 00:46:19,280
+This is what raises a red flag for me.
+
+782
+00:46:20,080 --> 00:46:23,680
+Netflix for open source, that just makes my skin crawl.
+
+783
+00:46:23,680 --> 00:46:24,640
+What does that even mean?
+
+784
+00:46:25,200 --> 00:46:26,560
+Well, that's a pitch for investors.
+
+785
+00:46:26,560 --> 00:46:28,320
+That's not for the developer side of things.
+
+786
+00:46:28,320 --> 00:46:29,120
+Come on.
+
+787
+00:46:29,120 --> 00:46:33,120
+I wonder how Netflix feel about their brand being associated with this as well.
+
+788
+00:46:34,560 --> 00:46:35,600
+We shall see.
+
+789
+00:46:35,600 --> 00:46:36,880
+I thought that was interesting though.
+
+790
+00:46:36,880 --> 00:46:38,080
+It's another crack at this.
+
+791
+00:46:38,720 --> 00:46:41,520
+And I don't know, I think Nate's idea is a better one.
+
+792
+00:46:41,520 --> 00:46:43,040
+And then Wimpy's right.
+
+793
+00:46:43,040 --> 00:46:45,600
+Then companies could just interface with that foundation
+
+794
+00:46:45,600 --> 00:46:47,920
+and there would be an established process for that.
+
+795
+00:46:47,920 --> 00:46:50,000
+It does seem like the better solution.
+
+796
+00:46:50,560 --> 00:46:53,840
+So let's talk about something new that's getting some attention.
+
+797
+00:46:53,840 --> 00:46:58,720
+A Linux distro that's optimized for the Windows subsystem for Linux.
+
+798
+00:46:58,720 --> 00:47:04,400
+It's based on Debian and the core developer Hayden is joining us today.
+
+799
+00:47:04,400 --> 00:47:06,000
+Hayden, welcome to Linux Unplugged.
+
+800
+00:47:06,000 --> 00:47:07,200
+Hi, thanks for having me.
+
+801
+00:47:07,200 --> 00:47:07,840
+Hello, Hayden.
+
+802
+00:47:07,840 --> 00:47:08,800
+It's good to have you here.
+
+803
+00:47:08,800 --> 00:47:13,040
+So you had a chance to chat with Joe Resington, my co-host and Wes's co-host,
+
+804
+00:47:13,040 --> 00:47:15,040
+who's been filming for me on Linux Action News,
+
+805
+00:47:15,600 --> 00:47:19,680
+to answer a few questions so that way Joe could accurately cover the story in LAN.
+
+806
+00:47:19,680 --> 00:47:23,760
+And he recorded that chat so we could refer to it for notes.
+
+807
+00:47:23,760 --> 00:47:26,160
+And I thought it was so great that I would just play it here.
+
+808
+00:47:26,160 --> 00:47:32,080
+It's a bit rough, but it was a great deep dive into why WLinux has been created
+
+809
+00:47:32,080 --> 00:47:35,120
+and why the Windows subsystem for Linux
+
+810
+00:47:35,120 --> 00:47:38,000
+might need a distro that's built specifically for it.
+
+811
+00:47:38,000 --> 00:47:39,360
+Thanks for joining me, Hayden.
+
+812
+00:47:39,360 --> 00:47:40,320
+Thanks for having me, Joe.
+
+813
+00:47:40,880 --> 00:47:43,040
+So you're here to talk about WLinux.
+
+814
+00:47:43,040 --> 00:47:44,800
+What exactly is that then?
+
+815
+00:47:44,800 --> 00:47:50,240
+WLinux is a Debian derivative that is designed to function on Windows subsystem for Linux.
+
+816
+00:47:50,880 --> 00:47:55,120
+It is a distro that is customized for that environment.
+
+817
+00:47:55,120 --> 00:47:57,040
+And so this is based on Debian then?
+
+818
+00:47:57,040 --> 00:48:04,080
+Yes, this is a derivative of Debian Stretch with a handful of packages
+
+819
+00:48:04,080 --> 00:48:10,640
+from the Debian testing branch that have been brought down, mostly Python and other dev tools
+
+820
+00:48:10,640 --> 00:48:14,880
+that have a more updated version in the testing branch that are fairly stable.
+
+821
+00:48:14,880 --> 00:48:18,160
+And so what makes this different from the version of Debian
+
+822
+00:48:18,160 --> 00:48:20,960
+that's already available in the subsystem?
+
+823
+00:48:20,960 --> 00:48:23,840
+So a free distro Debian is already available.
+
+824
+00:48:24,560 --> 00:48:30,560
+And if you're first getting into WSL, which is short for Windows subsystem for Linux,
+
+825
+00:48:30,560 --> 00:48:31,680
+you might want to give it a shot.
+
+826
+00:48:31,680 --> 00:48:37,600
+But WLinux has a lot of customizations and additional packages that make working
+
+827
+00:48:38,480 --> 00:48:42,080
+in this kind of hybrid environment a little bit easier
+
+828
+00:48:42,080 --> 00:48:45,440
+between Windows and between Linux at the same time.
+
+829
+00:48:45,440 --> 00:48:48,160
+So one of the big differences is no system D then.
+
+830
+00:48:48,160 --> 00:48:49,360
+Why is that?
+
+831
+00:48:49,360 --> 00:48:55,040
+Well, part of that is because system D doesn't work well on Windows subsystem for Linux.
+
+832
+00:48:56,080 --> 00:48:59,440
+So it was kind of a no brainer to pull out.
+
+833
+00:48:59,440 --> 00:49:09,040
+I'm a big fan of the dev win project and appreciate in it freedom from Unix philosophy standpoint.
+
+834
+00:49:10,080 --> 00:49:14,560
+But mostly it was just taking up space on WLinux.
+
+835
+00:49:14,560 --> 00:49:15,680
+So we took it out.
+
+836
+00:49:15,680 --> 00:49:16,640
+SysV is there.
+
+837
+00:49:17,680 --> 00:49:23,280
+If you install some programs that have a hard system D dependency,
+
+838
+00:49:23,280 --> 00:49:26,000
+the lib system D will come in.
+
+839
+00:49:26,000 --> 00:49:28,320
+But it was mostly just a matter of size.
+
+840
+00:49:28,320 --> 00:49:28,800
+Okay.
+
+841
+00:49:28,800 --> 00:49:31,200
+But why didn't you just go with dev one then?
+
+842
+00:49:31,200 --> 00:49:34,000
+Because it isn't that just Debian with no system D.
+
+843
+00:49:34,000 --> 00:49:35,760
+I did do testing with dev one.
+
+844
+00:49:36,480 --> 00:49:47,280
+It added some more complexity to the build process with no apparent improvement to the user.
+
+845
+00:49:48,560 --> 00:49:52,720
+And kind of being a Unix-y guy believing in Unix principles,
+
+846
+00:49:52,720 --> 00:50:00,400
+I didn't see needlessly interjecting complexity for something that we can actually just do
+
+847
+00:50:00,400 --> 00:50:04,640
+on the Debian from the Debian sources ourselves.
+
+848
+00:50:05,680 --> 00:50:15,760
+Also, we do know that people might want to bring in packages from upstream GNOME and KDE
+
+849
+00:50:15,760 --> 00:50:17,840
+to run those apps on Windows.
+
+850
+00:50:17,840 --> 00:50:24,960
+And if we had a hard block on system D, they wouldn't be able to run the most recent version of those.
+
+851
+00:50:24,960 --> 00:50:26,480
+Okay, that makes sense.
+
+852
+00:50:26,480 --> 00:50:31,280
+So talking of GUI stuff, I mean, the subsystem is not supposed to be for GUI applications,
+
+853
+00:50:31,280 --> 00:50:36,880
+but you've made it easy to run Google Chrome and Visual Studio and other GUI stuff.
+
+854
+00:50:36,880 --> 00:50:38,080
+What's all that about?
+
+855
+00:50:38,080 --> 00:50:43,280
+So this isn't an officially supported feature of WSL, but it is available.
+
+856
+00:50:43,280 --> 00:50:48,400
+And there's a few tweaks we do to make that work with an external X client.
+
+857
+00:50:49,360 --> 00:50:51,280
+There's a few, there's a couple of free ones available.
+
+858
+00:50:51,280 --> 00:50:53,280
+My favorite is X410.
+
+859
+00:50:53,280 --> 00:50:55,840
+It's available in the Microsoft Store for $5.
+
+860
+00:50:56,560 --> 00:51:04,640
+And we just made some tweaks so that the, for example, the libGL is rendered on the Windows side,
+
+861
+00:51:04,640 --> 00:51:08,800
+where you can get some more acceleration out of those apps.
+
+862
+00:51:08,800 --> 00:51:10,480
+And it's very functional.
+
+863
+00:51:10,480 --> 00:51:20,560
+In fact, there are people, although I don't recommend it, who do boot WSL into a full-fledged Xfce, KDE, or GNOME desktop.
+
+864
+00:51:21,920 --> 00:51:25,440
+You know, sometimes in a separate window, like you would a virtual machine,
+
+865
+00:51:25,440 --> 00:51:30,560
+and sometimes right next to their Windows apps on the same screen.
+
+866
+00:51:30,560 --> 00:51:32,560
+People are doing interesting things with this.
+
+867
+00:51:32,560 --> 00:51:34,560
+I heard about Flatpaks.
+
+868
+00:51:34,560 --> 00:51:39,680
+Up and running on WSL this week, presumably they work reasonably well.
+
+869
+00:51:39,680 --> 00:51:41,440
+And what about Snaps as well?
+
+870
+00:51:41,440 --> 00:51:45,280
+So far, Snaps, you know, are a little bit of a challenge.
+
+871
+00:51:45,280 --> 00:51:51,360
+Flatpaks are working better, so we'll see where that goes.
+
+872
+00:51:52,160 --> 00:51:56,640
+Snap has some dependencies that we have to work through to see if we can't make those work.
+
+873
+00:51:56,640 --> 00:51:59,440
+I thought the chat that Joe and Hayden had was fantastic.
+
+874
+00:51:59,440 --> 00:52:00,960
+In fact, it was a really good one.
+
+875
+00:52:00,960 --> 00:52:05,760
+It went on for quite a bit, but I wanted to take a moment and bring Hayden in live, since he's here,
+
+876
+00:52:05,760 --> 00:52:08,800
+and chat about WLinux a bit with him.
+
+877
+00:52:08,800 --> 00:52:13,760
+And I wanted to maybe double down before we've gone too far on some of the issues with SystemD
+
+878
+00:52:13,760 --> 00:52:15,760
+under the Windows subsystem for Linux.
+
+879
+00:52:15,760 --> 00:52:20,160
+I have never really spent much time with the Windows subsystem for Linux, Hayden,
+
+880
+00:52:20,160 --> 00:52:27,040
+but looking at bug reports, it seems that the WSL has its own process that it wants to run at PID 1.
+
+881
+00:52:27,040 --> 00:52:29,040
+Is that one of those things that you want to do?
+
+882
+00:52:29,040 --> 00:52:33,360
+That it wants to run at PID 1, is that one of the issues with SystemD on WSL?
+
+883
+00:52:33,360 --> 00:52:40,000
+The issue with SystemD on WSL is that it's not meant at this point to run servers.
+
+884
+00:52:40,000 --> 00:52:45,360
+It's not meant to run ongoing processes that you access from the background.
+
+885
+00:52:45,360 --> 00:52:53,600
+That may change in the future as Microsoft just announced Windows Server 2019 with WSL as a feature.
+
+886
+00:52:53,600 --> 00:53:03,200
+So that may change, and we may see more growth on that use of WSL to run Linux processes.
+
+887
+00:53:03,200 --> 00:53:05,200
+We'll see where it goes.
+
+888
+00:53:05,200 --> 00:53:12,000
+I found it really interesting, some of the work you've put into running the graphical applications like Chrome.
+
+889
+00:53:12,000 --> 00:53:17,200
+I recently saw, I can't remember where, you were talking about fixing an issue with Chromium
+
+890
+00:53:17,200 --> 00:53:22,800
+from running it from WLinux, which I think is great, because that's been an area
+
+891
+00:53:22,800 --> 00:53:26,640
+I've been really curious, like if I was ever to play around with WSL, I would love to do that.
+
+892
+00:53:26,640 --> 00:53:32,480
+In regards to the SNAP issue you ran into, I invite you to chat with Mr. Martin Wimpress here
+
+893
+00:53:32,480 --> 00:53:37,600
+in our virtual log, he could probably help with any issues there, because he's working on that canonical.
+
+894
+00:53:37,600 --> 00:53:42,080
+I guess probably SNAP must be dependent on something that's not in WLinux now?
+
+895
+00:53:42,080 --> 00:53:48,480
+Yeah, well the main thing is the dependency on SystemD support, but we do have a shim that can work around that,
+
+896
+00:53:48,480 --> 00:53:55,200
+which is how we delivered SNAP support in 14.04, which was built upon Upstart.
+
+897
+00:53:55,200 --> 00:54:03,440
+So Hayden, I'm Martin Wimpress, I work on the SNAPcraft team.
+
+898
+00:54:03,440 --> 00:54:09,600
+Find me on Twitter at m underscore Wimpress and I'll be happy to help.
+
+899
+00:54:09,600 --> 00:54:14,800
+Absolutely, I will do that because I want to work with you on that, Flatpaks as well.
+
+900
+00:54:14,800 --> 00:54:19,840
+Yeah, we're testing an issue right now with Google Chrome, the latest version 69.
+
+901
+00:54:19,840 --> 00:54:23,440
+We're working through some libgl acceleration issues.
+
+902
+00:54:23,440 --> 00:54:27,680
+We have an open issue on the GitHub and we're troubleshooting that.
+
+903
+00:54:27,680 --> 00:54:34,400
+As far as we know, it affects most of the WSL distros available,
+
+904
+00:54:34,400 --> 00:54:38,640
+but we're the ones actually doing the investigation,
+
+905
+00:54:38,640 --> 00:54:44,800
+pulling logs, seeing how we can fix this for WSL users.
+
+906
+00:54:44,800 --> 00:54:49,440
+Yeah, it seems like that could be an interesting impact that your distribution could have,
+
+907
+00:54:49,440 --> 00:54:53,040
+is by really focusing in on this like no other distribution is,
+
+908
+00:54:53,040 --> 00:54:58,640
+you're going to push up against these edge cases that could drive future improvements to the subsystem.
+
+909
+00:54:58,640 --> 00:55:03,840
+So I think that's great, and I wonder if it's also going to be revenue sustainable potentially,
+
+910
+00:55:03,840 --> 00:55:11,200
+because I noticed you're selling it for $19.99, it's on sale right now for $9.99,
+
+911
+00:55:11,200 --> 00:55:16,160
+and that's in the Microsoft Store, which is of course the way you get it into the subsystem for Linux.
+
+912
+00:55:16,160 --> 00:55:20,240
+Do you think this might be at some point revenue sustainable?
+
+913
+00:55:20,240 --> 00:55:24,560
+So that's our long-term goal, and we've talked a lot about different sustainability models
+
+914
+00:55:24,560 --> 00:55:27,760
+for open source projects in this episode,
+
+915
+00:55:27,760 --> 00:55:31,760
+and I think what we need to realize is that people have been paying for Linux
+
+916
+00:55:31,760 --> 00:55:34,400
+on a commercial and enterprise level for a long time,
+
+917
+00:55:34,400 --> 00:55:40,080
+and that's been sponsoring a lot of the innovations we all enjoy in community distros.
+
+918
+00:55:40,080 --> 00:55:47,920
+So what I see is a democratization of that process with Krita, with elementary OS,
+
+919
+00:55:47,920 --> 00:55:52,160
+with other projects, not so much the one you mentioned in the interim,
+
+920
+00:55:52,160 --> 00:55:59,920
+but where the users, the open source users themselves are being entrepreneurial,
+
+921
+00:55:59,920 --> 00:56:04,000
+taking ownership of these, pushing them along, and commercializing them
+
+922
+00:56:04,000 --> 00:56:09,520
+so that you can push these developments out to other people.
+
+923
+00:56:09,520 --> 00:56:14,080
+Another good example of this is CodeWeavers, who's worked on crossover
+
+924
+00:56:14,080 --> 00:56:18,320
+and have worked with Valve on Proton.
+
+925
+00:56:18,320 --> 00:56:25,200
+So there's always an angle sometimes to commercialize these, and we give back.
+
+926
+00:56:25,200 --> 00:56:30,720
+One of the examples is we already identified a package that's just not available anywhere
+
+927
+00:56:30,720 --> 00:56:34,960
+as an app, in an app repo, and we're hosting it.
+
+928
+00:56:34,960 --> 00:56:43,040
+So you're welcome to use our app repo in any existing Debian or Ubuntu distro
+
+929
+00:56:43,040 --> 00:56:45,360
+to install that package.
+
+930
+00:56:45,360 --> 00:56:49,760
+I noticed also that you mentioned one of the features is faster patching
+
+931
+00:56:49,760 --> 00:56:54,320
+than other upstream distributions for subsystem-specific bugs,
+
+932
+00:56:54,320 --> 00:56:58,320
+and that you're specifically monitoring subsystem-related CVEs.
+
+933
+00:56:58,320 --> 00:57:01,200
+Is that delivered through that repo as well, those fixes?
+
+934
+00:57:01,200 --> 00:57:03,200
+So the fixes aren't delivered through the repo.
+
+935
+00:57:03,200 --> 00:57:09,600
+The repo is currently simply delivering packages and package updates to our custom packages.
+
+936
+00:57:09,600 --> 00:57:17,520
+We are in the process of rolling out a new onboarding experience for users.
+
+937
+00:57:17,520 --> 00:57:22,400
+We had so many requests for packages, it simply was not possible
+
+938
+00:57:22,400 --> 00:57:27,920
+to ship everyone's editor and everyone's tools in one.
+
+939
+00:57:27,920 --> 00:57:31,840
+So we're going to create a front-end where you can go through
+
+940
+00:57:31,840 --> 00:57:35,840
+when you launch WLinux the first time and specify,
+
+941
+00:57:35,840 --> 00:57:38,400
+I'm a Python developer, install all my Python.
+
+942
+00:57:39,520 --> 00:57:46,560
+I want to use NeoVim or code, and we will take care of that for you.
+
+943
+00:57:46,560 --> 00:57:50,560
+And then we're going to build auto-updating into that going forward
+
+944
+00:57:50,560 --> 00:57:55,360
+so that everyone, regardless of whether you're building it off the GitHub
+
+945
+00:57:55,360 --> 00:57:57,200
+or downloading it from the store,
+
+946
+00:57:57,200 --> 00:58:03,360
+will always have the latest availability to the features, so there won't be a gap there.
+
+947
+00:58:03,360 --> 00:58:07,840
+So one example of this was a problem in a relatively...
+
+948
+00:58:07,840 --> 00:58:13,280
+So WSL doesn't implement IP tables yet, or very well at all.
+
+949
+00:58:14,400 --> 00:58:19,840
+And there was a package in Ubuntu that broke called EBTables.
+
+950
+00:58:19,840 --> 00:58:24,560
+And it's an obscure package, and it did something in the install script
+
+951
+00:58:25,840 --> 00:58:31,520
+that broke apt and basically prevented everyone on Ubuntu 18.04
+
+952
+00:58:31,520 --> 00:58:34,320
+on WSL from updating for a few weeks.
+
+953
+00:58:34,320 --> 00:58:40,160
+Well, we worked, and I give credit to Ubuntu for helping us get that fixed,
+
+954
+00:58:40,160 --> 00:58:45,200
+but it took a few weeks, and we could have pushed that out in a day or two.
+
+955
+00:58:45,200 --> 00:58:49,280
+Yeah, and again, I think that's going to be one of the great side contributions
+
+956
+00:58:49,280 --> 00:58:53,440
+or direct contributions, really, of the project existing, is pushing on those edges.
+
+957
+00:58:53,440 --> 00:58:56,160
+Well, Hayden, thank you for taking the time to chat with me
+
+958
+00:58:56,160 --> 00:59:00,720
+and for chatting with Joe to get the coverage right on Linux Action News.
+
+959
+00:59:00,720 --> 00:59:04,400
+I'll put links to a bunch of information about the project
+
+960
+00:59:04,400 --> 00:59:07,200
+as well as the Microsoft Store link, because like I mentioned,
+
+961
+00:59:07,200 --> 00:59:09,920
+it is on sale for 50% off right now if you want to play around with it.
+
+962
+00:59:09,920 --> 00:59:12,560
+I know we have Windows users out there in that audience, Wes.
+
+963
+00:59:12,560 --> 00:59:15,760
+Yeah, you're stuck. Maybe you don't want to run a VM, you don't need a VM.
+
+964
+00:59:15,760 --> 00:59:18,240
+Hey, now you've got a custom-tailored distribution.
+
+965
+00:59:18,240 --> 00:59:20,320
+Yeah, so good work, Hayden. I hope it keeps up.
+
+966
+00:59:20,320 --> 00:59:22,320
+I know some people have been a little like, what is this?
+
+967
+00:59:22,320 --> 00:59:23,920
+But I say good on you,
+
+968
+00:59:23,920 --> 00:59:26,720
+and I'm curious to see where the project goes in the future.
+
+969
+00:59:26,720 --> 00:59:29,440
+Any hints where we're going after this? What's next?
+
+970
+00:59:29,440 --> 00:59:33,440
+So we're looking right now after we get the onboarding experience done,
+
+971
+00:59:33,440 --> 00:59:34,960
+we're looking at internationalization.
+
+972
+00:59:35,600 --> 00:59:40,080
+WLinux is unexpectedly popular in China and Japan.
+
+973
+00:59:41,840 --> 00:59:43,920
+You know, it took me completely by surprise,
+
+974
+00:59:43,920 --> 00:59:47,200
+so we're adding in foreign language support as quickly as possible.
+
+975
+00:59:47,200 --> 00:59:51,440
+And then we're going to be adding Arm64 support to support Windows on ARM devices.
+
+976
+00:59:52,400 --> 00:59:54,960
+I love it. That's interesting.
+
+977
+00:59:54,960 --> 00:59:57,760
+Well, do keep us informed on how it goes. Keep us up to date.
+
+978
+00:59:57,760 --> 00:59:59,360
+I'd love to follow the progress of things,
+
+979
+00:59:59,360 --> 01:00:02,320
+and you're welcome back any time to update us on any major developments.
+
+980
+01:00:02,320 --> 01:00:03,760
+Thank you so much. I do appreciate it.
+
+981
+01:00:03,760 --> 01:00:07,920
+You bet. Well, let's do something that we should do a lot more of,
+
+982
+01:00:07,920 --> 01:00:10,640
+to be honest with you, and that's read folks' emails and follow-ups
+
+983
+01:00:10,640 --> 01:00:11,920
+and all those kinds of things.
+
+984
+01:00:12,480 --> 01:00:14,080
+How about I take this first one here, Wes?
+
+985
+01:00:14,720 --> 01:00:16,880
+Because John writes in to address you.
+
+986
+01:00:16,880 --> 01:00:17,840
+So I'll read this one here.
+
+987
+01:00:17,840 --> 01:00:20,480
+He says, I took note of Wes mentioning
+
+988
+01:00:20,480 --> 01:00:23,920
+a possible root on ZFS setup for his new ThinkPad.
+
+989
+01:00:23,920 --> 01:00:26,800
+I would definitely recommend giving this a shot.
+
+990
+01:00:26,800 --> 01:00:28,720
+I don't know what distro you plan on using,
+
+991
+01:00:28,720 --> 01:00:32,720
+but in the past few years, I've been using nothing but root on ZFS
+
+992
+01:00:32,720 --> 01:00:34,720
+on Arch with binary updates.
+
+993
+01:00:34,720 --> 01:00:38,080
+And he points you out to, there's an Arch ZFS GitHub page.
+
+994
+01:00:38,080 --> 01:00:40,560
+But he says, I also wasn't quite happy
+
+995
+01:00:40,560 --> 01:00:42,640
+with the way Linux supported boot environments,
+
+996
+01:00:42,640 --> 01:00:43,920
+which is a nice feature when you use ZFS.
+
+997
+01:00:43,920 --> 01:00:44,960
+It really is, yeah.
+
+998
+01:00:44,960 --> 01:00:46,400
+And you could really dig this, I think.
+
+999
+01:00:46,400 --> 01:00:47,920
+So he wrote his own.
+
+1000
+01:00:47,920 --> 01:00:52,560
+He calls it ZD environment and or Zed environment.
+
+1001
+01:00:52,560 --> 01:00:53,280
+Zed environment.
+
+1002
+01:00:53,280 --> 01:00:55,040
+And he links to it in the email.
+
+1003
+01:00:55,040 --> 01:00:57,920
+And he says, it removes the worry of kernel updates
+
+1004
+01:00:57,920 --> 01:01:00,080
+or system changes causing issues
+
+1005
+01:01:00,080 --> 01:01:02,080
+since you can create a new boot environment
+
+1006
+01:01:02,080 --> 01:01:04,080
+and you make your changes there.
+
+1007
+01:01:04,080 --> 01:01:07,120
+If you happen to give root on ZFS a shot
+
+1008
+01:01:07,120 --> 01:01:08,800
+and you're looking for a boot environment client,
+
+1009
+01:01:08,800 --> 01:01:11,440
+please take a look at it and best of luck with your new computer.
+
+1010
+01:01:12,160 --> 01:01:13,760
+John, that is awesome.
+
+1011
+01:01:13,760 --> 01:01:15,440
+I'm also really just thinking,
+
+1012
+01:01:15,440 --> 01:01:17,120
+I'm going to double down on this root on ZFS.
+
+1013
+01:01:17,120 --> 01:01:18,720
+Maybe also encrypted.
+
+1014
+01:01:18,720 --> 01:01:21,360
+So we'll have more to talk about in that arena soon.
+
+1015
+01:01:21,360 --> 01:01:22,560
+That could be fun.
+
+1016
+01:01:22,560 --> 01:01:24,960
+So Omkar writes in and he says he loves the show.
+
+1017
+01:01:24,960 --> 01:01:27,280
+In fact, he also seems to be a TechSnap fan
+
+1018
+01:01:27,280 --> 01:01:29,360
+because he says, I find Wes knowledgeable
+
+1019
+01:01:29,360 --> 01:01:31,440
+and the way he explains stuff on TechSnap
+
+1020
+01:01:31,440 --> 01:01:32,880
+and Linux Unplugged is fascinating.
+
+1021
+01:01:32,880 --> 01:01:33,600
+Well, thanks.
+
+1022
+01:01:33,600 --> 01:01:34,160
+That's really nice.
+
+1023
+01:01:34,160 --> 01:01:34,800
+Much appreciated.
+
+1024
+01:01:34,800 --> 01:01:36,560
+He says he's got a few questions for us.
+
+1025
+01:01:36,560 --> 01:01:38,640
+What kind of hardware setup have you configured
+
+1026
+01:01:38,640 --> 01:01:43,920
+for Proxmox VE and which version of Proxmox?
+
+1027
+01:01:43,920 --> 01:01:45,040
+Oh, man.
+
+1028
+01:01:45,040 --> 01:01:46,320
+That's a you question, Chris.
+
+1029
+01:01:47,360 --> 01:01:49,120
+It's a three-year-old install
+
+1030
+01:01:49,120 --> 01:01:50,720
+or maybe even four years old now.
+
+1031
+01:01:50,720 --> 01:01:52,640
+So that would be, well, I couldn't tell you
+
+1032
+01:01:52,640 --> 01:01:54,080
+what version that is.
+
+1033
+01:01:54,080 --> 01:01:56,000
+That's a pretty old install.
+
+1034
+01:01:56,000 --> 01:01:57,440
+Maybe I could bring in our IT guy.
+
+1035
+01:01:57,440 --> 01:01:58,720
+Maybe he could tell me.
+
+1036
+01:01:58,720 --> 01:02:01,200
+Hey, Brown Bear, could you come in here for a second?
+
+1037
+01:02:01,200 --> 01:02:02,400
+I got a question for you.
+
+1038
+01:02:03,280 --> 01:02:03,680
+Hello.
+
+1039
+01:02:03,680 --> 01:02:05,920
+Hey, Brown Bear, do you remember what version of Proxmox
+
+1040
+01:02:05,920 --> 01:02:08,320
+we're running on that i7 rig in the garage?
+
+1041
+01:02:08,320 --> 01:02:10,160
+Well, I've got good and bad news for you.
+
+1042
+01:02:10,160 --> 01:02:11,520
+Which would you like first?
+
+1043
+01:02:11,520 --> 01:02:14,080
+Well, okay, let's start with the bad news
+
+1044
+01:02:14,080 --> 01:02:15,440
+because I think I know where you're going.
+
+1045
+01:02:15,440 --> 01:02:17,280
+Bad news is you're no longer running Proxmox
+
+1046
+01:02:17,280 --> 01:02:18,560
+on the i7 in the garage.
+
+1047
+01:02:19,440 --> 01:02:20,080
+Yeah, I know.
+
+1048
+01:02:20,720 --> 01:02:22,400
+It's running now CentOS, isn't it?
+
+1049
+01:02:22,400 --> 01:02:23,040
+It is, yeah.
+
+1050
+01:02:23,040 --> 01:02:25,120
+Alan and I set up CentOS and then we put,
+
+1051
+01:02:25,840 --> 01:02:28,800
+actually, we installed libvirtd and set it up
+
+1052
+01:02:28,800 --> 01:02:30,880
+just like Red Hat would as a, you know,
+
+1053
+01:02:30,880 --> 01:02:34,480
+it's kind of like a KVM hypervisor kind of a deal.
+
+1054
+01:02:34,480 --> 01:02:35,920
+And that's actually been working really good.
+
+1055
+01:02:35,920 --> 01:02:37,360
+I can tell you the truth.
+
+1056
+01:02:37,360 --> 01:02:38,400
+It's been really solid.
+
+1057
+01:02:38,400 --> 01:02:40,080
+Proxmox was great, though.
+
+1058
+01:02:40,080 --> 01:02:42,080
+But times have really changed.
+
+1059
+01:02:42,080 --> 01:02:42,960
+The options have changed.
+
+1060
+01:02:42,960 --> 01:02:45,520
+I don't know if you've ever been a Proxmox user or no,
+
+1061
+01:02:45,520 --> 01:02:48,480
+but I know that you're big on the CentOS virtualization stuff.
+
+1062
+01:02:48,480 --> 01:02:48,960
+Yeah, I have.
+
+1063
+01:02:48,960 --> 01:02:51,280
+In fact, I've gotten crap on the Ask Noah show
+
+1064
+01:02:51,280 --> 01:02:55,680
+for not giving enough good juju to Proxmox
+
+1065
+01:02:55,680 --> 01:02:57,920
+because it really is a fantastic project.
+
+1066
+01:02:57,920 --> 01:02:59,280
+They really do some really great work.
+
+1067
+01:02:59,280 --> 01:03:01,680
+And if you want an enterprise grade virtualization system
+
+1068
+01:03:01,680 --> 01:03:03,200
+that has a really fantastic UI,
+
+1069
+01:03:03,200 --> 01:03:04,880
+man, Proxmox is really the way to go.
+
+1070
+01:03:05,440 --> 01:03:07,040
+It's just when you start looking into things
+
+1071
+01:03:07,040 --> 01:03:11,200
+like I want the ability to have a BSD server that's on here.
+
+1072
+01:03:11,200 --> 01:03:13,040
+And then when I go back to Grand Forks,
+
+1073
+01:03:13,040 --> 01:03:14,800
+I want that BSD server to fall over
+
+1074
+01:03:14,800 --> 01:03:16,880
+to my virtualized host in Grand Forks.
+
+1075
+01:03:16,880 --> 01:03:18,960
+And if I come back here, I want it to go back over here.
+
+1076
+01:03:18,960 --> 01:03:20,240
+And those kinds of things.
+
+1077
+01:03:20,240 --> 01:03:23,680
+It's really nice to have something a little bit meatier.
+
+1078
+01:03:23,680 --> 01:03:24,960
+That does sound really cool.
+
+1079
+01:03:24,960 --> 01:03:27,520
+OK, so Omkar's next question was,
+
+1080
+01:03:27,520 --> 01:03:29,760
+what droplet specs do you guys recommend
+
+1081
+01:03:29,760 --> 01:03:32,640
+for a GitLab and a PeerTube instance?
+
+1082
+01:03:32,640 --> 01:03:33,840
+Well, those are two tough questions.
+
+1083
+01:03:33,840 --> 01:03:37,280
+So GitLab, you'd probably be OK with the $20 a month
+
+1084
+01:03:37,280 --> 01:03:38,000
+or less droplets.
+
+1085
+01:03:38,000 --> 01:03:38,800
+GitLab's not going to be.
+
+1086
+01:03:38,800 --> 01:03:39,600
+It just depends on how busy you are.
+
+1087
+01:03:39,600 --> 01:03:40,960
+It depends on what you do with that, I guess.
+
+1088
+01:03:40,960 --> 01:03:42,240
+There's a lot of extended features.
+
+1089
+01:03:42,240 --> 01:03:44,400
+But if you're just dumping some commits to it,
+
+1090
+01:03:44,400 --> 01:03:45,680
+it's probably doable.
+
+1091
+01:03:45,680 --> 01:03:49,600
+Now PeerTube, here's what's tricky about PeerTube is,
+
+1092
+01:03:49,600 --> 01:03:51,760
+if you think about it, you're kind of re-implementing
+
+1093
+01:03:51,760 --> 01:03:52,880
+what YouTube does.
+
+1094
+01:03:52,880 --> 01:03:55,120
+And there is a transcoding process
+
+1095
+01:03:55,120 --> 01:03:58,160
+that PeerTube goes through when you upload a video.
+
+1096
+01:03:58,160 --> 01:04:01,600
+And the speed of your droplet is going to directly impact
+
+1097
+01:04:01,600 --> 01:04:03,200
+how long it takes for those videos
+
+1098
+01:04:03,200 --> 01:04:04,480
+to be available on PeerTube.
+
+1099
+01:04:04,480 --> 01:04:06,560
+If you don't care, if you just want someplace
+
+1100
+01:04:06,560 --> 01:04:07,840
+to throw up videos and you don't care
+
+1101
+01:04:07,840 --> 01:04:10,160
+if it takes an hour for the video to be available,
+
+1102
+01:04:10,160 --> 01:04:12,800
+then you really could get away with a $5 a month droplet
+
+1103
+01:04:12,800 --> 01:04:16,320
+because you're not using much CPU because the decoding's
+
+1104
+01:04:16,320 --> 01:04:18,080
+happening on client side for the video.
+
+1105
+01:04:18,080 --> 01:04:20,400
+And the bandwidth is still fast regardless
+
+1106
+01:04:20,400 --> 01:04:21,760
+of which machine you get.
+
+1107
+01:04:21,760 --> 01:04:24,320
+And then he asked a question that I'm going to punt to you,
+
+1108
+01:04:24,320 --> 01:04:24,560
+Wes.
+
+1109
+01:04:24,560 --> 01:04:27,040
+He asked if either of us have ever tried out traffic,
+
+1110
+01:04:27,040 --> 01:04:28,640
+which I think is how you pronounce it.
+
+1111
+01:04:28,640 --> 01:04:30,800
+It's spelled T-R-A-E-F-I-K.
+
+1112
+01:04:31,440 --> 01:04:33,520
+And for those of you that don't know, I didn't.
+
+1113
+01:04:33,520 --> 01:04:36,000
+It is what they call Cloud Native Edge Router.
+
+1114
+01:04:36,000 --> 01:04:37,760
+It's a reverse proxy in a load balancer
+
+1115
+01:04:37,760 --> 01:04:41,680
+that's easy, dynamic, automatic, and open source.
+
+1116
+01:04:41,680 --> 01:04:43,200
+So it seems like it's pretty cool.
+
+1117
+01:04:43,200 --> 01:04:45,440
+Have you ever heard of Trafic or Traffic, Wes?
+
+1118
+01:04:45,440 --> 01:04:45,680
+Yeah.
+
+1119
+01:04:45,680 --> 01:04:48,800
+So you can front, basically, if you're running a bunch of stuff
+
+1120
+01:04:48,800 --> 01:04:51,120
+on your fancy Kubernetes clusters,
+
+1121
+01:04:51,120 --> 01:04:52,400
+you can put this in front of it.
+
+1122
+01:04:52,400 --> 01:04:53,440
+And it will auto discover.
+
+1123
+01:04:53,440 --> 01:04:56,640
+It'll talk to Kubernetes or Swarm or some other technologies.
+
+1124
+01:04:56,640 --> 01:04:57,440
+Oh, cool.
+
+1125
+01:04:57,440 --> 01:04:59,440
+Find what services you're running,
+
+1126
+01:04:59,440 --> 01:05:01,760
+connect to them, and integrate with metrics.
+
+1127
+01:05:01,760 --> 01:05:03,520
+It can do HTTPS at the front.
+
+1128
+01:05:03,520 --> 01:05:05,760
+Also ties in with some of those open tracing systems.
+
+1129
+01:05:05,760 --> 01:05:08,880
+You can get logs and sort of analyze how a request flows
+
+1130
+01:05:08,880 --> 01:05:10,160
+through all of your services.
+
+1131
+01:05:10,160 --> 01:05:12,640
+Yeah, it's a nice looking web UI to manage this.
+
+1132
+01:05:12,640 --> 01:05:14,160
+This is, I see.
+
+1133
+01:05:14,160 --> 01:05:14,480
+I see.
+
+1134
+01:05:14,480 --> 01:05:17,520
+So it ties in, basically, with the different orchestration APIs
+
+1135
+01:05:17,520 --> 01:05:20,320
+and then automatically configures the reverse proxy,
+
+1136
+01:05:20,320 --> 01:05:22,560
+attaches statistics using open source projects,
+
+1137
+01:05:22,560 --> 01:05:23,440
+and you're good to go.
+
+1138
+01:05:23,440 --> 01:05:23,600
+Yeah.
+
+1139
+01:05:23,600 --> 01:05:25,040
+So there's a lot to like there.
+
+1140
+01:05:25,040 --> 01:05:29,360
+But if you're not using some sort of orchestration software,
+
+1141
+01:05:29,360 --> 01:05:31,120
+it's probably not necessarily what you use.
+
+1142
+01:05:31,120 --> 01:05:33,440
+Maybe something just like, well, Envoy might work,
+
+1143
+01:05:33,440 --> 01:05:35,040
+or just NGINX even.
+
+1144
+01:05:35,040 --> 01:05:36,560
+There's a lot of solutions that won't
+
+1145
+01:05:36,560 --> 01:05:37,680
+have all those fancy features.
+
+1146
+01:05:37,680 --> 01:05:39,440
+But if you don't need them, if you just
+
+1147
+01:05:39,440 --> 01:05:41,680
+have two apps that are running on two different droplets,
+
+1148
+01:05:41,680 --> 01:05:42,960
+well, you're probably fine.
+
+1149
+01:05:42,960 --> 01:05:43,280
+Yeah.
+
+1150
+01:05:43,280 --> 01:05:43,520
+Yeah.
+
+1151
+01:05:43,520 --> 01:05:44,080
+So there you go.
+
+1152
+01:05:44,080 --> 01:05:45,200
+Thanks for the emails.
+
+1153
+01:05:45,200 --> 01:05:48,000
+We got a bunch of others, some of them which were eight
+
+1154
+01:05:48,000 --> 01:05:49,760
+or nine paragraphs long, read them all,
+
+1155
+01:05:49,760 --> 01:05:51,040
+but can't cover them all on the show.
+
+1156
+01:05:51,040 --> 01:05:52,160
+They've got to be a certain length.
+
+1157
+01:05:52,160 --> 01:05:54,320
+And we would love to get your feedback, your questions,
+
+1158
+01:05:54,320 --> 01:05:58,000
+your suggestions for the show, linuxunplug.com contact.
+
+1159
+01:05:58,000 --> 01:06:02,240
+And links for anything we talked about today, linuxunplug268.
+
+1160
+01:06:02,240 --> 01:06:05,280
+So Mr. Noah Chalaya, what are you doing
+
+1161
+01:06:05,280 --> 01:06:06,560
+in this part of the woods?
+
+1162
+01:06:06,560 --> 01:06:08,320
+Are you just coming out here to hang out for the barbecue?
+
+1163
+01:06:08,320 --> 01:06:10,240
+Dude, I am always here for just the food.
+
+1164
+01:06:11,440 --> 01:06:13,040
+I mean, I say nice things like I came here
+
+1165
+01:06:13,040 --> 01:06:14,720
+for your stunning personality and I wanted to hang out
+
+1166
+01:06:14,720 --> 01:06:17,120
+and stuff, but really, it's the barbecue.
+
+1167
+01:06:17,120 --> 01:06:19,920
+How many minutes was it that you walked into the door?
+
+1168
+01:06:19,920 --> 01:06:21,680
+I think it couldn't have been more than five minutes.
+
+1169
+01:06:21,680 --> 01:06:23,760
+We were already packing up to go to lunch when you got here.
+
+1170
+01:06:23,760 --> 01:06:25,920
+Yeah, you know, I really had a suspect.
+
+1171
+01:06:25,920 --> 01:06:27,600
+I mean, here's the thing.
+
+1172
+01:06:27,600 --> 01:06:28,560
+We can talk about food.
+
+1173
+01:06:28,560 --> 01:06:30,000
+I'm not saying that we can't.
+
+1174
+01:06:30,000 --> 01:06:34,480
+But I feel like you had an agenda before I ever came here.
+
+1175
+01:06:34,480 --> 01:06:35,840
+Before I ever set foot in the door,
+
+1176
+01:06:35,840 --> 01:06:39,280
+I just felt like it was your premise to take me
+
+1177
+01:06:39,280 --> 01:06:43,440
+to Indian food and that decision process had been made
+
+1178
+01:06:43,440 --> 01:06:45,040
+before I ever entered the premises.
+
+1179
+01:06:45,040 --> 01:06:46,000
+Yeah, you're welcome.
+
+1180
+01:06:46,000 --> 01:06:46,960
+Is that your way of saying thank you?
+
+1181
+01:06:47,680 --> 01:06:49,680
+That's a long-winded way of saying thank you.
+
+1182
+01:06:49,680 --> 01:06:50,480
+So what are you doing over there?
+
+1183
+01:06:50,480 --> 01:06:51,840
+Getting ready for the Ask Noah program?
+
+1184
+01:06:51,840 --> 01:06:52,800
+I am, yeah.
+
+1185
+01:06:52,800 --> 01:06:55,040
+I'm sure you guys have heard, Google has been making
+
+1186
+01:06:55,040 --> 01:06:57,200
+some weird decisions, forcing people to log in,
+
+1187
+01:06:57,200 --> 01:06:58,720
+and we're going to ask the audience
+
+1188
+01:06:58,720 --> 01:07:01,600
+if they think this enhances their experience using Chrome
+
+1189
+01:07:01,600 --> 01:07:03,840
+or if this time Google has gone too far,
+
+1190
+01:07:03,840 --> 01:07:06,240
+if they've taken privacy and thrown it out the windows,
+
+1191
+01:07:06,240 --> 01:07:07,360
+Google tends to do.
+
+1192
+01:07:07,360 --> 01:07:09,280
+We got a number of other exciting stories
+
+1193
+01:07:09,280 --> 01:07:10,240
+that we're going to get to.
+
+1194
+01:07:11,600 --> 01:07:13,440
+Project Triton has adopted a code of conduct.
+
+1195
+01:07:13,440 --> 01:07:14,400
+We're going to talk about that.
+
+1196
+01:07:14,400 --> 01:07:16,480
+A little bit of follow-up to last week's episode.
+
+1197
+01:07:16,480 --> 01:07:19,440
+Chrome OS 71 has launched.
+
+1198
+01:07:19,440 --> 01:07:22,080
+Now Linux apps are available on non-Pixel devices.
+
+1199
+01:07:22,080 --> 01:07:24,720
+Also the ability to share files with Linux.
+
+1200
+01:07:24,720 --> 01:07:26,400
+Yeah, it's absolutely fantastic.
+
+1201
+01:07:26,400 --> 01:07:28,160
+So we're going to talk about all those things.
+
+1202
+01:07:28,160 --> 01:07:30,240
+And then towards the end of the show, if we have time,
+
+1203
+01:07:30,240 --> 01:07:32,080
+because this is like the least important thing in the world,
+
+1204
+01:07:32,080 --> 01:07:34,400
+but Microsoft has launched the ability
+
+1205
+01:07:34,400 --> 01:07:37,440
+to have multi-user virtualization on Windows.
+
+1206
+01:07:37,440 --> 01:07:39,680
+We're going to explain how that can be leveraged
+
+1207
+01:07:40,960 --> 01:07:42,480
+in an all Linux environment.
+
+1208
+01:07:42,480 --> 01:07:43,680
+If you're just virtualizing Windows,
+
+1209
+01:07:43,680 --> 01:07:45,680
+if you want to be Linux on the hardware,
+
+1210
+01:07:46,320 --> 01:07:48,080
+Windows in a virtual environment,
+
+1211
+01:07:48,080 --> 01:07:50,480
+how this is actually going to benefit your Linux environment.
+
+1212
+01:07:50,480 --> 01:07:52,400
+It's for people who like to mess with computers.
+
+1213
+01:07:52,400 --> 01:07:53,200
+That's right, Leo.
+
+1214
+01:07:54,640 --> 01:07:55,920
+Well, I look forward to it.
+
+1215
+01:07:55,920 --> 01:07:59,280
+Yeah, I just was making this joke earlier in the show.
+
+1216
+01:07:59,280 --> 01:08:01,600
+I look at the stats and I'd say there's 30%.
+
+1217
+01:08:02,480 --> 01:08:05,200
+Well, yeah, it might be around 30%-ish.
+
+1218
+01:08:05,200 --> 01:08:06,640
+Somewhere in that ballpark of the people
+
+1219
+01:08:06,640 --> 01:08:08,400
+that download the show are on Windows.
+
+1220
+01:08:08,400 --> 01:08:10,240
+It's somewhere in that area.
+
+1221
+01:08:10,240 --> 01:08:11,280
+And we love you too.
+
+1222
+01:08:11,280 --> 01:08:12,560
+Yeah, so we appreciate it.
+
+1223
+01:08:15,440 --> 01:08:16,640
+Maybe they're just checking us out
+
+1224
+01:08:16,640 --> 01:08:17,680
+before they make the big switch.
+
+1225
+01:08:18,320 --> 01:08:20,080
+They're looking for all the guides and the know-how.
+
+1226
+01:08:20,080 --> 01:08:23,280
+Yeah, I look at myself as Jesus Christ.
+
+1227
+01:08:23,280 --> 01:08:26,000
+Jesus, you know, he wouldn't go into the places
+
+1228
+01:08:26,000 --> 01:08:28,000
+where everybody had become a follower
+
+1229
+01:08:28,000 --> 01:08:32,240
+because there's not a lot to be done there.
+
+1230
+01:08:32,240 --> 01:08:34,720
+So I need to be in the homes of the sinners
+
+1231
+01:08:34,720 --> 01:08:36,560
+so that I can bring them to the wonderful world.
+
+1232
+01:08:36,560 --> 01:08:38,720
+This is really just falling apart as you keep going.
+
+1233
+01:08:38,720 --> 01:08:40,240
+My Lord and Savior, Linux Torvalds.
+
+1234
+01:08:41,680 --> 01:08:43,440
+This really explains a few things, actually.
+
+1235
+01:08:43,440 --> 01:08:45,200
+This worldview now explains a few things.
+
+1236
+01:08:45,200 --> 01:08:46,320
+I understand you a little better now.
+
+1237
+01:08:47,120 --> 01:08:48,400
+There are memes going on.
+
+1238
+01:08:48,400 --> 01:08:50,320
+Apparently, I said one time on an episode,
+
+1239
+01:08:50,320 --> 01:08:53,040
+I said that Linux was a religion I was just going to give in.
+
+1240
+01:08:53,040 --> 01:08:54,560
+And so I just started calling myself the Pope.
+
+1241
+01:08:55,600 --> 01:08:57,360
+And now it's become memes.
+
+1242
+01:08:57,360 --> 01:09:00,240
+Well, yeah, Pope might not be too far off the mark.
+
+1243
+01:09:00,240 --> 01:09:01,440
+I've been meme-ified.
+
+1244
+01:09:01,440 --> 01:09:03,920
+Well, now that I'm sure we've enraged somebody,
+
+1245
+01:09:03,920 --> 01:09:05,680
+we should probably wrap this thing up.
+
+1246
+01:09:05,680 --> 01:09:09,280
+Go get more of Martin Wimpress over at the Ubuntu podcast.
+
+1247
+01:09:10,080 --> 01:09:11,600
+Go get more of them. Great show.
+
+1248
+01:09:11,600 --> 01:09:13,760
+Not just me, but also Mark.
+
+1249
+01:09:13,760 --> 01:09:18,960
+Everyone remember, Mark is not Martin or Alan or Popey or Wimpy.
+
+1250
+01:09:18,960 --> 01:09:19,520
+He's Mark.
+
+1251
+01:09:19,520 --> 01:09:23,360
+Mark is one third of the Ubuntu podcast.
+
+1252
+01:09:23,360 --> 01:09:24,000
+Yeah.
+
+1253
+01:09:24,000 --> 01:09:27,440
+Yeah, he visits on occasion.
+
+1254
+01:09:27,440 --> 01:09:29,200
+So that's why he doesn't get probably the mention as often
+
+1255
+01:09:29,200 --> 01:09:30,640
+because you're right here front and center.
+
+1256
+01:09:31,760 --> 01:09:34,240
+But it is a great trio at that.
+
+1257
+01:09:34,240 --> 01:09:36,880
+And also, go check out Cassidy James's work.
+
+1258
+01:09:37,440 --> 01:09:39,120
+The Medium post that we chatted about earlier
+
+1259
+01:09:39,120 --> 01:09:41,280
+will be linked in the show notes.
+
+1260
+01:09:41,280 --> 01:09:42,240
+And stick around.
+
+1261
+01:09:42,240 --> 01:09:43,360
+We got the post-show coming up.
+
+1262
+01:09:43,360 --> 01:09:45,520
+And then right after that on the live stream
+
+1263
+01:09:45,520 --> 01:09:47,040
+is the Ask Nowhere program,
+
+1264
+01:09:47,040 --> 01:09:48,800
+which will be live, taking your calls.
+
+1265
+01:09:48,800 --> 01:09:50,640
+We might talk about some of the same topics,
+
+1266
+01:09:50,640 --> 01:09:52,720
+but you actually get to chime in via the phone.
+
+1267
+01:09:52,720 --> 01:09:54,720
+You don't even have to bother installing Mumble.
+
+1268
+01:09:54,720 --> 01:09:57,040
+Wes Payne's available all the time online.
+
+1269
+01:09:57,040 --> 01:09:57,840
+You can just hunt him down.
+
+1270
+01:09:57,840 --> 01:09:58,960
+He's at Wes Payne.
+
+1271
+01:09:58,960 --> 01:09:59,520
+That's right.
+
+1272
+01:09:59,520 --> 01:10:01,360
+And then he's on the TechSnap program.
+
+1273
+01:10:01,360 --> 01:10:02,160
+New show, just launched.
+
+1274
+01:10:02,160 --> 01:10:03,200
+Actually, I kid.
+
+1275
+01:10:03,200 --> 01:10:04,320
+It's not a new show.
+
+1276
+01:10:04,320 --> 01:10:05,040
+It's been around for a while.
+
+1277
+01:10:05,040 --> 01:10:06,320
+But it's coming out, dude, all the time.
+
+1278
+01:10:06,320 --> 01:10:06,880
+It's pretty great.
+
+1279
+01:10:06,880 --> 01:10:10,000
+And we just had John the Nice Guy on the show last week.
+
+1280
+01:10:10,000 --> 01:10:10,720
+You should go check it out.
+
+1281
+01:10:10,720 --> 01:10:12,400
+He's got some hot tips.
+
+1282
+01:10:12,400 --> 01:10:12,960
+Yeah.
+
+1283
+01:10:12,960 --> 01:10:14,400
+Especially if you want to dive a little deeper
+
+1284
+01:10:14,400 --> 01:10:16,320
+into interplanetary file system,
+
+1285
+01:10:16,320 --> 01:10:18,000
+all of that is over at TechSnap.systems.
+
+1286
+01:10:18,000 --> 01:10:18,560
+All right.
+
+1287
+01:10:18,560 --> 01:10:18,960
+That's all.
+
+1288
+01:10:18,960 --> 01:10:19,440
+Hey.
+
+1289
+01:10:19,440 --> 01:10:19,760
+Yeah.
+
+1290
+01:10:19,760 --> 01:10:20,000
+What?
+
+1291
+01:10:20,000 --> 01:10:20,720
+What?
+
+1292
+01:10:20,720 --> 01:10:22,800
+You had John Spriggs on.
+
+1293
+01:10:22,800 --> 01:10:23,040
+Yeah.
+
+1294
+01:10:24,160 --> 01:10:24,400
+Yeah.
+
+1295
+01:10:25,280 --> 01:10:25,760
+It's nice, right?
+
+1296
+01:10:25,760 --> 01:10:26,400
+Wow.
+
+1297
+01:10:26,400 --> 01:10:27,680
+I've been away too long.
+
+1298
+01:10:27,680 --> 01:10:31,920
+John is not just John the Nice Guy Spriggs.
+
+1299
+01:10:31,920 --> 01:10:34,080
+John is a super nice guy.
+
+1300
+01:10:34,080 --> 01:10:34,400
+He is.
+
+1301
+01:10:34,400 --> 01:10:35,200
+He really is.
+
+1302
+01:10:35,200 --> 01:10:35,520
+Yeah.
+
+1303
+01:10:35,520 --> 01:10:35,680
+Yeah.
+
+1304
+01:10:35,680 --> 01:10:37,280
+He's the organizer of OpCamp.
+
+1305
+01:10:37,280 --> 01:10:37,840
+I know.
+
+1306
+01:10:37,840 --> 01:10:38,080
+I know.
+
+1307
+01:10:38,080 --> 01:10:40,240
+I've been wanting to have him on the show forever.
+
+1308
+01:10:40,240 --> 01:10:41,040
+So go check it out.
+
+1309
+01:10:41,040 --> 01:10:42,640
+TechSnap.systems.
+
+1310
+01:10:42,640 --> 01:10:44,080
+All our links, LinuxUnplugged.com.
+
+1311
+01:10:44,080 --> 01:10:45,040
+I'm Matt Chris, L-E-S.
+
+1312
+01:10:45,040 --> 01:10:45,760
+Thanks for joining us.
+
+1313
+01:10:45,760 --> 01:10:50,320
+See you next Tuesday.
+
+1314
+01:11:15,760 --> 01:11:23,200
+I wanted to pick Wimpy's brain.
+
+1315
+01:11:23,200 --> 01:11:26,320
+I don't know exactly what the right way to ask this question is, Wimpy,
+
+1316
+01:11:26,320 --> 01:11:30,240
+but is there a way to tell what the difference would be
+
+1317
+01:11:30,240 --> 01:11:39,040
+in terms of patches or additions to Ubuntu's 1810 gnome versus, say, stock gnome?
+
+1318
+01:11:39,040 --> 01:11:45,440
+So is there a way to actually detail patch sets that might be better for performance?
+
+1319
+01:11:45,440 --> 01:11:48,880
+I'm trying to think about how to review the new distro releases,
+
+1320
+01:11:48,880 --> 01:11:53,040
+and performance of the gnome desktop is something I think I kind of want to take a look at,
+
+1321
+01:11:53,040 --> 01:11:57,760
+but I'm not quite sure how to tell differences in terms of patch sets that have been applied
+
+1322
+01:11:57,760 --> 01:11:58,800
+for performance.
+
+1323
+01:11:58,800 --> 01:11:59,360
+Yes.
+
+1324
+01:11:59,360 --> 01:12:07,840
+So if you want to see what patches are being applied to what is the upstream version of
+
+1325
+01:12:07,840 --> 01:12:14,160
+gnome shell and the patches that are being carried in Ubuntu, what will become 1810,
+
+1326
+01:12:14,160 --> 01:12:19,520
+then yes, you can see all of that in Launchpad because all of that Debian packaging that
+
+1327
+01:12:19,520 --> 01:12:24,880
+happens happens in Launchpad, and you can see those patches directly.
+
+1328
+01:12:24,880 --> 01:12:32,320
+What I would say is that I know that Daniel Van Voet, who's part of the Ubuntu desktop
+
+1329
+01:12:32,320 --> 01:12:39,360
+team, all of the patches that we're carrying as vendor patches right now have been submitted
+
+1330
+01:12:39,360 --> 01:12:49,600
+upstream and are in various stages of review and will eventually percolate into the upstream
+
+1331
+01:12:49,600 --> 01:12:50,640
+gnome project.
+
+1332
+01:12:51,600 --> 01:12:56,560
+But whilst they're being negotiated, we're carrying the patches that he's been working
+
+1333
+01:12:56,560 --> 01:13:10,160
+on.
+

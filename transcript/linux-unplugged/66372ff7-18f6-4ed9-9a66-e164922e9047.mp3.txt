@@ -1,0 +1,1464 @@
+You know, this is kind of a special thing we're doing.
+I don't know. Have we done it before this way?
+No virtual log and a single focus for an entire episode.
+Is this even Linux Unplugged, Chris?
+You might call it a special featured edition.
+It's the Unplugged Plugged In Show.
+I'm not sure.
+This is Linux Unplugged, episode 272 for October 23rd, 2018.
+Welcome to Linux Unplugged, your weekly Linux talk show that's going in with a plan this week.
+My name is Chris.
+My name is Wes.
+Hello, Wes. We have a special episode, a feature edition of the Unplugged program,
+something we've been working on for a little while.
+We're going to do a deep dive into what the hell jack audio is,
+why people keep experimenting with it, and then why they run away crying.
+We went deep and we'll walk away with a little open source help
+to get you going with audio magic on your box.
+We'll tell you about building a studio inside a laptop,
+complicated audio routing between applications,
+how we're doing it all with free software.
+But then we'll look ahead to the future, to the Pipewire future.
+We'll bring on the main developer, Wim Taymans, of Pipewire to chat about our questions
+about what's going to happen with PulseAudio video on Linux
+and how it's all going to work in a Wayland future.
+Wim has had a long, distinguished career going way back,
+and he'll tell us about some of that and what we should expect in the future.
+And then at the end of the show, but not quite the end.
+Don't call it the last part of the show, because last but not least,
+a Precision 5530 review.
+This is a beast machine in a svelte, clean-looking package.
+We'll tell you about the feats that we managed to accomplish with this laptop.
+And if you're looking for a mobile laptop, something that's like a desktop killer,
+that run Linux, well, you might want to consider the Precision line.
+It is a heck of a work machine.
+So this being a special episode, we're actually recording ahead of time,
+because I'm down at MeetBSD.
+As this is going out, I'll be on my way back from MeetBSD,
+which is sort of what got us thinking along these lines.
+Like, how can we take our new ThinkPad laptops
+and build a studio inside the ThinkPad?
+See, here in the studio, we have a whole bunch of equipment
+to handle multiple calls and remote connections and the Mumble Room,
+so we can have a virtual lug and our different...
+We have four microphones in studio.
+There's literally stacks of audio devices just sitting on the table here.
+You can't take that with you when you want to go to a community event like MeetBSD.
+You can't pack all that up.
+And so in the past, we've done all these different incarnations
+with some mobile hardware, a couple of machines, depending on the event.
+But we set out to build it all into one singular ThinkPad.
+And that's sort of where Jack came in.
+And I have to be honest, even though we've been doing audio forever,
+I have avoided Jack.
+I have avoided... You kind of... Have you avoided it?
+Just haven't really had the need?
+I would say avoided.
+I mean, is avoided the right term for a technology that you know exists
+and that you're interested in?
+And you know it would be helpful.
+You know it would be helpful. You know it's powerful.
+It's sort of like any of those topics that you're interested in.
+I don't know if you're like me, Chris, but you know...
+I can't get like a small understanding of something.
+It's hard to just like use the outside edge of a tool and not deep dive.
+But I also know how long those deep dives take.
+So I think it's one of those topics where it's like,
+Jack is cool. I'd like to learn it.
+But I already have 10 other things I'm learning right now.
+Yeah. And PulseAudio seems to work, right?
+For my desktop needs, totally covered by Pulse.
+So have you ever wanted out there, dear audience,
+to take the audio output of say one piece of software
+and send that audio to another piece of software?
+Have you ever wanted to take the output of that same program
+and maybe send it to two other programs
+and then maybe record the result of say the first program?
+That's what Jack enables.
+It's this comprehensive audio routing and management engine.
+And because it's so comprehensive
+and because it can accommodate so many types of setups
+and musical setups and audio recording setups,
+it is complex in its nature.
+But it's also a very clever piece of software
+that honestly manages to pull off some magic
+in the time that it can route stuff inside your machine and all of that.
+It honestly is like a black magic box.
+You get this instant sort of flexibility
+that you just don't have with any other tooling.
+And I'll tell you what the damn shame is,
+is that it is a super impressive piece of software engineering,
+but its complexity leads a lot of us free software users
+to just kind of not pay a lot of attention to it.
+I know a few people in our audience have really deep dived
+because I've gotten notes over the years like,
+Chris, you got to check this out.
+Chris, and like, hey, Citizen comes in our virtual lug.
+He sounds amazing.
+And he's doing his audio processing through Jack.
+And so I'd always known there's something there.
+It wasn't until we started doing our deep dive
+that I learned to appreciate how sophisticated Jack is
+and how really they have managed to pull off a few shortcuts
+that make it very competitive in its performance and all of that.
+So we wanted to get this to a place
+where we could build that studio inside our laptop,
+multi-channel mobile broadcast studios.
+But we couldn't just set it up once and call that good.
+Right, no, that's not going to work.
+I mean, we need something that's going to be reliable.
+And as you know, we are a bit of some distro hoppers here
+on the Linux Unplugged program.
+Laptop shippers, shoppers, switchers.
+Really, we're not using the same devices just about any time.
+So if we set it up once perfectly on one machine,
+that's just not going to work.
+Yeah, we wanted to make it something
+that not only could we use to get going quick,
+but also that the audience could use.
+So when we're all done here, we'll tell you about a script
+that you'll be able to use actually a couple of scripts
+to help set all this stuff up on your own machine.
+We've only done a little testing on different distros.
+So there's more room there.
+We'll tell you more about that too.
+But we wanted to accomplish fancy schmancy audio routing
+inside the laptop.
+And for example, we want to take audio from, say,
+one mic interface and play the soundboard
+and maybe also keep a backup recording of my remote host,
+mix it in the right way,
+so that way people aren't hearing each other to get echo,
+but they're hearing the other individuals in the call,
+things like that.
+Right, I mean, here in the studio,
+we've got a big 32 channel mixer
+and we've got, I don't know, three or four computers each
+with audio interfaces attached feeding into those
+and then complicated mix bus settings
+to get those all going the right places
+so I can connect in when I'm remote
+and hear the mumble people
+and maybe be the right volume at least these days.
+That's a lot to do.
+It is and it's complicated even in hardware.
+So trying to do it in software and getting it reproducible,
+which is where the script comes in, is really tricky.
+This was an area I didn't even realize
+wasn't quite covered very well by the traditional tooling
+because Pulse works pretty darn well
+and it's good enough for basic,
+you know, if you're just joining,
+if I'm just joining to the studio connection,
+fine, I don't need anything fancy.
+If I'm just joining a video conference session,
+but yeah, once you start needing to pass audio
+from multiple pieces or platforms
+that aren't designed to talk to each other,
+that's where Jack shines.
+Say you're playing something on your desktop
+and you want to send that to the Chrome browser.
+How do you do that?
+How can you take audio that's coming out of Firefox
+and send it to just your headphones
+and not your speakers without changing defaults
+for your whole desktop, all of that,
+just on a per application basis.
+And so it is something that is,
+you can use it in a fairly simple,
+I just want to take this and send it to that kind of setup,
+a one to two setup, or you can reproduce a studio.
+And so we decided our all in one box solution
+would be powered by our two identical ThinkPads.
+So that way we have redundancy here
+and it's also good for testing.
+As of now, it's Ubuntu 18.04 is the base.
+We're both running Neon,
+but it should work on Kubuntu
+and it has worked on Ubuntu 18.10 as well.
+And the whole idea is to create a couple of scripts
+to make it consistent.
+You log into a system,
+you perhaps open an application or run the script,
+we'll go through the process,
+and then everything gets set up.
+And that part of it right there,
+I'm hoping that we can share with the audience
+and then people will perhaps add their own distribution
+as we go down.
+So what do we accomplish when we first log in the machine?
+We want to get set up to be able to use Jack
+and record sound.
+What's the script doing?
+What are we doing ourselves?
+I think just to start,
+get your distribution all set up,
+the machine that you can normally use.
+And then I think the first set of scripts
+will just be to bootstrap the installs
+because you got to get all the packages
+and sure you can just install Jack,
+but there's a whole suite
+because it's the Linux open source community.
+There's a whole suite of tooling that you might want
+and probably do want to go around
+and a lot of those are not in necessarily
+the standard distributions.
+A big one for us is the KX Studio suite of applications.
+Huge. KX Studio is a great resource.
+It's available as a distribution or as repositories
+or just as individual dev files too.
+Yeah, exactly.
+So a lot of it is really just getting that shoehorn
+into place the right way
+and then getting all of the dependencies installed.
+Yeah. And that's going to be the part
+in regards to our script that we release
+that is going to be the most distro specific, I imagine.
+Yes, exactly.
+Package names will change if you're on Arch
+and there's probably a whole other set of packages.
+I'm not sure.
+I haven't actually tried Jack on Arch yet.
+I'm sure it's well supported.
+But you might need to hit the AUR up
+for some of those more esoteric applications.
+Yeah. So you think of it as this way,
+your base Linux desktop has good sound
+for just doing playback and every day computer use.
+It's when you want to step it up to the next level
+where you got to install this Jack stuff
+and it's like you're adding in this audio engine
+into your Linux box.
+You're grafting it in
+and it has the ability to pretend to be a Pulse device.
+It has the ability to pretend to be also too.
+So applications that talk Pulse and also
+just can automatically by that nature talk to Jack.
+Right. So it's functionally just another sound server
+that runs on your system.
+And so it talks to the kernel driver part of the also stack
+and gets input that way.
+And then individual clients that want to support Jack
+while they implement some of the Jack API
+and then they register what are called clients
+and can get to talk to Jack.
+And then you can register inputs and outputs
+and then Jack lets you route between those.
+Like in our case, we set up VLC as a client
+and we set up Chrome as a client.
+Yeah, exactly.
+And then we could route audio between them.
+In fact, I snuck a recorder into Wes's lab here at the studio
+and captured the first moment
+when we actually got this working.
+The audio is a little rough
+but it's genuine like we made it.
+So how would we know if Chrome's getting audio
+from the right source?
+Right. We should be able to just go to Chrome in.
+Okay, so that goes from VLC left to Chrome left
+from VLC right to Chrome right.
+So then it's a stereo. That's cool.
+Yeah, and you can change that in the script
+of how like you want it to be.
+So now we play this file in VLC.
+We go over to Chrome and...
+If I can select the right settings,
+this will be a lot easier.
+All right, do it again.
+Hit it again. Let's see if it works.
+And the survey says, boom.
+So now we're sending VLC audio into Chrome.
+And so we just have a Chrome in jack source.
+So anything that gets sent to Chrome in
+would show up in there.
+Exactly.
+So it could be the soundboard.
+It could be another audio interface I have plugged in
+if I have two people.
+Yep.
+That's great.
+That's great.
+One of the things that makes this doable
+once it's up and running
+is there is a UI where you are dragging wires
+from one device to the other device
+or to an application.
+What's that called?
+Yeah, exactly.
+That's the jack patch bay.
+And there's multiple...
+Again, there's multiple limitations
+of just about all of these different types of tools.
+We're using one from the KX Studio Suite
+for a whole suite of reasons.
+Which is a nice, cute front end.
+Yeah.
+And I mean QT.
+It is nice though, yeah.
+It gives you a nice visual space
+and you can manage different jack sessions.
+You can save a session and load them.
+Am I getting the terminology right there?
+Yes.
+Yeah, exactly.
+Really under the hood, we're using Lottish
+or the Lottie session handler,
+which, yeah, lets you save all that state.
+Once you've got...
+I mean, you can find some pictures online.
+We might have some stuff to share down the road.
+Once you get these patch bays really configured,
+there are a lot of connections,
+especially, you were kind of talking about it,
+but if you're joined by a remote host
+and you're playing from the soundboard
+and maybe some music from another program
+or playing a clip from YouTube or something,
+well, you want to make sure everyone can hear
+just what they're supposed to hear
+and not everything else.
+And you need to be able to monitor
+everything that's going through the system as well.
+So you end up with one output over here,
+but it's going to six different places.
+Yep, yep.
+And actually, the UI makes it pretty intuitive.
+You can hover over it.
+It'll highlight just which lines
+go into which input and output.
+Yeah, it's a bit of a physical representation
+in software of what we do here in the real world.
+Right, you can imagine just taking like TRS plugs
+and plugging them into two.
+It's basically that.
+We'll put a visualization of what we're talking about
+on the GitLab page for the script.
+So we'll have that linked in the show notes,
+linuxunplug.com slash 272.
+If you want to see what Wes is talking about,
+we'll have a visual there on the script page.
+Just to clarify things a bit here,
+we're using Jack 2 right now,
+and that's just one additional way
+some of this stuff can be really confusing.
+Jack's been around since 2002,
+and now runs on a whole bunch of platforms.
+So as you can imagine,
+really like any good open source project,
+there's a lot of good functionality,
+but not all of it's super well documented
+or it's just spread out between six different sources.
+Yeah, and one thing that confuses me
+is there's technically two versions of Jack.
+There's Jack 1 and Jack 2.
+Right, so originally Jack 2 was going to be
+a multiprocessor aware replacement for Jack 1,
+but it turns out that their feature sets
+are just ever so slightly different.
+Like if you need to use two interfaces, let's say.
+Two sound cards or two USB audio devices.
+Even two like snowball microphones or two headsets.
+Exactly.
+Well, only Jack 1 really supports that very well.
+But if you want some of the fancier features
+or to work on a bunch of other platforms,
+that's Jack 2's wheelhouse.
+Now they both implement the same C API in the background.
+So with, you know, you can write your own.
+Yeah, the applications don't care.
+Okay.
+That's confusing though.
+Just even having two versions.
+And it seems like if they ever,
+and hopefully they will, get around to creating Jack 3,
+then they're going to re-merge them again.
+It's sort of like the intention-ish.
+Right.
+They didn't, everyone agrees there doesn't need to be two.
+It's just that they both work right now.
+And people like both of them for different reasons.
+People use them both.
+For our purposes, we're using Jack 2.
+Yeah, we're using Jack 2.
+And there's a lot of features of Jack
+that we don't care about for our particular purposes
+because we do a lot of offline recording
+or, you know, just some live shows with effects done
+or minimal effects that we can all do in hardware that we have.
+Yeah.
+But Jack excels at low latency applications.
+It's actually driven a lot of the work
+for the real-time kernel patch set that exists for Linux
+because when you're doing, you know,
+if you're doing a complicated live show,
+you need fast feedback.
+And Jack can get you the really low,
+like sub-10 millisecond latency
+that you're going to want to hit.
+Since we're automating this process for ourselves
+and a big part of what we're doing now
+as part of Linux Academy is trying to open source
+the stuff we do, right off the bat,
+we're going to open source the script.
+We're going to post it up on our new
+gitlab.jupytercode.io gitlab instance.
+We'll have some information there.
+The thing to really take away is there's two scripts,
+one that's pretty Ubuntu-specific
+that installs the packages and then another script.
+But I'll let Wes tell you about that.
+Right.
+So, yeah, the first script is just to set it up.
+And we're targeting Ubuntu right now.
+If people want to implement that script
+or just make documentation for how to set those things up
+on other systems, hey, that would be welcome.
+Very much so.
+The other script is sort of our, like, our playbook script.
+It's how we're going to get everything up and running
+so that, Chris, let's say you're on the road
+and you just, you know, you've got your ThinkPad.
+You can, you know, you've already set up everything for Jack.
+You can just launch this script.
+It'll go through, set things up just how it should be.
+In particular, since we're using a lot of Pulse audio
+applications, Jack includes some connectors.
+So you can tie Pulse to Jack.
+And, you know, it's pretty featured.
+You can name them and get them all set up.
+But we want to make sure that happens every time.
+So it sets those up, launches applications
+so that they connect to the right Pulse sync
+so that we go get the sound going where we need it to go,
+and then launches our favorite DAW, Reaper.
+The nice thing about Jack being around for a while
+and the fact that it's pretty well-respected software
+has meant that support for it has crept into more areas
+than you suspect.
+Jack is one of those things that's kind of like Samba,
+where you realize that Samba has been snuck
+into more devices and things in this world
+than you ever thought possible.
+Jack's a lot like that.
+It wasn't until we really started looking into this
+that we realized our audio editor and recorder of choice
+for Linux Reaper, the Reaper workstation,
+has brilliant support for Jack.
+Just plugs right in.
+You get a whole bunch of inputs and outputs.
+And then it's super.
+I mean, we went through it, Chris.
+It's so easy.
+You just pick literally the names of the clients
+that you want right in the Reaper UI.
+And I can assign dedicated tracks to each one of those.
+So my microphone is its own dedicated track,
+the soundboard, and my remote guest,
+I can keep a backup audio copy on its own track
+all through Jack, one laptop, one microphone,
+one set of headphones.
+It's something that is just, to me,
+when I'm literally right now recording this
+sitting in front of a 32-channel mixer,
+it really kind of blows my mind.
+It's really.
+And it's the same laptop.
+You haven't done anything.
+You haven't paid for any expensive proprietary software.
+I really feel like we came across
+this magical open-source project
+that I've heard a lot of people talking about
+that I avoided for a really long time.
+And the real magic they do that you just mentioned
+is that low latency.
+I know I mentioned earlier,
+but that is, from my understanding
+of talking to a couple of people
+who really know how to build this stuff,
+it's almost unmatched, right?
+And that's one of the things about Pulse
+that it just can't do.
+Pulse does a great job of combining things,
+letting you control which output from which application
+goes to which output device that you want,
+stuff that we couldn't easily do before.
+But there's a lot of latency involved
+because it wasn't designed for that.
+It's designed for a good end-user listening experience,
+trying to minimize dropped packets
+and that sort of thing.
+You have very different goals
+when you want low latency,
+especially involves a lot of this
+is just passing bytes around
+and making sure that you don't allocate memory
+and you don't do anything that won't be constant time.
+Right, so clearly Pulse has its limitations.
+It's good for certain applications.
+And I'd say Jack's limitations,
+it could be your everyday sound server,
+but Jack's real limitations might be its complexity,
+its general tooling set around it.
+Right, yeah.
+This is where the opportunity for PipeWire opens up.
+And PipeWire not only brings in
+and solves the audio side of this,
+but it also solves the video side of this.
+And this is really gonna be the future
+of Linux's media pipeline,
+assuming the PipeWire is successful.
+And that's why we wanted to bring on our special guest.
+So joining us now is Wim Theimus,
+and he is the man to talk to you about PipeWire.
+Wim, welcome to Linux Unplugged.
+Hello, everybody.
+Good to have you here.
+Wim, just because I was a little starstruck,
+I got a little nerd starstruck when I was Googling you.
+I thought if you would indulge us,
+maybe we'd start sort of towards the beginning of your career.
+You've got some standing in this industry.
+You've been working in audio and multimedia development
+since the Commodore 64, true?
+Yeah, I guess so.
+Impressive.
+Yeah, that gives you a history here.
+What did you do on the Commodore 64?
+I started writing demos, just small little programs in assembly.
+And then it became like bigger demos
+and more complicated effects.
+And then I started to do some games.
+Then I kind of moved on to Amiga.
+And then I did some more demos and experimenting
+and then I learned C and got some more multimedia stuff.
+So it's kind of a hobby that has been going on.
+So it's always very small.
+So it's always been a bit like, yeah,
+image and audio and animation and stuff like that.
+Multimedia, I guess.
+Yeah, well, what I realized when I was Googling
+was that I've been following your career for quite a while.
+I just didn't realize it was you
+because fast forward down many years later
+and you ended up being one of the primary developers of Gstreamer
+and you worked at Fluendo as well, true?
+Yes, yes, that's true.
+So, yeah, that was a bit of a weird story
+because I was doing my free time.
+I was working on the open source stuff
+and I was going to write a video editor.
+But then I needed a multimedia framework, I realized.
+And then I discovered like the early beginnings of Gstreamer
+back in 1999, I think it was.
+And then I started hacking on that actually my free time
+for quite a few years.
+Yeah, until I got a job doing that actually.
+I was working in a bank back in the day.
+So something completely different.
+Gstreamer 1.0, September 24, 2012.
+I can't believe it was that long ago.
+Wow.
+Yeah, and that's amazing.
+Wim, and now you're a principal software engineer at Red Hat.
+So, and that has brought us to talk about PipeWire today.
+Very excited to have you on the show,
+especially because audio is a big area
+that we work in, and we have a couple of questions for you.
+I mean, just to start off,
+one of the things we talking about on today's show is jack.
+And so we were very curious to see that PipeWire
+is going to have jack support built right in.
+What's the status?
+Is that something I could use today?
+Use today is a big word.
+Jack is quite stable and well-established,
+but there are some things that work.
+It's all just not ready packaged and easy to test
+and all of that stuff, but we're working on that.
+So soon, I'm hoping in a couple of months,
+we'll actually be able to test it properly.
+Wim, I think it would be a good idea
+if we just paused really quick
+and defined PipeWire to a degree.
+When you read the PipeWire site, it says,
+and this is a pretty big, ambitious goal,
+PipeWire is a project that aims to greatly improve
+handling of audio and video.
+Under Linux, boom, that right there is a massive statement.
+How is it going to accomplish that?
+So, yes, so basically, I'm not going to do anything.
+I'm going to take all the bits and pieces that exist,
+the good stuff and combine them into one new thing.
+It turned out to be what is currently happening in PipeWire.
+So, as the base for audio processing and general framework
+for these things, the Jack, the design seems to work fine.
+Like parts from GStreamer, for example,
+for doing buffer negotiation and format stuff,
+that seems to work fine too.
+And there's lots of other things from plugin architectures
+that seem to work fine together that allows you to build
+something that is actually going to be able to compete with Core Audio,
+for example.
+Core Audio, I've been looking at that quite a lot lately.
+I don't agree with everything that they do,
+but what they can do is pretty impressive.
+Mm, I love to hear that. That's good.
+So, that's your taking a look at how the other side
+has made it work somewhat successfully.
+Yes. So, I think with the combination of Jack
+and also with what they have in Core Audio,
+like IO units, if we have something similar,
+that would be something what Pulse Audio did
+to take in arbitrary streams and feed that into a Jack pipeline
+or sort of pipe, because you need something more than Jack.
+That will get us very close, I think, to an ideal position.
+And something that I learned this year is that we need
+an external session manager,
+something that ties in closely with the desktop
+and all of the configuration stuff,
+because that is typically also something that is currently lacking
+in Pulse Audio and Jack, the setup of the whole thing.
+How do you say my card, it has four channels,
+but really channel one and two are not connected to anything,
+and you shouldn't assume it.
+Or I have two sound cards and I want to have two channels,
+or I have two sound cards and I want to make them into a surround sound.
+So, the session manager, would it also, in theory,
+allow you to save states so you could load an entire session up?
+Say, for example, you get to an area that has a lot of audio equipment
+that you plug in, now all this equipment's become available
+that wasn't there earlier in the day.
+Well, that is the session manager, how Jack defines it.
+Yeah, it's like loading of complete setups
+of audio processing pipelines.
+I don't know exactly how we're going to call that.
+Maybe we should call the other session manager something else.
+But what I mean with the session manager
+is managing all of the devices that are on your system.
+Like I plug in my USB headset or something
+and I'm playing a video, what should happen with the audio?
+This decision that is currently being made
+for moving the sound from your video player
+to your newly plugged in device,
+it's like the decision is made currently
+by both audio inside the module.
+But you can't really tweak that anywhere
+and the desktop can't really get to that setting.
+You can't really influence anything.
+So, I want to make that a bit more accessible to the desktop
+and have the user be more in control of that.
+So, that would be something maybe where,
+like if two people were using the same computer,
+they could have completely different audio configurations
+for the same hardware.
+And that would be that Pipewire could be aware of
+the different user configurations?
+Yes, yes, for example.
+Yeah, well, the Pipewire itself, for example,
+it will start up, it will load all the devices.
+But in itself, it will just sit there
+because then there is the session manager
+that starts up, connects to Pipewire
+and actually goes and restore information from a database
+to say, oh, this card and all of these channels,
+they get these labels and these devices
+get grouped together and those are priorities and so on.
+So, that if an app comes, VLC, for example,
+that you know, App VLC,
+it presents me with a surround sound stream.
+The user wants a surround sound stream to discard
+and then we link that all together like that.
+So, that would be the responsibility
+of the session manager managing all of the audio
+that is coming in and also the video
+because it works for video as well
+and routing that to the right device.
+And it also goes, for example,
+what we currently don't have
+or something that is not accessible
+is for example, equalizers or filter setups.
+You know, you can have like in other operating systems,
+you can, for example, say,
+I want Dolby surround sound or something as an output.
+So, for that, you can set up a little filter
+that will do this conversion for you.
+Currently, that is totally not accessible
+from anything, PulseAudio or things like that.
+So, we want to make that a bit more configurable.
+And all of this management of these filters and setups
+would be done by a session manager
+under control of the desktop.
+So, that is currently an idea we have.
+That makes a lot of sense.
+I picked up a lot of unification in this project,
+joining both audio and video,
+treating them in the same system.
+That really hasn't been how we've done it on Linux.
+Have you seen any particular challenges
+in trying to join those into the same system?
+No, not at all.
+Really, it's from a pipeline perspective,
+it's basically moving memory around between like apps
+that are linked together in a graph.
+If it's audio buffers or video buffers,
+it doesn't really matter from that point of view.
+So, it's basically an inter-app communication of multimedia
+at the pipeline level.
+So, from that point of view, there is not really any difference.
+So, what we are going to do in the session manager then
+is actually put meaning to all these things.
+For video, for example, we don't really have a good story yet.
+About what we currently have for video is a thing like,
+okay, you have your desktop and you have your desktop screen
+and we provide as a stream in pipeline.
+And then you can have your app connect to it
+and get the stream and do something with it.
+That makes a lot of sense.
+That seems actually pretty straightforward.
+Yeah, so it's one app sends multimedia to another app.
+So, it's nothing more than that.
+But it's the session manager that brings meaning to that,
+of course, then you have to have some logic around it
+to make that meaningful.
+It seems like you mentioned it a little bit up at the start,
+but there's a lot, it seems like there's a lot from Jack here.
+That sort of makes sense or it can be extended to other systems.
+How have you, has there been difficulties
+getting the Jack support going?
+That's one area we're just fascinated by
+and seeing that PipeWare can maybe support
+these low latency workloads is pretty exciting.
+How has that been?
+That is, I mean, it maps pretty well, a one-to-one to Jack.
+So, that wasn't really a big problem.
+The problem, of course, is getting it fast enough
+because Jack takes a lot of shortcuts.
+Takes a lot of shortcuts either everywhere.
+So, yeah, that's kind of the only challenge there.
+So, currently, it's kind of pretty competitive.
+It's in the same ballpark as Jack for the same kind of buffer size.
+It's a bit more complicated in what it does internally,
+but it can actually be optimized too.
+That's great.
+So, we touched briefly on Jack sessions,
+not the session manager we were talking about before,
+but session management within Jack.
+Will PipeWare support that as well?
+Well, the thing is with the session manager
+that there is not really a consensus
+about what kind of features it should have.
+So, for Jack itself, there's the internal session manager,
+but there's also a couple of other session managers.
+I looked at them before last year, but yeah,
+I don't remember them very well.
+But some of them were, for example,
+unable to reconstruct sessions across machines
+over a network and stuff like that.
+Others, like the normal Jack one,
+restores locally on your desktop only.
+So, the question is, well,
+I've been told that there should be a session manager built in,
+but then if I want to do that,
+I want to do something that is powerful enough
+for everybody's use case because it's pointless.
+Right. So, there's still some questions
+at the design stage here to get.
+You want to make sure you have the right scope and feature set
+before you go build it all out.
+So, my thinking currently is that the session manager
+also runs externally as an external app
+that configures pipelines across machines.
+I don't see it exactly as a part of PipeWare currently.
+I don't know if we need to ship yet another session manager.
+Maybe there's one that already works well enough.
+There's a few of them out there.
+Yeah, right. That's a good point.
+So, okay, in this glorious new PipeWare future,
+is it just going to be one more daemon
+I have to run on my system?
+Or is it going to be something that can really replace
+and talk to all the apps I have?
+So, it sounds like Jack support is well underway.
+What about all the Pulse apps that have proliferated on the desktop?
+Yeah. So, the current plan is Pulse audio server
+and Jack daemon, they get replaced by one daemon, PipeWare daemon.
+And then you have the API, the Jack API,
+like libjack.so and libpulse.so.
+They got replaced by PipeWare versions
+that basically have the same API.
+So, apps keep on running,
+but internally they convert to PipeWare protocol,
+which for Jack apps is pretty much one-to-one conversion.
+For Pulse audio, it's basically also a one-to-one conversion,
+but with the module that runs on the server
+that kind of is similar to what Pulse audio does.
+It talks Pulse in another way.
+Yeah. It's a new implementation of the Pulse client libraries.
+And the same for also, for example,
+you can do an also plugin.
+So, that's quite easy.
+Also lives, even in the PipeWare future.
+While we're talking about the future of the desktop,
+PipeWare is also being built with Wayland in mind, I presume.
+I don't know what you mean with that.
+Well, so specifically around sandboxed applications,
+applications delivered in flat packs
+that are on a Wayland desktop,
+where perhaps things are a little more contained,
+applications are going through portals to get audio
+instead of just talking to the system, those kinds of things.
+Yes. Yes.
+So, the system is designed to, for example,
+not have anything like shared memory or stuff like that.
+That is very difficult to implement
+in a sandboxed environment.
+So, it's mostly built on files
+passing, file descriptor passing.
+So, that way you can give shared memory
+from the server to the client and stuff like that.
+And also, what we currently are doing is, for example,
+if you have a client that wants to capture, for example,
+screen costs, which is something we have implemented,
+what happens then is it goes to the portal
+and it says to the portal, I want to do a screen capture.
+What the portal, the portal is running outside
+of the sandbox, and the way to talk to the portal
+is through D-Bus, and that is a secured part
+that the sandbox app can do.
+And then the portal will set up a session in pipeline
+where it configures just the screen capture screen
+together with the, with the motor that is under GNOME.
+And then it gives that session as a file descriptor.
+It gives the file descriptor back to the sandbox application.
+And that is basically the file descriptor
+that it uses to open the connection with the Pipewire server.
+Now, if it does that, then it only sees the stream
+that has the screen capture in it.
+So, there is no sound cards or anything that are visible.
+So, from a Pipewire point of view,
+or from a client point of view, it only sees
+that there is a stream with capture of data.
+So, that way we can use the portal to lock down a session
+for each sandbox individually.
+Sounds like we're finally getting a sort of rich,
+lifted API design where instead of just having to deal
+with files, we actually have, you know, a more complicated
+system that can enable those kinds of use cases.
+Yeah, so there are still a couple of questions for this,
+especially if you add and remove devices
+and you want to dynamically change permissions on devices,
+how we keep all of this synchronized between portal
+and sandboxed app and Pipewire and so on.
+These are questions we still need to answer.
+Yeah, that makes a lot of sense.
+Although I do now think I understand Pipewire
+a lot more than I did just 10 minutes ago.
+So, I'm kind of excited over here now.
+If I want to go play with it, how do I do that?
+Is that something I can expect to see
+maybe available in Fedora 29?
+Yeah, so currently, it's all old versions floating around.
+So, nothing that supports any of the audio use case.
+So, that's all done in a work branch currently.
+So, you'll have to check out Git and check out the work branch.
+And from there on, it's getting better.
+So, we have sub-modules now that are automatically built
+with Jack Support, ALSA, and PulseAudio.
+I think there's also a script now to set up the environment
+so that you actually have those libraries
+first in your library path.
+And then basically, you should be able to run any app
+on top of Pipewire.
+Well, we are here on the show, cheerleading you on.
+Very excited, Wim.
+And I hope sometime in the future, we're at an event
+where I can buy you a beverage of your choice
+because I really appreciate all of the work
+you've done for years, not just in Pipewire.
+So, we'll have links to the GitHub page, the project page.
+Is there anywhere else, any other resources
+you want to point people to for the Pipewire project?
+No, just the website and the GitHub pages will do for now.
+We don't have a lot of other things.
+There is a wiki on the Pipewire website.
+There is a wiki as well on GitHub,
+which has some ideas we talked about here.
+And I'll try to keep that up to date.
+We will track that down and we'll put a link
+in the show notes for that as well.
+Wim, thanks for taking a bit of your evening
+and joining us on the Unplugged show.
+Much appreciated.
+Thank you very much for having me.
+Thank you to Wim for coming on.
+Now we're really excited about the future of video
+and audio on Linux and to power that media
+in the future, you're going to need a powerful system.
+And sitting in front of us here,
+we have the Dell Precision 5530.
+It was sent to us by Dell for review.
+And it's funny, well, look at this.
+It's surprising.
+It's really deceptively small for a 15-inch laptop.
+I mean, it looks big when you're just looking at it by itself,
+but you have it next to your 14-inch ThinkPad
+and it's about the same size.
+They don't feel like different classes of device, really.
+One's just a little bit bigger boned.
+Yeah, so it is a 15-inch laptop,
+but it's sort of almost like a 14-inch size
+because it's that edge-to-edge display setup that they have.
+And when you open that up, it really
+feels like they somehow snuck an even larger laptop
+into this Precision.
+It feels like a very large screen.
+And it's got that standard that we all like now,
+that carbon fiber mesh design on the top inside,
+which wraps around a chiclet style keyboard
+with a pretty large, pretty practical trackpad.
+It's smooth.
+It's one of the better ones I've used.
+Wes and I both like it in some circumstances.
+If you're trying to get across the screen,
+it's like one of the best trackpads on the market.
+If you're trying to do really fine text control,
+it seemed like it was a little jumpy.
+I think especially combined with the high DPI nature
+of the screen, those two factors together,
+especially on maybe an application that doesn't work
+too well or doesn't have the scaling built in,
+it gets difficult.
+None of that matters.
+None of that really matters, though,
+once the screen turns on.
+It comes loaded with 1604 and, you know, it's fine.
+It's a little boring at this point.
+1810's out.
+But once loaded with Ubuntu 1810 and its new theme,
+this 3840 by 2160 screen is so vibrant
+and the colors are so bold,
+you would swear they were leaping off the screen.
+When Wes got to the studio the first time
+I was playing around with this with 1810,
+I was telling Wes about it.
+He's like, well, I gotta see this.
+I was like, okay, stay here.
+I ran upstairs and I grabbed the laptop
+and I come downstairs and I open up the screen
+and you were impressed.
+I still am.
+I mean, I'm looking at it right now.
+It's next to my ThinkPad
+and boy, does it put the ThinkPad's...
+It just puts that screen to shame.
+It's not even comparable.
+The colors are so much more accurate and superior
+and the dynamic range is way superior on the Dell.
+Plus it's 4K versus 1080p.
+And it's just bright.
+It feels alive and vivid.
+I'd say it's better than the MacBook screen.
+It's one of the best screens I've ever looked at on a laptop.
+It's actually one of the best computer screens
+I've ever looked at.
+This seems like, I mean,
+even if you weren't doing video production,
+just editing some photos on here would be a treat.
+Yeah, it's really something,
+especially with the newer theme that has really sharp colors.
+So on the right side of this wedge-shaped bottom half
+of the laptop, you've got an SD card slot reader,
+which is great to see.
+A handy USB-A port is still there,
+which I much appreciate.
+And one of my favorite Dell features
+I hope they never get rid of,
+it's been on our XPSs that Wes and I have both owned forever,
+is that LED battery meter that you can push in
+and at a quick glance,
+it gives you a charge state of the battery.
+You don't have to turn things on, don't have to worry.
+You're trying to grab it to go out the door.
+You want to know where you're at.
+It's right there, it's right there, it's right there.
+And then on the left side of the wedge,
+you have a traditional barrel power connector.
+It is not USB-C powered,
+and that is to accommodate the laptop's 130 watt power needs.
+Yes, and you just can't push that over USB-C yet.
+Next to that is another USB-A.
+Then you have a full size HDMI out
+and a Thunderbolt capable USB-C port
+and a headphone jack on that.
+And inside this sucker, it's got a 97 watt hour battery,
+so the absolute limit of what the FAA will allow.
+And what Dell calls, it's something they're very proud of,
+a sophisticated thermal management system
+that they claim helps it perform well under load.
+I will say we've been messing with this machine all day
+and it hasn't been plugged in.
+It's just now getting down to a half hour of time remaining.
+Yeah, I have not done extensive battery testing,
+but I have done extensive thermal
+and CPU punishing testing,
+and I will say their claims of a good thermal system are there.
+The fans are there, but it's very mild.
+If you're in a room with another computer fan,
+it's almost unnoticeable.
+It's pretty good.
+If you're in a quiet, silent room, you'll hear it kick up,
+but it's one of the more pleasant fan noises.
+They have done a really good job there.
+So the hardware-wise, the CPU in the one that we got
+is a Core i9-8950K with 12 megabytes of cache,
+and it peaks up to 4.8 gigahertz, nearly 5 gigahertz,
+and it has more RAM in the cache than,
+it has more memory in the cache than I had RAM
+in my old computers when I was a kid.
+That's insane.
+I didn't even have storage means that size.
+And all of that right next to the CPU, incredible.
+It's got, I mean, can you imagine
+what kind of difference that must make?
+It's loaded with 32 gigabytes of DDR4 RAM.
+That i9 CPU supports up to 64 gigs in this laptop.
+It's got a Quadro NVIDIA graphics in it,
+and it has a 512 gigabyte Samsung Professional MVNE.
+Very nice system.
+As you can imagine, it benchmarked very well.
+I have a link in the show notes.
+If you would like to compare your system
+to this very system that I reviewed,
+you can read the link in the show notes on how to do that.
+I decided to use that.
+This is a feature of the Ferronix Benchmark Suite,
+and it integrates with a site called openbenchmark.org,
+where you can opt to post your results
+and then compare them to other systems
+or compare them to your own systems,
+and it gives you one command line to run
+to make that comparison.
+Oh, that is slick.
+So I did the baseline benchmarks on the Dell Precision 5530.
+Then I came down to our studio machines
+and I benchmarked them.
+Oh, and I was able to do a direct comparison
+between our existing equipment and the laptop,
+and I will post the one that is our Reaper workstation,
+our main audio production system.
+I will post that in the comparison
+if you want to take a look at the differences
+between a custom-built PC from a couple of years ago
+and this laptop,
+and there's obvious speed improvements
+with this brand new laptop.
+Just about every single task that we perform in the studio,
+not just about, every single task,
+exporting audio, rendering to a FLAC,
+all of the disk transactions,
+anything that hits the CPU, much faster.
+In some cases, moderately faster.
+And it's pretty impressive because these are multi-core,
+six-core systems in some cases.
+This is also a six-core laptop though, so it's...
+Wait, say that again, six-core laptop?
+In a laptop, yeah, in a laptop.
+So we decided, well, how do you really properly
+punish a machine like this and put it through its paces?
+Really, when it's got this much in it?
+In fact, this is getting harder and harder
+as these laptops get more and more incredible,
+and it's becoming almost a daunting task.
+And initially, I found this laptop a bit frustrating,
+if I'm gonna be honest with you.
+It's so fast, it's hard to put it really into words,
+how that is valuable.
+And I'm in the middle, at the time we record this,
+of prepping for a trip to meet BSD.
+I'm gonna be going down into the BSD Grey Wolf's Den,
+and I have to be ready for that, I gotta be on my A-game.
+So I kept pushing it off.
+It was just one more problem I didn't read,
+and one more problem I didn't need right now.
+You know, didn't need that.
+I could just deal with it when I get back,
+that's when I'll do the review.
+I kept thinking, I'll run the benchmarks,
+I'll get my data collected, and then I'll spend the time
+with it to really do the review.
+But that screen, and it's just good looks in general,
+and in the light-up keyboard, which is pretty good,
+not think that good, but pretty good,
+it just kinda kept pulling me back in.
+Like it just kept, like, well, I'll do it,
+you know, I'll just, I'll do this for a little bit.
+It was a machine you wanted to use,
+you didn't have to use it, you have to,
+you have plenty of laptops.
+Admit it, you find yourself feeling the same way.
+Using it right now, I have two laptops in front of me,
+and I'm using this one.
+Yeah, and so, as you would expect, that screen,
+and the overall just speed of the machine,
+I'd take a few moments here, take a few moments there,
+and play around with it.
+And I started getting things set up,
+I'd run a thermal test here, there, maybe as time went on,
+I'd start doing a few more things,
+load a few more bits of software.
+And pretty soon, I found that I was working on the Precision,
+because it was saving me time.
+It had started out a problem,
+but by the time I was done getting it set up,
+it was saving me time,
+it was solving my biggest problem of being out of time.
+And it was a realization, like an actual realization
+of how this faster machine
+can get the job done a little bit faster,
+which means in the fall,
+I'm getting out the door before the sunset
+versus after the sunset.
+And that actually makes a difference in my life,
+and I can drive home with the sun still out.
+That improves your mood, it makes you happier,
+you get your things finished faster.
+And why do you need to wait, right?
+You're running out the finished show,
+why do you need to wait and hang around
+for the computer to chug along?
+It just doesn't make sense.
+Yeah, it was, so we set the whole thing up,
+Wes got it all set up with Jack.
+We did the remote studio test, we did the Reaper test.
+And fair enough, things like Reaper
+and a couple of Jack apps,
+they don't look great on the 4K screen.
+They're a little too small.
+You can still read it if you have good eyesight,
+but if you struggle to read the screen,
+that could be a disadvantage potentially.
+But it'd be a shame because you'd be passing up
+really one of the most brilliant displays
+that's gotta be in the industry.
+And everything you do on the machine,
+it's just snappy, there's no lag.
+It's like getting a brand new machine
+every day that you use it.
+Yeah, in fact, the first time I had brought it down
+and shown it to Wes so he could see the screen,
+he then started messing around with it.
+I'm like, just sitting there watching him.
+And before I even said it, you went over
+and started launching the terminal,
+I'm like, look how fast this is.
+Look at the file manager, look at this.
+Yeah, it is really impressive.
+They've got a great machine on their hands.
+And I think it's of note that I've gotten this far
+into the review and I haven't felt it necessary
+to mention the Linux compatibility.
+Now I'm going to talk about that,
+but I think of note that used to be what you'd lead with.
+Right now it's a footnote.
+And that footnote is essentially, yeah, it's great.
+I wiped off the stock install, which was great.
+It was just a nice standard 16.
+Yeah, and I wiped the drive and I put 18.04.
+I'm sorry, I put 18.10 on there.
+I'm going to have to break that habit.
+And it has been flawless.
+Everything has worked.
+I have gotten a ton of mileage out of the free Nvidia driver.
+I have been shocked by that.
+Now, granted, a lot of my tests weren't GPU based.
+They were CPU and disk and network based.
+But for day to day operation on 4K
+with what feels like one of the fastest desktop Linux
+experience I've ever had, like the things that Canonical
+has done to 18.10, Nome's installation and an upstream
+Nome have done to improve the performance of Nome
+are paying dividends on that machine.
+So it was a very, very snappy experience.
+And it all worked without me having
+to fuss with a single thing.
+I never had to install a driver.
+I never had any weirdness with when I wiped the drive
+and I installed it.
+When I tried out other live distros on it,
+they saw all of the hardware.
+4K support on some of them is hit and miss,
+but that's not on Dell.
+Out of the box, though, it works great.
+So you get that MacBook experience.
+You buy it, it comes to your home,
+and it runs Linux on it.
+Yeah, I guess it is very much.
+It's like that MacBook experience,
+or I suppose that Microsoft Surface experience,
+I imagine, might be.
+I bet you it's better than that, if I was betting man.
+But yeah, it's pretty impressive.
+And it's nice to see really high end,
+well designed equipment that ships Linux.
+Now, if you were to ask me which computer I would buy now,
+now having the ThinkPad T480,
+and comparing it now for a couple of weeks
+to the Precision 5530,
+my personal choice would likely still be the ThinkPad.
+A, I need built-in Ethernet, pretty big.
+That's a pretty big deal when I'm broadcasting.
+And B, the slightly smaller form factor
+is just enough that it makes a difference
+when I'm on the train or on a plane.
+Right, I mean, so the Precision, it's not super heavy.
+It's probably about four pounds.
+And it's not thick, it's remarkably thin.
+But that means it's pretty dense.
+And it's sized enough that coffee shop,
+anywhere in your home, put it in your bag,
+that'll all work fine.
+I wouldn't necessarily like work on a bus
+or on a crammed train or something.
+So it's not ultra portable.
+It's not the laptop you just chuck in your bag
+and you don't think about, but you can move it around.
+Yeah, I actually did take a train trip
+while I had that laptop.
+And it was a little too large for the coach seating.
+If I got in the fancy business class,
+I don't know that might have been fine.
+But for the coach seating, it's just a little too large.
+And if you think about the kind of resources
+this machine has, that large battery is deceptive.
+Because really, this is a desktop replacement.
+It's the thinnest, lightest, smallest desktop replacement
+I've ever seen.
+It used to take an Oryx Pro or a Bonobo-sized machine
+to get what you're getting out of this machine now.
+And they're doing it in a small carbon fiber wedge
+with aluminum casing.
+Three years ago, an earlier model of the Precision
+desktop replacement line was what I was using every day
+as my work machine.
+And that thing was like a solid inch thick.
+And it was powerful, right?
+It was fast and it was great.
+But that was probably six pounds.
+It made my back hurt.
+I had to lug it around everywhere.
+The fact that I could get a faster laptop, way smaller,
+way lighter today, it's just incredible.
+Yeah, and I don't know if this is the traveler's laptop,
+but this is the workstation replacement laptop.
+And if that is the kind of machine you want,
+it's going to exceed your expectations.
+If you are looking for a workstation replacement
+that is mobile, that has good battery life,
+and one of the best screens you've ever seen,
+that's the use case for this laptop.
+It's exceptional at that.
+If you're looking for a laptop to go on the plane,
+to fit in a small bag, to go on the train,
+if you're looking for something that is on the lighter side.
+Right, if all you need is some Electron apps
+and a terminal to get your work done,
+then the Precision's probably overkill.
+Yeah, and I think that's something
+we can all make that determination.
+We know what kind of customer we are.
+Well, I can really see, Chris, that you've grown fond of this laptop,
+you like using it, but I've been a little confused
+because this process has seemed like a struggle for you.
+I'm a little torn.
+I almost wish I didn't like it so much
+because I just got the ThinkPad.
+And it was deceptively hard to review
+because it's so easy in a review to focus on the stuff that didn't work.
+And so when you get something that looks great, performs great,
+and Linux just works great, what's the angle on that review?
+And so it wasn't really until it started solving my day-to-day problems
+and I was like, oh, crap, I really like this machine.
+And I think what it is, is it took a while for it to sink in
+how much performance you get.
+I mean, you get something that turbos up to 4.8 gigahertz.
+That's nearly 5 gigahertz.
+Wow.
+64 gigabytes of RAM.
+It's mind-bending.
+It is a new category of performance machine
+you can get pre-built with Linux.
+It's not the first laptop of its kind like this,
+but it's probably in the highest echelon
+of what you can get on the market right now
+in something that is portable and beautiful and feels high-end.
+Right, and it's from a big-name manufacturer, right?
+This means that if you need a workstation from your big corporate job,
+this is a machine you could get.
+Yeah, I think this is the new benchmark.
+You could probably find a machine out there that out-specs it,
+although it's going to be tough,
+but you're not going to find a machine that out-classes it.
+Well, before we finish up this special feature today,
+we wanted to point you to some other special features
+that have recently appeared on the TechSnap program.
+Yeah, we've just done a series of wrapping our brains around the cloud.
+If this is something that you have a passing interest in
+or something you have to figure out for your job,
+I want to point you to three episodes of TechSnap,
+385, 386, and 387.
+It's a cool series of numbers.
+385 is three things to know about Kubernetes,
+and we did a deep dive there.
+386 is what makes Google Cloud different,
+and we brought on our Google Cloud platform expert
+to go into some of the interesting details.
+And I started with what really is their secret competitive thing,
+and he had a great answer.
+Just really fascinating.
+I was like, oh, that's Google's secret sauce, at least part of it.
+So that was a good one.
+And then TechSnap episode 387,
+Private Cloud Building Blocks,
+is all about building your own private cloud,
+either on-premises or maybe a hybrid.
+And we brought on our OpenStack expert, Amy,
+and she answered some of my basic questions
+and then really got into some of the more interesting,
+like nitty-gritty stuff.
+And got us excited about all the potential applications
+of modern-day OpenStack.
+Yeah, so it was a great run of episodes
+that even if you don't know anything about the cloud
+or you have to work with it day-to-day,
+we think there's something in there for all of you.
+So check out TechSnap.systems,
+and again, that's 385, 386, and 387.
+And you can find links to everything we talked about today
+at linuxunplugged.com slash 272.
+Where should they go get more Westpac?
+You can find me on the Twitter at Westpac.
+I like it, I'm at Chris LAS.
+Thank you so much for tuning this week's episode
+of the Unplugged program.
+We'll see you next week.
+No, Wes, it's next Tuesday!
+So, I'm a bit curious here, Chris.
+One of the motivations we didn't talk about earlier
+for getting all this Jack work done
+is you had your own secret sauce
+for making this stuff happen.
+And a little birdie tells me it didn't always involve Linux.
+How does Jack compare?
+Is this going to work?
+Yeah, I mean, in the past,
+before we'd switched over to Linux,
+this was accomplished on the Mac
+using an application called Audio Hijack Pro.
+And it would do a lot of this routing for you.
+But it had to install like stems into the audio stack
+that would then have to be revved
+with each rather even minor update of Mac OS.
+And so you'd have to keep that all up to date.
+Oh, almost like a DKMS module for us Linux people.
+Yeah, kind of, kind of.
+And you'd have to launch the applications
+in a specific order
+and you'd have to keep up to date on the applications
+and it's expensive.
+So it had its drawbacks,
+but you could really kind of piece it all together
+for a little while and it would work pretty good.
+And it had some session management, which was nice.
+And it could do built-in recording
+and had other nice features like effects
+and audio monitoring.
+But the thing that's nice about Jack
+is not only is it free software
+and it's Linux-based,
+which is good because we didn't have a great solution
+other than carrying around a bunch of rigs
+when I would go mobile.
+Or like we do at Linux Academy
+is we have a second studio
+with a second set of hardware down there.
+And that's nice if I'm going from Studio A to Studio B,
+but not so great if I'm going to say MeetBSD.
+Right, that does not work for everything.
+And so one of the things we've been doing
+as an intermediary solution
+is I just use a technology
+to connect back into the studio
+and we use all of the studio's routing and recording
+and all of that to do all of this while I'm on the road.
+Right, it's just like more remote guests.
+Basically everyone is remote.
+Yeah, everyone.
+But the issue there is I can have latency,
+I can have network drops,
+then I have to also have a remote session
+to get in to control some of this stuff.
+I have to have a VPN back to the studio.
+So that's like twice as much bandwidth right there.
+Yeah, it's a big overhead when you're mobile.
+And that has been our interim solution
+while we bridged the gap from the Mac solution
+to this mobile Linux solution.
+So that's the big thing for me is now
+I'm going back to doing a lot of this locally again.
+So I won't have to be so reliant on that mobile connection.
+That's the big advantage for me.
+That's what I'm excited about
+because the audio hijack stuff was fine,
+but when you add the scripting capability of this,
+it just takes it from what felt like a consumer tool.
+And this feels like a pro tool because it's all automated.
+My session's ready for me to go
+once the scripts are done running.
+You have all the flexibility
+that you could possibly need to ensure
+there's a little more learning curve up front.
+You got to get familiar with your tools,
+but then you have a handy set of tools.
+You know what's funny about this is this theme
+repeats itself in all areas of when I switched to Linux.
+For years, I've been running it since the 90s,
+and audio and video production was the last holdout.
+I've just given up on video production for a while,
+but audio production is what I'm passionate about right now.
+And we moved that over, but the thing is,
+the theme that keeps repeating itself is
+Linux starts way behind.
+Whatever the Linux open source solution is,
+it starts just terrible.
+Yeah, it's way behind, right?
+And then it kind of gets up there and you're watching.
+It's a little buggy. It's a little unstable.
+It's a little bit of a joke.
+And then at some point,
+it exceeds anything that's capable on the commercial platform.
+Like, I feel like Plasma desktop's there now
+with Mac OS and Windows.
+Yeah.
+And Jack and eventually PipeWire are that same thing for Linux.
+They are a superior solution than what's available on Windows and Mac.
+And that's why you see Jack ported to Android and iOS.
+Yes, iOS and Windows and Mac.
+Don't forget Solaris.
+Because it offers something that those systems don't have.
+And when you combine it with your scripts that you've created,
+which are pretty straightforward but handy,
+it makes it a reproducible pro setup.
+It's something that you could sit down on a laptop
+and get, boom, boom, boom, all set up and you're good to go in an event.
+And we just check it out.
+And then when you add new additions, you check those in.
+And when I go on location,
+I check out the latest version of the script and magic.
+Right. Or if you have a hardware failure,
+you know, someone spills coffee on your laptop at MeetBSD,
+those rude BSD guys, jeez.
+They need to buy you a new laptop.
+You could get it all set up again in minutes.
+The Gray Wolf's Den.

@@ -1,0 +1,3890 @@
+WEBVTT
+
+00:00.000 --> 00:04.000
+Wes found this article about desktop compositing latency.
+
+00:04.000 --> 00:08.000
+It's real and annoys me, says the headline.
+
+00:08.000 --> 00:12.000
+So the guy measures latency input on Windows 7 and Windows 10,
+
+00:12.000 --> 00:16.000
+Windows 7 without DWM, and then talks with
+
+00:16.000 --> 00:20.000
+some people, Pavel Fatin, which
+
+00:20.000 --> 00:24.000
+has also written about this before. He summarizes the difference between a stacking and a compositing
+
+00:24.000 --> 00:28.000
+window manager as follows. Stacking window managers orchestrate
+
+00:28.000 --> 00:32.000
+drawing of overlapped windows in such a way that the background windows are painted
+
+00:32.000 --> 00:36.000
+first. While this approach has some drawbacks
+
+00:36.000 --> 00:40.000
+window content has to be restored explicitly, it introduces
+
+00:40.000 --> 00:44.000
+no additional delays because applications draw directly in
+
+00:44.000 --> 00:48.000
+the frame buffer. Examples of stacking window managers
+
+00:48.000 --> 00:52.000
+are the classic theme in Windows and Openbox in Linux.
+
+00:52.000 --> 00:56.000
+Compositing window managers substitute the frame buffer
+
+00:56.000 --> 01:00.000
+with a dedicated off-screen buffer for each window.
+
+01:00.000 --> 01:04.000
+Then display all of the windows together
+
+01:04.000 --> 01:08.000
+when and how they see fit. This separation
+
+01:08.000 --> 01:12.000
+is inevitable and leads to some latency increase.
+
+01:12.000 --> 01:16.000
+Examples of compositing managers are Aero in Windows and Compiz
+
+01:16.000 --> 01:20.000
+in Linux. The thing with compositing
+
+01:20.000 --> 01:24.000
+window managers is they seem to also enforce vertical synchronization, v-sync.
+
+01:24.000 --> 01:28.000
+This means we need to wait until a picture is displayed on the screen before we can start drawing
+
+01:28.000 --> 01:32.000
+the next one. This causes some latency. How much?
+
+01:32.000 --> 01:36.000
+Well, according to Fatin, we might expect an additional delay before the frame
+
+01:36.000 --> 01:40.000
+buffer update when vertical sync is turned on. A maximum delay
+
+01:40.000 --> 01:44.000
+is 17 milliseconds. An average one is around 8 milliseconds
+
+01:44.000 --> 01:48.000
+for a 60 Hz refresh rate. 8 milliseconds is on average,
+
+01:48.000 --> 01:52.000
+which isn't too bad, but actually the average seems to be two times that. Roughly
+
+01:52.000 --> 01:56.000
+17 milliseconds and the minimum latency is actually 8 milliseconds.
+
+01:56.000 --> 02:00.000
+I don't know if the 8 milliseconds is the
+
+02:00.000 --> 02:04.000
+processing latency of the compositor or bias in my frame capture method.
+
+02:04.000 --> 02:08.000
+Even with v-sync enabled, the minimum should be close to zero because sometimes we simply
+
+02:08.000 --> 02:12.000
+get lucky and happen to send key presses before the picture is sent to the display.
+
+02:12.000 --> 02:16.000
+Anyway, the point is there is a measurable difference in key input
+
+02:16.000 --> 02:20.000
+latency between Windows 10 and Windows 7 with no DWM.
+
+02:20.000 --> 02:24.000
+The difference is small but noticeable and affects
+
+02:24.000 --> 02:28.000
+every user of Windows 10. In general, UI input latency
+
+02:28.000 --> 02:32.000
+is a known problem and a reason why e.g. your mouse cursor
+
+02:32.000 --> 02:36.000
+uses a special rendering path under Windows.
+
+02:36.000 --> 02:40.000
+So they've measured composited
+
+02:40.000 --> 02:44.000
+desktops and they've seen an explicit difference in performance.
+
+02:44.000 --> 02:48.000
+This is Linux Unplugged, episode 224
+
+02:48.000 --> 02:52.000
+for November 21st, 2017.
+
+03:00.000 --> 03:04.000
+Oh, welcome to Linux Unplugged, your weekly
+
+03:04.000 --> 03:08.000
+Linux talk show that's busting out all the classics this week. My name is
+
+03:08.000 --> 03:12.000
+Chris, no Wes, but we do have a beard. Hello beard!
+
+03:12.000 --> 03:16.000
+Hey Chris, how's it going? Thank you, Wes, thank you for being here. Wes should be here soon though
+
+03:16.000 --> 03:20.000
+so it won't be all on you. You won't have to keep me calm, insane, and
+
+03:20.000 --> 03:24.000
+rational all on your own. That's a hard task.
+
+03:24.000 --> 03:28.000
+Because I'm a ball of energy, you just gotta keep me contained. We have a real
+
+03:28.000 --> 03:32.000
+classic episode for you this week. We're gonna start with some community news that's actually
+
+03:32.000 --> 03:36.000
+breaking today as we go on the air. Tuesday seems to be a good day for that lately.
+
+03:36.000 --> 03:40.000
+After we get through a few
+
+03:40.000 --> 03:44.000
+important stories, I'll just put it that way, including one that we're gonna have to...
+
+03:44.000 --> 03:48.000
+I can't believe it. We also have, not one,
+
+03:48.000 --> 03:52.000
+but two, that's right, two everybody. Two app picks this week, looking really good.
+
+03:52.000 --> 03:56.000
+One for video, one for audio. So we're gonna have all the bases covered.
+
+03:56.000 --> 04:00.000
+And then, I'm gonna reach back into the old
+
+04:00.000 --> 04:04.000
+toolbox, my tackle box, from when I
+
+04:04.000 --> 04:08.000
+was doing penetration testing and Linux security auditing, and we're gonna talk about how
+
+04:08.000 --> 04:12.000
+you can easily audit your Linux box
+
+04:12.000 --> 04:16.000
+using a tool that will give you reproducible reports, tell you about
+
+04:16.000 --> 04:20.000
+vulnerabilities and best practices that you could be implementing on your system,
+
+04:20.000 --> 04:24.000
+it does an extensive security overview, and then writes it
+
+04:24.000 --> 04:28.000
+all up and tells you what you gotta fix. And then,
+
+04:28.000 --> 04:32.000
+and then, if time allows, and I sincerely mean this,
+
+04:32.000 --> 04:36.000
+if time allows, it's really all up in the air because Wes isn't here yet,
+
+04:36.000 --> 04:40.000
+but we are going to attempt to kick off the Gen 2
+
+04:40.000 --> 04:44.000
+challenge. We've got a great idea, we're really looking forward to how we're gonna do it. You know,
+
+04:44.000 --> 04:48.000
+we've been meaning to do it for a couple of episodes now, and
+
+04:48.000 --> 04:52.000
+today was the day. Legitimately, even if you're watching the video version, have
+
+04:52.000 --> 04:56.000
+a screenshot right there, ready to go, of the system we'll be
+
+04:56.000 --> 05:00.000
+loading Gen 2 with, but our driver
+
+05:00.000 --> 05:04.000
+isn't here yet. I don't know. You know, Wes was on assignment.
+
+05:04.000 --> 05:08.000
+That's what they say, right? That's what you're supposed to say? He's on assignment?
+
+05:08.000 --> 05:12.000
+Just checking it out. Yeah. Maybe he got stuck building Gen 2.
+
+05:12.000 --> 05:16.000
+Stuck. Yeah. That's what happens when you do a stage one. But never fear,
+
+05:16.000 --> 05:20.000
+we have a mumble room here with us. Time appropriate greetings, mumble room.
+
+05:20.000 --> 05:24.000
+Hello. Time appropriate greetings. Hello guys. Hi there. Hello.
+
+05:24.000 --> 05:28.000
+Now we have news right off the top of the show that I think we should probably get into.
+
+05:28.000 --> 05:32.000
+You know me. I love doing a little breaking news on the Unplugged program.
+
+05:32.000 --> 05:36.000
+This is CNN Breaking News. And if any of these
+
+05:36.000 --> 05:40.000
+stories actually really matter, we'll cover them more extensively in Linux Action News.
+
+05:40.000 --> 05:44.000
+But let's start with an update on the quote-unquote Android problem. This is a
+
+05:44.000 --> 05:48.000
+play on an earlier story that went around about a year ago.
+
+05:48.000 --> 05:52.000
+And it starts like this. Android has been a great boon to the Linux
+
+05:52.000 --> 05:56.000
+kernel community, having brought a great deal of growth in both the user and development
+
+05:56.000 --> 06:00.000
+communities. But Android has also been a problem in devices
+
+06:00.000 --> 06:04.000
+running it. They ship with kernels containing large amounts, often millions of lines of
+
+06:04.000 --> 06:08.000
+out-of-date tree code that fragments the developer community and makes it impossible
+
+06:08.000 --> 06:12.000
+to run mainline kernels on this hardware.
+
+06:12.000 --> 06:16.000
+Yep, that's about right. The problematic side of Android was discussed
+
+06:16.000 --> 06:20.000
+at the 2017 Maintainer Summit. That's what just wrapped up. But what actually
+
+06:20.000 --> 06:24.000
+came out of the summit was a rather optimistic
+
+06:24.000 --> 06:28.000
+look towards the future. We have a couple of positive trends developing
+
+06:28.000 --> 06:32.000
+right now. This could be interesting, especially in light of what we're about to
+
+06:32.000 --> 06:36.000
+talk about. So this starts with
+
+06:36.000 --> 06:40.000
+some quotes from Greg KH. You remember Greg? He's been on the Linux Action
+
+06:40.000 --> 06:44.000
+Show before, and he's also the maintainer of the long-term
+
+06:44.000 --> 06:48.000
+support edition of the kernel that we've been talking more about.
+
+06:48.000 --> 06:52.000
+And he says that there's... he started out the
+
+06:52.000 --> 06:56.000
+talk really by saying that they've been working some time with a system on a chip vendor to try
+
+06:56.000 --> 07:00.000
+to resolve a core problem, which he says the real issue
+
+07:00.000 --> 07:04.000
+is the shipping out-of-tree unpatched code
+
+07:04.000 --> 07:08.000
+is primarily Qualcomm. They decided not to work upstream.
+
+07:08.000 --> 07:12.000
+And Qualcomm has
+
+07:12.000 --> 07:16.000
+since concluded that that was a mistake on their part, and they have also
+
+07:16.000 --> 07:20.000
+apparently become determined to fix it. But the process of fixing it is going to take
+
+07:20.000 --> 07:24.000
+years. And here is the funny thing.
+
+07:24.000 --> 07:28.000
+See, before kernel 4.14,
+
+07:28.000 --> 07:32.000
+the longest support
+
+07:32.000 --> 07:36.000
+that the kernels got on these system-on-a-chips was two years.
+
+07:36.000 --> 07:40.000
+And the catch-22 is, it takes the system
+
+07:40.000 --> 07:44.000
+on a chip makers about two years to get their shit out the
+
+07:44.000 --> 07:48.000
+door. So by the time their chips shipped in Android
+
+07:48.000 --> 07:52.000
+devices, it was just about at the end of the two-year lifetime support
+
+07:52.000 --> 07:56.000
+for the LTS kernel. So by the time they could even ship, the kernel they were using
+
+07:56.000 --> 08:00.000
+is losing support. And somebody asked in the crowd, has anybody
+
+08:00.000 --> 08:04.000
+ever successfully done a major kernel upgrade
+
+08:04.000 --> 08:08.000
+on an Android phone in the wild?
+
+08:08.000 --> 08:12.000
+What do you suppose the answer to that is? Pretty much.
+
+08:12.000 --> 08:16.000
+It's close. The only phones in the wild that have gotten over-the-air
+
+08:16.000 --> 08:20.000
+updates that were pushed out by Google and carriers and the OEM,
+
+08:20.000 --> 08:24.000
+the Galaxy Nexus, and
+
+08:24.000 --> 08:28.000
+Galaxy S phones, some of them, have seen major kernel upgrades.
+
+08:28.000 --> 08:32.000
+So it's technically possible, but when you upgrade the kernel, there's a number
+
+08:32.000 --> 08:36.000
+of regulatory certifications that have to get redone.
+
+08:36.000 --> 08:40.000
+So the idea with this new six-year support cycle
+
+08:44.000 --> 08:48.000
+we will be able to ship code fixes
+
+08:48.000 --> 08:52.000
+and bug fixes and security fixes to these Android handsets
+
+08:52.000 --> 08:56.000
+for years after they've gone into the market. They won't be just going to the market as
+
+08:56.000 --> 09:00.000
+they are going out of support, but
+
+09:00.000 --> 09:04.000
+it's not a perfect situation yet. In fact,
+
+09:04.000 --> 09:08.000
+Greg says that if
+
+09:08.000 --> 09:12.000
+vendors don't follow Google's new project treble rules, and
+
+09:12.000 --> 09:16.000
+they don't really fix this behavior, he's going to eventually stop maintaining this
+
+09:16.000 --> 09:20.000
+six-year LTS release. I mean, why bother? I mean, for him, it's like that's a lot of work.
+
+09:20.000 --> 09:24.000
+But for now, he's running an experiment, and he's going to support
+
+09:24.000 --> 09:28.000
+the 4.4x kernels for a period of
+
+09:28.000 --> 09:32.000
+six years, which I think is going to be a huge
+
+09:32.000 --> 09:36.000
+boost for Android security. A bunch of other interesting things
+
+09:36.000 --> 09:40.000
+in here. It was interesting to see Linus Torvalds chime in. He noted
+
+09:40.000 --> 09:44.000
+that there's a lot of Android devices that are not necessarily phones. Tablets, for example,
+
+09:44.000 --> 09:48.000
+could prove to be a better development device.
+
+09:48.000 --> 09:52.000
+So there was a good back and forth. Linus also asked about the
+
+09:52.000 --> 09:56.000
+status of the Mali GPU driver, and that there is a person working
+
+09:56.000 --> 10:00.000
+on reverse engineering that device, but he didn't work
+
+10:00.000 --> 10:04.000
+out well with other developers. So now somebody else is making progress
+
+10:04.000 --> 10:08.000
+on the older GPUs, but nobody's working on the current generation devices. And Linus pointed
+
+10:08.000 --> 10:12.000
+out that if we could get that solved, the community as a whole would be in good shape.
+
+10:12.000 --> 10:16.000
+So that's also an interesting story, that Mali GPU driver issue.
+
+10:16.000 --> 10:20.000
+Yeah, so they walked away from the summit feeling much more positive, as long as
+
+10:20.000 --> 10:24.000
+vendors get on board with Project Treble and ship an LTS kernel.
+
+10:24.000 --> 10:28.000
+This issue where there's millions of lines of code outside the mainline
+
+10:28.000 --> 10:32.000
+kernel tree. The core problem with that is it's fracturing developer time
+
+10:32.000 --> 10:36.000
+and resources. So instead of working on the main kernel, you have a lot of really
+
+10:36.000 --> 10:40.000
+high-end, well-paid, commercially-backed
+
+10:40.000 --> 10:44.000
+software developers that are working on a kernel code tree
+
+10:44.000 --> 10:48.000
+that may never see the main tree. It may just be
+
+10:48.000 --> 10:52.000
+lost work. I've got an example.
+
+10:52.000 --> 10:56.000
+A 2014 Motorola phone
+
+10:56.000 --> 11:00.000
+is just getting the Vibe support added to the kernel for its
+
+11:00.000 --> 11:04.000
+Taptic engine in a 2014 Motorola phone.
+
+11:04.000 --> 11:08.000
+Because the driver for that always existed in another tree, another branch
+
+11:08.000 --> 11:12.000
+of the kernel that never made it to mainline. And just in the last kernel
+
+11:12.000 --> 11:16.000
+update, somebody came around and got that code into mainline kernel.
+
+11:16.000 --> 11:20.000
+And so now it's in there.
+
+11:20.000 --> 11:24.000
+The core issue is that it's been fracturing developer focus.
+
+11:24.000 --> 11:28.000
+Now, unless anybody has anything to say on that, there's not probably much
+
+11:28.000 --> 11:32.000
+to add. I want to talk about this story, because it's also Android
+
+11:32.000 --> 11:36.000
+related, and it affects all of us that use Android.
+
+11:36.000 --> 11:40.000
+It affects you if you have location services turned off. It affects you if you
+
+11:40.000 --> 11:44.000
+pulled the SIM out of your phone.
+
+11:44.000 --> 11:48.000
+Google is still collecting your location and the address
+
+11:48.000 --> 11:52.000
+of cell towers around you. I want to be clear, even if you've turned off your location services,
+
+11:52.000 --> 11:56.000
+even if you've removed the SIM card,
+
+11:56.000 --> 12:00.000
+when you take all those precautions, phones running Android software gather data
+
+12:00.000 --> 12:04.000
+about your location and send it back to Google whenever they get connected to the Internet.
+
+12:04.000 --> 12:08.000
+Since the beginning of this year, in January of 2017,
+
+12:08.000 --> 12:12.000
+Android phones have been collecting the addresses of nearby cellular towers,
+
+12:12.000 --> 12:16.000
+even when location services are disabled, and sending that data back to Google.
+
+12:16.000 --> 12:20.000
+The result is that Google, a unit of Alphabet behind Android, has access to data
+
+12:20.000 --> 12:24.000
+about individuals' locations and their movements that go far beyond reasonable
+
+12:24.000 --> 12:28.000
+consumers' expectation of privacy. Now, quartzqz.com
+
+12:28.000 --> 12:32.000
+did a whole bunch of actual journalism, including
+
+12:32.000 --> 12:36.000
+doing data captures and getting the information that
+
+12:36.000 --> 12:40.000
+was directly collecting, contacting Google and finding out what the hell is going on.
+
+12:40.000 --> 12:44.000
+So, this is Google's statement. This is their answer.
+
+12:44.000 --> 12:48.000
+In January of this year, we began looking into using cell ID codes as an additional
+
+12:48.000 --> 12:52.000
+signal to further improve the speed and performance of our message delivery.
+
+12:52.000 --> 12:56.000
+I think they're talking about push notifications.
+
+12:56.000 --> 13:00.000
+The Google spokesperson said in an email that however we had incorporated
+
+13:00.000 --> 13:04.000
+cell ID into our network sync system, we hadn't incorporated cell ID into
+
+13:04.000 --> 13:08.000
+our network sync system. So, that data was immediately discarded and we
+
+13:08.000 --> 13:12.000
+updated it to no longer request cell ID. So, they're going to phase
+
+13:12.000 --> 13:16.000
+it out, they say, by the end of this year. The location sharing
+
+13:16.000 --> 13:20.000
+practice does not appear to be limited to any particular type of Android phone or tablet.
+
+13:20.000 --> 13:24.000
+Google is apparently collecting cell tower data from all modern Android
+
+13:24.000 --> 13:28.000
+devices. Even devices that have been reset to factory default
+
+13:28.000 --> 13:32.000
+settings and apps with location services disabled were
+
+13:32.000 --> 13:36.000
+observed by Quartz sending nearby cell tower addresses to Google.
+
+13:36.000 --> 13:40.000
+Devices with cellular data or Wi-Fi connections appear to send the data to Google
+
+13:40.000 --> 13:44.000
+each time they come within range of a new cell tower. When Android
+
+13:44.000 --> 13:48.000
+devices are connected to a Wi-Fi network, they will send the cell tower address to Google
+
+13:48.000 --> 13:52.000
+even if they don't have a SIM card installed.
+
+13:52.000 --> 13:56.000
+Which is really my favorite part of this whole thing.
+
+13:56.000 --> 14:00.000
+They say this is to improve
+
+14:00.000 --> 14:04.000
+push notification delivery, but this also feels like the time
+
+14:04.000 --> 14:08.000
+that they were just driving around a whole cloth collecting everybody's Wi-Fi data and network
+
+14:08.000 --> 14:12.000
+information for anybody that had it. Oops, sorry, yeah, we just accidentally left that
+
+14:12.000 --> 14:16.000
+whole TCP dump thing running in the background. That was our bad.
+
+14:16.000 --> 14:20.000
+Sorry, oh, you want to fine us for that? Oh, because this is
+
+14:20.000 --> 14:24.000
+going to be outside the US too. I mean, there could be other governments that don't have such a favorable view
+
+14:24.000 --> 14:28.000
+of Google that want to respond to this. This came out today at
+
+14:28.000 --> 14:32.000
+QZ.com and they did
+
+14:32.000 --> 14:36.000
+a really good job. They did packet capture, they contacted Google.
+
+14:36.000 --> 14:40.000
+It's been like this for 11 months according to a Google spokesperson.
+
+14:40.000 --> 14:44.000
+What are your thoughts on this? I'm not surprised, I take it. No, not really.
+
+14:44.000 --> 14:48.000
+It seems like Google does things
+
+14:48.000 --> 14:52.000
+and then just forgets to turn them off. Oh,
+
+14:52.000 --> 14:56.000
+you're being charitable then. You think they didn't mean to do this. Well, I mean,
+
+14:56.000 --> 15:00.000
+you can't really tell one way or the other. Oh, I feel like you implicitly
+
+15:00.000 --> 15:04.000
+build this into your system and then you had to, I mean, think about
+
+15:04.000 --> 15:08.000
+the system they had to build to monitor this, resolve it to an address, collect that
+
+15:08.000 --> 15:12.000
+data, batch it up, and queue it to be sent back to Google once a Wi-Fi connection
+
+15:12.000 --> 15:16.000
+was there. That's pretty intentional. That's a pretty sophisticated system.
+
+15:16.000 --> 15:20.000
+Well, I mean, they already admitted that they intentionally built this system to potentially use it.
+
+15:20.000 --> 15:24.000
+They just didn't end up using it. So this is what weirds me out about
+
+15:24.000 --> 15:28.000
+using Android is there's probably a dozen other things like this about it.
+
+15:28.000 --> 15:32.000
+And is it part of the Play services? Does it
+
+15:32.000 --> 15:36.000
+happen if you're on a different ROM that's still using Android?
+
+15:36.000 --> 15:40.000
+You know, I don't know. And why this stuff isn't optional?
+
+15:40.000 --> 15:44.000
+Go ahead, were you going to say, was somebody in the moment going to jump in?
+
+15:44.000 --> 15:48.000
+Yeah, I was just going to mention, isn't this our concern about
+
+15:48.000 --> 15:52.000
+closed source software in general? Like, completely inclusive
+
+15:52.000 --> 15:56.000
+of all closed source software? That the developers have put in back doors
+
+15:56.000 --> 16:00.000
+that they can just flip on and start siphoning data whenever they
+
+16:00.000 --> 16:04.000
+jolly well please, and we can't go and audit for it. It also feels like there's an
+
+16:04.000 --> 16:08.000
+additional risk when that company is primarily
+
+16:08.000 --> 16:12.000
+profited by advertising, so they really have
+
+16:12.000 --> 16:16.000
+a ton of business incentive to know a lot more about you.
+
+16:16.000 --> 16:20.000
+And because they're a public corporation, they're always trying to find new paths to revenue. They're always
+
+16:20.000 --> 16:24.000
+trying to increase their bottom line. If they're sitting on this information,
+
+16:24.000 --> 16:28.000
+there could be a discussion at some point that says, could we integrate this into their advertising profile
+
+16:28.000 --> 16:32.000
+somehow?
+
+16:32.000 --> 16:36.000
+That would be really weird, like you start seeing ads when you drive by a place Verizon was trying to work on that.
+
+16:36.000 --> 16:40.000
+Yeah, so the one thing I couldn't
+
+16:40.000 --> 16:44.000
+get out of the Quartz article was if this was a Play services thing, or if
+
+16:44.000 --> 16:48.000
+this was deeper in Android. My gut says it's
+
+16:48.000 --> 16:52.000
+probably any device that supports Play services. So if you're running
+
+16:52.000 --> 16:56.000
+on a ROM and you don't have GApps, then you might be in the clear.
+
+16:56.000 --> 17:00.000
+But if you're using an alternative ROM and you have the Play API stuff,
+
+17:00.000 --> 17:04.000
+then you probably are getting tracked.
+
+17:04.000 --> 17:08.000
+I think the push notification stuff is in stock Android.
+
+17:08.000 --> 17:12.000
+Yeah, it must be. I mean, it would have to be. But it doesn't necessarily mean that's where the tracking is.
+
+17:12.000 --> 17:16.000
+The thing I don't get is why...
+
+17:16.000 --> 17:20.000
+In January, across multiple generations of Android devices, that almost has to be a Play API thing.
+
+17:20.000 --> 17:24.000
+Why is this still enabled even if you don't have a SIM card though?
+
+17:24.000 --> 17:28.000
+Because if they're using it for improving the messaging...
+
+17:28.000 --> 17:32.000
+You don't need that.
+
+17:32.000 --> 17:36.000
+If you're on Wi-Fi only, then you're on Wi-Fi. It doesn't matter what cell tower.
+
+17:36.000 --> 17:40.000
+Do they really have the ability to route to a specific cell tower?
+
+17:40.000 --> 17:44.000
+Isn't it just all TCP IP data packets and they send it to the carrier
+
+17:44.000 --> 17:48.000
+and then it's the carrier's job to track where my device is and route it to the proper cell tower?
+
+17:48.000 --> 17:52.000
+It doesn't seem like Google's involved in that process at all.
+
+17:52.000 --> 17:56.000
+My guess would be that if they were to enable this, they'd be sharing that data with the cell carriers.
+
+17:56.000 --> 18:00.000
+Well, that's even creepier.
+
+18:00.000 --> 18:04.000
+Yeah, push notifications are in Play Services, of course.
+
+18:04.000 --> 18:08.000
+But I think you can still get push notifications if you don't have the Play APIs.
+
+18:08.000 --> 18:12.000
+But they can't really update Android unless it's through the Play Services.
+
+18:12.000 --> 18:16.000
+And then, on the other end of the spectrum...
+
+18:16.000 --> 18:20.000
+So we go from ARM devices to Intel devices.
+
+18:20.000 --> 18:24.000
+I haven't seen a lot of write-ups on this yet, but today...
+
+18:24.000 --> 18:28.000
+Really yesterday night, but today, Google...
+
+18:28.000 --> 18:32.000
+Or I'm sorry, Intel, we're switching gears here, posted a revised update
+
+18:32.000 --> 18:36.000
+to a cumulative review that they have done on the Intel Management Engine.
+
+18:36.000 --> 18:40.000
+Yeah, you know that ME thing you hear everybody talking about?
+
+18:40.000 --> 18:44.000
+Everybody's working to bypass right now.
+
+18:44.000 --> 18:48.000
+I just got a tweet from Carl at System76 today saying they're working to bypass Intel ME on their systems.
+
+18:48.000 --> 18:52.000
+Of course, we've talked about how Purism did that recently,
+
+18:52.000 --> 18:56.000
+and Google has launched a project to do this as well.
+
+18:56.000 --> 19:00.000
+So Intel writes, in response to issues identified by external researchers,
+
+19:00.000 --> 19:04.000
+Intel has performed an in-depth, comprehensive security review of our own shit.
+
+19:04.000 --> 19:08.000
+And as a result, Intel has identified several security vulnerabilities
+
+19:08.000 --> 19:12.000
+that could potentially place impacted platforms at risk.
+
+19:12.000 --> 19:16.000
+Systems using the ME versions of basically all of them are impacted.
+
+19:16.000 --> 19:20.000
+It's anything with a 6th or 7th or 8th generation Intel Core processor,
+
+19:20.000 --> 19:24.000
+or a few of the Xeon and one or two of the Celeron CPUs.
+
+19:24.000 --> 19:28.000
+So if you have anything older than a 6th generation Intel CPU,
+
+19:28.000 --> 19:32.000
+this doesn't apply to you.
+
+19:32.000 --> 19:36.000
+You're not running one of the systems that have Minix embedded.
+
+19:36.000 --> 19:40.000
+It's only on the systems that are on the last three generations of Intel CPUs.
+
+19:40.000 --> 19:44.000
+So it's not as widely deployed as some would have you believe,
+
+19:44.000 --> 19:48.000
+but it's still a major problem.
+
+19:48.000 --> 19:52.000
+And it's getting bypassed and exploited at a faster rate
+
+19:52.000 --> 19:56.000
+because the management engine is now built around
+
+19:56.000 --> 20:00.000
+an Intel Edison system on a chip design.
+
+20:00.000 --> 20:04.000
+And that's an x86 platform, which means all of the x86 debugging tools
+
+20:04.000 --> 20:08.000
+and memory reading tools and just the
+
+20:08.000 --> 20:12.000
+huge amount of tribal knowledge around how x86 applications work
+
+20:12.000 --> 20:16.000
+all apply now to hacking this management engine. And that's why we're starting to see
+
+20:16.000 --> 20:20.000
+a big influx of bypasses and exploits.
+
+20:20.000 --> 20:24.000
+So Intel thought, hey, you know what we should do? We should take a look and see if we can find anything.
+
+20:24.000 --> 20:28.000
+Now I would have expected them to find stuff, say nothing, and push out a minor update,
+
+20:28.000 --> 20:32.000
+but it turns out they found multiple buffer overflows,
+
+20:32.000 --> 20:36.000
+multiple privilege escalations, multiple buffer overflows in
+
+20:36.000 --> 20:40.000
+one of their other chips, and a buffer overflow in the active management technology
+
+20:40.000 --> 20:44.000
+in the mini versions of the Intel management
+
+20:44.000 --> 20:48.000
+engine that allow remote access on server systems.
+
+20:48.000 --> 20:52.000
+So there's actually some shit in here that needs to get fixed. And now as a Linux user
+
+20:52.000 --> 20:56.000
+you've got to figure out what particular dance you've got to do to get your firmware updated.
+
+20:56.000 --> 21:00.000
+Some systems will just get it through GNOME software, others
+
+21:00.000 --> 21:04.000
+I don't know how you're going to get it.
+
+21:04.000 --> 21:08.000
+I mean, I applaud Intel on their transparency at least.
+
+21:08.000 --> 21:12.000
+Yeah, I have a more skeptical take on this.
+
+21:12.000 --> 21:16.000
+Not to be frying bacon here in the
+
+21:16.000 --> 21:20.000
+unplugged program, but
+
+21:20.000 --> 21:24.000
+isn't this exactly how you'd fix all these little loopholes and workarounds
+
+21:24.000 --> 21:28.000
+that people are using to disable the management engine in the first place? Is you'd push out
+
+21:28.000 --> 21:32.000
+security fixes? Because these are legitimate security flaws.
+
+21:32.000 --> 21:36.000
+I mean, what's the difference if you're using an exploit or a buffer overflow
+
+21:36.000 --> 21:40.000
+to disable the management engine versus take it over? You're using the same attack
+
+21:40.000 --> 21:44.000
+vector. So to Intel, they're both attack vectors. One is used to bypass
+
+21:44.000 --> 21:48.000
+the management engine, one is used to take over the management engine. It needs to be fixed either way in
+
+21:48.000 --> 21:52.000
+Intel's book. But you could take away
+
+21:52.000 --> 21:56.000
+some of these OEM's ability to ship a system without the management engine.
+
+21:56.000 --> 22:00.000
+Maybe Intel creates
+
+22:00.000 --> 22:04.000
+a product that doesn't have a management engine for people who care? Could you see them doing that?
+
+22:04.000 --> 22:08.000
+Could you see them releasing a chip without a management engine? Or just add an
+
+22:08.000 --> 22:12.000
+option to disable it? Would you trust it?
+
+22:12.000 --> 22:16.000
+If there was a software setting to disable it, would you trust that it was actually disabled?
+
+22:16.000 --> 22:20.000
+I don't know. I mean, would you trust that
+
+22:20.000 --> 22:24.000
+there isn't a hidden management engine in new
+
+22:24.000 --> 22:28.000
+hardware? No. I almost kind of think it's just sort of spooky.
+
+22:28.000 --> 22:32.000
+It's almost in everything now. If you think it's bad on there,
+
+22:32.000 --> 22:36.000
+just think about phones and stuff. Yeah.
+
+22:36.000 --> 22:40.000
+I think you're probably right. Hopefully I'm
+
+22:40.000 --> 22:44.000
+just being extra cynical and Intel really just wants to keep the security on this good and they're not
+
+22:44.000 --> 22:48.000
+looking to sort of shut down these exploits. I feel like Intel doesn't have a choice
+
+22:48.000 --> 22:52.000
+but to fix these problems. Of course. Because if they don't do it, they get
+
+22:52.000 --> 22:56.000
+lambasted for having a vulnerable product.
+
+22:56.000 --> 23:00.000
+Yeah. And if they do do it, then they get lambasted for
+
+23:00.000 --> 23:04.000
+by people wanting to disable the management engine. So Intel
+
+23:04.000 --> 23:08.000
+can't win, basically. Despizzoni? How do I say it again? You'll have to remind me.
+
+23:08.000 --> 23:12.000
+Despizzoni? I forget. I'm sorry. I like... Despizzoni.
+
+23:12.000 --> 23:16.000
+Okay. I like what you just put in the Discord. Say it out loud because that's good.
+
+23:16.000 --> 23:20.000
+Yeah. I mean, if you let it just
+
+23:20.000 --> 23:24.000
+leave it up to the software to say it's disabled, it's not going to be a different thing. Google saying
+
+23:24.000 --> 23:28.000
+sure, your location's disabled. Yeah. I feel like our last story has taught us that
+
+23:28.000 --> 23:32.000
+lesson. You're exactly right. Anybody else have thoughts on either the Android story
+
+23:32.000 --> 23:36.000
+or anything we've talked about so far in the news? Big news
+
+23:36.000 --> 23:40.000
+day today.
+
+23:40.000 --> 23:44.000
+There's nobody. That's fine. I guess that, you know, I take that
+
+23:44.000 --> 23:48.000
+to mean I've comprehensively covered the stories. Is that what that means? Can I take
+
+23:48.000 --> 23:52.000
+that? You know, Chris, I would guess that the best way to disable the Intel
+
+23:52.000 --> 23:56.000
+management engine is to buy an AMD product.
+
+23:56.000 --> 24:00.000
+Yeah, except for now Intel and AMD chips are going to be
+
+24:00.000 --> 24:04.000
+shipping together, Rikai. So they're taking that peanut butter and that chocolate and they're
+
+24:04.000 --> 24:08.000
+shipping a single product. So who knows? Cats and dogs, Rikai. You can't
+
+24:08.000 --> 24:12.000
+count on anything anymore. So what you're saying is ARM chips? Yeah. I don't know if that
+
+24:12.000 --> 24:16.000
+bag is much better. That's also an equal bag of hurt. You know what isn't though? Linux Academy.
+
+24:16.000 --> 24:20.000
+linuxacademy.com slash unplugged. Go there to get a free seven-day trial
+
+24:20.000 --> 24:24.000
+for the platform about Linux. Also support the show. Coincidentally.
+
+24:24.000 --> 24:28.000
+linuxacademy.com slash unplugged. Everything you need
+
+24:28.000 --> 24:32.000
+to learn and get hands-on experience with Linux. Self-paced, in-depth video courses
+
+24:32.000 --> 24:36.000
+on every Linux cloud and DevOps topic. It's so awesome.
+
+24:36.000 --> 24:40.000
+When I logged in there I'm like, what is something that I've always been sort of a little
+
+24:40.000 --> 24:44.000
+I won't say afraid, but apprehensive about getting into?
+
+24:44.000 --> 24:48.000
+It would be development. I just always felt like I just, I can't wrap my head around it.
+
+24:48.000 --> 24:52.000
+I don't have the focus. So when I went to Linux Academy and they're able to break different topics
+
+24:52.000 --> 24:56.000
+down to like four hours, six hours. Course one, basics. I'm like
+
+24:56.000 --> 25:00.000
+finally, to me, it clicks. It's not this huge nebulous thing. It's just
+
+25:00.000 --> 25:04.000
+six hours of my time that I need to dedicate. And then they have a course scheduler
+
+25:04.000 --> 25:08.000
+where you can pick a course and set a time frame and then they'll help you stick to it.
+
+25:08.000 --> 25:12.000
+Set some learning goals. If you want to go for certifications, they've got learning paths just for that.
+
+25:12.000 --> 25:16.000
+Instructor mentoring real human beings when you need it. It's a great service.
+
+25:16.000 --> 25:20.000
+LinuxAcademy.com slash unplugged. Go there, sign up, and get a free
+
+25:20.000 --> 25:24.000
+seven day trial. Also, grab their IOS and Android app. You can study on the go
+
+25:24.000 --> 25:28.000
+and they have lesson audio and personal notebooks, other tools to help you study that are all
+
+25:28.000 --> 25:32.000
+downloaded. You have them with no internet at all. You can go out
+
+25:32.000 --> 25:36.000
+and camp and learn about Linux for all I care. In fact, I recommend it. LinuxAcademy.com slash
+
+25:36.000 --> 25:40.000
+unplugged. Big thank you to Linux Academy for sponsoring the Unplugged
+
+25:40.000 --> 25:44.000
+program. You guys keep it up. Maybe I'll get a quieter chair. Do you hear this chair today?
+
+25:44.000 --> 25:48.000
+Can you hear this? I can hear this, but more importantly,
+
+25:48.000 --> 25:52.000
+I can do something tech related and it doesn't require the cloud. Dude, you know how
+
+25:52.000 --> 25:56.000
+people were saying they were hearing farts in TechSnap? It might be this chair.
+
+25:56.000 --> 26:00.000
+No, it was too consistent. Okay, but listen. Okay, listen.
+
+26:00.000 --> 26:04.000
+So, hold on. I'm going to turn off my gate. Okay, you hear that? That's my...
+
+26:04.000 --> 26:08.000
+I mean, this thing's just like falling apart.
+
+26:08.000 --> 26:12.000
+We need new chairs, Chris. I know. Yeah, you see that?
+
+26:12.000 --> 26:16.000
+We've got to get a chair fund. We really do. Or we just need more patrons so we can dedicate
+
+26:16.000 --> 26:20.000
+some of that to chairs because they are just falling apart. Patreon.com slash Jupiter signal. Okay.
+
+26:20.000 --> 26:24.000
+So, speaking of kernels, 4.14 arrived recently
+
+26:24.000 --> 26:28.000
+and there was sort of this throwaway line that Linus had that I thought would be
+
+26:28.000 --> 26:32.000
+interesting to dig into. And it was just
+
+26:32.000 --> 26:36.000
+sort of simple. He says when he announced the release of kernel 4.14,
+
+26:36.000 --> 26:40.000
+it's probably worth pointing out, Linus writes, that the zero-day
+
+26:40.000 --> 26:44.000
+robot has been getting even better. It was very
+
+26:44.000 --> 26:48.000
+useful before, but it has been working on making it even better
+
+26:48.000 --> 26:52.000
+and reporting the problems it found. A robot?
+
+26:52.000 --> 26:56.000
+A zero-day robot? Working on the Linux kernel, I thought to myself when I read Linus'
+
+26:56.000 --> 27:00.000
+email and I thought, let's take a look into this. So, the reg has an
+
+27:00.000 --> 27:04.000
+article about it. The said robot is an automated vulnerability checker that scours the kernel
+
+27:04.000 --> 27:08.000
+code for issues. With version 4.14 slated to be the next kernel to receive
+
+27:08.000 --> 27:12.000
+long-term support, and that support now being six years, it was even more important
+
+27:12.000 --> 27:16.000
+than ever. And so, I found out
+
+27:16.000 --> 27:20.000
+that this is essentially an Intel open source project.
+
+27:20.000 --> 27:24.000
+It's 01.org, which stands for Intel Open Source.
+
+27:24.000 --> 27:28.000
+And the zero-day service is an automated Linux kernel test service
+
+27:28.000 --> 27:32.000
+that provides comprehensive test coverage of the kernel. It monitors various kernel trees
+
+27:32.000 --> 27:36.000
+spanning the mainline tree, the next tree, maintainers trees,
+
+27:36.000 --> 27:40.000
+key developers trees, it watches all of those for changes, and
+
+27:40.000 --> 27:44.000
+also monitors the Linux kernel mailing list itself. It performs builds
+
+27:44.000 --> 27:48.000
+and boots and functional tests and performance tests and power tests
+
+27:48.000 --> 27:52.000
+whenever it detects a change. Whenever there are any boot, functional performance
+
+27:52.000 --> 27:56.000
+or power issues detected by the test infrastructure, kernel developers receive
+
+27:56.000 --> 28:00.000
+an email report from the KBuild
+
+28:00.000 --> 28:04.000
+test robot. This is a service
+
+28:04.000 --> 28:08.000
+from the zero-day that automatically reports build failures of Linux code.
+
+28:08.000 --> 28:12.000
+What's also cool is when one is successful, it then tries to actually build it on physical hardware
+
+28:12.000 --> 28:16.000
+and boot it. And that's kind of a neat thing. If there's any failure during the build
+
+28:16.000 --> 28:20.000
+stage, zero-day will bisect the failure
+
+28:20.000 --> 28:24.000
+to the first code patch that introduces the failure. The patch author is then notified
+
+28:24.000 --> 28:28.000
+with the failure information and the steps to reproduce the problem.
+
+28:28.000 --> 28:32.000
+This allows developers to reproduce the problem in their local environment and then verify
+
+28:32.000 --> 28:36.000
+their fixes. This thing's just always going there, scanning all the time, getting better
+
+28:36.000 --> 28:40.000
+and better, and learning more about their quirks. So when you hear the kernel
+
+28:40.000 --> 28:44.000
+developers talk about the zero-day bot, this is what it is.
+
+28:44.000 --> 28:48.000
+Looking into this, I would say it's more like dozens
+
+28:48.000 --> 28:52.000
+of different functions and services that are all kind of working together. I guess
+
+28:52.000 --> 28:56.000
+that's kind of a bot now these days. I guess you could call that a bot.
+
+28:56.000 --> 29:00.000
+And it's neat because the performance tests are one
+
+29:00.000 --> 29:04.000
+thing, like 80 different functional test suites, the benchmark stuff
+
+29:04.000 --> 29:08.000
+that it generates and gives people like a, hey, before this patch we were running
+
+29:08.000 --> 29:12.000
+this fast, and now after this patch we're running like this. That's pretty good stuff.
+
+29:12.000 --> 29:16.000
+And it helps you scale as the kernel gets huge.
+
+29:16.000 --> 29:20.000
+And it sounds like it's actually functional stuff because something tells me that if it was crap,
+
+29:20.000 --> 29:24.000
+Linus would be calling it crap in the mailing list and not giving it props at the top of his release announcement.
+
+29:24.000 --> 29:28.000
+So that also serves well for it.
+
+29:28.000 --> 29:32.000
+Also kind of another feature that flew under the radar for 4.14
+
+29:32.000 --> 29:36.000
+is this heterogeneous memory management.
+
+29:36.000 --> 29:40.000
+You're going to like this, Beardsley. It allows GPUs to access an application's
+
+29:40.000 --> 29:44.000
+memory space. Yeah, so it's good for like GPU intensive stuff.
+
+29:44.000 --> 29:48.000
+Yeah. Isn't that cool? That's a pretty cool feature. And also the
+
+29:48.000 --> 29:52.000
+Droid 4 phone is the phone that got that vibrator driver that I was talking about. Not that kind of
+
+29:52.000 --> 29:56.000
+thing. It kind of goes in a phone. Jeez, guys.
+
+29:56.000 --> 30:00.000
+That mumble room is dirty today.
+
+30:00.000 --> 30:04.000
+I do like that in this article they referred to Linus
+
+30:04.000 --> 30:08.000
+at one point as the Linux Lord. Really? Is that what they say?
+
+30:08.000 --> 30:12.000
+Yeah, well, I suppose. I suppose.
+
+30:12.000 --> 30:16.000
+Yeah, he was in the news quite a bit this week, but mostly for his language again.
+
+30:16.000 --> 30:20.000
+Not for the code that got released. I thought maybe we'd just focus on the code.
+
+30:20.000 --> 30:24.000
+We've talked positively about BcashFS on this
+
+30:24.000 --> 30:28.000
+show. Bcash is an up and coming project. I'm a
+
+30:28.000 --> 30:32.000
+patron of the developer. Big fan. I think it's going to be
+
+30:32.000 --> 30:36.000
+a fantastic desktop file system.
+
+30:36.000 --> 30:40.000
+I think it's going to be the choice. It's going to be the choice. People will be talking about
+
+30:40.000 --> 30:44.000
+Hammer. People will be talking about ButterFS and ZFS. Those are all great in their own
+
+30:44.000 --> 30:48.000
+rights, but BcashFS is where I'm betting the future.
+
+30:48.000 --> 30:52.000
+Especially on MV&E. I mean, it's just going to be a good future, guys.
+
+30:52.000 --> 30:56.000
+It's going to be really good. The present, however, is bad. It's real bad.
+
+30:56.000 --> 31:00.000
+In fact, Bcash is destroying file systems, at least on Gentoo.
+
+31:00.000 --> 31:04.000
+Speaking of the Gentoo challenge, using Bcash can destroy the file
+
+31:04.000 --> 31:08.000
+system. Mine was gone after a third non-successful try to mount the
+
+31:08.000 --> 31:12.000
+rootFS. It was not possible to recover any files.
+
+31:12.000 --> 31:16.000
+These things happen, and so a
+
+31:16.000 --> 31:20.000
+Gentoo user found it, submitted a bug, and they're looking
+
+31:20.000 --> 31:24.000
+into it right now. Could be nothing. Could be bad. Could be
+
+31:24.000 --> 31:28.000
+pretty bad. I mean, to be fair, doesn't the Bcash developers
+
+31:28.000 --> 31:32.000
+say that you shouldn't use this as an important file system?
+
+31:32.000 --> 31:36.000
+Yeah. That's why you've got to have backups when you're doing this kind of stuff. Absolutely. That's why I'm a patron
+
+31:36.000 --> 31:40.000
+and not a user. You know what I mean? You know what I'm saying? Those kind of
+
+31:40.000 --> 31:44.000
+things happen. Remember when we talked about ButterFS? I'll eat some systems, too. When these
+
+31:44.000 --> 31:48.000
+things are in development, I think it's something that
+
+31:48.000 --> 31:52.000
+you don't really fully appreciate until you've lost some data to something like this, and then you don't
+
+31:52.000 --> 31:56.000
+tend to experiment with file systems.
+
+31:56.000 --> 32:00.000
+When you hear bad things about a file system, you tend to stay clear of it.
+
+32:00.000 --> 32:04.000
+I was listening to Noah's interview
+
+32:04.000 --> 32:08.000
+yesterday with Wendell from Level One Techs in Ask Noah. What episode
+
+32:08.000 --> 32:12.000
+was that, Bear? Was that 34? 35.
+
+32:12.000 --> 32:16.000
+Episode 35 of Ask Noah, where he had Wendell on.
+
+32:16.000 --> 32:20.000
+I was happy to hear Wendell give a plug to my favorite desktop file system right now,
+
+32:20.000 --> 32:24.000
+which is XFS. I think that is, it has been my go-to
+
+32:24.000 --> 32:28.000
+now for over a decade. Really solid file system,
+
+32:28.000 --> 32:32.000
+still under active development. We've mentioned it before on the show, but you guys ask, you write in and
+
+32:32.000 --> 32:36.000
+ask all the time. Extended is fine, too, but if you're going for the desktop, you don't need
+
+32:36.000 --> 32:40.000
+a big fancy setup, I really think XFS is a super solid file system.
+
+32:40.000 --> 32:44.000
+It's got journaling for the metadata, it's got online defrag, it's got
+
+32:44.000 --> 32:48.000
+extended attribute support. It's fast, too.
+
+32:48.000 --> 32:52.000
+Yeah, it's feature-wise in between EXT and
+
+32:52.000 --> 32:56.000
+ZFS. Yeah, and I think they've got, it's got a bright
+
+32:56.000 --> 33:00.000
+future, put it that way. Alright, let's do some app picks.
+
+33:00.000 --> 33:04.000
+I'm feeling like we're going to run out of, I'm feeling like we're moving so fast that we're
+
+33:04.000 --> 33:08.000
+going to run out of time, and Wes will get here and we'll be out of time for the
+
+33:08.000 --> 33:12.000
+Gentoo Challenge, and then we're going to have to punt another episode of the
+
+33:12.000 --> 33:16.000
+Gentoo Challenge. I can't even believe it. I can't believe it. We should just do a special episode.
+
+33:16.000 --> 33:20.000
+Like a 24-hour Gentoo-a-thon or something. Well, you know,
+
+33:20.000 --> 33:24.000
+if you want to waste some time, I can give you a surprise app pick, Chris.
+
+33:24.000 --> 33:28.000
+Oh, really? You want to do three app picks? Sure. Let's do it. Yeah.
+
+33:28.000 --> 33:32.000
+So, a friend of mine was trying to figure out
+
+33:32.000 --> 33:36.000
+the frequency of their CPU.
+
+33:36.000 --> 33:40.000
+Oh, yeah. And it turns out that proc CPU info
+
+33:40.000 --> 33:44.000
+is not always accurate. In fact, that was mentioned in
+
+33:44.000 --> 33:48.000
+the 4.14 release. Yeah, so there's a third party
+
+33:48.000 --> 33:52.000
+tool called I7Z. Yeah.
+
+33:52.000 --> 33:56.000
+That is specifically for the I series Intel processors
+
+33:56.000 --> 34:00.000
+that gives very, very accurate
+
+34:00.000 --> 34:04.000
+frequencies for your stuff, so you can tell if it's
+
+34:04.000 --> 34:08.000
+respecting power states correctly and stuff.
+
+34:08.000 --> 34:12.000
+Yeah, so you're talking about the I7Z tool, right?
+
+34:12.000 --> 34:16.000
+Which is, I think, is the official page, the code.google page?
+
+34:16.000 --> 34:20.000
+Yeah. Okay, I'll put a link to that in show notes. This I have used myself when doing
+
+34:20.000 --> 34:24.000
+reviews and stuff. It's nice to have it up, because I think it's a cute app, and I just
+
+34:24.000 --> 34:28.000
+happen to like just the way it displays the information, too. There's a command line app, too.
+
+34:28.000 --> 34:32.000
+Really? Yep. Cool. Am I thinking of a different app
+
+34:32.000 --> 34:36.000
+then with the Google? No, it has a GUI version as well. Oh.
+
+34:36.000 --> 34:40.000
+I actually kind of prefer the command line, because then I could use it on like VPS systems
+
+34:40.000 --> 34:44.000
+and stuff. I think at least on Arch there's I7Z and then I7Z-GUI.
+
+34:44.000 --> 34:48.000
+Oh, that's totally what I did. You know me. You know me back.
+
+34:48.000 --> 34:52.000
+You know that I was rolling Arch back then. All right, so are you ready for my... I got two.
+
+34:52.000 --> 34:56.000
+I got one for video folks. Let's do this. And I got one for audio folks. The first
+
+34:56.000 --> 35:00.000
+one, I don't know how this is... I'm listening. Yeah, maybe you've heard of this, Eric.
+
+35:00.000 --> 35:04.000
+I had not, I don't think. And I'm not really sure how this is possible, because it's their
+
+35:04.000 --> 35:08.000
+fifth release. And I follow this stuff pretty closely.
+
+35:08.000 --> 35:12.000
+But it's called VidCutter. And it's a free video trimmer app that
+
+35:12.000 --> 35:16.000
+traditionally has been available for Mac and Windows, and I guess
+
+35:16.000 --> 35:20.000
+Linux for a fair share of time. And it's a Qt 5
+
+35:20.000 --> 35:24.000
+application that uses ffmpeg underneath. That's the core of it.
+
+35:24.000 --> 35:28.000
+And this is an article over at OMG Ubuntu. But if you want to
+
+35:28.000 --> 35:32.000
+split video trim video or join video clips into a single montage, this is like
+
+35:32.000 --> 35:36.000
+VidCutter's power zone. The app lets you perform these tasks as well as
+
+35:36.000 --> 35:40.000
+a bunch of others super quick. It's got a really nice timeline UI that makes it
+
+35:40.000 --> 35:44.000
+easy and simple even if you're not a video editor. You can create frame accurate
+
+35:44.000 --> 35:48.000
+cuts using the new smart cut feature that's in the latest release, which makes
+
+35:48.000 --> 35:52.000
+the feature makes use of re-encoding and can be toggled on and off by clicking
+
+35:52.000 --> 35:56.000
+on a little icon so you can either keep the straight video or recode the
+
+35:56.000 --> 36:00.000
+video like if it's a flash video or whatever ffmpeg supports.
+
+36:00.000 --> 36:04.000
+And it's got a nice fancy progress bar down below where you can see which clip
+
+36:04.000 --> 36:08.000
+is... Beard, you see that on the main screen there? You see how they put the progress bar over the
+
+36:08.000 --> 36:12.000
+actual part of the clip that's rendering? That's an interesting UI
+
+36:12.000 --> 36:16.000
+approach. I like that. So you can see what it's helping. And then they have a feature called
+
+36:16.000 --> 36:20.000
+stream mapping, which helps ensure all source media streams are included
+
+36:20.000 --> 36:24.000
+in the finished export. Yeah, that's inherited from ffmpeg.
+
+36:24.000 --> 36:28.000
+That is a pretty nice looking app. So it's a free video trimming app for
+
+36:28.000 --> 36:32.000
+Windows, Mac OS, and Linux desktop, Joey writes, and you can get it as an app image.
+
+36:32.000 --> 36:36.000
+Geez, it's a 200 meg app image, but you can also get it as a PPA.
+
+36:36.000 --> 36:40.000
+That's probably where you are in all the other places. For real world usage
+
+36:40.000 --> 36:44.000
+I can see people using this to very quickly make GIFs. Oh yeah.
+
+36:44.000 --> 36:48.000
+Oh yeah. Or, you know, this is always my go-to example,
+
+36:48.000 --> 36:52.000
+is you're going to go to xgiving. How do you like that, xgiving?
+
+36:52.000 --> 36:56.000
+It's like Thanksgiving, and the Christmas holiday, and the xgiving.
+
+36:56.000 --> 37:00.000
+What else do you call it? You've got to have some sort of generic term for the next month and a half.
+
+37:00.000 --> 37:04.000
+Happy Holidays, Chris. Yeah, you go to the family holiday thing, and you've got a couple of videos
+
+37:04.000 --> 37:08.000
+on your new fancy smartphone, because you're a geek, so you've got one of them phones maybe
+
+37:08.000 --> 37:12.000
+has a 4K camera, maybe it's 1080, I don't know what you've got. But you go there, you get your camera, you get your video,
+
+37:12.000 --> 37:16.000
+now you can put it together. You can put a little music to it, you can cut in and out,
+
+37:16.000 --> 37:20.000
+you can get that embarrassing moment cut out or keep it in, depending on your family,
+
+37:20.000 --> 37:24.000
+and then you can crap that thing out in just a couple of seconds,
+
+37:24.000 --> 37:28.000
+because you can choose to not re-encode or re-encode, and post it up on your family
+
+37:28.000 --> 37:32.000
+page or whatever the hell you've got, and now you're the holiday superstar.
+
+37:32.000 --> 37:36.000
+Or say there could be this guy doing a podcast about politics
+
+37:36.000 --> 37:40.000
+that needs to cut clips real quick, that doesn't want to re-encode things.
+
+37:40.000 --> 37:44.000
+That's of course my personal reason. Yeah, that is
+
+37:44.000 --> 37:48.000
+my personal reason, of course. I've got a years case as well.
+
+37:48.000 --> 37:52.000
+This might come in handy, like if I have to
+
+37:52.000 --> 37:56.000
+import a huge, huge file into some
+
+37:56.000 --> 38:00.000
+video editor and don't want to spend like years waiting for
+
+38:00.000 --> 38:04.000
+it to decode and go into whatever
+
+38:04.000 --> 38:08.000
+native file format it needs to. Absolutely, absolutely.
+
+38:08.000 --> 38:12.000
+And then every time you can avoid re-encoding, you avoid losing quality too.
+
+38:12.000 --> 38:16.000
+Yeah, exactly. Yeah, I do like that they
+
+38:16.000 --> 38:20.000
+offer a toggle. Okay, well you guys liked that one. I like it when I have an
+
+38:20.000 --> 38:24.000
+app pick that you guys actually enjoy. I think this next one might be a bit of a thud, but
+
+38:24.000 --> 38:28.000
+I'm going to give it a go. Now I've got one for you audio fans out there,
+
+38:28.000 --> 38:32.000
+and this could be just simple if you like listening to stuff, and then
+
+38:32.000 --> 38:36.000
+you hit pause, and if you're somebody like me, after you like
+
+38:36.000 --> 38:40.000
+pause a podcast or a radio show or whatever you're listening to, I like to
+
+38:40.000 --> 38:44.000
+back it up like a few seconds, so that way I don't miss anything
+
+38:44.000 --> 38:48.000
+and just back it up a couple seconds. Well, this
+
+38:48.000 --> 38:52.000
+is Paralletype. It's a minimal audio player. It's built for
+
+38:52.000 --> 38:56.000
+speech transcription. It's written for the GNOME desktop,
+
+38:56.000 --> 39:00.000
+and it plays audio files and then lets you transcribe them in your favorite
+
+39:00.000 --> 39:04.000
+text editor, but here's a cool thing. It
+
+39:04.000 --> 39:08.000
+has two features I really like. Number one, when you pause, it
+
+39:08.000 --> 39:12.000
+rewinds a few seconds, so when you hit play, you're like three seconds
+
+39:12.000 --> 39:16.000
+back. That is great. I wish I could have that in a video
+
+39:16.000 --> 39:20.000
+player, because I would use the crap out of that for our shows. And then the other
+
+39:20.000 --> 39:24.000
+thing I like is that it can play back
+
+39:24.000 --> 39:28.000
+as fast or as slow as your typing,
+
+39:28.000 --> 39:32.000
+and it has the ability to speed up the playback
+
+39:32.000 --> 39:36.000
+without altering the pitch of
+
+39:36.000 --> 39:40.000
+the sound, so you don't get the chipmunk effect.
+
+39:40.000 --> 39:44.000
+That's a game changer for closed captioning.
+
+39:44.000 --> 39:48.000
+Huge, dude. It's huge. And it also has a bunch of great features.
+
+39:48.000 --> 39:52.000
+It produces timestamps, which you can insert into a transcription.
+
+39:52.000 --> 39:56.000
+It has LibreOffice helpers. They recommend you use LibreOffice
+
+39:56.000 --> 40:00.000
+because they have a set of macros that can be assigned to key bindings, and
+
+40:00.000 --> 40:04.000
+you can insert timestamps or jump to timestamps, and of course it's using
+
+40:04.000 --> 40:08.000
+GStreamer on the back end, so whatever you can play with GStreamer, you can
+
+40:08.000 --> 40:12.000
+play with this thing. This could just be a great way to listen to podcasts,
+
+40:12.000 --> 40:16.000
+and then you can use it for transcription if you want. Transcription is something
+
+40:16.000 --> 40:20.000
+that all podcasts could use. They really could
+
+40:20.000 --> 40:24.000
+use it because it opens it up to another audience, number one. It makes it
+
+40:24.000 --> 40:28.000
+accessible to an audience that otherwise is just totally left out, but it also helps with
+
+40:28.000 --> 40:32.000
+search. Google doesn't search audio files, it searches text.
+
+40:32.000 --> 40:36.000
+And so podcasts that can do transcription
+
+40:36.000 --> 40:40.000
+can be better discovered. It's a great
+
+40:40.000 --> 40:44.000
+way to like, if there's a podcast you love, it'd be a great way to help them out.
+
+40:44.000 --> 40:48.000
+So there you go, it's Paralletype, and I'll have a link
+
+40:48.000 --> 40:52.000
+in the show notes. Seems pretty nice. Seems like, and
+
+40:52.000 --> 40:56.000
+I guess for those of you that are not visualizing, it's one of those minimal Gnome 3
+
+40:56.000 --> 41:00.000
+applications, but it's got everything you need. Play and stuff is in the client
+
+41:00.000 --> 41:04.000
+side decoration. In the middle is a waveform, below that is a
+
+41:04.000 --> 41:08.000
+really accurate time scale, and then you have playback controls in the bottom half and a speed
+
+41:08.000 --> 41:12.000
+slider. Pretty nice, pretty clean, pretty simple. It would fit on your
+
+41:12.000 --> 41:16.000
+screen while you're working and not take up a lot of room.
+
+41:16.000 --> 41:20.000
+So I'm going to just probably do it to listen to local podcasts that I download the MP3 of, you know what I'm saying?
+
+41:20.000 --> 41:24.000
+I'm looking forward to that. Parallel play.
+
+41:24.000 --> 41:28.000
+You know what we should do? Paralletype, I'm sorry. Paralletype. We should
+
+41:28.000 --> 41:32.000
+take a second here. If you're listening live, if you're in Discord or you're in the IRC,
+
+41:32.000 --> 41:36.000
+and wish Angela, tag her and wish her a happy birthday, because today as we're recording
+
+41:36.000 --> 41:40.000
+is her birthday. There you go. Another little breaking news, right?
+
+41:44.000 --> 41:48.000
+So yeah, Architect points out that Antennapod
+
+41:48.000 --> 41:52.000
+also has speed up. I wonder how many people listen to our shows
+
+41:52.000 --> 41:56.000
+at double speed. I've recently taken to doing it for a couple of things that I'm trying to catch
+
+41:56.000 --> 42:00.000
+up on, and man does it devastate the music. It just
+
+42:00.000 --> 42:04.000
+wrecks the audio. Anybody in the Mamba Room
+
+42:04.000 --> 42:08.000
+like a 2X listener of podcasts? There's
+
+42:08.000 --> 42:12.000
+an article today about it actually. It's actually a news story about people
+
+42:12.000 --> 42:16.000
+who listen to podcasts at 2X.
+
+42:16.000 --> 42:20.000
+I wonder if I could find it really quick. No, I don't think. Speedcasters
+
+42:20.000 --> 42:24.000
+is what they call them I think. They called them speedcasters or something like that. It turns out that
+
+42:24.000 --> 42:28.000
+almost nobody goes over 1.8% for some reason though. Really? Yeah.
+
+42:28.000 --> 42:32.000
+Yeah, because it starts sounding pretty bad. Most people stick to like
+
+42:32.000 --> 42:36.000
+1.5%. People who listen to podcasts
+
+42:36.000 --> 42:40.000
+at 2X or something like that. I know there was an article today about it.
+
+42:40.000 --> 42:44.000
+Yeah, here it is. Of course it's BuzzFeed. Of course it is.
+
+42:44.000 --> 42:48.000
+It's meet the people who listen to podcasts at super fast speeds.
+
+42:48.000 --> 42:52.000
+That's what it is.
+
+42:52.000 --> 42:56.000
+They say 2X, but yeah, I think you're probably right.
+
+42:56.000 --> 43:00.000
+They say most people listen to five podcasts a week, but some people
+
+43:00.000 --> 43:04.000
+listen to a lot more. Some people, 20% of podcast
+
+43:04.000 --> 43:08.000
+consumers listen to more than six podcasts a week. They call them podfasters.
+
+43:08.000 --> 43:12.000
+That's what it was, podfasters. Isn't that obnoxious?
+
+43:12.000 --> 43:16.000
+Of course, leave it to BuzzFeed. Nobody in the Mamba Room will own up to it.
+
+43:16.000 --> 43:20.000
+Nobody in the Mamba Room is going to own up to being a podfaster. Who's a podfaster?
+
+43:20.000 --> 43:24.000
+As bitmucks,
+
+43:24.000 --> 43:28.000
+I don't quite make 2X, but really it depends on the speed of the podcaster.
+
+43:28.000 --> 43:32.000
+I will do easily 1.5, 1.6.
+
+43:32.000 --> 43:36.000
+Really? I would think I would sound way too fast at that speed.
+
+43:36.000 --> 43:40.000
+I would put me like a 1.3 max.
+
+43:40.000 --> 43:44.000
+I do it accidentally.
+
+43:44.000 --> 43:48.000
+There's a Boing Boing article that says some people listen to it up to 300%.
+
+43:48.000 --> 43:52.000
+Well, I actually will sometimes listen to audiobooks
+
+43:52.000 --> 43:56.000
+at a pretty fast clip because my
+
+43:56.000 --> 44:00.000
+ADD brain has to listen just a little bit more intently
+
+44:00.000 --> 44:04.000
+and I retain the information better. So it's a little bit of a brain hack.
+
+44:04.000 --> 44:08.000
+If I listen faster, I can't let my brain drift because I will miss it.
+
+44:08.000 --> 44:12.000
+And because it's more challenging, I find it more satisfying to stay focused on.
+
+44:12.000 --> 44:16.000
+So there is some logic to it when you're getting through it like an audiobook.
+
+44:16.000 --> 44:20.000
+I just find with podcasts it wrecks the flow of the conversation.
+
+44:20.000 --> 44:24.000
+Apparently there are some other potential benefits besides speed.
+
+44:24.000 --> 44:28.000
+Apparently higher tones are less likely to be masked by low-pitched street noises,
+
+44:28.000 --> 44:32.000
+HVAC or low-flying planes. So it's easier to hear in loud situations.
+
+44:32.000 --> 44:36.000
+That's weird. Huh. Okay.
+
+44:36.000 --> 44:40.000
+I can't argue with that. That's ear science, right?
+
+44:40.000 --> 44:44.000
+You know what's really strange is when you
+
+44:44.000 --> 44:48.000
+listen to the theme music of various podcasts for so long at high speed
+
+44:48.000 --> 44:52.000
+and then you listen to that same podcast live, it feels like the theme music is just dragging.
+
+44:52.000 --> 44:56.000
+See, I have the opposite feeling.
+
+44:56.000 --> 45:00.000
+When I hear it, I'm like, oh my gosh. Oh, I was going to try to do it.
+
+45:00.000 --> 45:04.000
+What's the command in MPV to double speed? Is there a command? I don't know what it is.
+
+45:04.000 --> 45:08.000
+I'm sure there is one.
+
+45:08.000 --> 45:12.000
+It also says if you speed it up to 2x or 3x,
+
+45:12.000 --> 45:16.000
+your comprehension really starts to break down. But the exception to this is blind people.
+
+45:16.000 --> 45:20.000
+Because they're used to only listening so they can speed it up faster than
+
+45:20.000 --> 45:24.000
+sighted people and still understand it.
+
+45:24.000 --> 45:28.000
+I'm just thinking right now of the Ask Noah show at 2x. I'm just thinking how fast that would
+
+45:28.000 --> 45:32.000
+be. That would be rapid-fire podcast right there.
+
+45:32.000 --> 45:36.000
+I feel like if you speed it up at all, you can't understand it.
+
+45:36.000 --> 45:40.000
+It would be in a half hour. That would be good.
+
+45:40.000 --> 45:44.000
+I'm going to try it real quick and then we'll move on.
+
+45:44.000 --> 45:48.000
+No, I didn't do it.
+
+45:48.000 --> 45:52.000
+Oh well. People listening just sort of lazily
+
+45:52.000 --> 45:56.000
+will be like, what the hell is going on? What's the matter? I wonder if you'll get a comment
+
+45:56.000 --> 46:00.000
+about bad editing. That would be good.
+
+46:00.000 --> 46:04.000
+You could, if you wanted to, take a moment
+
+46:04.000 --> 46:08.000
+while we're waiting for Wes and head over to Digital Ocean. This might be a good use of our time.
+
+46:08.000 --> 46:12.000
+Because what else is there to do with life other than wait for Wes Payne
+
+46:12.000 --> 46:16.000
+and set up Digital Ocean? DigitalOcean.com. You go there, you create your account,
+
+46:16.000 --> 46:20.000
+and then use our promo code DOUNPLUGGED. That helps Rekai's beard
+
+46:20.000 --> 46:24.000
+grow. And really that's what this whole show is about. It's really a long
+
+46:24.000 --> 46:28.000
+play to grow that beard. You go to Digital Ocean,
+
+46:28.000 --> 46:32.000
+you create the account, and then you apply that beard
+
+46:32.000 --> 46:36.000
+oil called DOUNPLUGGED. One word.
+
+46:36.000 --> 46:40.000
+And that will give you a $10 credit. You can get started in less than 55 seconds.
+
+46:40.000 --> 46:44.000
+And you'll have a fast system on their infrastructure. Everything's SSDs.
+
+46:44.000 --> 46:48.000
+40 gigabit connections to the hypervisor. Object storage and block storage.
+
+46:48.000 --> 46:52.000
+Hey Chris, you know, this beard is pretty big, and you know what it could use?
+
+46:52.000 --> 46:56.000
+Some space. Oh yeah, well then you need to check out their new
+
+46:56.000 --> 47:00.000
+spaces system. It's object storage. Beautiful and simple. You can use
+
+47:00.000 --> 47:04.000
+it programmatically like a boss, or you can just generate URLs in their
+
+47:04.000 --> 47:08.000
+dashboard. And by the way, hell of a dashboard it is. They got a dashboard for days
+
+47:08.000 --> 47:12.000
+over there. You've got a long time, sort of like a barnacle of the IT
+
+47:12.000 --> 47:16.000
+industry. Got kind of like this sort of skeptical outlook on
+
+47:16.000 --> 47:20.000
+everything. All this new fangled web stuff. Let Digital Ocean treat you to how
+
+47:20.000 --> 47:24.000
+to do it right. You build a product around an amazing API. And then that results
+
+47:24.000 --> 47:28.000
+in a gorgeous dashboard. And it results in an easy, simple,
+
+47:28.000 --> 47:32.000
+I'm going to say, not having done a lot, but the work we have
+
+47:32.000 --> 47:36.000
+done, very comprehensive API. Like the things that we can
+
+47:36.000 --> 47:40.000
+do with the API. I don't even know why I'd even need to go to the website if I didn't want to.
+
+47:40.000 --> 47:44.000
+And it's so simple and well documented. So, while I haven't set up like
+
+47:44.000 --> 47:48.000
+10,000 systems, every single day I'm controlling multiple
+
+47:48.000 --> 47:52.000
+Digital Ocean systems using that API, and I don't ever use that dashboard. And then when I go back
+
+47:52.000 --> 47:56.000
+there, I'm like, damn, look at this thing. This isn't a dashboard for days.
+
+47:56.000 --> 48:00.000
+This is a dashboard for years. DigitalOcean.com, use our promo code DOUNPLUGGED
+
+48:00.000 --> 48:04.000
+and a big thank you to Digital Ocean for sponsoring this
+
+48:04.000 --> 48:08.000
+here unplugged program. You use spaces, don't you? Yeah, I have.
+
+48:08.000 --> 48:12.000
+I've only done light testing with it, because I don't have a big need for it.
+
+48:12.000 --> 48:16.000
+But I did use it to share some pretty large files, and it's super fast.
+
+48:16.000 --> 48:20.000
+And the link, I had it automatically destroy after like
+
+48:20.000 --> 48:24.000
+I don't remember, it was like a time period I set in there. I think it might have been a couple of days, because I was trying
+
+48:24.000 --> 48:28.000
+it out. And then the files are gone. Boom. Just destroyed.
+
+48:28.000 --> 48:32.000
+I feel like such a boss when I know my data's got a self-destruct. I feel like it's mission impossible.
+
+48:32.000 --> 48:36.000
+Speaking of mission impossible,
+
+48:36.000 --> 48:40.000
+let's do a little break into your system before somebody else does. This is, I think, one of the
+
+48:40.000 --> 48:44.000
+best security practices. You can keep your system patched. You can use
+
+48:44.000 --> 48:48.000
+the right account privileges, don't run as rude, all this kind of stuff. But
+
+48:48.000 --> 48:52.000
+if you're not checking, if you're not probing your system, you're not really fully confident
+
+48:52.000 --> 48:56.000
+that it's secure. And who doesn't want to just sort of take a look, do a little audit?
+
+48:56.000 --> 49:02.000
+It's a little checkup, like going to the mechanic. Only you can do it yourself.
+
+49:02.000 --> 49:06.000
+The tools have changed over the years, but
+
+49:06.000 --> 49:10.000
+Linus, L-Y-N-I-S, is an open source security auditing tool.
+
+49:10.000 --> 49:14.000
+And you run this on a FreeBSD box,
+
+49:14.000 --> 49:18.000
+a Solaris box, an AIX box, a Mac
+
+49:18.000 --> 49:22.000
+NetBSD, oh yes, and Linux.
+
+49:22.000 --> 49:26.000
+You can run that on these systems, including things like a QNAP storage device.
+
+49:26.000 --> 49:30.000
+And it will come back with an extremely comprehensive report. Now, this isn't
+
+49:30.000 --> 49:34.000
+going to be the all-in-all solution. You run this, and now your box is perfectly secure.
+
+49:34.000 --> 49:38.000
+But if IT security isn't your day job,
+
+49:38.000 --> 49:42.000
+you will get a pretty good education running this thing. Because not only will it check
+
+49:42.000 --> 49:46.000
+for some best practices, like what's listening on the network, what version
+
+49:46.000 --> 49:50.000
+your patches are, what CVEs your system is vulnerable to,
+
+49:50.000 --> 49:54.000
+it will also audit things like your SSH configuration, and make sure that you're
+
+49:54.000 --> 49:58.000
+following some of the best practices there, because things change. And they keep this program
+
+49:58.000 --> 50:02.000
+up to date. So it's basically a six-step system
+
+50:02.000 --> 50:06.000
+after you install it. You run it, and it determines your operating system. It will search for available
+
+50:06.000 --> 50:10.000
+utilities and updates. You then run the test based on some plugins that it ships with out of
+
+50:10.000 --> 50:14.000
+the box, and you get different categories to choose from, and then you get the report.
+
+50:14.000 --> 50:18.000
+And I thought we'd just do it right here on the show, because it's pretty
+
+50:18.000 --> 50:22.000
+quick, and I've already installed it. It's not a PPA, but there is a repository
+
+50:22.000 --> 50:26.000
+available for Debian and Ubuntu systems, probably
+
+50:26.000 --> 50:30.000
+in a lot of repos, or you can just download it from them. Once you have it installed,
+
+50:30.000 --> 50:34.000
+you get the linus command, l-y-n-s, and you can do linus show commands,
+
+50:34.000 --> 50:38.000
+and I'm showing it here on the video version, if you'd like to check at this point in the show. If you're
+
+50:38.000 --> 50:42.000
+listening on audio, you can go refer to YouTube if you'd like, or just install it
+
+50:42.000 --> 50:46.000
+and run linus show commands, and you'll see what I'm talking about. It's pretty straightforward. So the first
+
+50:46.000 --> 50:50.000
+thing we're going to do is... I'm going to try not to do anything
+
+50:50.000 --> 50:54.000
+in sudo until it tells me to, by the way, and you can follow along if you like. I'm going to do
+
+50:54.000 --> 50:58.000
+a linus update first, to make sure that all my stuff is updated.
+
+50:58.000 --> 51:02.000
+And we'll do update for info. So this will be all the vulnerability
+
+51:02.000 --> 51:06.000
+info that it can know about. Alright, so I am up to date. So if I'm up to date,
+
+51:06.000 --> 51:10.000
+then I can go ahead and I can run the audit. Now that I am going
+
+51:10.000 --> 51:14.000
+to run as root, sudo linus audit. You type
+
+51:14.000 --> 51:18.000
+that in. I give it my crazy super secure password.
+
+51:18.000 --> 51:22.000
+And, oh! I should mention
+
+51:22.000 --> 51:26.000
+one of the things they've recently added to linus is the ability to also audit
+
+51:26.000 --> 51:30.000
+docker files. So you can download a docker file and then run this against
+
+51:30.000 --> 51:34.000
+those containers. And that is super, super, super useful. But
+
+51:34.000 --> 51:38.000
+in this case, I need to actually specify system now. So I'm going to specify
+
+51:38.000 --> 51:42.000
+linus audit system. Now it begins to run. It checks the operating system
+
+51:42.000 --> 51:46.000
+and it's finding all kinds of stuff already. It's going to generate
+
+51:46.000 --> 51:50.000
+a text report that I can read at my leisure. It's going to be in
+
+51:50.000 --> 51:54.000
+var and you're going to need root privileges to be able to read it. But if you can do that,
+
+51:54.000 --> 51:58.000
+then you just give the, it'll give you the path. You just give that to your favorite
+
+51:58.000 --> 52:02.000
+text editor. Nano! And then you can read the full report.
+
+52:02.000 --> 52:06.000
+But right now linus takes, it'll take anywhere from, oh! Just found some stuff. Anywhere from
+
+52:06.000 --> 52:10.000
+a minute took what? About 25, 30 seconds to run it here on my system.
+
+52:10.000 --> 52:14.000
+Now I can get a report here in my browser. So I got a couple of dings already.
+
+52:14.000 --> 52:18.000
+There is right off the top here some recommendations for how I could
+
+52:18.000 --> 52:22.000
+harden my SSH configuration. There is some
+
+52:22.000 --> 52:26.000
+auditing changes I could make and some changes to logging on my
+
+52:26.000 --> 52:30.000
+system it's recommending. It's also recommending that I install
+
+52:30.000 --> 52:34.000
+rootkit hunter or check rootkit and then cron that, which is just sort of a best
+
+52:34.000 --> 52:38.000
+practice. So it ranges from things that I actively need to do or patch to best practices.
+
+52:38.000 --> 52:42.000
+And in fact, here's some on permissions.
+
+52:42.000 --> 52:46.000
+Here's a warning. Found one or more vulnerable packages. And then it gives me the
+
+52:46.000 --> 52:50.000
+package that it found and a URL to read more about it. It also recommends
+
+52:50.000 --> 52:54.000
+that I set a password on my grub bootloader to prevent altering boot configuration.
+
+52:54.000 --> 52:58.000
+And it also goes through and identifies all of the package files
+
+52:58.000 --> 53:02.000
+that have changed since I've installed them on my system. And software
+
+53:02.000 --> 53:06.000
+that might have a suggestion, like
+
+53:06.000 --> 53:10.000
+my log level, my max sessions, my permit root login settings,
+
+53:10.000 --> 53:14.000
+X11 forwarding settings, allowing agent forwarding
+
+53:14.000 --> 53:18.000
+settings. It has suggestions for all of those. It does have a warning
+
+53:18.000 --> 53:22.000
+for file permissions with CUPS on my printing. Something I need to fix.
+
+53:22.000 --> 53:26.000
+And of course, like I mentioned, I have a vulnerable package. But
+
+53:26.000 --> 53:30.000
+it looks like I'm pretty good as far as listening to remote hosts
+
+53:30.000 --> 53:34.000
+and looking at my DNS stuff, looking at my IP stuff.
+
+53:34.000 --> 53:38.000
+That all checks out. I had 43 ports open on TCP
+
+53:38.000 --> 53:42.000
+or UDP. It checked promiscuous interfaces. I passed all of those.
+
+53:42.000 --> 53:46.000
+No ARP monitoring software was running. It'll also do an IPv6
+
+53:46.000 --> 53:50.000
+audit if I have one. And then at the very bottom here, I get this
+
+53:50.000 --> 53:54.000
+output where I could actually throw that into my
+
+53:54.000 --> 53:58.000
+text editor of choice. It's at var log linus.log
+
+53:58.000 --> 54:02.000
+and I could get the whole thing in there. So we could take a look at that too. Because
+
+54:02.000 --> 54:06.000
+this is sort of the thing you would want to, if you were actually doing
+
+54:06.000 --> 54:10.000
+this for work, you would use this as documentation that you've completed the audit.
+
+54:10.000 --> 54:14.000
+Oh yeah, I just said I had to have root permissions.
+
+54:14.000 --> 54:18.000
+This is right here, your documentation that you completed the audit, but this is also now your
+
+54:18.000 --> 54:22.000
+comparison. So you save this, you set it aside, you make the changes that it recommends,
+
+54:22.000 --> 54:26.000
+and then you run it again. And you see how you do on the next pass. And then you
+
+54:26.000 --> 54:30.000
+find what's missing, you make those changes, and then you save that, you set it aside, and you
+
+54:30.000 --> 54:34.000
+run it again. And you just keep doing that. And you can do it on your digital ocean
+
+54:34.000 --> 54:38.000
+droplets, you can do it on your laptops, you can do it on your servers. It supports
+
+54:38.000 --> 54:42.000
+tons of different operating systems. It's based on stuff that I have been using for over a decade.
+
+54:42.000 --> 54:46.000
+Some of you might remember Bastille and other tools that have been around
+
+54:46.000 --> 54:50.000
+for a very, very long time. And the
+
+54:50.000 --> 54:54.000
+funny thing about actual IT security, the
+
+54:54.000 --> 54:58.000
+dirty truth about it is, you don't have to get it right.
+
+54:58.000 --> 55:02.000
+You just have to show that you're actively trying to mitigate risk,
+
+55:02.000 --> 55:06.000
+and you're actively taking corrective action when you find an issue.
+
+55:06.000 --> 55:10.000
+And if you can show that to auditors, or management, or whoever it is
+
+55:10.000 --> 55:14.000
+in your particular dynamic, that's
+
+55:14.000 --> 55:18.000
+really the benchmark. That's the bar.
+
+55:18.000 --> 55:22.000
+I'm not arguing, I'm not advocating it. I think it should be you strive
+
+55:22.000 --> 55:26.000
+for optimum security in every case. But the reality is, in a large production
+
+55:26.000 --> 55:30.000
+environment, you need a tool where you can have a baseline to work off,
+
+55:30.000 --> 55:34.000
+something you can modify and add your own things. That's the other thing you can do with Linus is
+
+55:34.000 --> 55:38.000
+you can add your own kinds of checks that are maybe specific to your environment.
+
+55:38.000 --> 55:42.000
+And you can also say we're using this to check docker images
+
+55:42.000 --> 55:46.000
+when we pull them down. So when management comes to you, or when
+
+55:46.000 --> 55:50.000
+an auditor, in my case, had come to us, we could say, we are using this, this is
+
+55:50.000 --> 55:54.000
+a process we've developed, this is a tool we've used, this is the tool, and this is what we
+
+55:54.000 --> 55:58.000
+do when we document a mistake, and this is what we do when we document a fix.
+
+55:58.000 --> 56:02.000
+And it gave us a trail, a paper trail,
+
+56:02.000 --> 56:06.000
+of IT security auditing. And that not only saved our
+
+56:06.000 --> 56:10.000
+butts several times from an auditing standpoint with the FDIC, but it also
+
+56:10.000 --> 56:14.000
+showed like producible work that the IT people were doing. Like here's this thing,
+
+56:14.000 --> 56:18.000
+and here we ran it several days later, and we fixed these things. And so that was great too.
+
+56:18.000 --> 56:22.000
+But now I can just run it on my own systems and go, oh yeah, right, I should change that about SSH.
+
+56:22.000 --> 56:26.000
+I never use that feature in SSH. Why do I have that on?
+
+56:26.000 --> 56:30.000
+Yeah, they say that they also use it for like ECI and HIPAA compliance testing.
+
+56:30.000 --> 56:34.000
+Yep. Oh yeah. Yeah, yeah. That's basically, I wasn't doing HIPAA. Well, I had
+
+56:34.000 --> 56:38.000
+to actually use it for some HIPAA systems. It also just gives you a great report of all of the
+
+56:38.000 --> 56:42.000
+background system daemons that are running. I forgot I installed
+
+56:42.000 --> 56:46.000
+X2GO on this machine. So that was good to see that.
+
+56:46.000 --> 56:50.000
+And the developers have kept it updated throughout the years
+
+56:50.000 --> 56:54.000
+now with systemd support, and like I mentioned, they recently got Docker support in there.
+
+56:54.000 --> 56:58.000
+It's a pretty cool tool. L-Y-N-I-S.
+
+56:58.000 --> 57:02.000
+And you can find it at, oh boy,
+
+57:02.000 --> 57:06.000
+it's CISOFY.com slash
+
+57:06.000 --> 57:10.000
+sysify slash linus. And it's pretty neat.
+
+57:10.000 --> 57:14.000
+You could also cron something like this and then get reports, which is something we've done.
+
+57:14.000 --> 57:18.000
+So you could have a system. Oh really?
+
+57:18.000 --> 57:22.000
+Oh, good to know. Good to know, Echo. Thank you. You could have this
+
+57:22.000 --> 57:26.000
+run on a remote system, a VPS or something like that,
+
+57:26.000 --> 57:30.000
+and just use it to check in and make sure nothing changes. If you've got a rig that you don't log
+
+57:30.000 --> 57:34.000
+into very often, you don't get a lot of eyes on, why not have this thing running in the background
+
+57:34.000 --> 57:38.000
+every Sunday sending you a report telling you if anything's gone wonky?
+
+57:38.000 --> 57:42.000
+It's pretty nice. You can start to think about ways you could use this
+
+57:42.000 --> 57:46.000
+from all kinds of different scenarios.
+
+57:46.000 --> 57:50.000
+And since it's open source and free, it also has a plug-in system, but I think
+
+57:50.000 --> 57:54.000
+you start getting into the commercial
+
+57:54.000 --> 57:58.000
+territory. I have never really dug into that with Linus as much as I did with some of the previous tools.
+
+57:58.000 --> 58:02.000
+The main difference with Bastille, for those of you that remember,
+
+58:02.000 --> 58:06.000
+is this is
+
+58:06.000 --> 58:10.000
+more comprehensive. This is more of an in-depth security scan.
+
+58:10.000 --> 58:14.000
+You kind of pick a level of security that's appropriate for your environment
+
+58:14.000 --> 58:18.000
+and then Linus holds you to that. It supports way more operating systems than Bastille
+
+58:18.000 --> 58:22.000
+did. It won't actively break your system like Bastille did in some cases.
+
+58:22.000 --> 58:26.000
+And the audit is significantly more in-depth.
+
+58:26.000 --> 58:30.000
+I don't know if you guys, maybe, probably nobody remembers these tools like Nessus
+
+58:30.000 --> 58:34.000
+and some of these tools that I used back in the day, but Nessus is another tool you could run against
+
+58:34.000 --> 58:38.000
+your own system. The thing is, in that case, or OpenVAS would be
+
+58:38.000 --> 58:42.000
+one you could use today, but again, in Linus it's going to be significantly faster.
+
+58:42.000 --> 58:46.000
+You're not going to bang out your log files because you're slamming on these ports.
+
+58:46.000 --> 58:50.000
+And because you're running it on the host,
+
+58:50.000 --> 58:54.000
+you're running it with privileges that Nessus or OpenVAS wouldn't normally have.
+
+58:54.000 --> 58:58.000
+And since you're running this yourself, you want to know what's there, so you get some more
+
+58:58.000 --> 59:02.000
+comprehensive search of the entire system.
+
+59:02.000 --> 59:06.000
+They do have an enterprise. They should contact me. We'll talk.
+
+59:06.000 --> 59:10.000
+I'll do some of the marketing for their enterprise products. I'm all in.
+
+59:10.000 --> 59:14.000
+Like a remote core system and all that, that's
+
+59:14.000 --> 59:18.000
+probably incredibly fancy. Anyways, I've read it on enough now
+
+59:18.000 --> 59:20.000
+about my old security
+
+59:20.000 --> 59:24.000
+proclivities, but it's fun, and it's a neat way to just check your system out and see
+
+59:24.000 --> 59:28.000
+what's going on. If you're on the Mac system,
+
+59:28.000 --> 59:32.000
+you know, one of the Macintoshes, it's in Homebrew. And if you're on FreeBSD,
+
+59:32.000 --> 59:36.000
+it's in Ports, and it's available as a deb and an rpm and a tarball
+
+59:36.000 --> 59:40.000
+as well. As well as, like I said, a deb repo for the Ubuntu's.
+
+59:40.000 --> 59:44.000
+What do you think, Beerbert? Oh, go ahead. I wonder if there's an API
+
+59:44.000 --> 59:48.000
+for that. I think that'd be really interesting. That would be good. It'd be really interesting
+
+59:48.000 --> 59:52.000
+if we could, you know, build a GUI for that so that regular
+
+59:52.000 --> 59:56.000
+users could be able to do that kind of audit, that kind of
+
+59:56.000 --> 01:00:00.000
+check. You know, just be able to see little green check boxes or whatever. It's
+
+01:00:00.000 --> 01:00:04.000
+GPL too, so I wonder if there's any distro out there that's pre-shipping this
+
+01:00:04.000 --> 01:00:08.000
+and emailing the users with a report or something. Because you could even modify it
+
+01:00:08.000 --> 01:00:12.000
+a bit to kind of clean it up and make it more presentable, I suppose. It looks like for at least their premium
+
+01:00:12.000 --> 01:00:16.000
+software as a service offering, they do offer an API. Oh, yeah, I figured.
+
+01:00:16.000 --> 01:00:20.000
+Yeah, I figured. Isn't that how it always goes now? I'm guessing
+
+01:00:20.000 --> 01:00:24.000
+their self-hosted version also offers an API, considering
+
+01:00:24.000 --> 01:00:28.000
+you have to receive a custom quote to get it. Oh, yeah.
+
+01:00:28.000 --> 01:00:32.000
+Oh, yeah. Yeah, the API is where the money's at these days, right? So you always
+
+01:00:32.000 --> 01:00:36.000
+have to throw that behind the enterprise product. It is pretty affordable, though. Three dollars
+
+01:00:36.000 --> 01:00:40.000
+per system per month. Hmm.
+
+01:00:40.000 --> 01:00:44.000
+That's for their premium offering. This is the way this works. So the GPL
+
+01:00:44.000 --> 01:00:48.000
+sort of like the core product that you just run on your own on the command line that you could
+
+01:00:48.000 --> 01:00:52.000
+automate if you knew some shell scripting and cron and, you know, you could get it
+
+01:00:52.000 --> 01:00:56.000
+done. And so they tease you with that, and then you get like a big huge infrastructure
+
+01:00:56.000 --> 01:01:00.000
+that like, you know, if you just, you could use the enterprise product. It's the same core technology, but
+
+01:01:00.000 --> 01:01:04.000
+we've added additional value, and we have an API. It's only three dollars a month.
+
+01:01:04.000 --> 01:01:08.000
+How do you not go, I'm doing that, right? If you start using this at the enterprise level,
+
+01:01:08.000 --> 01:01:12.000
+sure, if you're on a laptop, you're on a couple systems here in the studio, probably not worth it, but
+
+01:01:12.000 --> 01:01:16.000
+you start getting more beyond 10, 15 systems, you start getting to 25, 30, 35
+
+01:01:16.000 --> 01:01:20.000
+systems, that enterprise offering is all of a sudden starting to look pretty tempting. I mean, I know
+
+01:01:20.000 --> 01:01:24.000
+Noah's going to be in just because there's a self-hosted option. Oh, really? There is?
+
+01:01:24.000 --> 01:01:28.000
+I should call in. I should call in to ask Noah, and I should
+
+01:01:28.000 --> 01:01:32.000
+ask him what Linus is, and he'd start explaining who Linus Torvalds is,
+
+01:01:32.000 --> 01:01:36.000
+and right? No, no, no, not Linus. Linus. What?
+
+01:01:36.000 --> 01:01:40.000
+I could just see how that conversation goes. Yeah, yeah, there you go,
+
+01:01:40.000 --> 01:01:44.000
+Dan. Build it into elementary OS, okay? Just build it right in there, and
+
+01:01:44.000 --> 01:01:48.000
+we'll give us a mess. Yeah, I gotta go poke. Now I gotta talk to some people.
+
+01:01:48.000 --> 01:01:52.000
+I'm on a mission now. It would be a pretty cool like headline feature, elementary OS,
+
+01:01:52.000 --> 01:01:56.000
+self-auditing security, you know? Wouldn't that be pretty sweet?
+
+01:01:56.000 --> 01:02:00.000
+It would. I wonder if you could like run this stuff on against the
+
+01:02:00.000 --> 01:02:04.000
+elementary OS ISOs to see how secure they are?
+
+01:02:04.000 --> 01:02:08.000
+Yeah, I'm going to have to start a whole witch hunt now.
+
+01:02:08.000 --> 01:02:12.000
+We're going to change some default settings.
+
+01:02:12.000 --> 01:02:16.000
+I think it'll be fun to watch. You tell us how it goes, Dan. You report back, okay?
+
+01:02:16.000 --> 01:02:20.000
+Alright, well, so check it out, Linus. You can find a link in the show notes, and
+
+01:02:20.000 --> 01:02:24.000
+yeah, I actually did pretty good. Some of my other systems that I ran this on did
+
+01:02:24.000 --> 01:02:28.000
+not pass the audit as well, but it's all pretty readable. It's all
+
+01:02:28.000 --> 01:02:32.000
+pretty understandable if you've worked with this stuff in the past. It's like, go change the permissions
+
+01:02:32.000 --> 01:02:36.000
+on this file. Go change this line in the config. Go install this package.
+
+01:02:36.000 --> 01:02:40.000
+Does it give you like a description of why this is a bad setting?
+
+01:02:40.000 --> 01:02:44.000
+Yeah, so what they generally do, I was trying to find one that I could refer you to, but
+
+01:02:44.000 --> 01:02:48.000
+boy, there's just a lot when you look in the full log, but what they generally do is they'll say
+
+01:02:48.000 --> 01:02:52.000
+this is a best practice for XYZ reasons. See more here
+
+01:02:52.000 --> 01:02:56.000
+on this URL, and they'll give you a URL to their website with like a knowledge base article,
+
+01:02:56.000 --> 01:03:00.000
+or they'll link you to a CVE, so you can go read the CVE
+
+01:03:00.000 --> 01:03:04.000
+on that particular vulnerability.
+
+01:03:04.000 --> 01:03:08.000
+Of course, it also supports SE Linux and things like that. I probably should not get back into all the things it supports, because
+
+01:03:08.000 --> 01:03:12.000
+I could really do an entire episode just on this.
+
+01:03:12.000 --> 01:03:16.000
+I wonder if it's possible to run it on the Windows
+
+01:03:16.000 --> 01:03:20.000
+subsystem for Linux. That's a great question. I want to see what that would
+
+01:03:20.000 --> 01:03:24.000
+return. I sometimes wonder if we should have that installed
+
+01:03:24.000 --> 01:03:28.000
+somewhere on one of these systems, if we're missing some aspect of Linux now.
+
+01:03:28.000 --> 01:03:32.000
+Do you think that's a thing? Are we missing out on something there?
+
+01:03:32.000 --> 01:03:36.000
+Maybe. I mean, I feel like there's a silent group of people
+
+01:03:36.000 --> 01:03:40.000
+that are using it, but they're not talking about it. I've definitely had a
+
+01:03:40.000 --> 01:03:44.000
+couple of conversations where people are, it starts like this, it's like, you know how
+
+01:03:44.000 --> 01:03:48.000
+you were saying on air that you were worried that Ubuntu on Windows would just keep
+
+01:03:48.000 --> 01:03:52.000
+people on Windows? Well, that's me. And I've had that a few times now. And they're like,
+
+01:03:52.000 --> 01:03:56.000
+you know, I was thinking about switching, and now I don't have to.
+
+01:03:56.000 --> 01:04:00.000
+I mean, but at the same time, those are technically also now Linux users.
+
+01:04:00.000 --> 01:04:04.000
+Don't give me that crap. Don't give me that. I hate that. I hate it when people do that. It's like calling Android
+
+01:04:04.000 --> 01:04:08.000
+users Linux users. You just don't like Linux being in a sandbox.
+
+01:04:08.000 --> 01:04:12.000
+Yeah, don't put Linux in a box. I know. Well, unless it's a box on your Linux box.
+
+01:04:12.000 --> 01:04:16.000
+But you're perfectly fine with running Windows in a VM. Why does that need to be in a sandbox?
+
+01:04:16.000 --> 01:04:20.000
+Because Windows is a toy operating system. It's actually almost irresponsible to run
+
+01:04:20.000 --> 01:04:24.000
+Windows on physical hardware. You should always be running Windows under Linux
+
+01:04:24.000 --> 01:04:28.000
+virtualization, I think. Maybe with hardware pass-through.
+
+01:04:28.000 --> 01:04:32.000
+On the flip side, though, I think Linux is the most popular
+
+01:04:32.000 --> 01:04:36.000
+virtualized operating system. Damn it. Damn it. Yeah, you're probably right.
+
+01:04:36.000 --> 01:04:40.000
+And of course, I'm just having a bit of fun. The only time I would ever really run Windows
+
+01:04:40.000 --> 01:04:44.000
+is actually when I needed to be on physical hardware. So I don't often have use for
+
+01:04:44.000 --> 01:04:48.000
+Windows in a VM anymore. Or when you need Skype to not suck. Yeah. Yeah, that's been
+
+01:04:48.000 --> 01:04:52.000
+a thing. Yeah. I was trying to debate if we should have a no Skype
+
+01:04:52.000 --> 01:04:56.000
+policy, like talking about Skype in the show. But we recently, just because it is kind of
+
+01:04:56.000 --> 01:05:00.000
+newsworthy-ish, is we recently had the
+
+01:05:00.000 --> 01:05:04.000
+new version of Skype for Linux. The rest upon us. Yeah, the version that
+
+01:05:04.000 --> 01:05:08.000
+they shipped out to everybody now. Windows, Mac users. We've all gotten the new Electron
+
+01:05:08.000 --> 01:05:12.000
+based Skype. We don't have a choice but to use it because the old Skype
+
+01:05:12.000 --> 01:05:16.000
+doesn't work right anymore. Yeah, and it has totally borked audio
+
+01:05:16.000 --> 01:05:20.000
+on our Ubuntu 16.04 system, ironically. We finally
+
+01:05:20.000 --> 01:05:24.000
+stabilized on the Ubuntu 16.04 system. Well, to be fair, it could be
+
+01:05:24.000 --> 01:05:28.000
+on any Linux version. We haven't tested it yet. Yeah, we've only tried it on 16.04.
+
+01:05:28.000 --> 01:05:32.000
+That's true. But I haven't heard everybody else complaining. But what happens is, is you run Skype for a
+
+01:05:32.000 --> 01:05:36.000
+bit. A few minutes. It's an instant problem.
+
+01:05:36.000 --> 01:05:40.000
+And how would you describe this problem? How would you describe what happens to the audio?
+
+01:05:40.000 --> 01:05:44.000
+The audio slows down, so things are
+
+01:05:44.000 --> 01:05:48.000
+pitched down a few octaves. But it's also only the highs of the
+
+01:05:48.000 --> 01:05:52.000
+audio. So it's slowed down, but it's like, okay, well there's two things.
+
+01:05:52.000 --> 01:05:56.000
+The audio that gets recorded and the audio that we hear are two different things. Yeah. You're talking about
+
+01:05:56.000 --> 01:06:00.000
+the audio that gets recorded. Correct. Yeah. So just finish describing that. I'll describe the
+
+01:06:00.000 --> 01:06:04.000
+other audio. So it slows it down. Yeah, it slows it down so the audio
+
+01:06:04.000 --> 01:06:08.000
+is down a few octaves and it's slower, noticeably slower, like when you put
+
+01:06:08.000 --> 01:06:12.000
+if you're recording on another system, like if you're
+
+01:06:12.000 --> 01:06:16.000
+recording two ends of a Skype conversation, you put them in the timeline, one will be
+
+01:06:16.000 --> 01:06:20.000
+longer than the other. And then there's also the
+
+01:06:20.000 --> 01:06:24.000
+other issue that Chris is going to explain. So on the sound output from the system
+
+01:06:24.000 --> 01:06:28.000
+that's now running Skype, everything is high pitched. It's slowed a bit and it's
+
+01:06:28.000 --> 01:06:32.000
+high pitched. So it's more chip monkey, kind of
+
+01:06:32.000 --> 01:06:36.000
+screechy, scratchy kind of sounding. And it's
+
+01:06:36.000 --> 01:06:40.000
+all application output after Skype's been loaded. It's fine. I could
+
+01:06:40.000 --> 01:06:44.000
+demonstrate it right now. If I loaded Skype, it would break the audio from the mumble room
+
+01:06:44.000 --> 01:06:48.000
+for everybody. Everybody would sound like their microphones are broken. Until you reboot.
+
+01:06:48.000 --> 01:06:52.000
+Yeah. Can't even just close applications and reopen them.
+
+01:06:52.000 --> 01:06:56.000
+You've got to reboot. And then if you
+
+01:06:56.000 --> 01:07:00.000
+open Skype again, you've got to reboot again. And the weird thing is
+
+01:07:00.000 --> 01:07:04.000
+even if you're, well since you're recording externally from Skype,
+
+01:07:04.000 --> 01:07:08.000
+like it will, if you have good audio
+
+01:07:08.000 --> 01:07:12.000
+when you start from another application and you open Skype,
+
+01:07:12.000 --> 01:07:16.000
+it will affect that audio as well from the other application. Yes.
+
+01:07:16.000 --> 01:07:20.000
+So I mean our solution has been don't use Skype. But what happens is
+
+01:07:20.000 --> 01:07:24.000
+every now and then we end up in a situation where one of our remote hosts
+
+01:07:24.000 --> 01:07:28.000
+has happened a couple of times recently, is at a client's network and the client
+
+01:07:28.000 --> 01:07:32.000
+has outbound firewall rules.
+
+01:07:32.000 --> 01:07:36.000
+And when that happens, we're kind of limited.
+
+01:07:36.000 --> 01:07:40.000
+Yeah. So it's most time
+
+01:07:40.000 --> 01:07:44.000
+it's just been Skype. They only allow us to use Skype. They have like, or Slack.
+
+01:07:44.000 --> 01:07:48.000
+But we're not going to use Slack to record podcasts. So it's like Slack or
+
+01:07:48.000 --> 01:07:52.000
+Skype. So we went with Skype. Yeah, for example, the user error that just came out
+
+01:07:52.000 --> 01:07:56.000
+on Sunday, we ended up recording that
+
+01:07:56.000 --> 01:08:00.000
+on mumble because we had the first issue that Chris described. And then
+
+01:08:00.000 --> 01:08:04.000
+we switched to mumble, but then we opened Skype and that messed up the recording
+
+01:08:04.000 --> 01:08:08.000
+over mumble. You know what? I think InagoGo might have it. And I wonder if I could fix
+
+01:08:08.000 --> 01:08:12.000
+it with Puva control. So InagoGo postulates, or perhaps
+
+01:08:12.000 --> 01:08:16.000
+he knows, that Skype is changing the sample rate in pulse.
+
+01:08:16.000 --> 01:08:20.000
+Well that seems testable. Yeah, that's possible.
+
+01:08:20.000 --> 01:08:24.000
+And that seems like something, I wonder why that would be, but I wonder if we could, if we
+
+01:08:24.000 --> 01:08:28.000
+change it back, I wonder if Skype would sit there and fight with us and flip it? Well, we also noticed
+
+01:08:28.000 --> 01:08:32.000
+that Skype was changing levels every time we started it. Yeah, that's true.
+
+01:08:32.000 --> 01:08:36.000
+And then after, and then after some of this bouncing around, it was
+
+01:08:36.000 --> 01:08:40.000
+just, we were just, okay, we just, it's not like we want to sit here and waste a lot of time
+
+01:08:40.000 --> 01:08:44.000
+trying to make stupid Skype work, you know? It's not like it's some high priority, but
+
+01:08:44.000 --> 01:08:48.000
+go figure. It's like, it's, the purpose of this system is to
+
+01:08:48.000 --> 01:08:52.000
+have multiple avenues of communication. Discord, mumble, Skype,
+
+01:08:52.000 --> 01:08:55.520
+Hangouts, Jitsi, whatever
+
+01:08:55.520 --> 01:08:59.520
+cockamamie SIP application Noah wants me to use this week.
+
+01:08:59.520 --> 01:09:03.520
+This is our communications rig that we bring in for remote hosts, and so Skype is one of
+
+01:09:03.520 --> 01:09:07.520
+the many applications it's supposed to work with. Now hopefully
+
+01:09:07.520 --> 01:09:11.520
+InagoGo goes right. Hopefully he's onto something, and we can fix it.
+
+01:09:11.520 --> 01:09:15.520
+Because I want to keep it 16.04, I don't want to have to switch to something like Windows. Which is probably where
+
+01:09:15.520 --> 01:09:19.520
+we might end up. Which would be, nobody would want that. Nobody would want that.
+
+01:09:19.520 --> 01:09:23.520
+Alright, Beardsley. Well, so I thought, since we don't have
+
+01:09:23.520 --> 01:09:27.520
+Wes, we could, we could lay, you know what we could do is
+
+01:09:27.520 --> 01:09:31.520
+we could lay the groundwork for how we're doing the Gen 2 challenge. And cover that,
+
+01:09:31.520 --> 01:09:35.520
+and cover the software setup we're doing, and cover what stage install we're starting with and why.
+
+01:09:35.520 --> 01:09:39.520
+And the plan that we're going to have for going forward, so that way
+
+01:09:39.520 --> 01:09:43.520
+it doesn't like monopolize the whole show, but we're still going to get to it. So anyways,
+
+01:09:43.520 --> 01:09:47.520
+we'll do that. We'll do that in place of actually kicking off the challenge, is we'll lay the
+
+01:09:47.520 --> 01:09:51.520
+groundwork for the challenge, and then we can just go full force. So, let's thank
+
+01:09:51.520 --> 01:09:55.520
+Ting for sponsoring this here show. Go to linux.ting.com.
+
+01:09:55.520 --> 01:09:59.520
+Linux.ting.com. You've heard that word before, Linux. You want to put that in your browser.
+
+01:09:59.520 --> 01:10:03.520
+Because then, when people start typing L, they get Linux
+
+01:10:03.520 --> 01:10:07.520
+sites and not, I don't know, other things that can start with an L.
+
+01:10:07.520 --> 01:10:11.520
+Linux.ting.com. You go there and you learn more about a better way to do mobile.
+
+01:10:11.520 --> 01:10:15.520
+Average bill, $23, and it's delicious!
+
+01:10:15.520 --> 01:10:19.520
+Like a turkey dinner? Oh! Like a turkey beard over there.
+
+01:10:19.520 --> 01:10:23.520
+You pay for what you use. It's just however much you talk, however many
+
+01:10:23.520 --> 01:10:27.520
+text messages you may or may not send, and however many megabytes
+
+01:10:27.520 --> 01:10:31.520
+you may or may not use. Wi-Fi! And then it's nationwide coverage, no
+
+01:10:31.520 --> 01:10:35.520
+contracts, no determination fees. It's just $6 for the line, Uncle Sam's
+
+01:10:35.520 --> 01:10:39.520
+cut, and then your usage. You know, with three lines, three lines,
+
+01:10:39.520 --> 01:10:43.520
+we're almost always under $35. It's great because
+
+01:10:43.520 --> 01:10:47.520
+all three of us are always on Wi-Fi, and we're always on Telegram,
+
+01:10:47.520 --> 01:10:51.520
+or some other VoIP system when we want to make calls.
+
+01:10:51.520 --> 01:10:55.520
+I mean, it just works so great for us. And if you're in a small business, it's kind of like in our setup, where you have a few
+
+01:10:55.520 --> 01:10:59.520
+savvy users, it's just such an awesome way to
+
+01:10:59.520 --> 01:11:03.520
+give, not just like phone services, but to really keep everybody
+
+01:11:03.520 --> 01:11:07.520
+in contact on the team. Because you have, like in our case, you have Telegram and
+
+01:11:07.520 --> 01:11:11.520
+Slack, or whatever apps you guys in your organization might be using.
+
+01:11:11.520 --> 01:11:15.520
+But now everybody is connected all the time, and so
+
+01:11:15.520 --> 01:11:19.520
+Joe and I were just talking about Linux Fest Northwest just before the show started, and
+
+01:11:19.520 --> 01:11:23.520
+that's the time where I go, you know, I'm thinking I might buy a few Ting Sims ahead of time. I don't even
+
+01:11:23.520 --> 01:11:27.520
+know what we'd use them for, but they're $9, and I don't pay a contract, there's no determination
+
+01:11:27.520 --> 01:11:31.520
+fee, so I just put, when the guys get here, we put them in a device and we're good to go.
+
+01:11:31.520 --> 01:11:35.520
+And you can get them on Amazon, they're primeable too, which is a great way to give them out for
+
+01:11:35.520 --> 01:11:39.520
+holiday presents as well. That's kind of cool. And then when they want to sign up, just send them to
+
+01:11:39.520 --> 01:11:43.520
+linux.ting.com, and they'll get our deal. That's pretty cool. So what's great
+
+01:11:43.520 --> 01:11:47.520
+about that is if they've got a device already, then they could get a $25
+
+01:11:47.520 --> 01:11:51.520
+service credit and their first month's going to be free. That's a pretty great gift.
+
+01:11:51.520 --> 01:11:55.520
+linux.ting.com. linux.ting.com?
+
+01:11:55.520 --> 01:11:59.520
+Here's my question, Chris. You saved a whole lot of money on Ting. Do you know
+
+01:11:59.520 --> 01:12:03.520
+of any delivery turkey services? That is a great
+
+01:12:03.520 --> 01:12:07.520
+question. I know places where you can get really good turkey meals, but you've got to pick them up.
+
+01:12:07.520 --> 01:12:11.520
+And it's pretty far from here. Boy, turkey
+
+01:12:11.520 --> 01:12:15.520
+delivery. I don't know. You know, really what you should
+
+01:12:15.520 --> 01:12:19.520
+do is you should get a grocery store delivery and just get one of their turkeys and
+
+01:12:19.520 --> 01:12:23.520
+just go that route. But I want somebody else to make the turkey for me.
+
+01:12:23.520 --> 01:12:27.520
+Yeah, just get the pre-made one and you can microwave it. I mean, nobody's counting.
+
+01:12:27.520 --> 01:12:31.520
+Microwave turkey!
+
+01:12:31.520 --> 01:12:35.520
+Indiegogo says he was just guessing, by the way, but I think that's a good guess. It's something I might check.
+
+01:12:35.520 --> 01:12:39.520
+And yeah, if you have time to check it yourself, Mr. Gogo, please go for it.
+
+01:12:39.520 --> 01:12:43.520
+I have done some research, Chris. There apparently is mail-order turkey.
+
+01:12:43.520 --> 01:12:47.520
+Yeah, but it seems like you'd have to get on that like a while ago. Maybe.
+
+01:12:47.520 --> 01:12:51.520
+This is like hours away now. Turkey Day is hours away.
+
+01:12:51.520 --> 01:12:55.520
+There's probably Amazon next day delivery.
+
+01:12:55.520 --> 01:12:59.520
+I wonder if she's looking to Boston's. See what they offer. You know, they're not too far away.
+
+01:12:59.520 --> 01:13:03.520
+So let's talk about this Gen 2 challenge. Not Turkey Day.
+
+01:13:03.520 --> 01:13:07.520
+Although it is funny, Turkey Day is getting on our minds more and more. It's big for my family.
+
+01:13:07.520 --> 01:13:11.520
+This is the one that we really like. Because we like to eat, to be honest.
+
+01:13:11.520 --> 01:13:15.520
+Anyways, we're going to do the Gen 2 challenge in some, I hope, in a way that's fun.
+
+01:13:15.520 --> 01:13:23.520
+And also sort of gives you a real taste of what life with Gen 2 would be like.
+
+01:13:23.520 --> 01:13:29.520
+So it's kind of a delicate balance, because we don't want it to be boring to people who don't give two craps about Gen 2.
+
+01:13:29.520 --> 01:13:33.520
+And at the same time, we want to give it its proper due.
+
+01:13:33.520 --> 01:13:41.520
+We are going to take an approach that I think you guys will like, especially once it's up and rolling.
+
+01:13:41.520 --> 01:13:45.520
+And that is, I'm going to build a VM here for Mr. Wes Payne.
+
+01:13:45.520 --> 01:13:49.520
+And it's running here in the studio.
+
+01:13:49.520 --> 01:13:53.520
+And at the beginning of each show, Wes will fire it up and he'll begin building the Gen 2 system.
+
+01:13:53.520 --> 01:13:57.520
+As the show goes on, he'll sort of tend to it. Keep things rolling.
+
+01:13:57.520 --> 01:14:01.520
+Keep it installing.
+
+01:14:01.520 --> 01:14:05.520
+And then when the show's over, we'll pause the virtual machine.
+
+01:14:05.520 --> 01:14:09.520
+You know, we might pause it a few minutes after the show. Maybe let it build, finish, or something.
+
+01:14:09.520 --> 01:14:13.520
+We'll pause the virtual machine and we'll go home. We'll go about our day.
+
+01:14:13.520 --> 01:14:17.520
+And then the next episode we'll come back, we'll continue the build.
+
+01:14:17.520 --> 01:14:23.520
+Now the idea here is to demonstrate, if you take a few hours a day, or a week, a couple hours a week,
+
+01:14:23.520 --> 01:14:29.520
+how long does it take you to get a running Gen 2 system all the way up to X, and then make it usable?
+
+01:14:29.520 --> 01:14:33.520
+So we're basically doing a real-time Gen 2 install over a series of weeks.
+
+01:14:33.520 --> 01:14:39.520
+Yeah, and so we'll sort of just check in on it. It won't be the main topic, but it'll be part of the show each week for a couple of weeks.
+
+01:14:39.520 --> 01:14:43.520
+We'll just check in on it and give everybody a sense of what that's like.
+
+01:14:43.520 --> 01:14:47.520
+And we were looking at it, and you start with a Stage 1 because that'd probably be the most entertaining.
+
+01:14:47.520 --> 01:14:51.520
+And then we could poke the most fun at Gen 2 with a Stage 1, right?
+
+01:14:51.520 --> 01:14:57.520
+Look at Gen 2. Look how long it takes. That would be, of course, the most entertaining.
+
+01:14:57.520 --> 01:15:05.520
+We did some digging around, and it seems like that Stage 3 is basically – that's the way the project recommends now, right, Beard?
+
+01:15:05.520 --> 01:15:09.520
+Because when I did this, it was like, go whichever way you want, but Stage 3 is like –
+
+01:15:09.520 --> 01:15:13.520
+that's the recommended path now, and they make it hard to even do a Stage 1 or 2.
+
+01:15:13.520 --> 01:15:17.520
+So the differences in the stages are how far along the system is.
+
+01:15:17.520 --> 01:15:21.520
+With a Stage 1, you're just doing everything. You're building everything.
+
+01:15:21.520 --> 01:15:27.520
+With a Stage 2, the tarballs that you get contain some packages that the Stage 1 might have had. They're built from that.
+
+01:15:27.520 --> 01:15:31.520
+And then it's a little bit further along. You have more tools in the chain.
+
+01:15:31.520 --> 01:15:39.520
+Then you have a Stage 3, which is – of course, it's everything the Stage 1 and Stage 2 tarballs have, but it also contains a system set.
+
+01:15:39.520 --> 01:15:45.520
+And Portage includes quick references for this set based on packages that might be in the atSystemSet operator.
+
+01:15:45.520 --> 01:15:55.520
+It has architecture-specific downloads available, so you can get it for like the 64-bit version of an Intel CPU or 32-bit, or you can get it for ARM.
+
+01:15:55.520 --> 01:15:59.520
+And it's more of a complete system ready to go.
+
+01:15:59.520 --> 01:16:10.520
+Basically, they use Stage 1 to build out Stage 3, and Stage 2 is basically just Stage 1, except they built Stage 1 with itself to make sure it could build itself.
+
+01:16:10.520 --> 01:16:15.520
+Right. So it really is not Stage 1 and 2 combined so much as it's a completely built Stage 1.
+
+01:16:15.520 --> 01:16:24.520
+And it's kind of like now you partition the disk and lay these things out on the disk, and you just have to then do your partition magic.
+
+01:16:24.520 --> 01:16:28.520
+And look who walks in right now. Hello, Mr. Wes Payne.
+
+01:16:28.520 --> 01:16:30.520
+I could tell you needed me, gentlemen.
+
+01:16:30.520 --> 01:16:32.520
+Yeah, did your Gen 2 ears start itching?
+
+01:16:32.520 --> 01:16:33.520
+Oh, yeah, yeah.
+
+01:16:33.520 --> 01:16:37.520
+Yeah, so I was just telling the folks about our strategy. So I've set you up a virtual machine here.
+
+01:16:37.520 --> 01:16:38.520
+Oh, look at this.
+
+01:16:38.520 --> 01:16:41.520
+And I've got you a Stage 3 ISO.
+
+01:16:41.520 --> 01:16:47.520
+I decided – oh, hello there – I decided for simplicity's sake just to do VirtualBox for the VM because it's got the easy pause option.
+
+01:16:47.520 --> 01:16:48.520
+It sure does, yeah.
+
+01:16:48.520 --> 01:16:50.520
+I just thought that for simplicity's sake, we'll go VirtualBox.
+
+01:16:50.520 --> 01:16:54.520
+I haven't used VirtualBox in a while, and they've got a built-in setting for Gen 2.
+
+01:16:54.520 --> 01:17:00.520
+And so, yeah, we're going to essentially just – I bet next episode I think you'll have it booting.
+
+01:17:00.520 --> 01:17:05.520
+And then it's just going to be how long does it take to build from there, and we'll just sort of check in on the project as we go.
+
+01:17:05.520 --> 01:17:13.520
+And you can follow along, too, if you'd like. In fact, I think that'd be a really fun aspect if you want to build a VM and start it up while you listen to the show and see how far you get.
+
+01:17:13.520 --> 01:17:15.520
+Oh, we can build together.
+
+01:17:15.520 --> 01:17:19.520
+That's what I was thinking. Wouldn't that be really cool? I mean, it's nerdy, but I mean, that's what this is all about, right?
+
+01:17:19.520 --> 01:17:20.520
+That's right, it is.
+
+01:17:20.520 --> 01:17:23.520
+It wouldn't be a virtual lug if we weren't doing things like compiling Gen 2.
+
+01:17:23.520 --> 01:17:30.520
+Yeah, and I totally – seriously, if you guys – anybody in the Mumble Room wants to do it along with us as well, you can check in when we're doing our check-in.
+
+01:17:30.520 --> 01:17:39.520
+Or if you're going to do it at home and decide you want to join the Mumble Room, you can go to – it's mumble.jupitercolony.com to get the setup guide and information you need to join our Mumble Room.
+
+01:17:39.520 --> 01:17:45.520
+mumble.jupitercolony.com if you want to do it along with us. I think that could be pretty cool.
+
+01:17:45.520 --> 01:17:48.520
+Well, I'm glad you made it, Wes. How about that Washington traffic?
+
+01:17:48.520 --> 01:17:51.520
+Oh my, that was some of the worst I've seen in a long time.
+
+01:17:51.520 --> 01:17:57.520
+Everybody gives credit to New York and Los Angeles for their traffic, but nobody gives proper credit to how awful Washington is.
+
+01:17:57.520 --> 01:18:00.520
+See, we need to spread this more so people stop moving here.
+
+01:18:00.520 --> 01:18:02.520
+Yeah, exactly, because they don't know about this.
+
+01:18:02.520 --> 01:18:03.520
+It's horrible, don't come.
+
+01:18:03.520 --> 01:18:04.520
+But you did bring us a beer, huh?
+
+01:18:04.520 --> 01:18:05.520
+I did.
+
+01:18:05.520 --> 01:18:07.520
+That is – jeez, a winter ale.
+
+01:18:07.520 --> 01:18:11.520
+It's even called Kitten Mittens.
+
+01:18:11.520 --> 01:18:27.520
+You know, okay, so I was just about to wrap up the show, but since you're here, I thought we should mention that everybody, all of you, even if you're not a TechSnap regular, should probably check in on episode 346 because there's some news in there.
+
+01:18:27.520 --> 01:18:32.520
+Some changes are coming to the TechSnap program, and it may be relevant to listeners of this program.
+
+01:18:32.520 --> 01:18:33.520
+It sure might.
+
+01:18:33.520 --> 01:18:34.520
+I'll just put it that way.
+
+01:18:34.520 --> 01:18:38.520
+And also possibly the next episode of User Error?
+
+01:18:38.520 --> 01:18:48.520
+Right, yes, yes, yes, because Wes will be joining us for the next episode of User Error, so we'll have details about big secret plans that we've been working on for several months behind the scenes.
+
+01:18:48.520 --> 01:18:49.520
+Oh, so secret.
+
+01:18:49.520 --> 01:19:02.520
+So get the news, get the announcement in TechSnap 346, which we have not recorded yet, but we'll have more details in User Error 36, which will probably be out like Saturday or Sunday of this week.
+
+01:19:02.520 --> 01:19:05.520
+So something to maybe listen to over the holiday weekend.
+
+01:19:05.520 --> 01:19:07.520
+There's always changes happening here at the JV network.
+
+01:19:07.520 --> 01:19:08.520
+Well, Wes, it's good to see you.
+
+01:19:08.520 --> 01:19:09.520
+Oh, yeah.
+
+01:19:09.520 --> 01:19:10.520
+Thank you for making it.
+
+01:19:10.520 --> 01:19:11.520
+Thank you for doing a wonderful show.
+
+01:19:11.520 --> 01:19:14.520
+I was enjoying it listening while I was trapped.
+
+01:19:14.520 --> 01:19:15.520
+That's good.
+
+01:19:15.520 --> 01:19:18.520
+Did you do the JV Live FM, or did you do the YouTube stream?
+
+01:19:18.520 --> 01:19:20.520
+What's your in-the-car choice?
+
+01:19:20.520 --> 01:19:21.520
+Normally it's the FM stream.
+
+01:19:21.520 --> 01:19:24.520
+This time it was YouTube because it was just the easy, I told Google and it brought it to me.
+
+01:19:24.520 --> 01:19:27.520
+And the nice thing is you lock the screen and it basically converts to an audio stream.
+
+01:19:27.520 --> 01:19:28.520
+Yeah.
+
+01:19:28.520 --> 01:19:29.520
+And that's pretty nice, too.
+
+01:19:29.520 --> 01:19:30.520
+And then you unlock the stream, boom, back to a video.
+
+01:19:30.520 --> 01:19:32.520
+That's only if you have YouTube Red, though.
+
+01:19:32.520 --> 01:19:33.520
+Yes, true.
+
+01:19:33.520 --> 01:19:34.520
+Good point.
+
+01:19:34.520 --> 01:19:35.520
+But then otherwise go to jvlive.fm.
+
+01:19:35.520 --> 01:19:36.520
+Yeah.
+
+01:19:36.520 --> 01:19:37.520
+You can listen that way.
+
+01:19:37.520 --> 01:19:38.520
+All right, gentlemen.
+
+01:19:38.520 --> 01:19:39.520
+Thank you, Mumble Room.
+
+01:19:39.520 --> 01:19:40.520
+Thanks, guys.
+
+01:19:40.520 --> 01:19:42.520
+Go check out Mr. Dan there over at the Elementary Project.
+
+01:19:42.520 --> 01:19:46.520
+Of course, they've just got that app center just rocking these days.
+
+01:19:46.520 --> 01:19:48.520
+New apps are landing all the time over there.
+
+01:19:48.520 --> 01:19:49.520
+Go check those out, too.
+
+01:19:49.520 --> 01:19:52.520
+I just saw a new one going by, a new weather app that looks real slick.
+
+01:19:52.520 --> 01:19:53.520
+Ooh.
+
+01:19:53.520 --> 01:19:54.520
+It's good to see you, Dan.
+
+01:19:54.520 --> 01:19:55.520
+Thank you for making it again.
+
+01:19:55.520 --> 01:19:56.520
+I appreciate it.
+
+01:19:56.520 --> 01:19:57.520
+Of course.
+
+01:19:57.520 --> 01:19:59.520
+Now, thank you, everybody, for making the Mumble Room.
+
+01:19:59.520 --> 01:20:01.520
+We had a light turnout this week, but we had a great crew.
+
+01:20:01.520 --> 01:20:03.520
+So I really appreciate everybody that did make it.
+
+01:20:03.520 --> 01:20:06.520
+And again, you're welcome to join us, mumble.jupitercolony.com.
+
+01:20:06.520 --> 01:20:11.520
+If you have story suggestions or show, like, episode-specific feedback,
+
+01:20:11.520 --> 01:20:13.520
+the subreddit is great for that.
+
+01:20:13.520 --> 01:20:17.520
+Go to linuxunplugged.reddit.com, and you can send your emails.
+
+01:20:17.520 --> 01:20:20.520
+Go to jupiterbroadcasting.com slash contact,
+
+01:20:20.520 --> 01:20:23.520
+and choose Unplugged from the dropdown.
+
+01:20:23.520 --> 01:20:25.520
+Go get more beard at wretch.net.
+
+01:20:25.520 --> 01:20:26.520
+Hey!
+
+01:20:26.520 --> 01:20:27.520
+God, that's a good one.
+
+01:20:27.520 --> 01:20:28.520
+So good.
+
+01:20:28.520 --> 01:20:29.520
+How did he get that?
+
+01:20:29.520 --> 01:20:30.520
+And you're at Westpaint.
+
+01:20:30.520 --> 01:20:31.520
+That's right, I am.
+
+01:20:31.520 --> 01:20:32.520
+You got your name on there.
+
+01:20:32.520 --> 01:20:33.520
+That's pretty good, too.
+
+01:20:33.520 --> 01:20:34.520
+Clear, simple, easy.
+
+01:20:34.520 --> 01:20:35.520
+That's pretty good.
+
+01:20:35.520 --> 01:20:36.520
+I'm at Chris LAS.
+
+01:20:36.520 --> 01:20:38.520
+The network is at Jupiter Signal.
+
+01:20:38.520 --> 01:20:42.520
+And I feel like I probably should mention this from time to time.
+
+01:20:42.520 --> 01:20:46.520
+We also have a telegram group, jupiterbroadcasting.com slash telegram,
+
+01:20:46.520 --> 01:20:49.520
+where you can join in some of the shenanigans there.
+
+01:20:49.520 --> 01:20:52.520
+Thank you for joining us on this week's episode of the Unplugged program.
+
+01:20:52.520 --> 01:20:53.520
+Go grab our RSS feed.
+
+01:20:53.520 --> 01:20:57.520
+That way you can see us next week, because otherwise we're going to miss you.
+
+01:20:57.520 --> 01:20:58.520
+Goodbye!
+
+01:20:58.520 --> 01:21:03.520
+and we'll see you next week.
+
+01:21:03.520 --> 01:21:04.520
+Bye!
+
+01:21:04.520 --> 01:21:29.520
+Get it out of here.
+
+01:21:29.520 --> 01:21:41.520
+Well, Wes, I think obviously you should title the episode.
+
+01:21:41.520 --> 01:21:44.520
+I mean, that seems like, I mean, I don't know.
+
+01:21:44.520 --> 01:21:47.520
+Anybody got some suggestions we need to title this monster?
+
+01:21:47.520 --> 01:21:48.520
+Let's get a name.
+
+01:21:48.520 --> 01:21:49.520
+Let's get a name for this thing.
+
+01:21:49.520 --> 01:21:51.520
+Let's not make it awful this time.
+
+01:21:51.520 --> 01:21:53.520
+Not like last week.
+
+01:21:53.520 --> 01:21:54.520
+What happened?
+
+01:21:54.520 --> 01:21:56.520
+I'll tell you what.
+
+01:21:56.520 --> 01:22:00.520
+I'm going to just clickbait.
+
+01:22:00.520 --> 01:22:04.520
+Wes panning for Gen 2, Gen 2 test scam.
+
+01:22:04.520 --> 01:22:07.520
+And simple tricks to audit your Linux system.
+
+01:22:07.520 --> 01:22:08.520
+We could get really good at this.
+
+01:22:08.520 --> 01:22:13.520
+We should just do like a whole like rash of those.
+
+01:22:13.520 --> 01:22:16.520
+What about, are you getting that impressive emoji support or are you using the...
+
+01:22:16.520 --> 01:22:18.520
+I'm using the web browser for that impressive emoji support.
+
+01:22:18.520 --> 01:22:19.520
+Yes.
+
+01:22:19.520 --> 01:22:22.520
+I'm using the Discord app in the web browser.
+
+01:22:22.520 --> 01:22:23.520
+No escape from Google.
+
+01:22:23.520 --> 01:22:24.520
+That's kind of good.
+
+01:22:24.520 --> 01:22:25.520
+That's kind of good.
+
+01:22:25.520 --> 01:22:26.520
+That is pretty good, actually.
+
+01:22:26.520 --> 01:22:28.520
+Architect kills it with those titles sometimes.
+
+01:22:28.520 --> 01:22:29.520
+Dude, he's a ninja.
+
+01:22:29.520 --> 01:22:32.520
+He comes in there and he's like, boom, right in the nuts.
+
+01:22:32.520 --> 01:22:34.520
+And by nuts, I mean things suggested.
+
+01:22:34.520 --> 01:22:37.520
+What about B caching your file system?
+
+01:22:37.520 --> 01:22:39.520
+Well, I don't want a dog on the B cache because it loves it.
+
+01:22:39.520 --> 01:22:42.520
+I got nothing but love.
+
+01:22:42.520 --> 01:22:46.520
+Yeah, I saw some good replies to people being snarky about that in some comments elsewhere
+
+01:22:46.520 --> 01:22:49.520
+and like pointing people to like, here's the code.
+
+01:22:49.520 --> 01:22:51.520
+Can you spot the problem with it?
+
+01:22:51.520 --> 01:22:54.520
+And then like the one line patch that actually fixed it.
+
+01:22:54.520 --> 01:22:57.520
+Still a shame though.
+
+01:22:57.520 --> 01:23:02.520
+What about Android colon location aware?
+
+01:23:02.520 --> 01:23:03.520
+I don't know.
+
+01:23:03.520 --> 01:23:06.520
+I don't think that's better than no escape from Google.
+
+01:23:06.520 --> 01:23:11.520
+So you mean we peaked at the top of the show then, huh?
+
+01:23:11.520 --> 01:23:12.520
+Is that what that means?
+
+01:23:12.520 --> 01:23:14.520
+I thought the Linux stuff was pretty neat.
+
+01:23:14.520 --> 01:23:16.520
+I mean, you know, I thought that was neat.
+
+01:23:16.520 --> 01:23:17.520
+No, you're right.
+
+01:23:17.520 --> 01:23:18.520
+You're right.
+
+01:23:18.520 --> 01:23:21.520
+I think sometimes I Google out on the security stuff more than people care.
+
+01:23:21.520 --> 01:23:22.520
+That might be what's up.
+
+01:23:22.520 --> 01:23:23.520
+That might be.
+
+01:23:23.520 --> 01:23:24.520
+That might be true.
+
+01:23:24.520 --> 01:23:25.520
+But to me, it's just so handy.
+
+01:23:25.520 --> 01:23:30.520
+It's so handy to be able to check your box and just get like a, even if it's not a totally
+
+01:23:30.520 --> 01:23:32.520
+comprehensive, it's more than you were probably looking at.
+
+01:23:32.520 --> 01:23:33.520
+That's what I like about it.
+
+01:23:33.520 --> 01:23:34.520
+Yeah, absolutely.
+
+01:23:34.520 --> 01:23:37.520
+And it's fun to play around with that stuff and compare your different distributions.
+
+01:23:37.520 --> 01:23:41.520
+Like, you know, you installed one distro and then you installed the other distro and you
+
+01:23:41.520 --> 01:23:44.520
+can see how they're kind of set up out of the box differently.
+
+01:23:44.520 --> 01:23:47.520
+Maybe we can bring that back around on this here Gentoo business.
+
+01:23:47.520 --> 01:23:48.520
+Oh, that would be interesting.
+
+01:23:48.520 --> 01:23:49.520
+Yeah.
+
+01:23:49.520 --> 01:23:53.520
+I, we have to have a yin and yang for architect.
+
+01:23:53.520 --> 01:24:22.520
+He also suggests titles like Google way up your butt.
+

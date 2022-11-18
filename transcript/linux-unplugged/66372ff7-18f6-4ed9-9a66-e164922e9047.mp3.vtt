@@ -1,0 +1,4394 @@
+WEBVTT
+
+00:00.000 --> 00:02.240
+You know, this is kind of a special thing we're doing.
+
+00:02.240 --> 00:03.800
+I don't know. Have we done it before this way?
+
+00:03.800 --> 00:08.640
+No virtual log and a single focus for an entire episode.
+
+00:09.120 --> 00:10.720
+Is this even Linux Unplugged, Chris?
+
+00:10.720 --> 00:13.280
+You might call it a special featured edition.
+
+00:13.800 --> 00:16.640
+It's the Unplugged Plugged In Show.
+
+00:17.200 --> 00:17.720
+I'm not sure.
+
+00:17.720 --> 00:35.480
+This is Linux Unplugged, episode 272 for October 23rd, 2018.
+
+00:35.480 --> 00:39.800
+Welcome to Linux Unplugged, your weekly Linux talk show that's going in with a plan this week.
+
+00:39.800 --> 00:40.440
+My name is Chris.
+
+00:40.440 --> 00:41.160
+My name is Wes.
+
+00:41.160 --> 00:44.920
+Hello, Wes. We have a special episode, a feature edition of the Unplugged program,
+
+00:44.920 --> 00:47.160
+something we've been working on for a little while.
+
+00:47.160 --> 00:50.520
+We're going to do a deep dive into what the hell jack audio is,
+
+00:51.240 --> 00:55.080
+why people keep experimenting with it, and then why they run away crying.
+
+00:55.720 --> 00:59.240
+We went deep and we'll walk away with a little open source help
+
+00:59.240 --> 01:02.600
+to get you going with audio magic on your box.
+
+01:02.600 --> 01:05.480
+We'll tell you about building a studio inside a laptop,
+
+01:05.480 --> 01:08.200
+complicated audio routing between applications,
+
+01:08.200 --> 01:09.960
+how we're doing it all with free software.
+
+01:09.960 --> 01:16.680
+But then we'll look ahead to the future, to the Pipewire future.
+
+01:16.680 --> 01:22.200
+We'll bring on the main developer, Wim Taymans, of Pipewire to chat about our questions
+
+01:22.200 --> 01:25.480
+about what's going to happen with PulseAudio video on Linux
+
+01:25.480 --> 01:27.480
+and how it's all going to work in a Wayland future.
+
+01:27.480 --> 01:31.800
+Wim has had a long, distinguished career going way back,
+
+01:31.800 --> 01:34.840
+and he'll tell us about some of that and what we should expect in the future.
+
+01:34.840 --> 01:38.440
+And then at the end of the show, but not quite the end.
+
+01:38.440 --> 01:42.120
+Don't call it the last part of the show, because last but not least,
+
+01:42.120 --> 01:44.440
+a Precision 5530 review.
+
+01:44.440 --> 01:50.040
+This is a beast machine in a svelte, clean-looking package.
+
+01:51.240 --> 01:55.880
+We'll tell you about the feats that we managed to accomplish with this laptop.
+
+01:55.880 --> 02:00.680
+And if you're looking for a mobile laptop, something that's like a desktop killer,
+
+02:01.400 --> 02:04.760
+that run Linux, well, you might want to consider the Precision line.
+
+02:04.760 --> 02:06.760
+It is a heck of a work machine.
+
+02:06.760 --> 02:09.880
+So this being a special episode, we're actually recording ahead of time,
+
+02:09.880 --> 02:11.560
+because I'm down at MeetBSD.
+
+02:12.280 --> 02:16.120
+As this is going out, I'll be on my way back from MeetBSD,
+
+02:16.120 --> 02:20.360
+which is sort of what got us thinking along these lines.
+
+02:20.360 --> 02:22.920
+Like, how can we take our new ThinkPad laptops
+
+02:23.880 --> 02:26.360
+and build a studio inside the ThinkPad?
+
+02:26.360 --> 02:29.240
+See, here in the studio, we have a whole bunch of equipment
+
+02:29.240 --> 02:33.880
+to handle multiple calls and remote connections and the Mumble Room,
+
+02:33.880 --> 02:35.720
+so we can have a virtual lug and our different...
+
+02:35.720 --> 02:37.480
+We have four microphones in studio.
+
+02:37.480 --> 02:41.320
+There's literally stacks of audio devices just sitting on the table here.
+
+02:41.320 --> 02:44.840
+You can't take that with you when you want to go to a community event like MeetBSD.
+
+02:44.840 --> 02:46.360
+You can't pack all that up.
+
+02:46.360 --> 02:49.240
+And so in the past, we've done all these different incarnations
+
+02:49.240 --> 02:53.000
+with some mobile hardware, a couple of machines, depending on the event.
+
+02:53.000 --> 02:57.880
+But we set out to build it all into one singular ThinkPad.
+
+02:57.880 --> 02:59.240
+And that's sort of where Jack came in.
+
+02:59.240 --> 03:02.840
+And I have to be honest, even though we've been doing audio forever,
+
+03:02.840 --> 03:04.760
+I have avoided Jack.
+
+03:04.760 --> 03:07.080
+I have avoided... You kind of... Have you avoided it?
+
+03:07.080 --> 03:08.360
+Just haven't really had the need?
+
+03:08.360 --> 03:09.480
+I would say avoided.
+
+03:09.480 --> 03:13.080
+I mean, is avoided the right term for a technology that you know exists
+
+03:13.080 --> 03:14.280
+and that you're interested in?
+
+03:14.280 --> 03:15.480
+And you know it would be helpful.
+
+03:15.480 --> 03:17.000
+You know it would be helpful. You know it's powerful.
+
+03:17.000 --> 03:19.480
+It's sort of like any of those topics that you're interested in.
+
+03:19.480 --> 03:21.400
+I don't know if you're like me, Chris, but you know...
+
+03:21.400 --> 03:24.280
+I can't get like a small understanding of something.
+
+03:24.280 --> 03:27.640
+It's hard to just like use the outside edge of a tool and not deep dive.
+
+03:27.640 --> 03:29.960
+But I also know how long those deep dives take.
+
+03:29.960 --> 03:31.880
+So I think it's one of those topics where it's like,
+
+03:31.880 --> 03:33.240
+Jack is cool. I'd like to learn it.
+
+03:33.240 --> 03:35.160
+But I already have 10 other things I'm learning right now.
+
+03:35.160 --> 03:37.800
+Yeah. And PulseAudio seems to work, right?
+
+03:37.800 --> 03:40.200
+For my desktop needs, totally covered by Pulse.
+
+03:40.200 --> 03:42.360
+So have you ever wanted out there, dear audience,
+
+03:42.360 --> 03:45.400
+to take the audio output of say one piece of software
+
+03:45.400 --> 03:48.360
+and send that audio to another piece of software?
+
+03:48.360 --> 03:50.920
+Have you ever wanted to take the output of that same program
+
+03:50.920 --> 03:53.160
+and maybe send it to two other programs
+
+03:53.160 --> 03:56.360
+and then maybe record the result of say the first program?
+
+03:56.360 --> 03:57.720
+That's what Jack enables.
+
+03:57.720 --> 04:02.360
+It's this comprehensive audio routing and management engine.
+
+04:02.360 --> 04:04.520
+And because it's so comprehensive
+
+04:04.520 --> 04:06.920
+and because it can accommodate so many types of setups
+
+04:06.920 --> 04:09.480
+and musical setups and audio recording setups,
+
+04:09.480 --> 04:11.320
+it is complex in its nature.
+
+04:11.320 --> 04:15.160
+But it's also a very clever piece of software
+
+04:15.160 --> 04:17.640
+that honestly manages to pull off some magic
+
+04:17.640 --> 04:21.320
+in the time that it can route stuff inside your machine and all of that.
+
+04:21.320 --> 04:23.560
+It honestly is like a black magic box.
+
+04:23.560 --> 04:25.560
+You get this instant sort of flexibility
+
+04:25.560 --> 04:27.800
+that you just don't have with any other tooling.
+
+04:27.800 --> 04:29.160
+And I'll tell you what the damn shame is,
+
+04:29.160 --> 04:34.040
+is that it is a super impressive piece of software engineering,
+
+04:34.040 --> 04:37.720
+but its complexity leads a lot of us free software users
+
+04:37.720 --> 04:40.600
+to just kind of not pay a lot of attention to it.
+
+04:40.600 --> 04:42.760
+I know a few people in our audience have really deep dived
+
+04:42.760 --> 04:44.360
+because I've gotten notes over the years like,
+
+04:44.360 --> 04:46.040
+Chris, you got to check this out.
+
+04:46.040 --> 04:48.600
+Chris, and like, hey, Citizen comes in our virtual lug.
+
+04:48.600 --> 04:49.880
+He sounds amazing.
+
+04:49.880 --> 04:52.520
+And he's doing his audio processing through Jack.
+
+04:52.520 --> 04:55.800
+And so I'd always known there's something there.
+
+04:55.800 --> 04:57.880
+It wasn't until we started doing our deep dive
+
+04:57.880 --> 05:01.560
+that I learned to appreciate how sophisticated Jack is
+
+05:01.560 --> 05:05.400
+and how really they have managed to pull off a few shortcuts
+
+05:05.400 --> 05:09.320
+that make it very competitive in its performance and all of that.
+
+05:09.320 --> 05:11.800
+So we wanted to get this to a place
+
+05:11.800 --> 05:14.280
+where we could build that studio inside our laptop,
+
+05:15.800 --> 05:18.520
+multi-channel mobile broadcast studios.
+
+05:19.240 --> 05:22.360
+But we couldn't just set it up once and call that good.
+
+05:22.920 --> 05:23.960
+Right, no, that's not going to work.
+
+05:23.960 --> 05:25.960
+I mean, we need something that's going to be reliable.
+
+05:25.960 --> 05:29.800
+And as you know, we are a bit of some distro hoppers here
+
+05:29.800 --> 05:31.160
+on the Linux Unplugged program.
+
+05:31.160 --> 05:33.560
+Laptop shippers, shoppers, switchers.
+
+05:34.120 --> 05:36.680
+Really, we're not using the same devices just about any time.
+
+05:36.680 --> 05:38.840
+So if we set it up once perfectly on one machine,
+
+05:38.840 --> 05:39.880
+that's just not going to work.
+
+05:39.880 --> 05:42.520
+Yeah, we wanted to make it something
+
+05:42.520 --> 05:45.160
+that not only could we use to get going quick,
+
+05:45.160 --> 05:46.840
+but also that the audience could use.
+
+05:46.840 --> 05:50.200
+So when we're all done here, we'll tell you about a script
+
+05:50.200 --> 05:51.960
+that you'll be able to use actually a couple of scripts
+
+05:51.960 --> 05:54.360
+to help set all this stuff up on your own machine.
+
+05:54.360 --> 05:56.600
+We've only done a little testing on different distros.
+
+05:56.600 --> 05:57.400
+So there's more room there.
+
+05:57.400 --> 05:58.440
+We'll tell you more about that too.
+
+05:58.440 --> 06:03.160
+But we wanted to accomplish fancy schmancy audio routing
+
+06:03.160 --> 06:04.120
+inside the laptop.
+
+06:04.680 --> 06:06.920
+And for example, we want to take audio from, say,
+
+06:06.920 --> 06:09.960
+one mic interface and play the soundboard
+
+06:09.960 --> 06:13.240
+and maybe also keep a backup recording of my remote host,
+
+06:13.240 --> 06:14.280
+mix it in the right way,
+
+06:14.280 --> 06:16.520
+so that way people aren't hearing each other to get echo,
+
+06:16.520 --> 06:19.160
+but they're hearing the other individuals in the call,
+
+06:19.160 --> 06:20.040
+things like that.
+
+06:20.040 --> 06:21.080
+Right, I mean, here in the studio,
+
+06:21.080 --> 06:23.640
+we've got a big 32 channel mixer
+
+06:23.640 --> 06:26.280
+and we've got, I don't know, three or four computers each
+
+06:26.280 --> 06:28.760
+with audio interfaces attached feeding into those
+
+06:28.760 --> 06:30.600
+and then complicated mix bus settings
+
+06:30.600 --> 06:32.200
+to get those all going the right places
+
+06:32.200 --> 06:33.800
+so I can connect in when I'm remote
+
+06:33.800 --> 06:34.760
+and hear the mumble people
+
+06:34.760 --> 06:37.160
+and maybe be the right volume at least these days.
+
+06:37.720 --> 06:38.760
+That's a lot to do.
+
+06:38.760 --> 06:41.960
+It is and it's complicated even in hardware.
+
+06:41.960 --> 06:46.440
+So trying to do it in software and getting it reproducible,
+
+06:46.440 --> 06:48.360
+which is where the script comes in, is really tricky.
+
+06:48.360 --> 06:50.280
+This was an area I didn't even realize
+
+06:50.280 --> 06:53.000
+wasn't quite covered very well by the traditional tooling
+
+06:53.000 --> 06:55.720
+because Pulse works pretty darn well
+
+06:55.720 --> 06:57.800
+and it's good enough for basic,
+
+06:57.800 --> 06:58.920
+you know, if you're just joining,
+
+06:58.920 --> 07:00.920
+if I'm just joining to the studio connection,
+
+07:00.920 --> 07:02.120
+fine, I don't need anything fancy.
+
+07:02.120 --> 07:04.440
+If I'm just joining a video conference session,
+
+07:05.000 --> 07:07.320
+but yeah, once you start needing to pass audio
+
+07:07.320 --> 07:09.560
+from multiple pieces or platforms
+
+07:09.560 --> 07:11.480
+that aren't designed to talk to each other,
+
+07:11.480 --> 07:12.520
+that's where Jack shines.
+
+07:12.520 --> 07:14.200
+Say you're playing something on your desktop
+
+07:14.200 --> 07:16.280
+and you want to send that to the Chrome browser.
+
+07:16.280 --> 07:17.320
+How do you do that?
+
+07:17.320 --> 07:20.760
+How can you take audio that's coming out of Firefox
+
+07:20.760 --> 07:22.120
+and send it to just your headphones
+
+07:22.120 --> 07:24.040
+and not your speakers without changing defaults
+
+07:24.040 --> 07:25.400
+for your whole desktop, all of that,
+
+07:25.400 --> 07:27.320
+just on a per application basis.
+
+07:27.320 --> 07:29.720
+And so it is something that is,
+
+07:30.440 --> 07:31.720
+you can use it in a fairly simple,
+
+07:31.720 --> 07:33.880
+I just want to take this and send it to that kind of setup,
+
+07:33.880 --> 07:36.680
+a one to two setup, or you can reproduce a studio.
+
+07:36.680 --> 07:40.120
+And so we decided our all in one box solution
+
+07:40.120 --> 07:42.360
+would be powered by our two identical ThinkPads.
+
+07:42.360 --> 07:43.720
+So that way we have redundancy here
+
+07:43.720 --> 07:45.000
+and it's also good for testing.
+
+07:45.960 --> 07:48.360
+As of now, it's Ubuntu 18.04 is the base.
+
+07:48.360 --> 07:49.320
+We're both running Neon,
+
+07:49.320 --> 07:51.640
+but it should work on Kubuntu
+
+07:51.640 --> 07:54.040
+and it has worked on Ubuntu 18.10 as well.
+
+07:54.680 --> 07:57.160
+And the whole idea is to create a couple of scripts
+
+07:57.160 --> 07:58.280
+to make it consistent.
+
+07:58.280 --> 07:59.960
+You log into a system,
+
+07:59.960 --> 08:02.520
+you perhaps open an application or run the script,
+
+08:02.520 --> 08:03.400
+we'll go through the process,
+
+08:03.400 --> 08:04.920
+and then everything gets set up.
+
+08:05.480 --> 08:07.640
+And that part of it right there,
+
+08:07.640 --> 08:10.120
+I'm hoping that we can share with the audience
+
+08:10.120 --> 08:12.040
+and then people will perhaps add their own distribution
+
+08:12.040 --> 08:12.920
+as we go down.
+
+08:12.920 --> 08:16.040
+So what do we accomplish when we first log in the machine?
+
+08:16.040 --> 08:17.960
+We want to get set up to be able to use Jack
+
+08:17.960 --> 08:19.400
+and record sound.
+
+08:19.400 --> 08:20.280
+What's the script doing?
+
+08:20.280 --> 08:21.560
+What are we doing ourselves?
+
+08:21.560 --> 08:22.760
+I think just to start,
+
+08:23.560 --> 08:25.480
+get your distribution all set up,
+
+08:25.480 --> 08:27.160
+the machine that you can normally use.
+
+08:27.160 --> 08:29.160
+And then I think the first set of scripts
+
+08:29.160 --> 08:30.760
+will just be to bootstrap the installs
+
+08:30.760 --> 08:32.120
+because you got to get all the packages
+
+08:32.120 --> 08:33.720
+and sure you can just install Jack,
+
+08:33.720 --> 08:35.720
+but there's a whole suite
+
+08:35.720 --> 08:38.840
+because it's the Linux open source community.
+
+08:38.840 --> 08:40.840
+There's a whole suite of tooling that you might want
+
+08:40.840 --> 08:42.280
+and probably do want to go around
+
+08:42.280 --> 08:44.280
+and a lot of those are not in necessarily
+
+08:44.280 --> 08:45.320
+the standard distributions.
+
+08:45.320 --> 08:47.960
+A big one for us is the KX Studio suite of applications.
+
+08:47.960 --> 08:51.080
+Huge. KX Studio is a great resource.
+
+08:51.080 --> 08:53.640
+It's available as a distribution or as repositories
+
+08:53.640 --> 08:55.720
+or just as individual dev files too.
+
+08:55.720 --> 08:56.440
+Yeah, exactly.
+
+08:56.440 --> 08:58.760
+So a lot of it is really just getting that shoehorn
+
+08:58.760 --> 08:59.880
+into place the right way
+
+08:59.880 --> 09:02.120
+and then getting all of the dependencies installed.
+
+09:02.120 --> 09:03.880
+Yeah. And that's going to be the part
+
+09:03.880 --> 09:05.560
+in regards to our script that we release
+
+09:05.560 --> 09:08.120
+that is going to be the most distro specific, I imagine.
+
+09:08.120 --> 09:08.920
+Yes, exactly.
+
+09:08.920 --> 09:10.920
+Package names will change if you're on Arch
+
+09:10.920 --> 09:12.600
+and there's probably a whole other set of packages.
+
+09:12.600 --> 09:13.160
+I'm not sure.
+
+09:13.160 --> 09:14.760
+I haven't actually tried Jack on Arch yet.
+
+09:14.760 --> 09:16.120
+I'm sure it's well supported.
+
+09:16.120 --> 09:18.120
+But you might need to hit the AUR up
+
+09:18.120 --> 09:21.080
+for some of those more esoteric applications.
+
+09:21.080 --> 09:22.600
+Yeah. So you think of it as this way,
+
+09:22.600 --> 09:25.400
+your base Linux desktop has good sound
+
+09:25.400 --> 09:29.080
+for just doing playback and every day computer use.
+
+09:30.120 --> 09:32.120
+It's when you want to step it up to the next level
+
+09:32.120 --> 09:33.640
+where you got to install this Jack stuff
+
+09:33.640 --> 09:36.440
+and it's like you're adding in this audio engine
+
+09:36.440 --> 09:37.560
+into your Linux box.
+
+09:37.560 --> 09:39.160
+You're grafting it in
+
+09:39.720 --> 09:43.400
+and it has the ability to pretend to be a Pulse device.
+
+09:43.400 --> 09:45.560
+It has the ability to pretend to be also too.
+
+09:45.560 --> 09:47.640
+So applications that talk Pulse and also
+
+09:47.640 --> 09:50.520
+just can automatically by that nature talk to Jack.
+
+09:50.520 --> 09:53.160
+Right. So it's functionally just another sound server
+
+09:53.160 --> 09:54.520
+that runs on your system.
+
+09:54.520 --> 09:58.360
+And so it talks to the kernel driver part of the also stack
+
+09:58.360 --> 10:00.200
+and gets input that way.
+
+10:00.200 --> 10:03.160
+And then individual clients that want to support Jack
+
+10:03.160 --> 10:06.280
+while they implement some of the Jack API
+
+10:06.280 --> 10:08.600
+and then they register what are called clients
+
+10:08.600 --> 10:09.720
+and can get to talk to Jack.
+
+10:09.720 --> 10:12.200
+And then you can register inputs and outputs
+
+10:12.200 --> 10:14.920
+and then Jack lets you route between those.
+
+10:14.920 --> 10:17.160
+Like in our case, we set up VLC as a client
+
+10:17.160 --> 10:19.080
+and we set up Chrome as a client.
+
+10:19.080 --> 10:19.720
+Yeah, exactly.
+
+10:19.720 --> 10:21.080
+And then we could route audio between them.
+
+10:21.080 --> 10:24.760
+In fact, I snuck a recorder into Wes's lab here at the studio
+
+10:24.760 --> 10:26.760
+and captured the first moment
+
+10:26.760 --> 10:28.200
+when we actually got this working.
+
+10:28.200 --> 10:29.160
+The audio is a little rough
+
+10:29.160 --> 10:31.400
+but it's genuine like we made it.
+
+10:31.400 --> 10:33.480
+So how would we know if Chrome's getting audio
+
+10:33.480 --> 10:34.520
+from the right source?
+
+10:34.520 --> 10:37.800
+Right. We should be able to just go to Chrome in.
+
+10:37.800 --> 10:42.680
+Okay, so that goes from VLC left to Chrome left
+
+10:42.680 --> 10:44.840
+from VLC right to Chrome right.
+
+10:44.840 --> 10:47.000
+So then it's a stereo. That's cool.
+
+10:47.000 --> 10:48.840
+Yeah, and you can change that in the script
+
+10:48.840 --> 10:50.280
+of how like you want it to be.
+
+10:51.880 --> 10:53.800
+So now we play this file in VLC.
+
+10:53.800 --> 10:55.880
+We go over to Chrome and...
+
+10:55.880 --> 10:57.000
+If I can select the right settings,
+
+10:57.000 --> 10:57.960
+this will be a lot easier.
+
+11:00.680 --> 11:01.320
+All right, do it again.
+
+11:01.320 --> 11:02.760
+Hit it again. Let's see if it works.
+
+11:02.760 --> 11:04.920
+And the survey says, boom.
+
+11:04.920 --> 11:09.320
+So now we're sending VLC audio into Chrome.
+
+11:10.360 --> 11:13.800
+And so we just have a Chrome in jack source.
+
+11:13.800 --> 11:15.640
+So anything that gets sent to Chrome in
+
+11:15.640 --> 11:16.920
+would show up in there.
+
+11:16.920 --> 11:17.480
+Exactly.
+
+11:17.480 --> 11:18.760
+So it could be the soundboard.
+
+11:18.760 --> 11:21.000
+It could be another audio interface I have plugged in
+
+11:21.000 --> 11:21.960
+if I have two people.
+
+11:21.960 --> 11:22.920
+Yep.
+
+11:22.920 --> 11:23.880
+That's great.
+
+11:23.880 --> 11:24.680
+That's great.
+
+11:24.680 --> 11:26.760
+One of the things that makes this doable
+
+11:26.760 --> 11:28.280
+once it's up and running
+
+11:28.280 --> 11:31.960
+is there is a UI where you are dragging wires
+
+11:31.960 --> 11:33.880
+from one device to the other device
+
+11:33.880 --> 11:34.680
+or to an application.
+
+11:34.680 --> 11:35.640
+What's that called?
+
+11:35.640 --> 11:36.120
+Yeah, exactly.
+
+11:36.120 --> 11:37.560
+That's the jack patch bay.
+
+11:37.560 --> 11:38.520
+And there's multiple...
+
+11:38.520 --> 11:39.720
+Again, there's multiple limitations
+
+11:39.720 --> 11:41.960
+of just about all of these different types of tools.
+
+11:41.960 --> 11:44.200
+We're using one from the KX Studio Suite
+
+11:44.200 --> 11:45.800
+for a whole suite of reasons.
+
+11:45.800 --> 11:47.320
+Which is a nice, cute front end.
+
+11:47.320 --> 11:47.800
+Yeah.
+
+11:47.800 --> 11:48.520
+And I mean QT.
+
+11:50.360 --> 11:51.560
+It is nice though, yeah.
+
+11:51.560 --> 11:53.640
+It gives you a nice visual space
+
+11:53.640 --> 11:55.640
+and you can manage different jack sessions.
+
+11:55.640 --> 11:57.480
+You can save a session and load them.
+
+11:57.480 --> 11:58.920
+Am I getting the terminology right there?
+
+11:58.920 --> 11:59.480
+Yes.
+
+11:59.480 --> 12:00.680
+Yeah, exactly.
+
+12:00.680 --> 12:02.520
+Really under the hood, we're using Lottish
+
+12:02.520 --> 12:04.360
+or the Lottie session handler,
+
+12:04.360 --> 12:06.200
+which, yeah, lets you save all that state.
+
+12:06.200 --> 12:06.760
+Once you've got...
+
+12:06.760 --> 12:08.360
+I mean, you can find some pictures online.
+
+12:08.360 --> 12:10.760
+We might have some stuff to share down the road.
+
+12:10.760 --> 12:12.920
+Once you get these patch bays really configured,
+
+12:12.920 --> 12:14.440
+there are a lot of connections,
+
+12:14.440 --> 12:15.720
+especially, you were kind of talking about it,
+
+12:15.720 --> 12:17.960
+but if you're joined by a remote host
+
+12:17.960 --> 12:19.160
+and you're playing from the soundboard
+
+12:19.160 --> 12:20.760
+and maybe some music from another program
+
+12:20.760 --> 12:22.600
+or playing a clip from YouTube or something,
+
+12:22.600 --> 12:24.600
+well, you want to make sure everyone can hear
+
+12:24.600 --> 12:25.640
+just what they're supposed to hear
+
+12:25.640 --> 12:26.760
+and not everything else.
+
+12:26.760 --> 12:28.200
+And you need to be able to monitor
+
+12:28.200 --> 12:30.360
+everything that's going through the system as well.
+
+12:30.360 --> 12:32.440
+So you end up with one output over here,
+
+12:32.440 --> 12:33.960
+but it's going to six different places.
+
+12:33.960 --> 12:34.600
+Yep, yep.
+
+12:34.600 --> 12:36.920
+And actually, the UI makes it pretty intuitive.
+
+12:36.920 --> 12:38.120
+You can hover over it.
+
+12:38.120 --> 12:39.480
+It'll highlight just which lines
+
+12:39.480 --> 12:40.920
+go into which input and output.
+
+12:40.920 --> 12:42.840
+Yeah, it's a bit of a physical representation
+
+12:42.840 --> 12:45.000
+in software of what we do here in the real world.
+
+12:45.000 --> 12:47.880
+Right, you can imagine just taking like TRS plugs
+
+12:47.880 --> 12:49.240
+and plugging them into two.
+
+12:49.240 --> 12:50.040
+It's basically that.
+
+12:51.080 --> 12:53.640
+We'll put a visualization of what we're talking about
+
+12:53.640 --> 12:55.080
+on the GitLab page for the script.
+
+12:55.080 --> 12:56.280
+So we'll have that linked in the show notes,
+
+12:56.280 --> 12:58.600
+linuxunplug.com slash 272.
+
+12:58.600 --> 13:00.520
+If you want to see what Wes is talking about,
+
+13:00.520 --> 13:03.080
+we'll have a visual there on the script page.
+
+13:03.080 --> 13:05.320
+Just to clarify things a bit here,
+
+13:05.320 --> 13:07.480
+we're using Jack 2 right now,
+
+13:07.480 --> 13:09.400
+and that's just one additional way
+
+13:09.400 --> 13:10.840
+some of this stuff can be really confusing.
+
+13:10.840 --> 13:13.240
+Jack's been around since 2002,
+
+13:13.240 --> 13:15.880
+and now runs on a whole bunch of platforms.
+
+13:15.880 --> 13:17.160
+So as you can imagine,
+
+13:17.160 --> 13:19.240
+really like any good open source project,
+
+13:19.240 --> 13:20.680
+there's a lot of good functionality,
+
+13:20.680 --> 13:22.440
+but not all of it's super well documented
+
+13:22.440 --> 13:25.400
+or it's just spread out between six different sources.
+
+13:25.400 --> 13:27.000
+Yeah, and one thing that confuses me
+
+13:27.000 --> 13:29.800
+is there's technically two versions of Jack.
+
+13:29.800 --> 13:31.720
+There's Jack 1 and Jack 2.
+
+13:31.720 --> 13:33.640
+Right, so originally Jack 2 was going to be
+
+13:33.640 --> 13:36.920
+a multiprocessor aware replacement for Jack 1,
+
+13:36.920 --> 13:38.680
+but it turns out that their feature sets
+
+13:38.680 --> 13:40.040
+are just ever so slightly different.
+
+13:40.040 --> 13:42.440
+Like if you need to use two interfaces, let's say.
+
+13:42.440 --> 13:45.000
+Two sound cards or two USB audio devices.
+
+13:45.000 --> 13:47.480
+Even two like snowball microphones or two headsets.
+
+13:47.480 --> 13:47.960
+Exactly.
+
+13:47.960 --> 13:50.920
+Well, only Jack 1 really supports that very well.
+
+13:50.920 --> 13:52.840
+But if you want some of the fancier features
+
+13:52.840 --> 13:54.680
+or to work on a bunch of other platforms,
+
+13:54.680 --> 13:56.520
+that's Jack 2's wheelhouse.
+
+13:56.520 --> 13:59.480
+Now they both implement the same C API in the background.
+
+13:59.480 --> 14:01.320
+So with, you know, you can write your own.
+
+14:01.320 --> 14:03.160
+Yeah, the applications don't care.
+
+14:03.160 --> 14:03.400
+Okay.
+
+14:04.200 --> 14:05.160
+That's confusing though.
+
+14:05.160 --> 14:06.600
+Just even having two versions.
+
+14:06.600 --> 14:07.880
+And it seems like if they ever,
+
+14:07.880 --> 14:10.200
+and hopefully they will, get around to creating Jack 3,
+
+14:10.200 --> 14:11.720
+then they're going to re-merge them again.
+
+14:11.720 --> 14:13.320
+It's sort of like the intention-ish.
+
+14:13.320 --> 14:13.480
+Right.
+
+14:13.480 --> 14:16.520
+They didn't, everyone agrees there doesn't need to be two.
+
+14:16.520 --> 14:18.040
+It's just that they both work right now.
+
+14:18.040 --> 14:19.880
+And people like both of them for different reasons.
+
+14:19.880 --> 14:20.840
+People use them both.
+
+14:20.840 --> 14:23.000
+For our purposes, we're using Jack 2.
+
+14:23.000 --> 14:23.960
+Yeah, we're using Jack 2.
+
+14:23.960 --> 14:25.160
+And there's a lot of features of Jack
+
+14:25.160 --> 14:27.560
+that we don't care about for our particular purposes
+
+14:27.560 --> 14:29.480
+because we do a lot of offline recording
+
+14:29.480 --> 14:31.480
+or, you know, just some live shows with effects done
+
+14:31.480 --> 14:34.760
+or minimal effects that we can all do in hardware that we have.
+
+14:34.760 --> 14:35.080
+Yeah.
+
+14:35.080 --> 14:38.200
+But Jack excels at low latency applications.
+
+14:38.200 --> 14:39.400
+It's actually driven a lot of the work
+
+14:39.400 --> 14:42.600
+for the real-time kernel patch set that exists for Linux
+
+14:42.600 --> 14:43.960
+because when you're doing, you know,
+
+14:43.960 --> 14:46.520
+if you're doing a complicated live show,
+
+14:46.520 --> 14:48.200
+you need fast feedback.
+
+14:48.200 --> 14:50.040
+And Jack can get you the really low,
+
+14:50.040 --> 14:51.960
+like sub-10 millisecond latency
+
+14:51.960 --> 14:53.640
+that you're going to want to hit.
+
+14:53.640 --> 14:56.360
+Since we're automating this process for ourselves
+
+14:56.360 --> 14:57.880
+and a big part of what we're doing now
+
+14:57.880 --> 15:00.040
+as part of Linux Academy is trying to open source
+
+15:00.040 --> 15:01.960
+the stuff we do, right off the bat,
+
+15:01.960 --> 15:03.240
+we're going to open source the script.
+
+15:03.240 --> 15:05.240
+We're going to post it up on our new
+
+15:05.240 --> 15:08.520
+gitlab.jupytercode.io gitlab instance.
+
+15:08.520 --> 15:09.960
+We'll have some information there.
+
+15:09.960 --> 15:12.360
+The thing to really take away is there's two scripts,
+
+15:12.360 --> 15:14.040
+one that's pretty Ubuntu-specific
+
+15:14.040 --> 15:17.160
+that installs the packages and then another script.
+
+15:17.160 --> 15:18.440
+But I'll let Wes tell you about that.
+
+15:19.000 --> 15:19.240
+Right.
+
+15:19.240 --> 15:20.760
+So, yeah, the first script is just to set it up.
+
+15:20.760 --> 15:22.840
+And we're targeting Ubuntu right now.
+
+15:22.840 --> 15:24.520
+If people want to implement that script
+
+15:24.520 --> 15:26.680
+or just make documentation for how to set those things up
+
+15:26.680 --> 15:29.000
+on other systems, hey, that would be welcome.
+
+15:29.000 --> 15:29.720
+Very much so.
+
+15:29.720 --> 15:33.800
+The other script is sort of our, like, our playbook script.
+
+15:33.800 --> 15:35.720
+It's how we're going to get everything up and running
+
+15:35.720 --> 15:37.880
+so that, Chris, let's say you're on the road
+
+15:37.880 --> 15:39.560
+and you just, you know, you've got your ThinkPad.
+
+15:39.560 --> 15:41.400
+You can, you know, you've already set up everything for Jack.
+
+15:41.400 --> 15:42.920
+You can just launch this script.
+
+15:42.920 --> 15:45.720
+It'll go through, set things up just how it should be.
+
+15:45.720 --> 15:48.920
+In particular, since we're using a lot of Pulse audio
+
+15:48.920 --> 15:51.080
+applications, Jack includes some connectors.
+
+15:51.080 --> 15:53.320
+So you can tie Pulse to Jack.
+
+15:53.320 --> 15:54.520
+And, you know, it's pretty featured.
+
+15:54.520 --> 15:56.120
+You can name them and get them all set up.
+
+15:56.120 --> 15:58.120
+But we want to make sure that happens every time.
+
+15:58.120 --> 16:00.600
+So it sets those up, launches applications
+
+16:00.600 --> 16:02.760
+so that they connect to the right Pulse sync
+
+16:02.760 --> 16:05.320
+so that we go get the sound going where we need it to go,
+
+16:05.320 --> 16:08.680
+and then launches our favorite DAW, Reaper.
+
+16:08.680 --> 16:11.080
+The nice thing about Jack being around for a while
+
+16:11.080 --> 16:14.520
+and the fact that it's pretty well-respected software
+
+16:14.520 --> 16:17.720
+has meant that support for it has crept into more areas
+
+16:17.720 --> 16:18.840
+than you suspect.
+
+16:18.840 --> 16:20.840
+Jack is one of those things that's kind of like Samba,
+
+16:20.840 --> 16:22.680
+where you realize that Samba has been snuck
+
+16:22.680 --> 16:24.440
+into more devices and things in this world
+
+16:24.440 --> 16:26.040
+than you ever thought possible.
+
+16:26.040 --> 16:27.480
+Jack's a lot like that.
+
+16:27.480 --> 16:29.080
+It wasn't until we really started looking into this
+
+16:29.080 --> 16:32.120
+that we realized our audio editor and recorder of choice
+
+16:32.120 --> 16:35.000
+for Linux Reaper, the Reaper workstation,
+
+16:35.000 --> 16:37.560
+has brilliant support for Jack.
+
+16:37.560 --> 16:38.920
+Just plugs right in.
+
+16:38.920 --> 16:40.600
+You get a whole bunch of inputs and outputs.
+
+16:40.600 --> 16:41.800
+And then it's super.
+
+16:41.800 --> 16:43.000
+I mean, we went through it, Chris.
+
+16:43.000 --> 16:43.720
+It's so easy.
+
+16:43.720 --> 16:45.720
+You just pick literally the names of the clients
+
+16:45.720 --> 16:47.160
+that you want right in the Reaper UI.
+
+16:47.160 --> 16:50.200
+And I can assign dedicated tracks to each one of those.
+
+16:50.200 --> 16:53.000
+So my microphone is its own dedicated track,
+
+16:53.000 --> 16:55.720
+the soundboard, and my remote guest,
+
+16:55.720 --> 16:59.000
+I can keep a backup audio copy on its own track
+
+16:59.000 --> 17:02.920
+all through Jack, one laptop, one microphone,
+
+17:02.920 --> 17:04.440
+one set of headphones.
+
+17:04.440 --> 17:06.040
+It's something that is just, to me,
+
+17:06.040 --> 17:07.640
+when I'm literally right now recording this
+
+17:07.640 --> 17:09.160
+sitting in front of a 32-channel mixer,
+
+17:09.800 --> 17:11.080
+it really kind of blows my mind.
+
+17:11.880 --> 17:12.360
+It's really.
+
+17:12.360 --> 17:13.240
+And it's the same laptop.
+
+17:13.240 --> 17:13.960
+You haven't done anything.
+
+17:13.960 --> 17:16.520
+You haven't paid for any expensive proprietary software.
+
+17:17.080 --> 17:18.600
+I really feel like we came across
+
+17:19.240 --> 17:21.240
+this magical open-source project
+
+17:21.240 --> 17:22.440
+that I've heard a lot of people talking about
+
+17:22.440 --> 17:24.280
+that I avoided for a really long time.
+
+17:24.280 --> 17:26.840
+And the real magic they do that you just mentioned
+
+17:26.840 --> 17:27.640
+is that low latency.
+
+17:27.640 --> 17:28.360
+I know I mentioned earlier,
+
+17:28.360 --> 17:30.280
+but that is, from my understanding
+
+17:30.280 --> 17:31.240
+of talking to a couple of people
+
+17:31.240 --> 17:33.000
+who really know how to build this stuff,
+
+17:33.000 --> 17:34.680
+it's almost unmatched, right?
+
+17:34.680 --> 17:36.200
+And that's one of the things about Pulse
+
+17:36.200 --> 17:37.560
+that it just can't do.
+
+17:37.560 --> 17:39.560
+Pulse does a great job of combining things,
+
+17:39.560 --> 17:41.880
+letting you control which output from which application
+
+17:41.880 --> 17:43.640
+goes to which output device that you want,
+
+17:43.640 --> 17:46.200
+stuff that we couldn't easily do before.
+
+17:46.840 --> 17:49.560
+But there's a lot of latency involved
+
+17:49.560 --> 17:50.840
+because it wasn't designed for that.
+
+17:50.840 --> 17:53.320
+It's designed for a good end-user listening experience,
+
+17:53.320 --> 17:54.840
+trying to minimize dropped packets
+
+17:54.840 --> 17:55.800
+and that sort of thing.
+
+17:56.440 --> 17:58.200
+You have very different goals
+
+17:58.200 --> 17:59.160
+when you want low latency,
+
+17:59.160 --> 18:00.600
+especially involves a lot of this
+
+18:00.600 --> 18:02.600
+is just passing bytes around
+
+18:02.600 --> 18:04.360
+and making sure that you don't allocate memory
+
+18:04.360 --> 18:07.000
+and you don't do anything that won't be constant time.
+
+18:07.560 --> 18:09.960
+Right, so clearly Pulse has its limitations.
+
+18:09.960 --> 18:11.560
+It's good for certain applications.
+
+18:11.560 --> 18:13.000
+And I'd say Jack's limitations,
+
+18:13.000 --> 18:14.280
+it could be your everyday sound server,
+
+18:14.280 --> 18:17.560
+but Jack's real limitations might be its complexity,
+
+18:17.560 --> 18:19.880
+its general tooling set around it.
+
+18:19.880 --> 18:20.760
+Right, yeah.
+
+18:20.760 --> 18:24.120
+This is where the opportunity for PipeWire opens up.
+
+18:24.120 --> 18:25.880
+And PipeWire not only brings in
+
+18:25.880 --> 18:27.880
+and solves the audio side of this,
+
+18:27.880 --> 18:30.600
+but it also solves the video side of this.
+
+18:30.600 --> 18:32.520
+And this is really gonna be the future
+
+18:32.520 --> 18:34.920
+of Linux's media pipeline,
+
+18:34.920 --> 18:36.520
+assuming the PipeWire is successful.
+
+18:37.160 --> 18:39.560
+And that's why we wanted to bring on our special guest.
+
+18:39.560 --> 18:42.040
+So joining us now is Wim Theimus,
+
+18:42.040 --> 18:45.640
+and he is the man to talk to you about PipeWire.
+
+18:45.640 --> 18:47.400
+Wim, welcome to Linux Unplugged.
+
+18:47.400 --> 18:48.920
+Hello, everybody.
+
+18:48.920 --> 18:49.880
+Good to have you here.
+
+18:49.880 --> 18:52.360
+Wim, just because I was a little starstruck,
+
+18:52.360 --> 18:55.720
+I got a little nerd starstruck when I was Googling you.
+
+18:55.720 --> 18:57.320
+I thought if you would indulge us,
+
+18:57.320 --> 19:00.520
+maybe we'd start sort of towards the beginning of your career.
+
+19:00.520 --> 19:02.200
+You've got some standing in this industry.
+
+19:02.200 --> 19:05.240
+You've been working in audio and multimedia development
+
+19:05.240 --> 19:06.920
+since the Commodore 64, true?
+
+19:08.280 --> 19:09.080
+Yeah, I guess so.
+
+19:10.280 --> 19:11.080
+Impressive.
+
+19:11.080 --> 19:12.600
+Yeah, that gives you a history here.
+
+19:12.600 --> 19:14.280
+What did you do on the Commodore 64?
+
+19:14.280 --> 19:20.200
+I started writing demos, just small little programs in assembly.
+
+19:20.200 --> 19:23.800
+And then it became like bigger demos
+
+19:23.800 --> 19:25.720
+and more complicated effects.
+
+19:25.720 --> 19:27.960
+And then I started to do some games.
+
+19:28.520 --> 19:30.680
+Then I kind of moved on to Amiga.
+
+19:31.320 --> 19:34.520
+And then I did some more demos and experimenting
+
+19:34.520 --> 19:37.640
+and then I learned C and got some more multimedia stuff.
+
+19:37.640 --> 19:41.720
+So it's kind of a hobby that has been going on.
+
+19:41.720 --> 19:43.560
+So it's always very small.
+
+19:44.200 --> 19:47.480
+So it's always been a bit like, yeah,
+
+19:47.480 --> 19:50.680
+image and audio and animation and stuff like that.
+
+19:50.680 --> 19:52.280
+Multimedia, I guess.
+
+19:52.280 --> 19:54.440
+Yeah, well, what I realized when I was Googling
+
+19:54.440 --> 19:57.080
+was that I've been following your career for quite a while.
+
+19:57.080 --> 19:58.440
+I just didn't realize it was you
+
+19:58.440 --> 20:01.880
+because fast forward down many years later
+
+20:01.880 --> 20:06.600
+and you ended up being one of the primary developers of Gstreamer
+
+20:06.600 --> 20:08.920
+and you worked at Fluendo as well, true?
+
+20:08.920 --> 20:10.280
+Yes, yes, that's true.
+
+20:10.280 --> 20:13.880
+So, yeah, that was a bit of a weird story
+
+20:13.880 --> 20:17.080
+because I was doing my free time.
+
+20:17.640 --> 20:20.200
+I was working on the open source stuff
+
+20:20.200 --> 20:22.120
+and I was going to write a video editor.
+
+20:22.920 --> 20:25.800
+But then I needed a multimedia framework, I realized.
+
+20:25.800 --> 20:29.560
+And then I discovered like the early beginnings of Gstreamer
+
+20:29.560 --> 20:33.160
+back in 1999, I think it was.
+
+20:33.880 --> 20:36.920
+And then I started hacking on that actually my free time
+
+20:36.920 --> 20:39.160
+for quite a few years.
+
+20:39.160 --> 20:42.200
+Yeah, until I got a job doing that actually.
+
+20:42.200 --> 20:44.520
+I was working in a bank back in the day.
+
+20:44.520 --> 20:46.680
+So something completely different.
+
+20:48.280 --> 20:51.720
+Gstreamer 1.0, September 24, 2012.
+
+20:51.720 --> 20:53.560
+I can't believe it was that long ago.
+
+20:53.560 --> 20:54.040
+Wow.
+
+20:54.040 --> 20:56.840
+Yeah, and that's amazing.
+
+20:56.840 --> 20:59.960
+Wim, and now you're a principal software engineer at Red Hat.
+
+20:59.960 --> 21:04.040
+So, and that has brought us to talk about PipeWire today.
+
+21:04.040 --> 21:05.720
+Very excited to have you on the show,
+
+21:05.720 --> 21:07.800
+especially because audio is a big area
+
+21:07.800 --> 21:10.360
+that we work in, and we have a couple of questions for you.
+
+21:10.360 --> 21:11.880
+I mean, just to start off,
+
+21:11.880 --> 21:15.160
+one of the things we talking about on today's show is jack.
+
+21:15.160 --> 21:18.040
+And so we were very curious to see that PipeWire
+
+21:18.040 --> 21:20.680
+is going to have jack support built right in.
+
+21:20.680 --> 21:21.400
+What's the status?
+
+21:21.400 --> 21:22.840
+Is that something I could use today?
+
+21:23.720 --> 21:25.320
+Use today is a big word.
+
+21:26.200 --> 21:32.600
+Jack is quite stable and well-established,
+
+21:32.600 --> 21:34.520
+but there are some things that work.
+
+21:34.520 --> 21:38.120
+It's all just not ready packaged and easy to test
+
+21:38.120 --> 21:40.200
+and all of that stuff, but we're working on that.
+
+21:40.200 --> 21:44.440
+So soon, I'm hoping in a couple of months,
+
+21:44.440 --> 21:46.840
+we'll actually be able to test it properly.
+
+21:46.840 --> 21:48.680
+Wim, I think it would be a good idea
+
+21:48.680 --> 21:50.200
+if we just paused really quick
+
+21:50.200 --> 21:52.760
+and defined PipeWire to a degree.
+
+21:52.760 --> 21:55.160
+When you read the PipeWire site, it says,
+
+21:55.160 --> 21:57.240
+and this is a pretty big, ambitious goal,
+
+21:57.240 --> 21:59.880
+PipeWire is a project that aims to greatly improve
+
+21:59.880 --> 22:01.720
+handling of audio and video.
+
+22:01.720 --> 22:05.480
+Under Linux, boom, that right there is a massive statement.
+
+22:05.480 --> 22:07.240
+How is it going to accomplish that?
+
+22:08.280 --> 22:13.480
+So, yes, so basically, I'm not going to do anything.
+
+22:13.480 --> 22:16.680
+I'm going to take all the bits and pieces that exist,
+
+22:16.680 --> 22:19.880
+the good stuff and combine them into one new thing.
+
+22:21.880 --> 22:26.600
+It turned out to be what is currently happening in PipeWire.
+
+22:26.600 --> 22:32.920
+So, as the base for audio processing and general framework
+
+22:32.920 --> 22:38.520
+for these things, the Jack, the design seems to work fine.
+
+22:38.520 --> 22:41.160
+Like parts from GStreamer, for example,
+
+22:41.160 --> 22:44.760
+for doing buffer negotiation and format stuff,
+
+22:44.760 --> 22:46.360
+that seems to work fine too.
+
+22:46.360 --> 22:49.480
+And there's lots of other things from plugin architectures
+
+22:49.480 --> 22:53.160
+that seem to work fine together that allows you to build
+
+22:53.160 --> 22:57.080
+something that is actually going to be able to compete with Core Audio,
+
+22:57.080 --> 22:57.800
+for example.
+
+22:57.800 --> 23:02.040
+Core Audio, I've been looking at that quite a lot lately.
+
+23:02.040 --> 23:04.120
+I don't agree with everything that they do,
+
+23:04.120 --> 23:07.720
+but what they can do is pretty impressive.
+
+23:07.720 --> 23:09.800
+Mm, I love to hear that. That's good.
+
+23:09.800 --> 23:11.800
+So, that's your taking a look at how the other side
+
+23:11.800 --> 23:13.560
+has made it work somewhat successfully.
+
+23:13.560 --> 23:16.440
+Yes. So, I think with the combination of Jack
+
+23:16.440 --> 23:19.080
+and also with what they have in Core Audio,
+
+23:19.080 --> 23:23.000
+like IO units, if we have something similar,
+
+23:23.000 --> 23:26.200
+that would be something what Pulse Audio did
+
+23:26.200 --> 23:32.440
+to take in arbitrary streams and feed that into a Jack pipeline
+
+23:32.440 --> 23:35.960
+or sort of pipe, because you need something more than Jack.
+
+23:35.960 --> 23:39.720
+That will get us very close, I think, to an ideal position.
+
+23:39.720 --> 23:43.240
+And something that I learned this year is that we need
+
+23:43.240 --> 23:45.320
+an external session manager,
+
+23:45.320 --> 23:49.160
+something that ties in closely with the desktop
+
+23:49.160 --> 23:51.160
+and all of the configuration stuff,
+
+23:51.160 --> 23:54.440
+because that is typically also something that is currently lacking
+
+23:54.440 --> 23:58.440
+in Pulse Audio and Jack, the setup of the whole thing.
+
+23:58.440 --> 24:02.760
+How do you say my card, it has four channels,
+
+24:02.760 --> 24:07.560
+but really channel one and two are not connected to anything,
+
+24:07.560 --> 24:09.400
+and you shouldn't assume it.
+
+24:09.400 --> 24:12.760
+Or I have two sound cards and I want to have two channels,
+
+24:12.760 --> 24:17.640
+or I have two sound cards and I want to make them into a surround sound.
+
+24:17.640 --> 24:20.840
+So, the session manager, would it also, in theory,
+
+24:20.840 --> 24:23.880
+allow you to save states so you could load an entire session up?
+
+24:23.880 --> 24:27.320
+Say, for example, you get to an area that has a lot of audio equipment
+
+24:27.320 --> 24:29.400
+that you plug in, now all this equipment's become available
+
+24:29.400 --> 24:30.840
+that wasn't there earlier in the day.
+
+24:32.840 --> 24:36.600
+Well, that is the session manager, how Jack defines it.
+
+24:37.320 --> 24:40.680
+Yeah, it's like loading of complete setups
+
+24:40.680 --> 24:43.000
+of audio processing pipelines.
+
+24:43.880 --> 24:46.200
+I don't know exactly how we're going to call that.
+
+24:46.200 --> 24:49.880
+Maybe we should call the other session manager something else.
+
+24:49.880 --> 24:51.800
+But what I mean with the session manager
+
+24:51.800 --> 24:55.480
+is managing all of the devices that are on your system.
+
+24:55.480 --> 24:59.480
+Like I plug in my USB headset or something
+
+24:59.480 --> 25:02.200
+and I'm playing a video, what should happen with the audio?
+
+25:02.760 --> 25:05.160
+This decision that is currently being made
+
+25:05.160 --> 25:07.480
+for moving the sound from your video player
+
+25:07.480 --> 25:09.720
+to your newly plugged in device,
+
+25:09.720 --> 25:12.680
+it's like the decision is made currently
+
+25:12.680 --> 25:15.240
+by both audio inside the module.
+
+25:16.280 --> 25:18.120
+But you can't really tweak that anywhere
+
+25:18.120 --> 25:21.000
+and the desktop can't really get to that setting.
+
+25:21.000 --> 25:22.920
+You can't really influence anything.
+
+25:22.920 --> 25:27.160
+So, I want to make that a bit more accessible to the desktop
+
+25:27.160 --> 25:30.680
+and have the user be more in control of that.
+
+25:30.680 --> 25:31.800
+So, that would be something maybe where,
+
+25:31.800 --> 25:33.880
+like if two people were using the same computer,
+
+25:33.880 --> 25:35.720
+they could have completely different audio configurations
+
+25:35.720 --> 25:37.000
+for the same hardware.
+
+25:37.000 --> 25:39.640
+And that would be that Pipewire could be aware of
+
+25:39.640 --> 25:41.000
+the different user configurations?
+
+25:41.560 --> 25:42.760
+Yes, yes, for example.
+
+25:42.760 --> 25:45.320
+Yeah, well, the Pipewire itself, for example,
+
+25:45.320 --> 25:48.200
+it will start up, it will load all the devices.
+
+25:48.200 --> 25:50.440
+But in itself, it will just sit there
+
+25:51.640 --> 25:53.720
+because then there is the session manager
+
+25:53.720 --> 25:56.520
+that starts up, connects to Pipewire
+
+25:56.520 --> 26:00.760
+and actually goes and restore information from a database
+
+26:00.760 --> 26:03.320
+to say, oh, this card and all of these channels,
+
+26:03.320 --> 26:05.720
+they get these labels and these devices
+
+26:05.720 --> 26:09.800
+get grouped together and those are priorities and so on.
+
+26:09.800 --> 26:12.600
+So, that if an app comes, VLC, for example,
+
+26:12.600 --> 26:13.960
+that you know, App VLC,
+
+26:14.760 --> 26:17.880
+it presents me with a surround sound stream.
+
+26:17.880 --> 26:20.760
+The user wants a surround sound stream to discard
+
+26:21.560 --> 26:24.120
+and then we link that all together like that.
+
+26:24.680 --> 26:28.040
+So, that would be the responsibility
+
+26:28.040 --> 26:30.600
+of the session manager managing all of the audio
+
+26:30.600 --> 26:32.440
+that is coming in and also the video
+
+26:32.440 --> 26:33.960
+because it works for video as well
+
+26:33.960 --> 26:36.200
+and routing that to the right device.
+
+26:37.400 --> 26:39.320
+And it also goes, for example,
+
+26:39.320 --> 26:41.000
+what we currently don't have
+
+26:41.000 --> 26:43.320
+or something that is not accessible
+
+26:43.320 --> 26:47.160
+is for example, equalizers or filter setups.
+
+26:47.160 --> 26:52.360
+You know, you can have like in other operating systems,
+
+26:52.360 --> 26:53.480
+you can, for example, say,
+
+26:53.480 --> 26:58.600
+I want Dolby surround sound or something as an output.
+
+26:59.880 --> 27:02.200
+So, for that, you can set up a little filter
+
+27:02.200 --> 27:04.280
+that will do this conversion for you.
+
+27:04.280 --> 27:07.400
+Currently, that is totally not accessible
+
+27:07.400 --> 27:10.360
+from anything, PulseAudio or things like that.
+
+27:10.360 --> 27:13.080
+So, we want to make that a bit more configurable.
+
+27:13.640 --> 27:17.080
+And all of this management of these filters and setups
+
+27:17.880 --> 27:19.640
+would be done by a session manager
+
+27:19.640 --> 27:22.360
+under control of the desktop.
+
+27:22.920 --> 27:25.720
+So, that is currently an idea we have.
+
+27:25.720 --> 27:27.080
+That makes a lot of sense.
+
+27:27.080 --> 27:30.440
+I picked up a lot of unification in this project,
+
+27:30.440 --> 27:32.280
+joining both audio and video,
+
+27:32.280 --> 27:34.120
+treating them in the same system.
+
+27:34.120 --> 27:36.840
+That really hasn't been how we've done it on Linux.
+
+27:36.840 --> 27:39.480
+Have you seen any particular challenges
+
+27:39.480 --> 27:41.480
+in trying to join those into the same system?
+
+27:41.480 --> 27:42.840
+No, not at all.
+
+27:42.840 --> 27:45.960
+Really, it's from a pipeline perspective,
+
+27:45.960 --> 27:50.920
+it's basically moving memory around between like apps
+
+27:51.800 --> 27:53.880
+that are linked together in a graph.
+
+27:53.880 --> 27:56.280
+If it's audio buffers or video buffers,
+
+27:56.280 --> 27:59.240
+it doesn't really matter from that point of view.
+
+27:59.240 --> 28:03.320
+So, it's basically an inter-app communication of multimedia
+
+28:03.320 --> 28:04.920
+at the pipeline level.
+
+28:04.920 --> 28:08.360
+So, from that point of view, there is not really any difference.
+
+28:09.000 --> 28:11.480
+So, what we are going to do in the session manager then
+
+28:11.480 --> 28:13.960
+is actually put meaning to all these things.
+
+28:14.760 --> 28:17.800
+For video, for example, we don't really have a good story yet.
+
+28:17.800 --> 28:21.480
+About what we currently have for video is a thing like,
+
+28:21.480 --> 28:25.160
+okay, you have your desktop and you have your desktop screen
+
+28:25.160 --> 28:28.200
+and we provide as a stream in pipeline.
+
+28:28.200 --> 28:30.520
+And then you can have your app connect to it
+
+28:30.520 --> 28:33.000
+and get the stream and do something with it.
+
+28:33.000 --> 28:34.040
+That makes a lot of sense.
+
+28:34.040 --> 28:36.680
+That seems actually pretty straightforward.
+
+28:36.680 --> 28:41.240
+Yeah, so it's one app sends multimedia to another app.
+
+28:41.960 --> 28:43.560
+So, it's nothing more than that.
+
+28:43.560 --> 28:45.960
+But it's the session manager that brings meaning to that,
+
+28:45.960 --> 28:49.080
+of course, then you have to have some logic around it
+
+28:49.080 --> 28:51.160
+to make that meaningful.
+
+28:51.160 --> 28:53.640
+It seems like you mentioned it a little bit up at the start,
+
+28:53.640 --> 28:57.000
+but there's a lot, it seems like there's a lot from Jack here.
+
+28:57.000 --> 29:00.600
+That sort of makes sense or it can be extended to other systems.
+
+29:00.600 --> 29:02.520
+How have you, has there been difficulties
+
+29:02.520 --> 29:03.720
+getting the Jack support going?
+
+29:03.720 --> 29:05.400
+That's one area we're just fascinated by
+
+29:05.400 --> 29:08.600
+and seeing that PipeWare can maybe support
+
+29:08.600 --> 29:10.840
+these low latency workloads is pretty exciting.
+
+29:10.840 --> 29:11.880
+How has that been?
+
+29:11.880 --> 29:17.400
+That is, I mean, it maps pretty well, a one-to-one to Jack.
+
+29:17.400 --> 29:19.800
+So, that wasn't really a big problem.
+
+29:19.800 --> 29:23.240
+The problem, of course, is getting it fast enough
+
+29:23.240 --> 29:25.560
+because Jack takes a lot of shortcuts.
+
+29:25.560 --> 29:29.080
+Takes a lot of shortcuts either everywhere.
+
+29:29.960 --> 29:33.240
+So, yeah, that's kind of the only challenge there.
+
+29:34.040 --> 29:36.600
+So, currently, it's kind of pretty competitive.
+
+29:36.600 --> 29:41.080
+It's in the same ballpark as Jack for the same kind of buffer size.
+
+29:42.120 --> 29:45.720
+It's a bit more complicated in what it does internally,
+
+29:45.720 --> 29:48.120
+but it can actually be optimized too.
+
+29:48.120 --> 29:48.760
+That's great.
+
+29:48.760 --> 29:51.720
+So, we touched briefly on Jack sessions,
+
+29:51.720 --> 29:53.800
+not the session manager we were talking about before,
+
+29:53.800 --> 29:55.880
+but session management within Jack.
+
+29:55.880 --> 29:57.800
+Will PipeWare support that as well?
+
+29:57.800 --> 29:59.880
+Well, the thing is with the session manager
+
+29:59.880 --> 30:02.520
+that there is not really a consensus
+
+30:02.520 --> 30:05.240
+about what kind of features it should have.
+
+30:06.440 --> 30:11.720
+So, for Jack itself, there's the internal session manager,
+
+30:11.720 --> 30:14.120
+but there's also a couple of other session managers.
+
+30:15.000 --> 30:19.080
+I looked at them before last year, but yeah,
+
+30:19.080 --> 30:20.440
+I don't remember them very well.
+
+30:20.440 --> 30:22.120
+But some of them were, for example,
+
+30:22.120 --> 30:25.560
+unable to reconstruct sessions across machines
+
+30:25.560 --> 30:27.240
+over a network and stuff like that.
+
+30:27.880 --> 30:30.600
+Others, like the normal Jack one,
+
+30:31.160 --> 30:33.560
+restores locally on your desktop only.
+
+30:33.560 --> 30:34.600
+So, the question is, well,
+
+30:35.560 --> 30:38.680
+I've been told that there should be a session manager built in,
+
+30:39.240 --> 30:40.760
+but then if I want to do that,
+
+30:40.760 --> 30:44.920
+I want to do something that is powerful enough
+
+30:44.920 --> 30:47.880
+for everybody's use case because it's pointless.
+
+30:47.880 --> 30:49.480
+Right. So, there's still some questions
+
+30:49.480 --> 30:50.920
+at the design stage here to get.
+
+30:50.920 --> 30:52.840
+You want to make sure you have the right scope and feature set
+
+30:52.840 --> 30:54.280
+before you go build it all out.
+
+30:54.280 --> 30:57.640
+So, my thinking currently is that the session manager
+
+30:57.640 --> 31:00.840
+also runs externally as an external app
+
+31:00.840 --> 31:03.800
+that configures pipelines across machines.
+
+31:04.600 --> 31:09.400
+I don't see it exactly as a part of PipeWare currently.
+
+31:09.400 --> 31:13.800
+I don't know if we need to ship yet another session manager.
+
+31:13.800 --> 31:16.440
+Maybe there's one that already works well enough.
+
+31:16.440 --> 31:17.480
+There's a few of them out there.
+
+31:17.480 --> 31:19.560
+Yeah, right. That's a good point.
+
+31:19.560 --> 31:22.200
+So, okay, in this glorious new PipeWare future,
+
+31:22.760 --> 31:24.840
+is it just going to be one more daemon
+
+31:24.840 --> 31:25.880
+I have to run on my system?
+
+31:25.880 --> 31:28.360
+Or is it going to be something that can really replace
+
+31:28.360 --> 31:29.640
+and talk to all the apps I have?
+
+31:29.640 --> 31:31.560
+So, it sounds like Jack support is well underway.
+
+31:32.920 --> 31:35.640
+What about all the Pulse apps that have proliferated on the desktop?
+
+31:35.640 --> 31:39.160
+Yeah. So, the current plan is Pulse audio server
+
+31:39.160 --> 31:45.080
+and Jack daemon, they get replaced by one daemon, PipeWare daemon.
+
+31:45.080 --> 31:49.320
+And then you have the API, the Jack API,
+
+31:49.320 --> 31:53.400
+like libjack.so and libpulse.so.
+
+31:53.400 --> 31:56.600
+They got replaced by PipeWare versions
+
+31:56.600 --> 31:58.520
+that basically have the same API.
+
+31:58.520 --> 31:59.960
+So, apps keep on running,
+
+31:59.960 --> 32:03.960
+but internally they convert to PipeWare protocol,
+
+32:03.960 --> 32:07.640
+which for Jack apps is pretty much one-to-one conversion.
+
+32:07.640 --> 32:11.480
+For Pulse audio, it's basically also a one-to-one conversion,
+
+32:11.480 --> 32:13.720
+but with the module that runs on the server
+
+32:13.720 --> 32:17.400
+that kind of is similar to what Pulse audio does.
+
+32:18.440 --> 32:20.600
+It talks Pulse in another way.
+
+32:20.600 --> 32:24.120
+Yeah. It's a new implementation of the Pulse client libraries.
+
+32:24.120 --> 32:26.280
+And the same for also, for example,
+
+32:26.280 --> 32:27.640
+you can do an also plugin.
+
+32:27.640 --> 32:28.840
+So, that's quite easy.
+
+32:30.120 --> 32:32.920
+Also lives, even in the PipeWare future.
+
+32:33.720 --> 32:35.800
+While we're talking about the future of the desktop,
+
+32:36.760 --> 32:39.720
+PipeWare is also being built with Wayland in mind, I presume.
+
+32:40.920 --> 32:42.280
+I don't know what you mean with that.
+
+32:42.280 --> 32:45.880
+Well, so specifically around sandboxed applications,
+
+32:45.880 --> 32:47.560
+applications delivered in flat packs
+
+32:47.560 --> 32:48.920
+that are on a Wayland desktop,
+
+32:48.920 --> 32:50.760
+where perhaps things are a little more contained,
+
+32:50.760 --> 32:53.640
+applications are going through portals to get audio
+
+32:53.640 --> 32:56.920
+instead of just talking to the system, those kinds of things.
+
+32:56.920 --> 32:58.200
+Yes. Yes.
+
+32:58.200 --> 33:01.320
+So, the system is designed to, for example,
+
+33:01.320 --> 33:04.200
+not have anything like shared memory or stuff like that.
+
+33:04.200 --> 33:06.440
+That is very difficult to implement
+
+33:06.440 --> 33:08.600
+in a sandboxed environment.
+
+33:08.600 --> 33:11.000
+So, it's mostly built on files
+
+33:11.000 --> 33:12.680
+passing, file descriptor passing.
+
+33:12.680 --> 33:16.120
+So, that way you can give shared memory
+
+33:16.120 --> 33:18.920
+from the server to the client and stuff like that.
+
+33:19.480 --> 33:23.640
+And also, what we currently are doing is, for example,
+
+33:23.640 --> 33:27.240
+if you have a client that wants to capture, for example,
+
+33:27.240 --> 33:29.880
+screen costs, which is something we have implemented,
+
+33:29.880 --> 33:33.480
+what happens then is it goes to the portal
+
+33:33.480 --> 33:36.520
+and it says to the portal, I want to do a screen capture.
+
+33:36.520 --> 33:38.840
+What the portal, the portal is running outside
+
+33:38.840 --> 33:41.400
+of the sandbox, and the way to talk to the portal
+
+33:41.400 --> 33:45.480
+is through D-Bus, and that is a secured part
+
+33:45.480 --> 33:47.240
+that the sandbox app can do.
+
+33:48.600 --> 33:51.400
+And then the portal will set up a session in pipeline
+
+33:52.040 --> 33:54.760
+where it configures just the screen capture screen
+
+33:54.760 --> 33:58.520
+together with the, with the motor that is under GNOME.
+
+33:59.480 --> 34:02.280
+And then it gives that session as a file descriptor.
+
+34:02.280 --> 34:05.320
+It gives the file descriptor back to the sandbox application.
+
+34:05.320 --> 34:07.080
+And that is basically the file descriptor
+
+34:07.080 --> 34:10.840
+that it uses to open the connection with the Pipewire server.
+
+34:10.840 --> 34:13.480
+Now, if it does that, then it only sees the stream
+
+34:13.480 --> 34:16.200
+that has the screen capture in it.
+
+34:17.480 --> 34:20.600
+So, there is no sound cards or anything that are visible.
+
+34:21.640 --> 34:23.880
+So, from a Pipewire point of view,
+
+34:23.880 --> 34:25.960
+or from a client point of view, it only sees
+
+34:25.960 --> 34:28.680
+that there is a stream with capture of data.
+
+34:28.680 --> 34:34.120
+So, that way we can use the portal to lock down a session
+
+34:34.120 --> 34:37.720
+for each sandbox individually.
+
+34:37.720 --> 34:40.040
+Sounds like we're finally getting a sort of rich,
+
+34:40.040 --> 34:43.000
+lifted API design where instead of just having to deal
+
+34:43.000 --> 34:45.480
+with files, we actually have, you know, a more complicated
+
+34:45.480 --> 34:47.640
+system that can enable those kinds of use cases.
+
+34:47.640 --> 34:51.080
+Yeah, so there are still a couple of questions for this,
+
+34:51.080 --> 34:53.640
+especially if you add and remove devices
+
+34:53.640 --> 34:56.840
+and you want to dynamically change permissions on devices,
+
+34:56.840 --> 35:01.960
+how we keep all of this synchronized between portal
+
+35:01.960 --> 35:05.960
+and sandboxed app and Pipewire and so on.
+
+35:05.960 --> 35:09.720
+These are questions we still need to answer.
+
+35:11.240 --> 35:12.360
+Yeah, that makes a lot of sense.
+
+35:12.360 --> 35:14.680
+Although I do now think I understand Pipewire
+
+35:14.680 --> 35:17.400
+a lot more than I did just 10 minutes ago.
+
+35:18.440 --> 35:20.200
+So, I'm kind of excited over here now.
+
+35:20.200 --> 35:21.880
+If I want to go play with it, how do I do that?
+
+35:21.880 --> 35:23.320
+Is that something I can expect to see
+
+35:23.320 --> 35:25.000
+maybe available in Fedora 29?
+
+35:25.720 --> 35:30.920
+Yeah, so currently, it's all old versions floating around.
+
+35:30.920 --> 35:33.800
+So, nothing that supports any of the audio use case.
+
+35:34.920 --> 35:37.320
+So, that's all done in a work branch currently.
+
+35:37.320 --> 35:41.480
+So, you'll have to check out Git and check out the work branch.
+
+35:41.480 --> 35:44.200
+And from there on, it's getting better.
+
+35:44.200 --> 35:48.840
+So, we have sub-modules now that are automatically built
+
+35:48.840 --> 35:52.680
+with Jack Support, ALSA, and PulseAudio.
+
+35:52.680 --> 35:55.880
+I think there's also a script now to set up the environment
+
+35:55.880 --> 35:58.760
+so that you actually have those libraries
+
+35:58.760 --> 36:00.680
+first in your library path.
+
+36:00.680 --> 36:03.080
+And then basically, you should be able to run any app
+
+36:03.080 --> 36:04.440
+on top of Pipewire.
+
+36:04.440 --> 36:07.080
+Well, we are here on the show, cheerleading you on.
+
+36:07.080 --> 36:08.120
+Very excited, Wim.
+
+36:08.120 --> 36:10.360
+And I hope sometime in the future, we're at an event
+
+36:10.360 --> 36:12.360
+where I can buy you a beverage of your choice
+
+36:12.360 --> 36:14.920
+because I really appreciate all of the work
+
+36:14.920 --> 36:17.320
+you've done for years, not just in Pipewire.
+
+36:17.320 --> 36:21.000
+So, we'll have links to the GitHub page, the project page.
+
+36:21.000 --> 36:23.080
+Is there anywhere else, any other resources
+
+36:23.080 --> 36:25.320
+you want to point people to for the Pipewire project?
+
+36:25.320 --> 36:29.160
+No, just the website and the GitHub pages will do for now.
+
+36:29.160 --> 36:30.920
+We don't have a lot of other things.
+
+36:30.920 --> 36:33.960
+There is a wiki on the Pipewire website.
+
+36:33.960 --> 36:36.120
+There is a wiki as well on GitHub,
+
+36:37.320 --> 36:40.360
+which has some ideas we talked about here.
+
+36:40.360 --> 36:42.120
+And I'll try to keep that up to date.
+
+36:42.120 --> 36:43.640
+We will track that down and we'll put a link
+
+36:43.640 --> 36:44.840
+in the show notes for that as well.
+
+36:44.840 --> 36:46.520
+Wim, thanks for taking a bit of your evening
+
+36:46.520 --> 36:47.800
+and joining us on the Unplugged show.
+
+36:47.800 --> 36:48.760
+Much appreciated.
+
+36:48.760 --> 36:50.600
+Thank you very much for having me.
+
+36:50.600 --> 36:51.640
+Thank you to Wim for coming on.
+
+36:51.640 --> 36:54.360
+Now we're really excited about the future of video
+
+36:54.360 --> 36:58.440
+and audio on Linux and to power that media
+
+36:58.440 --> 37:01.320
+in the future, you're going to need a powerful system.
+
+37:01.320 --> 37:02.360
+And sitting in front of us here,
+
+37:02.360 --> 37:04.600
+we have the Dell Precision 5530.
+
+37:04.600 --> 37:06.280
+It was sent to us by Dell for review.
+
+37:07.000 --> 37:09.400
+And it's funny, well, look at this.
+
+37:09.400 --> 37:10.360
+It's surprising.
+
+37:11.320 --> 37:14.360
+It's really deceptively small for a 15-inch laptop.
+
+37:14.360 --> 37:16.920
+I mean, it looks big when you're just looking at it by itself,
+
+37:16.920 --> 37:19.400
+but you have it next to your 14-inch ThinkPad
+
+37:20.280 --> 37:22.440
+and it's about the same size.
+
+37:22.440 --> 37:25.240
+They don't feel like different classes of device, really.
+
+37:25.240 --> 37:27.640
+One's just a little bit bigger boned.
+
+37:27.640 --> 37:29.320
+Yeah, so it is a 15-inch laptop,
+
+37:29.320 --> 37:31.160
+but it's sort of almost like a 14-inch size
+
+37:31.160 --> 37:34.360
+because it's that edge-to-edge display setup that they have.
+
+37:34.360 --> 37:36.840
+And when you open that up, it really
+
+37:36.840 --> 37:39.320
+feels like they somehow snuck an even larger laptop
+
+37:39.320 --> 37:40.440
+into this Precision.
+
+37:40.440 --> 37:42.600
+It feels like a very large screen.
+
+37:42.600 --> 37:44.920
+And it's got that standard that we all like now,
+
+37:44.920 --> 37:48.280
+that carbon fiber mesh design on the top inside,
+
+37:48.280 --> 37:50.680
+which wraps around a chiclet style keyboard
+
+37:50.680 --> 37:52.920
+with a pretty large, pretty practical trackpad.
+
+37:52.920 --> 37:53.800
+It's smooth.
+
+37:53.800 --> 37:55.480
+It's one of the better ones I've used.
+
+37:55.480 --> 37:58.120
+Wes and I both like it in some circumstances.
+
+37:58.760 --> 38:00.520
+If you're trying to get across the screen,
+
+38:00.520 --> 38:02.840
+it's like one of the best trackpads on the market.
+
+38:02.840 --> 38:05.960
+If you're trying to do really fine text control,
+
+38:05.960 --> 38:07.720
+it seemed like it was a little jumpy.
+
+38:07.720 --> 38:10.840
+I think especially combined with the high DPI nature
+
+38:10.840 --> 38:12.920
+of the screen, those two factors together,
+
+38:12.920 --> 38:15.080
+especially on maybe an application that doesn't work
+
+38:15.080 --> 38:16.920
+too well or doesn't have the scaling built in,
+
+38:16.920 --> 38:18.120
+it gets difficult.
+
+38:18.120 --> 38:19.000
+None of that matters.
+
+38:19.000 --> 38:20.040
+None of that really matters, though,
+
+38:20.040 --> 38:21.400
+once the screen turns on.
+
+38:21.400 --> 38:24.200
+It comes loaded with 1604 and, you know, it's fine.
+
+38:24.200 --> 38:25.720
+It's a little boring at this point.
+
+38:25.720 --> 38:26.920
+1810's out.
+
+38:26.920 --> 38:30.360
+But once loaded with Ubuntu 1810 and its new theme,
+
+38:30.920 --> 38:35.320
+this 3840 by 2160 screen is so vibrant
+
+38:35.320 --> 38:37.160
+and the colors are so bold,
+
+38:37.160 --> 38:40.040
+you would swear they were leaping off the screen.
+
+38:40.040 --> 38:41.880
+When Wes got to the studio the first time
+
+38:41.880 --> 38:43.800
+I was playing around with this with 1810,
+
+38:43.800 --> 38:44.600
+I was telling Wes about it.
+
+38:44.600 --> 38:45.640
+He's like, well, I gotta see this.
+
+38:45.640 --> 38:46.760
+I was like, okay, stay here.
+
+38:46.760 --> 38:48.360
+I ran upstairs and I grabbed the laptop
+
+38:48.360 --> 38:50.360
+and I come downstairs and I open up the screen
+
+38:50.360 --> 38:51.800
+and you were impressed.
+
+38:51.800 --> 38:52.600
+I still am.
+
+38:52.600 --> 38:54.600
+I mean, I'm looking at it right now.
+
+38:54.600 --> 38:55.800
+It's next to my ThinkPad
+
+38:55.800 --> 38:57.320
+and boy, does it put the ThinkPad's...
+
+38:57.880 --> 38:59.320
+It just puts that screen to shame.
+
+38:59.320 --> 39:00.520
+It's not even comparable.
+
+39:00.520 --> 39:03.480
+The colors are so much more accurate and superior
+
+39:03.480 --> 39:06.440
+and the dynamic range is way superior on the Dell.
+
+39:06.440 --> 39:08.040
+Plus it's 4K versus 1080p.
+
+39:08.040 --> 39:09.880
+And it's just bright.
+
+39:09.880 --> 39:11.640
+It feels alive and vivid.
+
+39:12.360 --> 39:14.440
+I'd say it's better than the MacBook screen.
+
+39:14.440 --> 39:17.640
+It's one of the best screens I've ever looked at on a laptop.
+
+39:17.640 --> 39:19.000
+It's actually one of the best computer screens
+
+39:19.000 --> 39:19.880
+I've ever looked at.
+
+39:19.880 --> 39:20.840
+This seems like, I mean,
+
+39:20.840 --> 39:22.120
+even if you weren't doing video production,
+
+39:22.120 --> 39:24.200
+just editing some photos on here would be a treat.
+
+39:24.200 --> 39:25.960
+Yeah, it's really something,
+
+39:25.960 --> 39:28.680
+especially with the newer theme that has really sharp colors.
+
+39:28.680 --> 39:30.920
+So on the right side of this wedge-shaped bottom half
+
+39:30.920 --> 39:33.320
+of the laptop, you've got an SD card slot reader,
+
+39:33.320 --> 39:34.280
+which is great to see.
+
+39:34.280 --> 39:36.520
+A handy USB-A port is still there,
+
+39:36.520 --> 39:37.640
+which I much appreciate.
+
+39:38.200 --> 39:41.480
+And one of my favorite Dell features
+
+39:41.480 --> 39:43.320
+I hope they never get rid of,
+
+39:43.320 --> 39:46.360
+it's been on our XPSs that Wes and I have both owned forever,
+
+39:46.360 --> 39:49.240
+is that LED battery meter that you can push in
+
+39:49.240 --> 39:50.120
+and at a quick glance,
+
+39:50.120 --> 39:51.320
+it gives you a charge state of the battery.
+
+39:51.320 --> 39:52.600
+You don't have to turn things on, don't have to worry.
+
+39:52.600 --> 39:53.880
+You're trying to grab it to go out the door.
+
+39:53.880 --> 39:55.160
+You want to know where you're at.
+
+39:55.160 --> 39:57.160
+It's right there, it's right there, it's right there.
+
+39:57.160 --> 39:59.400
+And then on the left side of the wedge,
+
+39:59.400 --> 40:02.280
+you have a traditional barrel power connector.
+
+40:02.280 --> 40:04.200
+It is not USB-C powered,
+
+40:04.200 --> 40:08.680
+and that is to accommodate the laptop's 130 watt power needs.
+
+40:09.320 --> 40:11.560
+Yes, and you just can't push that over USB-C yet.
+
+40:12.280 --> 40:13.880
+Next to that is another USB-A.
+
+40:13.880 --> 40:16.120
+Then you have a full size HDMI out
+
+40:16.120 --> 40:19.080
+and a Thunderbolt capable USB-C port
+
+40:19.080 --> 40:20.360
+and a headphone jack on that.
+
+40:20.360 --> 40:23.240
+And inside this sucker, it's got a 97 watt hour battery,
+
+40:23.240 --> 40:26.200
+so the absolute limit of what the FAA will allow.
+
+40:26.680 --> 40:29.480
+And what Dell calls, it's something they're very proud of,
+
+40:29.480 --> 40:32.360
+a sophisticated thermal management system
+
+40:33.160 --> 40:35.880
+that they claim helps it perform well under load.
+
+40:35.880 --> 40:38.200
+I will say we've been messing with this machine all day
+
+40:38.200 --> 40:39.640
+and it hasn't been plugged in.
+
+40:39.640 --> 40:43.560
+It's just now getting down to a half hour of time remaining.
+
+40:43.560 --> 40:46.520
+Yeah, I have not done extensive battery testing,
+
+40:46.520 --> 40:48.840
+but I have done extensive thermal
+
+40:48.840 --> 40:51.640
+and CPU punishing testing,
+
+40:52.200 --> 40:55.480
+and I will say their claims of a good thermal system are there.
+
+40:55.480 --> 40:59.080
+The fans are there, but it's very mild.
+
+40:59.080 --> 41:02.120
+If you're in a room with another computer fan,
+
+41:02.120 --> 41:03.400
+it's almost unnoticeable.
+
+41:03.400 --> 41:03.880
+It's pretty good.
+
+41:03.880 --> 41:05.880
+If you're in a quiet, silent room, you'll hear it kick up,
+
+41:05.880 --> 41:08.120
+but it's one of the more pleasant fan noises.
+
+41:08.120 --> 41:09.800
+They have done a really good job there.
+
+41:09.800 --> 41:12.200
+So the hardware-wise, the CPU in the one that we got
+
+41:12.200 --> 41:18.840
+is a Core i9-8950K with 12 megabytes of cache,
+
+41:18.840 --> 41:23.880
+and it peaks up to 4.8 gigahertz, nearly 5 gigahertz,
+
+41:23.880 --> 41:27.560
+and it has more RAM in the cache than,
+
+41:27.560 --> 41:29.640
+it has more memory in the cache than I had RAM
+
+41:29.640 --> 41:31.480
+in my old computers when I was a kid.
+
+41:31.480 --> 41:32.120
+That's insane.
+
+41:33.400 --> 41:36.520
+I didn't even have storage means that size.
+
+41:36.520 --> 41:39.480
+And all of that right next to the CPU, incredible.
+
+41:39.480 --> 41:40.920
+It's got, I mean, can you imagine
+
+41:40.920 --> 41:42.280
+what kind of difference that must make?
+
+41:42.280 --> 41:45.800
+It's loaded with 32 gigabytes of DDR4 RAM.
+
+41:45.800 --> 41:49.800
+That i9 CPU supports up to 64 gigs in this laptop.
+
+41:49.800 --> 41:52.360
+It's got a Quadro NVIDIA graphics in it,
+
+41:52.360 --> 41:57.640
+and it has a 512 gigabyte Samsung Professional MVNE.
+
+41:58.680 --> 41:59.560
+Very nice system.
+
+42:00.200 --> 42:02.040
+As you can imagine, it benchmarked very well.
+
+42:02.040 --> 42:04.440
+I have a link in the show notes.
+
+42:04.440 --> 42:06.440
+If you would like to compare your system
+
+42:06.440 --> 42:08.360
+to this very system that I reviewed,
+
+42:08.360 --> 42:10.840
+you can read the link in the show notes on how to do that.
+
+42:10.840 --> 42:11.960
+I decided to use that.
+
+42:11.960 --> 42:14.920
+This is a feature of the Ferronix Benchmark Suite,
+
+42:14.920 --> 42:17.720
+and it integrates with a site called openbenchmark.org,
+
+42:18.360 --> 42:20.840
+where you can opt to post your results
+
+42:20.840 --> 42:22.760
+and then compare them to other systems
+
+42:22.760 --> 42:24.520
+or compare them to your own systems,
+
+42:24.520 --> 42:26.120
+and it gives you one command line to run
+
+42:26.120 --> 42:27.080
+to make that comparison.
+
+42:27.080 --> 42:28.120
+Oh, that is slick.
+
+42:28.120 --> 42:33.240
+So I did the baseline benchmarks on the Dell Precision 5530.
+
+42:33.960 --> 42:36.280
+Then I came down to our studio machines
+
+42:36.920 --> 42:38.200
+and I benchmarked them.
+
+42:38.200 --> 42:40.120
+Oh, and I was able to do a direct comparison
+
+42:40.120 --> 42:43.560
+between our existing equipment and the laptop,
+
+42:43.560 --> 42:45.960
+and I will post the one that is our Reaper workstation,
+
+42:45.960 --> 42:47.480
+our main audio production system.
+
+42:47.480 --> 42:49.000
+I will post that in the comparison
+
+42:49.000 --> 42:50.360
+if you want to take a look at the differences
+
+42:50.360 --> 42:53.400
+between a custom-built PC from a couple of years ago
+
+42:53.400 --> 42:54.440
+and this laptop,
+
+42:54.440 --> 42:56.360
+and there's obvious speed improvements
+
+42:56.360 --> 42:57.720
+with this brand new laptop.
+
+42:57.720 --> 43:01.160
+Just about every single task that we perform in the studio,
+
+43:01.160 --> 43:03.240
+not just about, every single task,
+
+43:03.240 --> 43:06.040
+exporting audio, rendering to a FLAC,
+
+43:06.040 --> 43:07.880
+all of the disk transactions,
+
+43:07.880 --> 43:10.760
+anything that hits the CPU, much faster.
+
+43:10.760 --> 43:12.840
+In some cases, moderately faster.
+
+43:13.400 --> 43:17.720
+And it's pretty impressive because these are multi-core,
+
+43:17.720 --> 43:19.560
+six-core systems in some cases.
+
+43:19.560 --> 43:21.880
+This is also a six-core laptop though, so it's...
+
+43:21.880 --> 43:23.720
+Wait, say that again, six-core laptop?
+
+43:23.720 --> 43:26.040
+In a laptop, yeah, in a laptop.
+
+43:26.040 --> 43:29.160
+So we decided, well, how do you really properly
+
+43:29.160 --> 43:31.560
+punish a machine like this and put it through its paces?
+
+43:31.560 --> 43:33.560
+Really, when it's got this much in it?
+
+43:33.560 --> 43:36.440
+In fact, this is getting harder and harder
+
+43:36.440 --> 43:38.200
+as these laptops get more and more incredible,
+
+43:38.200 --> 43:40.680
+and it's becoming almost a daunting task.
+
+43:40.680 --> 43:42.920
+And initially, I found this laptop a bit frustrating,
+
+43:42.920 --> 43:44.200
+if I'm gonna be honest with you.
+
+43:44.200 --> 43:46.680
+It's so fast, it's hard to put it really into words,
+
+43:46.680 --> 43:48.040
+how that is valuable.
+
+43:48.600 --> 43:51.480
+And I'm in the middle, at the time we record this,
+
+43:51.480 --> 43:53.480
+of prepping for a trip to meet BSD.
+
+43:53.480 --> 43:57.640
+I'm gonna be going down into the BSD Grey Wolf's Den,
+
+43:57.640 --> 44:00.200
+and I have to be ready for that, I gotta be on my A-game.
+
+44:00.200 --> 44:01.400
+So I kept pushing it off.
+
+44:01.400 --> 44:03.240
+It was just one more problem I didn't read,
+
+44:03.240 --> 44:05.160
+and one more problem I didn't need right now.
+
+44:05.160 --> 44:06.520
+You know, didn't need that.
+
+44:07.720 --> 44:08.920
+I could just deal with it when I get back,
+
+44:08.920 --> 44:09.880
+that's when I'll do the review.
+
+44:09.880 --> 44:11.240
+I kept thinking, I'll run the benchmarks,
+
+44:11.240 --> 44:13.800
+I'll get my data collected, and then I'll spend the time
+
+44:13.800 --> 44:15.160
+with it to really do the review.
+
+44:15.720 --> 44:18.520
+But that screen, and it's just good looks in general,
+
+44:18.520 --> 44:20.760
+and in the light-up keyboard, which is pretty good,
+
+44:20.760 --> 44:22.520
+not think that good, but pretty good,
+
+44:23.560 --> 44:25.080
+it just kinda kept pulling me back in.
+
+44:25.080 --> 44:26.520
+Like it just kept, like, well, I'll do it,
+
+44:26.520 --> 44:27.480
+you know, I'll just, I'll do this for a little bit.
+
+44:27.480 --> 44:28.760
+It was a machine you wanted to use,
+
+44:28.760 --> 44:30.120
+you didn't have to use it, you have to,
+
+44:30.120 --> 44:31.480
+you have plenty of laptops.
+
+44:31.480 --> 44:33.240
+Admit it, you find yourself feeling the same way.
+
+44:33.240 --> 44:35.480
+Using it right now, I have two laptops in front of me,
+
+44:35.480 --> 44:36.680
+and I'm using this one.
+
+44:36.680 --> 44:40.520
+Yeah, and so, as you would expect, that screen,
+
+44:40.520 --> 44:43.320
+and the overall just speed of the machine,
+
+44:44.120 --> 44:45.640
+I'd take a few moments here, take a few moments there,
+
+44:45.640 --> 44:46.360
+and play around with it.
+
+44:46.360 --> 44:47.720
+And I started getting things set up,
+
+44:47.720 --> 44:51.720
+I'd run a thermal test here, there, maybe as time went on,
+
+44:51.720 --> 44:53.000
+I'd start doing a few more things,
+
+44:53.000 --> 44:54.760
+load a few more bits of software.
+
+44:54.760 --> 44:58.280
+And pretty soon, I found that I was working on the Precision,
+
+44:58.280 --> 45:00.200
+because it was saving me time.
+
+45:00.200 --> 45:03.320
+It had started out a problem,
+
+45:03.320 --> 45:05.800
+but by the time I was done getting it set up,
+
+45:05.800 --> 45:06.920
+it was saving me time,
+
+45:06.920 --> 45:08.920
+it was solving my biggest problem of being out of time.
+
+45:08.920 --> 45:12.280
+And it was a realization, like an actual realization
+
+45:12.280 --> 45:14.440
+of how this faster machine
+
+45:14.440 --> 45:16.760
+can get the job done a little bit faster,
+
+45:16.760 --> 45:18.840
+which means in the fall,
+
+45:18.840 --> 45:20.520
+I'm getting out the door before the sunset
+
+45:20.520 --> 45:21.880
+versus after the sunset.
+
+45:21.880 --> 45:23.800
+And that actually makes a difference in my life,
+
+45:23.800 --> 45:25.960
+and I can drive home with the sun still out.
+
+45:25.960 --> 45:27.480
+That improves your mood, it makes you happier,
+
+45:27.480 --> 45:30.040
+you get your things finished faster.
+
+45:30.040 --> 45:31.160
+And why do you need to wait, right?
+
+45:31.160 --> 45:33.000
+You're running out the finished show,
+
+45:33.000 --> 45:34.440
+why do you need to wait and hang around
+
+45:34.440 --> 45:35.560
+for the computer to chug along?
+
+45:35.560 --> 45:36.520
+It just doesn't make sense.
+
+45:36.520 --> 45:38.760
+Yeah, it was, so we set the whole thing up,
+
+45:38.760 --> 45:41.160
+Wes got it all set up with Jack.
+
+45:41.160 --> 45:45.080
+We did the remote studio test, we did the Reaper test.
+
+45:45.080 --> 45:47.080
+And fair enough, things like Reaper
+
+45:47.080 --> 45:48.600
+and a couple of Jack apps,
+
+45:48.600 --> 45:50.440
+they don't look great on the 4K screen.
+
+45:50.440 --> 45:51.960
+They're a little too small.
+
+45:51.960 --> 45:54.040
+You can still read it if you have good eyesight,
+
+45:54.040 --> 45:55.960
+but if you struggle to read the screen,
+
+45:55.960 --> 45:58.600
+that could be a disadvantage potentially.
+
+45:58.600 --> 46:01.000
+But it'd be a shame because you'd be passing up
+
+46:01.000 --> 46:02.680
+really one of the most brilliant displays
+
+46:02.680 --> 46:04.120
+that's gotta be in the industry.
+
+46:04.120 --> 46:05.720
+And everything you do on the machine,
+
+46:05.720 --> 46:07.560
+it's just snappy, there's no lag.
+
+46:07.560 --> 46:09.400
+It's like getting a brand new machine
+
+46:09.400 --> 46:10.520
+every day that you use it.
+
+46:10.520 --> 46:15.880
+Yeah, in fact, the first time I had brought it down
+
+46:15.880 --> 46:17.320
+and shown it to Wes so he could see the screen,
+
+46:17.320 --> 46:18.200
+he then started messing around with it.
+
+46:18.200 --> 46:20.200
+I'm like, just sitting there watching him.
+
+46:20.200 --> 46:22.600
+And before I even said it, you went over
+
+46:22.600 --> 46:23.640
+and started launching the terminal,
+
+46:23.640 --> 46:24.760
+I'm like, look how fast this is.
+
+46:24.760 --> 46:27.240
+Look at the file manager, look at this.
+
+46:27.240 --> 46:29.240
+Yeah, it is really impressive.
+
+46:29.240 --> 46:30.920
+They've got a great machine on their hands.
+
+46:30.920 --> 46:33.960
+And I think it's of note that I've gotten this far
+
+46:33.960 --> 46:36.680
+into the review and I haven't felt it necessary
+
+46:36.680 --> 46:38.200
+to mention the Linux compatibility.
+
+46:38.760 --> 46:39.960
+Now I'm going to talk about that,
+
+46:40.520 --> 46:44.440
+but I think of note that used to be what you'd lead with.
+
+46:45.240 --> 46:46.840
+Right now it's a footnote.
+
+46:46.840 --> 46:49.240
+And that footnote is essentially, yeah, it's great.
+
+46:49.240 --> 46:51.640
+I wiped off the stock install, which was great.
+
+46:51.640 --> 46:54.120
+It was just a nice standard 16.
+
+46:54.120 --> 46:57.240
+Yeah, and I wiped the drive and I put 18.04.
+
+46:57.240 --> 46:58.600
+I'm sorry, I put 18.10 on there.
+
+46:58.600 --> 46:59.960
+I'm going to have to break that habit.
+
+46:59.960 --> 47:01.880
+And it has been flawless.
+
+47:01.880 --> 47:02.680
+Everything has worked.
+
+47:02.680 --> 47:06.040
+I have gotten a ton of mileage out of the free Nvidia driver.
+
+47:06.040 --> 47:07.480
+I have been shocked by that.
+
+47:07.480 --> 47:09.640
+Now, granted, a lot of my tests weren't GPU based.
+
+47:09.640 --> 47:11.560
+They were CPU and disk and network based.
+
+47:11.560 --> 47:14.840
+But for day to day operation on 4K
+
+47:15.480 --> 47:20.200
+with what feels like one of the fastest desktop Linux
+
+47:20.200 --> 47:23.000
+experience I've ever had, like the things that Canonical
+
+47:23.000 --> 47:27.160
+has done to 18.10, Nome's installation and an upstream
+
+47:27.160 --> 47:29.000
+Nome have done to improve the performance of Nome
+
+47:29.000 --> 47:30.760
+are paying dividends on that machine.
+
+47:30.760 --> 47:33.800
+So it was a very, very snappy experience.
+
+47:33.800 --> 47:36.120
+And it all worked without me having
+
+47:36.120 --> 47:37.480
+to fuss with a single thing.
+
+47:37.480 --> 47:39.160
+I never had to install a driver.
+
+47:39.160 --> 47:42.120
+I never had any weirdness with when I wiped the drive
+
+47:42.120 --> 47:43.240
+and I installed it.
+
+47:43.240 --> 47:45.320
+When I tried out other live distros on it,
+
+47:45.320 --> 47:47.000
+they saw all of the hardware.
+
+47:47.000 --> 47:49.160
+4K support on some of them is hit and miss,
+
+47:49.160 --> 47:50.120
+but that's not on Dell.
+
+47:50.920 --> 47:52.200
+Out of the box, though, it works great.
+
+47:52.200 --> 47:54.280
+So you get that MacBook experience.
+
+47:54.280 --> 47:55.960
+You buy it, it comes to your home,
+
+47:55.960 --> 47:57.560
+and it runs Linux on it.
+
+47:57.560 --> 47:58.920
+Yeah, I guess it is very much.
+
+48:00.680 --> 48:02.200
+It's like that MacBook experience,
+
+48:02.200 --> 48:04.920
+or I suppose that Microsoft Surface experience,
+
+48:04.920 --> 48:05.960
+I imagine, might be.
+
+48:05.960 --> 48:07.720
+I bet you it's better than that, if I was betting man.
+
+48:07.720 --> 48:09.720
+But yeah, it's pretty impressive.
+
+48:10.360 --> 48:13.640
+And it's nice to see really high end,
+
+48:13.640 --> 48:16.840
+well designed equipment that ships Linux.
+
+48:17.400 --> 48:20.680
+Now, if you were to ask me which computer I would buy now,
+
+48:20.680 --> 48:22.360
+now having the ThinkPad T480,
+
+48:22.920 --> 48:25.160
+and comparing it now for a couple of weeks
+
+48:25.160 --> 48:27.000
+to the Precision 5530,
+
+48:28.360 --> 48:31.960
+my personal choice would likely still be the ThinkPad.
+
+48:31.960 --> 48:33.960
+A, I need built-in Ethernet, pretty big.
+
+48:33.960 --> 48:35.560
+That's a pretty big deal when I'm broadcasting.
+
+48:35.560 --> 48:39.720
+And B, the slightly smaller form factor
+
+48:39.720 --> 48:41.400
+is just enough that it makes a difference
+
+48:41.400 --> 48:43.000
+when I'm on the train or on a plane.
+
+48:43.000 --> 48:46.280
+Right, I mean, so the Precision, it's not super heavy.
+
+48:46.280 --> 48:47.560
+It's probably about four pounds.
+
+48:48.120 --> 48:50.200
+And it's not thick, it's remarkably thin.
+
+48:50.200 --> 48:52.120
+But that means it's pretty dense.
+
+48:52.120 --> 48:55.160
+And it's sized enough that coffee shop,
+
+48:55.160 --> 48:57.240
+anywhere in your home, put it in your bag,
+
+48:57.240 --> 48:58.120
+that'll all work fine.
+
+48:58.120 --> 49:00.040
+I wouldn't necessarily like work on a bus
+
+49:00.040 --> 49:02.120
+or on a crammed train or something.
+
+49:02.120 --> 49:03.880
+So it's not ultra portable.
+
+49:03.880 --> 49:05.800
+It's not the laptop you just chuck in your bag
+
+49:05.800 --> 49:08.040
+and you don't think about, but you can move it around.
+
+49:08.040 --> 49:09.880
+Yeah, I actually did take a train trip
+
+49:09.880 --> 49:11.720
+while I had that laptop.
+
+49:11.720 --> 49:14.040
+And it was a little too large for the coach seating.
+
+49:14.040 --> 49:15.480
+If I got in the fancy business class,
+
+49:15.480 --> 49:16.520
+I don't know that might have been fine.
+
+49:16.520 --> 49:19.240
+But for the coach seating, it's just a little too large.
+
+49:19.240 --> 49:21.560
+And if you think about the kind of resources
+
+49:21.560 --> 49:25.000
+this machine has, that large battery is deceptive.
+
+49:25.000 --> 49:27.400
+Because really, this is a desktop replacement.
+
+49:29.400 --> 49:33.880
+It's the thinnest, lightest, smallest desktop replacement
+
+49:33.880 --> 49:34.360
+I've ever seen.
+
+49:35.320 --> 49:38.680
+It used to take an Oryx Pro or a Bonobo-sized machine
+
+49:38.680 --> 49:40.360
+to get what you're getting out of this machine now.
+
+49:40.360 --> 49:42.760
+And they're doing it in a small carbon fiber wedge
+
+49:42.760 --> 49:44.120
+with aluminum casing.
+
+49:44.120 --> 49:47.400
+Three years ago, an earlier model of the Precision
+
+49:47.400 --> 49:49.960
+desktop replacement line was what I was using every day
+
+49:49.960 --> 49:50.920
+as my work machine.
+
+49:50.920 --> 49:53.080
+And that thing was like a solid inch thick.
+
+49:53.080 --> 49:54.040
+And it was powerful, right?
+
+49:54.040 --> 49:55.160
+It was fast and it was great.
+
+49:55.160 --> 49:57.400
+But that was probably six pounds.
+
+49:57.400 --> 49:58.680
+It made my back hurt.
+
+49:58.680 --> 49:59.880
+I had to lug it around everywhere.
+
+49:59.880 --> 50:03.960
+The fact that I could get a faster laptop, way smaller,
+
+50:03.960 --> 50:05.880
+way lighter today, it's just incredible.
+
+50:05.880 --> 50:07.960
+Yeah, and I don't know if this is the traveler's laptop,
+
+50:07.960 --> 50:10.600
+but this is the workstation replacement laptop.
+
+50:10.600 --> 50:13.000
+And if that is the kind of machine you want,
+
+50:13.560 --> 50:15.240
+it's going to exceed your expectations.
+
+50:15.240 --> 50:18.520
+If you are looking for a workstation replacement
+
+50:18.520 --> 50:20.440
+that is mobile, that has good battery life,
+
+50:20.440 --> 50:21.960
+and one of the best screens you've ever seen,
+
+50:22.600 --> 50:24.040
+that's the use case for this laptop.
+
+50:24.040 --> 50:25.400
+It's exceptional at that.
+
+50:25.400 --> 50:28.280
+If you're looking for a laptop to go on the plane,
+
+50:28.280 --> 50:31.320
+to fit in a small bag, to go on the train,
+
+50:31.320 --> 50:35.080
+if you're looking for something that is on the lighter side.
+
+50:35.080 --> 50:37.160
+Right, if all you need is some Electron apps
+
+50:37.160 --> 50:38.680
+and a terminal to get your work done,
+
+50:38.680 --> 50:40.440
+then the Precision's probably overkill.
+
+50:40.440 --> 50:41.400
+Yeah, and I think that's something
+
+50:41.400 --> 50:42.600
+we can all make that determination.
+
+50:42.600 --> 50:44.200
+We know what kind of customer we are.
+
+50:44.200 --> 50:47.800
+Well, I can really see, Chris, that you've grown fond of this laptop,
+
+50:47.800 --> 50:50.120
+you like using it, but I've been a little confused
+
+50:50.120 --> 50:52.920
+because this process has seemed like a struggle for you.
+
+50:52.920 --> 50:53.800
+I'm a little torn.
+
+50:53.800 --> 50:56.040
+I almost wish I didn't like it so much
+
+50:56.040 --> 50:57.400
+because I just got the ThinkPad.
+
+50:57.960 --> 51:00.840
+And it was deceptively hard to review
+
+51:00.840 --> 51:05.160
+because it's so easy in a review to focus on the stuff that didn't work.
+
+51:05.800 --> 51:08.680
+And so when you get something that looks great, performs great,
+
+51:08.680 --> 51:13.320
+and Linux just works great, what's the angle on that review?
+
+51:13.320 --> 51:16.280
+And so it wasn't really until it started solving my day-to-day problems
+
+51:16.280 --> 51:18.840
+and I was like, oh, crap, I really like this machine.
+
+51:18.840 --> 51:21.560
+And I think what it is, is it took a while for it to sink in
+
+51:21.560 --> 51:23.080
+how much performance you get.
+
+51:23.080 --> 51:25.160
+I mean, you get something that turbos up to 4.8 gigahertz.
+
+51:25.160 --> 51:26.360
+That's nearly 5 gigahertz.
+
+51:26.360 --> 51:26.840
+Wow.
+
+51:26.840 --> 51:28.440
+64 gigabytes of RAM.
+
+51:29.800 --> 51:30.840
+It's mind-bending.
+
+51:31.400 --> 51:34.600
+It is a new category of performance machine
+
+51:34.600 --> 51:36.440
+you can get pre-built with Linux.
+
+51:36.440 --> 51:38.520
+It's not the first laptop of its kind like this,
+
+51:38.520 --> 51:41.160
+but it's probably in the highest echelon
+
+51:41.160 --> 51:42.760
+of what you can get on the market right now
+
+51:42.760 --> 51:47.480
+in something that is portable and beautiful and feels high-end.
+
+51:47.480 --> 51:49.640
+Right, and it's from a big-name manufacturer, right?
+
+51:49.640 --> 51:53.080
+This means that if you need a workstation from your big corporate job,
+
+51:53.080 --> 51:54.600
+this is a machine you could get.
+
+51:54.600 --> 51:56.120
+Yeah, I think this is the new benchmark.
+
+51:56.120 --> 51:58.600
+You could probably find a machine out there that out-specs it,
+
+51:58.600 --> 51:59.560
+although it's going to be tough,
+
+52:00.120 --> 52:02.440
+but you're not going to find a machine that out-classes it.
+
+52:03.000 --> 52:06.520
+Well, before we finish up this special feature today,
+
+52:06.520 --> 52:09.320
+we wanted to point you to some other special features
+
+52:09.320 --> 52:11.400
+that have recently appeared on the TechSnap program.
+
+52:11.400 --> 52:15.480
+Yeah, we've just done a series of wrapping our brains around the cloud.
+
+52:15.480 --> 52:18.040
+If this is something that you have a passing interest in
+
+52:18.040 --> 52:20.680
+or something you have to figure out for your job,
+
+52:20.680 --> 52:23.080
+I want to point you to three episodes of TechSnap,
+
+52:23.080 --> 52:26.120
+385, 386, and 387.
+
+52:26.120 --> 52:27.320
+It's a cool series of numbers.
+
+52:28.040 --> 52:31.000
+385 is three things to know about Kubernetes,
+
+52:31.640 --> 52:32.840
+and we did a deep dive there.
+
+52:33.720 --> 52:36.840
+386 is what makes Google Cloud different,
+
+52:36.840 --> 52:40.840
+and we brought on our Google Cloud platform expert
+
+52:40.840 --> 52:42.920
+to go into some of the interesting details.
+
+52:42.920 --> 52:45.960
+And I started with what really is their secret competitive thing,
+
+52:45.960 --> 52:47.000
+and he had a great answer.
+
+52:47.000 --> 52:48.440
+Just really fascinating.
+
+52:48.440 --> 52:51.000
+I was like, oh, that's Google's secret sauce, at least part of it.
+
+52:51.000 --> 52:52.120
+So that was a good one.
+
+52:52.120 --> 52:54.600
+And then TechSnap episode 387,
+
+52:54.600 --> 52:56.200
+Private Cloud Building Blocks,
+
+52:56.200 --> 52:58.200
+is all about building your own private cloud,
+
+52:58.200 --> 53:00.680
+either on-premises or maybe a hybrid.
+
+53:00.680 --> 53:03.960
+And we brought on our OpenStack expert, Amy,
+
+53:03.960 --> 53:06.440
+and she answered some of my basic questions
+
+53:06.440 --> 53:08.120
+and then really got into some of the more interesting,
+
+53:08.120 --> 53:09.160
+like nitty-gritty stuff.
+
+53:09.160 --> 53:12.120
+And got us excited about all the potential applications
+
+53:12.120 --> 53:13.400
+of modern-day OpenStack.
+
+53:13.400 --> 53:15.960
+Yeah, so it was a great run of episodes
+
+53:15.960 --> 53:18.120
+that even if you don't know anything about the cloud
+
+53:18.120 --> 53:19.560
+or you have to work with it day-to-day,
+
+53:19.560 --> 53:21.320
+we think there's something in there for all of you.
+
+53:21.320 --> 53:23.160
+So check out TechSnap.systems,
+
+53:23.160 --> 53:26.840
+and again, that's 385, 386, and 387.
+
+53:26.840 --> 53:29.400
+And you can find links to everything we talked about today
+
+53:29.400 --> 53:32.760
+at linuxunplugged.com slash 272.
+
+53:33.400 --> 53:34.840
+Where should they go get more Westpac?
+
+53:34.840 --> 53:37.640
+You can find me on the Twitter at Westpac.
+
+53:37.640 --> 53:40.520
+I like it, I'm at Chris LAS.
+
+53:40.520 --> 53:42.200
+Thank you so much for tuning this week's episode
+
+53:42.200 --> 53:43.640
+of the Unplugged program.
+
+53:43.640 --> 53:45.160
+We'll see you next week.
+
+53:45.160 --> 54:11.720
+No, Wes, it's next Tuesday!
+
+54:15.160 --> 54:23.240
+So, I'm a bit curious here, Chris.
+
+54:23.240 --> 54:25.480
+One of the motivations we didn't talk about earlier
+
+54:25.480 --> 54:27.240
+for getting all this Jack work done
+
+54:27.240 --> 54:29.800
+is you had your own secret sauce
+
+54:29.800 --> 54:31.320
+for making this stuff happen.
+
+54:31.880 --> 54:35.240
+And a little birdie tells me it didn't always involve Linux.
+
+54:35.240 --> 54:36.360
+How does Jack compare?
+
+54:36.360 --> 54:37.480
+Is this going to work?
+
+54:37.480 --> 54:38.760
+Yeah, I mean, in the past,
+
+54:38.760 --> 54:40.040
+before we'd switched over to Linux,
+
+54:40.040 --> 54:42.440
+this was accomplished on the Mac
+
+54:42.440 --> 54:45.480
+using an application called Audio Hijack Pro.
+
+54:45.480 --> 54:47.160
+And it would do a lot of this routing for you.
+
+54:47.720 --> 54:51.720
+But it had to install like stems into the audio stack
+
+54:51.720 --> 54:53.080
+that would then have to be revved
+
+54:53.080 --> 54:56.760
+with each rather even minor update of Mac OS.
+
+54:56.760 --> 55:00.280
+And so you'd have to keep that all up to date.
+
+55:00.280 --> 55:03.080
+Oh, almost like a DKMS module for us Linux people.
+
+55:03.080 --> 55:04.840
+Yeah, kind of, kind of.
+
+55:04.840 --> 55:07.240
+And you'd have to launch the applications
+
+55:07.240 --> 55:08.200
+in a specific order
+
+55:08.200 --> 55:09.720
+and you'd have to keep up to date on the applications
+
+55:09.720 --> 55:11.000
+and it's expensive.
+
+55:11.000 --> 55:12.840
+So it had its drawbacks,
+
+55:12.840 --> 55:15.720
+but you could really kind of piece it all together
+
+55:15.720 --> 55:17.640
+for a little while and it would work pretty good.
+
+55:17.640 --> 55:20.200
+And it had some session management, which was nice.
+
+55:20.200 --> 55:21.640
+And it could do built-in recording
+
+55:21.640 --> 55:23.320
+and had other nice features like effects
+
+55:23.320 --> 55:24.520
+and audio monitoring.
+
+55:25.720 --> 55:27.960
+But the thing that's nice about Jack
+
+55:27.960 --> 55:29.320
+is not only is it free software
+
+55:29.320 --> 55:30.200
+and it's Linux-based,
+
+55:30.200 --> 55:32.680
+which is good because we didn't have a great solution
+
+55:32.680 --> 55:34.440
+other than carrying around a bunch of rigs
+
+55:34.440 --> 55:35.400
+when I would go mobile.
+
+55:35.400 --> 55:37.320
+Or like we do at Linux Academy
+
+55:37.320 --> 55:39.080
+is we have a second studio
+
+55:39.080 --> 55:40.760
+with a second set of hardware down there.
+
+55:40.760 --> 55:43.800
+And that's nice if I'm going from Studio A to Studio B,
+
+55:43.800 --> 55:45.800
+but not so great if I'm going to say MeetBSD.
+
+55:45.800 --> 55:47.560
+Right, that does not work for everything.
+
+55:47.560 --> 55:49.320
+And so one of the things we've been doing
+
+55:49.320 --> 55:50.920
+as an intermediary solution
+
+55:51.480 --> 55:54.440
+is I just use a technology
+
+55:54.440 --> 55:56.600
+to connect back into the studio
+
+55:56.600 --> 55:59.640
+and we use all of the studio's routing and recording
+
+55:59.640 --> 56:01.960
+and all of that to do all of this while I'm on the road.
+
+56:01.960 --> 56:03.640
+Right, it's just like more remote guests.
+
+56:03.640 --> 56:05.000
+Basically everyone is remote.
+
+56:05.000 --> 56:05.560
+Yeah, everyone.
+
+56:05.560 --> 56:08.200
+But the issue there is I can have latency,
+
+56:08.200 --> 56:09.640
+I can have network drops,
+
+56:09.640 --> 56:11.480
+then I have to also have a remote session
+
+56:11.480 --> 56:12.920
+to get in to control some of this stuff.
+
+56:12.920 --> 56:14.360
+I have to have a VPN back to the studio.
+
+56:14.360 --> 56:16.040
+So that's like twice as much bandwidth right there.
+
+56:16.040 --> 56:18.120
+Yeah, it's a big overhead when you're mobile.
+
+56:18.120 --> 56:21.560
+And that has been our interim solution
+
+56:21.560 --> 56:23.640
+while we bridged the gap from the Mac solution
+
+56:23.640 --> 56:25.080
+to this mobile Linux solution.
+
+56:25.080 --> 56:28.120
+So that's the big thing for me is now
+
+56:28.120 --> 56:30.440
+I'm going back to doing a lot of this locally again.
+
+56:30.440 --> 56:34.200
+So I won't have to be so reliant on that mobile connection.
+
+56:34.200 --> 56:35.880
+That's the big advantage for me.
+
+56:35.880 --> 56:36.920
+That's what I'm excited about
+
+56:36.920 --> 56:39.400
+because the audio hijack stuff was fine,
+
+56:39.400 --> 56:42.520
+but when you add the scripting capability of this,
+
+56:42.520 --> 56:45.720
+it just takes it from what felt like a consumer tool.
+
+56:45.720 --> 56:48.680
+And this feels like a pro tool because it's all automated.
+
+56:48.680 --> 56:50.120
+My session's ready for me to go
+
+56:50.120 --> 56:51.960
+once the scripts are done running.
+
+56:51.960 --> 56:53.160
+You have all the flexibility
+
+56:53.160 --> 56:54.600
+that you could possibly need to ensure
+
+56:54.600 --> 56:56.280
+there's a little more learning curve up front.
+
+56:56.280 --> 56:58.040
+You got to get familiar with your tools,
+
+56:58.040 --> 57:00.280
+but then you have a handy set of tools.
+
+57:00.280 --> 57:02.840
+You know what's funny about this is this theme
+
+57:03.720 --> 57:06.840
+repeats itself in all areas of when I switched to Linux.
+
+57:06.840 --> 57:09.400
+For years, I've been running it since the 90s,
+
+57:09.400 --> 57:12.520
+and audio and video production was the last holdout.
+
+57:12.520 --> 57:14.360
+I've just given up on video production for a while,
+
+57:14.360 --> 57:16.760
+but audio production is what I'm passionate about right now.
+
+57:16.760 --> 57:18.600
+And we moved that over, but the thing is,
+
+57:18.600 --> 57:21.000
+the theme that keeps repeating itself is
+
+57:21.640 --> 57:23.000
+Linux starts way behind.
+
+57:23.000 --> 57:24.760
+Whatever the Linux open source solution is,
+
+57:24.760 --> 57:25.720
+it starts just terrible.
+
+57:25.720 --> 57:27.080
+Yeah, it's way behind, right?
+
+57:27.080 --> 57:29.240
+And then it kind of gets up there and you're watching.
+
+57:29.240 --> 57:30.360
+It's a little buggy. It's a little unstable.
+
+57:30.360 --> 57:31.800
+It's a little bit of a joke.
+
+57:31.800 --> 57:33.160
+And then at some point,
+
+57:33.160 --> 57:36.520
+it exceeds anything that's capable on the commercial platform.
+
+57:36.520 --> 57:38.440
+Like, I feel like Plasma desktop's there now
+
+57:38.440 --> 57:39.880
+with Mac OS and Windows.
+
+57:39.880 --> 57:40.360
+Yeah.
+
+57:40.360 --> 57:44.920
+And Jack and eventually PipeWire are that same thing for Linux.
+
+57:45.800 --> 57:49.240
+They are a superior solution than what's available on Windows and Mac.
+
+57:49.240 --> 57:52.360
+And that's why you see Jack ported to Android and iOS.
+
+57:52.360 --> 57:54.120
+Yes, iOS and Windows and Mac.
+
+57:54.120 --> 57:55.160
+Don't forget Solaris.
+
+57:55.800 --> 57:58.440
+Because it offers something that those systems don't have.
+
+57:58.440 --> 58:00.600
+And when you combine it with your scripts that you've created,
+
+58:00.600 --> 58:03.000
+which are pretty straightforward but handy,
+
+58:03.000 --> 58:05.480
+it makes it a reproducible pro setup.
+
+58:05.480 --> 58:07.240
+It's something that you could sit down on a laptop
+
+58:07.240 --> 58:09.320
+and get, boom, boom, boom, all set up and you're good to go in an event.
+
+58:09.960 --> 58:11.080
+And we just check it out.
+
+58:11.080 --> 58:13.080
+And then when you add new additions, you check those in.
+
+58:13.080 --> 58:13.960
+And when I go on location,
+
+58:13.960 --> 58:16.840
+I check out the latest version of the script and magic.
+
+58:16.840 --> 58:18.520
+Right. Or if you have a hardware failure,
+
+58:18.520 --> 58:21.400
+you know, someone spills coffee on your laptop at MeetBSD,
+
+58:21.400 --> 58:23.640
+those rude BSD guys, jeez.
+
+58:23.640 --> 58:25.240
+They need to buy you a new laptop.
+
+58:25.240 --> 58:26.840
+You could get it all set up again in minutes.
+
+58:26.840 --> 58:35.720
+The Gray Wolf's Den.
+

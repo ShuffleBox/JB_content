@@ -1,0 +1,1713 @@
+I'm really glad that we got you on user, I think you're going to balance out those guys
+from across the pond, you know what I'm saying?
+What I think is cool about it is I feel like it's a show that I could play for somebody
+that's non-technical and they wouldn't be totally lost or bored.
+Yeah, yeah, I agree.
+And there's still enough in there for people that really like the technical discussion
+where you get something deep in there.
+I think you guys struck a really good balance, I loved it.
+This is Linux Unplugged, episode 267 for September 18th, 2018.
+Welcome to Linux Unplugged, your weekly Linux talk show that's mostly patched together
+and it's ready to go with a huge show.
+My name is Chris.
+My name is Wes.
+Hello, Wes.
+It's nice to be in studio, you know what I mean?
+Oh yeah, you're here, you're operating and you're looking great and we've got a great
+show today.
+I've got a lot of show in me.
+I've been off the air a little bit.
+It's pulling out the seams.
+It is, good thing I've got bands around me to hold me together.
+Well coming up on this week's episode of the Unplugged program, we'll get into IPFS, the
+Interplanetary File System that works by you requesting a hash to the network and the network
+finds the file.
+It's all been really conceptual until this week when Cloudflare has introduced their
+IPFS gateway and we'll tell you how you can get started with this in a bit about the Interplanetary
+File System.
+Then you heard it right, Mr. Torvalds is taking some time.
+He's got some patchwork to do, but this time it's on his self, on his own person.
+Person patches, people patches for Linus and we'll tell you what's going on with Linus.
+We'll read between the lines in a few places and ask if he's dealing with burnout and then
+we'll discuss the new contributor code that has been committed I guess to the Linux kernel
+would be the way to put it.
+Some of the controversy surrounding that and maybe the idea that we're recognizing a new
+pivot for the development of the Linux kernel.
+There's been a bunch of others like workflow and tools in the past and perhaps now we're
+seeing something new.
+We'll discuss that plus some people are saying there's going to be a fork.
+We'll talk about some other projects that have implemented code of conduct and how that's
+going for them and then we'll end the show on a really great note.
+Wes and I have received our new work rigs.
+They came in just the other day, ThinkPad T480s.
+I've had a chance to load mine up with GNU slash Linux.
+I'll tell you the specs, how I'm achieving battery life that will blow you just away
+and the maybe bad news too.
+The bug that is in this series of laptops that affects CPU performance and the work
+around for that and then we're going to talk about our setup.
+What we're kind of doing differently from our past setups, we'll talk a little bit about
+what's important in a work machine for us and maybe some of the plans that we have to
+tweak these machines to make them a little better in production than they are out of
+the box.
+Maybe some software too, some stuff we've been playing around with.
+So we've got a lot to get into.
+So before we go any further, we've got to bring in the virtual level.
+We've got to.
+Time appropriate greetings, mumble room.
+Hello.
+Good afternoon from North Carolina.
+Hey, welcome back, Alex.
+It's good to hear from you.
+And how has the move gone?
+Hey, I survived the hurricane.
+Wow.
+Welcome.
+Yeah, that is a hell of a welcome right there.
+Not normally what you have to deal with.
+Oh my gosh.
+Well, it's good to have you back amongst us.
+You probably heard Brent and Dan is in there as well as Eric, ironic or ironic or Mr. Badger
+as I call him.
+MiniMech and TechMav are all joining us in the virtual lug today.
+And I wanted to start with this IPFS story because it sounds, well, it sounds out of
+this world.
+So Cloudflare says they are very excited to announce the Cloudflare IPFS gateway, an easy
+way to access content from the interplanetary file system that doesn't require any special
+software on your computer.
+Pretty neat.
+Yeah, they say we hope that our gateway hosted at cloudflare-ipfs.com will serve as a platform
+for many new, highly reliable and security enhanced web applications.
+It sounds like this is just the first part of their distributed web gateway project.
+Yeah.
+And this is all taking part on what is Cloudflare's quote unquote, crypto week.
+They have crypto week.
+And so this is part of it now.
+You guys know this, but just to kind of sort of get into the background of IPFS, usually
+when you access a website from your browser, your browser tracks down the origin server
+or servers that are the ultimate centralized repository for a website.
+Yeah.
+You know, it doesn't have to be how it works really though, right?
+There's a better way.
+There's a better way.
+So you know, you start sending your request.
+It sends a request from your computer to the origin server, wherever that might be in the
+world.
+And that server sends back the content to your computer.
+That system has served us well for, I don't know, decades now, I guess.
+But there's a pretty big downside.
+Centralization makes it impossible to keep content online any longer than the origin
+servers can host it.
+And that can be expensive.
+Yeah.
+And fair.
+If you look at some of our like back catalog now, a lot of those links go nowhere because
+those servers are offline or their pages have been brought down.
+So what can we do about that?
+Well, enter IPFS.
+Ooh.
+Hmm.
+The interplanetary file system is really a peer to peer file system composed of thousands
+of computers around the world, each of which stores files on behalf of the network.
+These files can be anything like, you know, your cat pictures, 3D models, pictures of
+Levi or even entire websites, five, what, million or billion files?
+I can't, the number is so huge my brain can't even comprehend it, has already been uploaded
+and published into IPFS.
+That is impressive.
+Yeah, that is.
+They have a really good description of how it all works, including some graphics in a
+blog post that we will have linked in the show notes, linuxunplug.com slash 267.
+But it's like a block storage system, right?
+Yeah, I think the big thing is it's content addressable.
+So with IPFS.
+Hmm, yeah, okay, that's, yeah, yeah.
+It's not blocks, right?
+If there's data blocks, but it's not like a block system like a drive.
+Right now, so every single, you do group them into blocks, but every single block of data
+stored in the system is addressable by its cryptographic hash of its content.
+So that's how you can say like, I'm looking for this, I've got this hash, go reach out
+and then the network in a peer to peer fashion can then, whoever has a block that matches
+that hash can serve you the contents.
+And that could be a number of systems.
+And the network is what figures out where that's stored.
+You can actually distribute them.
+So if you've got, you know, you've got one, it's like a little CDN near you, but everyone
+can play.
+You don't have to have special permission.
+I like that a lot.
+And you probably figure there's a number of ways to access IPFS content.
+You can install IPFS on your machine and essentially become a node of the IPFS network.
+And it probably is the best way to interact with the network if you were going to really
+get down into the weeds.
+If you're going to be developing applications that run on it or really using it a bunch.
+But if you're just kind of curious, if you're IPFS curious, there's an easy way.
+And of course you want to be able to bridge to the real world.
+Now, of course there are already some of these bridges, but there's not that many organizations
+out there running one who have the kind of reach and bandwidth that Cloudflare has.
+Right.
+That's the big change here with Cloudflare doing this.
+They have, they're setting up this HTTPS gateway to it and that is going to make it really
+easy for people playing around.
+So that's IPFS in a nutshell.
+Probably just whetted your appetite.
+We could probably go way more into it really.
+Yeah.
+There's a lot of those topics I would like to play with more and cover more.
+But up until now it just had felt like, you know, it's like any project that's sort of
+off its own corner, doesn't see wide adoption.
+Maybe that can change now?
+That's what I feel like changed actually.
+You're right.
+It feels like IPFS is no longer off in a corner where I have to go get this Go app off of
+GitHub and build it myself to connect to the network now.
+Now I can use my web browser and if you get the hash, they've just made it, you put the
+gateway URL in there and then slash the hash.
+And that's essentially it.
+I mean, it's really simple.
+So you could see how you could programmatically catch, you know, build fetchers and things
+like that too for people that could go fetch the documents off of IPFS without requiring
+any fancy client-side software, right?
+Or if you want to use IPFS for your own things, backing things up or just providing content
+to people.
+Now you have a plain text link for regular folk.
+So I also think the other next step is, you know, building your own gateway.
+So what, you know, spin up your own droplet or something and build your own gateway to
+IPFS.
+So that way you're not going through Cloudflare necessarily because they'll probably eventually
+want to monetize that data, I would assume.
+And we just can't, I mean, while it's nice of them to do this, we don't really know what
+their intentions are or how long they're willing to do it.
+And we certainly, it's a nice thing to have, but we shouldn't rely on it.
+Yeah.
+Yeah.
+And I am, I'm intrigued by the whole concept.
+I want to play with it more down the road.
+So I'm glad that they're making it easier because it's a good way to dip your toe.
+Last week in the post show, Eric, Mr. Eric, the IT guy stopped by and gave us his recap
+of the Libre application summit.
+It feels like this summit's getting a lot of attention, and I think it's because they
+have the right people there.
+Well, Dan and Cassidy from Elementary OS made it as well, and they've created a post up
+on their Medium blog.
+And Dan's here to tell us a little bit about his trip.
+And Dan, I'm curious, what was your big takeaway from the Libre application summit?
+Well, it was just like a really intimate setting compared to some of the other conferences
+that I've attended.
+So it was really kind of an interesting, different, really experimental startup-y kind of feel
+as far as a conference goes.
+That's interesting.
+Like everything was really kind of loose and undefined, and it was kind of like create
+in the conference as you go, schedule talks were kind of shuffled around and new little
+lightning talks inserted in between.
+And it was like it was very fluid environment.
+It was really interesting.
+Now Eric, he seemed to observe last week that there was, I don't know how to put it that
+doesn't sound like corporate speak, but like multiple stakeholders there.
+There was folks from the Plasma Camp, the Gnome Camp, and different priorities in the
+open source community were there.
+Did you get that sense as well, or did it seem like there was a particular audience
+it was playing to?
+Yeah, it was definitely diverse.
+Actually, there was a moment where Cassidy and I had just given our group talk, and then
+immediately after Alish from KDE got up to give his talk, and kind of the premise of
+our talks were like the exact opposite strategy, and it was really interesting because we were
+able to kind of poke fun at each other and kind of say, you know, like we're doing things
+completely differently, but what can we learn from each other?
+That is good.
+That is good.
+One of the people who puts it in the chat room, he was there, he says, you know, had
+a real un-conference feel in a good way.
+I like that.
+I like it.
+And what do you think of the location?
+Denver, some people love it.
+Some people think they should move it for next year.
+How much do you think that matters in an event like this?
+I'm asking you as somebody who does this as a full-time job, would you travel just about
+anywhere in the States for an event like this, or do you think location really does make
+a difference in who's able to contribute?
+For me, definitely having it in the States as opposed to in Europe made it a lot easier
+for me to get out there because our travel budget isn't that big.
+So it's nice to have more conferences that are Stateside.
+I think that it is definitely a thing when we have so many people that are either volunteers
+or like individuals or, you know, not representing large organizations, that having more conferences
+that are easier to attend for those people should be a priority in the overall community.
+You definitely piqued my interest.
+You and Eric both have gotten me thinking this is something I'm going to have to attend.
+Hopefully the timing and everything works out pretty well.
+Maybe you and I could both go next year.
+Oh, that's a great idea.
+We can lobby them to change the name in person.
+There you go.
+Hey, now you're thinking.
+Mr. Full-Time Podcaster over there, if you didn't catch episode 266 of the show last
+week, we announced that Jupiter Broadcasting has joined Linux Academy.
+We laid out the grand vision, our plans for the next few months, how we want to utilize
+the Patreon funding, and all of that is right at the top of 266.
+So I encourage you to go give a listen to that if you can.
+User Air is back as well.
+We announced that last week.
+Dan's one of the hosts on there along with Popey and Joe, and I think I'll be on the
+next one.
+I'm not positive yet, but my plan is to go on there and talk about my recent, what do
+you even describe that?
+Life event.
+Life event.
+Yeah.
+All the surgery and all that.
+Can I just say, Chris, it's so, I hope I speak for a lot of the listeners, it's amazing
+to hear you back and healthy, and we're all just super pleased for you.
+Well, thank you, Alex.
+I appreciate that.
+It is fun for me to be back because I do miss doing the shows, but I very much appreciate
+Wes has been filling in for me on Linux Action News.
+He's been killing it.
+Killing it.
+You set the standard.
+I just got to live up to it.
+I mean, some people show up and they fill in, but then other people, they step up, and
+Wes is doing, you can tell, he does the research, he dives into the story a little.
+I listen.
+I hear that.
+Look at you.
+He's doing the research.
+So that's been, him and Joe have been great on Linux Action News recently.
+I think it's 69, 70, and 71 if you want to go catch those recent episodes.
+I think they've turned out great, and it's a little different since I'm not there, which
+is funny for me because Linux Action News is the child of the Linux Action show.
+So I have a really strong sense of, not ownership, it's like co-ownership, but it's a strong
+sense of co-ownership.
+You gave that to the world.
+Yeah, so it's weird not to be on there, but at the same time, it's like now I get to listen
+to it, which has been great.
+Also recent tech snaps, killing it.
+You've been filling in for me extra hard there.
+You've had Wimpy come in recently and fill in, and on the last week's episode, Alan Jude
+stopped by.
+Amazing.
+Both of them.
+As you'd expect, that's an extended edition of the Tech Snap program because, Alan.
+And then this week, I won't say who yet.
+I'll tease that next week, but someone you likely know, a member of the community who
+really knows his stuff, a great guy, is going to be joining Wes if all works out this week
+for the next Tech Snap that gets recorded.
+So there's been some really great stuff going on here at Jupiter Broadcasting, even with
+me away, the wheels of progress, I guess.
+Oh, yeah.
+Turning and turning, and there's just going to be more and more.
+One of the things that we have coming up soon is we're going to be looking at ways to simplify
+and automate the production part of the show.
+So you can't really automate Joe.
+Joe is our editor, and that is just a process that you need somebody talented to sit down
+and go through.
+So we can't...
+Thankfully, you just feed him flax and then podcasts come out, so it works really nicely.
+Yeah, right?
+That's how it works.
+But everything after Joe could be done by computers.
+And that really is going to be kind of our goal, is we'll sit here, we'll do the shows.
+You can't replace us, hopefully, yet.
+Then Joe, you can't replace him.
+But everything after Joe could be automated.
+And so we'll be building tools around that.
+We'll open source whatever we work on.
+We're going to try to do it all in our new public GitLab instance that Eric has set up
+for us.
+What is the URL for that, Eric?
+It's Jupiter...
+What is it?
+Jupitercode.io?
+Yeah, it's GitLab.Jupitercode.io, and it's just going to be the start of a collection
+of tools that we're going to use.
+Hopefully get something like a Jenkins or something along those lines up and running
+at some point.
+Yet another domain name, Chris.
+I know.
+I love my domain names.
+You got a collection now.
+I really do.
+Turns out, a little side, when you sell a business, those domain names are actually
+worth something.
+So it was an investment all along, and I just didn't even know it.
+So the other potential use for that GitLab instance that Eric has set up is the issue
+tracker.
+I'm not sure how I want to do this yet, but I will be rolling out feature requests and
+content requests.
+And they might be different systems, or they might be together, or I don't know exactly
+how we're going to do it.
+But I see those as two distinct things, a technical thing you want from the Jupiter
+Broadcasting Network, like a type of feed.
+This feed doesn't work for me because of X so far.
+Or I'm trying to build this app, and it would be great if I could get a JSON of X, Y, and
+Z shows, versus, hey, it'd be really nice if you had video.
+Those are two different requests.
+One's a feature request, and one's a kind of like a, I guess they're both kind of feature
+requests, versus I'd like you guys to talk about IPFS more.
+That's a content request, and that feels like a separate channel.
+But I'm not sure.
+But whatever we do, we'll do it out in the open.
+Whatever code we create, we'll open source it.
+And then, if time allows, we'll try to document as best we can.
+That's going to be an area that we're a little weak at, but we might be able to get some
+help.
+Yeah, and that's where feedback from you guys telling us where it's weak or what you need
+to actually use those tools would be great.
+Yeah, so those are things that we're now working on, and I think when we actually have something
+to share, we'll talk about it.
+And if we end up running into some fun problems or have to build some Linux boxes, I actually
+know we're going to be building some droplets to do some of this.
+We could talk about all that stuff and the software we're using and the projects and
+how they're connecting.
+So it could be some good stuff.
+We won't overdo it with the podcast stuff, but when we have an interesting thing around
+open source and free software to talk about, we'll do it, and I'm looking forward to that.
+So those are all things that are sort of coming, and you can check out TechSnap and Linux Action
+News to hear something a little different there.
+But I think that's all the delays I had.
+Did I have any other things I could...
+I don't know.
+I mean, do you have anything else to pull out here?
+I don't think so.
+We could talk about our laptops.
+We've got these new ThinkPads.
+Oh, yeah.
+Oh.
+But we should probably talk about the major thing that happened in Linux this week, actually
+two major things.
+Yeah.
+Let's be responsible, I guess.
+That's our job as podcasters.
+That's what we're here for, right?
+All right.
+So this week, when Linus was announcing a new RC of the current development kernel,
+he added something a little unusual that boiled down to his temporary stepping away of maintainership
+of the Linux kernel, which is a rather historic moment in the 20-year history of Linux in
+itself.
+But his announcement really has been shaking the entire internet.
+People are really going all off the walls on this, and he really owns some of his recent
+behavior or some of his infamous behavior that's been going on for a while.
+He talks about how the discussions both public and on private mailing lists have been building
+for years.
+Some of these discussions came about recently, though, in probably a more louder tone because
+of some recent scheduling snafus around the maintainer summit where Linus had, quote,
+accidentally scheduled his vacation to take place.
+And then in the subsequent discussions about moving the maintainer summit's location so
+that way Linus could attend, it brought some things to the surface.
+And he gets into it a little bit.
+He says, it's not like this discussion itself is any way new to this week.
+We've been discussing maintainership and community for years.
+And I think when he uses the term maintainership and community, they're really loaded terms
+in this context.
+I think what Linus is saying is, maintainership is not just maintaining the code that goes
+into the area you're responsible for, but it's also all the human aspects.
+And then he brings in community as well.
+Right.
+I mean, this is a human project made by humans interacting.
+And yes, there's like the log of git commits, but everything else that goes before that
+actually happens, you also have to manage.
+And he's saying the discussion of what that role is and how it interacts with the other
+members of the community has been going on for years.
+And I see that.
+I did some searching around.
+I'm sure you could find stuff before this, but I saw conversations in this regard back
+in 2009.
+And you've seen it if you followed Linux for a while now, 10 years ago, 15 years ago, even,
+some of these conversations about Linus's outbursts were being had.
+But he says, what's new this week is really my reaction to it and perhaps me being a little
+more introspective.
+And there's two parts to that.
+One was simply my own reaction to having screwed up my scheduling of the maintainership summit.
+Yes, I was somewhat embarrassed about having screwed up my calendar, but honestly, I was
+mostly hopeful that I wouldn't have to go to the kernel summit.
+He didn't want to go to his I mean, his the summit for his his kernel.
+Yeah, he didn't want to go to it.
+And he kind of is admitting to intentionally booking his vacation.
+Clearly there's some psychological factors here to play.
+He says, I was mostly hopeful that I wouldn't have to go to the kernel summit that I have
+gone to every year for just about the last two decades.
+Well, but that whole situation then started a whole different kind of discussion.
+And kind of incidentally to that one, the second part was that I realized that I had
+completely misread some of the people involved.
+That's a big admission.
+That is a that is a big admission.
+This is where he says the whole look yourself in the mirror moment comes in.
+So here we are me finally on the one hand realizing that it wasn't actually funny, or
+a good sign that I was hoping to just skip the yearly kernel summit entirely.
+But on the other hand, realizing that I really had been ignoring some fairly deep seated
+feelings in the community.
+He then writes, This is my reality.
+I'm not an emotionally empathetic kind of person.
+And that probably doesn't come as a big surprise to anybody.
+Nope, nope, not at all.
+No, I would think we knew he wasn't big on reading others emotions covered it.
+In fact, you might almost say it's it was a classic aspect of Linus really.
+He says the fact that I then misread people and did not realize it for years of how badly
+I've judged the situation and contributed to an unprofessional environment is not good.
+This week, people in our community confronted me about my lifetime of not understanding
+emotions.
+So something happened this last week, he says this week, people in our community confronted
+me about my lifetime of not understanding emotions.
+My flippant attacks and emails have been both unprofessional and uncalled for, especially
+at times when I made it personal.
+In my quest for a better patch.
+This made sense to me.
+I now know this was not okay.
+And I am truly sorry.
+That reads is genuine to me.
+Yeah, I mean, I don't, you know, he's in a position where he doesn't really have to
+write.
+It's his project.
+It's his, you know, he could write whatever he wants.
+It's this is really heartfelt, and it's very public, very public.
+He knows as he's writing this, every word is going to get quoted in news articles, it
+was on CNBC, the entire email, it's going to be all over the web, millions, if not definitely
+hundreds of thousands of people will read these words.
+And he's owning it right here.
+You got to respect that.
+That's not an easy thing to do even in private.
+Yeah, right.
+And he's doing it in a very, very, very public way.
+But also, it's a watershed moment for the perception of the Linux kernel team.
+You know, I think you could clearly say Linux kernel has been sort of held up high by many
+people up on the top of a mountain.
+This is the example of a community where your technical contribution is the sole thing that
+decides your merit.
+And if you submit a shit patch to the kernel, you'll be told it's a shit patch and they'll
+yell at you.
+And it's not based on the color of your skin.
+It's based on the technical merits of your submission.
+And this is Linus, the holder of that image saying, that is no longer true.
+We must also try to be empathetic.
+We must also try to be, in a word, inclusive.
+He doesn't use that word.
+That's essentially what he's getting at.
+Yeah, we'll get to more, you know, that spirit of being excellent to each other.
+Yeah.
+He says the above is basically a long-winded way to get to a somewhat painful personal
+admission that, hey, I need to change some of my behavior.
+And I want to apologize to the people that my personal behavior hurt and possibly drove
+away from kernel development entirely.
+And then he writes it in one short paragraph.
+The one that, when I read that Monday morning, I had to take a moment.
+He says, I am going to take time off and get some assistance on how to understand people's
+emotions and respond appropriately.
+He's stepping down as the maintainer temporarily, handing the reins over to Greg KH, which seems
+like a huge moment.
+I mean, has this happened before?
+I don't think so.
+I know he's taken vacations.
+I know he's got hobbies.
+But even then, on his vacation, he's posting RC updates to the mailing list.
+Yes, he often does.
+He often does.
+He is really owning this entire thing and calling himself unprofessional.
+He's apologizing to people.
+And that, to me, feels like it's going to have ripple effects throughout the open source
+community.
+And it must also say something about how much he cares about this project and the people
+that he's worked so long with to build the project.
+Because it's easy enough, especially as the guy at the top, to say, whatever, my way or
+the highway, I don't need you contributors.
+I'm going to take my colonel over here.
+Or it's easy to just back away and never come back.
+It really seems like he cares about it and wants to keep contributing and is trying to
+find how to do that best.
+And I find there's a big disconnect, I guess what I'm trying to say, between what the public
+reaction to this has been, which has really spun the whole gamut.
+People are freaking out.
+I have seen conspiracies about Linus being blackmailed.
+And there's even in the GitHub thread about the code of conduct change we're about to
+talk about, there's someone offering Linus shelter if he needs to be protected from whoever's
+out to get him.
+The range of responses to this has been pretty extreme.
+But I think Linus sees it in a much more practical sort of way, as he typically would.
+He refers it as a pain point.
+And I would swap that word pain point, and I would say a transition moment or a shift.
+He writes, put another way, when asked at conferences, I occasionally talk about how
+pain points and kernel development have generally not been about the technical issues, but about
+the inflection points where development flow and behavior changed.
+These pain points have been about managing the flow of patches, often been associated
+with big tooling changes, like moving from making releases with patches and tarballs,
+to discussions about how Linus doesn't scale up to 15 years ago.
+Even the ones about using BitKeeper and then having to write Git in order to get past the
+point that was no longer working for us.
+We have had that kind of pain point.
+We haven't had that kind of pain point in about a decade.
+But this week felt like that kind of pain point to me.
+And I think you could replace the word pain point with that kind of transition, that kind
+of shift.
+It's a 20 year old project that dominates the world.
+It has to have these kinds of changes every now and then, and sometimes they're painful
+ones.
+Yeah, I mean changing workflows, there's all these human factors that aren't about the
+actual commits, how they get there, how you work with them, what gets approved, what's
+the dialogue that has to go through to get it approved.
+How do you make that work?
+And that's going to change when you have 10 contributors or 10,000 contributors and over
+time.
+And maybe you could argue there was a time where technical excellency was of absolute
+importance, especially when you're competing with a lot of cutthroat commercial companies.
+And I don't think he's saying it's not of utmost importance.
+I haven't seen anything that says that, you know, just because you're nice means your
+patch gets accepted.
+Right?
+That doesn't have to be that way.
+Yeah.
+Yeah.
+It'll be really interesting long term to see if he can stick to this and how long has he
+gone for.
+He writes about seeing folks at the maintainer summit, but he doesn't really say how long
+he's going to be gone either.
+Yeah.
+So Greg will finish up this kernel and we'll see about the next.
+Yeah.
+So he just says, yeah, I'll be out for 4.19.
+But 4.19 is fairly far.
+It's at RC4 right now.
+So it's pretty far in the development process.
+Something tells me he might not be back for 4.20.
+We will just have to wait and see.
+And then once he does come back, we have to wait and see if there actually is a tone change.
+Yeah, right.
+I mean, he's setting this from the top.
+How does that filter down through all the levels of contributors and how does that affect,
+you know, new people joining the project and how it goes?
+Does anybody in the mumble room have any thoughts on the line of stepping down for a bit or
+him trying to take care of himself and, you know, fix himself up for a bit?
+Yeah.
+I mean, given another Libre application summit plug, Cassidy did a talk about technical problems
+versus social problems.
+And the fact that as technical people, we always want to concentrate on how to solve
+things with code.
+And sometimes we forget that solving social problems is a often faster and more effective
+way to get the results that we want.
+So I think it's really important for someone like Linus to say, hey, you know what?
+Social problems are actually important too, and we need to really think about the kind
+of problems that we're creating for ourselves and not addressing them.
+Yeah.
+I have at times come on the air and kind of defended the way Linus works because of the
+results seem to me to speak for themselves.
+But then I kind of, this week when this news came out, I kind of put myself in the position
+of, well, what if I talk to my team this way?
+What if I just like, you know, just tore you up for doing something, you know, like what
+if you made a mistake in land and I just ripped you up for it?
+That would not be productive.
+There's that element of, you know, it wouldn't fly in a workplace or other professional environment
+where you expect to have standards about how people interact with you, even when they're
+upset or you're being chastised.
+And just because it's an open source project, now maybe if it's, you know, your open source
+project that you've been doing for by yourself with for two years in your basement, okay,
+you set the standards, but Linux is not there anymore.
+Yeah.
+And remember, it's, you know, partially governed by that foundation too, which may play roles
+in some of this.
+Brent, you've noticed a trend though in just project leads sort of stepping back and some
+officially, some unofficially.
+Yeah.
+It feels like maybe once a month on the show here, we talk about someone who's either stepping
+back officially or unofficially just to take a break or go travelling or try to find themselves.
+I mean, you're kind of taking a little bit of a forced break, aren't you?
+So just wondering if, you know, some of these, well, most of the people in the open source
+community are so dedicated and yet maybe they're not taking enough time for themselves.
+Yeah.
+Especially hard when it's a passion project.
+Right.
+I mean, how many like single person distros do we worry about and talk about because you
+see like, well, can they support it?
+And when life changes, will there be people to fall back so it keeps going?
+Yeah.
+Yeah, exactly.
+So I hope he is able to take this time and I hope it is productive for him.
+I do think it would be good not just for getting more people involved with the project because
+it's entirely possible that people have been scared away from contributing to Linux.
+It seems to be that's what Greg infers, you know, in a post we're about to talk about
+is that people have been scared away from the project, that the existing code of conflict
+hasn't worked and Linus has sort of been the representation of that.
+But more than that, I think it could be good long term for the reputation of Linux.
+I think a lot of times when Linus kind of goes off the handle and then people report
+on it, it kind of puts Linux in that amateur light a little bit.
+And I think it can be easy to if you are, you know, more thick skinned, you can be like,
+well, okay, like I can take it.
+I know where Linus is coming from.
+I know his intention is just to get good patches.
+But it's also easy if you're like, well, I could spend my time, I'm a smart developer
+contributing to this project, or oh, I see like all those free BSD guys, they're really
+nice.
+They don't yell at anyone.
+Maybe that's just my preferred work style.
+I'm going to go over there.
+We do see that actually, we do see that.
+And you know, I think what we're about to get into is the second bit of news of Linus
+stepping down for a bit and handing the reins over to Greg, that in itself would have been
+a huge story for this week that we could talk about all day.
+But I think it has to be held in context with also the new change in the code of conduct.
+So in the past, the Linux kernel, for not a long time, but for a few years now, has
+had a code of conflict that essentially outlined the rules for conflict if it arises.
+And this week, submitted before Linus's resignation email, he committed a code of conduct change.
+Now the introduction here is written by Greg Kh.
+And I think it's important that we get into this.
+He writes, the code of conflict is not achieving its implicit goal of fostering civility and
+the spirit of being excellent to each other.
+So that's Greg right there writing that it's not currently achieving its goal.
+It's not working for us.
+The code of conflict is not working.
+He then writes, explicit guidelines have demonstrated success in other projects and
+other areas of the kernel.
+I can't speak to any authority if the code of conflict has worked or not.
+Greg is in a better position than I to know if they need a code of conduct.
+And we're probably going to argue and debate the specifics of what that code might look
+like.
+But I think it's interesting to see the reasons and the goals that Greg in particular here
+and the kernel maintainers are looking for.
+He writes, here is a new code of conduct statement for the wider kernel.
+It's based on the contributor covenant as described at www.contributor-covenant.org.
+From this point forward, we should abide by these rules in order to help make the kernel
+community a welcoming environment to participate in.
+So to appreciate the new code of conduct, I want to read to you the old code of conflict,
+which is just two paragraphs.
+It's pretty simple.
+It goes, the Linux kernel development effort is a very personal process compared to, quote,
+traditional ways of developing software.
+Your code and your ideas behind it will be carefully reviewed, often resulting in critique
+and criticism.
+The review will almost always require improvements to the code before it can be included in the
+kernel.
+Know that this happens because everyone involved wants to see the best possible solution for
+the overall success of Linux.
+The development process has been proven to create the most robust operating system kernel
+ever.
+And we do not want to do anything to cause the quality of submissions and eventual result
+to ever decrease.
+If, however, anyone feels personally abused, threatened, or otherwise uncomfortable due
+to this process, that is not acceptable.
+If so, please contact Linux Foundation's technical advisory board or the individual members,
+and they will work to resolve the issue to the best of their ability.
+For more information on who is the technical advisory board and their roles, please see
+and then insert the URL.
+That is essentially the entire code of conflict.
+Pretty straightforward.
+It essentially says be nice to each other, expect to have a few conflicts here and there
+because everybody's really passionate.
+That's essentially what it's saying.
+Right.
+You're not going to have, no project this size is going to have no conflicts.
+Right.
+The rule on how to communicate, it's a set of rules to guide conflict.
+That's changed now.
+The new contributor covenant code of conduct really lays out the rules and guidelines on
+how to communicate within the project.
+It starts with a pledge.
+The contributor covenant code of conduct starts with this.
+In the interest of fostering opening and welcoming environments, we as contributors and maintainers
+pledge to make participation in our project and our community a harassment-free experience
+for everyone.
+Examples of behavior that contribute to creating a positive environment include using welcoming
+and inclusive language, being respectful of differing viewpoints and experiences, gracefully
+accepting constructive criticism, focusing on what is best for the community, and showing
+empathy towards other community members.
+Now I would pause here that so we got inclusive language, which is a bit vague, but being
+respectful to different viewpoints and experiences, that is an area that I think is actually pretty
+important.
+To that end, we may have to consider being inclusive to Linus himself, who perhaps like
+some of the many other developers I've met in my life, has a certain type of personality
+that is very driven.
+It is unempathetic.
+It's the kind of personality that has the audacity to think they can create a world-dominating
+operating system.
+And when he announces Linux, he starts humbly, but just the idea that you could go out there
+and create something better than what Bell Labs had made, or what people staffed at universities
+getting hundreds of thousands of dollars a year could create, to have the viewpoint that
+you could make something better, that takes sort of an absurd personality.
+It takes somebody who's maybe a bit obtuse in other areas.
+I've met many of developers that are totally normal personalities, totally normal social
+lives, all that kind of stuff.
+But I've also met a lot of developers that maybe are a bit off socially.
+They're a bit off on the personality.
+They may even have a personality disorder that prevents them from having all of the
+tools necessary to understand someone else's emotions.
+And if that is the case, then we must also be inclusive of them.
+And Linus may be one of those people.
+Right.
+I mean, you have people on the thick skin side of things, and you have people on the
+thin skin.
+And I don't think it's right that either side gets to dictate entirely that they meet on
+their side.
+We need to find a good way in the middle where you can still be yourself, but there are guidelines.
+There are people from way different backgrounds and experiences and styles of communicating
+so that you can all work productively together.
+Yes.
+Now, so far, all of this is pretty common sense.
+Nothing really too concerning in any of the language.
+Some people can make the argument you don't need to define this stuff.
+But I think looking at the discourse of the modern internet, I think it's probably pretty
+clear you do need to define some of these things because the internet can be a dumpster
+fire of comments and horrible things.
+And we certainly see it in other things, right?
+I mean, you have these roles when you work for a business or are part of a community
+or a volunteer organization.
+I mean, even we go to LinuxFest Northwest every year, they have a code of conduct as
+well.
+Right.
+And I think I want to separate out the use of a code of conduct with the specific code
+of conduct they have now implemented.
+I think those are...
+That's important.
+Yeah.
+They're different things.
+And I'll tell you, there's one area, and there's a few in here that concern me, but there's
+one area that jumped out at me as a potential issue.
+And it's about...
+It's two things, really.
+The maintainers have the right, it reads, and responsibility to remove, edit, or reject
+comments, commits, code, Wiki edits, issues, and other contributions that are not aligned
+to this code of conduct, or to ban temporarily or permanently any contributor for other behaviors
+that they deem, quote, inappropriate, threatening, or offensive or harmful.
+Some vagary there, but pretty understandable.
+What is inappropriate?
+What is offensive?
+Those are all things that'll have to be fleshed out as that happens, unfortunately.
+The enforcers are going to be key to this thing working, right?
+Yes.
+The level-headedness that they go with this, the balance that they take, is going to make
+or break this thing.
+And we are watching a massive experiment now unfold.
+We are watching a fairly well-defined, but vague language, code of conduct be applied
+to one of the world's most important software projects ever on a massive public scale.
+And now we're going to see how it gets implemented and how it gets enforced.
+And there is an area where there could be particular chances for abuse.
+They write, this code of conduct applies with both within the project spaces and in public
+spaces when an individual is representing the project or its community.
+Examples.
+Now, I like this.
+They define the examples of this.
+This is good.
+Examples of representing a project or community include using an official project email address,
+makes sense, posting on an official social media account, like the project's Twitter
+account or something, or acting as an appointed representative at an online or offline event.
+Clearly defined, these are public spaces in which this code of conduct is still going
+to apply to you.
+Right.
+But then the next sentence sort of undoes all of those examples and just makes it really
+vague and arbitrary.
+Representation of a project may be further defined and clarified by project maintainers,
+i.e. the people that are in charge of enforcement can decide what qualifies as representation
+at the time of enforcement, is how I read that.
+And by putting that in there, they completely undo all of the specific examples where you
+could clearly define when you're representing the project.
+That kind of vagary, I think, can lead to abuse.
+I mean, it also depends, I think, how it's applied, right?
+You said it really well.
+This is a tool for the maintainers in the community.
+It can be used poorly or it could be used well.
+And if you've defined these things up ahead, maybe there's a new thing you're attending
+and the maintainers want you to know that you are going to be a representative.
+That's OK.
+If after the fact they say, you know, you were really representative there and you didn't
+behave correctly, that's where it really could get into trouble.
+And who defines what the borders are there?
+So say you're part of a project, say you're part of the Clojure project now, and you go
+to an event to go to a Clojure booth and you're there representing this project.
+Well, let's say later on you decide to go and get a few drinks with some people at the
+event and you post a selfie of getting super wasted at a bar on your Twitter feed.
+Are you a public representative all of a sudden still?
+Like where does the border?
+It needs to be really clear.
+That kind of stuff.
+Yeah, it needs to be discussed.
+If that could get you kicked out of the project, you need to be really clear where the line
+is.
+Right.
+And then this also doesn't really discuss what are that, you know, is it your band
+the first time?
+Are there warnings?
+Are you there so that people, you know, have recourse and feel like they're being fairly
+treated after being accused of these guidelines?
+I don't know.
+Eric, you point out it really comes down to who the enforcers are and how they behave.
+Yeah, that's that's where my concern lies.
+Because if if your enforcers are more thin skinned, then you've you've got a problem
+because it seems like a very critical and understood part of I mean, just the development
+process is you're you're hanging out at a hack fest or something and and you and two
+other developers get into this huge argument over, you know, what sort of encryption screen
+encryption scheme to use and you fight it out, you argue about it, and then you come
+to some kind of decision and go grab a beer.
+But someone who's external to to the community, someone who's external to that that process,
+you know, having been there multiple times as a systems engineer, it's part of the process.
+It's almost necessary.
+Yeah, especially when people are passionate.
+I mean, we could what if this thing quite a bit.
+I think but your core point about how the enforcement gets done and who does it, I think
+is the takeaway because it's, you know, if they use if they're wise, and they use good
+judgment, then it really could be a productive tool.
+I think it shows our trust in in that community, right?
+Like do we think that the maintainers are are mature people who have in good faith and
+care about the community and really do want what's best?
+Or are they just going to use this to further whatever agenda that they were going to do?
+I'll also say that while this does add some specifics, and as we're talking about, in
+some ways, not enough specifics before with the code of conflict, none of this was covered.
+And they still had all that power, right?
+The maintainers can still do what they want.
+They're still in charge.
+So we're just getting some more rules that just might not be enough or the right type
+of rules.
+I'm not big on rules.
+You know, the biggest problem with this particular code of conduct that I see is the language
+used demands the members of the community are a certain way and holds them to some really
+fairly good sounding standards.
+But the trouble is overreach tends to creep in.
+And a code of conduct should be a document that describes what will get you kicked out
+rather than the criteria being allowed for you to stay.
+You follow what I'm saying?
+So I would, a code of conduct to me should clearly tell you where the boundaries are
+and what the repercussions are, rather than defining how you need to behave to stay.
+I think there might be room for both just in from the different backgrounds thing, because
+the focus really is on, you know, this isn't a place to shoot the shit.
+This isn't a place to just have fun discussions with friends like we care about kernel maintainership.
+We care about the kernel.
+And now I agree that there should be both, that we should be clear about what is totally
+not acceptable.
+What are the consequences?
+But it might be useful in the same way you have, you know, style for your code and the
+way your patch has to be formatted.
+Maybe there's some amount of rules that can say like, and here's the phrases that are
+helpful to us and facilitate a quick and easy discussion of your code.
+Yeah.
+Yeah, I think the other aspect of the code of conflict, which kind of appealed to me,
+and I wonder if there couldn't have been an opportunity to just extend that, is the universal
+problem with rulemaking is it is much easier to introduce a rule than it is to remove a
+rule.
+Absolutely.
+Yes.
+And it's, you know, you see this everywhere in companies and governments, any bureaucratic
+institution.
+They never get repealed.
+You just add more.
+Yeah.
+And that's my that's my that's my other kind of concern.
+I think, too, you know, there's other there's there's all the obviously other voices RMS
+responded to the code of conduct and said, I disapprove of strict codes of conduct.
+They feel rigid and repressive to me.
+That's what he says.
+And I tend to agree with that.
+It does feel rigid a bit.
+Get it out of here.
+He also says, however, since I've never participated in Linux development, the Linux code of conduct
+will not affect me.
+Of course not.
+He says, however, he's never even installed the darn thing.
+Yeah, I do know that Linux is a kernel and nothing more Linux kernel is redundant.
+And then he goes into the history of the canoe project, which is so classic RMS.
+I would have almost been disappointed had he not.
+But the core point about what about adopting a different code of conduct, maybe one that
+didn't have so much political charge around it?
+Yeah, I like that.
+I mean, are there ways we can do this better?
+How about just a very simple one, which just says, don't be a jerk.
+I mean, is that enough?
+Well, I think people are saying it is not.
+I think I think what Greg was saying is that it was insufficient.
+Being excellent to each other did not work out.
+But with with great responsibility comes, I don't know, you know, all that kind of
+superhero stuff.
+I did like I did like Dom Getter online.
+He proposed the no code of conduct code of conduct, NCOC for short.
+It's a new idea designed to help find communities and projects that will not get stuck endlessly
+debating how members should behave.
+It's to be adults to each other is the other one.
+Gentoo actually has a fairly good code of conduct that I wonder if the Linux kernel
+could not have adopted.
+I think the core issue here really is that the code of conduct that they chose itself
+is very politically charged.
+The core author, you know, the primary author of it is a political activist.
+And they are sort of a big personality.
+They're well known in that circle.
+They have a very strong opinion.
+And it seems to draw a lot of controversy if they had adopted another community's code
+of conduct, or maybe chosen to extend their existing one, and not chosen one that seems
+to be one of the most politically charged out there.
+And then tied to an author with a bold and loud personality, we may have avoided a ton
+of this upset.
+And I wonder why that wasn't the direction it almost felt like, ah, hands up, we don't
+we don't have time to deal with this.
+Let's just go adopt the popular one.
+Yeah, I wonder if it was like that, or if it how much how much has this been discussed
+behind the scenes that we're not aware of, right?
+And like, how much can we spend some energy for everyone who's concerned?
+And I think there are legitimate concerns, of course, can we spend that time saying like,
+how can we change this?
+How can we because it is?
+Yes, it does come from a weird background.
+But I think it's important to keep in mind that, you know, these are this is they copied
+the parts they want and can change it as much as they want, right?
+So future commits could make this whatever we need it to be.
+There is now though, that looming discussion of is there going to be a fork?
+Somebody on the get get post where they announced the new code of conduct says, I would civilly
+suggest that this commit, if it's not reverted, then I hope the kernel will be forked and
+stripped of this code of conduct and available for distribution package managers for easy
+installation and kept in parity with the current kernel, a move such as this will inevitably
+not bring about what the code of conduct intends to bring but will dilute contributions to
+the project, create more conflict and punish individuals and ex communicate those who have
+wrong opinions or politics and push merit aside and bring forth his demise fork the
+kernel.
+Come on, that's like the most negative possible way of looking at it.
+But welcome to the internet, Alex.
+Yeah, fair.
+Fair point.
+Yeah, I agree, though.
+It's very like, it's very much it's it's it's all merit based, right?
+Like everybody's upset because we're switching from a merit based system now to something
+else.
+But they're not accepting the merit based decisions of the current leaders at the same
+time.
+Like if it's if it's merit based, and you like the way it worked, then you should be
+accepting of the people in charge's decisions because it's all merit based right now.
+So which one is it?
+You can't have it both ways.
+I like I said earlier, not a fan of more rules.
+I generally think what we're doing here is probably going to create more bureaucracy
+around the development of Linux kernel.
+I also think the Linux kernel is in a market position and maturity where it can handle
+this and not be the end of the world.
+Right.
+I mean, I think it's interesting, too, because it has been you know, this is a change after
+a long running project where we see a lot of other projects that have come along and
+either added it with much less drama or have just started with it right things like curl
+or Kubernetes that are seemingly doing just fine or have massive momentum.
+But adding it after the fact after a long community that already has its own norms and
+values.
+That's it.
+That's that can be dicey.
+Yeah, it's really going to be about watching where this thing goes.
+Yeah.
+And these are these agreements and conditions are, you know, they're an aspect of that community
+and each community, even with the same language is going to interpret that and handle it differently.
+Will we see people getting kicked out, will we see people's people's speech being suppressed?
+Or will we see civility improve on the mailing list?
+These are all questions that we just won't have answers to until we watch this thing
+play out.
+And we really won't know until Linus has been back for a while.
+And we see maybe new contributors come along.
+And we maybe hear from people if it's made a difference or not, we just won't know.
+We need stories about like, I wanted to contribute, but I couldn't because of this or, you know,
+the reverse people said, like, I didn't want to contribute before, but hey, now I feel
+better that I'll be respected and I want to be a part of the community.
+It's one of these situations where I think it's worth not overreacting.
+It's worth taking a measured approach.
+And I don't want to disparage anybody who thinks this is a great idea.
+And I don't really want to disparage anybody who has great concerns about this.
+And I've heard from all of you, I've heard from those of you who felt like they shouldn't
+contribute before.
+And I've heard from those of you who believe this will be the end of the Linux kernel.
+And you are looking for another boat to jump to.
+People are a lot of people are joking that they're gonna switch to open BSD this week.
+I've heard a lot of that.
+I just think that's all we can do right now.
+Yeah, we just have to we just have to wait and see, does the fork become really popular
+and that's where the community goes?
+Or does the kernel just keep keep on going?
+If I had a DeLorean that could get up to 88 miles per hour, I might go back and try to
+convince them maybe adopt a different code of conduct just to avoid some of this, even
+if it's heavily inspired by 25 years ago or whatever it was when then it's put out 93
+on the Dominix mailing list or whatever it was.
+Open source was it just was nowhere.
+It just wasn't it just wasn't even a thing.
+And like Wes said a few minutes ago, you've got projects now like Kubernetes and loads
+and loads of other massive open source projects that have been born as a consequence of the
+open source movement.
+People now have a lot better idea about how to behave and how to conduct themselves in
+these scenarios.
+I do think, you know, you can't just have an open door and just say, you know, like
+I said earlier, don't just be a jerk.
+I think there has to be a little more structure to it than that.
+But honestly, I think we're at a point now where it's quite well self-policing and governed
+as a as a movement, you know?
+Yeah, I think that's likely the case.
+And I think we'll learn more.
+Perhaps we'll learn about the Linux Foundation's role in this change.
+You know, that is a good question.
+I did notice they are the ones that you report to if you have enforcement issues.
+It's tab at linuxfoundation.org, which is a technical advisory board.
+So that's interesting.
+I would be delighted to learn the back story there.
+But I think for now, I'll just leave it to the audience.
+Let us know what you think linuxunplug.com slash contact, send us in your thoughts.
+The range of it with, you know, I'm trying to soak in as many thoughts and opinions.
+This is one of those things where it takes me more than a week to really come to some
+sort of...
+We're still in the sort of the stunned silence phase of this, right?
+It was just like two days ago.
+It's been literally just like a day and a half, really, since we've learned about this.
+So it's still, you know, I'm processing.
+Sometimes I come on in a week or two and my position has changed a little bit.
+But I think that's where I want to end it now.
+And I'd like to hear the audience's opinion on it, too, on the Unplugged show.
+So let's transition to our new goodies that we got this week.
+Kind of perks of becoming Linux Academy employees is everybody gets to pick a machine.
+And Linux Academy has a policy, you pick your own operating system.
+And Wes and I had been kicking around the idea of these ThinkPad T480s, buying them
+personally, which was taking us forever because that's got a chunk of change.
+You want to make the right choice.
+And so they arrived late yesterday.
+So Wes is about to unboxes right now on the show.
+You ready, Wes?
+It's exciting, right?
+It's a thin ThinkPad box.
+That's the ThinkPad T480 designed for serious business.
+And we got it with a couple of extra options.
+I love it.
+Little theater of the mind there.
+Get it out of there, Wes.
+Yeah.
+It's light, right?
+It is light.
+Yeah.
+Look at this.
+No, but it does have a three cell battery built in right now.
+It's built right in.
+So I'll talk about, I'll tell you why you get your, why you open it up and get your
+first impressions on, which I think would be really good.
+I'd love to hear, but I'll tell you about the specs.
+Okay.
+Here's the hardware that we got in these.
+So these are the Lenovo ThinkPad T480s, not 480s, people have wondered.
+They weigh 3.6 pounds.
+This is light.
+I mean, I can one hand, I can hold this for hours.
+It's got a, we got them with the 14 inch IPS 1080p display.
+So we decided not to go 4k on these ones.
+I already having used mine for a little bit longer than Wes has obviously, I'm already
+very thankful of, of going 1080p because there are certain apps that have never gotten high
+DPI that I've really strained my eyes to use.
+And now they just look glorious on this IPS display.
+It's got an eighth generation I7 8650U, runs at 1.9 gigahertz base, turbo is up to 4.2
+gigahertz.
+Although there's a caveat there.
+We'll get into that.
+Yeah.
+These suckers have 32 gigabytes of DDR4 RAM.
+So screw you MacBook with your 16 gig limit, one terabyte PCIe MVNE drives in them.
+Oh yeah.
+And then the way these Lenovo's work, which is pretty fancy, is as a three cell built
+in battery.
+They don't call it that.
+They call it like a power station because they got to brand it.
+It was just silly, right?
+But then we also got it with the additional six cell battery that snaps into the back.
+So you get the three cell and the six cell combined.
+And on my first night of testing, I actually failed to run the battery down, even when
+I left it running downloading for a while overnight.
+So why right now running plasma neon 1804, I'm estimating about 10 hours of battery life,
+10 hours.
+That is more than I need.
+I mean, that's fantastic.
+That's all day battery.
+That is all day battery, all work day battery.
+It's got Intel wireless in them, and then some of the best parts really is the connectivity.
+Along the right edge, there's two USB three gen one type A ports, and one of them is also
+a Thunderbolt port where you charge the device over USB-C. HDMI out, it has gigabit ethernet,
+a full ethernet jack, audio jack, SD card slot, and the security lock slot that Lenovo's
+have.
+Yeah.
+Did you say that?
+It has a headphone jack.
+Yeah.
+You got to be specific.
+I know, right?
+It's pretty fricking exciting.
+And it's also a certified Ubuntu machine.
+Great viewing angles on the screen.
+Yeah.
+Yeah, it is.
+Arch wiki is pretty sparse on this machine because basically everything works with the
+exception of a throttling bug that the T480s, as well as several other models of Lenovo's
+and even a Dell have, which we'll have the specifics linked in the show notes.
+But it turns out there's an issue with throttling that only exists on Linux.
+It really comes down to Intel and their crappy data sheets.
+The cause is simply that there is an activation offset in the master temperature control target
+register, which they flip some bits.
+And so essentially the issue is the kernel, it prevents the CPU from boosting all the
+way to 4.2 gigahertz.
+On some systems it'll go like around 3.5 gigahertz, maybe even 3.9 gigahertz in some cases, but
+it won't stay there because of this stupid fricking bug that exists.
+It's just part of, it was really a typo on Intel's part.
+And as all things in Linux, there's actually a workaround script up on GitHub that will
+fix this issue, but it involves turning off secure boot.
+It required a couple of, oh yeah, you can't have thermal de-installed to monitor the temperature
+stuff.
+Oh, okay.
+So it's not a perfect fix.
+So we are technically limited in max performance right now because of this bug.
+And it would require a firmware update on Lenovo's part to fix it.
+Now they have released two firmware updates for these machines for Linux.
+And we, as we talked about, we should be able to use them right from Linux.
+Right.
+Cause they're now part of the LVFS project.
+So there may be a fix inbound or could try this experimental script.
+I'm curious, we'll have to do some benchmarks with this script and really see like, you
+know, how much does it really affect and what of, what of our potential workloads will actually
+benefit.
+Right.
+Yeah.
+Cause I did some testing with the remote connection software that we use to remote back to the
+studio and it did great.
+It did better than most laptops do.
+So I'm pretty happy with it.
+We'll have some additional resources though, if you want to know more about that or read
+some reviews for the T480 with Linux, but we're doing things a little differently this
+time.
+So first of all, one of the things that I really like is that Wes and I got identical
+laptops.
+And those of you who've listened to the show for a while might know that one of my ways
+of achieving like solid production is trying to have duplicates of machines.
+So that way we can swap machines if we need to, or swap parts and everything's compatible
+or move a hard drive image to another system when it's like a laptop fries and we're live
+on location.
+You know, there's having two of the machines that you use to get on the air is just, it's,
+it's almost a necessity really if you're doing a lot of live broadcasts or a lot of on the
+road productions.
+And so that was the main driver for us getting exactly identical systems is if Wes and I
+are in an event and one of us is having a technical issue that's preventing us from
+recording a show, we can, we can part swap.
+Or we could just have all the right dongles or batteries or yeah.
+If I get a doc here in the studio or another power adapter, you can use it.
+Perfect.
+You know, there's all those things that are just, I think really, really great about having
+two identical machines.
+But I, this time around, and I'm curious what you're going to do differently this time around
+I'm leaving windows on it, which I never do.
+I never do that, but I've shrunk the partition down.
+So it's like a 90 gig Linux or I'm sorry, 90 gig partition for windows and then the
+rest of the terabyte drive is for Linux.
+That's pretty reasonable.
+I thought, you know, maybe for some funky firmware thing or maybe some game might come
+out someday or some like my Garmin in my RV can only be updated from windows, right?
+Maybe a guest has some software they can only use to communicate.
+We got to bring them in on windows just that once.
+Maybe you never know.
+I mean, I really have not needed windows for years, but I just thought if I'm getting a
+licensed version of windows pro and I got a terabyte drive, I could burn 90 gigs and
+have it there just in case.
+Plus, I've now mounted that partition under Linux, which can be kind of handy when using
+wine and stuff.
+That can be really nice.
+Yeah.
+So that's one thing I'm doing differently is I'm, I think for now, I don't know if I'll
+keep it that way.
+I could see myself like reloading this machine and I could see myself blowing windows away.
+I mean, at some point, you know, like six months go by and you're like, I just haven't
+used it.
+Yeah.
+The other thing too is you can always shrink it as much as you want.
+That's true.
+Take a little backup of it and we could keep it on a server somewhere.
+So yeah, for factory maintenance or whatever, you can lay that disk image back down.
+So that's one thing I'm doing differently.
+I also opted not to go Kubuntu.
+I decided to go neon 1804, even though still kind of in the testing, I just, I wanted to
+be right on that edge.
+Yeah.
+Well, I like the fresh plasma, fresh hot plasma.
+But you get the LTS base.
+Yeah.
+Yeah.
+So those are, what are you doing?
+Anything differently?
+Are you going to do a different distro?
+Are you going to keep windows?
+I've been using Kubuntu.
+I've been enjoying plasma a lot and it makes a pretty nice, I don't know, GNOME works pretty
+well for me for just like terminal and browsing the web.
+But when I have a lot of windows open and I really want some like complicated window
+management or I need to manage multiple workspaces, plasma has a little bit of an edge in just
+extensibility.
+Yeah, I agree.
+And you've been using it a lot.
+So it'd be nice again, in that same vein, if you need to use my laptop.
+It's true.
+It's true.
+So I was looking at maybe the latest Kubuntu, but you're tempting me with that neon.
+I'm going to be curious what you see.
+I mean, I think Kubuntu is so rock solid.
+Like if you want a true workhorse, then I think you're, you know, and it's 1804 based
+too.
+We've also got enough space.
+I'm debating, you know, maybe I'll keep windows too.
+Maybe get like just LTS Kubuntu on there, set up ready to go, all the software we need.
+That's like your workhorse distro.
+Backup workhorse and then have other space for distro of the week and or just whatever.
+That's a good idea.
+Yeah.
+Cause we do that a lot.
+I probably should have left a little space on mine cause we do that a fair amount.
+In fact, I was thinking about giving project Trident to go for a week, you know, just live
+on project Trident.
+I am debating some, some ZFS on root for this guy.
+Yeah.
+We'll see.
+That'd be fun to hear.
+Yeah.
+So, you know, we've already kind of covered it, but we also wanted to call out what's
+important to us when designing and building and then selecting and purchasing a work machine.
+Because if this was a machine for me just to bop around the RV or something like that,
+I may have gone with an XPS 13 or maybe a Gallego.
+Like I don't think I would have necessarily picked a ThinkPad T480 for my personal, just
+like stick it on the couch and use it for browsing the internet just for fun.
+But when it came to a work machine, I needed these quote unquote legacy ports that all
+of my current audio hardware uses, USB-A, ethernet to transfer multi-gig files.
+Yes.
+And I mean, just for live streaming, you can't beat ethernet.
+Yeah.
+So I was able to pick the whole package, 14 inches, 3.6 pounds, 10 hours of battery life,
+which even if in heavy production, that works out to be five or eight, I'm fine.
+Fine.
+Yeah.
+That's huge.
+Yeah.
+They're not the most beautiful.
+I think they have their own sort of elegance, but you can tell they're while light, they're
+rugged.
+You know, they've been building ThinkPads for a long time.
+They do feel rugged.
+With those batteries, don't forget, you can do the Noah Choliatt trick of pulling one
+out and shoving a new one in and it doesn't have to reboot or anything.
+It keeps going because that built-in 3.7 keeps going.
+It's great.
+How'd you find the nipple in the middle of the, they call it a track point, don't they?
+How'd you find that?
+Yeah.
+You know, I've used it a bit.
+It's not bad.
+I kind of actually like it.
+The track point is decent.
+The track pad is one of the better ones on a PC laptop.
+It's got some grit to it.
+And it's one of those where you click the whole track pad.
+I don't like that part too much.
+So that's why I've sort of been preferring the nipple.
+Yeah.
+I have more experience with the Dell's version of the nipple, but I do kind of like it.
+It's nice.
+It's a great thing.
+But when you're just using the mouse, you want to go real quick, it can be handy.
+It's nice too, because I disabled the track pad as soon as I connect my Bluetooth Logitech
+MX, which I love the Logitech MX Anywhere series of mice.
+They're the best mice for a laptop.
+And so I keep one in my bag.
+And so as soon as I connect that, I have the track pad disabled.
+So that way I don't ever have any like mistaken touches while I'm typing.
+That keyboard is the best keyboard I've used in a laptop in probably seven, eight years.
+Yeah.
+Decent travel.
+Great for broadcasting.
+It feels good on the fingers.
+And I have RSI issues, and the MacBook keyboard triggers them, because I'm an old man now.
+I just type really heavy.
+I'm used to mechanical keyboards.
+I grew up on the IBM PS2s and things like that.
+So I was clank, clank, clank, clank, clank.
+And I smashed my fingers into the MacBook, and I have to constantly remind myself, don't
+type so hard.
+But when I get going, I just get going.
+You just get going.
+You're passionate.
+Not an issue on the ThinkPad.
+Not an issue at all.
+It's one of the best laptop keyboards I've felt in a really long time.
+And so what are your first impressions of it?
+Now you've had it out of the box for a moment.
+What do you think?
+I like it.
+I think this is going to be just a really good...
+It's not flashy, but it just feels like I can sit down, I'll know that it's going to
+boot up, it's going to be ready to go, and it's got the guts to perform when we need
+it to.
+Yeah.
+Yeah.
+And I also want to talk a little bit about some of the tweaks that we're going to make
+to the machine to use it in production.
+Both Wes and I have been experimenting with a project called KX Studio.
+And KX Studio is like a series of packages or repos that you can overlay on your distribution
+and bring in a bunch of cross-platform pro audio applications.
+It's a huge collection of different ones, specifically some that are used to set up
+jack audio, which I'm just beginning to really wrap my head around because for a full mobile
+machine where I'm recording my microphone and I got a soundboard and I'm recording my
+remote host and all of that, I got to use something more sophisticated than just straight
+pulse audio.
+I can start creating virtual sound devices and capturing them to specific files.
+Yeah.
+I mean, when you think about all the equipment we've got up here in the studio, it's a challenge
+to get all of that working in a laptop.
+We've done it before, but not with jack, but we've done it before using external audio
+devices and sophisticated routing.
+And the goal here is to do it all in software.
+We'll see.
+We have members that join us in the mumble room fairly frequently that are using jack
+audio with reliability and have great things to say about it.
+And there are tools with jack audio that allow you to draw a connection from one audio device
+to another audio device, like you're patching wires and it's a visual thing.
+It's really cool.
+The applications like Katina or something like that.
+Do you remember?
+I know you've been playing with it.
+I mean, there's, there's several, there's the whole, the, like the cadence suite of
+applications.
+Cadence.
+That's what it was.
+Yes.
+Cadence.
+And cadence itself is like a nice gooey that'll help you get jack all set up.
+It's got stuff like, you know, also impulse bridges built into it.
+And then Cadia, C-A-T-I-A, is the jack patch bay software that lets you drag and draw to
+different devices.
+And it really is such a nice model, you know, where you, you get these jack clients and
+they show up and you've got inputs and outputs and then you can just connect them however
+you want and jack handles the rest.
+And our favorite recording software that we use now under Linux to record a podcast, Reaper,
+has full support for jack devices.
+Oh, it works so nicely.
+So they show up as input channels.
+It's just brilliant.
+So I can, I could, you know, have a jack device that is just my microphone and I can record
+that as a separate track in Reaper.
+I can have a jack device that's just when he's remote or if I'm remote and that goes
+on a channel.
+I mean, the potential is, is, is huge.
+And that's one of the tweaks we're going to be making.
+I've got the KX studio repositories, I've got Cadia and a few other things installed,
+but I don't really have not really wrapped my head around how to actually create virtual
+in and out devices and stuff like that.
+That's like the next stage I'm going to be going to.
+But my hope is in a month or two, I've got this thing down pretty well.
+And KDE neon is going to be stabilized by then.
+And I'm going to have a pretty sore, serious remote mobile workstation that's fans don't
+kick up when I connect back to the studio.
+Right?
+Yes.
+And I think, I mean, I think some of the KX studio 1804 repos are also stabilizing a bit.
+So you know, wait and see, not everything's going to be perfect.
+It does make me think too, we need to, you know, we should do, we'll try to do a good
+job documenting this too, because I know, I mean, it'd be good for you guys to see,
+but also on our end, if we just need to redo something really quick, we don't want to be
+futzing with it.
+Yeah.
+I don't want to make it like a holy install that I can't touch.
+No, no, no.
+Absolutely not.
+Got to be able to nuke and pave and reset it up.
+And I think we can get there because it just puts it around you and I have made some progress
+just, you know, individually.
+Very excited about it.
+They're just, they just, you know, I use the machine all night and all day yesterday.
+It came at noon.
+So I got it at noon yesterday and just immediately went to work.
+Tore right into it.
+Yeah, of course.
+Oh my God.
+So I booted into windows for the first time just to like log into my account that Linux
+Academy had created and, and you know, log in and do any of those firmware updates, but
+they'd all, they'd taken care of all that, but I was just curious, you know, he's like,
+what's this like?
+What's this environment like?
+It's so bad.
+Windows, like when you search for windows update in the start menu, you get like everything
+but windows update.
+You get like the windows update settings and windows update hours and all these things
+that are not windows updates.
+Just actually doing the updates.
+Yeah.
+If you write check for updates, then you get, I mean, it's just, windows 10 has got so much
+going on.
+It's been blurking at me with OEM messages and blurking at me with, with Microsoft messages
+about installing defender when I first logged in, my CPU was completely pegged for like
+five minutes.
+And so I launched, you know, I do control it, delete to go use the new task manager,
+but now they've got a baby task manager that brings up, so I got to click something else
+to get a decent task manager now.
+And then I look at it and 98% of, or it was two CPUs or something that's just completely
+being dominated by the windows defender doing a malware scan of my system because apparently
+the first login of my account ever was the time to do that.
+That's what you want as your first run experience.
+So I, you know, I opened up the machine literally the first time I log in, the fans are going
+like crazy.
+Like, there's so much stuff going on.
+I'm like, this is awful.
+This is, this is horrible.
+Could not download that KDE neon 1804 preview ISO fast enough.
+How did that install go?
+Oh, beautiful.
+Beautiful.
+Secure boot worked fine.
+Oh yeah.
+Oh yeah.
+Secure boots on using UEFI.
+No problem.
+The only thing that was a little tricky was, you know, I decided to install G parted to
+shrink the partition because I just find that the cute unity ish, whatever that ubiquity
+installer is that they're using for Kubuntu and KDE neon, the partition is just, it's
+not great.
+Like the fields are too narrow.
+You got to expand it all out.
+You always got to, you got to stretch the window out and make it bigger.
+And then you got to click on the partition and click change.
+You can't just double click.
+It's just dense.
+It's just hard to be G parted for just getting some serious disk work done.
+I flipped over G parted, did some of my heavy lifting there, resized the NTFS partition
+there, did a safety reboot back into windows to make sure everything was good, booted back
+into the neon installer.
+And then it just did the installation like normal.
+Went flawless.
+Beautiful.
+And since, since neon has been installed, man, it's just been beautifully fast.
+Like it's just incredibly fast boot.
+I got it all.
+I got plasma totally customized the way I like it in an evening.
+And this is with like all your electron apps.
+Oh yeah.
+I'm running Slack and I'm running mail spring and I'm running telegram and I'm running all
+that stuff all the time and each using KDE windows rules, they're assigned to their specific
+windows, their desktops and with specific window constraints.
+And it's just great.
+It's just great.
+Super fast.
+I installed a couple of steam games, you know, doing all this stuff while we're on, on battery.
+I didn't even take my power adapter home.
+I was like, let's see what this laptop can do.
+Oh, you're living on the edge again.
+Yeah.
+After playing on the machine all day, I disconnect the USB power adapter and I grabbed the laptop
+and I go home power adapter free.
+And I'm like, I'm going to see if I can make it all night.
+I was up till 10 30.
+I mean, I got home.
+I use that machine through dinner, through watching deep space nine.
+Like I did not move from that machine all night.
+My, you know, my situation sort of precludes me moving a lot anyway.
+So I sort of stay put anyways.
+And so I'm sitting there working on that machine all night on battery, installing software,
+you know, snapping stuff up, like just going nuts and downloading games and trying them
+out.
+And I ended the night by, by just letting the machine continue to download software
+for another 90 minutes.
+And I just turned the screen off and I went to bed, came back, it had, you know, dutifully
+gone to sleep, but it finished all the downloads and I look at things still has 27% battery
+and it's still telling me three and a half hours left of, of charge.
+Oh, I'm excited.
+I know it was really something like, I didn't know I could accomplish that in Linux.
+Like I didn't know that was going to be possible.
+So that was really neat.
+That was a really great first impression.
+And the fact that the machine just was never a slouch, you know, just kept up with everything
+I was doing.
+I think having MV&E drives really helps with that.
+And then having that I seven, do you have a USB-C charger pack for it yet?
+Yeah.
+That's what it comes with.
+Yeah.
+It comes with a USB-C.
+Really?
+Yeah.
+It's like a 65 water.
+And I guess you can get up to like a hundred Watts or something.
+If you get the doc.
+Yeah.
+Cause they, they used to, the four seventies is the one that I have and they still came
+with the square Lenovo tip, but the CS480 has USB by default.
+All in.
+And that USB-C port is also a Thunderbolt three port as well.
+So.
+Yeah, it is.
+Oh, that's beautiful.
+Very excited about this.
+Once you figure out how all the cables work in that weird domain, that just the possibilities
+are endless.
+They were fully spec'd.
+They were close to $1,800, you know, but that's still significantly cheaper than a Mac book.
+Significantly cheaper.
+For the value we're getting.
+I mean, well worth it.
+Yeah.
+Very happy with it.
+So the kick in the tires and I'm sure eventually I'll probably load some other distros on there
+and stuff like that.
+But really looking forward to just building a rock solid mobile recording studio in a
+laptop.
+Yeah.
+If you guys have tips, let us know.
+I mean, some of you have been using Jack out there.
+Maybe you've got some things we really shouldn't miss when getting that set up or I'm a new
+ThinkPad user here.
+I mean, I've played with them before.
+I had a really old one back in the day, but I'm new to this.
+So if there's like ThinkPad things we need to do, I'd like to know.
+I would go as far as to conjecture, and this may be hopeful thinking, but you almost have
+to believe that Lenovo has done work to make sure this works under Linux.
+Because when you look at like the Ubuntu Wiki and the Arch Wiki, they basically say everything
+just works out of the box.
+And like when you read people's reviews for the current T480s, like everything just works.
+All the hardware just works.
+And then you look at the work they've done with LVFS recently, I think there's more going
+on.
+There's some playing ball happening that maybe they're not so public about.
+Yeah.
+And one of the things that really drew me to the T480 is I think Alex and others had
+told me that, you know, there's a lot of folks at Red Hat using this particular model of
+ThinkPad.
+And I thought, okay.
+They know what they're doing.
+Yeah.
+Maybe they're hip to what Lenovo is actually doing behind the scenes.
+You know, they could be having those business to business conversations and Red Hat could
+say, hey, we'll buy 10,000 of those if you can make sure it does XYZ okay for us.
+Yeah.
+So Wes, you were saying anything specific to ThinkPads and Linux?
+There's a website, thinkwiki.org that has some interesting stuff.
+I dropped a link in IRC for you.
+Oh, we'll check that out.
+I'll try to toss that in the show notes too.
+Yeah.
+I think it was a good choice.
+It's not like you've said, it's not the most flashy laptop you could find, but I think
+it's a really practical solution.
+And if you're on the fence out there about what machine to get, I really endorse this
+machine.
+It's pretty fantastic and it's nice to see everything just working out of the box.
+The one thing I'm a little worried about, I've read that plasma users have issues with
+the Thunderbolt security model.
+You may recall, we recently covered that Gnome added support for user prompting to authorize
+Thunderbolt devices when you plug them in.
+I mean, these suckers are sitting on your PCI bus and plasma does not yet have the facility
+to authorize and prompt you to authorize them.
+And I have read, cannot confirm yet, but I have read that if Thunderbolt security is
+turned on, that as a plasma user, you have to log out and log into Gnome 3 and then authorize
+the device, like a doc or whatever it is, then log out of Gnome and log back into plasma.
+And you have to do that every time you change a device.
+That sounds horrible.
+And so what I did is I just turned off Thunderbolt security in the BIOS, which is actually an
+option.
+I don't know what all the ramifications of that are other than exposing my PCI bus, but
+I'm going to, your RAM is mine now Chris, you better watch those ports.
+Who needs Heartbleed?
+Wes will just plug in.
+So yeah, I made that choice for now, but I'm hoping the plasma project just did a great
+support for that security authorization.
+Yeah, they probably,
+Something we'll cover I'm sure right here on Linux Unplugged.
+Very fun though.
+It's great to get new machines, especially ones that we had been kind of thinking about
+anyways for a while.
+And I'll be really curious to hear your report after you get it loaded and run.
+I do think a nice Linux Unplugged sticker is going to look great on the back.
+I like the way you're thinking.
+I like that, Wes, I like that.
+So if you've got any experience with machines like this or other tips like the Lenovo Wiki,
+let us know, linuxunplugged.com slash contact.
+You can also grab our RSS feed that way you get every single show.
+It's just linuxunplugged.com slash RSS and you plug that in to whatever reader or downloader
+you like.
+You got, oh, look at that.
+It's already in the show notes.
+Boom.
+Very nice.
+All right.
+Well, go get more Wes over at TechSnap.Systems.
+Catch him on the recent episodes of Linux Action News as well.
+It's some great Wes Payne episodes.
+Thank you, sir.
+Stepping up, hitting it out of the park.
+It's nice to have you here full time now and I think it's already paying dividends.
+It sure is.
+Well, so go get more Wes and we'll be back next week.
+I am probably still going to be for a while, at least a couple more weeks, kind of taking
+it easy.
+Try to be here on Tuesdays for this show.
+Going to try to make it for Coder later this week, but that's probably about the most I'll
+be doing for the next few weeks.
+I'm still there though.
+Still working every single day, still checking in on stuff, making sure Wes doesn't ruin
+everything.
+I need a lot of supervision.
+Yeah.
+Yeah, that's for sure.
+But in the meantime, that will bring us to the end of this week's show.
+I encourage you to join us.
+We got that open mumble room where you can comment and participate in the virtual lug
+and that goes before the show and after the show.
+We often hang out and chat a bunch.
+We have a great time.
+It really is fun.
+And I have a strong sense that an unplugged barbecue is in our future.
+When I've recovered, I can move around a little bit better.
+I think I can smell it already.
+Yeah.
+I feel like an unplugged barbecue is in our future.
+So stay tuned for details on that and hit me up on telegram, telegram or Jupiterbroadcasting.com
+slash telegram.
+Join our group and let us know your ideas for a barbecue.
+Join us live next week.
+In the meantime, we'll see you back here next Tuesday.
+Oh, the unplugged show.
+There we go.
+Oh, yeah.
+All right.
+We got to title this thing.
+We ran right up to the Ask Nor program this week.
+So it's a big show.
+It was a lot to cover.
+I really did half.
+You did half of it twice.
+People don't know.
+But we did.
+Yeah.
+The recording stopped and we had to redo part of the show, which was never fun.
+But we got through it.
+We got through.
+Here we are now.
+Super impressive.
+You guys did awesome.
+I feel like I was listening to it for the first time.
+Well, good.
+Good.
+Yeah.
+You know, when I saw that Linus news, like I literally had to sit with it for the morning.
+Like it, it, it, I guess I didn't realize how much it would have impact me.
+Yep.
+It was hard.
+It was hard to write.
+You couldn't just like chew on it immediately.
+You had to let it percolate up.
+And I just kind of just posted the link somewhere.
+I would look at them later and came back to it.
+I was going to mention it didn't quite make it into the news.
+But those of you out there that are running Windows and my stats show it's a fair percentage
+of you, our friends over at Microsoft and Canonical have a new baby.
+There are now optimized Ubuntu desktop images available for Hyper-V in the Hyper-V gallery.
+And it's kind of legit.
+They've, they've integrated XRDP upstream to add support for enhanced session mode.
+They've improved clipboard integration.
+There's dynamic desktop resizing support.
+And there's also now support for shared folders for the hosting guest file transfer and a
+much improved mouse experience and it's easy to move between the host and the guest desktop
+window.
+Nice.
+I mean, if you're on professional, you might not really need VirtualBox anymore.
+That's what I mean.
+If you're a Windows, yeah, if you're a Windows 10 user on Pro and you've got Hyper-V, they've
+now got this Hyper-V gallery where you can just install 1804 optimized for Hyper-V. I,
+you know, I could try it on my new Windows partition actually and see how it goes.
+I hadn't really realized that, but I could actually try like Windows subsystem now and
+this.
+No, careful, careful.
+Once you taste it.
+But that's negative in the freedom dimension.
+Is it?
+Is it?
+I have a hard time.
+And the value of this is negative.
+I can't really figure that out.
+Like it's.
+Or is it like a surreptitious freedom injection into that proprietary universe?
+Right.
+It's like a beachhead.
+Like it's like a Trojan horse.
+We are the wedge.
+I've never installed GNU slash Linux.

@@ -1,0 +1,4464 @@
+1
+00:00:00,000 --> 00:00:29,960
+Anybody that's listened to the unplugged program for a while knows that part of our secret sauce is our virtual lug and we use an open source program called mumble for the voice chat and anybody is welcome to join us you can just go google search like Jupiter colony mumble guide and as long as you got a working mic and you have headphones and a microphone and we can do a sound check you're welcome to join us and chime in on your opinions about what we talk about but I think for some of you the big hold up has been it's a dirty gooey app who wants a gooey I mean if
+
+2
+00:00:29,960 --> 00:00:59,840
+you're really listening to unplug program you're probably in a terminal somewhere right I mean you're downloading your podcast using bash Potter you're using links to browse the web you're just doing everything via the command and you're hanging tight hoping we'll have another cool curses based internet interface for you well good news Bernard is a terminal based client for mumble so now you can run mumble on the command line it's a go app it's available up on get and of course it's free and open source you you can even participate in the chat
+
+3
+00:00:59,840 --> 00:01:15,040
+it's kind of neat looking so you can install Bernard if you have go installed and be up and chatting on the unplugged program by next week this is Linux unplugged episode 262 for August 14th 2018
+
+4
+00:01:15,040 --> 00:01:44,960
+welcome to Linux unplugged your weekly Linux talk show that's fighting the BSD temptation my name is Chris my name is Wes and my name is Brent hello guys it's great to be with you we have a really fun show so not only do we have our traditional community news some new fancy Linux features my
+
+5
+00:01:44,960 --> 00:02:13,760
+favorite don't call it a distro update but I listened to a BSD can talk and I was blown away with what they had to say about the tragedy quote unquote of system D and the lesson that the author believes free BSD has to take from system D and the trap they may be leading themselves into right now I've got a couple of clips plus will link to the whole talk it can't wait to get into that and then at the end of the show
+
+6
+00:02:14,960 --> 00:02:44,680
+after 10 years of using Dropbox every minute knowing one day it would bite me this last week Dropbox announced it was dropping support for encrypted extended for partitions and any file system on Linux that's not extended for and as some of you know I'm a big big user of XFS I think it's a fantastic file system it's what all of my home partitions are formatted in it's what all my main data partitions are formatted you keep reporting reformatting
+
+7
+00:02:44,680 --> 00:03:14,520
+my hard drive with it that's right I learned from Alan you know Alan used to come around and put everything on ZFS well this week they said no not for you we are dropping support November 7th now trust me I've known this day was coming I've been planning an open source salvation I've been running them in parallel some of them for a couple of years planning this mass exodus but after using a tool for 10 years and building a large production pipeline around it and having a whole team of people that use that software it's
+
+8
+00:03:14,520 --> 00:03:44,500
+going to take a lot of work so we'll start this week with telling you how you can buy yourself a time some time with a couple of simple and handy little cheats oh trick Dropbox into thinking it's chugging right along on extended for and you don't have to touch a thing plus fedora also has another solution it's a little outside the box but we'll get into that but before we go any further we've got to bring in that virtual log time appropriate greetings mobile room hello hello Eric hello it's a it's a it's a small it's a small mobile gathering.
+
+9
+00:03:44,520 --> 00:04:14,520
+That happens from time to time last week we had like nearly 20 people in there and this week it's just a couple everyone's out having fun in the summer it's holidays holiday season in Europe it's good it's good to have you back wimpy how was your holiday it was wonderful I had a great time thank you some of the best pictures I've seen in a while on Twitter I mean you got some really great shots on this trip I was I was watching from afar and I was quite impressed yeah we were lucky the weather was amazing the whole time we were away and they were
+
+10
+00:04:14,520 --> 00:04:44,300
+only a few pictures you'll notice that they were basically on the way to where we were going and on the way back because we were in a very remote village in France with no internet whatsoever so two weeks of complete blackout it was it was great that sounds like an interesting psychological study in a way yeah it took took about 24 hours to adjust but then it was it was great yeah did you feel like you were disconnected did you feel for the first 24 hours like you were missing out to Jeff some foam or what was it at first?
+
+11
+00:04:44,520 --> 00:05:14,520
+it was it was when we were having discussions about where we were going to do and what we were going to do and I kept picking my phone up and then I was like I can't actually find any of the information that we need to answer these questions and it was like so we have to drive into a town and find a tourist information office and pick up some leaflets how traditional it's very very old school it was sounds wonderful yeah it was good it was really good fun good for you well glad to have you back and let's get into some news let's start things off with a
+
+12
+00:05:14,520 --> 00:05:44,520
+fresh colonel Santa Linus has dropped 4.18 out there and I just I wanted to mention I don't normally call these out anymore but I just the whole way it was written is sort of noteworthy he says it was a very calm week and arguably I could have just released on schedule last week but we did some minor updates mostly networking but with some VFS race fixes and a couple of driver fixes and some other minor random things you know we just figured it was time so some of these new things I could have just delayed to the next
+
+13
+00:05:44,520 --> 00:06:14,520
+merge window but they were marked for stable anyways so it just would have caused more backporting anyway with this the merge window for 4.19 is now obviously open can you tell he's wearing slippers while he writes this and the world's most powerful operating system sees its next significant update it's 22 because there's a bunch of other neat stuff in this car and he just did I guess that's not what what he sees people are super hyped about this one that was the other reason I put this in there is a lot of people sharing
+
+14
+00:06:14,520 --> 00:06:44,520
+the release of 4.18 I mean I know there's some steam controller stuff in there yeah this is the first kernel version for a long time I've been really waiting for this one to drop oh okay tell me why it's all rather selfish this is the one lands all of the enablement for the GPU in the Hades Canyon knock for example so I've been following along with the release candidates on the on the Hades Canyon to have that ticking along but there's a bunch of fixes in there for
+
+15
+00:06:44,520 --> 00:07:14,520
+AMD stuff generally so the the gentle ascendancy of AMD at the moment in the Linux space is is is marching on in 418 is that is definitely a landmark kernel for that yeah that's what I grok most the excitement was about but I had wondered about the next stuff that's good to hear that is in there because that to me is still something that I hope could work out to be a great box in the studio one day I don't know you know those NUCs have a hidden hit hit sort of hidden
+
+16
+00:07:14,520 --> 00:07:44,520
+miss track record when it comes to recording sometimes they have noise in them because they're so small so tightly built but we'd love to try mm-hmm yeah I've I've been trying out a new co-working space since I've been back from holiday and some of the desks there have monitors on arms on the backs of the desks so you can plug your laptop in but then I was I was sat there today thinking hang on a minute I could just pack my NUC into my backpack so so tomorrow I'm going to go
+
+17
+00:07:44,520 --> 00:08:14,520
+to this co-working space with my my NUC and a wireless keyboard and mouse in my backpack and I'm gonna plug plug my NUC in on the desk and use that as my workstation for the day because it's actually no heavier than than my laptop right so what about the video session with poppy I mean if you're in a co-working space how does that work now because I know that was a thing you guys did well I've been so this because it's been so hot in the UK I've actually been working out of
+
+18
+00:08:14,520 --> 00:08:44,520
+a bar in a local hotel for about the last five weeks because air conditioning right exactly right so I've already got used to you know sitting on conference calls with poppy and other people at work you know in a bar with people you know pouring pints of beer over my shoulder and all the rest of it and I recently discovered this co-working space was was opening up nearby so I've been I've been going there just recently which is obviously more conducive to video calls
+
+19
+00:08:44,520 --> 00:09:14,520
+and also has a hundred megabit Wi-Fi so hey not too shabby so it's it's good yeah so yeah tomorrow I'm taking the Hades Canyon NUC in and I'm gonna use that as my workstation for the day that's great so there was an announcement with the Android 9 release Android pie that kind of went under the radar tucked away down in the bottom of the mailing list announcement was a note that reads like this I also want to take a moment to introduce myself as
+
+20
+00:09:14,520 --> 00:09:44,520
+the new tech lead and manager for a a OSP my name is Jeff Bailey and I've been involved in the open source community for more than two decades since I joined the Android team a few months ago I've been learning how we do things and getting understanding of how we could work better with the community this is a new lead for the Android open source project this is coming from opensource.googleblog.com as Jeff notes in his introduction he has a history in the free and open source software world he's been an avid user contributing
+
+21
+00:09:44,520 --> 00:10:12,320
+maintainer apparently he has been a Ubuntu core developer as well as a Google open source team member and he's done work on Debian as well he also worked for a company called Savannah which for many years distributed some good new software and now he is in charge of the Android open source project seems pretty credentialed it's interesting to see some change in momentum over there in an ecosystem I perceive is maybe a little stagnant at times
+
+22
+00:10:12,320 --> 00:10:41,320
+mm-hmm mm-hmm and I find it kind of noteworthy that this was just unnoticed for for about a week until I was digging through this and I go wait a minute here let me look into this and here it is and this I didn't see any headlines about this and we now have a that's I wonder what I wonder what might change because he says specifically he's looking for ideas from the community he says he wants to hear from you if you'd like to tweet him your ideas at Jeff Bailey be a
+
+23
+00:10:41,320 --> 00:11:11,120
+i l e y a OSP on Twitter at Jeff Bailey a OSP on Twitter or you can email him Jeff Bailey plus a OSP at google.com that's pretty direct that is giving you the information right there it's pretty direct so anyways check them out maybe maybe Jeff wants to come on the old show here come on the old unplug program yeah tell us about you know what changes he wants to see made what his imperatives are and what what what what is actually valuable community feedback at that position yeah people
+
+24
+00:11:11,120 --> 00:11:41,080
+looking for feedback right now over at KD neon the maintainers have begun publishing preview images of neon based on Ubuntu 1804 and this is my favorite don't call it a distribution to distribution right now because you get that classic stability of an Ubuntu LTS that just over the years just gets iterated on top of with a rolling user environment built around the latest plasma goodness and it's been running pretty well for me on a couple systems on my my production systems I'm now on Kubuntu but I've been wondering how long until neon was going to make this
+
+25
+00:11:41,080 --> 00:12:10,680
+transition because this is the first major transition like this neon has had to make since they existed as a project for their entire existence so far they've been based around 1604 and this is the first time the project is dealing with the transition to a new base would be do you have any thoughts on that I'm sure this will be absolutely fine because Jonathan Riddell was maintaining Kubuntu for years and years and years so this is
+
+26
+00:12:11,120 --> 00:12:40,240
+not the first time he's been through this and knows how to handle LTS to LTS upgrades and they are taking it pretty calculated they've been in alpha for a while they've been expanding the testing circle and other expanding it once more and if this works out they think the end of August will be when they officially announced the transition to bionic exciting fantastic can't wait to see it I'm really keen to see this 1804 release from them Pope he's been at Academy over the weekend so I'm keen to hear
+
+27
+00:12:40,240 --> 00:13:00,960
+from him tomorrow everything he learned and found out about whilst he was over there yeah I agree I've been following some of his progress on Twitter too it's been very fascinating William Wold I think is how you say it he's a canonical employee who just posted over on the community.buntu.com site about some big improvements to Mir
+
+28
+00:13:00,960 --> 00:13:30,920
+yeah including support for the XDG shell protocol which has just landed in Mir and it will ship in the next release this is this is bigger than Mir though because this represents a stability in the Wayland ecosystem yeah I just I just ecosystem it is actually becoming an ecosystem and standards are emerging this is really good for end users and Mir is plugging right into this
+
+29
+00:13:31,080 --> 00:14:00,920
+this is from Williams Post he writes the switch of both clients and servers to support this protocol is an indication of the Wayland ecosystem that the fact that is maturing because the protocol is marked as stable future revisions will not break backwards compatibility that's huge for and for display servers implementing the protocol this means far less code and easier maintenance is required to support all clients old and new in addition to supporting the latest clients XDG shell stable is a requirement implement the new protocol layer shell layer shell is
+
+30
+00:14:00,920 --> 00:14:30,880
+written by the sway and wl roots folks and it gives clients a flexible method for drawing non window services such as taskbars notifications and lock screens are just a few examples that are now possible we have not yet begun work on the layer shell support but plan in the near future wow this is exciting it is nice to see Mir going is I mean you know it's it's all kind of happening in the background but it's also neat to see you know the amount that the people over making sway and those other things it really is becoming an ecosystem
+
+31
+00:14:30,920 --> 00:15:00,280
+with different options out there and you don't just have to be running one of the big major distros anymore when the Ubuntu community hub was established and the Mir team started using that to seek input in the directions that they were going to be taking the project the sway developers were were some of the first people to come and join the discussion there so there's been good collaboration between the Mir team and the sway team and also the Wayland developers
+
+32
+00:15:01,080 --> 00:15:19,800
+yeah and it's important to emphasize that you know Mir is an active project and it has a lot of momentum behind it Williams a recent member at Canonical very talented developer and I think you'll be hearing some more interesting news from him in in the weeks and months to come
+
+33
+00:15:19,800 --> 00:15:37,760
+yeah I noticed that I would be interested to chat with William in the future it seems yeah it seems like he joined a few months ago and yeah he joined around the start of the year I met him earlier this year and he came from the Arch community he's the second guy I've met recently who's been recruited into Canonical from the Arch Linux community yeah
+
+34
+00:15:37,760 --> 00:16:07,720
+mmm poaching some of the best I got a question for Wes and for Brent and for you too wimpy I'll start with you Wes say you're gonna sit down at a computer how do you know if that computer is fast enough for your work well this is a Linux unplugged so is it compiling the Linux kernel no I think for you personally like your workload like you're like how do you assess a computer's potential say somebody gives you a laptop like this happened to Brent when Brent was out here during Linux fest I just gave him the laptop
+
+35
+00:16:07,760 --> 00:16:36,760
+the Libra 15 I'm like here do your photo work Brent and like how do you know good luck yeah how did you know if that computer I mean other than it's a fairly modern computer how would you know just looking at it if that computer was capable enough of being fast enough for your workload yeah I think for me in that specific case it certainly helped that I was surrounded by a bunch of people that I knew wouldn't put up with slow machines so it turned out that for my workflow it was it was fine
+
+36
+00:16:36,760 --> 00:17:06,640
+especially that I didn't have a laptop while I was in the US so I'm any laptop is going to do fine but but to answer the question a bit more broadly I think for me there's a there's a set of work loads that I do typically on any computer you know multiple times a week and so if someone's going to give me a laptop I'm going to do a set of workflows that I'm so familiar with I know just sort of intuitively
+
+37
+00:17:06,640 --> 00:17:36,640
+how long they should take or how they should perform or how snappy they should be and you know that workload is going to be a little bit different for everybody so I'd be interested in hearing everyone else's thoughts or methods but that for me is a tried and tested that makes sense true way of doing it so wimpy you and I have experienced this in another context as well and that is getting review systems in for the Ubuntu podcast or for this show and you have to sort of assess this machine's capability so do you have a couple of go to methods when you sit down at a Linux box to try to figure out what's going on and what's going on and what's going on and what's going on and what's going on and what's going on and what's going on and what's going on and what's
+
+38
+00:17:36,640 --> 00:17:51,960
+going on come over to us as okay right how fast is this system when we do our reviews on the Ubuntu podcast we usually was revert to benchmarks in in popular games as the means to determine how fast is most of the feedback we got from our listeners when we were figuring out how to review hardware the things that they were most interested in was what's the battery endurance like how hot
+
+39
+00:17:51,960 --> 00:17:54,700
+feedback we got from our listeners when we were figuring
+
+40
+00:17:54,700 --> 00:17:57,800
+out how to review hardware, the things that they were most
+
+41
+00:17:57,800 --> 00:18:01,740
+interested in was, what's the battery endurance like? How hot
+
+42
+00:18:01,740 --> 00:18:04,740
+does it get? How noisy is it? What's the quality of the
+
+43
+00:18:04,740 --> 00:18:09,060
+screen? How good is the keyboard? So much more practical
+
+44
+00:18:09,060 --> 00:18:12,460
+things about you know, the portability and and utility of
+
+45
+00:18:12,460 --> 00:18:15,920
+the device. And performance doesn't come up very often as a
+
+46
+00:18:15,920 --> 00:18:18,780
+thing that they're interested in. So we have a few games that
+
+47
+00:18:18,780 --> 00:18:21,900
+we run through as an indication as to what the performance is
+
+48
+00:18:21,900 --> 00:18:25,620
+like, right? Personally, when I assess the performance of a
+
+49
+00:18:25,620 --> 00:18:28,820
+device, it really comes down to compiling and building
+
+50
+00:18:28,820 --> 00:18:33,500
+software. So when I'm doing work stuff, it's building snaps. And
+
+51
+00:18:33,500 --> 00:18:36,000
+they usually large snaps, because I work on some
+
+52
+00:18:36,000 --> 00:18:38,500
+complicated stuff that you know, I don't get to talk about here.
+
+53
+00:18:38,900 --> 00:18:42,000
+But also, you know, when I'm compiling and building packages
+
+54
+00:18:42,000 --> 00:18:44,500
+for the multi desktop, you know, I know how long those things
+
+55
+00:18:44,500 --> 00:18:47,760
+take. And those are the things that I, I would say are the most
+
+56
+00:18:47,760 --> 00:18:49,620
+CPU intensive things that I do.
+
+57
+00:18:49,620 --> 00:18:52,980
+Yeah, okay. I think that's a good way to put it. If you if
+
+58
+00:18:52,980 --> 00:18:55,620
+you if you have a workflow that you're really familiar with,
+
+59
+00:18:55,620 --> 00:18:57,540
+like the pace of it, because it's just something you've done
+
+60
+00:18:57,540 --> 00:18:59,980
+a lot. And then you sit down on a machine, you go through it,
+
+61
+00:18:59,980 --> 00:19:02,780
+you do get a good sense. I saw the chat room was throwing
+
+62
+00:19:02,780 --> 00:19:06,060
+things out like how much RAM does it have the CPU model?
+
+63
+00:19:06,460 --> 00:19:09,420
+Those are like what I used to use. Oh, does it have 32 gigs of
+
+64
+00:19:09,420 --> 00:19:13,660
+RAM? How many electron apps can you open at one time? That's my
+
+65
+00:19:13,660 --> 00:19:15,860
+benchmark. Yeah, exactly. Well, and that's part of the RAM
+
+66
+00:19:15,860 --> 00:19:19,140
+thing. But it feels like modern systems are a little more
+
+67
+00:19:19,140 --> 00:19:22,500
+complicated than that. Because especially with laptops, you've
+
+68
+00:19:22,500 --> 00:19:26,300
+got thermal throttling to consider. You've got your base
+
+69
+00:19:26,300 --> 00:19:29,660
+clock plus turbo depending on if it's something that pings one
+
+70
+00:19:29,660 --> 00:19:33,220
+core versus all the four cores. So there's right and like
+
+71
+00:19:33,220 --> 00:19:35,540
+there's also responsiveness versus throughput. And what's
+
+72
+00:19:35,540 --> 00:19:37,660
+more important for how you're going to use that system?
+
+73
+00:19:37,660 --> 00:19:43,260
+Mm hmm. I bring all this up because this week blender has
+
+74
+00:19:43,260 --> 00:19:46,380
+reintroduced and I say reintroduced because this if you
+
+75
+00:19:46,380 --> 00:19:49,280
+have used blender in the past was something that was available
+
+76
+00:19:49,280 --> 00:19:52,520
+in the past, but they removed it. It's back now in a big way.
+
+77
+00:19:52,640 --> 00:19:55,800
+It's a benchmark, the blender benchmark. They've built the
+
+78
+00:19:55,800 --> 00:19:59,640
+bender benchmark platform with a maximum focus on transparency
+
+79
+00:19:59,640 --> 00:20:02,400
+and privacy. They say they use only free and open source
+
+80
+00:20:02,400 --> 00:20:06,120
+software, GNU GPL software, everything that is all testing
+
+81
+00:20:06,120 --> 00:20:09,000
+content is public domain. So it's all licensed public domain.
+
+82
+00:20:09,200 --> 00:20:12,040
+And the test results are being shared as anonymized public
+
+83
+00:20:12,040 --> 00:20:16,040
+data. So this is really exciting. And I wanted to use
+
+84
+00:20:16,040 --> 00:20:20,040
+this as another opportunity to point people over towards what I
+
+85
+00:20:20,040 --> 00:20:23,640
+think is Michael Larbell's really good work at open
+
+86
+00:20:23,640 --> 00:20:26,320
+benchmarking.org. The open benchmark tool, which is
+
+87
+00:20:26,320 --> 00:20:32,960
+available in your distros repository, is is amazing. You
+
+88
+00:20:32,960 --> 00:20:35,880
+download this, you download this package and you install it. And
+
+89
+00:20:35,880 --> 00:20:37,480
+then when you run it on the command line, there's GUIs
+
+90
+00:20:37,480 --> 00:20:39,920
+available as well. It comes up and says, What do you want to
+
+91
+00:20:39,920 --> 00:20:44,680
+test? And it's, it's everything. It's everything from it will
+
+92
+00:20:44,680 --> 00:20:47,680
+download a game in the background, run it, benchmark
+
+93
+00:20:47,680 --> 00:20:50,120
+it. It's everything from it will download different versions
+
+94
+00:20:50,120 --> 00:20:52,800
+of the Linux kernel, and with different compiling options and
+
+95
+00:20:52,800 --> 00:20:55,600
+benchmark them and generate the same chart. It generates all
+
+96
+00:20:55,600 --> 00:20:59,040
+those all those charts that you see at Ferronix are all created
+
+97
+00:20:59,040 --> 00:21:03,440
+using the open benchmark tool. The other thing it does is it
+
+98
+00:21:03,440 --> 00:21:07,000
+uploads the benchmark results to a community comparison site,
+
+99
+00:21:07,280 --> 00:21:09,760
+where there's like 23 million different benchmarks that have
+
+100
+00:21:09,760 --> 00:21:12,720
+been posted that you can compare your system against. And only
+
+101
+00:21:12,720 --> 00:21:16,720
+like 1.6 million of them are public, you can choose to keep
+
+102
+00:21:16,720 --> 00:21:19,960
+them private and just compare against your own systems. It's
+
+103
+00:21:20,000 --> 00:21:23,720
+so fun to just run a system through this, and really give it
+
+104
+00:21:23,720 --> 00:21:28,280
+like just a beating. And like, he's stayed on top of getting
+
+105
+00:21:28,280 --> 00:21:31,360
+things in here, like Linux 4.18 kernel benchmarks are already in
+
+106
+00:21:31,360 --> 00:21:34,880
+there. So you could even if you don't want to run 418, if you
+
+107
+00:21:34,880 --> 00:21:36,920
+don't want to switch it out on your distro, you could use open
+
+108
+00:21:36,920 --> 00:21:39,920
+benchmark to download, build it and do some benchmarking. Like
+
+109
+00:21:39,920 --> 00:21:43,640
+that's pretty neat. There's also blender tests in there. There's
+
+110
+00:21:43,640 --> 00:21:46,920
+entire workflows from photo workflows, to development
+
+111
+00:21:46,920 --> 00:21:53,000
+workflows, to gaming. And it's a great way to just download this
+
+112
+00:21:53,000 --> 00:21:55,880
+on your box, run your system through a set of paces and get
+
+113
+00:21:55,880 --> 00:21:56,920
+real numbers out of it.
+
+114
+00:21:56,960 --> 00:21:59,400
+I like that you have things you can actually compare to and you
+
+115
+00:21:59,400 --> 00:22:01,200
+know, a certain amount of standardization there. So you
+
+116
+00:22:01,200 --> 00:22:02,920
+can know that other people are running this, you can run it on
+
+117
+00:22:02,920 --> 00:22:04,800
+the same thing. And you don't have to be an expert in trying
+
+118
+00:22:04,800 --> 00:22:07,840
+to set it up to have a good suite of tools there.
+
+119
+00:22:07,840 --> 00:22:11,160
+Yeah, that's, yeah. And you know, that's a really, it's a
+
+120
+00:22:11,160 --> 00:22:12,800
+nice thing, because it's constantly updated. So they're
+
+121
+00:22:12,800 --> 00:22:16,360
+constantly changing it. And you, you don't necessarily know every
+
+122
+00:22:16,360 --> 00:22:19,200
+test to run. So you want to stress test the IO subsystem,
+
+123
+00:22:19,240 --> 00:22:22,960
+like you want to just bash on the disk subsystem and the
+
+124
+00:22:22,960 --> 00:22:25,480
+network subsystem. And you really want to stress those two
+
+125
+00:22:25,480 --> 00:22:28,600
+things. You could you could put something together, or you could
+
+126
+00:22:28,600 --> 00:22:31,760
+use scripts they've already created that will that will run
+
+127
+00:22:31,760 --> 00:22:34,560
+it through its paces. And that and it's just like that at every
+
+128
+00:22:34,560 --> 00:22:37,280
+level, including encryption, benchmarks, packaging, it's just
+
+129
+00:22:37,280 --> 00:22:39,920
+great. It's just great. And if you're ever wondering how to
+
+130
+00:22:39,920 --> 00:22:43,320
+really kind of get the get an assessment out of a system, take
+
+131
+00:22:43,320 --> 00:22:48,080
+a look at it, and run it against that. I really, I almost I'm
+
+132
+00:22:48,120 --> 00:22:50,960
+almost wondering if I could look into it. Maybe I maybe I should
+
+133
+00:22:51,240 --> 00:22:54,000
+try to figure this out. If there's a set of numbers, we
+
+134
+00:22:54,000 --> 00:22:56,880
+could generate it. So we could compare different laptops over
+
+135
+00:22:56,880 --> 00:23:00,120
+the years as we review them to see what how they perform. So we
+
+136
+00:23:00,120 --> 00:23:02,000
+could have like a chart of the fastest laptops.
+
+137
+00:23:03,000 --> 00:23:05,960
+Yeah, that'd be pretty good. Kind of like a kind of like a
+
+138
+00:23:05,960 --> 00:23:08,520
+like a leader chart, you know, that we could use that we would
+
+139
+00:23:08,520 --> 00:23:11,320
+always run the same standard open benchmark on it'd be the
+
+140
+00:23:11,320 --> 00:23:13,240
+results will be public. So people could audit them if they
+
+141
+00:23:13,240 --> 00:23:15,440
+wanted. Yeah, maybe a link back to the episode, you can hear the
+
+142
+00:23:15,440 --> 00:23:17,720
+review of the unit, they could benchmark their own systems
+
+143
+00:23:17,720 --> 00:23:21,080
+against it. It might be pretty fun. It's like it's like doing
+
+144
+00:23:21,080 --> 00:23:24,640
+laps around a track with cars and then figure out your benchmarks.
+
+145
+00:23:26,000 --> 00:23:28,520
+Anyways, moving on. I thought that was pretty neat. I wanted
+
+146
+00:23:28,520 --> 00:23:30,640
+to give them a plug because it's a great way to see what your
+
+147
+00:23:30,640 --> 00:23:34,440
+system is capable of, or get a sense of a new box, which I'll
+
+148
+00:23:34,440 --> 00:23:37,840
+be doing maybe in the near future. A couple of mentions of
+
+149
+00:23:37,840 --> 00:23:40,680
+some events that are coming up. First up is the Libre
+
+150
+00:23:40,680 --> 00:23:45,520
+application summit, poorly named LAS. Just gonna let that hang
+
+151
+00:23:45,520 --> 00:23:48,320
+for a second. Why do I gotta take that? Why do I gotta take
+
+152
+00:23:48,320 --> 00:23:51,440
+LAS? Why do I gotta do that to me? That's an affront.
+
+153
+00:23:52,040 --> 00:23:54,240
+I mean, you gave it up, man. You walked away.
+
+154
+00:23:54,440 --> 00:23:56,120
+Actually, they took it before the show was even over.
+
+155
+00:23:56,840 --> 00:23:59,360
+Nevermind. That's just, you know, the bell's getting
+
+156
+00:23:59,360 --> 00:24:02,800
+popular. A lot of dings today. But the nice thing is they just
+
+157
+00:24:02,800 --> 00:24:07,040
+posted their early event calendars. You can get an idea
+
+158
+00:24:07,040 --> 00:24:10,040
+of what's going on at the Libre application summit. And I think
+
+159
+00:24:10,080 --> 00:24:12,440
+Eric, the IT guy, is going to make it down there. You think
+
+160
+00:24:12,440 --> 00:24:13,240
+it's a lock, Eric?
+
+161
+00:24:13,920 --> 00:24:17,760
+Yeah, it is. It is a definite thing. I've got my ticket. I'm
+
+162
+00:24:17,760 --> 00:24:21,400
+volunteering with the GNOME engagement team, and even going
+
+163
+00:24:21,400 --> 00:24:24,800
+to shack up with one of the System76 guys who's got an
+
+164
+00:24:24,800 --> 00:24:26,000
+apartment not too far from there.
+
+165
+00:24:26,240 --> 00:24:28,560
+Nice. You can give a high five to Daniel Foray, too. He'll be
+
+166
+00:24:28,560 --> 00:24:30,840
+there doing a talk about the elementary app center.
+
+167
+00:24:30,840 --> 00:24:33,280
+I'm hoping to catch both his and Cassidy's talks.
+
+168
+00:24:33,320 --> 00:24:34,440
+Oh, yeah, Cassidy's going to be there, too.
+
+169
+00:24:34,440 --> 00:24:34,920
+Super exciting.
+
+170
+00:24:34,920 --> 00:24:38,520
+Nice. All right. So you can be our, you'll be our Libre
+
+171
+00:24:38,520 --> 00:24:41,320
+application summit correspondent. Report back with
+
+172
+00:24:41,320 --> 00:24:42,360
+what you discover, all right?
+
+173
+00:24:42,640 --> 00:24:44,120
+I would choose to accept that mission.
+
+174
+00:24:44,920 --> 00:24:45,440
+Good man.
+
+175
+00:24:45,960 --> 00:24:48,520
+It's not an impossible mission. In fact, it's the best kind of
+
+176
+00:24:48,520 --> 00:24:51,000
+mission. So I think this gentleman's name we're going to
+
+177
+00:24:51,000 --> 00:24:55,440
+talk about now is Benno? Benno? B-E-N-N-O.
+
+178
+00:24:55,480 --> 00:24:56,080
+Benno.
+
+179
+00:24:56,080 --> 00:25:01,720
+Benno? Yeah, okay. Benno had a talk at BSDCAN 2018 that was a
+
+180
+00:25:01,720 --> 00:25:05,840
+few weeks ago. It was back in June, and it was titled The
+
+181
+00:25:05,840 --> 00:25:11,040
+Tragedy of System D. And he says, System D, to put it mildly,
+
+182
+00:25:11,040 --> 00:25:14,400
+is controversial. Depending on who you ask, it's either a
+
+183
+00:25:14,400 --> 00:25:17,480
+complete violation of the Unix philosophy, a bloated pile of
+
+184
+00:25:17,480 --> 00:25:21,440
+bugs, a complete violation of elegant simplicity, or all of
+
+185
+00:25:21,440 --> 00:25:25,160
+the above. And he starts a talk that really got my attention.
+
+186
+00:25:25,160 --> 00:25:28,720
+I'm going to play, it's a 30 minute talk. I'll play about
+
+187
+00:25:28,880 --> 00:25:32,120
+three minutes of it. But I will link it in the show notes where
+
+188
+00:25:32,120 --> 00:25:35,160
+you can download the slides and you can watch the entire talk.
+
+189
+00:25:35,480 --> 00:25:38,000
+But it started really caught my attention. I decided to share it
+
+190
+00:25:38,000 --> 00:25:41,440
+with the class here, because he brings up something that is not
+
+191
+00:25:41,440 --> 00:25:44,560
+even related to Linux. It's not related to System D. I think
+
+192
+00:25:44,560 --> 00:25:48,400
+it's something we all do as tribal animals. We do something
+
+193
+00:25:48,640 --> 00:25:52,240
+to sort of show our allegiance to a particular tribe or group
+
+194
+00:25:52,240 --> 00:25:54,800
+that brings down other people. And I think we're probably all
+
+195
+00:25:54,800 --> 00:25:55,320
+guilty of it.
+
+196
+00:25:55,920 --> 00:26:02,680
+All right, so I would just like to initially thank everyone on
+
+197
+00:26:02,680 --> 00:26:05,080
+BSDCAN for inviting me to speak in front of all of you lovely
+
+198
+00:26:05,080 --> 00:26:08,560
+people. And in full understanding and acknowledgement
+
+199
+00:26:08,560 --> 00:26:10,840
+of that, thanks. I would like to present a live reading of
+
+200
+00:26:10,840 --> 00:26:13,920
+Bezels by, Bedazzled by Blockchain by Michael, sorry, no.
+
+201
+00:26:15,800 --> 00:26:18,960
+George Neville Neal could not be here, and it wouldn't feel right
+
+202
+00:26:18,960 --> 00:26:29,080
+doing this without him. Which is a tragedy. Link. So, I came up
+
+203
+00:26:29,080 --> 00:26:31,720
+with the name of this talk around the same time that I came
+
+204
+00:26:31,720 --> 00:26:34,800
+up with the first sort of rough idea of it. And it seemed to fit
+
+205
+00:26:34,800 --> 00:26:38,200
+really well, especially when I went to Wikipedia and saw that
+
+206
+00:26:38,200 --> 00:26:41,120
+you know, tragedy is a form of drama based on human suffering
+
+207
+00:26:42,000 --> 00:26:44,320
+that invokes an accompanying catharsis or pleasure in
+
+208
+00:26:44,320 --> 00:26:46,320
+audiences. And I figured there was plenty of drama in here
+
+209
+00:26:46,320 --> 00:26:51,240
+and suffering to go around in system D. And so, I figured that
+
+210
+00:26:51,240 --> 00:26:56,000
+it was a good way to go. Another thing that really came into it
+
+211
+00:26:56,000 --> 00:26:59,720
+when I was developing this talk is this piece by Orin Shaw
+
+212
+00:26:59,720 --> 00:27:03,600
+called, Contempt Culture. It's a really interesting piece and
+
+213
+00:27:03,600 --> 00:27:06,400
+it's kind of confronting sometimes because in a lot of
+
+214
+00:27:06,400 --> 00:27:08,560
+the communities that we're in, part of the way that we show
+
+215
+00:27:08,560 --> 00:27:11,760
+that we're in the community is by heaping shit on the other
+
+216
+00:27:11,760 --> 00:27:16,400
+communities. And that kind of sucks. You know, your Python
+
+217
+00:27:16,400 --> 00:27:18,640
+developers heap crap on the Perl developers and the Perl
+
+218
+00:27:18,640 --> 00:27:21,040
+developers heap crap on the PHP developers. This piece is very
+
+219
+00:27:21,040 --> 00:27:26,480
+focused on language stuff, but we kind of do that too. And so,
+
+220
+00:27:26,480 --> 00:27:28,880
+I highly recommend that everyone reads this. And the
+
+221
+00:27:28,880 --> 00:27:33,200
+other thing that I think goes into this discussion is the
+
+222
+00:27:33,200 --> 00:27:37,520
+notion of change. Change threatens a bunch of things.
+
+223
+00:27:37,520 --> 00:27:40,560
+The most obvious being familiarity. And familiarity
+
+224
+00:27:40,560 --> 00:27:43,760
+feels really comfortable because it's the thing that we
+
+225
+00:27:43,760 --> 00:27:46,800
+used to. But occasionally, it's really good to reassess what
+
+226
+00:27:46,800 --> 00:27:51,440
+the familiar and decide whether we need to change it or not.
+
+227
+00:27:51,440 --> 00:27:55,600
+I felt his comment there about how we sometimes as a group
+
+228
+00:27:55,600 --> 00:28:00,560
+will throw shade on another group to sort of show that
+
+229
+00:28:00,560 --> 00:28:03,600
+we're in, we're in with you, like I think the way you think.
+
+230
+00:28:03,600 --> 00:28:08,240
+I think that's a really common behavior. And what he's talking
+
+231
+00:28:08,240 --> 00:28:11,840
+about, obviously, is how the BSD camp has been really
+
+232
+00:28:11,840 --> 00:28:14,240
+disparaging towards system D. That's really what he's
+
+233
+00:28:14,240 --> 00:28:18,480
+addressing in this talk. In fact, he starts to, over the
+
+234
+00:28:18,480 --> 00:28:22,560
+next 15 minutes, he starts to sort of set the audience up.
+
+235
+00:28:22,560 --> 00:28:27,440
+And mind you, this is a room full of free BSD developers.
+
+236
+00:28:27,440 --> 00:28:29,840
+The gray beards of the gray beards. In fact, in one of
+
+237
+00:28:29,840 --> 00:28:31,840
+these clips, you'll hear Alan Jude in the background if you
+
+238
+00:28:31,840 --> 00:28:35,120
+listen really carefully. And there's some coughing and some
+
+239
+00:28:35,120 --> 00:28:38,000
+hacking because some of them are a little bit older. And
+
+240
+00:28:38,000 --> 00:28:44,400
+as I cough and hack. And he's trying to convince them that
+
+241
+00:28:44,400 --> 00:28:47,600
+they're already on this path. He starts to go through the
+
+242
+00:28:47,600 --> 00:28:52,080
+history of Unix and shows how the very early init tools have
+
+243
+00:28:52,080 --> 00:28:55,840
+now morphed from just getting the system up to mounting file
+
+244
+00:28:55,840 --> 00:28:59,760
+systems, starting network interfaces, and doing much, much
+
+245
+00:28:59,760 --> 00:29:04,800
+more. And after that this point, he starts to mention that
+
+246
+00:29:04,800 --> 00:29:10,240
+these complex tools are beginning to create the need for
+
+247
+00:29:10,240 --> 00:29:14,160
+a system layer in free BSD. So you have the user layer, the
+
+248
+00:29:14,160 --> 00:29:17,600
+system layer, and the kernel layer. At which system D
+
+249
+00:29:17,600 --> 00:29:21,280
+essentially introduced a system layer to Linux. User space,
+
+250
+00:29:21,280 --> 00:29:25,280
+system space, kernel space. And he says we may need something
+
+251
+00:29:25,280 --> 00:29:28,240
+similar in free BSD. In fact, we're already kind of on our
+
+252
+00:29:28,240 --> 00:29:31,840
+way. But the thing is that dynamic stuff is often better
+
+253
+00:29:31,840 --> 00:29:34,880
+managed through user space than it is through kernel code. And
+
+254
+00:29:34,880 --> 00:29:37,680
+I think that Windows natively understood this from the
+
+255
+00:29:37,680 --> 00:29:40,480
+beginning. Macos definitely understands that with system D,
+
+256
+00:29:40,480 --> 00:29:42,320
+you actually understand that there's a layer in there in the
+
+257
+00:29:42,320 --> 00:29:45,520
+middle called the system layer. Which I'm calling the system
+
+258
+00:29:45,520 --> 00:29:50,400
+layer. And so system D implements that system layer for
+
+259
+00:29:50,400 --> 00:29:54,480
+Linux by bringing in a bunch of code that manages various
+
+260
+00:29:54,480 --> 00:29:58,880
+system functions like network connectivity, time, device
+
+261
+00:29:58,880 --> 00:30:03,600
+management, and all that kind of things that just don't
+
+262
+00:30:03,600 --> 00:30:06,800
+necessarily belong in standard user space, but also don't
+
+263
+00:30:06,800 --> 00:30:11,120
+necessarily belong in the kernel. And the thing is that
+
+264
+00:30:11,120 --> 00:30:13,600
+on top of that, it doesn't really do it in a way that
+
+265
+00:30:13,600 --> 00:30:16,080
+everyone finds familiar, which I think is part of the source
+
+266
+00:30:16,080 --> 00:30:20,240
+of the angst to it. But it does give you an explanation as to
+
+267
+00:30:20,240 --> 00:30:23,280
+why it sees the need to bring in things like network manager
+
+268
+00:30:23,280 --> 00:30:28,400
+code, Udev, time, resolver libraries. Because all of those
+
+269
+00:30:28,400 --> 00:30:32,080
+things are systemic services that are getting provided to
+
+270
+00:30:32,080 --> 00:30:38,160
+user space. So how did that work out? And then he goes
+
+271
+00:30:38,160 --> 00:30:42,880
+through and shows the history of system D adoption. He dives
+
+272
+00:30:42,880 --> 00:30:46,160
+in a little bit to Lenart's history with it turns out
+
+273
+00:30:46,160 --> 00:30:50,320
+Lenart Pottering, the guy that created system D and was its
+
+274
+00:30:50,320 --> 00:30:55,520
+primary advocate, was at odds with management. Management
+
+275
+00:30:55,520 --> 00:30:58,960
+wasn't all that big on it. They had made their choice. They
+
+276
+00:30:58,960 --> 00:31:01,760
+were perfectly happy with how it was functioning in RHEL and
+
+277
+00:31:01,760 --> 00:31:06,080
+didn't really see the point in system D. And he said, no, no
+
+278
+00:31:06,080 --> 00:31:09,040
+trust me, let me show you. And despite pushback from his own
+
+279
+00:31:09,040 --> 00:31:10,560
+management, he continued to work on it, which is an
+
+280
+00:31:10,560 --> 00:31:13,440
+interesting part of this clip. And then he starts to get into
+
+281
+00:31:13,440 --> 00:31:16,320
+some of the most common complaints about system D like
+
+282
+00:31:16,320 --> 00:31:18,800
+one was just mentioned in the chat room. It runs as PID one
+
+283
+00:31:18,800 --> 00:31:21,920
+and he has a response to that. But the number one complaint
+
+284
+00:31:21,920 --> 00:31:25,040
+system D gets, especially from the free BSD camp, because
+
+285
+00:31:25,040 --> 00:31:29,440
+remember the audience here, is it's just not damn UNIX like.
+
+286
+00:31:29,440 --> 00:31:32,160
+Moving through the rest of this section, I kind of want to look
+
+287
+00:31:32,160 --> 00:31:35,840
+at some of the complaints that people have about system D and
+
+288
+00:31:35,840 --> 00:31:40,720
+just sort of address them a bit. Number one, there's a lot
+
+289
+00:31:40,720 --> 00:31:44,640
+of suggestions that it violates the UNIX philosophy, which I
+
+290
+00:31:44,640 --> 00:31:46,960
+usually take to mean that you want to write software that
+
+291
+00:31:46,960 --> 00:31:49,280
+does one thing and does it well and then connect it to other
+
+292
+00:31:49,280 --> 00:31:53,600
+things. System D as a project contains a lot of things. System
+
+293
+00:31:53,600 --> 00:31:58,080
+D as a demon is a thing that reacts to events and starts
+
+294
+00:31:58,080 --> 00:32:03,040
+things and does it very well. And so you could claim that it
+
+295
+00:32:03,040 --> 00:32:05,840
+does not actually violate the UNIX philosophy. You could
+
+296
+00:32:05,840 --> 00:32:07,680
+claim that there's a bit of violation and that it's
+
+297
+00:32:07,680 --> 00:32:10,080
+bringing all of this extra functionality into the project,
+
+298
+00:32:10,080 --> 00:32:12,800
+but I think for BSD projects to criticize another project for
+
+299
+00:32:12,800 --> 00:32:14,880
+bringing a bunch of tangentially linked software into
+
+300
+00:32:14,880 --> 00:32:19,280
+one repository to manage it collectively, that's a bit
+
+301
+00:32:19,280 --> 00:32:23,280
+rich. I think that might be one of my favorite parts right
+
+302
+00:32:23,280 --> 00:32:28,320
+there. It is a bit rich. And he says there is also the issue
+
+303
+00:32:28,320 --> 00:32:31,440
+of Lenard's personality. It is something that seems to have
+
+304
+00:32:31,440 --> 00:32:34,560
+triggered a bit of the reaction. I think that's fair.
+
+305
+00:32:34,560 --> 00:32:37,360
+I mean, it's definitely the communication aspect and how
+
+306
+00:32:37,360 --> 00:32:39,920
+you go about that. It's a big part of growing and trying to
+
+307
+00:32:39,920 --> 00:32:41,760
+get adoption for a project like System D.
+
+308
+00:32:41,760 --> 00:32:45,920
+That's it. So open source communities are fun places.
+
+309
+00:32:45,920 --> 00:32:48,800
+Ask me how I know.
+
+310
+00:32:48,800 --> 00:32:55,040
+Is it July 4th yet? So Lenard Pottering looks like an
+
+311
+00:32:55,040 --> 00:32:58,880
+interesting guy in a bunch of ways. Lots of people don't like
+
+312
+00:32:58,880 --> 00:33:05,680
+him and I can kind of see why. He tends to wade into a place
+
+313
+00:33:05,680 --> 00:33:08,880
+with a bunch of ideas that he holds very strongly and then
+
+314
+00:33:08,880 --> 00:33:12,240
+somehow actually managed to get them implemented and delivered
+
+315
+00:33:12,240 --> 00:33:16,400
+and in your face. And if you don't like them, it's very hard
+
+316
+00:33:16,400 --> 00:33:20,480
+to get him to change his mind. The thing is that I've just
+
+317
+00:33:20,480 --> 00:33:24,720
+described a whole lot of people in open source. Yeah. One
+
+318
+00:33:24,720 --> 00:33:27,920
+thing I think you have to admire about him is that he
+
+319
+00:33:27,920 --> 00:33:30,880
+does actually get this stuff done. I mean, for someone to
+
+320
+00:33:30,880 --> 00:33:32,640
+show up to his management and say, hi, I want to rewrite
+
+321
+00:33:32,640 --> 00:33:35,440
+init and I think we should do it like this and for them to
+
+322
+00:33:35,440 --> 00:33:39,280
+go, no. And for him to go, no, no, no, just wait and to
+
+323
+00:33:39,280 --> 00:33:41,920
+actually go do it and to have it be so successful that it's
+
+324
+00:33:41,920 --> 00:33:45,520
+spread outside his own project into a whole bunch of other
+
+325
+00:33:45,520 --> 00:33:47,680
+major Linux projects. I think that actually is quite
+
+326
+00:33:47,680 --> 00:33:52,560
+impressive. The other thing that I saw is that there are a
+
+327
+00:33:52,560 --> 00:33:56,800
+bunch of cases where he's dealing with bugs where he does
+
+328
+00:33:56,800 --> 00:34:00,640
+actually remain incredibly polite given the amount of
+
+329
+00:34:00,640 --> 00:34:04,480
+stuff that's being thrown at him. There's a famous bug where
+
+330
+00:34:04,480 --> 00:34:09,200
+it looked like SystemD was misparsing a username that
+
+331
+00:34:09,200 --> 00:34:13,040
+started with a digit and using the digit which was zero as a
+
+332
+00:34:13,040 --> 00:34:16,640
+user ID and it turned out that it was actually not being read
+
+333
+00:34:16,640 --> 00:34:20,000
+as a it was being interpreted as an invalid username and
+
+334
+00:34:20,000 --> 00:34:22,000
+there's a long discussion about the validity of usernames
+
+335
+00:34:22,000 --> 00:34:25,920
+and while it does get quite rule lawyer at points, he never
+
+336
+00:34:25,920 --> 00:34:29,520
+goes into name calling. He's never calling people idiots and
+
+337
+00:34:29,520 --> 00:34:31,360
+that when you're facing that kind of stuff is quite
+
+338
+00:34:31,360 --> 00:34:33,760
+admirable given the amount of things like death threats he's
+
+339
+00:34:33,760 --> 00:34:37,200
+got over this which is not cool. I'm wondering Wimpy if
+
+340
+00:34:37,200 --> 00:34:41,520
+you have any reaction to his comments about the typical open
+
+341
+00:34:41,520 --> 00:34:44,880
+source personality there and about how sometimes that causes
+
+342
+00:34:44,880 --> 00:34:48,800
+some of the reaction to their proposals. This is a really
+
+343
+00:34:48,800 --> 00:34:53,520
+well thought well reasoned presentation. I'm gonna I'm
+
+344
+00:34:53,520 --> 00:34:56,400
+gonna go and find the full the full thing and have a listen to
+
+345
+00:34:56,400 --> 00:34:59,520
+this later. I will have in the show notes for sure. Yeah.
+
+346
+00:34:59,520 --> 00:35:03,760
+Yeah. What a what a great speaker on that point. Yes. I
+
+347
+00:35:03,760 --> 00:35:07,520
+mean they're always stereotypes in communities right and
+
+348
+00:35:07,520 --> 00:35:13,600
+definitely those people exist and anyone who's a leader in
+
+349
+00:35:13,600 --> 00:35:18,480
+any sphere including open source can in some respects be
+
+350
+00:35:18,480 --> 00:35:24,640
+put on a pedestal and held up and and celebrated by sections
+
+351
+00:35:24,640 --> 00:35:29,440
+of the community but you know if you have strong beliefs and
+
+352
+00:35:29,440 --> 00:35:32,320
+and you and you want to set a project in a particular
+
+353
+00:35:32,320 --> 00:35:35,440
+direction and you have conviction behind that there
+
+354
+00:35:35,440 --> 00:35:38,880
+will be another group of people who don't subscribe to your
+
+355
+00:35:38,880 --> 00:35:44,960
+philosophy who will resist you know what you're trying to do
+
+356
+00:35:44,960 --> 00:35:48,720
+and you know that that will manifest itself in lots of
+
+357
+00:35:48,720 --> 00:35:53,040
+different ways but I don't know necessarily that that's open
+
+358
+00:35:53,040 --> 00:35:57,840
+source. I think that's people I think the difference is yes,
+
+359
+00:35:57,840 --> 00:36:01,760
+it's human nature and I think one of the things is is because
+
+360
+00:36:01,760 --> 00:36:05,920
+open source and free software all of this stuff plays out in
+
+361
+00:36:05,920 --> 00:36:10,000
+the public domain you know the public sphere then we see all
+
+362
+00:36:10,000 --> 00:36:13,120
+of this interaction happen and all of the fallout and all of
+
+363
+00:36:13,120 --> 00:36:17,920
+the you know the the drama that that goes along with it. So
+
+364
+00:36:17,920 --> 00:36:21,360
+you know we're just a microcosm of of humanity in that respect.
+
+365
+00:36:21,360 --> 00:36:23,680
+Yeah. Yeah. It's fascinating that it just it it affects
+
+366
+00:36:23,680 --> 00:36:27,280
+everything everything we touch we just mess it up. Yeah. We
+
+367
+00:36:27,280 --> 00:36:29,440
+have more access and we're maybe more passionate about it
+
+368
+00:36:29,440 --> 00:36:33,280
+too and we just we just like to talk. It's it's to me also a
+
+369
+00:36:33,280 --> 00:36:37,200
+data point in where this conversation is now in the free
+
+370
+00:36:37,200 --> 00:36:41,600
+BSD community because one of the things that's I enjoy is
+
+371
+00:36:41,600 --> 00:36:45,200
+if you can go back through the history of this show. In fact,
+
+372
+00:36:45,200 --> 00:36:49,760
+I would I would really just be extremely flattered if somebody
+
+373
+00:36:49,760 --> 00:36:54,880
+took the time to make a YouTube playlist or sent me the links
+
+374
+00:36:54,880 --> 00:36:57,840
+of all of the episodes from our past where we covered system
+
+375
+00:36:57,840 --> 00:37:01,520
+D from essentially its initial idea to the end of the Debian
+
+376
+00:37:01,520 --> 00:37:06,000
+drama and then Ubuntu's adoption. I would I would be
+
+377
+00:37:06,000 --> 00:37:08,240
+fascinated to know what episode series that is because I would
+
+378
+00:37:08,240 --> 00:37:10,880
+love to be able to make a playlist like a one-off feed.
+
+379
+00:37:10,880 --> 00:37:15,840
+That was every episode in 2015. Yeah. I mean it was just and
+
+380
+00:37:15,840 --> 00:37:18,400
+but my thought along the entire time was well what the hell are
+
+381
+00:37:18,400 --> 00:37:21,360
+the free BSD guys going to do because I could see what system
+
+382
+00:37:21,360 --> 00:37:24,960
+D was trying to solve and so now this to me is a data point
+
+383
+00:37:24,960 --> 00:37:28,080
+of where they're at in this conversation and it's taking
+
+384
+00:37:28,080 --> 00:37:31,360
+them a while to get here, but he ends the talk on a couple of
+
+385
+00:37:31,360 --> 00:37:33,760
+really strong points and there's even more in the full
+
+386
+00:37:33,760 --> 00:37:35,920
+talk. I'm not giving a full spoiler here. There's more good
+
+387
+00:37:35,920 --> 00:37:41,280
+stuff in the talk, but he ends on a warning to free BSD users
+
+388
+00:37:41,280 --> 00:37:46,720
+don't mock system D and don't recruit around system D mocking
+
+389
+00:37:46,720 --> 00:37:51,360
+system D is the wrong attitude to take. It's not the kind of
+
+390
+00:37:51,360 --> 00:37:54,720
+sad thing that Linux people have to deal with and how sorry
+
+391
+00:37:54,720 --> 00:37:57,200
+we are for them that they have system D. We should be looking
+
+392
+00:37:57,200 --> 00:38:01,840
+at going why did they choose to do that and what I really find
+
+393
+00:38:01,840 --> 00:38:07,280
+problematic is using system D as a recruiting tool for BSD. I
+
+394
+00:38:07,280 --> 00:38:09,920
+don't think that that should be done at all because when you
+
+395
+00:38:09,920 --> 00:38:12,480
+think about the kind of people that we would bring across if
+
+396
+00:38:12,480 --> 00:38:20,000
+we were to say come to come to BSD we don't change. Or come to
+
+397
+00:38:20,000 --> 00:38:22,960
+BSD we don't have system D. Oh, but we've just come up with a
+
+398
+00:38:22,960 --> 00:38:25,440
+really good idea for something that works like it. I don't
+
+399
+00:38:25,440 --> 00:38:28,560
+think that those are the kind of people that we you know we
+
+400
+00:38:28,560 --> 00:38:31,840
+don't want to bring that attitude into our our thing and
+
+401
+00:38:31,840 --> 00:38:35,600
+what again what I said we should be doing instead is
+
+402
+00:38:35,600 --> 00:38:40,480
+asking why did they see this as necessary and the thing is that
+
+403
+00:38:40,480 --> 00:38:42,720
+if you look at it like that if you don't see it as all those
+
+404
+00:38:42,720 --> 00:38:45,360
+poor Linux people with their terrible init system and go
+
+405
+00:38:45,360 --> 00:38:47,600
+hang on they just did that and I don't understand it. Why did
+
+406
+00:38:47,600 --> 00:38:50,320
+they do that? What do they see in it? That means that we can
+
+407
+00:38:50,320 --> 00:38:52,880
+then look at that and start to find things that we can get
+
+408
+00:38:52,880 --> 00:38:57,440
+out of it. The other thing to be careful of is the next
+
+409
+00:38:57,440 --> 00:39:00,720
+generation of people the people that come after us they don't
+
+410
+00:39:00,720 --> 00:39:04,800
+think the way that we think necessarily. A lot of the
+
+411
+00:39:04,800 --> 00:39:07,680
+people who are now coming into you know IT and software
+
+412
+00:39:07,680 --> 00:39:11,280
+engineering they're so much more used to APIs and not
+
+413
+00:39:11,280 --> 00:39:16,160
+library APIs, remote procedure call APIs. They grok things
+
+414
+00:39:16,160 --> 00:39:19,040
+like containers in ways that may seem quite unfamiliar to
+
+415
+00:39:19,040 --> 00:39:22,240
+us. That doesn't mean that containers are bad and it
+
+416
+00:39:22,240 --> 00:39:23,840
+certainly doesn't mean that containers are something that
+
+417
+00:39:23,840 --> 00:39:26,480
+should be mocked. I heard someone describe Kubernetes as
+
+418
+00:39:26,480 --> 00:39:29,600
+the POSIX of the cloud and while that may sound ridiculous
+
+419
+00:39:29,600 --> 00:39:31,680
+at first I think it's a scary thought when you think about
+
+420
+00:39:31,680 --> 00:39:35,280
+the fact that we can't run Kubernetes.
+
+421
+00:39:35,280 --> 00:39:37,920
+Ain't that true? Yeah I hadn't thought about that obviously
+
+422
+00:39:37,920 --> 00:39:41,440
+because it's not my area but that is a big thing. That whole
+
+423
+00:39:41,440 --> 00:39:44,160
+point don't mock systemd don't recruit based on that because
+
+424
+00:39:44,160 --> 00:39:46,480
+if you bring in a whole user base that resists change then
+
+425
+00:39:46,480 --> 00:39:50,480
+it's gonna hurt the project. That's really insightful and
+
+426
+00:39:50,480 --> 00:39:54,960
+true for all projects. The Linux community need to take a
+
+427
+00:39:54,960 --> 00:40:01,040
+leaf out of this presentation. The message that's delivered
+
+428
+00:40:01,040 --> 00:40:07,120
+here about critical thinking about why a project or why a
+
+429
+00:40:07,120 --> 00:40:11,600
+person or why a distribution has made the choices and
+
+430
+00:40:11,600 --> 00:40:17,840
+decisions that they've chosen rather than just shitting on it
+
+431
+00:40:17,840 --> 00:40:20,400
+for the sake of shitting on it because you're not in the
+
+432
+00:40:20,400 --> 00:40:24,320
+camp of that distribution is a very very positive message to
+
+433
+00:40:24,320 --> 00:40:28,560
+take away from this. Within the Linux community if you're not
+
+434
+00:40:28,560 --> 00:40:32,880
+running Arch or you're not running you know Slackware or
+
+435
+00:40:32,880 --> 00:40:37,760
+you're not running KDE neon you know there's this group of
+
+436
+00:40:37,760 --> 00:40:42,160
+people that will criticize your choices and this really needs
+
+437
+00:40:42,160 --> 00:40:47,520
+to stop because if we're Linux users it really doesn't
+
+438
+00:40:47,520 --> 00:40:53,680
+matter what distribution we've brought into. We all agree on
+
+439
+00:40:53,680 --> 00:40:58,160
+the fact that Linux is for our purposes the best operating
+
+440
+00:40:58,160 --> 00:41:02,400
+system available and we should not be throwing shit at one
+
+441
+00:41:02,400 --> 00:41:07,920
+another over details you know because we look like a bunch of
+
+442
+00:41:07,920 --> 00:41:12,320
+arsehats from the outside and it's utterly destructive
+
+443
+00:41:12,320 --> 00:41:17,280
+because the amount of energy that goes into all of this
+
+444
+00:41:17,280 --> 00:41:22,720
+negative you know product is is pointless. It would be far
+
+445
+00:41:22,720 --> 00:41:25,360
+better to have you know if you don't agree with what a
+
+446
+00:41:25,360 --> 00:41:29,280
+project's doing as this guy's just said ask yourself well why
+
+447
+00:41:29,280 --> 00:41:32,000
+did they do that? What was the reasons that drove them to do
+
+448
+00:41:32,000 --> 00:41:34,960
+this thing? Maybe try and understand where they're coming
+
+449
+00:41:34,960 --> 00:41:37,760
+from because there might be something in that. Maybe you
+
+450
+00:41:37,760 --> 00:41:41,680
+don't believe in that particular technology but as a
+
+451
+00:41:41,680 --> 00:41:45,600
+technology direction you can see some value in it. Yep I
+
+452
+00:41:45,600 --> 00:41:48,480
+completely agree perfectly said. I would love for this to
+
+453
+00:41:48,480 --> 00:41:51,840
+be held up as an example of critical thinking in open
+
+454
+00:41:51,840 --> 00:41:54,720
+source and how not to sling shit at one another because we
+
+455
+00:41:54,720 --> 00:41:57,120
+really need to cut that nonsense out. And we can all be
+
+456
+00:41:57,120 --> 00:41:59,840
+better right if we can if we can productively learn they'll
+
+457
+00:41:59,840 --> 00:42:02,560
+take some ideas that they like add some new ideas and then we
+
+458
+00:42:02,560 --> 00:42:05,280
+can learn from that in the future. And it's a high level
+
+459
+00:42:05,280 --> 00:42:07,760
+perspective and I think that's the that's the perspective that
+
+460
+00:42:07,760 --> 00:42:10,800
+gets the work done and I loved it. I thought it was a great
+
+461
+00:42:10,800 --> 00:42:12,880
+talk so I wanted to share it with you guys and we'll have it
+
+462
+00:42:12,880 --> 00:42:16,480
+linked in the show notes linuxunplug.com slash 262 and
+
+463
+00:42:16,480 --> 00:42:19,360
+I'll tell you this after listening to that I had been on
+
+464
+00:42:19,360 --> 00:42:21,840
+the fence. I've decided I'm going to go to meet BSD in
+
+465
+00:42:21,840 --> 00:42:25,360
+California October 19th and the 20th. I'm going to be down
+
+466
+00:42:25,360 --> 00:42:28,640
+there. It's going to be at Intel's campus. Oh how cool is
+
+467
+00:42:28,640 --> 00:42:31,360
+that? Heck yeah yeah. You should consider coming with me.
+
+468
+00:42:31,360 --> 00:42:34,640
+I bet you we could make that drive in in one day. Yeah I
+
+469
+00:42:34,640 --> 00:42:36,400
+think we were up to that challenge. We could we could run
+
+470
+00:42:36,400 --> 00:42:39,840
+down there. We could we could do a text on get our get our
+
+471
+00:42:39,840 --> 00:42:43,200
+BSD on hang out with Alan Jude record a text nap and then we
+
+472
+00:42:43,200 --> 00:42:45,360
+could make it back up here. It's at the Santa Clara Intel
+
+473
+00:42:45,360 --> 00:42:48,560
+campus and it's going to be on October 19th and 20th. I'm
+
+474
+00:42:48,560 --> 00:42:50,640
+going to go. Let's do it. I think you know after hearing
+
+475
+00:42:50,640 --> 00:42:55,360
+that I'm like that that that is that is exactly the message.
+
+476
+00:42:55,360 --> 00:42:57,680
+That is exactly the message we all need to be taking in and
+
+477
+00:42:57,680 --> 00:43:00,000
+it's that atmosphere which is going to be conducive to open
+
+478
+00:43:00,000 --> 00:43:03,760
+source development. Plus it'll be good to see Alan. Exactly.
+
+479
+00:43:03,760 --> 00:43:06,640
+Yeah yeah that's pretty great and you can find links to all
+
+480
+00:43:06,640 --> 00:43:09,680
+of that in the show notes. Now I also want to talk about
+
+481
+00:43:09,680 --> 00:43:13,120
+Dropbox this week and a kind of a just a cool temporary
+
+482
+00:43:13,120 --> 00:43:15,280
+workaround. Even if you're not a Dropbox user something that's
+
+483
+00:43:15,280 --> 00:43:20,000
+just a neat trick you could do to hide stuff on your computer
+
+484
+00:43:20,000 --> 00:43:22,160
+and all kinds of other things. So let's take a moment and
+
+485
+00:43:22,160 --> 00:43:25,520
+thank Ting for making this episode possible Linux dot ting
+
+486
+00:43:25,520 --> 00:43:28,640
+dot com is where you go when you go there you'll get twenty
+
+487
+00:43:28,640 --> 00:43:31,680
+five dollars off ting service if you bring a device or twenty
+
+488
+00:43:31,680 --> 00:43:34,800
+five dollars off a phone ting is smarter than unlimited. If
+
+489
+00:43:34,800 --> 00:43:37,840
+you use less you pay less. The average ting bill is just twenty
+
+490
+00:43:37,840 --> 00:43:40,800
+three dollars per month per phone. It's just a fair price
+
+491
+00:43:40,800 --> 00:43:44,960
+for how much you talk text and data you use. That's it. Six
+
+492
+00:43:44,960 --> 00:43:48,400
+dollars for the line which is great if you want to have a
+
+493
+00:43:48,400 --> 00:43:50,800
+couple of family lines or a backup line or if you're a
+
+494
+00:43:50,800 --> 00:43:54,720
+small business and you need twenty five lines. It's great
+
+495
+00:43:54,720 --> 00:43:58,240
+and they have nationwide coverage CDMA and GSM. No
+
+496
+00:43:58,240 --> 00:44:02,160
+contracts no quote unquote agreements nothing weird like
+
+497
+00:44:02,160 --> 00:44:05,200
+that and you're in control the entire time. You can always see
+
+498
+00:44:05,200 --> 00:44:08,240
+your usage. You can change different individual aspects of
+
+499
+00:44:08,240 --> 00:44:10,560
+your service like just turn stuff off if you want. You can
+
+500
+00:44:10,560 --> 00:44:14,480
+set usage alerts as well. And Ting's not in it to try to push
+
+501
+00:44:14,480 --> 00:44:17,520
+an app store or a music streaming service. So they
+
+502
+00:44:17,520 --> 00:44:20,240
+don't really have an agenda of how you use Ting. So they don't
+
+503
+00:44:20,240 --> 00:44:22,800
+have to push down like a Ting experience with a Ting image
+
+504
+00:44:22,800 --> 00:44:25,520
+with Ting branding on your phone. And they don't really
+
+505
+00:44:25,520 --> 00:44:28,320
+care if you just never want to use a text message ever. If you
+
+506
+00:44:28,320 --> 00:44:31,040
+do everything over WhatsApp or telegram you mean they'll just
+
+507
+00:44:31,040 --> 00:44:34,240
+like they'll send a text if I want and otherwise they don't
+
+508
+00:44:34,240 --> 00:44:36,080
+care? They don't even bill you for it. How does that make sense?
+
+509
+00:44:36,080 --> 00:44:38,720
+Wow. I know I guess that's how it works in some other places in
+
+510
+00:44:38,720 --> 00:44:41,040
+the world. They are so backwards. Not here in the
+
+511
+00:44:41,040 --> 00:44:45,280
+states. I wanted to point out if you need a phone right now
+
+512
+00:44:45,280 --> 00:44:49,280
+and you don't have a thousand dollars to spend on a note why
+
+513
+00:44:49,280 --> 00:44:54,480
+not look at the GS5 Plus or I'm sorry the G5 S Plus. It's the
+
+514
+00:44:54,480 --> 00:44:58,640
+Moto G5 S Plus for two hundred and fifty four dollars. You
+
+515
+00:44:58,640 --> 00:45:01,680
+would own the phone outright when you go to linux.ting.com
+
+516
+00:45:01,680 --> 00:45:04,400
+because it's it's it's normally 280 but when you go to our
+
+517
+00:45:04,400 --> 00:45:09,840
+linux.ting.com URL you get it for 254 unlocked multi network
+
+518
+00:45:09,840 --> 00:45:13,920
+two gigahertz octa core Qualcomm Snapdragon processor
+
+519
+00:45:13,920 --> 00:45:18,800
+five point five inch IPS display three thousand milliamp
+
+520
+00:45:18,800 --> 00:45:23,600
+battery and it also has an SD slot so you could put up to
+
+521
+00:45:23,600 --> 00:45:27,280
+128 gigs of micro SD into it for two hundred and fifty four
+
+522
+00:45:27,280 --> 00:45:30,400
+dollars. That's a capable phone right there. No contract
+
+523
+00:45:30,400 --> 00:45:33,440
+nothing and it's just a clean Android experience and you just
+
+524
+00:45:33,440 --> 00:45:39,360
+pay for what you use. Start by going to linux.ting.com. Oh
+
+525
+00:45:39,360 --> 00:45:42,160
+you know what I wish I did. I wish I had like a good like I
+
+526
+00:45:42,160 --> 00:45:44,960
+like an old classic Kyra clip. I feel like some classic Kyra
+
+527
+00:45:44,960 --> 00:45:48,080
+but I don't think I have any classic Kyra loaded. I don't.
+
+528
+00:45:48,080 --> 00:45:50,640
+That was just poor planning. I do have look at this though. I
+
+529
+00:45:50,640 --> 00:45:53,120
+have classic Brent loaded in here. That's interesting.
+
+530
+00:45:53,120 --> 00:45:55,120
+That's good. I've got that set up so if we ever need some
+
+531
+00:45:55,120 --> 00:45:59,440
+classic Brent I can always pull that in. That's nice. That's
+
+532
+00:45:59,440 --> 00:46:01,760
+good. What else do I have in here? Of course I've got
+
+533
+00:46:01,760 --> 00:46:06,160
+Richard but I digress. He's taking a nap right now. Now
+
+534
+00:46:06,160 --> 00:46:08,320
+let's take a moment and talk about Linux Academy because
+
+535
+00:46:08,320 --> 00:46:11,760
+today is a huge day for Linux Academy. I'll get there in a
+
+536
+00:46:11,760 --> 00:46:14,400
+moment but start going to Linux on go to linuxacademy.com
+
+537
+00:46:14,400 --> 00:46:17,520
+slash unplugged and sign up for a free seven day trial. It's a
+
+538
+00:46:17,520 --> 00:46:20,560
+platform to learn everything about Linux and all of this
+
+539
+00:46:20,560 --> 00:46:23,200
+stuff that runs on top of Linux that you want on your resume
+
+540
+00:46:23,200 --> 00:46:25,520
+and it's a great time to sign up because they've been adding a
+
+541
+00:46:25,520 --> 00:46:29,840
+ton of content really working like crazy on this stuff and
+
+542
+00:46:29,840 --> 00:46:32,240
+there's things they have in the works that I'm not even
+
+543
+00:46:32,240 --> 00:46:35,920
+supposed to tell you about. I know I can't help it. So I'll
+
+544
+00:46:35,920 --> 00:46:37,760
+tell you about something that's a little public. There's no
+
+545
+00:46:37,760 --> 00:46:43,440
+getting around it today. Forbes released their fastest growing
+
+546
+00:46:43,440 --> 00:46:47,200
+startups and it's like you know at a five so they they narrow
+
+547
+00:46:47,200 --> 00:46:51,040
+this list down to 5000 companies in the United States
+
+548
+00:46:51,040 --> 00:46:54,960
+that are just growing like crazy and Linux Academy is on
+
+549
+00:46:54,960 --> 00:47:00,480
+the list. Whoa. They're on Forbes is 5000 and out of 5000
+
+550
+00:47:00,480 --> 00:47:06,560
+Linux Academy is ranked 78. And I don't know what the
+
+551
+00:47:06,560 --> 00:47:09,200
+period of growth is here cuz they don't tell you the scale so
+
+552
+00:47:09,200 --> 00:47:12,160
+you just have to guess. Alright, Wes, you ready? And
+
+553
+00:47:12,160 --> 00:47:14,880
+Brent, if if you have a guess too, you're welcome to chime in
+
+554
+00:47:14,880 --> 00:47:18,160
+cuz I know I teased you in the pre show. Can you guess the
+
+555
+00:47:18,160 --> 00:47:21,280
+growth percentage for whatever it is? I don't know what year
+
+556
+00:47:21,280 --> 00:47:23,920
+since they started. I don't know cuz Forbes doesn't say. So
+
+557
+00:47:23,920 --> 00:47:26,400
+we're just it's who cares but it's just for fun. Can you
+
+558
+00:47:26,400 --> 00:47:29,760
+guess the growth percentage of Linux Academy as listed on the
+
+559
+00:47:29,760 --> 00:47:34,720
+Forbes top 5000 fastest growing companies? 200%. 200% is pretty
+
+560
+00:47:34,720 --> 00:47:37,600
+good. That's pretty good. That is pretty pretty bold. That is
+
+561
+00:47:37,600 --> 00:47:40,800
+pretty bold. Uh does anybody in the mumble room? Brent, do you
+
+562
+00:47:40,800 --> 00:47:42,800
+have a guess? What's your guess on Linux Academy's growth
+
+563
+00:47:42,800 --> 00:47:45,600
+number? Well, what's the uh what's the they're on the list
+
+564
+00:47:45,600 --> 00:47:50,720
+of total how many? This is Forbes's 5000 fastest growing
+
+565
+00:47:50,720 --> 00:47:54,720
+companies in America and they're number 78 on the list.
+
+566
+00:47:54,720 --> 00:47:57,760
+What do you think their growth percentage has been there for
+
+567
+00:47:57,760 --> 00:48:01,280
+whatever the arbitrary amount of time is? I'm gonna go their
+
+568
+00:48:01,280 --> 00:48:05,040
+number 78. So I'm gonna go 178. Oh, okay. So Wes is 200
+
+569
+00:48:05,040 --> 00:48:07,760
+something 178. Wimpy, do you have a guess? Eric, do you have
+
+570
+00:48:07,760 --> 00:48:11,920
+a guess what what uh what Linux Academy's number is? Uh 250%
+
+571
+00:48:11,920 --> 00:48:14,080
+250. Alright, it's like prices right here. What do you think
+
+572
+00:48:14,080 --> 00:48:19,600
+Wimpy? For 300%. Those are all really good bold guesses.
+
+573
+00:48:19,600 --> 00:48:21,280
+Probably not even. I wouldn't have gone that high. I
+
+574
+00:48:21,280 --> 00:48:25,280
+wouldn't have gone that high. The official Forbes Inc. 500
+
+575
+00:48:25,280 --> 00:48:29,520
+fastest growing companies in America growth percentage is
+
+576
+00:48:29,520 --> 00:48:38,400
+4653.64%. Whoa. What? And I actually think that's based on a
+
+577
+00:48:38,400 --> 00:48:41,280
+low guess of what the revenue is but that's pretty amazing.
+
+578
+00:48:41,280 --> 00:48:47,840
+That is pretty amazing. 4000% and they're teaching about
+
+579
+00:48:47,840 --> 00:48:50,160
+Linux. There's a reason why they're growing like crazy
+
+580
+00:48:50,160 --> 00:48:53,600
+because let's be honest, one of the hardest things about the
+
+581
+00:48:53,600 --> 00:48:56,720
+IT industry is the fact that it's changing faster than just
+
+582
+00:48:56,720 --> 00:49:00,480
+about any other industry in the world. It's sort of the deal
+
+583
+00:49:00,480 --> 00:49:04,080
+with the devil we all accepted when we got into IT. We all
+
+584
+00:49:04,080 --> 00:49:07,280
+knew that was the case and Linux Academy is kind of a tool
+
+585
+00:49:07,280 --> 00:49:10,160
+to help keep you current. It's really due diligence when
+
+586
+00:49:10,160 --> 00:49:12,640
+you're in IT is keeping your skill set fresh and I think
+
+587
+00:49:12,640 --> 00:49:15,600
+that's why they're growing like crazy is when you look at the
+
+588
+00:49:15,600 --> 00:49:18,960
+explosion of cloud-based services like Azure and Open
+
+589
+00:49:18,960 --> 00:49:21,680
+Stack and AWS and people that are rolling in their on
+
+590
+00:49:21,680 --> 00:49:24,400
+premises infrastructure and how everything is based around
+
+591
+00:49:24,400 --> 00:49:28,800
+Linux. It makes sense. They are the go-to platforms to go
+
+592
+00:49:28,800 --> 00:49:31,440
+there Linux Academy.com slash unplugged sign up for a free
+
+593
+00:49:31,440 --> 00:49:36,240
+seven-day trial and the upshot of that is. They look good on
+
+594
+00:49:36,240 --> 00:49:39,840
+the resume now, you know, that's like a recognizable brand
+
+595
+00:49:39,840 --> 00:49:42,400
+name. Now you went to Linux Academy. Oh, I've heard of
+
+596
+00:49:42,400 --> 00:49:45,360
+them. Yeah, they're on Forbes list like that's good for Linux
+
+597
+00:49:45,360 --> 00:49:47,440
+Academy. So congratulations to them for making the list too.
+
+598
+00:49:47,440 --> 00:49:51,120
+That's pretty great and I want to take a moment and tell you
+
+599
+00:49:51,120 --> 00:49:53,760
+how you can get a $100 credit at Digital Ocean. So go to
+
+600
+00:49:53,760 --> 00:49:57,440
+dio.co slash unplugged West goes there every single day. He
+
+601
+00:49:57,440 --> 00:49:59,280
+signs up with a new email address every single time.
+
+602
+00:50:00,080 --> 00:50:02,160
+Actually, he doesn't. He uses the same email address so he
+
+603
+00:50:02,160 --> 00:50:04,160
+never gets the credit. I mean, I already had it open. It was
+
+604
+00:50:04,160 --> 00:50:08,240
+one of my tabs. You actually did no joke. It has a dashboard
+
+605
+00:50:08,240 --> 00:50:11,200
+up on there right now. How could you not? It's so great.
+
+606
+00:50:11,200 --> 00:50:13,440
+Digital Ocean is great for spinning up systems that you
+
+607
+00:50:13,440 --> 00:50:14,960
+want to try something out for a couple of minutes or
+
+608
+00:50:14,960 --> 00:50:16,640
+something that you want to put in production for the next few
+
+609
+00:50:16,640 --> 00:50:19,360
+years. I literally have droplets that have been running
+
+610
+00:50:19,360 --> 00:50:24,160
+for four plus years. It's great. It's my data center on
+
+611
+00:50:24,160 --> 00:50:27,040
+demand and it can be yours too. And you can get a $100 credit
+
+612
+00:50:27,040 --> 00:50:30,560
+that lasts 60 days when you go to dio.co slash unplugged.
+
+613
+00:50:31,200 --> 00:50:34,080
+Super nice fast systems all running Linux KVM is the
+
+614
+00:50:34,080 --> 00:50:37,760
+virtualizer. They have enterprise grade SSDs. They
+
+615
+00:50:37,760 --> 00:50:40,240
+have cloud based firewall so you can block traffic that never
+
+616
+00:50:40,240 --> 00:50:43,200
+even hits your rig. Easy to use DNS management so you can set
+
+617
+00:50:43,200 --> 00:50:45,920
+up your domains to point to your droplets. 40 gigabyte
+
+618
+00:50:45,920 --> 00:50:49,760
+hypervisor connections and data centers all over the world.
+
+619
+00:50:49,760 --> 00:50:52,240
+And then you top that off with a great dashboard and an easy
+
+620
+00:50:52,240 --> 00:50:56,160
+to use API. And you're like, OK, good enough. Good to know.
+
+621
+00:50:56,160 --> 00:50:58,640
+Yeah, here's a couple of the other things. You can get a
+
+622
+00:50:58,640 --> 00:51:01,440
+great system for three cents an hour. Four gigs of RAM, two
+
+623
+00:51:01,440 --> 00:51:05,920
+CPUs, 80 gigabyte SSDs, which is an enterprise grade SSD.
+
+624
+00:51:05,920 --> 00:51:08,080
+It's crazy fast. Three terabytes of transfer. Three
+
+625
+00:51:08,080 --> 00:51:11,040
+cents an hour. That's great. And then you're like, OK, Chris,
+
+626
+00:51:11,040 --> 00:51:12,560
+that's enough. I got it. I'm like, well, yeah, but hold on.
+
+627
+00:51:12,560 --> 00:51:14,880
+There's one more thing. They also have the best
+
+628
+00:51:14,880 --> 00:51:17,520
+documentation in the industry on top of one click
+
+629
+00:51:17,520 --> 00:51:21,520
+deployments of things like GitLab and WordPress and Ghost
+
+630
+00:51:21,520 --> 00:51:25,520
+and many more that you just hit one button and you get if you
+
+631
+00:51:25,520 --> 00:51:31,360
+had been setting up a WordPress stack as a career, your entire
+
+632
+00:51:31,360 --> 00:51:33,520
+your entire career when you like, damn, they set it up
+
+633
+00:51:33,520 --> 00:51:36,880
+exactly like I would. And I say that as somebody who has been
+
+634
+00:51:36,880 --> 00:51:39,600
+one of the biggest advocates of setting it up yourself so you
+
+635
+00:51:39,600 --> 00:51:42,000
+know how it works. You know, going through Arch, going
+
+636
+00:51:42,000 --> 00:51:44,800
+through Gentoo so you know how it works, building a system so
+
+637
+00:51:44,800 --> 00:51:47,280
+you understand how it works. I now do these one click
+
+638
+00:51:47,280 --> 00:51:50,000
+deployments because I've gone through and deconstructed. How
+
+639
+00:51:50,000 --> 00:51:52,800
+do they set it up? What repos are they using? What versions
+
+640
+00:51:52,800 --> 00:51:55,360
+do they have installed? What are the defaults in the config
+
+641
+00:51:55,360 --> 00:51:58,400
+files? And it's all the stuff I just would have done. They
+
+642
+00:51:58,400 --> 00:52:00,400
+really know what they're doing over there. I mean, once you've
+
+643
+00:52:00,400 --> 00:52:03,360
+learned how to do it, then they've got it for you and you
+
+644
+00:52:03,360 --> 00:52:05,360
+can trust that they know what they're doing, too. So it's
+
+645
+00:52:05,360 --> 00:52:07,920
+reliable. You can just deploy a base system and learn, too.
+
+646
+00:52:07,920 --> 00:52:09,520
+That's what's great about DigitalOcean, especially when
+
+647
+00:52:09,520 --> 00:52:13,600
+you can get a $100 credit by going to do.co slash unplugged
+
+648
+00:52:13,600 --> 00:52:16,560
+and a big thank you to DigitalOcean for sponsoring the
+
+649
+00:52:16,560 --> 00:52:21,200
+unplugged program do.co slash unplugged. All right, so we
+
+650
+00:52:21,200 --> 00:52:24,560
+covered this on Linux Action News 66 this week. Dropbox is
+
+651
+00:52:24,560 --> 00:52:28,080
+stopping sinking on any file system other than unencrypted
+
+652
+00:52:28,080 --> 00:52:32,160
+extended for on November 7th. After 10 years of using
+
+653
+00:52:32,160 --> 00:52:35,280
+Dropbox, they've finally done something that's going to force
+
+654
+00:52:35,280 --> 00:52:39,440
+me to abandon Dropbox. Chris, I just switched to Bcash FS.
+
+655
+00:52:39,440 --> 00:52:45,360
+This is terrible news. Yeah, or Butter FS or ZFS. It is a real
+
+656
+00:52:45,360 --> 00:52:50,080
+shame. And the explanation from Dropbox is a clown show. They
+
+657
+00:52:50,080 --> 00:52:53,920
+say a supportive file system is required as Dropbox relies on
+
+658
+00:52:53,920 --> 00:52:57,680
+extended attributes to identify files in the Dropbox folder and
+
+659
+00:52:57,680 --> 00:53:00,880
+keep them in sync. We will keep supporting only the most common
+
+660
+00:53:00,880 --> 00:53:03,520
+file systems that support extended attributes so we can
+
+661
+00:53:03,520 --> 00:53:07,040
+ensure stability and a consistent experience. Well,
+
+662
+00:53:07,040 --> 00:53:09,600
+that's the biggest chicken shit reason that they could
+
+663
+00:53:09,600 --> 00:53:12,400
+possibly give because the file systems they're not going to be
+
+664
+00:53:12,400 --> 00:53:15,520
+supporting have fantastic support for extended
+
+665
+00:53:15,520 --> 00:53:19,360
+attributes. It's the most ridiculous on its face answer
+
+666
+00:53:19,360 --> 00:53:22,720
+they could possibly give. And there's been some speculation
+
+667
+00:53:22,720 --> 00:53:25,920
+that it actually comes down to how they try to hide your local
+
+668
+00:53:25,920 --> 00:53:29,040
+encryption key and the fact that they can't do it the same
+
+669
+00:53:29,040 --> 00:53:31,680
+way they do it on extended for on XFS and things like that. So
+
+670
+00:53:31,680 --> 00:53:35,040
+there's various speculation to what the real reason is, but
+
+671
+00:53:35,040 --> 00:53:37,520
+that's the chicken shit answer that they've given us and it has
+
+672
+00:53:37,520 --> 00:53:40,800
+me upset and I'll I want to take a moment not to defend
+
+673
+00:53:40,800 --> 00:53:43,520
+Dropbox or encourage anyone to use the service because I am
+
+674
+00:53:43,520 --> 00:53:46,560
+switching off. That's that's just a foregone conclusion. I
+
+675
+00:53:46,560 --> 00:53:50,240
+have to. First of all, I'm paying for the business version,
+
+676
+00:53:50,240 --> 00:53:52,640
+which is a thousand dollars a year. Yeah. Okay. Well, if
+
+677
+00:53:52,640 --> 00:53:54,640
+you're paying, I mean, then that that does change the value
+
+678
+00:53:54,640 --> 00:53:56,880
+property. Hell if I'm going to if hell if I'm going to spend
+
+679
+00:53:56,880 --> 00:53:58,880
+2000 if I'm going to spend a thousand dollars a year on
+
+680
+00:53:58,880 --> 00:54:01,280
+something that doesn't work the way I want. Here's the reality
+
+681
+00:54:01,280 --> 00:54:04,400
+that was I have two terabytes in Dropbox. Oh, I've been using
+
+682
+00:54:04,400 --> 00:54:07,600
+it for 10 years. Everybody who's ever worked for JB in a media
+
+683
+00:54:07,600 --> 00:54:11,280
+production capacity has all of their work in Dropbox. Every
+
+684
+00:54:11,280 --> 00:54:15,360
+clip for on filter is stored in Dropbox. The one of the great
+
+685
+00:54:15,360 --> 00:54:19,520
+features about Dropbox is they pay for the disk. They manage
+
+686
+00:54:19,520 --> 00:54:23,840
+the disk. I buy a subscription plan and they add the disk and
+
+687
+00:54:23,840 --> 00:54:26,240
+it works out to be cheaper than it would be to buy the same
+
+688
+00:54:26,240 --> 00:54:29,760
+amount of disk on a VPS and it even works out to be cheaper.
+
+689
+00:54:29,760 --> 00:54:33,200
+If I were to buy all of the disk and set it up, it still
+
+690
+00:54:33,200 --> 00:54:37,040
+works out to be a cheaper price. If you consider that I
+
+691
+00:54:37,040 --> 00:54:39,760
+also still need sinking, I would like revision copies so I
+
+692
+00:54:39,760 --> 00:54:42,400
+could do restorations. I would like a web UI so that way I can
+
+693
+00:54:42,400 --> 00:54:45,760
+view the files when I'm remote all of these things. The cost
+
+694
+00:54:45,760 --> 00:54:48,720
+ends up being essentially right. You need like a business
+
+695
+00:54:48,720 --> 00:54:51,440
+class reliable interface to your files. Yeah, all of a sudden
+
+696
+00:54:51,440 --> 00:54:54,160
+$1000 is not that much. It's really not when you're
+
+697
+00:54:54,160 --> 00:54:56,400
+considering it. Okay, I'd have to okay. So if I'm using two
+
+698
+00:54:56,400 --> 00:54:59,440
+terabytes today, I probably want at least a minimum of five
+
+699
+00:54:59,440 --> 00:55:01,520
+terabytes of space. I'm going to want that to be an array to
+
+700
+00:55:01,520 --> 00:55:03,200
+array. I'm going to want that to be in a box. I'm going to
+
+701
+00:55:03,200 --> 00:55:06,160
+want that to be connected and I need to set that up. It's not
+
+702
+00:55:06,160 --> 00:55:09,760
+that far away from $1000. Even if I use an existing PC, I have.
+
+703
+00:55:09,760 --> 00:55:11,760
+And you only have so much time in a week to be setting up more
+
+704
+00:55:11,760 --> 00:55:16,000
+and more free NAS boxes. And then fundamentally there is a
+
+705
+00:55:16,000 --> 00:55:19,360
+huge advantage to having a local client. So Google Drive
+
+706
+00:55:19,360 --> 00:55:21,840
+and things like that are not particularly appealing because
+
+707
+00:55:21,840 --> 00:55:25,040
+when you have a software demon running on your system sinking
+
+708
+00:55:25,040 --> 00:55:29,280
+folders, what you get in essence is a network file system
+
+709
+00:55:29,280 --> 00:55:33,360
+that's always available offline. And I can save a file to one
+
+710
+00:55:33,360 --> 00:55:37,440
+location and it can be tilde slash Dropbox slash music and
+
+711
+00:55:37,440 --> 00:55:42,080
+it is the same file path on every system I sit down on. And
+
+712
+00:55:42,080 --> 00:55:44,880
+I can use config files that way. I can use music files that
+
+713
+00:55:44,880 --> 00:55:48,560
+way. We can do media production that way. I can export to a
+
+714
+00:55:48,560 --> 00:55:51,680
+folder after we're done recording the show in Dropbox
+
+715
+00:55:51,680 --> 00:55:54,400
+and it sinks up to a cloud system that Joe can log in
+
+716
+00:55:54,400 --> 00:55:57,040
+through a web browser and download it. And it's super,
+
+717
+00:55:57,040 --> 00:55:59,920
+super convenient because it creates an omnipresent network
+
+718
+00:55:59,920 --> 00:56:03,280
+file system that is fully available offline that can sync
+
+719
+00:56:03,280 --> 00:56:07,040
+the changes up once you connect. And it does it in a way
+
+720
+00:56:07,040 --> 00:56:09,600
+that is simple because you can install a client, you log in
+
+721
+00:56:09,600 --> 00:56:11,760
+with a username and password and it begins immediately
+
+722
+00:56:11,760 --> 00:56:14,480
+sinking. You need to forget about it. The additional
+
+723
+00:56:14,480 --> 00:56:18,320
+benefit to Dropbox is it supports something called
+
+724
+00:56:18,320 --> 00:56:20,880
+selective sync. So I mentioned I have like two terabytes in
+
+725
+00:56:20,880 --> 00:56:23,520
+Dropbox. That's a lot. There's no system where I would sync
+
+726
+00:56:23,520 --> 00:56:26,560
+down more than 50 gigs of that because so much of it is
+
+727
+00:56:26,560 --> 00:56:29,680
+historical stuff. Old assets for shows that we don't have
+
+728
+00:56:29,680 --> 00:56:31,920
+anymore but we still want to keep around, clips that I don't
+
+729
+00:56:31,920 --> 00:56:34,800
+use anymore, interviews we've played on the show. I don't
+
+730
+00:56:34,800 --> 00:56:37,040
+need that on a current system. And you probably have many
+
+731
+00:56:37,040 --> 00:56:39,440
+machines that just can't store that much anyway. Yeah,
+
+732
+00:56:39,440 --> 00:56:42,240
+exactly. They're on SSDs these days. Dropbox has a
+
+733
+00:56:42,240 --> 00:56:46,160
+sophisticated selective sync system. It's simple but it works
+
+734
+00:56:46,160 --> 00:56:50,080
+really well. And so I can use the storage. I can use the five
+
+735
+00:56:50,080 --> 00:56:53,440
+terabytes I have allocated in Dropbox to hold stuff that I
+
+736
+00:56:53,440 --> 00:56:58,560
+don't have on my local laptops. It is also extremely useful
+
+737
+00:56:58,560 --> 00:57:01,840
+when I'm traveling to be able to pull up like an audio file
+
+738
+00:57:01,840 --> 00:57:05,200
+or even a video and play it in the Dropbox streaming player in
+
+739
+00:57:05,200 --> 00:57:08,240
+the web player because I only maybe need to listen to the
+
+740
+00:57:08,240 --> 00:57:11,600
+first 10 seconds of a file. I don't need to download the
+
+741
+00:57:11,600 --> 00:57:14,480
+entire file to play that 10 seconds. And if I'm on a mobile
+
+742
+00:57:14,480 --> 00:57:18,240
+connection, that's a massive difference for me. So Dropbox
+
+743
+00:57:18,240 --> 00:57:22,400
+has been a very functional tool that has worked with people
+
+744
+00:57:22,400 --> 00:57:25,520
+that are remote, that are on Windows, that are on Macs, that
+
+745
+00:57:25,520 --> 00:57:27,520
+are maybe somebody that's working to do art for us for a
+
+746
+00:57:27,520 --> 00:57:30,320
+little bit that isn't using Linux that wouldn't. As long as
+
+747
+00:57:30,320 --> 00:57:32,720
+they have a web browser, they can play in your space and they
+
+748
+00:57:32,720 --> 00:57:35,600
+have access. Yeah, or there is a client available for their
+
+749
+00:57:35,600 --> 00:57:38,800
+platform. And that's, you know, both have been very beneficial.
+
+750
+00:57:38,800 --> 00:57:41,680
+You know, like, for example, back when we used to edit video
+
+751
+00:57:41,680 --> 00:57:44,880
+on Linux, and I mean, I'm sorry, on the Mac. And when the
+
+752
+00:57:44,880 --> 00:57:47,520
+dark days when when Rekai was our video editor, and he would
+
+753
+00:57:47,520 --> 00:57:50,080
+all sync, it would sync to a Mac, and he would use on the
+
+754
+00:57:50,080 --> 00:57:52,320
+Final Cut, because that was our production pipeline back then.
+
+755
+00:57:52,320 --> 00:57:54,480
+And it meant that I could be sitting down here in the studio
+
+756
+00:57:54,480 --> 00:57:57,680
+on Linux, and the editor could be on a Mac. And there was no
+
+757
+00:57:57,680 --> 00:58:00,480
+like concern about cross platform compatibility or
+
+758
+00:58:00,480 --> 00:58:04,800
+anything like that. And not that that is unheard of. But
+
+759
+00:58:04,800 --> 00:58:07,360
+keep in mind, I've been I've been using Dropbox since like
+
+760
+00:58:07,360 --> 00:58:12,720
+2008. So that was a little more uncommon. There was no next
+
+761
+00:58:12,720 --> 00:58:16,560
+cloud or own cloud. You know, there wasn't a bit torrent sync
+
+762
+00:58:16,560 --> 00:58:20,480
+back then. So we're talking 10 years ago. And there's how many
+
+763
+00:58:20,480 --> 00:58:24,400
+tools do you how many software tools do you use today that you
+
+764
+00:58:24,400 --> 00:58:28,400
+were using just as heavily 10 years ago? Yeah, like three. I
+
+765
+00:58:28,400 --> 00:58:31,760
+know it's really it's like, so that's where Dropbox fits in our
+
+766
+00:58:31,760 --> 00:58:35,440
+workflow. It's, it's not irreplaceable. But it is a big
+
+767
+00:58:35,440 --> 00:58:37,360
+consideration, because then it's not just a matter of
+
+768
+00:58:37,360 --> 00:58:41,520
+switching out of technology. The next question becomes, how
+
+769
+00:58:41,520 --> 00:58:44,400
+do I get all of the remote people to install something
+
+770
+00:58:44,400 --> 00:58:47,760
+else? How do I get all of them to buy in on this? You know,
+
+771
+00:58:47,760 --> 00:58:51,200
+we're talking nearly half a dozen people that are all over
+
+772
+00:58:51,200 --> 00:58:53,840
+the world, right? There's also that social factor of Dropbox
+
+773
+00:58:53,840 --> 00:58:56,480
+because it's been around so long has a lot of investment
+
+774
+00:58:56,480 --> 00:58:58,960
+already. People already have clients installed. It's kind of
+
+775
+00:58:58,960 --> 00:59:01,360
+like how Slack ends up. And it's not unusual if you see a
+
+776
+00:59:01,360 --> 00:59:03,600
+public Dropbox URL when somebody sending you a file,
+
+777
+00:59:03,600 --> 00:59:07,040
+hey, can you send me that sound clip and I send them a Dropbox
+
+778
+00:59:07,040 --> 00:59:09,440
+file that's linked? That's not unusual. It's a normal thing.
+
+779
+00:59:10,320 --> 00:59:12,640
+So there's that aspect of it. So you have the you have like the
+
+780
+00:59:12,640 --> 00:59:16,240
+human aspect of people adopting it. But you also then have to
+
+781
+00:59:16,240 --> 00:59:18,640
+ask yourself like, well, if I'm going to move off of Dropbox,
+
+782
+00:59:18,640 --> 00:59:21,120
+is it time now to go through and clean some of this up?
+
+783
+00:59:21,120 --> 00:59:24,720
+Such such really some of this be on our free NAS. And some of
+
+784
+00:59:24,720 --> 00:59:28,160
+this doesn't need to be in a sync system anymore. Should we
+
+785
+00:59:28,160 --> 00:59:31,680
+reorganize the folder structure? Because, you know, it turns out
+
+786
+00:59:31,680 --> 00:59:34,320
+we're no longer producing cast a blaster. You know, I'm no
+
+787
+00:59:34,320 --> 00:59:37,680
+longer doing plan B. But yet all of that stuff is still in the
+
+788
+00:59:37,680 --> 00:59:41,040
+Dropbox directory structure in the current working shows at the
+
+789
+00:59:41,040 --> 00:59:45,760
+top level. Yeah. So is it time to go through and refocus that
+
+790
+00:59:45,760 --> 00:59:48,240
+on to what we're currently doing in the assets we currently
+
+791
+00:59:48,240 --> 00:59:52,560
+need? But that becomes a massive project. That's a huge
+
+792
+00:59:52,560 --> 00:59:56,640
+project that's going through a decades legacy of production
+
+793
+00:59:56,640 --> 00:59:59,280
+and deciding what is current and what needs to be resorted.
+
+794
+00:59:59,280 --> 01:00:01,920
+And it's just a massive undertaking that makes that
+
+795
+01:00:01,920 --> 01:00:06,160
+November 7th deadline a little uncomfortable. You see where I'm
+
+796
+01:00:06,160 --> 01:00:11,040
+going with this. So the question became, how can we punt that
+
+797
+01:00:11,040 --> 01:00:14,480
+down the road just a little bit? Not forever, because this is
+
+798
+01:00:14,480 --> 01:00:16,800
+something we absolutely have to address. But if we don't get all
+
+799
+01:00:16,800 --> 01:00:18,960
+of these questions answered, because I would hate to move to
+
+800
+01:00:18,960 --> 01:00:22,560
+a new system and use a terabyte more of storage than I need.
+
+801
+01:00:22,560 --> 01:00:25,120
+Like we just wrapped up production of the unfilter show.
+
+802
+01:00:25,120 --> 01:00:27,920
+Do I now need all of the unfiltered clips in Dropbox?
+
+803
+01:00:28,720 --> 01:00:30,880
+Probably not. Probably not. But where else do I put them?
+
+804
+01:00:30,880 --> 01:00:35,440
+Yep. And where maybe maybe they go on the free NAS. But then I
+
+805
+01:00:35,440 --> 01:00:38,320
+need to make I need to slice out space on that. Right? Because
+
+806
+01:00:38,320 --> 01:00:41,360
+it's like a terabyte worth of those are just that you manage.
+
+807
+01:00:41,360 --> 01:00:43,120
+Yeah. So you lose the convenience there.
+
+808
+01:00:43,120 --> 01:00:46,240
+So this is why we wanted to talk about ways to sort of kick the
+
+809
+01:00:46,240 --> 01:00:49,600
+can for a little bit. And the first idea that we kind of came
+
+810
+01:00:49,600 --> 01:00:52,320
+up with behind the scenes here was, well, what about just
+
+811
+01:00:52,320 --> 01:00:56,720
+creating like a sparse file on your file system that was
+
+812
+01:00:56,720 --> 01:00:59,040
+formatted as extended for? What do you think of this idea?
+
+813
+01:00:59,040 --> 01:01:01,840
+Create a sparse image, which would only use as much as it's
+
+814
+01:01:01,840 --> 01:01:03,760
+actually using, right? That's the nice thing about sparse
+
+815
+01:01:03,760 --> 01:01:06,880
+images. So if you have a 500 megabyte Dropbox, it would only
+
+816
+01:01:06,880 --> 01:01:09,760
+use 500 megs. But you could let it go up to like two gigs or
+
+817
+01:01:09,760 --> 01:01:13,120
+whatever. And then you mount that. And then you set your
+
+818
+01:01:13,120 --> 01:01:15,760
+Dropbox inside there. So it has to be mounted to boot up. What
+
+819
+01:01:15,760 --> 01:01:17,440
+do you think of this? I mean, you can just put it right in
+
+820
+01:01:17,440 --> 01:01:21,040
+your, your old F stab there. So, you know, once you've got to
+
+821
+01:01:21,040 --> 01:01:23,040
+format it, maybe just stick it somewhere in a convenient place
+
+822
+01:01:23,040 --> 01:01:25,680
+that you know, or a secure, do you really call it F stab? Well,
+
+823
+01:01:25,680 --> 01:01:28,560
+no, but it's more fun. So yeah, that is. Yeah. So look at the
+
+824
+01:01:28,560 --> 01:01:31,760
+truncate command. So you could do truncate dash s two gigs, and
+
+825
+01:01:31,760 --> 01:01:35,520
+then you could do something like Dropbox dot ext four, and
+
+826
+01:01:35,520 --> 01:01:39,840
+then you use make a fast dot ext four to format that. And then
+
+827
+01:01:39,840 --> 01:01:42,400
+create a directory inside there. And you can mount that just as
+
+828
+01:01:42,400 --> 01:01:48,400
+a simple pseudo mount Dropbox dot ext four to say like, colon
+
+829
+01:01:48,400 --> 01:01:50,880
+backslash Dropbox, and you would have a Dropbox folder that
+
+830
+01:01:50,880 --> 01:01:53,600
+would show up that would actually be a mounted sparse
+
+831
+01:01:53,600 --> 01:01:58,320
+image. And that isn't that difficult to do, you just move
+
+832
+01:01:58,320 --> 01:02:00,720
+your Dropbox to there, you keep on syncing, it's living on your
+
+833
+01:02:00,720 --> 01:02:04,240
+XFS partition. Yeah. And then if you put it in F stab, then yeah,
+
+834
+01:02:04,240 --> 01:02:07,840
+you know, it'll just happen for you. Or, you know, system D can
+
+835
+01:02:07,840 --> 01:02:11,120
+do that too. Speaking of lots of options, it's not ideal, right?
+
+836
+01:02:11,120 --> 01:02:13,200
+There's a you just have another layer just to make the
+
+837
+01:02:13,200 --> 01:02:17,520
+Dropbox client happy. Yeah. But here's the here's the real rub
+
+838
+01:02:18,000 --> 01:02:21,040
+is it's worth keeping in mind that it's also encrypted
+
+839
+01:02:21,040 --> 01:02:23,760
+extended for partitions. Now, if you're doing whole disk
+
+840
+01:02:23,760 --> 01:02:28,320
+encryption, the entire disk is encrypted, that's getting
+
+841
+01:02:28,480 --> 01:02:33,440
+unlocked at boot time. That is sort of beyond the actual
+
+842
+01:02:33,440 --> 01:02:35,840
+on the application layer that's being done at the kernel
+
+843
+01:02:35,840 --> 01:02:37,840
+layer. I don't think that's going to affect Dropbox. They
+
+844
+01:02:37,840 --> 01:02:40,320
+actually haven't been clear about this. But if you're doing
+
+845
+01:02:40,320 --> 01:02:43,600
+like just the encryption of your home directory, that's where
+
+846
+01:02:43,600 --> 01:02:45,680
+you're going to get screwed. And there are several
+
+847
+01:02:45,680 --> 01:02:47,360
+distributions that do that by default, that type of
+
+848
+01:02:47,360 --> 01:02:50,080
+encryption. And that's where even if you're on extended for
+
+849
+01:02:50,080 --> 01:02:53,280
+you're getting screwed over. You know, if you're in a lot of
+
+850
+01:02:53,280 --> 01:02:56,240
+enterprises have a policy have an encrypted home directory.
+
+851
+01:02:56,240 --> 01:03:00,400
+And now, it just you're like in a hard between a rock and a
+
+852
+01:03:00,400 --> 01:03:02,800
+hard place because your work demands that you have an
+
+853
+01:03:02,800 --> 01:03:05,120
+encrypted home directory, but this tool you use to do work
+
+854
+01:03:05,120 --> 01:03:07,600
+won't work anymore. So this could be a solution for you,
+
+855
+01:03:07,600 --> 01:03:10,800
+Eric or wimpy to either of you have a particular idea of a
+
+856
+01:03:10,800 --> 01:03:14,880
+workaround that comes to mind for keeping Dropbox happy. We
+
+857
+01:03:14,880 --> 01:03:17,680
+even speculated about ways of fooling to think it's talking to
+
+858
+01:03:17,680 --> 01:03:20,320
+extended for regardless of the file system is on with a few
+
+859
+01:03:20,320 --> 01:03:23,120
+little library hacker ease. But curious if either of you can
+
+860
+01:03:23,120 --> 01:03:27,840
+think of a way to keep Dropbox chumming even if it's a on ZFS
+
+861
+01:03:27,840 --> 01:03:31,200
+or XFS. Yeah, I like the I like the idea of sparse files, you
+
+862
+01:03:31,200 --> 01:03:34,880
+could use, you know, a QCOW file, you know, something
+
+863
+01:03:34,880 --> 01:03:38,880
+that's common to the virtualized environments and
+
+864
+01:03:38,880 --> 01:03:44,800
+format it in a similar way so that it grows, you know, with
+
+865
+01:03:44,800 --> 01:03:49,440
+the requirement of the storage that you're putting into it. So
+
+866
+01:03:49,440 --> 01:03:54,960
+yeah, I like that. I was I was looking so you talked about this
+
+867
+01:03:54,960 --> 01:03:58,080
+at the weekend and I was I went back and looked at sync thing to
+
+868
+01:03:58,080 --> 01:04:01,840
+see how sync thing has been evolving in in recent years.
+
+869
+01:04:01,840 --> 01:04:05,280
+And it's interesting, a recent release of sync thing, so not
+
+870
+01:04:05,280 --> 01:04:10,720
+point 14, but point four, seven, actually supports file system
+
+871
+01:04:10,720 --> 01:04:16,240
+monitoring within itself now, and doesn't rely on extended
+
+872
+01:04:16,240 --> 01:04:21,280
+attributes. So that is a recent change there, like, literally at
+
+873
+01:04:21,280 --> 01:04:26,880
+the end of last last month, sort of June, June, this year. So
+
+874
+01:04:26,880 --> 01:04:29,760
+there's always, you know, alternatives out there. But
+
+875
+01:04:29,760 --> 01:04:32,400
+yeah, lots of people like sync, like Dropbox for all the
+
+876
+01:04:32,400 --> 01:04:37,200
+reasons that you you mentioned most most most of which is the
+
+877
+01:04:37,200 --> 01:04:41,040
+selective sync capability. Yeah, it's nice. So yes, finding
+
+878
+01:04:41,040 --> 01:04:43,920
+finding file system mechanisms. And you said about sudo
+
+879
+01:04:43,920 --> 01:04:46,960
+mounting, you know, Dropbox, if you're using it on a desktop
+
+880
+01:04:46,960 --> 01:04:50,560
+operating system, wants to use the Dropbox folder in your home
+
+881
+01:04:50,560 --> 01:04:53,200
+directory. So there's no requirement for you to mount
+
+882
+01:04:53,200 --> 01:04:57,520
+that with sudo, you'd be able to do that. You know, a loopback
+
+883
+01:04:57,520 --> 01:05:01,760
+mount. That is a fair point. I think, I think same thing is
+
+884
+01:05:01,760 --> 01:05:04,400
+extremely attractive. I've got a couple of candidates, I've
+
+885
+01:05:04,400 --> 01:05:07,840
+obviously been running next cloud, next cloud instance for a
+
+886
+01:05:07,840 --> 01:05:11,840
+long time now. And sync thing I've played with, I've dabbled
+
+887
+01:05:11,840 --> 01:05:14,640
+with the thing I really like about sync thing is I could set
+
+888
+01:05:14,640 --> 01:05:17,520
+up individual folders and just sync them to certain systems. So
+
+889
+01:05:17,520 --> 01:05:20,720
+it'd be complicated, but it'd be really great. Fedora has a
+
+890
+01:05:20,720 --> 01:05:23,840
+suggestion to just go the other direction. They say just
+
+891
+01:05:23,840 --> 01:05:28,320
+convert the file system use FS transform. And they give a
+
+892
+01:05:28,320 --> 01:05:31,280
+walkthrough on the Fedora magazine website. They say it
+
+893
+01:05:31,280 --> 01:05:34,560
+sounds like magic, but you can convert from extended to
+
+894
+01:05:34,560 --> 01:05:39,040
+extended three extended for riser FS, or XFS to another type
+
+895
+01:05:39,040 --> 01:05:42,480
+in almost any combination. As long as your kernel has support
+
+896
+01:05:42,480 --> 01:05:44,800
+for that file system, the one you're coming from and the one
+
+897
+01:05:44,800 --> 01:05:48,160
+you're going to it does seem to work. I did just try it and
+
+898
+01:05:48,160 --> 01:05:51,920
+converted an XFS system to ext4. Shut up. We only had one
+
+899
+01:05:51,920 --> 01:05:54,880
+file in there. But it came through unscathed.
+
+900
+01:05:56,720 --> 01:06:01,520
+That is that is a workaround. But I will stop using XFS when
+
+901
+01:06:01,520 --> 01:06:06,160
+you remove it from my cold dead fingers because I'm I am wedded
+
+902
+01:06:06,160 --> 01:06:09,920
+to XFS. Yeah, it's a it's a great file system. And that's
+
+903
+01:06:09,920 --> 01:06:12,160
+why Red Hat Enterprise Linux sets it by default for the home
+
+904
+01:06:12,160 --> 01:06:15,760
+partition. It is a tried and true system that's been around
+
+905
+01:06:15,760 --> 01:06:19,200
+since the 90s that it's still getting active development. It
+
+906
+01:06:19,200 --> 01:06:21,760
+was one that I went to not only because it's super fast with
+
+907
+01:06:21,760 --> 01:06:24,480
+small file systems, it keeps itself tidy, but it supported
+
+908
+01:06:24,480 --> 01:06:27,840
+extended attributes before extended for was even released.
+
+909
+01:06:27,840 --> 01:06:31,120
+And so it just drives me crazy that that is Dropbox's
+
+910
+01:06:31,120 --> 01:06:34,560
+explanation. The extended attributes argument is is weak,
+
+911
+01:06:34,560 --> 01:06:38,320
+I think, because although there are differences in how the file
+
+912
+01:06:38,320 --> 01:06:41,040
+system store extended attributes in the block sizes in the
+
+913
+01:06:41,040 --> 01:06:46,000
+I nodes and what have you, that should be transparent through
+
+914
+01:06:47,760 --> 01:06:51,040
+the libraries that they're using. Dropbox is implemented
+
+915
+01:06:51,040 --> 01:06:55,120
+using Python ostensibly and libR sync. Yeah, that's what I
+
+916
+01:06:55,120 --> 01:06:58,000
+thought when I heard that. Or the least I mean, you know, we
+
+917
+01:06:58,000 --> 01:07:00,400
+just don't have very much insight or clarity here, but it
+
+918
+01:07:00,400 --> 01:07:02,080
+would be helpful if they could lay it out a little bit more
+
+919
+01:07:02,080 --> 01:07:04,400
+and then at least make the argument of like, is this not
+
+920
+01:07:04,400 --> 01:07:06,800
+possible because of some design decisions that you've made?
+
+921
+01:07:06,800 --> 01:07:09,360
+And, you know, they do have a fancy client, right? So simpler
+
+922
+01:07:09,360 --> 01:07:12,640
+clients might not need this. Or you just it's just too much
+
+923
+01:07:12,640 --> 01:07:14,640
+work and you don't want to spend the resources on Linux. And
+
+924
+01:07:14,640 --> 01:07:16,880
+those are different scenarios. I would really like them to be
+
+925
+01:07:16,880 --> 01:07:20,000
+more clear about this instead of just one community support rep
+
+926
+01:07:20,000 --> 01:07:21,760
+mentioning something in the form and then mentioning
+
+927
+01:07:21,760 --> 01:07:24,800
+something later. And then we're left to speculate other than
+
+928
+01:07:24,800 --> 01:07:27,520
+you're going to start getting notifications via your Dropbox
+
+929
+01:07:27,520 --> 01:07:30,000
+client. It seems it really like rubs in our nose to Mac gets
+
+930
+01:07:30,000 --> 01:07:32,560
+two supported file systems and we get one and we're like,
+
+931
+01:07:32,560 --> 01:07:35,040
+we're the one with all the file systems. I just talk through
+
+932
+01:07:35,040 --> 01:07:37,120
+the kernel. Don't talk directly to the file system. You're
+
+933
+01:07:37,120 --> 01:07:39,520
+doing it wrong. That's my that's my general sense. And so
+
+934
+01:07:39,520 --> 01:07:42,320
+I've learned two lessons from this and I feel like it's worth
+
+935
+01:07:42,320 --> 01:07:46,480
+sharing with you guys. The first lesson I've learned is you
+
+936
+01:07:46,480 --> 01:07:49,120
+really if you're on Linux and you're building something like
+
+937
+01:07:49,120 --> 01:07:52,720
+an essential workflow, you really have to go with free
+
+938
+01:07:52,720 --> 01:07:55,920
+software whenever you can. Now in the past, some of our
+
+939
+01:07:55,920 --> 01:08:00,640
+production systems or Macs or Hackintoshes and so Dropbox
+
+940
+01:08:00,640 --> 01:08:03,760
+seem perfectly reasonable. If it was 10 years ago, we were
+
+941
+01:08:03,760 --> 01:08:06,480
+starting where we are at today with Linux. I don't think I
+
+942
+01:08:06,480 --> 01:08:10,000
+would ever have used Dropbox. So you know, keep that in mind
+
+943
+01:08:10,000 --> 01:08:13,360
+for your workflow. Some of these companies just are never
+
+944
+01:08:13,360 --> 01:08:15,760
+properly incentivized to support Linux users in an
+
+945
+01:08:15,760 --> 01:08:18,880
+appropriate way. They can't even give us an appropriate
+
+946
+01:08:18,880 --> 01:08:21,200
+response. They don't even have the time of day to give us an
+
+947
+01:08:21,200 --> 01:08:24,240
+explanation why they're screwing us. That's where we're
+
+948
+01:08:24,240 --> 01:08:26,240
+at. I mean, it's that same thing, right? You don't you get
+
+949
+01:08:26,240 --> 01:08:28,640
+the convenience, but you don't get the control and free
+
+950
+01:08:28,640 --> 01:08:31,680
+software gives you that back. Yeah. And so that's that's
+
+951
+01:08:31,680 --> 01:08:35,680
+just a reinforcement of that lesson. But at the same time
+
+952
+01:08:35,680 --> 01:08:40,160
+that that that scorn is tempered with the fact that I
+
+953
+01:08:40,160 --> 01:08:44,880
+used this for 10 years. While I always knew this was gonna be a
+
+954
+01:08:44,880 --> 01:08:49,280
+problem. I got 10 years of practical use out of this and
+
+955
+01:08:49,280 --> 01:08:52,720
+I've only paid for the business account for like the last three
+
+956
+01:08:52,720 --> 01:08:57,520
+maybe two. So that's you know, you have to weigh that it did
+
+957
+01:08:57,520 --> 01:09:02,080
+burn me in the end. But at the same time, I I managed to not
+
+958
+01:09:02,080 --> 01:09:04,960
+have to manage that problem for 10. I managed not to manage
+
+959
+01:09:04,960 --> 01:09:07,600
+that problem for 10 years. And you I mean, you might have even
+
+960
+01:09:07,600 --> 01:09:09,840
+had a change if you were doing you know, one open source
+
+961
+01:09:09,840 --> 01:09:12,160
+project goes out of favor a new one has more features, you
+
+962
+01:09:12,160 --> 01:09:16,480
+might have to have to move those files anyway. And I haven't
+
+963
+01:09:16,480 --> 01:09:19,280
+been wasting this time. You know, I've been you guys have
+
+964
+01:09:19,280 --> 01:09:21,840
+heard me tell the story about my next cloud instance that runs
+
+965
+01:09:21,840 --> 01:09:25,040
+on a fedora server on DigitalOcean. I could switch
+
+966
+01:09:25,040 --> 01:09:28,880
+over to that I bought their, you know, their their
+
+967
+01:09:28,880 --> 01:09:31,040
+attachable block storage additional space. So my next
+
+968
+01:09:31,040 --> 01:09:34,000
+block storage, I don't I don't have five terabytes. But I've
+
+969
+01:09:34,000 --> 01:09:37,360
+got I've got a few gigs free. So I you know, I have options
+
+970
+01:09:37,360 --> 01:09:40,240
+here and I've got till November 7. And I've got other options
+
+971
+01:09:40,240 --> 01:09:42,960
+thanks to how powerful Linux is to even kick this can further
+
+972
+01:09:42,960 --> 01:09:46,160
+down the road if I have to. So I'm not even totally out of
+
+973
+01:09:46,160 --> 01:09:49,600
+options. But it's a good lesson. I feel like there's a mix of a
+
+974
+01:09:49,600 --> 01:09:52,640
+lesson here that is there is a practical aspect of this, but
+
+975
+01:09:52,640 --> 01:09:56,720
+you have to stay vigilant. And I'm just slightly on the other
+
+976
+01:09:56,720 --> 01:10:00,000
+side of vigilance. I'm almost vigilant. But I was really
+
+977
+01:10:00,000 --> 01:10:03,120
+hoping because truth is, I think we renewed just two months
+
+978
+01:10:03,120 --> 01:10:08,880
+ago. No. Yeah, I was my my and Noah and I have been talking
+
+979
+01:10:08,880 --> 01:10:12,320
+about this for months. My intention was to really get off
+
+980
+01:10:12,320 --> 01:10:15,280
+the sauce this year. You know, looking at the cost is that's
+
+981
+01:10:15,280 --> 01:10:17,760
+why I'm that's why I'm actually familiar with the prices, the
+
+982
+01:10:17,760 --> 01:10:21,440
+pricing versus local versus going VPS versus having all to
+
+983
+01:10:21,440 --> 01:10:24,720
+speed. You've been working on a C file instance. I knew what
+
+984
+01:10:24,720 --> 01:10:27,680
+all of the pricing is because it's something we've been
+
+985
+01:10:27,680 --> 01:10:30,160
+looking into for a while. Have you considered tape? We
+
+986
+01:10:30,160 --> 01:10:33,040
+could just fill the garage here in the studio with tape. You
+
+987
+01:10:33,040 --> 01:10:36,240
+joke. I actually have seriously considered it might be a good
+
+988
+01:10:36,240 --> 01:10:38,880
+solution for those video assets. First of all, you can
+
+989
+01:10:38,880 --> 01:10:40,960
+get some serious storage on those tapes for a decent
+
+990
+01:10:40,960 --> 01:10:43,280
+price, especially if you start buying some of those tapes,
+
+991
+01:10:43,280 --> 01:10:47,120
+you know, in bulk off Amazon or get a drive off of eBay. And
+
+992
+01:10:47,120 --> 01:10:49,440
+it's that stuff that those standards, those are the same
+
+993
+01:10:49,440 --> 01:10:52,400
+standards when I was an episode that would make no, it
+
+994
+01:10:52,400 --> 01:10:57,120
+just put old shows on tape. Just me. It has seriously the
+
+995
+01:10:57,120 --> 01:11:00,960
+only problem is it seems really, really, really
+
+996
+01:11:00,960 --> 01:11:03,280
+shortsighted to take a show that's fundamentally something
+
+997
+01:11:03,280 --> 01:11:05,520
+supposed to be distributed on the internet and store the only
+
+998
+01:11:05,520 --> 01:11:07,600
+copies on tape in a building that could easily burn down
+
+999
+01:11:07,600 --> 01:11:12,720
+because of all the equipment we run 24 seven. So that's my
+
+1000
+01:11:12,720 --> 01:11:15,840
+only concern with that. But yeah, so there's a few options
+
+1001
+01:11:15,840 --> 01:11:20,480
+for you. I may actually just consider FS transform for the
+
+1002
+01:11:20,480 --> 01:11:24,720
+for the for the systems here in the studio. I may just do FS
+
+1003
+01:11:24,720 --> 01:11:26,800
+transfer. I mean, there probably are systems where I
+
+1004
+01:11:26,800 --> 01:11:29,680
+agree XFS is a great file system, but there are probably
+
+1005
+01:11:29,680 --> 01:11:33,040
+systems where you don't care that much about what file
+
+1006
+01:11:33,040 --> 01:11:35,920
+system it is. And so for that, you know, it does seem to work
+
+1007
+01:11:35,920 --> 01:11:39,040
+pretty well. I do also think it might be this next year's, you
+
+1008
+01:11:39,040 --> 01:11:42,000
+know, April Fools prank. Watch out your file system might just
+
+1009
+01:11:42,000 --> 01:11:46,000
+be butter FS before you know it, buddy. Oh, that'll be the
+
+1010
+01:11:46,000 --> 01:11:48,640
+day. I think I'll be on ZFS on the desktop before then, but
+
+1011
+01:11:48,640 --> 01:11:51,840
+we'll have links to sparse bundles, FS transform on all of
+
+1012
+01:11:51,840 --> 01:11:56,480
+that in the show notes at linuxunplug.com slash 262. And
+
+1013
+01:11:56,480 --> 01:12:00,160
+yes, go ahead. Take a piss. Give me a hard time. Let me know
+
+1014
+01:12:00,160 --> 01:12:02,960
+how silly I am for using Dropbox for all these years.
+
+1015
+01:12:02,960 --> 01:12:06,640
+It's worked out so well. But in the end, I knew this day would
+
+1016
+01:12:06,640 --> 01:12:09,680
+come. So I'm not I mean, I can't even say I'm super
+
+1017
+01:12:09,680 --> 01:12:11,680
+surprised. I can't say I'm super shocked. I mean, you've
+
+1018
+01:12:11,680 --> 01:12:14,000
+talked about it, right? We knew it was going to happen or it
+
+1019
+01:12:14,000 --> 01:12:17,280
+could. It's just the unfortunate reality that they
+
+1020
+01:12:17,280 --> 01:12:19,920
+have a lot of work to do. I'm looking forward to the next
+
+1021
+01:12:19,920 --> 01:12:23,280
+Ubuntu podcast because I assume Mr. Wimpress will return to the
+
+1022
+01:12:23,280 --> 01:12:27,040
+show. Yes, it will be my glorious return. We're going to
+
+1023
+01:12:27,040 --> 01:12:32,240
+be recording tomorrow night because as I speak right now, I
+
+1024
+01:12:32,240 --> 01:12:36,320
+can exclusively reveal that Popeye has just landed. He has
+
+1025
+01:12:36,320 --> 01:12:40,320
+returned from Academy. So yes, due to the unique way that the
+
+1026
+01:12:40,320 --> 01:12:43,440
+Ubuntu podcast is produced, we're not recording on a Tuesday
+
+1027
+01:12:43,440 --> 01:12:45,440
+evening this week. We're recording on a Wednesday.
+
+1028
+01:12:46,480 --> 01:12:49,600
+Time travel. Very nice. Well, I'm looking forward to it.
+
+1029
+01:12:49,600 --> 01:12:52,160
+Always a great show. Go check out the Ubuntu podcast to get
+
+1030
+01:12:52,160 --> 01:12:56,080
+more wimpy and Mr. Popeye as well as Mark. It'll be good to
+
+1031
+01:12:56,080 --> 01:13:00,320
+hear the regular cast. If you have followed any of our peer
+
+1032
+01:13:00,320 --> 01:13:04,560
+tube shenanigans, that's thanks to Eric, the IT guy. We have a
+
+1033
+01:13:04,560 --> 01:13:07,040
+did you rename the channel, Eric, the peer tube instance
+
+1034
+01:13:07,040 --> 01:13:09,200
+because there has been some other things in the works as
+
+1035
+01:13:09,200 --> 01:13:11,280
+we're getting ready to set up some really great developer
+
+1036
+01:13:11,280 --> 01:13:14,560
+resources. So you can find Eric there, but I don't know if we
+
+1037
+01:13:14,560 --> 01:13:19,280
+have a new URL for it. So no, the peer tube instance is still
+
+1038
+01:13:19,280 --> 01:13:21,760
+it. No, no, I'm talking about the group where you're setting
+
+1039
+01:13:21,760 --> 01:13:24,320
+up something new. The new thing you're working on in the group
+
+1040
+01:13:24,320 --> 01:13:27,280
+that we should be teasing now, you know what I'm talking about.
+
+1041
+01:13:27,280 --> 01:13:30,000
+So we have a group for peer tube, a telegram group that may
+
+1042
+01:13:30,000 --> 01:13:33,520
+be transforming to a more developer focus group for
+
+1043
+01:13:33,520 --> 01:13:36,080
+people that want to work on projects, as well as Eric's
+
+1044
+01:13:36,080 --> 01:13:39,200
+working on a get lab instance where we're going to consolidate
+
+1045
+01:13:39,200 --> 01:13:42,240
+our open source projects around Jupiter broadcasting onto that
+
+1046
+01:13:42,240 --> 01:13:45,920
+with a great URL and something that Eric and I have just
+
+1047
+01:13:45,920 --> 01:13:48,400
+started talking about, but we'll probably be at that same
+
+1048
+01:13:48,400 --> 01:13:52,000
+site is essentially an issue tracker for Jupiter broadcasting.
+
+1049
+01:13:52,000 --> 01:13:54,160
+So I could give you an example right now. The audio stream
+
+1050
+01:13:54,160 --> 01:13:56,400
+isn't working. That's something we're no, it's something we're
+
+1051
+01:13:56,400 --> 01:13:59,600
+in progress, but it's not working. So that would be an
+
+1052
+01:13:59,600 --> 01:14:01,760
+open issue. Hey, I noticed your audio stream isn't working or
+
+1053
+01:14:01,760 --> 01:14:03,440
+something like that. Like if you had a problem with the website
+
+1054
+01:14:03,440 --> 01:14:06,080
+or a feed. So it's all things that are in the works. And if
+
+1055
+01:14:06,080 --> 01:14:09,680
+you want to get involved in that, I'm it's a it's a it's
+
+1056
+01:14:09,680 --> 01:14:12,720
+telling whatever the telegram short URL is slash peer tube.
+
+1057
+01:14:12,720 --> 01:14:14,880
+I'm sorry. I think it's like T dot me or something. Let me go
+
+1058
+01:14:14,880 --> 01:14:20,800
+to T dot me slash peer tube. See if that's it. T dot me. Is
+
+1059
+01:14:20,800 --> 01:14:23,040
+that it? Nope. It's not that whatever the telegram short
+
+1060
+01:14:23,040 --> 01:14:26,160
+URL thing is seem to work for me. Oh, yeah. JB peer tube.
+
+1061
+01:14:26,160 --> 01:14:28,640
+Yeah, that's it. So we're going to start some of the planning
+
+1062
+01:14:28,640 --> 01:14:30,960
+and work around that. It'll probably get organized in the
+
+1063
+01:14:30,960 --> 01:14:33,280
+telegram group, not to diminish some of the other chat
+
+1064
+01:14:33,280 --> 01:14:36,160
+platforms. There's the JB dev IRC and things like that, but
+
+1065
+01:14:36,160 --> 01:14:38,240
+this is just another avenue for people to organize telegram
+
+1066
+01:14:38,240 --> 01:14:41,600
+seems to be hot these days. All the kids join the group and I
+
+1067
+01:14:41,600 --> 01:14:44,400
+need to I need to ban him real quick. I'm going to get it out
+
+1068
+01:14:44,400 --> 01:14:50,640
+of there. Mm hmm. Now it's really good. Yeah, that's good.
+
+1069
+01:14:50,640 --> 01:14:53,440
+I'm glad you got in there. Alright. Well, go get more West
+
+1070
+01:14:53,440 --> 01:14:56,400
+Paine. He's over at tech snap dot systems. You got the
+
+1071
+01:14:56,400 --> 01:15:01,040
+Twitters too. Oh yeah at West Paine. That's good. So succinct.
+
+1072
+01:15:01,040 --> 01:15:04,320
+It is you. You are fortunate that you have the unique last
+
+1073
+01:15:04,320 --> 01:15:07,920
+name like that that you can grab your own name that joined
+
+1074
+01:15:07,920 --> 01:15:12,160
+early too. I got I had I had something Chris something and I
+
+1075
+01:15:12,160 --> 01:15:15,760
+lost it. I had I just lost I left Twitter. I'm I'm good with
+
+1076
+01:15:15,760 --> 01:15:18,400
+Chris last though. So I'm at Chris LAS. You can follow me.
+
+1077
+01:15:18,400 --> 01:15:21,680
+The whole network is at Jupiter signal. You can follow
+
+1078
+01:15:21,680 --> 01:15:24,320
+that to find out about show releases and all of that. We do
+
+1079
+01:15:24,320 --> 01:15:27,760
+this show live on a Tuesday over at jblive.tv Jupiter
+
+1080
+01:15:27,760 --> 01:15:30,000
+broadcasting dot com slash calendar to get that converted
+
+1081
+01:15:30,000 --> 01:15:33,120
+to your local time. I usually get the stream kicked off around
+
+1082
+01:15:33,120 --> 01:15:36,480
+1 30 PM Pacific. So if you just want to do that math, come
+
+1083
+01:15:36,480 --> 01:15:38,800
+hang out. Yeah. Hang out in the chat room. Hang out in the
+
+1084
+01:15:38,800 --> 01:15:42,400
+mumble room. Be part of the virtual lug irc.geekshed.net is
+
+1085
+01:15:42,400 --> 01:15:44,880
+the chat room. Google again like I mentioned at the top of
+
+1086
+01:15:44,880 --> 01:15:47,440
+the show Jupiter colony mumble setup and you'll get the
+
+1087
+01:15:47,440 --> 01:15:50,880
+mumble guide get a working mic get a headphones get in there
+
+1088
+01:15:50,880 --> 01:15:53,200
+chat with us. Tell us what you think about Linux and the
+
+1089
+01:15:53,200 --> 01:15:55,760
+stories we're covering this week and you can also go to
+
+1090
+01:15:55,760 --> 01:15:58,560
+Linux unplug dot com slash subscribe for all the ways to
+
+1091
+01:15:58,560 --> 01:16:00,960
+get the show every week. Thanks for joining us. See you
+
+1092
+01:16:00,960 --> 01:16:12,800
+back here next Tuesday.
+
+1093
+01:16:30,960 --> 01:16:43,040
+Get it out of here. Oh Richard. Oh well done everyone.
+
+1094
+01:16:43,040 --> 01:16:45,840
+Thank you very much. Enjoyed that. It was a good tight group
+
+1095
+01:16:45,840 --> 01:16:48,960
+this week. It was uh but that worked out. Our syncing
+
+1096
+01:16:48,960 --> 01:16:52,800
+perspectives. JBtitles.com. JBtitles.com. Let's go
+
+1097
+01:16:52,800 --> 01:16:57,920
+boat. Tribes of Anit is pretty good. System BSD is also
+
+1098
+01:16:57,920 --> 01:17:01,440
+pretty good. Those are both really good. I got there and
+
+1099
+01:17:01,440 --> 01:17:04,560
+they're already tied on the on the boats. JBtitles.com. Don't
+
+1100
+01:17:04,560 --> 01:17:09,600
+make us pick. Settle this guys. You have those. Dropbox D.
+
+1101
+01:17:09,600 --> 01:17:12,400
+Dropbox D.
+
+1102
+01:17:13,600 --> 01:17:17,280
+The Popey has landed. That's also pretty good. Yeah now that
+
+1103
+01:17:17,280 --> 01:17:19,280
+the show's over everybody go watch the rest of that talk
+
+1104
+01:17:19,280 --> 01:17:21,280
+because it was a great talk. It's like you know what I gotta
+
+1105
+01:17:21,280 --> 01:17:24,080
+go to that. It's a yep. That if that's if that's the sort of
+
+1106
+01:17:24,080 --> 01:17:27,440
+opinions and stuff that they're open to having at a BSD event.
+
+1107
+01:17:27,440 --> 01:17:30,960
+I'm going plus hang out with Alan Jude. So that never hurts.
+
+1108
+01:17:30,960 --> 01:17:33,280
+Yeah yeah plus you know what else. I mean not to plus and
+
+1109
+01:17:33,280 --> 01:17:35,600
+plus here but I like plus and stuff here. It's a great drive.
+
+1110
+01:17:35,600 --> 01:17:38,240
+You could go down the coast down the Oregon coast. That is
+
+1111
+01:17:38,240 --> 01:17:40,640
+a great. That's a great drive. That's a great drive. I know.
+
+1112
+01:17:40,640 --> 01:17:43,680
+So I'm like let's do it. Let's go plus. Go hang out at Intel.
+
+1113
+01:17:43,680 --> 01:17:47,280
+Alright. Okay. Twist my arm. Twist my freaking arm. And I'm
+
+1114
+01:17:47,280 --> 01:17:49,120
+sure there's lots of fun exciting stuff happening over
+
+1115
+01:17:49,120 --> 01:17:53,760
+in that BSD world. It's been a while since we've checked in.
+
+1116
+01:17:53,760 --> 01:17:58,640
+Yeah right. I'm practicing so I'll blend in in the group.
+

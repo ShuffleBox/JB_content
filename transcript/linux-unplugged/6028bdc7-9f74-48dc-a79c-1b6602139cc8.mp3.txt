@@ -1,0 +1,1333 @@
+Wes found something that I'm gonna be using the heck out of, but potentially, it's YouTube DL
+web server. It's a web server for downloading YouTube videos. You fire up a Docker container,
+you give it a YouTube URL, and it's pretty much off to the races. You then are re-hosting your own
+downloaded instances of the YouTube videos. And I think right now one of the things it does is
+it re- or transcodes, I guess would be the way to put it. Not re-encode, but it transcodes
+them to mp3. So then you can download them from a web UI as mp3 files, which kind of be a cool way
+to convert long videos into like a podcast. You know, and there are things to do this,
+various sites out there or bookmarklets or just the command line. But if you're like me,
+you have others in your life who frequently have sources that are YouTube videos. I can't be
+bothered to ffmpeg them mp3s all the darn time. So here you go. Pop it in that web UI and you're
+off to the races. Now, of course, right now you can't really choose, you know, does it give you
+the full video? And there's a ton of options. There's dash videos, there's, you know, YouTube
+has a lot of downloading options. So hopefully those features show up in a later release. I've
+got a very, oh, so shameful bash version of this that I have been using. So maybe after the show,
+I can replace it. Yeah, I love YouTube DL. And this just makes it even better and more
+accessible to friends and family and lazy Chris, which lazy Chris always appreciates making things
+a little easier. This is Linux Unplugged, episode 268 for September 25th, 2018.
+Ooh, welcome to Linux Unplugged, your weekly Linux talk show that's got a studio full of brown bears.
+My name is Chris. My name is Wes. Hello, Wes. We have a packed show today, multiple guests
+stopping by the show, some community news, and something that we don't get to enough,
+the audience's feedback and emails and questions. We'll do a little bit of that too, do some follow
+up on some recent topics. And I'll tell you about a new rig that just showed up in the studio.
+It's a monster. I haven't told you about it yet. So I'm excited. I'll tell you in the show,
+you'll get to find out. So, and maybe the most important thing at all, on top of all this,
+is after the show, we're going to do an unplugged barbecue. Noah's in town. He's hanging out at the
+studio. Wes is here. He's brought his pups. We're going to go get Levi, go get some food.
+There's some meat in the cooker right now. This is prep for the big public barbecue we
+want to do once I'm back up on my feet, feeling better. Got to get it right in before the holidays.
+So the timing is going to be tricky. So this will be our test run at a big barbecue,
+a big community barbecue. We'll do a trial. I mean, you got to rehearse if you want to get it right.
+You already got the sous vide going. Yeah, that's right. All right. Well, before we get any farther
+into the show, you know what we got to do. We got to bring in that virtual lug. Time,
+appropriate greetings, mumble room. Amazing. We have a great turnout in there. Mr. Dahr is back.
+Brent's there, of course. Cassidy from Elementary OS. Longtime contributor Eric is there. Hayden is
+here from an interesting project we'll be talking about in just a little bit. Mr.
+Minimac, true contributor to the, I mean, needs no introduction. Just here all the time. And
+returning to the show, Mr. Ryan Sipes. Ryan, welcome back to the show. It's good to be back.
+We got Sean in there and TechMav as well. So we got a big crew today. We're really looking
+forward to today's episode. So let's start with the thing that people are sort of the most on edge
+about this week. We'll just get this out of the way. People are pretty upset that Google seems to
+be, quote, secretly logging users into Chrome whenever they log into a Google property. So you
+go into Docs, you go to Gmail. I do that all the time. You go to YouTube. Yeah, right. I mean,
+what don't they own? Starting with Chrome 69, whenever a Chrome user would access a Google
+own site, the browser would take that user's Google identity and log the user into the Chrome
+browser account system. Now with this revelation, obviously there's a large number of users who are
+just kind of angry. It feels like a sneaky behind the back modification. And you worry that it could
+allow Google to link your traffic to a specific browser and then to a specific account. And as
+someone with multiple Google accounts, there's some things I searched that, well, maybe not
+necessarily bad. I don't need on my work account. Right. Well, and Dar in the mumble room today was
+just talking about on the pre show about how he's on a machine that shared by multiple people. So
+how does that work now when multiple people sit down? Is it bouncing between Google accounts every
+time you change a Google sign? Somebody else sits down, logs into Gmail and now it's a different
+account signed into the browser. That's a very good question. Now there is something we should
+be clear about here. Google engineers have clarified that this auto login operation does not
+start the process of synchronizing local data to Google servers. That still requires you to
+explicitly click something. Right. Exactly. That's a big difference. Yeah. Oh, sorry. I forgot to
+call out Alex. Mr. Ironic Badger is also sorry, Alex. I didn't mean to skip you. I just don't read
+the screen very well from that far away. I know, you know, and I, we and I were just, we're just
+having a nice chat too. So, well, I'm very glad you're here. It's nice to see you. Alex, of course,
+was, he was joining us for quite a while after Texas Linux Fest, but then took some time off to
+travel to the States and move to the States, uh, down in a Raleigh area. So, and I'm now dealing
+with establishing a us credit history, which is unbelievably pain in the ass territory. Welcome.
+Our sympathies, sir. Um, then there's another thing that's now brewing today. Uh, Christoph
+Tavin tweeted out that when you clear all cookies in the new version of Google Chrome,
+it clears out all cookies except for the Google cookies. Um, and to be clear, what it actually
+seems to do is it wipes out all of the cookies on your file system and then immediately recreates
+the cookies for Google's properties and repopulates them. Interesting. Now I did see some defense out
+there. There's clearly some, some privacy implications here that people are rightfully
+concerned about. I did see some people trying to justify it from the developer side of you,
+you know, making the argument that, well, users are confused that they're logged into Chrome,
+but they're not logged into our Google sites and vice versa. And then, well, once you,
+if you are logged into the browser and you do clear your cookies on the very next request,
+it's pretty much going to go check and be like, Hey, am I signed in? It's going to agree to grab
+those cookies. So you can see them being like, well, it's simpler if we just warm them up front
+that maybe those cookies aren't, are always going to be there. Yeah. It's, it's sort of like, uh,
+in iOS when you turn on airplane mode now, it, it leaves Bluetooth on to connect to your watch or
+your AirPods. There's not like true airplane mode anymore. And what that feels like to me
+is design and product overruling engineering. I think the most accurate and cutting criticism
+about both of these changes is that when asked, Google engineers could not articulate a very clear
+reason why this change has happened and why it was kind of snuck in, which causes people to lose
+trust. I think they cannot say what it is because Google hasn't made this public statement about it
+and generally contracts for them to do so. So they were limited in what they could legitimately say.
+I mean, they are making some suggestions, but they all don't really pass the sniff test. Yeah.
+And do you think you're right? I mean, at this point, Chrome feels a bit more of like a Google
+product that happens to have a browser inside of it and less of like a browser first sort of thing.
+And it was the good engineering of a lot of Google's products that, you know, made me switch
+to Chrome for a long time is it was a great browser initially. And that was because of great
+engineering. Does anyone know is Chromium also affected by that or only the Chrome
+proprietary version? Most likely it will be. Looks like it is on Chromium now.
+Now, but I've also heard a lot of people saying they're using a version of Chromium that avoids
+all of this. I think there's some patches out there to remove that. Yeah.
+Know that Debian's version actually disables the Google services unless you go there manually
+and enable them. So. Okay. Only the Debian version or also the Ubuntu version?
+I can't talk for other stuff. I haven't tested it. Okay. Okay. So I have to check that.
+Now, Cassidy, you point out that this behavior isn't necessarily new for some group of users.
+Yeah. As far as I know, this is how it's been from day one on Chrome for Android. Like, and it
+maybe it was a little more forthcoming on Android when you sign in. It says, Hey, we're also going
+to sign you into the Chrome browser to sync your bookmarks and everything. So I don't know if
+people are freaking out about it here on the desktop, why that's very different from freaking
+out about it on Android. Yeah. I guess it does make it more in line with the Android version.
+That's an interesting point. It's kind of a weird one. Yeah. We have different conceptions on our
+different devices, I guess. You know, practically speaking, the very first thing I do is I log into
+the Chrome browser. So this is not necessarily a move that I find personally offensive. I am
+dumb enough, I guess. I don't know what people would label me who think Google is spying on them
+constantly, but I am willing to risk it. And I use the sync service. I sync my history and my
+bookmarks because I find that to be a very useful feature of the browser. And it's a good sync
+system, too. So I just have been all in from day one when they turned that on. So I don't really
+find this to be offensive, but I do understand people that are concerned about it. And it's just
+good to know, you know, and assess when you do have options out there, which is nice. So when
+you're looking when you're weighing Firefox versus Chrome, this is another data point. And I think
+it's an important one. Something else that I found really handy in the past has been play on Linux.
+Play on Linux is a wrapper around a series of scripts to make it really easy to install a lot of
+different Windows applications and use Wine. I've been wondering where does Play on Linux go now
+in a post-proton world? How about that, Wes? As a saying, a post-proton world. I like it.
+So where does Play on Linux go? And it appears that they're making some massive changes. Alpha
+One is out this week, along with a Play on Mac build as well. And there has been some big changes.
+Play on Linux version 5.0 Alpha has been completely redesigned, a new user interface,
+and a new platform they're calling, I guess, Phoenix? Am I saying that right? Phonics? I'm the
+worst. I'm just the worst. I shouldn't be allowed to speak. The new platform is, quote, decentralized,
+Git-based, and improves their script engine greatly. The new Alpha has support for about 135
+different games right now. They're also investigating using virtualization or container
+technologies to improve the gaming experience. So, hey. That could be interesting if you want
+to isolate a series of libraries or a specific version of Wine. There's a bottle system now,
+but that's more at the software layer. So this would be more at the systems layer. Yeah, so
+something to keep an eye on, playonlinux.com for more. I've used it on and off over the years. I've
+also used Crossover quite a bit over the years. And now it's like, well, how can these projects,
+Proton, how can these projects, Play on Linux, and Crossover Office, integrate Proton?
+Yeah, right. Can they further the value add and make it even easier to get some great games on
+Linux? I suspect there might be a way, at least, to take some of the upstream improvements that
+have been in Wine, and we'll probably start seeing those benefits. I'm curious to see where
+that goes. There's another thing I'm also watching to see where this goes. It sort of seems to me
+like elementary OS is positioning themselves as a family-safe, family-first distribution.
+And I started thinking that after I read a post by Cassidy on their Medium blog about
+App Center and content ratings that are coming in Juneau. They say, starting with Juneau,
+Cassidy writes, will display a content warning when a user goes to download an app that meets
+or exceeds a certain level of the OARS data. Think of that as like nudity, violence, and language
+content. In addition, these apps will not be featured on the App Center homepage as recommended
+installs. They will remain in the search results and category pages, so if you really want to find
+them, they're definitely still there. And we should note here that they want to be clear that
+elementary is not intending to be the content police. They could never make as informed of a
+decision about what's acceptable as, you know, yourself or a parent of a child.
+This is just a small step toward more robust content controls and informed consent, as they put it,
+for their users. So Cassidy, this seems like an interesting differentiating feature of the
+distribution, sort of making it safe for parents to deploy elementary OS for their kids. And it
+seems like this could go much deeper than just the App Center too. Yeah, exactly, and that's the
+plan. We've had parental controls in Loki now for a couple years, and it's, you know, it's kind of a
+first take on the concept where you can set up certain restrictions for apps for a managed account.
+But I think we're looking at these digital wellness features that we've talked about that are coming
+to like Android and iOS, and we're kind of reconsidering how we could build this feature into
+the OS itself for both child accounts, but also for people to be able to control what they're
+comfortable installing or seeing in the OS. I was talking to somebody recently, and they said that
+their friend has PTSD from like combat-related trauma. And so that's an example I gave here of,
+you know, if you want to prevent yourself from seeing very violent content, you should have the
+control over your OS to do that. And it's always in your hands to be able to do that.
+And Ryan, you also are making the case it's not just for kids. Yeah, I just wanted to pair what
+Cass said. We actually had a conversation about this the other day. My girlfriend is really
+careful about this stuff, because she was over in Lebanon assisting Syrian refugees and was exposed
+to a lot of, you know, violence. And so it really triggers her to see, you know, really graphic
+violence. And so I think a lot of people benefit from being able to set what they're comfortable
+with seeing and appearing in front of them on their own machine when they're using it.
+Yeah, I hadn't thought about that, but that does make that makes a ton of sense.
+It's not an angle we usually think of, right? Like, control usually means like,
+I want unrestricted things, but restrictions for yourself, well, that's still control.
+It's a new idea that we've played with a lot recently, mostly in the mobile context. Like,
+should I start using the built-in OS features to limit screen time in the evening?
+In some way, things like secure boot are almost analogous.
+Oh, yeah, yeah, you're right. We have sort of been building this, it's like, I don't mind
+optional controls that I have total authority over that I can choose to put in place or not.
+Like, that's totally fine in my book.
+It points out problems in human social structures, right? We get a little nervous when we know those
+controls are there and easy to use, especially when we're not in a situation where we have total
+control.
+I also think it's really important that we build these tools to put the control in the hands of
+the users because if we don't build it in that way, I think there's too much of a temptation
+for people to control it at the service level. For example, if, you know, we thought, oh,
+we shouldn't have explicit content in the store, we might restrict all explicit content from the
+whole app center. And I don't think that's the right way to go.
+Ah, I see what you're saying is it also makes room for the other way. So there can be
+content that is explicit, but there is an easy way for people to opt out of it.
+Right. So that's a great point. So Cassidy, I guess this is one of many new things that are
+coming to Juno and we're kind of going to see this in the early stages, it sounds like with Juno.
+It'll be specific to the app center in Juno, but then future releases expanding from there?
+Yeah, the idea is kind of this tiered progression. At first, we're doing this kind of minimum
+viable. It's just a warning that says, hey, here's a heads up, according to the data in the app,
+that it has some explicit content. But after that, I think, yeah, we're going to look at
+really building in both in app center itself, listing out what actual ors tags are there.
+And so what, you know, whether it's explicit due to violence or nudity or language.
+And then after that, yeah, in the future is more system-wide controls. So you can,
+you know, this could theoretically apply to your video player or your music app as well.
+That's an interesting idea. And I think, like I said at the beginning,
+it's a good differentiator. I have found elementary OS to be a fantastic OS for my son.
+It's been on his laptop now for a couple of years, at least. Just super solid. So I really
+like this. And I plan to, you know, just keep them on elementary OS because it just
+worked out perfectly. So great, Cassie. Well, thanks for coming on and explaining that.
+Man, am I looking forward to seeing Juno land. It's got to be getting close. You guys must be
+in like the big final push, right? Yeah, it's coming. It's sure coming. I will say I've been
+working on the big release announcement post, you know, because there are certain things we know
+are obviously in this release and we can start taking some screenshots and things. But you are
+in that phase. You're in that phase. It's like a 20 minute read right now. Wow. So it's intense.
+There's a lot of new stuff, a lot of great stuff. Wow. Congratulations. Looking forward to it.
+Thanks. Speaking of other new stuff, we've been covering the development of PipeWire,
+which has recently had a couple of large growth spurts when it was adopted to provide remote
+desktop access to GnomeShell and now to also the Plasma desktop for Wayland. This was always the
+big question is, you know, I love X11's network capabilities. Wayland has nothing. How are we
+going to achieve this? And PipeWire is a back end plumbing system, I guess, for video right now.
+But that's about to change. PipeWire is going to also provide audio support. And that work has
+started to be formed. There is pretty much everything in place they need for video,
+including patches for Firefox and Chromium, which are in the development stages right now.
+So the video part being pretty well solved, and at least at a near 1.0, the PipeWire creator
+himself, Wim Tamus, and the pulse audio developer, core pulse audio developer, and a few others
+are getting together at a hack fest this fall to start the core work on building what they're
+calling a production audio pipeline for Linux. That's what that work is going to start at the
+end of October. And they're traveling to Edinburgh, and they're all going to get together. And I think
+this is a massive, massive moment, because macOS has a very competitive audio subsystem,
+like core audio is what they call it. And Linux has gotten pretty good with pulse audio in Jack.
+In fact, we use it extensively in production and are pretty happy with it these days. But I wouldn't
+say it's a cohesive API that you can easily write to like core audio is. Right. I mean, you have
+different use cases that are segregated, and a lot of your users will end up having to install
+different software and learn how to configure it if they have a new use case. So Christian here is
+blogging on one of the known blogs that I got off the known planet feed. And he writes that he's
+feeling very optimistic that we can come out of this event with both a plan for what we want to do,
+and the right people involved to make it happen. The idea is we can have a shared infrastructure
+for consumer level audio and pro level audio. Under Linux, it really excites me he writes,
+and I do believe that if we do this right, Linux will take a huge step forward as a natural home
+for pro audio desktop users. Amazing. I'm that is really exciting. Now, of course,
+it's really it's it's just early days. That's that's where it's at. We do have good audio
+solutions. But this is what we need that we have had missing abstractions. And I think that's what
+this is showing. And something to keep in mind is this solves the issue of a proper way of providing
+audio and video hardware access for for sandboxed applications, which we're going to start seeing
+more and more with flat packs and snaps and Wayland applications. This is going to be pretty
+nice. Secondarily, it provides a unified solution for user space and pro audio, which means pro audio
+users will no longer have to read all these crazy how tos and guides to get jack going on their
+system, which is what Wes and I are doing right now. It will just be all be programmatically
+achievable. And third, it provides a video equivalent of pulse audio, which makes dealing
+with different cameras, screen capture and a lot of other things, including doing all that under
+Wayland possible. So that's what pipeline is bringing is a unified audio and video subsystem
+that works across sandbox applications, works with Wayland and gives an API for developers to
+build towards. It's a pretty big deal. I don't want to crap on the initiative, but it sounds like,
+hey, we have too many standards. Let's make a standard to fix. And lay it on top of all the
+other existing things. Yeah, there is that definite potential. But the thing that seems
+encouraging to me is this is involving people from the KDE project. This is involving the core
+pulse audio developer, which I always mess up his name, but I came I became a patron of him.
+No, no, no. No, it's now run by Arun. I can't, I can't even I don't know, I can't even take a
+stab at his last name, but he's on Patreon. And he's now the core developer of pulse audio.
+And they're coming in together. If it's going to work, this is the right group of people.
+Yeah, they have the right heads in the room trying to build a coalition here,
+lay good foundations. It'll probably be a long time just like just like Wayland was before we
+really see it in a desktop OS or us. But yeah, it may be a long time before it's totally feature
+rich too, right? It's going to be probably a minimum viable product for a while. And then
+they'll build on top of it. So you and I will probably be writing out pulse audio and Jack for
+probably another year or two. Well, we'll be early testers. I guarantee that guarantee that I still
+am just I don't know, Jack is the vernacular is rough. It's just different. It's different.
+But in a year or two, Microsoft will finally have a Linux distro. Come on.
+Dar, you just never let it go. Hey, it's three years have passed. Two are missing.
+I said five years. Come on. That's true. I know. I know. I mean,
+we can't fault you there. It still could happen. I give you that. In the meantime,
+I can't believe this new rig that has come into the studio shipped to us by Dell for review.
+It is the Dell Precision 5530. And it is a 15 inch screen infinity edge to edge screen in a 14 inch
+chassis. Oh, and you can get it with Xeon processors if you want. You can get it with 32 gigs of RAM.
+I'll save the spec of ours for the review next week. But it just arrived in the studio today.
+So I'm going to be loading it up. It has a boon to 1604 installed from the factory.
+That looks like an XPS. It does. It looks exactly like an XPS 13,
+only a little bit bigger. Well, because it's a 14 inch chassis and a little bit thicker.
+But for that, you get a competent cooling system, which I'll be testing, and way more horsepower.
+The desktop replacement version of the XPS you've always wanted.
+Yeah. And you can get crazy fast processors in this thing.
+It's got the infamous i9 as an option, I see. Can that thing really dissipate the heat?
+Is it really capable of that?
+I've got the... I'll give you a little spoiler. I've got the i9 version that
+turbos up to 4.8 gigahertz, and I'm going to be testing that very thing.
+Don't take it across the border to that crazy Canadian that drops iMacs all the time though.
+Yeah, I know, right? I know. I'm pretty excited.
+Which Dell are you referring to?
+Well, hello, Mr. Wimpress. The Precision 5530, their 15 inch mobile workstation,
+just arrived here at the studio.
+Oh, really? Very interesting. Can you hurry up on that? Because
+I've got Bitcoin burning a hole in my wallet, and I'm about to slam down on a new laptop,
+and it's either going to be that, or the 7350, the new one, or the ThinkPad X1 Carbon Extreme.
+Oh, man. You really are running...
+Get the ThinkPad. I love ThinkPads.
+So I'm seriously considering a return to ThinkPads, having been a ThinkPad user
+for many, many years prior to the whole Dell XPS thing.
+So yeah, I'll be really interested to hear what you have to say, Chris,
+because literally I've got them in a spreadsheet side by side,
+and there's only a few things that are splitting hairs between them.
+Wow, you've even assembled a spreadsheet for this, you're telling me?
+Oh, yeah. I need to work out exactly how many one Bitcoin
+I'm going to spend on each of these laptops.
+Oh, that's... You know, I completely understand where you're at,
+because you feel like you've got a limited amount of time right now with the Bitcoin, too.
+Now's the time to pull the trigger.
+This time last year, it could have bought all of those laptops
+and had change out of one Bitcoin,
+and this time this year, it's like spec those to the max for one Bitcoin.
+Yeah. Well, I'll be trying it out starting now.
+Even though I just got a brand new laptop, this would be like...
+This could have been me in the future if I'd stayed into editing,
+and I was doing video editing, or I was doing a lot of audio editing under Linux.
+Yeah, and it's like demanding Linux workload. Perfect.
+This could have been in my future, so I'll give it a review.
+I'll load it up. I'll put it through its paces.
+It's got a brilliant 4K display, so I'll get a good taste of that,
+and I'll give you my full report in the next episode of Unplugged.
+So hopefully then, Mr. Wimpy, you could make your choice.
+I will wait for one week and one week only.
+All right. Well, I had a great chance to chat with Nate Graham,
+and if that name rings a bell,
+it's because he's pretty involved with the Plasma project,
+and he is the individual who's been posting weekly usability updates about Plasma
+that really showcases all of the goodies that are coming to the Plasma desktop.
+And it's the kind of things that have gotten me really hyped about Plasma
+and make me want to keep using it and keep trying out the next version,
+the next version, which actually ultimately maybe end up choosing Neon again.
+And so I had a chance to chat with Nate about the history of his mission
+to make Plasma more usable and also funding of that type of work.
+I've been wanting to get Nate Graham on the show for a while,
+and this week we had an opening and I emailed him late last night,
+and he took me up on the chance to come on the show
+and talk about some of the work that he's been doing with Plasma.
+And I love this, Nate, your self-described mission to make KDE Plasma
+the best and most widely used computer operating system interface on the planet Earth.
+That's a great mission.
+Nate, welcome to the show.
+Thanks so much. It's great to be here.
+So how are you accomplishing this mission?
+I've noticed what really caught my attention
+was you seem to have a big focus on polishing the usability rough edges of Plasma.
+In fact, it seems like this is something
+that's been kicking around in your head since 2017 at least.
+I saw a post where you're proposing improving usability,
+and then in September of 2017, there was a post of KDE's goals for 2018,
+and in there was a piece from you advocating for usability improvements.
+What's behind this mission?
+That's right.
+So it looks like you did a pretty good job of summarizing the history.
+I'll just fill in a couple of details.
+Please do.
+So back in late 2017, the KDE leadership basically asked the community,
+hey, what do you think we should focus on for the next couple of years?
+And I was a relatively new member at the time.
+I had done really hardly anything, but I thought, why not?
+Here's what I think we need, and I'm just going to put it out there.
+So I proposed my usability and productivity goal,
+and to my pleasant surprise, it seemed to have resonated,
+and people liked that, and it was chosen as a formal goal.
+So after that, a month or two passed, and not much really happened.
+And I realized if this was actually going to get done,
+I had to take the initiative on it because I was the one who proposed it.
+Nobody else was really going to do it before me,
+and I'd never really done anything like this before.
+But I said, you know what?
+Let's give it a try.
+I'm going to see what happens.
+And I decided to just start making lists.
+I made a list of things that I thought we needed,
+and I decided to start kind of poking people
+to see if I could get other people interested in it,
+and I started submitting some patches myself.
+And then as this went on, and things actually started to happen,
+I thought, hey, maybe people out there in the community
+might want to know what's going on.
+So I decided to start a blog about it
+after several other people urged me to.
+And well, we've pretty much been going from there for about,
+I would say, since like January of this year.
+Right.
+And there's no stopping me.
+I'm going to keep going forever.
+Good.
+And now you're 37 additions in.
+I know.
+And each one wets my appetite for the next release of Plasma.
+That's really like the net effect it's having here is this.
+I know.
+Isn't it amazing stuff?
+Me too.
+When I'm putting this together, I'm always thinking,
+holy crap, this is amazing stuff.
+I just cannot believe how amazing KDE contributors are.
+I mean, for example, right before we started doing this interview,
+I got an email notification about a patch
+that somebody submitted to fix a bug that was filed yesterday.
+Oh.
+So that kind of thing is amazing.
+And I feel like I'm seeing more and more of this
+as more people get interested and excited.
+And it's just an awesome thing to see.
+Now, are you still pretty heavily involved
+with the Kubuntu project as well?
+Yes, I am.
+Kubuntu is actually my home distro.
+It's the one that I'm talking to you on right now.
+And I personally feel that Kubuntu is a really great choice
+for KDE made sort of accessible for the average person.
+Rolling release distros are fantastic.
+And rolling release distros are, in many ways,
+the best way to get all of these usability and productivity upgrades
+that I blog about all the time.
+But for ordinary regular people who just kind of want to get stuff done,
+I think nothing beats the stability of a discrete release distro.
+And I think it's really important that Kubuntu provide that experience
+with a really high level of polish and integration
+so that it can kind of become the de facto KDE distro, in my opinion.
+I think that's fantastic.
+You know, when I think about deploying Plasma
+at like a workplace and office environment,
+I think here in our studio, for example,
+all of our production machines are on Kubuntu 18.04.
+Oh, that's wonderful.
+That's fantastic news.
+Rock solid, rock solid.
+Best, really, it's the best distro I think we've ever used in production.
+Now, on my personal machine, I got to admit, I roll KDE neon.
+But that's just because, really, it's your fault, Nate,
+because you get me excited.
+That's actually totally on you.
+Sometimes I actually tempt myself to use it.
+There are many times when I feel like,
+oh, man, I want to actually use some of these improvements myself,
+particularly to the input stack,
+which has gotten a lot of improvements in Plasma 5.13 and 5.14.
+And I'm stuck on 5.12 and I'm kind of chomping at the bit to do it.
+I kind of feel like if I don't eat my own dog food,
+it's a pretty shameful thing.
+So I'm going to definitely keep doing it.
+Yeah, yeah, there's always ways,
+like VMs and Docker containers and whatnot.
+In fact, that's what I do.
+I actually do all my development inside a KDE neon VM
+with everything built from source.
+And I think KDE neon is basically a near perfect development tool in that respect.
+It gives you great isolation from your host system
+and it lets you make all kinds of changes
+without worrying about blowing stuff up.
+You get everything that's KDE related pretty much rolling.
+So I mean, it's just great.
+I love developing in KDE neon.
+That's fantastic.
+I love hearing that.
+That's so great.
+And that means there's room for all types of KDE Plasma-powered distros
+or metadistros, don't call it a distro.
+Now, I noticed too in the bio,
+I was reading your Patreon page,
+which I want to talk about in a moment,
+a former Apple engineer.
+Does that change, you think, the look you have
+when you come in and look at the Plasma desktop?
+Did that influence the way you view visibility as a former Apple engineer?
+In fact, that was the core reason.
+In addition to being a former Apple engineer,
+I had been an Apple fan for pretty much my entire life starting at age six.
+And I think that the work that I did at Apple
+gave me a really great opportunity
+to see how really focused development teams work
+to produce software that's of high technical quality,
+but also exceptionally high usability.
+Apple has that reputation in the world.
+And I feel like for the most part, it's justified.
+And when I left Apple in late 2016,
+I decided that I just wanted to start working on Linux full time.
+And I kind of bounced around for a little bit.
+I started with Gnome and-
+What was that draw?
+What was the draw to Linux there?
+I mean, especially coming from a long history with Apple,
+what drew you to Linux there, do you think?
+Well, that's a really good question.
+There were a number of things.
+I started to feel like open source, just as a movement,
+made a lot of sense for me.
+And I started to feel like the inherent problem
+with closed source software is that regular people
+don't have much of an impact on it unless they're on the inside.
+And a lot of my friends and family had gotten in the habit
+of telling me their favorite Apple bugs
+and file this bug for me, see if you can get this fixed.
+And for a while I was actually doing that
+and I felt like that was really good.
+But after a while, I started to take a longer view
+and it was like, well, what is this like for people
+who don't have a person on the inside?
+How are they going to get their pet issues resolved?
+Because despite the fact that Apple products offer
+exceptionally high usability, nothing's perfect, right?
+And people are going to find bugs in any software.
+And if you don't happen to have somebody on the inside,
+you don't really have that many options
+when it comes to closed source software.
+And I just, the more I learned about the open source movement,
+the more I just sort of liked the idea
+of participatory software development
+and an open attitude and the opportunity
+for anybody to contribute.
+And not only to contribute, but to go through a pipeline
+of starting as a user and then becoming a connected user
+who's engaging with developers and then eventually morphing
+into a developer themselves.
+And that was exactly my path.
+When I started with all this stuff,
+I mean, I'll be the first to tell you I was not a programmer
+and I'm still not that much of a programmer today.
+I'm a build and release engineer by trade
+so I can do some scripting,
+but being able to learn how to do software development
+from the KDE community has been absolutely tremendous.
+And I feel like if somebody as dumb as I can do it,
+anybody can do it really.
+Well, I mean, it seems like you have gotten your hands
+on all kinds of different apps.
+It looks like, I mean, just reading over some of your profile,
+there's a lot of areas you've touched now recently.
+And I think that's where the Patreon thing
+is sort of a fascinating opportunity
+for open source developers.
+I'd like to get your thoughts on this because it seems to me,
+so right now you've got, as we record, 81 patrons.
+Proudly, I'm saying I'm one of them.
+And I think it's a great idea
+because if that were to grow,
+you could proportionately dedicate more of your time
+to learning what you need to learn to help more,
+to triage more bugs, to touch more projects.
+So what are your thoughts on using Patreon as a funding platform?
+Even in 2018, where there seems to be some Patreon fatigue,
+people are not as willing as they might have been
+back in 2017 or 2016,
+but it still seems like a great opportunity.
+I don't have a lot of experience with the cultural side.
+So it's news to me that people have Patreon fatigue.
+So if that's the case, that's a little bit unfortunate.
+But I feel like this can be a really great supplement.
+But ultimately, that's all it really can be is as a supplement.
+Software development is an incredibly challenging
+and difficult field.
+And out there in the private sector,
+people routinely make six figures doing this.
+And I mean, I think with some private sector experience,
+we've all known people who bring home fat paychecks
+without actually doing all that much.
+And you compare and contrast that with so many people
+in the open source community who are just being absolute rock stars
+and getting paid nothing or very little for it.
+So I think Patreon is fantastic.
+And I also have several other ones set up.
+I've got LiberoPay, I've got PayPal as well.
+But I think the best funding model is for
+is what essentially the Krita people are doing.
+They have a foundation, the Krita Foundation,
+and they aggregate donations.
+And they actually use this to formally pay developers
+with actual real salaries.
+I believe the Linux Mint people have done this too.
+And in my personal opinion,
+this is really the only payment and funding model
+that makes sustainable long-term sense,
+which is that if you want developers,
+you're pretty much going to need to pay developers.
+And if you're not going to pay developers,
+what you're going to get are interested,
+passionate volunteers, which are fantastic,
+but it's a hit and miss proposition.
+And even the most interested volunteer
+will eventually go through stages of their life
+where they're not going to have time for it anymore
+if they're not paid.
+I mean, now that I've been doing this for a little while,
+not anywhere near as long as many people in the KDE community,
+I've noticed that people who are really passionate at first
+often just drop out after a couple of months,
+not because they're bored of it
+or they don't want to do it anymore,
+but because they got married, they started having kids,
+they got a new job that requires them to commute
+and they can't be in front of a computer all day,
+that sort of thing.
+And those are the generous scenarios.
+There can be other reasons too.
+That's right.
+Exactly, many other reasons.
+And so relying on volunteers is an inherently fragile proposition
+and it relies on having existing members
+being willing to constantly train and retrain new people
+as they come in and leave and come in and leave.
+I think if there was a dedicated core of paid developers,
+you could see that they develop a real culture
+of a sort of self-sustaining culture
+where other people help out as well
+and the knowledge becomes distributed
+and you don't see so much churn.
+That sort of happens right now in the KDE community
+with Blue Systems.
+Blue Systems sponsors a whole bunch of Plasma developers.
+They're all paid, they work, they do it all the time.
+And that's one of the reasons why the quality of Plasma
+is now so high and constantly getting better.
+And these guys aren't just working on Plasma,
+they're working on frameworks, they're working on apps,
+they're doing all kinds of stuff.
+So I think that's the sort of payment paid development model
+that we need to try to make happen everywhere else.
+It does take some admin,
+but I could completely see what you're saying,
+how it's more sustainable and it's more like a real job
+to the developers involved.
+It takes a large funding initiative
+and a foundation to admin all of that.
+But if major projects like KDE seem like a good sized project
+for something like that and others as well,
+that's a fascinating idea.
+So Patreon in a way is sort of not a stopgap,
+but it's an intermediary solution
+where direct consumers of the product
+can still try to help fund the development
+until a larger solution comes along perhaps.
+That's exactly how I see it.
+You just phrased it perfectly
+with about a thousand times fewer words than I did.
+Well, Nate, I really appreciate
+all of the work you've been doing.
+I will link to your blog if folks haven't seen that yet,
+linuxunplug.com slash 268.
+We'll have a link in there to Nate's usability posts.
+Also, you can go to planet.kde.org
+if you want to see some of the other developers posts
+to their blogs.
+It's a great aggregator of all of that stuff.
+And we will have a link to Nate's Patreon,
+which is ngram, right?
+It's ngram, patreon.com slash ngram.
+Yeah, if you want to just go there directly,
+but we'll have a link in the show notes.
+Nate, thanks so much for coming on the show
+and stay in touch.
+I'd love to chat again in the future.
+Thanks so much, Chris.
+It was fantastic.
+I had a great time.
+He had some really interesting ideas
+around how to fund long-term sustainably
+large open source projects.
+And I thought that was a particularly new and good
+insight on a potential solution there.
+And it's sort of interesting timing, too,
+because it's lining up right with a new venture that's
+launching that I want to tell you about in just a moment.
+But I just want to say thank you to Nate.
+He also is stopped by the live show.
+So he's chatting away with folks in the chat room,
+which is awesome.
+Just so great.
+It's incredibly exciting to have someone like that
+with the commercial experience he's got with Apple
+coming into the open source community
+and bashing on something like KDE.
+That's fantastic.
+Yeah.
+And I think the posts do a lot for encouraging people
+to check out and stay tuned into what Plasma Desktop is doing.
+Just in a sort of, I don't know, it's not like a tease,
+but it's a bit of you get, you're
+able to appreciate all of the work that's going into it.
+That's probably what I'm trying to say.
+Like we were just talking with Cassidy about how so much stuff
+is going into Juno that he's struggling to even
+write up to outline it all.
+But this way, this weekly approach that Nate's taken
+gives you the space to sort of enjoy
+some of the finer, smaller little things,
+like new icons and when you right click in the menu
+and things that are nice to know about
+but would otherwise get lost in a much larger noise
+around a new release.
+And so it helps build appreciation for all of the work
+that these people are contributing to a project.
+And it creates hype.
+And I think it's in part responsible for,
+as Wimpy puts it, the ascendancy we're seeing
+of the Plasma Desktop right now.
+And it's got people like us going on a podcast
+and talking about it, which amplifies the hype a bit.
+And we're using it in production.
+We're using it in real life.
+Yeah, it seems like it's a good position, right?
+They've got a great community going.
+They've got active users and their software these days
+is just great.
+I keep getting a steady stream of one or two,
+at least a week.
+And this is months after we did our Plasma episode
+of people saying, all right, I'm trying it.
+I'm taking the Plasma challenge and I'm really liking it.
+I'm still getting that.
+I'm still using it over here.
+I've been using it for about three months every day.
+I have my first lockup today.
+But other than that, it's been fantastic.
+Really, really fantastic.
+It could have made it one more day
+and then that wouldn't have gone on out there.
+Yeah, that's how it always works.
+Well, it's better than no.
+Yeah, well, I suppose so.
+It does last a little bit longer.
+So the conversation there at the end was kind of about funding
+and what's a sustainable approach for somebody
+who's making a nice contribution,
+doesn't even need to be their primary revenue source.
+Of course, that'd be great.
+But just as like a secondary to really justify the time investment.
+Well, a new startup called Tidelift hopes to help
+these developers achieve just that
+and get paid with a business model the company compares to Netflix.
+So Tidelift is a startup right now.
+It just got 30 million in funding, at least I think.
+And the idea is that a company pays a subscription to Tidelift,
+which then takes a cut
+and then distributes the remainder to open source projects
+and the subscribers will in exchange get assurances
+that the software will be properly maintained, quote unquote.
+So customers pay Tidelift and then their pitch here
+is developers can focus on code instead of sales and marketing,
+getting their income from Tidelift.
+And then when a customer signs up for Tidelift,
+they go analyze your code base,
+go see all the neat open source projects you're using
+and then bill you based on funding each of those projects.
+Right.
+Do they contribute any of that work back upstream
+or is it, you know, you pay for it, you get to keep all that work?
+No, the idea is you're paying an open source developer's time.
+So they look at how many open source projects
+your company is dependent on, Tidelift then says,
+all right, your fee is X because of the amount of projects that you use.
+You cut that check to Tidelift.
+They then go engage with the open source developer and say,
+we can pay you X a month if you will then commit
+to maintaining the software for X period of time
+and to also keep Tidelift and our customers informed of major changes.
+And then Tidelift goes back to the subscriber, the customer and says,
+all right, here's the pledge by the open source developer
+to maintain these super important projects that you depend on.
+That's kind of the idea, right?
+Have they got any track history in how much they're paying developers
+for their commitment to these projects?
+Yeah, that has been the very thing that Wired tried to get from them
+and they didn't really have much to offer there.
+They've made a couple of blog posts about developers
+that they've got brought in on the team,
+but they haven't really been clear on the amount of money the developers get.
+They say, so, okay, here's the numbers, they got 15 million in venture capital.
+Sorry, it's not 30.
+And they announced last week that they set aside a million of that 15 million
+for new developers that join the program
+and the developers will be paid at least $10,000 over a two-year period at least.
+That's all they've said publicly in terms of funding.
+$5,000 a year.
+Yeah.
+I'm spying.
+Between hundreds of people.
+It's not even a cup of tea.
+Here's the other big problem with this.
+That's just called a consultancy company.
+And of course, I can see why investors would put money into it.
+If they acquired the developer base,
+of course, they will be a powerful consulting company
+because there is a brain shortage of skilled developers.
+So eventually they would be able.
+And what are the conditions for the developers to be tied into them?
+Because otherwise I don't see them making money long-term anyways.
+It seems to me this is a middleman in a business negotiation
+with open source developers that doesn't need to be there.
+And companies are serious about engaging with a project that they're dependent on.
+Just go and contact.
+It's very easy to find the key people behind a project or a foundation or whatever.
+Just find those people, approach them directly,
+and that's probably the best way to invest your money
+behind a technology that you're dependent upon.
+And more foundations on the open source side would help, I think.
+I think the other thing to consider here is the pitch.
+This is what raises a red flag for me.
+Netflix for open source, that just makes my skin crawl.
+What does that even mean?
+Well, that's a pitch for investors.
+That's not for the developer side of things.
+Come on.
+I wonder how Netflix feel about their brand being associated with this as well.
+We shall see.
+I thought that was interesting though.
+It's another crack at this.
+And I don't know, I think Nate's idea is a better one.
+And then Wimpy's right.
+Then companies could just interface with that foundation
+and there would be an established process for that.
+It does seem like the better solution.
+So let's talk about something new that's getting some attention.
+A Linux distro that's optimized for the Windows subsystem for Linux.
+It's based on Debian and the core developer Hayden is joining us today.
+Hayden, welcome to Linux Unplugged.
+Hi, thanks for having me.
+Hello, Hayden.
+It's good to have you here.
+So you had a chance to chat with Joe Resington, my co-host and Wes's co-host,
+who's been filming for me on Linux Action News,
+to answer a few questions so that way Joe could accurately cover the story in LAN.
+And he recorded that chat so we could refer to it for notes.
+And I thought it was so great that I would just play it here.
+It's a bit rough, but it was a great deep dive into why WLinux has been created
+and why the Windows subsystem for Linux
+might need a distro that's built specifically for it.
+Thanks for joining me, Hayden.
+Thanks for having me, Joe.
+So you're here to talk about WLinux.
+What exactly is that then?
+WLinux is a Debian derivative that is designed to function on Windows subsystem for Linux.
+It is a distro that is customized for that environment.
+And so this is based on Debian then?
+Yes, this is a derivative of Debian Stretch with a handful of packages
+from the Debian testing branch that have been brought down, mostly Python and other dev tools
+that have a more updated version in the testing branch that are fairly stable.
+And so what makes this different from the version of Debian
+that's already available in the subsystem?
+So a free distro Debian is already available.
+And if you're first getting into WSL, which is short for Windows subsystem for Linux,
+you might want to give it a shot.
+But WLinux has a lot of customizations and additional packages that make working
+in this kind of hybrid environment a little bit easier
+between Windows and between Linux at the same time.
+So one of the big differences is no system D then.
+Why is that?
+Well, part of that is because system D doesn't work well on Windows subsystem for Linux.
+So it was kind of a no brainer to pull out.
+I'm a big fan of the dev win project and appreciate in it freedom from Unix philosophy standpoint.
+But mostly it was just taking up space on WLinux.
+So we took it out.
+SysV is there.
+If you install some programs that have a hard system D dependency,
+the lib system D will come in.
+But it was mostly just a matter of size.
+Okay.
+But why didn't you just go with dev one then?
+Because it isn't that just Debian with no system D.
+I did do testing with dev one.
+It added some more complexity to the build process with no apparent improvement to the user.
+And kind of being a Unix-y guy believing in Unix principles,
+I didn't see needlessly interjecting complexity for something that we can actually just do
+on the Debian from the Debian sources ourselves.
+Also, we do know that people might want to bring in packages from upstream GNOME and KDE
+to run those apps on Windows.
+And if we had a hard block on system D, they wouldn't be able to run the most recent version of those.
+Okay, that makes sense.
+So talking of GUI stuff, I mean, the subsystem is not supposed to be for GUI applications,
+but you've made it easy to run Google Chrome and Visual Studio and other GUI stuff.
+What's all that about?
+So this isn't an officially supported feature of WSL, but it is available.
+And there's a few tweaks we do to make that work with an external X client.
+There's a few, there's a couple of free ones available.
+My favorite is X410.
+It's available in the Microsoft Store for $5.
+And we just made some tweaks so that the, for example, the libGL is rendered on the Windows side,
+where you can get some more acceleration out of those apps.
+And it's very functional.
+In fact, there are people, although I don't recommend it, who do boot WSL into a full-fledged Xfce, KDE, or GNOME desktop.
+You know, sometimes in a separate window, like you would a virtual machine,
+and sometimes right next to their Windows apps on the same screen.
+People are doing interesting things with this.
+I heard about Flatpaks.
+Up and running on WSL this week, presumably they work reasonably well.
+And what about Snaps as well?
+So far, Snaps, you know, are a little bit of a challenge.
+Flatpaks are working better, so we'll see where that goes.
+Snap has some dependencies that we have to work through to see if we can't make those work.
+I thought the chat that Joe and Hayden had was fantastic.
+In fact, it was a really good one.
+It went on for quite a bit, but I wanted to take a moment and bring Hayden in live, since he's here,
+and chat about WLinux a bit with him.
+And I wanted to maybe double down before we've gone too far on some of the issues with SystemD
+under the Windows subsystem for Linux.
+I have never really spent much time with the Windows subsystem for Linux, Hayden,
+but looking at bug reports, it seems that the WSL has its own process that it wants to run at PID 1.
+Is that one of those things that you want to do?
+That it wants to run at PID 1, is that one of the issues with SystemD on WSL?
+The issue with SystemD on WSL is that it's not meant at this point to run servers.
+It's not meant to run ongoing processes that you access from the background.
+That may change in the future as Microsoft just announced Windows Server 2019 with WSL as a feature.
+So that may change, and we may see more growth on that use of WSL to run Linux processes.
+We'll see where it goes.
+I found it really interesting, some of the work you've put into running the graphical applications like Chrome.
+I recently saw, I can't remember where, you were talking about fixing an issue with Chromium
+from running it from WLinux, which I think is great, because that's been an area
+I've been really curious, like if I was ever to play around with WSL, I would love to do that.
+In regards to the SNAP issue you ran into, I invite you to chat with Mr. Martin Wimpress here
+in our virtual log, he could probably help with any issues there, because he's working on that canonical.
+I guess probably SNAP must be dependent on something that's not in WLinux now?
+Yeah, well the main thing is the dependency on SystemD support, but we do have a shim that can work around that,
+which is how we delivered SNAP support in 14.04, which was built upon Upstart.
+So Hayden, I'm Martin Wimpress, I work on the SNAPcraft team.
+Find me on Twitter at m underscore Wimpress and I'll be happy to help.
+Absolutely, I will do that because I want to work with you on that, Flatpaks as well.
+Yeah, we're testing an issue right now with Google Chrome, the latest version 69.
+We're working through some libgl acceleration issues.
+We have an open issue on the GitHub and we're troubleshooting that.
+As far as we know, it affects most of the WSL distros available,
+but we're the ones actually doing the investigation,
+pulling logs, seeing how we can fix this for WSL users.
+Yeah, it seems like that could be an interesting impact that your distribution could have,
+is by really focusing in on this like no other distribution is,
+you're going to push up against these edge cases that could drive future improvements to the subsystem.
+So I think that's great, and I wonder if it's also going to be revenue sustainable potentially,
+because I noticed you're selling it for $19.99, it's on sale right now for $9.99,
+and that's in the Microsoft Store, which is of course the way you get it into the subsystem for Linux.
+Do you think this might be at some point revenue sustainable?
+So that's our long-term goal, and we've talked a lot about different sustainability models
+for open source projects in this episode,
+and I think what we need to realize is that people have been paying for Linux
+on a commercial and enterprise level for a long time,
+and that's been sponsoring a lot of the innovations we all enjoy in community distros.
+So what I see is a democratization of that process with Krita, with elementary OS,
+with other projects, not so much the one you mentioned in the interim,
+but where the users, the open source users themselves are being entrepreneurial,
+taking ownership of these, pushing them along, and commercializing them
+so that you can push these developments out to other people.
+Another good example of this is CodeWeavers, who's worked on crossover
+and have worked with Valve on Proton.
+So there's always an angle sometimes to commercialize these, and we give back.
+One of the examples is we already identified a package that's just not available anywhere
+as an app, in an app repo, and we're hosting it.
+So you're welcome to use our app repo in any existing Debian or Ubuntu distro
+to install that package.
+I noticed also that you mentioned one of the features is faster patching
+than other upstream distributions for subsystem-specific bugs,
+and that you're specifically monitoring subsystem-related CVEs.
+Is that delivered through that repo as well, those fixes?
+So the fixes aren't delivered through the repo.
+The repo is currently simply delivering packages and package updates to our custom packages.
+We are in the process of rolling out a new onboarding experience for users.
+We had so many requests for packages, it simply was not possible
+to ship everyone's editor and everyone's tools in one.
+So we're going to create a front-end where you can go through
+when you launch WLinux the first time and specify,
+I'm a Python developer, install all my Python.
+I want to use NeoVim or code, and we will take care of that for you.
+And then we're going to build auto-updating into that going forward
+so that everyone, regardless of whether you're building it off the GitHub
+or downloading it from the store,
+will always have the latest availability to the features, so there won't be a gap there.
+So one example of this was a problem in a relatively...
+So WSL doesn't implement IP tables yet, or very well at all.
+And there was a package in Ubuntu that broke called EBTables.
+And it's an obscure package, and it did something in the install script
+that broke apt and basically prevented everyone on Ubuntu 18.04
+on WSL from updating for a few weeks.
+Well, we worked, and I give credit to Ubuntu for helping us get that fixed,
+but it took a few weeks, and we could have pushed that out in a day or two.
+Yeah, and again, I think that's going to be one of the great side contributions
+or direct contributions, really, of the project existing, is pushing on those edges.
+Well, Hayden, thank you for taking the time to chat with me
+and for chatting with Joe to get the coverage right on Linux Action News.
+I'll put links to a bunch of information about the project
+as well as the Microsoft Store link, because like I mentioned,
+it is on sale for 50% off right now if you want to play around with it.
+I know we have Windows users out there in that audience, Wes.
+Yeah, you're stuck. Maybe you don't want to run a VM, you don't need a VM.
+Hey, now you've got a custom-tailored distribution.
+Yeah, so good work, Hayden. I hope it keeps up.
+I know some people have been a little like, what is this?
+But I say good on you,
+and I'm curious to see where the project goes in the future.
+Any hints where we're going after this? What's next?
+So we're looking right now after we get the onboarding experience done,
+we're looking at internationalization.
+WLinux is unexpectedly popular in China and Japan.
+You know, it took me completely by surprise,
+so we're adding in foreign language support as quickly as possible.
+And then we're going to be adding Arm64 support to support Windows on ARM devices.
+I love it. That's interesting.
+Well, do keep us informed on how it goes. Keep us up to date.
+I'd love to follow the progress of things,
+and you're welcome back any time to update us on any major developments.
+Thank you so much. I do appreciate it.
+You bet. Well, let's do something that we should do a lot more of,
+to be honest with you, and that's read folks' emails and follow-ups
+and all those kinds of things.
+How about I take this first one here, Wes?
+Because John writes in to address you.
+So I'll read this one here.
+He says, I took note of Wes mentioning
+a possible root on ZFS setup for his new ThinkPad.
+I would definitely recommend giving this a shot.
+I don't know what distro you plan on using,
+but in the past few years, I've been using nothing but root on ZFS
+on Arch with binary updates.
+And he points you out to, there's an Arch ZFS GitHub page.
+But he says, I also wasn't quite happy
+with the way Linux supported boot environments,
+which is a nice feature when you use ZFS.
+It really is, yeah.
+And you could really dig this, I think.
+So he wrote his own.
+He calls it ZD environment and or Zed environment.
+Zed environment.
+And he links to it in the email.
+And he says, it removes the worry of kernel updates
+or system changes causing issues
+since you can create a new boot environment
+and you make your changes there.
+If you happen to give root on ZFS a shot
+and you're looking for a boot environment client,
+please take a look at it and best of luck with your new computer.
+John, that is awesome.
+I'm also really just thinking,
+I'm going to double down on this root on ZFS.
+Maybe also encrypted.
+So we'll have more to talk about in that arena soon.
+That could be fun.
+So Omkar writes in and he says he loves the show.
+In fact, he also seems to be a TechSnap fan
+because he says, I find Wes knowledgeable
+and the way he explains stuff on TechSnap
+and Linux Unplugged is fascinating.
+Well, thanks.
+That's really nice.
+Much appreciated.
+He says he's got a few questions for us.
+What kind of hardware setup have you configured
+for Proxmox VE and which version of Proxmox?
+Oh, man.
+That's a you question, Chris.
+It's a three-year-old install
+or maybe even four years old now.
+So that would be, well, I couldn't tell you
+what version that is.
+That's a pretty old install.
+Maybe I could bring in our IT guy.
+Maybe he could tell me.
+Hey, Brown Bear, could you come in here for a second?
+I got a question for you.
+Hello.
+Hey, Brown Bear, do you remember what version of Proxmox
+we're running on that i7 rig in the garage?
+Well, I've got good and bad news for you.
+Which would you like first?
+Well, okay, let's start with the bad news
+because I think I know where you're going.
+Bad news is you're no longer running Proxmox
+on the i7 in the garage.
+Yeah, I know.
+It's running now CentOS, isn't it?
+It is, yeah.
+Alan and I set up CentOS and then we put,
+actually, we installed libvirtd and set it up
+just like Red Hat would as a, you know,
+it's kind of like a KVM hypervisor kind of a deal.
+And that's actually been working really good.
+I can tell you the truth.
+It's been really solid.
+Proxmox was great, though.
+But times have really changed.
+The options have changed.
+I don't know if you've ever been a Proxmox user or no,
+but I know that you're big on the CentOS virtualization stuff.
+Yeah, I have.
+In fact, I've gotten crap on the Ask Noah show
+for not giving enough good juju to Proxmox
+because it really is a fantastic project.
+They really do some really great work.
+And if you want an enterprise grade virtualization system
+that has a really fantastic UI,
+man, Proxmox is really the way to go.
+It's just when you start looking into things
+like I want the ability to have a BSD server that's on here.
+And then when I go back to Grand Forks,
+I want that BSD server to fall over
+to my virtualized host in Grand Forks.
+And if I come back here, I want it to go back over here.
+And those kinds of things.
+It's really nice to have something a little bit meatier.
+That does sound really cool.
+OK, so Omkar's next question was,
+what droplet specs do you guys recommend
+for a GitLab and a PeerTube instance?
+Well, those are two tough questions.
+So GitLab, you'd probably be OK with the $20 a month
+or less droplets.
+GitLab's not going to be.
+It just depends on how busy you are.
+It depends on what you do with that, I guess.
+There's a lot of extended features.
+But if you're just dumping some commits to it,
+it's probably doable.
+Now PeerTube, here's what's tricky about PeerTube is,
+if you think about it, you're kind of re-implementing
+what YouTube does.
+And there is a transcoding process
+that PeerTube goes through when you upload a video.
+And the speed of your droplet is going to directly impact
+how long it takes for those videos
+to be available on PeerTube.
+If you don't care, if you just want someplace
+to throw up videos and you don't care
+if it takes an hour for the video to be available,
+then you really could get away with a $5 a month droplet
+because you're not using much CPU because the decoding's
+happening on client side for the video.
+And the bandwidth is still fast regardless
+of which machine you get.
+And then he asked a question that I'm going to punt to you,
+Wes.
+He asked if either of us have ever tried out traffic,
+which I think is how you pronounce it.
+It's spelled T-R-A-E-F-I-K.
+And for those of you that don't know, I didn't.
+It is what they call Cloud Native Edge Router.
+It's a reverse proxy in a load balancer
+that's easy, dynamic, automatic, and open source.
+So it seems like it's pretty cool.
+Have you ever heard of Trafic or Traffic, Wes?
+Yeah.
+So you can front, basically, if you're running a bunch of stuff
+on your fancy Kubernetes clusters,
+you can put this in front of it.
+And it will auto discover.
+It'll talk to Kubernetes or Swarm or some other technologies.
+Oh, cool.
+Find what services you're running,
+connect to them, and integrate with metrics.
+It can do HTTPS at the front.
+Also ties in with some of those open tracing systems.
+You can get logs and sort of analyze how a request flows
+through all of your services.
+Yeah, it's a nice looking web UI to manage this.
+This is, I see.
+I see.
+So it ties in, basically, with the different orchestration APIs
+and then automatically configures the reverse proxy,
+attaches statistics using open source projects,
+and you're good to go.
+Yeah.
+So there's a lot to like there.
+But if you're not using some sort of orchestration software,
+it's probably not necessarily what you use.
+Maybe something just like, well, Envoy might work,
+or just NGINX even.
+There's a lot of solutions that won't
+have all those fancy features.
+But if you don't need them, if you just
+have two apps that are running on two different droplets,
+well, you're probably fine.
+Yeah.
+Yeah.
+So there you go.
+Thanks for the emails.
+We got a bunch of others, some of them which were eight
+or nine paragraphs long, read them all,
+but can't cover them all on the show.
+They've got to be a certain length.
+And we would love to get your feedback, your questions,
+your suggestions for the show, linuxunplug.com contact.
+And links for anything we talked about today, linuxunplug268.
+So Mr. Noah Chalaya, what are you doing
+in this part of the woods?
+Are you just coming out here to hang out for the barbecue?
+Dude, I am always here for just the food.
+I mean, I say nice things like I came here
+for your stunning personality and I wanted to hang out
+and stuff, but really, it's the barbecue.
+How many minutes was it that you walked into the door?
+I think it couldn't have been more than five minutes.
+We were already packing up to go to lunch when you got here.
+Yeah, you know, I really had a suspect.
+I mean, here's the thing.
+We can talk about food.
+I'm not saying that we can't.
+But I feel like you had an agenda before I ever came here.
+Before I ever set foot in the door,
+I just felt like it was your premise to take me
+to Indian food and that decision process had been made
+before I ever entered the premises.
+Yeah, you're welcome.
+Is that your way of saying thank you?
+That's a long-winded way of saying thank you.
+So what are you doing over there?
+Getting ready for the Ask Noah program?
+I am, yeah.
+I'm sure you guys have heard, Google has been making
+some weird decisions, forcing people to log in,
+and we're going to ask the audience
+if they think this enhances their experience using Chrome
+or if this time Google has gone too far,
+if they've taken privacy and thrown it out the windows,
+Google tends to do.
+We got a number of other exciting stories
+that we're going to get to.
+Project Triton has adopted a code of conduct.
+We're going to talk about that.
+A little bit of follow-up to last week's episode.
+Chrome OS 71 has launched.
+Now Linux apps are available on non-Pixel devices.
+Also the ability to share files with Linux.
+Yeah, it's absolutely fantastic.
+So we're going to talk about all those things.
+And then towards the end of the show, if we have time,
+because this is like the least important thing in the world,
+but Microsoft has launched the ability
+to have multi-user virtualization on Windows.
+We're going to explain how that can be leveraged
+in an all Linux environment.
+If you're just virtualizing Windows,
+if you want to be Linux on the hardware,
+Windows in a virtual environment,
+how this is actually going to benefit your Linux environment.
+It's for people who like to mess with computers.
+That's right, Leo.
+Well, I look forward to it.
+Yeah, I just was making this joke earlier in the show.
+I look at the stats and I'd say there's 30%.
+Well, yeah, it might be around 30%-ish.
+Somewhere in that ballpark of the people
+that download the show are on Windows.
+It's somewhere in that area.
+And we love you too.
+Yeah, so we appreciate it.
+Maybe they're just checking us out
+before they make the big switch.
+They're looking for all the guides and the know-how.
+Yeah, I look at myself as Jesus Christ.
+Jesus, you know, he wouldn't go into the places
+where everybody had become a follower
+because there's not a lot to be done there.
+So I need to be in the homes of the sinners
+so that I can bring them to the wonderful world.
+This is really just falling apart as you keep going.
+My Lord and Savior, Linux Torvalds.
+This really explains a few things, actually.
+This worldview now explains a few things.
+I understand you a little better now.
+There are memes going on.
+Apparently, I said one time on an episode,
+I said that Linux was a religion I was just going to give in.
+And so I just started calling myself the Pope.
+And now it's become memes.
+Well, yeah, Pope might not be too far off the mark.
+I've been meme-ified.
+Well, now that I'm sure we've enraged somebody,
+we should probably wrap this thing up.
+Go get more of Martin Wimpress over at the Ubuntu podcast.
+Go get more of them. Great show.
+Not just me, but also Mark.
+Everyone remember, Mark is not Martin or Alan or Popey or Wimpy.
+He's Mark.
+Mark is one third of the Ubuntu podcast.
+Yeah.
+Yeah, he visits on occasion.
+So that's why he doesn't get probably the mention as often
+because you're right here front and center.
+But it is a great trio at that.
+And also, go check out Cassidy James's work.
+The Medium post that we chatted about earlier
+will be linked in the show notes.
+And stick around.
+We got the post-show coming up.
+And then right after that on the live stream
+is the Ask Nowhere program,
+which will be live, taking your calls.
+We might talk about some of the same topics,
+but you actually get to chime in via the phone.
+You don't even have to bother installing Mumble.
+Wes Payne's available all the time online.
+You can just hunt him down.
+He's at Wes Payne.
+That's right.
+And then he's on the TechSnap program.
+New show, just launched.
+Actually, I kid.
+It's not a new show.
+It's been around for a while.
+But it's coming out, dude, all the time.
+It's pretty great.
+And we just had John the Nice Guy on the show last week.
+You should go check it out.
+He's got some hot tips.
+Yeah.
+Especially if you want to dive a little deeper
+into interplanetary file system,
+all of that is over at TechSnap.systems.
+All right.
+That's all.
+Hey.
+Yeah.
+What?
+What?
+You had John Spriggs on.
+Yeah.
+Yeah.
+It's nice, right?
+Wow.
+I've been away too long.
+John is not just John the Nice Guy Spriggs.
+John is a super nice guy.
+He is.
+He really is.
+Yeah.
+Yeah.
+He's the organizer of OpCamp.
+I know.
+I know.
+I've been wanting to have him on the show forever.
+So go check it out.
+TechSnap.systems.
+All our links, LinuxUnplugged.com.
+I'm Matt Chris, L-E-S.
+Thanks for joining us.
+See you next Tuesday.
+I wanted to pick Wimpy's brain.
+I don't know exactly what the right way to ask this question is, Wimpy,
+but is there a way to tell what the difference would be
+in terms of patches or additions to Ubuntu's 1810 gnome versus, say, stock gnome?
+So is there a way to actually detail patch sets that might be better for performance?
+I'm trying to think about how to review the new distro releases,
+and performance of the gnome desktop is something I think I kind of want to take a look at,
+but I'm not quite sure how to tell differences in terms of patch sets that have been applied
+for performance.
+Yes.
+So if you want to see what patches are being applied to what is the upstream version of
+gnome shell and the patches that are being carried in Ubuntu, what will become 1810,
+then yes, you can see all of that in Launchpad because all of that Debian packaging that
+happens happens in Launchpad, and you can see those patches directly.
+What I would say is that I know that Daniel Van Voet, who's part of the Ubuntu desktop
+team, all of the patches that we're carrying as vendor patches right now have been submitted
+upstream and are in various stages of review and will eventually percolate into the upstream
+gnome project.
+But whilst they're being negotiated, we're carrying the patches that he's been working
+on.

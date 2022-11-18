@@ -1,0 +1,3215 @@
+WEBVTT
+
+00:00.000 --> 00:07.000
+This is Linux Unplugged, episode 27 for February 11th, 2014.
+
+00:30.000 --> 00:40.640
+Welcome to Linux Unplugged, your weekly Linux talk show that's watching the Debian mailing
+
+00:40.640 --> 00:43.400
+list and it's fresh all out of popcorn.
+
+00:43.400 --> 00:44.400
+My name is Chris.
+
+00:44.400 --> 00:45.400
+And my name is Matt.
+
+00:45.400 --> 00:47.440
+Hey Matt, here we are.
+
+00:47.440 --> 00:50.960
+We actually got the first word of it on Sunday as we were wrapping up last that it looked
+
+00:50.960 --> 00:54.840
+like Debian was going to go with Systemd and I thought, okay, that's good, but let's not
+
+00:54.840 --> 00:55.840
+run with it just yet.
+
+00:55.840 --> 00:59.160
+It's not even crazy, because Debian doesn't just make decisions like that, right?
+
+00:59.160 --> 01:03.480
+I don't just, boy, it has been an interesting couple of days.
+
+01:03.480 --> 01:05.680
+And I know a lot of you are thinking, why do we care so much about an init system?
+
+01:05.680 --> 01:07.800
+Well, we're going to talk about that a little bit.
+
+01:07.800 --> 01:09.840
+There's a lot of actual larger ramifications.
+
+01:09.840 --> 01:14.480
+I think a lot of people are very aware that Debian is the base of so many distributions
+
+01:14.480 --> 01:17.320
+and a lot of things are changing in the Linux world.
+
+01:17.320 --> 01:19.600
+And at the same time, some of these things are coming together.
+
+01:19.600 --> 01:23.360
+And that's what the Systemd discussion isn't just happening at Debian, right?
+
+01:23.360 --> 01:27.200
+It's been happening across all of the Linux distributions for a couple of years now.
+
+01:27.200 --> 01:33.400
+And the Debian one has been one of the most watched and, unfortunately, not really been
+
+01:33.400 --> 01:37.520
+the greatest example of open community collaboration.
+
+01:37.520 --> 01:40.720
+And we could get into that whole discussion about should this stuff be on a public mailing
+
+01:40.720 --> 01:43.160
+list, but it was.
+
+01:43.160 --> 01:48.760
+And I kind of want to talk a little bit about that, too, and if maybe we've sort of sent
+
+01:48.760 --> 01:50.560
+a bad signal to the rest of the industry.
+
+01:50.560 --> 01:51.560
+We'll see.
+
+01:51.560 --> 01:54.040
+I don't want to overstate it, but I think we'll discuss that aspect of it, too.
+
+01:54.040 --> 01:57.760
+I think at the end of this episode, if you haven't been sure why this has been a topic
+
+01:57.760 --> 02:02.400
+of interest for so many people, I hope by the time we're done, you will know why.
+
+02:02.400 --> 02:04.160
+You'll feel like you've got a good grasp on it.
+
+02:04.160 --> 02:09.720
+Hey, Matt, before we go too far, we should do a Valve update.
+
+02:09.720 --> 02:11.040
+I just thought this was really cool.
+
+02:11.040 --> 02:16.240
+I wanted to update a story we ran a couple of weeks ago and unplugged about Valve donating
+
+02:16.240 --> 02:18.320
+games to Debian developers.
+
+02:18.320 --> 02:22.040
+Well, they're expanding that program now to Ubuntu developers, too.
+
+02:22.040 --> 02:23.040
+How about that?
+
+02:23.040 --> 02:26.640
+That is exciting because it's not only showing that they're – because the Debian thing
+
+02:26.640 --> 02:29.680
+could have been seen as a fluke, but I think the fact that they're being inclusive to
+
+02:29.680 --> 02:33.640
+the Ubuntu guys as well is that they're saying, look, we really want Linux to take
+
+02:33.640 --> 02:38.320
+off and we want to embrace those that put their time and energy into making Linux awesome.
+
+02:38.320 --> 02:39.320
+And so they really get that.
+
+02:39.320 --> 02:40.320
+Yeah.
+
+02:40.320 --> 02:41.320
+1204 was there.
+
+02:41.320 --> 02:42.320
+That was the distro they recommended.
+
+02:42.320 --> 02:43.320
+That's right.
+
+02:43.320 --> 02:44.320
+Yeah.
+
+02:44.320 --> 02:47.000
+So, man, if they get Steam boxes, this is your chance now, guys.
+
+02:47.000 --> 02:49.720
+Go sign up to become a Debian developer or an Ubuntu developer.
+
+02:49.720 --> 02:50.720
+Get your Steam box.
+
+02:50.720 --> 02:51.720
+Because you never know.
+
+02:51.720 --> 02:53.640
+What's going to happen, that's going to be next.
+
+02:53.640 --> 02:56.760
+And there was – what was – there was another Valve story today, too.
+
+02:56.760 --> 02:57.760
+Oh, that's right.
+
+02:57.760 --> 02:58.760
+Right, right.
+
+02:58.760 --> 02:59.760
+We were just talking about it on the pre-show.
+
+02:59.760 --> 03:05.400
+Steam Dev Days, the videos from Steam Dev Days are now up and there's some of interest.
+
+03:05.400 --> 03:10.600
+One we talked about on last is this switching to Linux, where Ikyulys went through some
+
+03:10.600 --> 03:14.280
+of the reasons why switching to Linux, porting your game to Linux is not nearly as bad as
+
+03:14.280 --> 03:15.280
+everybody thinks it is.
+
+03:15.280 --> 03:17.720
+It's called getting started with Linux game development.
+
+03:17.720 --> 03:21.600
+Anyways, all of the videos I think that are available now are linked on the SteamDevDays.com
+
+03:21.600 --> 03:24.320
+page and I'm going to go through some of them.
+
+03:24.320 --> 03:27.880
+And if there's something really crazy, I'll pull out and put it in the Linux Action Show
+
+03:27.880 --> 03:28.880
+on Sunday.
+
+03:28.880 --> 03:33.360
+But otherwise, you can just go check it out on your own because there's so many on there
+
+03:33.360 --> 03:36.640
+that I'm sure we'd only be able to cover a tiny, tiny percentage of what was actually
+
+03:36.640 --> 03:38.440
+said.
+
+03:38.440 --> 03:41.920
+Speaking of last, on Sunday, one last little bit of business before we get into our main
+
+03:41.920 --> 03:47.400
+topic of the day, Sunday, Linux Action Show, 10 a.m. Pacific, jblive.tv, the place to be
+
+03:47.400 --> 03:48.880
+because it's episode 300.
+
+03:48.880 --> 03:54.120
+Oh my goodness, big, big, big, big, big, big, huge, huge.
+
+03:54.120 --> 03:56.720
+So we got a lot of stuff to talk about in episode 300.
+
+03:56.720 --> 03:57.720
+We're going to celebrate.
+
+03:57.720 --> 04:02.040
+It's not going to be, I haven't really decided how much of a regular Linux Action Show it's
+
+04:02.040 --> 04:03.040
+going to be.
+
+04:03.040 --> 04:04.800
+Probably depends on what's going on in the week.
+
+04:04.800 --> 04:07.400
+But we have some stuff planned to talk about, so I'd really love to have you guys there
+
+04:07.400 --> 04:10.800
+because it's a good one to join live and I think we'll have a good active community.
+
+04:10.800 --> 04:11.800
+Maybe we can break the IRC server.
+
+04:11.800 --> 04:13.880
+Maybe we'll load it up with so many people.
+
+04:13.880 --> 04:15.640
+So I'd love to have you there this Sunday.
+
+04:15.640 --> 04:20.280
+It'll be February 16th, I think that's it, yeah, 16th.
+
+04:20.280 --> 04:21.280
+Yeah, I think that sounds right.
+
+04:21.280 --> 04:22.280
+That sounds right.
+
+04:22.280 --> 04:25.080
+And I think it's definitely one of those things to where if you don't normally show up for
+
+04:25.080 --> 04:28.200
+a live show, make this the live show you show up for.
+
+04:28.200 --> 04:30.480
+I think you'll be pretty glad you did.
+
+04:30.480 --> 04:32.120
+Yeah, you know what?
+
+04:32.120 --> 04:33.920
+It's better than getting bit by a dog.
+
+04:33.920 --> 04:36.600
+This is true, especially if that dog wants to bite you.
+
+04:36.600 --> 04:37.600
+Yeah, yeah.
+
+04:37.600 --> 04:39.160
+That was redundant, but you get the point.
+
+04:39.160 --> 04:41.640
+Well, point well reiterated, Matt.
+
+04:41.640 --> 04:45.560
+All right, well, so I want to take a second here and just thank Ting.
+
+04:45.560 --> 04:48.640
+Ting is one of our sponsors this week and they're doing something really awesome.
+
+04:48.640 --> 04:49.640
+So get started.
+
+04:49.640 --> 04:54.880
+Go to linux.ting.com and if you're watching this live today, go over to their blog.
+
+04:54.880 --> 04:59.400
+I don't know of any other cell phone company that would have done this.
+
+04:59.400 --> 05:06.760
+Ting now, right now, if you go to ting.com slash blog, has the message up that a lot
+
+05:06.760 --> 05:10.920
+of sites are running with today because it's take back the privacy day on the internet
+
+05:10.920 --> 05:14.000
+and they have the call your legislators numbers and the submit for an email address right
+
+05:14.000 --> 05:15.000
+here.
+
+05:15.000 --> 05:18.760
+Ting is so out of control that the authors of the Patriot Act are sponsors of Lena Bill
+
+05:18.760 --> 05:19.760
+to reign it in.
+
+05:19.760 --> 05:20.760
+So they have these.
+
+05:20.760 --> 05:23.720
+We have one running right now on the Jupiter Broadcasting website too.
+
+05:23.720 --> 05:28.600
+Let's see if you go over to our, yeah, so here's the Jupiter Broadcasting website, thedaywefightback.org.
+
+05:28.600 --> 05:30.000
+A lot of sites are doing this.
+
+05:30.000 --> 05:32.320
+I just thought it was so awesome that Ting is one of them.
+
+05:32.320 --> 05:33.320
+They didn't need to do this.
+
+05:33.320 --> 05:38.360
+I mean, they, you know, but they did because Ting is, they're really kind of internet savvy
+
+05:38.360 --> 05:40.440
+and that's one of the things I like about them quite a bit.
+
+05:40.440 --> 05:41.800
+It shows in their dashboard too.
+
+05:41.800 --> 05:45.840
+They have a really awesome and easy to use dashboard that follows web standards.
+
+05:45.840 --> 05:49.560
+In fact, it even supports the Mozilla login system, which I like a lot.
+
+05:49.560 --> 05:52.840
+We've had one of their developers on Coder Radio before to talk about it.
+
+05:52.840 --> 05:55.680
+And what's great about Ting is there's no contracts, there's no early termination fees.
+
+05:55.680 --> 05:56.840
+You only pay for what you use.
+
+05:56.840 --> 06:01.280
+Each flat line is six dollars and then, you know, taxes and then it's just your usage.
+
+06:01.280 --> 06:04.400
+If they take your message, your megabytes and your minutes, they add them all up at
+
+06:04.400 --> 06:07.800
+the end of the month, whatever bucket you fall into, that's what you pay.
+
+06:07.800 --> 06:08.800
+It's really straightforward.
+
+06:08.800 --> 06:10.000
+You buy the device outright.
+
+06:10.000 --> 06:11.000
+You own it.
+
+06:11.000 --> 06:14.800
+You're not paying some sort of subsidized price over the time of the device.
+
+06:14.800 --> 06:15.800
+It's yours.
+
+06:15.800 --> 06:18.920
+And one of the great things about Ting is every plan includes hotspot and tethering
+
+06:18.920 --> 06:20.600
+and it's just part of your data usage.
+
+06:20.600 --> 06:22.160
+You don't have to be in some sort of special plan.
+
+06:22.160 --> 06:23.160
+You just turn it on.
+
+06:23.160 --> 06:25.200
+You know that feature built into Android?
+
+06:25.200 --> 06:26.520
+You should be able to just turn it on.
+
+06:26.520 --> 06:29.600
+That's why, that's why Google put it there and that's how Ting works.
+
+06:29.600 --> 06:31.960
+Ting also has awesome no-hold customer service.
+
+06:31.960 --> 06:36.080
+You can give them a call anytime between 8 a.m. and 8 p.m. eastern and an actual person
+
+06:36.080 --> 06:37.080
+answers the phone.
+
+06:37.080 --> 06:38.080
+What a concept!
+
+06:38.080 --> 06:42.120
+I've been able to activate like 14 devices though, all through the dashboard.
+
+06:42.120 --> 06:43.120
+It's really great.
+
+06:43.120 --> 06:46.640
+They have an iPhone and Android app to manage your account as well.
+
+06:46.640 --> 06:48.640
+And you can check them out by going to linux.ting.com.
+
+06:48.640 --> 06:53.240
+They'll take $25 off your first device or $25 off your first month if you already have
+
+06:53.240 --> 06:54.240
+a compatible device.
+
+06:54.240 --> 06:56.380
+Check out their BYOD page.
+
+06:56.380 --> 06:58.400
+I'm telling you, I've been using them for over a year and I love it.
+
+06:58.400 --> 07:02.340
+They just, they just announced too that you can buy the Nexus Red phone from the Google
+
+07:02.340 --> 07:03.920
+Play Store and put it on Ting.
+
+07:03.920 --> 07:04.920
+Just get the Ting.
+
+07:04.920 --> 07:05.920
+Oh, that's cool.
+
+07:05.920 --> 07:06.920
+Yeah.
+
+07:06.920 --> 07:07.920
+You know what's, you know what's actually really cool?
+
+07:07.920 --> 07:11.800
+This, here's a, so not only do they have, not only are they like really savvy about
+
+07:11.800 --> 07:15.840
+the net in general, but if I go over to their Google Plus page, I'm going to wait for this
+
+07:15.840 --> 07:20.900
+bad boy to load up, they check out, here's how they, here's how they posted it.
+
+07:20.900 --> 07:22.120
+This is on their Google Plus page.
+
+07:22.120 --> 07:23.120
+Okay.
+
+07:23.120 --> 07:24.120
+So they did this on social media.
+
+07:24.120 --> 07:25.120
+Cool.
+
+07:25.120 --> 07:27.800
+We're now selling the Nexus 5, but please don't buy it from us.
+
+07:27.800 --> 07:30.440
+Order it on Google Play and save yourself 95 bucks.
+
+07:30.440 --> 07:31.440
+Okay.
+
+07:31.440 --> 07:32.440
+Let me get this straight.
+
+07:32.440 --> 07:35.520
+So they not only said, Hey look, you know, we want you to, we want you to put the money
+
+07:35.520 --> 07:40.520
+back in your pocket and not in ours, but they're going to actually even provide you where to
+
+07:40.520 --> 07:41.520
+go and do that.
+
+07:41.520 --> 07:42.520
+I mean, that's really cool.
+
+07:42.520 --> 07:44.720
+Here's their, here's their announcement on a fight against mass surveillance.
+
+07:44.720 --> 07:48.080
+Help spread the word by sharing our blog posts and signing the official petition for every
+
+07:48.080 --> 07:49.480
+share before the end of the day.
+
+07:49.480 --> 07:54.040
+We're donating a dollar to the Electronic Frontier Foundation up to a maximum of $10,000.
+
+07:54.040 --> 07:55.040
+Wow.
+
+07:55.040 --> 07:56.920
+So go over to linux.ting.com.
+
+07:56.920 --> 08:00.800
+See this is why I've always talked about vote with your wallet, support these kinds of companies.
+
+08:00.800 --> 08:04.000
+And you know, we also had a listener reach out to them and ask them about Ubuntu Touch
+
+08:04.000 --> 08:06.640
+and they said they're eagerly following that project.
+
+08:06.640 --> 08:08.640
+So they're really kind of onto all of this stuff.
+
+08:08.640 --> 08:11.160
+And I think you could go check them out, try out their savings calculator.
+
+08:11.160 --> 08:12.720
+They just lowered their data rates.
+
+08:12.720 --> 08:16.640
+Try the calculator again, see if it's even more of a deal for you than before.
+
+08:16.640 --> 08:21.060
+Linux.ting.com and a big thank you to Ting for being so damn awesome.
+
+08:21.060 --> 08:22.060
+That's really cool.
+
+08:22.060 --> 08:23.060
+Good guys.
+
+08:23.060 --> 08:24.060
+Good stuff.
+
+08:24.060 --> 08:25.060
+All right.
+
+08:25.060 --> 08:26.060
+Let's jump in the mumble room.
+
+08:26.060 --> 08:27.060
+Bring in the guys.
+
+08:27.060 --> 08:30.080
+Um, guys, we got a couple of, uh, we got a couple of things I want to, I want to hammer
+
+08:30.080 --> 08:33.480
+through before we jump into the, uh, to the Debian topic.
+
+08:33.480 --> 08:36.720
+I want to read some of our feedback, but you guys feel free to chime in on any of the feedback
+
+08:36.720 --> 08:37.720
+too.
+
+08:37.720 --> 08:38.720
+All right.
+
+08:38.720 --> 08:39.720
+Our first email came from Dalek.
+
+08:39.720 --> 08:40.720
+Hmm.
+
+08:40.720 --> 08:41.720
+Dalek, huh?
+
+08:41.720 --> 08:42.720
+Interesting.
+
+08:42.720 --> 08:45.920
+He says, Hey Chris, I just wanted to comment on your recent snafu on last and your comments
+
+08:45.920 --> 08:47.600
+in Coder Radio and Linux unplugged.
+
+08:47.600 --> 08:51.360
+I gathered your report on something incorrectly and someone complained on Google Plus.
+
+08:51.360 --> 08:56.840
+This was a, we mentioned that we, I reported that the KD Plasma next dates were firm when
+
+08:56.840 --> 08:57.840
+they weren't.
+
+08:57.840 --> 08:59.400
+I said, get over it.
+
+08:59.400 --> 09:02.440
+He says to me, the only things that matter are number one, you owned up to it when you
+
+09:02.440 --> 09:04.160
+found out that you were wrong.
+
+09:04.160 --> 09:08.560
+It wasn't intentional and you're taking steps to address the issue.
+
+09:08.560 --> 09:13.360
+If you made a, you have made a pledge to be more accurate and to me that is all that matters.
+
+09:13.360 --> 09:14.920
+Mistakes can and will happen.
+
+09:14.920 --> 09:17.240
+It is what you do about them that makes all the difference.
+
+09:17.240 --> 09:20.240
+This is my opinion and I will probably get trolled for saying this, but you're doing
+
+09:20.240 --> 09:24.040
+the KD project a favor by reporting on anything on the project.
+
+09:24.040 --> 09:26.560
+Instead of hitting Google Plus to complain, they should come directly to you and say,
+
+09:26.560 --> 09:29.600
+Hey Chris, you got this part wrong and you should probably fix it.
+
+09:29.600 --> 09:31.040
+Oh, and by the way, insert a link here.
+
+09:31.040 --> 09:35.080
+This is where the post about info that's correct is happening at.
+
+09:35.080 --> 09:36.680
+I definitely agree with the latter part especially.
+
+09:36.680 --> 09:41.600
+I think definitely going straight to the source versus a publicly bemoaning crap is definitely
+
+09:41.600 --> 09:42.600
+the way to handle something.
+
+09:42.600 --> 09:43.600
+Yeah, for sure.
+
+09:43.600 --> 09:47.520
+Although sometimes, yeah, yeah, I mean, I don't know, see, here's where I fall down
+
+09:47.520 --> 09:53.200
+on this is I kind of, I've been thinking about this a lot and I think mistakes will inevitably
+
+09:53.200 --> 09:57.720
+happen because there's not a ton of original reporting happening in the Linux and open
+
+09:57.720 --> 09:58.720
+source landscape.
+
+09:58.720 --> 10:05.440
+A lot of it is blogs, it's rewrites of mailing list posts, it's pulling out company announcements
+
+10:05.440 --> 10:08.640
+and then posting them online and then people either do meta coverage of them or they go
+
+10:08.640 --> 10:13.840
+do some research on their own and do some, it's very little actual original reporting.
+
+10:13.840 --> 10:17.840
+So when you are trying to do some original reporting or trying to just cover some of
+
+10:17.840 --> 10:22.760
+the original reporting, there inevitably will be some errors that crop up just because that's
+
+10:22.760 --> 10:23.760
+human nature.
+
+10:23.760 --> 10:24.760
+Sure.
+
+10:24.760 --> 10:31.240
+And I think as long as, we always try to follow up and make corrections in this show and I
+
+10:31.240 --> 10:35.680
+think if the mistake is big enough, we make corrections in the main show itself and we're
+
+10:35.680 --> 10:39.120
+very clear and open about it and plus in the subreddit, we get caught pretty quickly.
+
+10:39.120 --> 10:46.040
+And I think as long as, one of the things about a podcast is you make it consumable
+
+10:46.040 --> 10:49.780
+for one episode if somebody is just doing a drive by and they pick it up.
+
+10:49.780 --> 10:53.920
+But what you really want to do is curate a long term community that can depend on quality
+
+10:53.920 --> 10:54.960
+of content.
+
+10:54.960 --> 10:58.320
+And I think as long as we're addressing that by continuing to do corrections and updates
+
+10:58.320 --> 11:02.520
+down the road, then that audience is served in the long run and I think that's what really
+
+11:02.520 --> 11:03.520
+matters.
+
+11:03.520 --> 11:06.920
+So I'm always going to do my best not to have mistakes but when they do, I'll also always
+
+11:06.920 --> 11:08.680
+do my best to make corrections.
+
+11:08.680 --> 11:10.200
+And I think that's all you can really do.
+
+11:10.200 --> 11:11.200
+Yeah.
+
+11:11.200 --> 11:12.200
+Yeah.
+
+11:12.200 --> 11:16.520
+Alright, well next bit of feedback comes in and this is from Red Hands Guitar.
+
+11:16.520 --> 11:17.520
+Read Hands Guitar.
+
+11:17.520 --> 11:18.520
+Read Hands Guitar.
+
+11:18.520 --> 11:19.520
+Ah, well I'll get it eventually.
+
+11:19.520 --> 11:20.800
+Give me about four more tries.
+
+11:20.800 --> 11:26.920
+He says, he says, he's following up on an email we got at the end of Linux Unplugged
+
+11:26.920 --> 11:30.760
+last week and the emailer said, hey, you know what, maybe I prefer Linux not to have that
+
+11:30.760 --> 11:31.760
+big of an adoption.
+
+11:31.760 --> 11:32.760
+Let's keep it tight and small.
+
+11:32.760 --> 11:33.760
+Right?
+
+11:33.760 --> 11:34.760
+Make it a small community.
+
+11:34.760 --> 11:35.760
+Maybe it doesn't need to go out to the masses.
+
+11:35.760 --> 11:39.440
+And I think we all kind of kicked around and said, nah, to really be successful we need
+
+11:39.440 --> 11:40.680
+to get a wider adoption.
+
+11:40.680 --> 11:45.360
+He said, so Read Hands Guitar says, I think it would be, I think I would be satisfied
+
+11:45.360 --> 11:50.920
+if Linux became as popular as the desktop OS as Mac OS is, but maybe even more would
+
+11:50.920 --> 11:51.920
+be better.
+
+11:51.920 --> 11:54.680
+I think the most beneficial kind of growth initially is to allow other kinds of growth
+
+11:54.680 --> 11:58.200
+by hobbyist users, so we start there.
+
+11:58.200 --> 12:01.840
+If we have a huge influx of hobbyists who can commit code, Linux and free software become
+
+12:01.840 --> 12:06.080
+better products and give better impressions to more casual users.
+
+12:06.080 --> 12:07.880
+I agree up until the last point.
+
+12:07.880 --> 12:11.560
+The last point, generally speaking, the more coding and the more coders and things you
+
+12:11.560 --> 12:17.120
+come into it, you do end up with better stuff, but a lot of times little things like UX and
+
+12:17.120 --> 12:22.240
+stuff like that tend to go out the window, especially in the Linux space, so I don't
+
+12:22.240 --> 12:23.240
+know.
+
+12:23.240 --> 12:24.240
+Maybe so.
+
+12:24.240 --> 12:25.240
+Yeah.
+
+12:25.240 --> 12:34.040
+See, I do kind of, I see some aspects of like, sometimes if you build something for the geeks,
+
+12:34.040 --> 12:37.480
+that serves a point, that serves a purpose for a while.
+
+12:37.480 --> 12:42.840
+That does help with getting you to a level of adoption on a class of user, a lot of times
+
+12:42.840 --> 12:43.840
+it's sort of the trendsetter.
+
+12:43.840 --> 12:48.760
+You know, Matt, one of the things that I know, I'm sure you must have noticed too, over the
+
+12:48.760 --> 12:53.800
+last 20 years maybe, let's say, is like there used to be a day in an age when I would go
+
+12:53.800 --> 12:59.240
+to a restaurant and if somebody dropped a computer term like modem or windows, I would
+
+12:59.240 --> 13:02.540
+immediately pick that sucker up and be like, whoa, somebody just said something about a
+
+13:02.540 --> 13:04.640
+computer in a public place.
+
+13:04.640 --> 13:10.280
+And now these days, it's common vernacular to be throwing out, you know, Facebook, dot
+
+13:10.280 --> 13:12.560
+com, Twitter, whatever, right?
+
+13:12.560 --> 13:18.240
+So I think in some ways you could argue that the internet used to be a place only for the
+
+13:18.240 --> 13:24.360
+geeks that eventually, because of the work they did and then the work to bring other
+
+13:24.360 --> 13:29.560
+people to it, eventually it became appealing to the common person.
+
+13:29.560 --> 13:33.720
+And I think the Linux desktop could be like that and the Linux desktop shares a lot of
+
+13:33.720 --> 13:36.400
+similarities with the development of the internet in some ways.
+
+13:36.400 --> 13:37.760
+The fractured nature of it, right?
+
+13:37.760 --> 13:41.920
+The competing standards, all these things, but eventually it all sort of moves forward
+
+13:41.920 --> 13:48.560
+as one big evolutionary organic beast and I kind of feel like in a way this phase the
+
+13:48.560 --> 13:52.320
+Linux desktop is at right now could be its glory days in a sense where it's for the geeks,
+
+13:52.320 --> 13:56.040
+it's really great if you're a nerd and you really want to tinker with your system and
+
+13:56.040 --> 14:01.560
+you look at sort of the Ubuntuization of a desktop where they're putting a lot more polish
+
+14:01.560 --> 14:05.200
+on there, they're changing things, polish might not be the right word, but they're
+
+14:05.200 --> 14:10.560
+packaging and productizing it, going with their own display server because that fits
+
+14:10.560 --> 14:14.800
+the needs of the product, not because it might technically be the better thing for everyone
+
+14:14.800 --> 14:19.000
+in the community, but it helps them create a product that is good for general consumers
+
+14:19.000 --> 14:20.680
+and so they're going that direction.
+
+14:20.680 --> 14:24.840
+I think what Canonical and Ubuntu are doing right now is going to be the leading edge
+
+14:24.840 --> 14:30.360
+of what's going to happen in a lot of products using Linux.
+
+14:30.360 --> 14:33.480
+I think that's one way Linux will be brought to a lot more people.
+
+14:33.480 --> 14:38.720
+It might not be that everybody has a big tower PC with a monitor and a keyboard and a mouse
+
+14:38.720 --> 14:43.160
+hooked up to it and an Ethernet jack and power and all this kind of stuff, it might be tablets
+
+14:43.160 --> 14:47.640
+and it might be Nest thermostats and it might be robots hooked into your Google Plus account
+
+14:47.640 --> 14:50.840
+and all these kinds of things that are running Linux and eventually everyone will be using
+
+14:50.840 --> 14:56.400
+Linux in every single way, it just might not be in the exact vision we have today.
+
+14:56.400 --> 15:00.120
+That's a good point and I think in many ways we're already well into that direction as
+
+15:00.120 --> 15:03.680
+it is, especially in the embedded markets and things like that, because I think the
+
+15:03.680 --> 15:07.640
+desktop market is such a tough – it's like whack-a-mole in so many ways trying to
+
+15:07.640 --> 15:12.120
+find that perfect sweet spot to where the market is saying, we don't care if it runs
+
+15:12.120 --> 15:16.400
+Cheetos, we just want to make sure that it's accomplishing the tasks that I want to do.
+
+15:16.400 --> 15:18.480
+Right, look at the huge success of Chromebooks now, right?
+
+15:18.480 --> 15:23.520
+Yeah, exactly, because it accomplishes tasks versus what display server does it run and
+
+15:23.520 --> 15:24.520
+whatnot.
+
+15:24.520 --> 15:28.320
+I think what display server and that sort of thing, that stuff matters, but it matters
+
+15:28.320 --> 15:30.760
+to a very compartmentalized group of people.
+
+15:30.760 --> 15:35.040
+To people such as myself, I care, but getting someone like my wife or someone else to care,
+
+15:35.040 --> 15:36.040
+that's a little bit tougher.
+
+15:36.040 --> 15:40.000
+So it's going to be an interesting divide until we can begin to smooth out those edges
+
+15:40.000 --> 15:41.000
+I think.
+
+15:41.000 --> 15:42.000
+Yeah.
+
+15:42.000 --> 15:47.800
+Well, when we move forward, one weird crazy device at a time that we all think is going
+
+15:47.800 --> 15:52.240
+to fail until it doesn't like Chromebooks, you know what I mean?
+
+15:52.240 --> 15:54.320
+I honestly was a big Chromebook hater.
+
+15:54.320 --> 15:55.720
+I still think it's a little wonky.
+
+15:55.720 --> 16:00.360
+I tried it, but you know what, the market speaks, and I think a lot of it's price based,
+
+16:00.360 --> 16:01.360
+but yeah.
+
+16:01.360 --> 16:02.360
+I think they're cute.
+
+16:02.360 --> 16:07.800
+I mean, I think they're like the ideal, I don't know, college student, teenager kind
+
+16:07.800 --> 16:08.800
+of thing.
+
+16:08.800 --> 16:09.800
+I mean, I think they're great for that.
+
+16:09.800 --> 16:11.840
+It's like you drop it, you shrug, and you go buy a new one.
+
+16:11.840 --> 16:17.840
+I think the Chromebook shows a version though where it's not just the DVR or the closed
+
+16:17.840 --> 16:23.600
+camera system like who me is saying, it's like it's all devices.
+
+16:23.600 --> 16:27.600
+All consumer devices, because it seems like you look at, we just had a really great chat
+
+16:27.600 --> 16:32.040
+on Coderadio yesterday about how what Microsoft is really up against is their whole model
+
+16:32.040 --> 16:36.600
+is software licensing, and that is completely vanishing.
+
+16:36.600 --> 16:40.360
+Subscription models, reoccurring subscription models where it's essentially a license and
+
+16:40.360 --> 16:46.600
+you're getting access to the program like Adobe Creative Cloud or Office 365, but selling
+
+16:46.600 --> 16:51.360
+somebody an $80 OEM license when they go to build a product, that's going to go away.
+
+16:51.360 --> 16:55.240
+We speculated about perhaps even Windows going completely free at some point in the next
+
+16:55.240 --> 16:57.780
+year or two, especially with this new CEO stepping in.
+
+16:57.780 --> 17:01.800
+And I think if they don't, there's really going to be no reason people don't use these
+
+17:01.800 --> 17:06.000
+free operating systems when they just need a base level OS and they're building on top
+
+17:06.000 --> 17:07.000
+of that.
+
+17:07.000 --> 17:08.960
+You know, when you look at Chromebooks, right?
+
+17:08.960 --> 17:09.960
+Exactly.
+
+17:09.960 --> 17:13.480
+Well, and I'm not super familiar with Windows 8, so I'm going to go out on a limb and say,
+
+17:13.480 --> 17:17.280
+I assume that Microsoft still makes their business out of selling stickers, you know,
+
+17:17.280 --> 17:19.600
+the little licensing stickers they like to put on computers.
+
+17:19.600 --> 17:22.840
+You know, they are the biggest sticker based business I've ever seen.
+
+17:22.840 --> 17:27.040
+And so if you lose that sticker, your CD becomes a coaster.
+
+17:27.040 --> 17:33.440
+And I think they need to realize that that model is not only the worst customer experience
+
+17:33.440 --> 17:36.640
+possible, but as you pointed out, it's not going to work.
+
+17:36.640 --> 17:40.760
+Let's get out of stickers and let's, you know, maybe they can look into, I don't know, opening
+
+17:40.760 --> 17:41.880
+up a nice pub or something.
+
+17:41.880 --> 17:49.320
+So what really helped Windows back in the day was they had a really kind of good relationship
+
+17:49.320 --> 17:51.480
+between their desktop product and their server products.
+
+17:51.480 --> 17:55.820
+So if you ran, and that drove a lot of people to run Windows server and Windows desktops
+
+17:55.820 --> 17:58.720
+in the business, which then drove a lot of people to buy Windows in the home because
+
+17:58.720 --> 18:00.240
+they wanted to use what they're familiar with work.
+
+18:00.240 --> 18:06.560
+You know, I remember my stepdad specifically didn't want to buy a Mac, didn't want to
+
+18:06.560 --> 18:10.760
+use Ubuntu because the job he was working at used Windows XP and that's what he wanted.
+
+18:10.760 --> 18:13.040
+He wanted to use exactly what they used at work at home.
+
+18:13.040 --> 18:14.960
+That way he wouldn't have a problem at all.
+
+18:14.960 --> 18:18.560
+And you know, to be frank, I understood the logic there.
+
+18:18.560 --> 18:23.600
+I felt like, okay, I can totally empathize with that when you're not very comfortable
+
+18:23.600 --> 18:24.700
+with computers.
+
+18:24.700 --> 18:29.240
+And so in a sense, that's going away now with the whole bring your own device initiative
+
+18:29.240 --> 18:33.720
+and a lot of those devices are Linux powered, primarily through Android and things like
+
+18:33.720 --> 18:34.720
+that.
+
+18:34.720 --> 18:40.440
+So Microsoft is transitioning to this whole cloud infrastructure, Azure, Office 365 subscription
+
+18:40.440 --> 18:43.200
+models, and you know, also attempting to do the devices thing.
+
+18:43.200 --> 18:47.720
+But the problem is Linux is already there on both fronts, on the cloud front and on
+
+18:47.720 --> 18:50.200
+the devices front and not just like a little bit, right?
+
+18:50.200 --> 18:53.200
+Like it's dominant, like it's the boss there.
+
+18:53.200 --> 18:54.840
+And so they are really going to be up.
+
+18:54.840 --> 18:59.480
+This new CEO has a ton of work and I wonder if because Linux is already the boss on the
+
+18:59.480 --> 19:03.400
+server space, it's already the boss on the device space, if you almost have that same
+
+19:03.400 --> 19:06.720
+thing again where, well, because we run it on the server and because I have it on my
+
+19:06.720 --> 19:09.800
+devices, I'm also going to put it on these other devices.
+
+19:09.800 --> 19:12.920
+And just for developers and for companies that are just trying to wrap their head around
+
+19:12.920 --> 19:16.280
+products and delivering a decent product, it almost just makes it easier for them to
+
+19:16.280 --> 19:19.560
+just put everything Linux because, well, we're already using that on the servers over here,
+
+19:19.560 --> 19:22.440
+we're writing code for that, we're already shipping these Android devices, we're writing
+
+19:22.440 --> 19:23.440
+code for that.
+
+19:23.440 --> 19:24.440
+So you know what?
+
+19:24.440 --> 19:26.000
+Let's just make it all Linux.
+
+19:26.000 --> 19:29.360
+And I think that's sort of the thing we could be seeing put in place right now.
+
+19:29.360 --> 19:32.960
+I think we're seeing that and that is what Microsoft's up against and it's like this
+
+19:32.960 --> 19:34.260
+silent monster.
+
+19:34.260 --> 19:39.520
+It's not this big company, it doesn't have any one particular logo on it, but it's still
+
+19:39.520 --> 19:42.940
+this massive battle that I don't think they're fully equipped to fight.
+
+19:42.940 --> 19:46.960
+They're equipped to fight IBM's and Apple's and Oracle's, right?
+
+19:46.960 --> 19:49.320
+That's who Microsoft is armed to fight.
+
+19:49.320 --> 19:53.880
+Microsoft, in my opinion, is going to continue to eat their own face when it comes to the
+
+19:53.880 --> 19:55.040
+consumer market.
+
+19:55.040 --> 19:57.000
+They hired who seems to be a really nice guy.
+
+19:57.000 --> 20:00.120
+I'm sure he's going to really means well and is going to do his very best and I'm sure
+
+20:00.120 --> 20:01.120
+he's great.
+
+20:01.120 --> 20:05.440
+I don't think that, but they continue to make the same mistake they've always made and that's,
+
+20:05.440 --> 20:09.200
+oh, why bring in someone new that might be able to help us in our shortcomings when we
+
+20:09.200 --> 20:11.440
+can hire someone from within again?
+
+20:11.440 --> 20:16.200
+Granted, he's got some great skill sets and like I said, I'm sure he's very talented,
+
+20:16.200 --> 20:18.840
+but it's the bigger problems they're still hiring within.
+
+20:18.840 --> 20:19.840
+They really do.
+
+20:19.840 --> 20:21.480
+They need somebody to go and do some weed whacking.
+
+20:21.480 --> 20:24.800
+Now, Bacon Drinker, you were going to make a point that you think if Windows goes free,
+
+20:24.800 --> 20:25.800
+it's better for Linux?
+
+20:25.800 --> 20:27.440
+No, it's worse for Linux, sorry.
+
+20:27.440 --> 20:28.760
+Oh, it's worse for Linux.
+
+20:28.760 --> 20:29.760
+Tell me.
+
+20:29.760 --> 20:30.960
+You think people will do…
+
+20:30.960 --> 20:31.960
+It's the web browser model.
+
+20:31.960 --> 20:36.960
+You say like, well, the web browser idea is to say like, when a web browser is, when you
+
+20:36.960 --> 20:42.560
+see someone running IE, you switch them to Chrome or when someone's PC breaks and you
+
+20:42.560 --> 20:43.960
+reinstall it, you switch them to Chrome.
+
+20:43.960 --> 20:48.240
+Well, if someone's PC breaks, you haven't got the moral problem of torrenting Windows,
+
+20:48.240 --> 20:50.200
+so you're probably going to install Windows for free anyway.
+
+20:50.200 --> 20:52.600
+Yeah, but who's going to want to run Metro on it?
+
+20:52.600 --> 20:56.520
+I mean, you know, I think Microsoft is solving that problem for us.
+
+20:56.520 --> 21:02.080
+I think they are going to, I think web applications, HTML5, that kind of crap, the crap that we
+
+21:02.080 --> 21:06.620
+all hate hearing the buzz terms about, are making Windows less relevant and I think Microsoft
+
+21:06.620 --> 21:11.200
+is doing us all a favor by making Windows less relevant.
+
+21:11.200 --> 21:18.120
+Paul Thrott over at winsupersite.com ran a story, I think, I can't remember what the
+
+21:18.120 --> 21:21.920
+title was, but it was a good title, and he makes the case that he goes through and lists
+
+21:21.920 --> 21:25.520
+all of the people that have lost their jobs, the entire divisions that they've done house
+
+21:25.520 --> 21:31.240
+cleanings on, and he even proposes Balmer's loss of his job is because of what a catastrophe
+
+21:31.240 --> 21:35.960
+Windows 8 is, and he writes, he says, he's talked to people in there that, you know,
+
+21:35.960 --> 21:40.120
+they think it's worse than Vista, and they think, not in terms of sales, but in terms
+
+21:40.120 --> 21:44.640
+of public image, and they think that they may have set Windows back a decade, is the
+
+21:44.640 --> 21:48.000
+term they're using internally, that Windows has been set back a decade.
+
+21:48.000 --> 21:49.000
+Ouch.
+
+21:49.000 --> 21:50.000
+Yeah.
+
+21:50.000 --> 21:51.000
+Not shocking, but ouch.
+
+21:51.000 --> 21:54.400
+That's, that's pretty, you know, that's pretty damning.
+
+21:54.400 --> 21:57.720
+And so some people are speculating now pretty openly, well Paul Thrott is the person I'm
+
+21:57.720 --> 22:03.160
+talking about, but other people as well that, you know, maybe this, maybe the reason why
+
+22:03.160 --> 22:08.560
+they went with Satya Nadella, I think is how you say the last name, Satya Nadella, is because
+
+22:08.560 --> 22:13.240
+they just really have to double down and focus on no longer making Windows the center of
+
+22:13.240 --> 22:14.240
+the Microsoft folks.
+
+22:14.240 --> 22:17.600
+Remember back, I think we all remember that quote for Balmer saying, Windows is the future
+
+22:17.600 --> 22:18.600
+of Microsoft.
+
+22:18.600 --> 22:20.360
+Hey, we want to make an Xbox, you put Windows on it.
+
+22:20.360 --> 22:21.920
+Hey, you want to make a device, put Windows on it.
+
+22:21.920 --> 22:24.960
+Hey, you need that servers, doing something, put Windows on it, and then load SQL on it.
+
+22:24.960 --> 22:27.120
+You got yourself a winning combo everybody.
+
+22:27.120 --> 22:29.640
+And it was Windows this, Windows that, Windows this, Windows that.
+
+22:29.640 --> 22:34.920
+Now it's all going to be about these reoccurring subscriptions, this Office 365, Azure, and
+
+22:34.920 --> 22:35.920
+all these things.
+
+22:35.920 --> 22:40.280
+But the problem with these is they inherently have a very high run cost.
+
+22:40.280 --> 22:44.420
+And while that might work good in the rich Western worlds, it's not going to work good
+
+22:44.420 --> 22:46.440
+in some of the poorer places in this world.
+
+22:46.440 --> 22:49.360
+And it's never going to lock them in as a dominant force.
+
+22:49.360 --> 22:52.320
+They're never going to be number one in cloud hosted services.
+
+22:52.320 --> 22:54.360
+That's already been claimed really.
+
+22:54.360 --> 22:55.800
+And they do it to themselves too.
+
+22:55.800 --> 22:59.520
+It's like if you look at Office 365, which I've had some limited experience with, it's
+
+22:59.520 --> 23:03.800
+been a couple of months, but when I looked at it, I'm thinking, okay, so compared to
+
+23:03.800 --> 23:08.140
+the Google offerings, which are free, you want me to pay for something that for a non-enterprise
+
+23:08.140 --> 23:14.640
+user isn't really compellingly different other than maybe visually different.
+
+23:14.640 --> 23:17.720
+They seem to shoot themselves in the foot as soon as they launch something like that.
+
+23:17.720 --> 23:21.800
+They launch these products and say, okay, how can we either overbrand it with too many
+
+23:21.800 --> 23:25.680
+versions, charge something when quite frankly no one's going to pay for it, not out of
+
+23:25.680 --> 23:29.200
+the enterprise anyway, and what the hell?
+
+23:29.200 --> 23:30.200
+Their thinking doesn't make any sense.
+
+23:30.200 --> 23:31.200
+Yeah.
+
+23:31.200 --> 23:32.200
+It's like a lack of focus.
+
+23:32.200 --> 23:33.200
+I agree.
+
+23:33.200 --> 23:34.200
+It really is.
+
+23:34.200 --> 23:35.200
+Craig.
+
+23:35.200 --> 23:37.400
+We're also ignoring something kind of important that people will just use Windows because
+
+23:37.400 --> 23:38.880
+they know Windows.
+
+23:38.880 --> 23:39.880
+Yeah.
+
+23:39.880 --> 23:41.560
+I've seen that change more and more though.
+
+23:41.560 --> 23:46.120
+That is until they have a reason not to, and there's going to be a thousand different reasons
+
+23:46.120 --> 23:47.120
+not to, I think.
+
+23:47.120 --> 23:50.000
+Even if it's like tablets, right?
+
+23:50.000 --> 23:55.940
+If you shift, if you're an average user and you shift 70% of your computing workload over
+
+23:55.940 --> 24:00.680
+to a tablet when you're at home, like reading email, checking Facebook, all of these things,
+
+24:00.680 --> 24:03.600
+tablets actually in some ways better at really.
+
+24:03.600 --> 24:06.480
+So isn't that a loss for Microsoft?
+
+24:06.480 --> 24:07.480
+Just right there?
+
+24:07.480 --> 24:12.040
+Even if people are just using the Windows desktop 70% less of the time?
+
+24:12.040 --> 24:16.760
+Well, not just that, but I also know of three computer technicians here in town, one of
+
+24:16.760 --> 24:22.200
+them who's a pretty big player, is tired of offering Microsoft's only solutions and has
+
+24:22.200 --> 24:24.400
+now begun offering some Linux solutions.
+
+24:24.400 --> 24:27.920
+He's not going to say this publicly because he has a Microsoft agreement, but the point
+
+24:27.920 --> 24:32.160
+is that this is happening and he's actually, a lot of people are saying, oh, okay, well,
+
+24:32.160 --> 24:33.680
+I want to do Windows 7 or Windows 8.
+
+24:33.680 --> 24:34.680
+Oh, I have old hardware.
+
+24:34.680 --> 24:35.680
+Oops, sorry, I'm screwed.
+
+24:35.680 --> 24:38.360
+I've got to buy new peripherals because nothing's supported.
+
+24:38.360 --> 24:42.700
+And so it's becoming a value proposition for him to offer them an operating system he can
+
+24:42.700 --> 24:46.280
+still support and not look like a douchebag.
+
+24:46.280 --> 24:49.880
+So and then tablets and things, that's more of a younger audience.
+
+24:49.880 --> 24:52.160
+There's a pretty much 45 and up.
+
+24:52.160 --> 24:53.160
+I don't know.
+
+24:53.160 --> 24:57.400
+I think seniors, I think there's a pretty good use case and I say that because in our
+
+24:57.400 --> 25:03.680
+own family, some of the older folks who had computer phobias, the family got them tablets
+
+25:03.680 --> 25:04.680
+and they've really taken them.
+
+25:04.680 --> 25:07.920
+And one of the things like on the Kindles that they really like is they can really increase
+
+25:07.920 --> 25:08.920
+the size of the text.
+
+25:08.920 --> 25:11.200
+So it makes it a lot easier for them to read.
+
+25:11.200 --> 25:12.440
+Kindle fires have been pretty good.
+
+25:12.440 --> 25:13.440
+Yeah, I've seen a few.
+
+25:13.440 --> 25:18.040
+You know, my grandma hasn't had a computer her entire life and now is on email all the
+
+25:18.040 --> 25:21.600
+time and she's emailing with the church group and constantly on the thing.
+
+25:21.600 --> 25:22.600
+I mean, she's like.
+
+25:22.600 --> 25:28.680
+So for her, and it wasn't just her, it was also several family members who were just
+
+25:28.680 --> 25:33.680
+anti-technology, but once they got their hands on one, gosh, you know, it really was like
+
+25:33.680 --> 25:35.760
+a pretty big transformation for them.
+
+25:35.760 --> 25:36.760
+So I don't know.
+
+25:36.760 --> 25:39.640
+And perhaps the other value for the family members too is that you're no longer, you
+
+25:39.640 --> 25:42.560
+don't feel like you have to be afraid of it anymore, like you did with the Windows box.
+
+25:42.560 --> 25:46.880
+Right, you're not worried about the malware, and it's so dead simple, it's like you just
+
+25:46.880 --> 25:47.880
+turn it on, right?
+
+25:47.880 --> 25:50.520
+You just turn it on and push the mail icon.
+
+25:50.520 --> 25:53.840
+And honestly, for some of these people, like the barrier was the mouse, like they just
+
+25:53.840 --> 25:54.840
+didn't know how to use a mouse.
+
+25:54.840 --> 25:56.680
+Now they can touch the thing.
+
+25:56.680 --> 25:59.320
+But Craig, you were going to make a point that it's convergence that's doing Windows
+
+25:59.320 --> 26:00.320
+8.
+
+26:00.320 --> 26:06.120
+Yeah, what I've seen while I worked at Memory Express was that the biggest issues with most
+
+26:06.120 --> 26:11.600
+customers computers were that they didn't know how to use Windows 8 and that when they
+
+26:11.600 --> 26:15.460
+went from a tablet to Windows 8, it still wasn't the same, even though they're made
+
+26:15.460 --> 26:16.840
+the same.
+
+26:16.840 --> 26:20.360
+And there's just a whole bunch of issues with people learning the new OS and they're
+
+26:20.360 --> 26:25.480
+shooting themselves in the foot by making it too different without leaving in some key
+
+26:25.480 --> 26:29.200
+information that helps people transition.
+
+26:29.200 --> 26:32.640
+And by having a cell phone that acts like a tablet and a tablet that acts like a computer
+
+26:32.640 --> 26:35.680
+is just confusing people even more.
+
+26:35.680 --> 26:43.520
+Yeah, I think they didn't go far enough, like in the sense, like I think maybe the work
+
+26:43.520 --> 26:51.160
+that's being done now by folks to have that device more like role change and then try
+
+26:51.160 --> 26:52.840
+to be the same thing all the time.
+
+26:52.840 --> 26:55.040
+I think that's probably the more winning recipe.
+
+26:55.040 --> 26:58.480
+And it also makes more sense as devices get more powerful, they can afford to do that.
+
+26:58.480 --> 26:59.480
+You know what I'm talking?
+
+26:59.480 --> 27:02.680
+Like you put in a dock hooked up to a computer, you get a desktop UI.
+
+27:02.680 --> 27:09.800
+I think the biggest problem is the model of quote convergence they went with.
+
+27:09.800 --> 27:14.920
+In article they're going with a fairly similar UI and with Unity 8 applications should be
+
+27:14.920 --> 27:17.880
+able to run across the different platforms.
+
+27:17.880 --> 27:23.120
+The KDE plasma interface, you have the plasma that you have on the desktop, they'll be your
+
+27:23.120 --> 27:25.920
+main plasma interface on a tablet.
+
+27:25.920 --> 27:31.480
+Yeah, there's plasma active which is definitely very plasma driven and then the idea there
+
+27:31.480 --> 27:36.880
+just like with Unity 8 would be that it would switch and I think as long, I think what we
+
+27:36.880 --> 27:41.280
+are all worried about in those scenarios is that the applications in desktop mode will
+
+27:41.280 --> 27:46.280
+feel like mobile applications and I think that's maybe almost impossible to avoid for
+
+27:46.280 --> 27:50.640
+the first year or so as developers are just working on this stuff, adding features and
+
+27:50.640 --> 27:54.800
+changing things based on user feedback because sometimes you just don't know until a couple
+
+27:54.800 --> 27:56.680
+thousand people have banged on it for a while.
+
+27:56.680 --> 28:02.120
+Sorry, I think the death of Windows 8 was in the desktop, not the tablet.
+
+28:02.120 --> 28:04.000
+Yeah, for sure, yeah, absolutely.
+
+28:04.000 --> 28:08.480
+Because if you look back at it, the uproar was really not being able to access the start
+
+28:08.480 --> 28:09.480
+menu.
+
+28:09.480 --> 28:11.360
+No, actually people are pretty positive about it in the mobile sense.
+
+28:11.360 --> 28:12.360
+People love the tiles.
+
+28:12.360 --> 28:13.360
+Ooh, the tiles.
+
+28:13.360 --> 28:19.240
+Yeah, I definitely would say that when I was experiencing it and then listening to other
+
+28:19.240 --> 28:20.800
+people talk about it, they loved it.
+
+28:20.800 --> 28:23.800
+Some of the lower end Windows tablets, they weren't real impressed with the performance
+
+28:23.800 --> 28:27.320
+in comparison to other tablets but they did like the layout.
+
+28:27.320 --> 28:30.840
+They felt it was easy to navigate but yeah, the desktop was a boy.
+
+28:30.840 --> 28:31.840
+That's a mess.
+
+28:31.840 --> 28:33.120
+All right, we got one more.
+
+28:33.120 --> 28:37.960
+I think a KDE tablet would own them all for looks.
+
+28:37.960 --> 28:38.960
+We will see.
+
+28:38.960 --> 28:39.960
+We'll see.
+
+28:39.960 --> 28:42.080
+Stay tuned and find out.
+
+28:42.080 --> 28:43.360
+All right, so one bit of feedback.
+
+28:43.360 --> 28:46.320
+Speaking of desktops, this is our last bit.
+
+28:46.320 --> 28:50.400
+The traditional desktop, Voodoo 6, who says he was going to make it this week but I don't
+
+28:50.400 --> 28:51.400
+see him in here.
+
+28:51.400 --> 28:55.200
+He says, I've made fun of Mate in the past and now I feel kind of bad about it.
+
+28:55.200 --> 28:58.440
+I listened to the show and decided to go grab the live CD and give it a run in VirtualBox
+
+28:58.440 --> 29:00.080
+and I have to say I'm pretty impressed.
+
+29:00.080 --> 29:02.640
+They've actually come a long way with Mate and made some improvements in all the right
+
+29:02.640 --> 29:06.040
+places and also holy hell is it fast.
+
+29:06.040 --> 29:09.680
+Even running from a live CD in VirtualBox with compositing enabled, it just zipped right
+
+29:09.680 --> 29:14.760
+along and then later on, he said, I went ahead and set it up on one of my workstations and
+
+29:14.760 --> 29:15.760
+I've been using it all morning.
+
+29:15.760 --> 29:16.760
+It's really good stuff.
+
+29:16.760 --> 29:22.040
+I felt like my opinion about the Mate desktop was changed during last week's episode too.
+
+29:22.040 --> 29:24.680
+So it's cool to see that some of the folks in the audience felt that way.
+
+29:24.680 --> 29:29.720
+All right, Matt, well before we jump into the Debian stuff and this is why we have a
+
+29:29.720 --> 29:32.800
+big mumble room today, we got a lot of folks in there.
+
+29:32.800 --> 29:36.000
+I think people have been following this topic with quite an interest and it's been one of
+
+29:36.000 --> 29:41.100
+these things that has just, I mean it's been like, you could have sports commentary doing
+
+29:41.100 --> 29:42.660
+a live stream of this at some point.
+
+29:42.660 --> 29:46.680
+It has really just been a heck of a thing to watch.
+
+29:46.680 --> 29:50.520
+So before we get to that, I want to thank DigitalOcean, our sponsor for this week's
+
+29:50.520 --> 29:53.120
+episode of Linux Unplugged.
+
+29:53.120 --> 29:54.480
+DigitalOcean is so great.
+
+29:54.480 --> 29:57.760
+It's simple cloud hosting dedicated to offering the most intuitive and easy way to spin up
+
+29:57.760 --> 29:59.160
+a cloud server.
+
+29:59.160 --> 30:01.800
+These things are so super quick.
+
+30:01.800 --> 30:03.880
+Users can create a cloud server in about 55 seconds.
+
+30:03.880 --> 30:06.040
+I got it down to 47 seconds.
+
+30:06.040 --> 30:09.880
+I believe, what, our record right now, was it 44 seconds?
+
+30:09.880 --> 30:10.880
+Was that what it was?
+
+30:10.880 --> 30:11.880
+I haven't seen that beat.
+
+30:11.880 --> 30:12.880
+I think it was.
+
+30:12.880 --> 30:13.880
+I think it was 44 because I think you had the record previously.
+
+30:13.880 --> 30:14.880
+I did.
+
+30:14.880 --> 30:16.960
+Now I kind of want to create another one just so I can try to beat 44 seconds.
+
+30:16.960 --> 30:17.960
+I think I can do it.
+
+30:17.960 --> 30:20.080
+I think I can do it because I'm getting the UI down.
+
+30:20.080 --> 30:21.680
+It's so simple and intuitive.
+
+30:21.680 --> 30:24.080
+I kind of just know where to go without even looking.
+
+30:24.080 --> 30:27.480
+I could do it without even, with like one mouse tight, I don't know.
+
+30:27.480 --> 30:28.800
+Anyways, DigitalOcean, check this out.
+
+30:28.800 --> 30:30.240
+A little bit of an announcement here.
+
+30:30.240 --> 30:34.360
+DigitalOcean has locations in New York, San Francisco, Amsterdam, and now Singapore.
+
+30:34.360 --> 30:38.120
+They just added Singapore today, so congratulations to DigitalOcean.
+
+30:38.120 --> 30:39.120
+Here's what's great.
+
+30:39.120 --> 30:41.960
+Users, while you're over there and you can spin up this cloud server in 55 seconds, that's
+
+30:41.960 --> 30:42.960
+awesome, right?
+
+30:42.960 --> 30:43.960
+Sure, that's good.
+
+30:43.960 --> 30:45.560
+But check out what you get for $5.
+
+30:45.560 --> 30:46.560
+You ready for this?
+
+30:46.560 --> 30:50.680
+If you're a user of DigitalOcean for $5, you're going to get 512 megabytes of RAM, a 20 gigabyte
+
+30:50.680 --> 30:54.240
+SSD, a CPU, and one terabyte of transfer.
+
+30:54.240 --> 30:59.040
+A terabyte of transfer is really quite a bit, and I love that it's a fixed cost.
+
+30:59.040 --> 31:01.920
+Boom, I know exactly what I'm going to get, so you got to go check them out.
+
+31:01.920 --> 31:06.120
+Just for their intuitive control panel, and they also allow you to replicate it on a much
+
+31:06.120 --> 31:09.400
+larger scale with a really straightforward API.
+
+31:09.400 --> 31:11.680
+So go over to DigitalOcean.com and check them out.
+
+31:11.680 --> 31:14.920
+They got a great droplet system with images that are all ready to go.
+
+31:14.920 --> 31:18.240
+You can pay by the hour if you just want to do testing for a little bit, tons of really
+
+31:18.240 --> 31:22.400
+great features, and Linux fans, which I think you might be, will appreciate that they're
+
+31:22.400 --> 31:24.600
+doing this all on top of KVM.
+
+31:24.600 --> 31:29.560
+This is a great example of how Linux empowers a company to do a whole new category of product
+
+31:29.560 --> 31:32.480
+that just a few years ago wasn't even possible.
+
+31:32.480 --> 31:35.940
+This is just they're taking advantage of technology built into Linux.
+
+31:35.940 --> 31:41.740
+They're using great hardware, tier one bandwidth, and it really just all comes together.
+
+31:41.740 --> 31:46.120
+This is the kind of stuff as we're about to start talking about system D here in a little
+
+31:46.120 --> 31:47.120
+bit.
+
+31:47.120 --> 31:51.680
+It's this kind of stuff that when these distributions make these underlying infrastructure changes
+
+31:51.680 --> 32:00.200
+it has such wide reaching impacts, such ramifications, and the implementation of KVM into the Linux
+
+32:00.200 --> 32:01.200
+kernel.
+
+32:01.200 --> 32:06.040
+This is a great example of how something just blew up a whole new industry that is now providing
+
+32:06.040 --> 32:10.360
+a whole new level of service at a whole new price never possible for, and what's even
+
+32:10.360 --> 32:14.660
+better is you can get it for free for two months.
+
+32:14.660 --> 32:19.440
+If you use our promo code LINUXUNPLUGGEDFEBRUARY when you check out Linux Unplugged February,
+
+32:19.440 --> 32:22.080
+all one word will get you a $10 digital ocean credit.
+
+32:22.080 --> 32:23.800
+You can use that $5 server for two months.
+
+32:23.800 --> 32:28.620
+I've been running that $5 server for a while now and it just, man, Linux performs like
+
+32:28.620 --> 32:32.440
+a champ and you combine it with those SSDs and their bandwidth, man it flies.
+
+32:32.440 --> 32:33.720
+It's so great.
+
+32:33.720 --> 32:36.920
+And the fact you can actually if you want to like say bang out an arch server, you can
+
+32:36.920 --> 32:40.720
+and it's super fast, it's easy, what a great place to, it's like oh I wonder, I've heard
+
+32:40.720 --> 32:44.160
+some things about this package, I've heard it enhances or hinders something, I can try
+
+32:44.160 --> 32:45.160
+it out on the server.
+
+32:45.160 --> 32:46.220
+It's like oh that's what it does.
+
+32:46.220 --> 32:47.960
+You know without actually having to do anything locally.
+
+32:47.960 --> 32:48.960
+It's great.
+
+32:48.960 --> 32:50.600
+They're big fans of the Docker project too.
+
+32:50.600 --> 32:52.440
+They're always really staying in sync with that project.
+
+32:52.440 --> 32:56.360
+They're making it so awesome to deploy applications up on the server.
+
+32:56.360 --> 32:57.360
+It's really cool.
+
+32:57.360 --> 32:58.360
+So go check them out.
+
+32:58.360 --> 33:03.280
+DigitalOcean.com, promo code LINUXUNPLUGGEDFEBRUARY and a big thank you to DigitalOcean for their
+
+33:03.280 --> 33:06.160
+awesome support of Linux Unplugged.
+
+33:06.160 --> 33:07.160
+Okay.
+
+33:07.160 --> 33:12.680
+So, Ron do you want to start by bringing us up to date on, is he in here, Ron are you?
+
+33:12.680 --> 33:15.760
+Yeah, Ron do you want to start by bringing us up to date on kind of where we're at right
+
+33:15.760 --> 33:21.240
+now with the Debian init system because I got to be honest, I got to make a disclaimer.
+
+33:21.240 --> 33:25.600
+After Sunday came around and we kind of looked like we were locked into system D, I sort
+
+33:25.600 --> 33:29.480
+of stopped carrying a little bit just because it seemed like a lot of drama was, it seemed
+
+33:29.480 --> 33:32.040
+like things were getting a little nasty, a little personal.
+
+33:32.040 --> 33:36.920
+So what's happened in the last couple of days since like say Sunday, Rod?
+
+33:36.920 --> 33:42.840
+Well the main issue is that they've kind of officially decided that system D is what they're
+
+33:42.840 --> 33:50.200
+going with and the drama started with Ian kind of calling for a vote for BDale to be
+
+33:50.200 --> 33:52.200
+pulled down as chairman.
+
+33:52.200 --> 33:56.840
+That kind of pretty much backfired in him and people were starting to say that he needs
+
+33:56.840 --> 33:58.920
+to be taken out of the TC.
+
+33:58.920 --> 34:05.160
+So to kind of stave off that, right the technical committee, he decided to stave off that happening.
+
+34:05.160 --> 34:10.920
+He kind of voluntarily is taking a break for a couple of days he said and then as soon
+
+34:10.920 --> 34:16.820
+as that happened the next day BDale cast his vote which kind of solidified system D being
+
+34:16.820 --> 34:17.820
+the choice.
+
+34:17.820 --> 34:23.940
+And if I'm correct, tell me if I'm not, BDale because he's chair, in the case of a tie,
+
+34:23.940 --> 34:25.860
+his vote counts as two votes.
+
+34:25.860 --> 34:28.600
+So it'd be two votes for system D if there's a tie, right?
+
+34:28.600 --> 34:31.160
+Anybody else know if that's true or not?
+
+34:31.160 --> 34:38.360
+Well, I'm pretty sure it's something like that but it wasn't necessary because basically
+
+34:38.360 --> 34:40.880
+Ian pulled himself out of voting.
+
+34:40.880 --> 34:45.320
+And this is kind of interesting voluntarily standing down now, is that because did you
+
+34:45.320 --> 34:48.460
+guys get the impression that's because people were accusing him of having some sort of ulterior
+
+34:48.460 --> 34:49.460
+motive here?
+
+34:49.460 --> 34:53.760
+What was the what was the reason for the step aside just because emotions were getting flaring
+
+34:53.760 --> 34:55.760
+up and things like that?
+
+34:55.760 --> 34:59.160
+It was getting really heated.
+
+34:59.160 --> 35:04.480
+So whether that's why or not but essentially when he called for the BDale to be dropped
+
+35:04.480 --> 35:08.920
+down, I think three people called for him to be kicked out.
+
+35:08.920 --> 35:09.920
+Wow.
+
+35:09.920 --> 35:14.120
+Okay, so I here's this is kind of stuff I just I'm not really that big on following
+
+35:14.120 --> 35:16.960
+but I just wanted to sort of set up what's been going on so that way people have some
+
+35:16.960 --> 35:23.200
+context of sort of the you know the scope of this decision that apparently is it's really
+
+35:23.200 --> 35:28.080
+weighing on the on the Debian project here and what has really struck me on the onset
+
+35:28.080 --> 35:33.040
+of all this is how it all seemed like a foregone conclusion to me and I think this is part
+
+35:33.040 --> 35:37.320
+of why I've been so frustrated with this whole thing because technically speaking system
+
+35:37.320 --> 35:42.200
+D seems like just from a pure technical standpoint the superior solution but then when you also
+
+35:42.200 --> 35:46.440
+consider the things like the CLA and other and other problems that would be introduced
+
+35:46.440 --> 35:51.960
+that also seems like it clearly eliminates upstart unless they want to take on some sort
+
+35:51.960 --> 35:57.960
+of fork and then you look at other solutions like open RC that have a lot of critics it
+
+35:57.960 --> 36:01.000
+always seemed like system D was the proper choice and the fact that system D is already
+
+36:01.000 --> 36:05.360
+available in Debian testing seemed like it made it the obvious choice.
+
+36:05.360 --> 36:10.160
+So what the hell what the hell am I not seeing here what am I not getting what is it what
+
+36:10.160 --> 36:14.920
+is it they have been debating over what has been the big roadblock here for them making
+
+36:14.920 --> 36:18.680
+a decision on this kind of thing and the reason why I almost sound a little upset is because
+
+36:18.680 --> 36:23.640
+it's almost getting a little embarrassing at this point.
+
+36:23.640 --> 36:24.640
+It's Debian though.
+
+36:24.640 --> 36:29.700
+Well well it's pretty much done now it seems but they I'd say the only thing they were
+
+36:29.700 --> 36:37.040
+really arguing over is the well two things is the CLA and the other kernel connection
+
+36:37.040 --> 36:39.920
+which basically system D breaks that.
+
+36:39.920 --> 36:46.200
+I guess what I'm worried about is this are we watching sort of the are we watching Debian
+
+36:46.200 --> 36:49.560
+become an ineffective project or has it always been this bad and this is just sort of the
+
+36:49.560 --> 36:54.320
+recent thing that highlights it I guess is that does that seem like a fair question?
+
+36:54.320 --> 36:58.600
+Well I think it is I think you've mentioned before in the past that you know these type
+
+36:58.600 --> 37:02.840
+of debates and discussions have pretty much always happened inside you know different
+
+37:02.840 --> 37:08.080
+Linux communities but now with so many different mailing lists and people looking to put out
+
+37:08.080 --> 37:12.440
+news articles the moment something gets said it gets repeated around so many times.
+
+37:12.440 --> 37:19.440
+So I think it's just as you've stated in the past the speed at which we now broadcast this
+
+37:19.440 --> 37:24.800
+these discussions and these disagreements has grown so much that now it seems like it's
+
+37:24.800 --> 37:26.720
+worse than I believe it really is.
+
+37:26.720 --> 37:30.400
+Yeah it's basically the same for it's been like the same for the past five years at least
+
+37:30.400 --> 37:31.400
+that I can remember.
+
+37:31.400 --> 37:32.400
+This one seems particularly bad though.
+
+37:32.400 --> 37:34.160
+But it just didn't get as heated.
+
+37:34.160 --> 37:37.520
+I think maybe that's why it's gotten the coverage it has and it's not just news outlets anymore
+
+37:37.520 --> 37:41.520
+it's just general interested bystanders are tweeting out links to the mailing list it's
+
+37:41.520 --> 37:46.240
+every every major new post is you know there's four posts of it to reddit.
+
+37:46.240 --> 37:49.400
+Daredevil I want to give you a chance to chime in here what do you think?
+
+37:49.400 --> 37:56.840
+You know what I was about just to say is that pretty much the discussions on the mailing
+
+37:56.840 --> 38:02.000
+list is always a slow communication medium and until getting that it's just a matter
+
+38:02.000 --> 38:07.160
+of we're constantly looking because it's an interesting project that's it.
+
+38:07.160 --> 38:14.520
+But other decisions on Debian have been always sort of posing ethical and technical questions
+
+38:14.520 --> 38:18.000
+they don't focus on only on the technical side.
+
+38:18.000 --> 38:21.040
+Crossroads do you think this is a lack of focus problem?
+
+38:21.040 --> 38:26.360
+I mean yeah I think that they want to I think that they want Debian to be available to as
+
+38:26.360 --> 38:32.000
+many people as possible so they want it to even be available on the on the BSD and systems
+
+38:32.000 --> 38:35.520
+and system D requires C groups that they won't run on BSD.
+
+38:35.520 --> 38:40.280
+Popeye is our resident upstart fan I'm always interested to hear what you think.
+
+38:40.280 --> 38:42.200
+I wouldn't say I'm necessarily an upstart fan.
+
+38:42.200 --> 38:44.520
+I'm just poking.
+
+38:44.520 --> 38:52.520
+Yeah I know I'm not so sure I mean I mentioned last time that there's more eyeballs on this
+
+38:52.520 --> 38:57.880
+partly because you know there's more eyeballs on everything because of social media and
+
+38:57.880 --> 39:03.280
+everyone wanting instant updates on everything and everyone reporting everything pretty quickly
+
+39:03.280 --> 39:09.060
+after the event occurs and keeping an eye on mailing lists and that becomes news.
+
+39:09.060 --> 39:14.320
+But also don't forget the other side which is a positive side Debian is much more popular
+
+39:14.320 --> 39:19.760
+and much more heavily used than it ever was before so any of these discussions that happened
+
+39:19.760 --> 39:24.560
+on a random Debian mailing list the only people who are interested were nerds whereas now
+
+39:24.560 --> 39:30.840
+you've got Ubuntu users, Mint users, system D developers, Fedora users, Red Hat users,
+
+39:30.840 --> 39:33.360
+all these people who are interested in Debian.
+
+39:33.360 --> 39:37.660
+So there's a lot of focus on it not just from the media but also from people who have a
+
+39:37.660 --> 39:39.960
+vested interest in what goes on in Debian.
+
+39:39.960 --> 39:44.400
+I think that is a big point to underscore right there and Bank and Drinker you sounded
+
+39:44.400 --> 39:47.920
+like you had a kind of a perspective from a new Linux user is this look like insanity
+
+39:47.920 --> 39:48.920
+from the outside?
+
+39:48.920 --> 39:54.400
+No it sort of looks like it's been overblown so the way I look at it is from what I can
+
+39:54.400 --> 39:58.800
+see from a newbies perspective it sort of doesn't matter as much as it's been shown
+
+39:58.800 --> 40:03.880
+us because from what I can see if system D isn't your thing you can just install upstart
+
+40:03.880 --> 40:04.880
+or open RC.
+
+40:04.880 --> 40:10.320
+Yeah I think you know I think this is part of I think there's I almost feel like there
+
+40:10.320 --> 40:15.920
+was a bigger decision being made in a sense at the same time they were picking the init
+
+40:15.920 --> 40:20.680
+system and I feel like that decision was do we want to unify a great part of the core
+
+40:20.680 --> 40:25.120
+of Linux in a sense and some people feel like in part of doing that we're throwing out a
+
+40:25.120 --> 40:29.480
+bit of the Unix philosophy and there's this constant reevaluation in the Linux community
+
+40:29.480 --> 40:35.960
+about the our Unix roots versus practical needs and I feel like that was the meta discussion
+
+40:35.960 --> 40:41.400
+being had and perhaps that's why the interest was so intense and the Debian committee technical
+
+40:41.400 --> 40:46.120
+committee and the other Debian developers maybe felt the weight of that meta discussion
+
+40:46.120 --> 40:47.120
+what do you guys think?
+
+40:47.120 --> 40:51.640
+I also think sorry that it was a lot of it was emotion to be honest it was quite an emotional
+
+40:51.640 --> 40:54.240
+discussion more than the technical one.
+
+40:54.240 --> 40:56.040
+Go ahead Poppy.
+
+40:56.040 --> 41:01.760
+Russ Albury posted a lengthy mail recently which kind of sought to explain some of the
+
+41:01.760 --> 41:06.000
+stuff that went on on the list on the technical committee and the fact that these guys are
+
+41:06.000 --> 41:13.240
+all friends and they get on fairly well and maybe people's perspective from the outside
+
+41:13.240 --> 41:17.640
+is not the same perspective as those guys on the inside have.
+
+41:17.640 --> 41:22.040
+Right right yeah that's fair Q5 why don't you chime in I know you had something to say.
+
+41:22.040 --> 41:27.800
+Yeah I've talked with a lot of people recently about this and I've noticed a trend that there
+
+41:27.800 --> 41:32.040
+seem to be a large number of people you were discussing about meta discussions that a lot
+
+41:32.040 --> 41:35.560
+of people have become pro System D just because they're against some of the business moves
+
+41:35.560 --> 41:40.640
+that Canonical has made and by extension I want to reject Canonical by rejecting Upstart.
+
+41:40.640 --> 41:44.840
+So it's like a form of Canonical hate in a sense to just like System D because it's
+
+41:44.840 --> 41:45.840
+not Upstart.
+
+41:45.840 --> 41:51.120
+Yeah I've actually heard that statement from people before regarding System D versus Upstart
+
+41:51.120 --> 41:54.880
+where people have said you know I don't really know much about System D I just don't want
+
+41:54.880 --> 41:57.200
+Upstart to get it because that's what Canonical made.
+
+41:57.200 --> 42:00.600
+I guess there's probably always some of that going on and I wonder too like I look at I
+
+42:00.600 --> 42:07.160
+look at the big like down the road now what these kind of events do is they look really
+
+42:07.160 --> 42:12.040
+dramatic while they're happening but in a sense I feel like a lot of consensus has been
+
+42:12.040 --> 42:13.920
+built around System D now.
+
+42:13.920 --> 42:18.220
+Like I think the end result is the rest of the community just had this massive conversation
+
+42:18.220 --> 42:23.720
+and came to an agreement that they then all exerted upon the Debian community but as a
+
+42:23.720 --> 42:28.520
+whole collective System D kind of went from this Lenard's interesting thing that he's
+
+42:28.520 --> 42:33.940
+building for Red Hat to oh yeah this is probably the way that all Linux that can should go
+
+42:33.940 --> 42:38.640
+but it's not the end of all Linux's that don't and I think I think but I do think it does
+
+42:38.640 --> 42:44.480
+underscore this interesting consensus making process that happens as a result of these
+
+42:44.480 --> 42:49.600
+big flare ups and in the end result the community the hive mind comes to larger conclusions
+
+42:49.600 --> 42:52.840
+what do you think of that?
+
+42:52.840 --> 42:58.760
+I'm inclined to agree with you and I think there are there's a lot of focus on these
+
+42:58.760 --> 43:04.320
+things at the time but then later on we we move on like you know who really cares now
+
+43:04.320 --> 43:08.440
+that Ubuntu move the buttons to the left hand side who really cares that Ubuntu doesn't
+
+43:08.440 --> 43:15.040
+have GIMP on the CD who really cares that the CD is the image is over 800 megabytes
+
+43:15.040 --> 43:21.280
+so only fits on a USB stick at the time these things seem so important it's like the Beatles
+
+43:21.280 --> 43:25.700
+or Justin Bieber you know at the time it seems like it's massively important to everyone
+
+43:25.700 --> 43:31.040
+on the planet right now but you skip skip forward three years and nobody gives a crap.
+
+43:31.040 --> 43:37.040
+You know my favorite go-to for that is the whole Microsoft Novell deal that like we dedicated
+
+43:37.040 --> 43:41.080
+like three weeks of the Linux action show to covering and everybody was ready to burn
+
+43:41.080 --> 43:44.560
+Novell at the stake and here we are what three four year five years later and it doesn't
+
+43:44.560 --> 43:48.000
+really seem to have made too much of a difference on anything and we were all worried that like
+
+43:48.000 --> 43:51.920
+it was had some there was some sort of patent play at it that you know the Samba project
+
+43:51.920 --> 43:58.120
+was doomed and all these kinds of things that really turned out not to be a big deal.
+
+43:58.120 --> 44:01.280
+It's interesting how that comes about in hindsight because I mean at the time yeah that was you
+
+44:01.280 --> 44:05.600
+know it was perceived as just like you know the the clouds are turning blood red and the
+
+44:05.600 --> 44:09.000
+sun's gonna fall out of the sky and everything and I think the problem with this kind of
+
+44:09.000 --> 44:15.440
+consensus building is there are now tools available to manipulate the hive and like
+
+44:15.440 --> 44:22.800
+sort of and I think I think Lenart and crew kind of comes out looking like the good guys
+
+44:22.800 --> 44:27.120
+and not the good guys but kind of look comes out looking better on this whole thing and
+
+44:27.120 --> 44:31.560
+and really that was because he was able to go to his own Google Plus feed and have a
+
+44:31.560 --> 44:36.600
+platform to influence a lot of people and what they were how they how they viewed it
+
+44:36.600 --> 44:40.120
+and I think really you really think Lenart comes out being the good guy in this.
+
+44:40.120 --> 44:46.080
+I do not necessarily in terms of like like like the traditional sense but in terms of
+
+44:46.080 --> 44:52.080
+like the most logical maybe I don't know like like having the having the clearer perspective
+
+44:52.080 --> 44:55.800
+of the group it's not the right way to put either I think I think he comes away looking
+
+44:55.800 --> 44:59.440
+like he was he was right in the end maybe is that the way to put it?
+
+44:59.440 --> 45:04.320
+So he may well be technically right but I challenge you to go back over the last six
+
+45:04.320 --> 45:10.120
+months of Google Plus and whatever other mailing lists and find every occasion where Lenart
+
+45:10.120 --> 45:15.560
+has taken potshots at upstart pointing out bug reports pointing out things that upstart
+
+45:15.560 --> 45:16.880
+does or doesn't do.
+
+45:16.880 --> 45:17.880
+Now I agree.
+
+45:17.880 --> 45:21.640
+Now now now go back and find upstart developers doing the same thing and you know what you
+
+45:21.640 --> 45:22.640
+won't find them.
+
+45:22.640 --> 45:26.080
+I agree that that's not I don't really mean I don't mean all of that feed I just mean
+
+45:26.080 --> 45:30.360
+like during the heat of the discussion he's able to go and have a platform that he was
+
+45:30.360 --> 45:34.960
+able to influence a lot of people's thinking on the matter I mean I think if you look at
+
+45:34.960 --> 45:39.340
+like r slash Linux a lot of people were just repeating things that he posted on his G plus
+
+45:39.340 --> 45:43.520
+feed as if it was their own ideas and their own concepts and right it reminds me of an
+
+45:43.520 --> 45:48.000
+American presidential campaign exactly all these kind of Google Plus messages need to
+
+45:48.000 --> 45:52.840
+say underneath my name's Lenart Pottering and I approve of this message right it's that's
+
+45:52.840 --> 45:56.720
+exactly what I mean and I think that's why we have to be a little bit worried about this
+
+45:56.720 --> 46:01.440
+form of consensus building because it is ripe for manipulation and that's my point is that
+
+46:01.440 --> 46:07.600
+and I say most of my opinion regarding this matter actually came out of these Linux unplugged
+
+46:07.600 --> 46:13.160
+discussions and I kind of figured it was either going to be open RC or a system the nothing
+
+46:13.160 --> 46:17.520
+against canonical nothing against technically against upstart but I don't think they would
+
+46:17.520 --> 46:22.320
+have chosen that for the CLA crossroads I want to give you a chance to jump in to
+
+46:22.320 --> 46:29.960
+I don't really think that anyone came out looking like a good guy because the system
+
+46:29.960 --> 46:35.120
+D people what like Toby said we're going through and buying the bug reports and I almost looked
+
+46:35.120 --> 46:39.720
+petty and an upstart folks were just kind of silent so I don't think when there's this
+
+46:39.720 --> 46:43.760
+kind of arguing and this kind of tit for tat stuff if no one looks like a good guy good
+
+46:43.760 --> 46:47.080
+guy might not have been the right way to put I was just trying to think of a way to kind
+
+46:47.080 --> 46:51.960
+of frame it where I think people kind of rallied around the points he was making and kind of
+
+46:51.960 --> 46:56.720
+decided to you know to pick up on what he was what he was championing championing well
+
+46:56.720 --> 47:00.760
+I think I think he had technical accuracy on his side you know he was he was able to
+
+47:00.760 --> 47:06.400
+point out the odd bug report here and there or point out where system D might be technically
+
+47:06.400 --> 47:11.400
+superior and he and he certainly has that on his side and this it's very easy to rally
+
+47:11.400 --> 47:17.920
+round someone who is articulate and able to express how their product is technically better
+
+47:17.920 --> 47:21.840
+than someone else's but you don't have to be a douche when you do it that is that is
+
+47:21.840 --> 47:26.040
+sort of the underscores like if you can if you can manage to if you manage to do all
+
+47:26.040 --> 47:30.400
+that without offending a bunch of people that's sort of a win-win Baker drinker I wanted to
+
+47:30.400 --> 47:37.240
+let you chime in on the sort of the state of the debate yeah so all girls receive some
+
+47:37.240 --> 47:42.120
+as intense as it was Linux debate is sort of meant to be this way it sort of I was watching
+
+47:42.120 --> 47:47.760
+a talk a TED talk with Linus Torvalds boss and he explained how intense debate comes
+
+47:47.760 --> 47:52.480
+with a better decision at the end of day and I sort of think that people saying that the
+
+47:52.480 --> 47:57.880
+way the debate was not gone so politely if you will is kind of wrong I think it debate
+
+47:57.880 --> 48:02.320
+should be this way and it's worked out better it's actually almost been sickingly polite
+
+48:02.320 --> 48:06.520
+in some ways like here's be Dale's announcement that they're going with system D he writes
+
+48:06.520 --> 48:11.220
+thank you Anthony for your analysis of the votes per six dot three dot two I use my casting
+
+48:11.220 --> 48:16.000
+vote to choose D as the winner therefore the resolution reads we exercise our power to
+
+48:16.000 --> 48:20.560
+decide in case of overlapping jurisdiction six dot one dot two bias by assuring that
+
+48:20.560 --> 48:24.520
+the default init system for Linux architectures in Jesse should be system D should the project
+
+48:24.520 --> 48:28.920
+pass a general resolution before the release of Jesse asserting a position statement about
+
+48:28.920 --> 48:34.040
+issues of the of the day on init systems that position replaces the outcome of this vote
+
+48:34.040 --> 48:38.000
+and is adopted by the technical committee on its own decision that's a really interesting
+
+48:38.000 --> 48:43.280
+way to speak you know it sounds like it's like a like legislation being I could well
+
+48:43.280 --> 48:47.360
+yeah except the differences as things are actually happening that's true dubbing actually
+
+48:47.360 --> 48:52.160
+has activity no the bigger thing there is I think that it's it's not only sounds official
+
+48:52.160 --> 48:55.680
+but it'd be hard not to bust into laughter doing it really I would think yeah I mean
+
+48:55.680 --> 48:58.640
+they wanted they want to make it official I suppose they are the way making history
+
+48:58.640 --> 49:03.200
+with some of these decisions sure I guess there is that element to it all right guys
+
+49:03.200 --> 49:10.360
+will any other comments before we round off this discussion I will just like I would just
+
+49:10.360 --> 49:17.680
+like to say that actually earlier someone mentioned that the coverage like it wouldn't
+
+49:17.680 --> 49:23.640
+matter because we thought it was important at the time but I think actually covering
+
+49:23.640 --> 49:28.960
+such issues sometimes is what provokes people to think about the as an issue and actually
+
+49:28.960 --> 49:35.080
+try to find the better the best resolution and not attempt misleading directions yeah
+
+49:35.080 --> 49:38.880
+it does make for interesting back listening to when you go back and listen to the issues
+
+49:38.880 --> 49:43.360
+of the day in a way it's sort of a living documentation of what happened in some sense
+
+49:43.360 --> 49:46.700
+you know you get some of the nooks and crannies of the issue that you don't get when you look
+
+49:46.700 --> 49:50.880
+back on it three five years later so it's kind of fun from that standpoint talk about
+
+49:50.880 --> 49:57.560
+today and it you know open source and Linux so much is about building one piece at a time
+
+49:57.560 --> 50:03.000
+and and it's at that in itself inherently calls for analysis and discussion about the
+
+50:03.000 --> 50:06.720
+piece you're working on because every future piece after it is built on top of it so every
+
+50:06.720 --> 50:10.360
+piece matters in a sense and I think this one in particular because of the weight of
+
+50:10.360 --> 50:14.440
+the overall decision because of the meta discussion going on in the greater community it's been
+
+50:14.440 --> 50:19.900
+going on for a couple of years now I think this one in particular reach beyond just the
+
+50:19.900 --> 50:25.120
+interest of bloggers and podcasters and etc I think it really reached to the general user
+
+50:25.120 --> 50:29.020
+like poppy made the excellent point it affects it affects so many people now because the
+
+50:29.020 --> 50:34.720
+Debian project has grown and you know with with other huge projects like Ubuntu based
+
+50:34.720 --> 50:38.960
+on it it is really it's an important player now and what's really interesting about it
+
+50:38.960 --> 50:45.140
+is you could you could easily make it's one of our most important players and it is truly
+
+50:45.140 --> 50:50.360
+community driven and we have just watched this process unfold I mean who knows what
+
+50:50.360 --> 50:55.420
+kind of discussion there was internally at Red Hat before they set off on system D we
+
+50:55.420 --> 50:58.780
+probably could glean some of it from mailing list but I bet you don't get the full scope
+
+50:58.780 --> 51:04.360
+like you do here with Debian and it's just kind of interesting to watch it a truly community
+
+51:04.360 --> 51:07.960
+based project go through this process and yeah I don't know if it's necessarily a bad
+
+51:07.960 --> 51:11.060
+thing it took him as long as it did it just I wish it didn't get as heated and I wish
+
+51:11.060 --> 51:16.000
+maybe people would give folks a little more slack and consider that you know they are
+
+51:16.000 --> 51:19.900
+watching something from the outside I think yeah I think that's true I mean there's we
+
+51:19.900 --> 51:22.980
+do need to be sensitive to the fact there may be a lot of underpinnings we're not aware
+
+51:22.980 --> 51:27.800
+of and I have no problem with the amount of time that it takes but I think unless there
+
+51:27.800 --> 51:32.260
+was actual like threats made against people or whatever I do think the emotional side
+
+51:32.260 --> 51:36.500
+of it really is going to be hard to justify but the rest of it I would definitely agree
+
+51:36.500 --> 51:40.220
+I think that there's no question there's got to be things we're not aware of that could
+
+51:40.220 --> 51:43.940
+definitely get people a little bit riled but you know but we're all adults guys you know
+
+51:43.940 --> 51:47.160
+we got to at some point you got to like the person that stepped away that's the right
+
+51:47.160 --> 51:51.420
+approach that's good yeah it was a good decision you know if you're still kind of a little
+
+51:51.420 --> 51:56.200
+stuck on all of this well I got good news because it's one of these things it's it's
+
+51:56.200 --> 51:59.160
+maybe hard to wrap your brain around until you can play it as a video game well good
+
+51:59.160 --> 52:03.340
+news we actually have a video game version of the Ubuntu init system debate I'll have
+
+52:03.340 --> 52:08.640
+a link to the show notes you're kidding me no it's for real it's like it's it's here
+
+52:08.640 --> 52:12.260
+we go I'm playing it right now it's an it's an attorney game yeah the Debbie in init case
+
+52:12.260 --> 52:16.300
+get great emerald's trial and it explains to you what the hell's going on with all of
+
+52:16.300 --> 52:24.940
+this in video game style there we go there we go yeah yeah what kind of achievement do
+
+52:24.940 --> 52:30.500
+you get if you get the right one this is so this is so 80s awesome right now early 90s
+
+52:30.500 --> 52:35.060
+awesome and so look I mean come on how is this not the best way it's like Final Fantasy
+
+52:35.060 --> 52:40.100
+meets the Debbie in init debate I'm really disappointed that your idea of a game for
+
+52:40.100 --> 52:45.460
+this is not flappy bird it kind of felt like watching flappy somebody play flappy bird
+
+52:45.460 --> 52:49.420
+I'll tell you that yeah that's true well anyways I'll have a link to the Debbie in init case
+
+52:49.420 --> 52:52.900
+in the in the show notes if you want to get in on some of that craziness and then you
+
+52:52.900 --> 52:56.780
+know you get to learn a little something out and have fun this is true maybe next time
+
+52:56.780 --> 53:01.660
+they'll take poppy's advice and make the flappy bird edition assuming that well and if you
+
+53:01.660 --> 53:04.940
+install it on your phone and then you can flip it on eBay for 50 grand or what isn't
+
+53:04.940 --> 53:12.060
+that crazy I know all right so Ben a 14 year old listener writes in and he says hey there
+
+53:12.060 --> 53:15.700
+Chris and Matt I'm a 14 year old Linux user who would self proclaim himself as a Linux
+
+53:15.700 --> 53:20.380
+geek and I'm an avid listener of Linux unplugged well hello Ben says I use arch well how about
+
+53:20.380 --> 53:25.420
+that inspired by inspired by the arch challenge and roll my own arch Linux Raspberry Pi lamp
+
+53:25.420 --> 53:30.100
+server as well as being a happy user of a custom rig built by myself oh man I want to
+
+53:30.100 --> 53:35.060
+adopt you he says and more he says and the more I look around the amount of Linux advocates
+
+53:35.060 --> 53:40.160
+of my generation is very a very small number and it worries me it worries me and surely
+
+53:40.160 --> 53:45.460
+could be some concern to people of your generation as kids aren't getting sufficient education
+
+53:45.460 --> 53:49.940
+about computers other kids my generation in my so-called IT classes don't seem to be educated
+
+53:49.940 --> 53:53.820
+enough unless they really go and look for it like myself which most people will not
+
+53:53.820 --> 54:00.780
+do personally I I think that kids of my generation probably of others are not being stretched
+
+54:00.780 --> 54:05.740
+and not getting the sufficient grounding they need I could be arrogant here although I reckon
+
+54:05.740 --> 54:11.500
+I could teach my IT class better than my minimum wage teacher does well it sounds like you
+
+54:11.500 --> 54:15.020
+might be able to which brings me on to my next point Linux doesn't seem relevant to
+
+54:15.020 --> 54:19.880
+a lot of people and it seems somehow minor to them I have largely covered my thoughts
+
+54:19.880 --> 54:24.220
+on the matter of Linux's popularity which I cover on a blog that I call the Linux situation
+
+54:24.220 --> 54:27.020
+be great if you would just look over it and share your thoughts thanks for the thanks
+
+54:27.020 --> 54:30.340
+guys and keep up the good work so Ben says that a lot of people don't find Linux relevant
+
+54:30.340 --> 54:33.820
+anymore and the darn kids now we talked about this a little bit the darn kids aren't finding
+
+54:33.820 --> 54:38.620
+Linux that interesting and I just saw an article I don't have a link to it I just saw an article
+
+54:38.620 --> 54:43.620
+recently that said Linux should be part of IT curriculum and that doesn't yeah doesn't
+
+54:43.620 --> 54:47.420
+that kind of make sense to for an IT curriculum that makes complete sense if you want to teach
+
+54:47.420 --> 54:51.500
+computers teach them what teach them like to load a Linux distribution you can learn
+
+54:51.500 --> 54:56.220
+so much about disk partitioning and so like if you're really taking a computer class it
+
+54:56.220 --> 54:59.540
+almost doesn't make a disservice to use Windows because it's like teaching somebody how to
+
+54:59.540 --> 55:03.340
+work on a car and you give them a car with the hood sealed that's right that's right
+
+55:03.340 --> 55:07.420
+because I know I folks now that are suffering because of that they they specialized in Windows
+
+55:07.420 --> 55:11.300
+and now we're having to backtrack and learn stuff that they could have had the opportunity
+
+55:11.300 --> 55:16.380
+to learn a long time ago so it's actually become a hindrance yeah yeah go ahead I'm
+
+55:16.380 --> 55:26.300
+sorry go ahead I was just gonna say that I think the biggest part of all this is mainly
+
+55:26.300 --> 55:31.020
+like you know if you teach them one specific technology then a few years later you have
+
+55:31.020 --> 55:39.660
+this big setback and what should really be the core part about it is teaching okay here's
+
+55:39.660 --> 55:45.660
+the basic parts of the computer here's how to get a good sense for being able to read
+
+55:45.660 --> 55:53.820
+error messages or whatever to basically give the foundation for a flexible mind about computing
+
+55:53.820 --> 56:01.820
+so that you know as time goes on you're able to adjust to whatever various things may come
+
+56:01.820 --> 56:07.540
+in just because you have enough of a foundation that you're able to reason your way through
+
+56:07.540 --> 56:13.580
+anything that gets put in front of you and and of course knowing how to use Google or
+
+56:13.580 --> 56:19.260
+whatever to do your own research yeah well that sounds good but it's highly debatable
+
+56:19.260 --> 56:24.900
+what is a good foundation so that would be hard to do a curriculum for yeah that's true
+
+56:24.900 --> 56:28.380
+so the guy in here says he's part of this generation he has some thoughts on this go
+
+56:28.380 --> 56:37.060
+ahead the guy hi Chris less yeah so I'm part of this newfangled teenage generation and
+
+56:37.060 --> 56:42.660
+I just wanted to say that I really agree that there's not enough education about that this
+
+56:42.660 --> 56:48.300
+sort of thing I go to a school with over a thousand kids and of them I'm one of maybe
+
+56:48.300 --> 56:52.820
+like five people that's heard of Linux and I'm the only person that actually uses it
+
+56:52.820 --> 57:01.120
+that I'm aware of it's just a matter of people don't know go ahead everything that I learned
+
+57:01.120 --> 57:08.060
+about Linux was just on my own I mean I first talked about it through a con what's it called
+
+57:08.060 --> 57:13.140
+a conference and most people don't go to that sort of thing yeah yeah urban urban 120 go
+
+57:13.140 --> 57:23.140
+ahead yes I think that I heard first of Linux one time that I was with some guys that know
+
+57:23.140 --> 57:29.780
+a lot about computers but I actually started using Linux because I started watching news
+
+57:29.780 --> 57:39.780
+action show and I figured out that it is awesome I'm 16 years old and in my school we mentioned
+
+57:39.780 --> 57:50.140
+feelings that it exists but we in school views word views Microsoft everything is based on
+
+57:50.140 --> 57:56.420
+not free software right and everything is from Microsoft or from other companies yeah
+
+57:56.420 --> 58:03.700
+when we gave an assignment for school we need to we need to have it in font times new roman
+
+58:03.700 --> 58:11.260
+which is from Microsoft and dots dots file and everything is based on the proprietary
+
+58:11.260 --> 58:17.380
+solutions all right bit puffin go ahead yeah I was just thinking that this doesn't only
+
+58:17.380 --> 58:22.360
+apply to like operating systems but also like software in general like for example in my
+
+58:22.360 --> 58:29.020
+school with 3d program we learned Maya and Photoshop but it would have been better I
+
+58:29.020 --> 58:35.260
+think if we learned gimp and blender because that we could use after school yeah you can
+
+58:35.260 --> 58:39.780
+get on your own I know that's what you do like freelance work so yeah crossroads you're
+
+58:39.780 --> 58:44.700
+from this generate that the generation we're speaking of what do you think I mean I go
+
+58:44.700 --> 58:50.620
+to a school probably about 2000 there are very very few kids who know what Linux is
+
+58:50.620 --> 58:54.820
+and I can say the word Linux or the word open source and I just get kind of this look like
+
+58:54.820 --> 59:01.900
+what are you talking about actually our home our homecoming King this year what is a Linux
+
+59:01.900 --> 59:09.100
+nerd he's one of my best friends but um anyway I would love for there to be some basic computer
+
+59:09.100 --> 59:14.500
+education because I've had people ask me why the Internet's broken and why I mean it's
+
+59:14.500 --> 59:18.940
+just there needs to be something and even if it's not Linux there needs to be something
+
+59:18.940 --> 59:24.940
+like this is the Internet yeah I mean I do worry about getting down a path of like you
+
+59:24.940 --> 59:29.140
+see on Star Trek where the Captain Kirk arrives to the planet and it's being run by one giant
+
+59:29.140 --> 59:32.980
+computer and nobody knows how to how it works and they all think it's a god and they all
+
+59:32.980 --> 59:37.940
+worship it or something with her done I know you want to make a point go ahead I think
+
+59:37.940 --> 59:43.220
+the problem goes further than that I mean I've just completed university and the number
+
+59:43.220 --> 59:49.100
+of people that couldn't even install basic software was ridiculous so I don't even think
+
+59:49.100 --> 59:54.140
+they're teaching anything at all in IT classes so it's pretty much a joke isn't this isn't
+
+59:54.140 --> 01:00:00.620
+this why tablets are seeing the success they are because it is really just so much easier
+
+01:00:00.620 --> 01:00:04.580
+for people to pick them up and install apps I mean I literally I mean I'm looking at people
+
+01:00:04.580 --> 01:00:08.980
+who've never used a computer in their lives and they're in their 50s 60s and even 70s
+
+01:00:08.980 --> 01:00:12.900
+and they're picking these things up and they're they're installing applications like Netflix
+
+01:00:12.900 --> 01:00:16.300
+and Kindle and they're using them and it's just blowing my mind I mean there's still
+
+01:00:16.300 --> 01:00:22.460
+kids my age who I had one girl come up to me and ask me how do I install this app and
+
+01:00:22.460 --> 01:00:25.420
+she was running she was an iPhone it's not like it's even difficult she didn't even know
+
+01:00:25.420 --> 01:00:31.260
+how to install an app well there is that daredevil I want to give you a chance to make your point
+
+01:00:31.260 --> 01:00:38.300
+so I actually think we can have a different view for a while on this matter I think in
+
+01:00:38.300 --> 01:00:46.100
+the overall picture IT education has been focused on application usage and getting just
+
+01:00:46.100 --> 01:00:53.620
+whatever the school is sponsored to sort of make advertising propaganda and at that point
+
+01:00:53.620 --> 01:01:01.260
+I don't think it's a matter of what the school teaches but actually if we look at the user
+
+01:01:01.260 --> 01:01:07.380
+base that Linux has has been pretty much a matter of getting people into learning on
+
+01:01:07.380 --> 01:01:12.380
+their own and they actually become much more informed and at that point I think it benefits
+
+01:01:12.380 --> 01:01:19.260
+the overall community and helps actually introducing users not just as users but as also contributors
+
+01:01:19.260 --> 01:01:24.820
+or part of the community and I don't think that's a bad thing I think it could be improved
+
+01:01:24.820 --> 01:01:32.700
+and I think actually shows like this do their part on putting the word out I hope so and
+
+01:01:32.700 --> 01:01:36.020
+I think you're right to an extent that if it's important enough and people need to get
+
+01:01:36.020 --> 01:01:39.100
+a job done they eventually come across it in a lot of cases people don't know about
+
+01:01:39.100 --> 01:01:44.100
+Linux is simply because they've never needed to solve a problem that it solves all right
+
+01:01:44.100 --> 01:01:49.380
+well we got we got we're gonna wrap up with the last two here MW for her M woofer M woofer
+
+01:01:49.380 --> 01:01:54.100
+I like that I make you I apologize for that I never really thought about the name ever
+
+01:01:54.100 --> 01:01:58.900
+being pronounced out loud it's just my initials and then the first four characters in my last
+
+01:01:58.900 --> 01:02:06.820
+name so it's okay yeah well I was just gonna say that what I've been seeing more and more
+
+01:02:06.820 --> 01:02:17.660
+of is developing this blind spot where it's it's not quite fear but more just willful
+
+01:02:17.660 --> 01:02:23.200
+ignorance of some kind where they just say well it's a computer I probably can't understand
+
+01:02:23.200 --> 01:02:27.500
+it I'm not going to try to understand it and you know when when they have to do something
+
+01:02:27.500 --> 01:02:32.420
+on the computer they go in and they flail around but it's like they're developing this
+
+01:02:32.420 --> 01:02:37.540
+mental block that maybe at a lot of points they aren't even realizing is operating that's
+
+01:02:37.540 --> 01:02:41.420
+just keeping them from picking up information it's a computer therefore I'll never learn
+
+01:02:41.420 --> 01:02:45.340
+how to do it so therefore I just won't that kind of thing bacon drinker do you want to
+
+01:02:45.340 --> 01:02:50.540
+take us out with your last point yeah I think the problem lies in in modern technologies
+
+01:02:50.540 --> 01:02:55.820
+and I've succeeded some from the new generation but when you know when you go back in 10 20
+
+01:02:55.820 --> 01:02:59.300
+years when you have when you bought something you had a screw in the back of it and you
+
+01:02:59.300 --> 01:03:02.780
+could open it quite easily with the Phillips screwdriver and look inside but nowadays you've
+
+01:03:02.780 --> 01:03:07.540
+got like talk five screws on the MacBooks and glued to get the phones and it's no incentive
+
+01:03:07.540 --> 01:03:11.740
+to go ahead and open this stuff right in fact there's every incentive not to open it exactly
+
+01:03:11.740 --> 01:03:16.140
+damage it and void the warranty in the case of good phone and things like that yeah I
+
+01:03:16.140 --> 01:03:20.620
+don't truly own a device until you avoid its warranty that very good right very true or
+
+01:03:20.620 --> 01:03:25.340
+until you've taken it apart and put it back together again well let's let's take the rest
+
+01:03:25.340 --> 01:03:29.300
+of this in the post show discussion because I think that's a good a good point to wrap
+
+01:03:29.300 --> 01:03:34.040
+up to in a response to Ben's email and Ben I hope some of that's help provide some insights
+
+01:03:34.040 --> 01:03:39.040
+and you know one thing you can always do is show folks a way for folks to have a need
+
+01:03:39.040 --> 01:03:44.380
+to be solved a problem to be solved and show them how Linux solves that problem and I think
+
+01:03:44.380 --> 01:03:47.820
+once you show them make what it can do for them maybe it's maybe they want to finally
+
+01:03:47.820 --> 01:03:51.740
+get into some sort of application development maybe they want to set up a file server at
+
+01:03:51.740 --> 01:03:55.380
+home and run Plex honestly it always depends on the person you know that's one of the reasons
+
+01:03:55.380 --> 01:04:00.780
+I used to love comp is is I used to show comp is off at work and clients and people just
+
+01:04:00.780 --> 01:04:05.140
+like oh my god what is that what how do you do that oh this is Linux let me show you and
+
+01:04:05.140 --> 01:04:09.520
+that was a door opener and nowadays I just had somebody over at my house a total computer
+
+01:04:09.520 --> 01:04:13.700
+noob and they were just blown away by Plex blown away by Plex could never see anything
+
+01:04:13.700 --> 01:04:17.660
+like Plex can't believe something like Plex exists it's incredible like well here's what
+
+01:04:17.660 --> 01:04:20.660
+you need and you know that could be an example well here let me set up a help you set up
+
+01:04:20.660 --> 01:04:25.180
+a Linux box install Ubuntu here we'll put Plex media server on it Bob's your uncle Bob's
+
+01:04:25.180 --> 01:04:28.100
+your uncle all right now well I think that's a good spot to wrap up here for this week's
+
+01:04:28.100 --> 01:04:33.700
+episode of Linux Unplugged you know I know I mentioned it earlier but you got to come
+
+01:04:33.700 --> 01:04:37.780
+over on Sunday to jblive.tv everybody and watch this we're gonna be doing Linux action
+
+01:04:37.780 --> 01:04:41.400
+show 300 don't worry I think we'll probably release it for download if you can't make
+
+01:04:41.400 --> 01:04:47.300
+it live but you know that's coming up yeah all right well very good Matt also I want
+
+01:04:47.300 --> 01:04:50.400
+to I want to remind folks you can also watch this show live and participate in our virtual
+
+01:04:50.400 --> 01:04:55.860
+log we do this at 2 p.m. on a Tuesday you can also go to Jupiter broadcasting.com slash
+
+01:04:55.860 --> 01:04:58.980
+calendar and you just get it converted in your local time you don't have to do the time
+
+01:04:58.980 --> 01:05:02.700
+math and you can hang on our awesome chat room thanks chat room and thank you Matt I'll
+
+01:05:02.700 --> 01:05:06.060
+see you on Sunday see you then all right everyone thanks so much for tuning this week's episode
+
+01:05:06.060 --> 01:05:22.980
+of Linux Unplugged see you right back here next week!
+
