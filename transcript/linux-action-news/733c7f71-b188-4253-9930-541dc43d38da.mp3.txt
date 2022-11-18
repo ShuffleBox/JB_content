@@ -1,0 +1,389 @@
+Hello, and welcome to Linux Action News, episode 180, recorded on March 13th, 2021.
+I'm Chris.
+And I'm Wes.
+Hello, Wes!
+Let's do the news.
+We're starting this week with a story that might have positive ramifications in the future.
+The Linux Foundation, with the support of Google, Red Hat, and Purdue University, is
+launching a service called Sigstore to help developers sign the code they release.
+Signing code involves associating a cryptographic signature with a specific digital artifact
+– think release files, container images, and, of course, binaries.
+That way, the person or entity consuming and using the software can check the code signature
+to verify that the release is authentic and hasn't been altered by someone along the
+way.
+What Sigstore enables is for all open source communities to sign their own software.
+That combines province, integrity, and discoverability to create a transparent and audible software
+supply chain.
+And Sigstore aims to make that available to essentially anyone who wants it.
+And software supply chain is the key topic here.
+Yeah, with the recent SolarWinds hack, people are talking about the security of the quote
+unquote software supply chain more and more.
+What do they mean when they say that?
+Well, the software supply chain is generally what the industry considers anything that
+goes into or affects your code, from development through CICD, until it gets deployed into
+production.
+And trusting that open source software has not been tampered with is also on people's
+mind, because face it, we're all using a lot of open source software.
+And as Google put it, installing most open source software today is equivalent to picking
+up a random thumb drive off the sidewalk and plugging it right into your machine.
+It seems, I don't know, maybe a bit of an exaggeration.
+But they're trying to get the point across, I guess.
+And really, currently, very few open source projects go through the trouble of cryptographically
+signing their software releases.
+I mean, think about the challenges there.
+They would have to maintain the keys.
+There'd have to be some sort of key management.
+If there was ever any kind of compromise, they'd have to have a process to properly
+revoke the key and inform their users.
+And it's not like the distribution of the keys is obvious.
+There's not necessarily a way that is just standard right now in the open source community.
+And it's really at present kind of up to end users, the system administrator, or just the
+user of a box to suss out if something has been tampered with or not, and if it's safe.
+And a lot of times, it's getting abstracted away from us.
+Maybe somebody's working with NPM or another set of tools that goes out and installs dependencies
+automatically.
+And it just gets more and more removed from user oversight.
+Yeah.
+And without a standardized process, it's hard to have standardized tools that can really
+leverage this.
+Plus, you've got, as you mentioned there, Chris, kind of the difficulty of managing
+all this infrastructure.
+That's just a whole bunch more sort of, hate to say this, but sysadmin work, when you're
+just trying to develop some software for your day job and hopefully contribute it upstream,
+say.
+Linux distributions have solved this for a while at the package layer.
+Maintainers will sign a package.
+And that's great and works really well.
+But that doesn't necessarily mean it was signed by the original developer of the software.
+And of course, doesn't include all of the software outside of the distribution's repository.
+So it seems like Google, Red Hat, Purdue, they've come together under the Linux Foundation
+to create a signing system that uses ephemeral keys that is backed by OpenID Connect and
+transparency logs that are going to be publicly audible.
+Yeah.
+I guess the idea here is OpenID Connect sort of brings in who you are.
+And then they've got a system that you can leverage to get ephemeral keys, use those
+keys to sign your releases through an API integrated with automation so it can just
+happen as part of your pipeline, much like, say, Let's Encrypt, which seems like a big
+inspiration in this space.
+And then that just all gets out there.
+There's methods to verify it.
+And crucially, that's added to transparency logs.
+So everyone can check and see and be aware, when was that signed?
+Who was it signed by?
+Who's responsible for this?
+And has it been revoked?
+Now, if you're listening to this and you're thinking, this kind of sounds like what Apple
+does with Mac apps and iOS apps and Google with Android apps, you're kind of right.
+This is going to be more approachable, though.
+There's not going to be any criteria to use the service like with Apple.
+You have to be a developer.
+You have to be approved.
+You got to pay for that.
+This will be a nonprofit process, a free service with no need to apply and join.
+They want as many people as possible to use this, like Let's Encrypt.
+The better it is for everyone, the more people that use something like this, they feel.
+So while it shares some similarities in its intent with the way, say, Mac OS or iOS or
+Android try to do this, it's much more open and I think, well, at least I hope, appealing
+to the open source community.
+I think that's kind of yet to be seen, Wes, as if we're going to really see many open
+source developers adopt this.
+It seems like maybe those who are trying to address users in the enterprise space would
+be the first.
+Right.
+I mean, you have to have a user base that actually cares and is going to take the time
+to verify things on the flip side.
+But yes, I think having this out there, at least getting the bar lowered so that it's
+easy to do, so it's possible to do in the first place.
+You don't have to learn GPG, you don't have to set up your own infrastructure and hire
+security engineers to keep all that running.
+You can just, in theory, integrate with Sigstore.
+That's the first step.
+The second step is people on both sides of the model actually adopting it.
+And you make an interesting comparison with Apple there.
+That is a crucial difference in that in the App Store, say, there's a blessing of trust
+from Apple.
+That not only have they set up this infrastructure and signed things and let developers sign
+and they're involved, but they're also saying, yes, this can be in our store and endorse
+it.
+And that part is different here.
+Much like with TLS, just because you connect over a secure connection doesn't mean you
+should trust what's on the other side.
+And this setup will let you be sure that that developer did in fact make this artifact.
+Doesn't guarantee you should trust the developer though.
+So I think you're right that an enterprise use case where maybe you've got a couple partners,
+you've got agreements with, and you just want to make sure that even though you're using
+the open source infrastructure, maybe they still release on GitHub.
+Because you've got these extra cryptographic guarantees, you can still get your software
+that way.
+Right.
+OK.
+So, Wes, how about a real world example here?
+The people behind Sigstore cited a developer working on a Node.js app and wanting to publish
+to NPM the package repository.
+You would just run a command to sign your app, this developer.
+Your browser would open it up and you'd complete the open ID connect authentication flow and
+it supports two factor authentication as well.
+And then a certificate gets issued to you to the email that you've provided them.
+And then you would upload and provide that to NPM.
+So it's a pretty straightforward process for this developer who's who's just trying to
+quickly create some sort of Node.js tool or app to actually get it signed and then supply
+that to NPM if NPM makes the changes.
+And then as an end user, when you go to check, you could even build that support into the
+NPM package manager.
+So it checks to see if a signature is on file.
+All of that has to be built in.
+But their goal at Sigstore is to create that infrastructure.
+Right.
+I think another good example here and one that you can see already kind of coming together
+is if you take a look at what open source exists already under the Sigstore GitHub organization.
+And one of those is something called Cosign, which is all about container signing and verification.
+And doesn't that make a lot of sense?
+Sure, you might just want to run all your stuff on on the latest Ubuntu container out
+there.
+But you also want to make sure that you're actually getting the real thing.
+Luke Hins, the security engineering lead at Red Hat said, I'm very excited about Sigstore
+and what this means for improving the security of software supply chains.
+Sigstore is an excellent example of an open source community coming together to collaborate
+and develop a solution to ease the adoption of software signing in a transparent manner.
+I really hope that is true.
+The fact that Google, Red Hat, Purdue, and the Linux Foundation are all involved in this
+does make it feel sort of vendor neutral, which does up its chances of success, I think.
+But we don't know when that success may or may not be just yet.
+It's still very early days for Sigstore, although they do have some code already up on GitHub
+that you can start checking out and playing with and in theory using, I think there'll
+definitely be some time before we're ready to see it deployed to production.
+Hopefully it'll be signed.
+Linode.com slash LAN.
+Go there to get $100 in credit and of course support the show.
+Linode makes cloud computing simple, affordable, and accessible.
+Linode is our cloud hosting provider.
+Anything we've spent up for JB 3.0 that has been on Linode's cloud.
+First of all, they've got 11 data centers for me to choose from, which means that I
+can pick something that's close to the audience.
+But also I started using Linode a couple of years ago because I just liked how into Linux
+they are.
+I'll be completely honest with you.
+That's what drew me in.
+But what made me stick around was what great service they offer.
+They have all kinds of rigs and I've got just about every kind you might need except for
+I don't really have any of the really large GPU compute systems, but they have those as
+well.
+Linode in 2003 is one of the first companies in cloud computing, so they just focused in
+on it.
+Instead of doing like a hundred different things like you'll see some cloud providers
+try to do, they picked a handful of things and they just do them really, really well.
+And as a result, people recognize it.
+They have just received the People's Choice Stevie Awards for the favorite customer service
+in the computer services category, which is a huge category.
+That's a massive win for the Linode team, and that's one of the things I hear from the
+audience when they switch over to Linode is just how great the service is.
+But their cloud manager makes it easy to back up your system, take a snapshot before there's
+any big change.
+I like having the peace of mind of having auto backups, so that's something I turn on
+on all of my Linodes.
+I think that's really great.
+Recently I had a guest that just needed to get a couple of asset files so that way they
+could show them to their marketing and show them to their legal and do all the things
+that guests have to do.
+Linode's object storage is perfect for that.
+I threw them up on the Linode object storage, then I generated public links, sent them off
+in emails, and they could pull them down blazing fast.
+Linode's object storage is also the backend storage for our Nextcloud instance and our
+PeerTube instance.
+It just doesn't make any sense anymore.
+For me, I prefer to use object storage.
+It just works great to just use the storage as I need it, but there's lots of options
+with Linode.
+However you like to build a box, they have a way for you to do it.
+If it's a one-click deployment or if it's something you build from the ground up.
+Lots of options, some great choices, go try them out, linode.com slash lan.
+See what I've been talking about, get that $100 credit, and you support the show.
+It's a great way to learn and try and support one of your favorite podcasts, linode.com
+slash lan.
+Well it looks like the rumors were true.
+Soos is targeting a pre-summer initial public offering in a deal that may value the private
+equity-backed company at more than $9 billion.
+Soos, founded in 1992, was of course acquired two years ago by EQT from Microfocus for $2.5
+billion, and since then has strengthened its portfolio, especially in the cloud, with acquisitions
+such as that of Rancher Labs last July for $600 million.
+Yeah, we've really seen them refine their business model, focus more on the cloud, bring
+in Rancher Labs, like you mentioned, to get their Kubernetes operation, I suppose, under
+one house.
+You gotta get your Kubernetes fix.
+Yeah, well you gotta have your Kubernetes play and you gotta have all of that for this
+cloud stuff.
+But it really actually seems to have worked out for them.
+Their revenue has been increasing, and this seems like the natural result of an investment
+firm buying them?
+Like, where was that, where else was this gonna go, right?
+Yeah, either it's gonna go public or they're gonna pawn it off on the next guy, which has
+kind of been what's been happening, right?
+Maybe that means there'll be a period of relative stability for Soos, at least if the financials
+are healthy, but it's hard to say with this one.
+$8.4 billion or $9.5 billion, somewhere in that range, would be a pretty nice return
+on what they paid for Soos, so that'd be pretty good.
+And you know, I've been reading the reactions this week online to this, because this has
+been slow-dripped.
+We saw a rumor like this about three months ago, but this is coming from multiple sources
+now and appears that they're targeting a May-ish kickoff, and I think the number one concern
+I have seen is, what does this mean for Tumbleweed?
+Because you know, once they become a public company, Wes, they're gonna be all serious,
+they're gonna be all about that revenue, and people are worried they're gonna cut off Tumbleweed.
+Yeah, it reminds me, this has kind of always been an open question around Red Hat of, you
+know, all right, how legitimately do you view your open source contributions actually contributing
+to your bottom line and being an essential part, or how much do your shareholders agree
+with that?
+And that will definitely be a concern for Soos.
+Now, you've got to think that their huge investment with Linux and their history will go a long
+way here, but hey, that's up to the market at the end of the day.
+And I would not be surprised if the acquisition of Rancher Labs was really all kind of getting
+this lined up, because in this Reuters article, they report that this has been in the works
+since well into 2020, that this was something that they've been planning to do for a while,
+and I could see them lining things up, positioning the brand as more of a cloud-ready brand,
+than just kind of letting the revenue come in the door, get all of the numbers looking
+good, and then make this move.
+But it's funny that it keeps kind of like sneaking up on us.
+Instead of just happening, we keep getting these little bits of leaks over time.
+Clearly there are some interested parties out there, although I doubt I'll see you investing
+in this particular stock.
+Well speaking of Soos, one of their developers is queuing up a virtual sound driver for virtual
+I.O.
+And these Virtio drivers are pretty special.
+Yeah, Virtio drivers are para-virtualized drivers for KVM and Linux that enable direct
+access to devices and peripherals, instead of using slower, emulated access.
+And this driver in particular implements the Virtio sound device specification, which was
+proposed last year for cases where having audio is needed, but device pass-through or
+device emulation don't meet the job.
+Yeah, this is interesting and I could definitely see a future where I'm building a virtual
+machine that would take advantage of this.
+Unrelated, but yet I still see a future where I'm going to use these things together.
+GNOME 40's version of Mudder is introducing headless native backend, which includes virtual
+monitors.
+Now, what this really means is that in software you can spin up virtual monitors and do stuff
+to them, but it could mean also long-term on a server, if you needed a graphical session
+for some reason, you could spin up a virtual monitor.
+Well now, imagine a headless virtual machine that you could spin up a virtual monitor and
+have a virtual sound card.
+I mean, you just see where this is going, of course.
+It's a lot of fun and shenanigans when I'm on my ginormous arm-powered workstation emulating
+the x86 past.
+These are both exactly those kinds of Linux features where, okay, right now, I'll be honest,
+I don't know exactly how I might take advantage of them, but down the road, I'll be in a pinch.
+I'll be trying to come up with some crazy solution, and it's these two things that are
+going to save my butt.
+Linux.ting.com.
+It's never been a better time to try out Ting.
+If you're budget-minded, they have Ting's Set 5 plan for $25 a month.
+You get unlimited talk and text, yes, I said unlimited, 5 gigabytes of LTE or 5G data,
+which you can use as a hotspot, nationwide LTE coverage, 5G wherever available, no contracts,
+yes, 5G with no contracts, yes, and if you use 2 gigs or 20 gigs, whatever it is, Ting's
+got the perfect plan for you.
+But if you know how to sync your music and sync your podcasts on Wi-Fi before you hit
+the road, you could really save some money.
+When you go to linux.ting.com, you'll get 25 bucks to work with.
+Well, some of these Ting plans, they cost less than $25 a month, and every single Ting
+plan gets access to their award-winning customer service and three LTE networks to choose from.
+I'm on Verizon at the moment, but I love knowing that there's other ones to move to if I happen
+to go somewhere where the coverage might be different.
+And you know me, I love the freedom of no contracts.
+There's a plan that fits every user and three great networks to choose from.
+It's simple to switch to Ting, and with all those networks, that means just about all
+phones are gonna work with Ting.
+So go to linux.ting.com to check your current phone, create an account, and pick the plan
+that's right for you.
+Ting lines up, Ting will send you a SIM card, or you can buy one from Ting directly.
+There's kind of all the options in the world, whatever works best for you.
+But just get a sense by going to linux.ting.com.
+Get started by going there, linux.ting.com.
+Cutting your phone bill in half has never been easier with Ting's brand new plans.
+Go check them out.
+It's the next generation of Ting mobile.
+It's here, and you could save a lot.
+It's never been a better time to switch to Ting.
+I've been a customer for a long time, and it truly is the best time.
+So go get $25, support the show, and check them out, linux.ting.com.
+It's been a long time coming, but it finally looks like there's a new version of Grub on
+the horizon.
+Grub 2.06 was originally anticipated for release in 2020, but then the boothole security vulnerability
+foiled those plans.
+And this week on Friday, Grub 2.06-RC1 was released by prominent Grub developer Daniel
+Kipper of Oracle.
+Oracle of all places, Wes.
+Yeah, he's been there for a bit.
+And this is great to see because you may have noticed the distributions out there will sometimes
+just go grab the latest build they can and ship it to solve problems.
+And they're not actually shipping quote unquote released versions of Grub.
+With this release, 2.06, we're seeing that after increased cooperation among developers
+and distributions following that boothole security vulnerability.
+And this is going to mark the first major Grub bootloader update since Grub 2.04 shipped
+in July of 2019.
+And among the changes in this new version is expanded ButterFS RAID support, Lux2 encrypted
+disk support, and the boothole patch as we mentioned, as well as other security work
+and a number of routine updates.
+This is definitely nice to see.
+I mean, Grub is a rather important piece of many systems, at least unless you're using
+system D boot.
+Regardless, if all goes well, fingers crossed it does, Grub 2.06 stable will be out sometime
+in April.
+You know, thinking of it, Wes, it's another piece of open source software.
+I wouldn't mind if it was signed.
+But in our effort and pledge to keep you up to date on the efforts to get Linux on the
+M1 with the most minimal amount of you having to actually care, we have a nice summary of
+some recent developments of getting Linux on that new Apple hardware.
+Now of course, this is a more difficult task than maybe it should be because Apple Silicon
+Macs have a boot process that is not based on any existing standard.
+It's a bespoke Apple mechanism that has slowly evolved from the early days of iOS devices.
+Now, the wide variety of smaller embedded ARM Linux systems almost invariably use the
+device tree standard.
+That's how most Android devices boot.
+Say what you will about device tree, but it's much simpler than a CPI.
+Interestingly enough though, Apple uses their very own version of a device tree on Apple
+Silicon called Apple Device Tree.
+This is because both it and the open device tree standard are actually based on the open
+firmware specification, which is how many PowerPC systems boot, including those old
+PowerPC Macs.
+The Apple legacy.
+Exactly.
+So to adapt the Apple world into a device tree world, Asahi Linux are developing M1n1,
+a bootloader for Apple Silicon machines.
+What will this look like in a new M1n1 world?
+Well, first you'll have the hardware.
+It'll start up.
+It will boot M1n1, which will in turn boot U-Boot, the regular ARM bootloader that seems
+to be very popular, which will then boot Grub, which I suppose us desktop Linux users are
+more familiar with.
+And finally, if everything else goes well, Linux.
+I do love that there's a little bit of grub in there.
+And the other thing that M1n1 will do is it will get information from Apple's iBoot system
+and help set up the frame buffer for that early stuff.
+It turns out, too, that these new M1 Macs actually have a serial port on them.
+Yeah, although it's just not quite where you would expect it.
+It's tucked into the USB-C port and you have to do some fancy data magic over the USB-C
+power protocol.
+And when you send the right signals, you get access to a serial port on these old Macs.
+Can I just say I'm glad Hector Martin and co are the people figuring this out and not
+me.
+And it's good to see that getting done.
+And they're upstreaming.
+You know, that's always the thing we like to note.
+And this could be a great way for people to keep these old Macs when people retire them,
+keep them running or maybe even get them running on new machines.
+I don't know about that, but the Corellium folks, that's the other team who are also
+working on getting their their work they had done for iPads working for M1 desktop machines.
+And it seems they've made some good progress.
+They now have Ethernet working on the Mac Mini and Wi-Fi working in general on the M1s.
+So that's a pretty big accomplishment for Corellium as well.
+Let's see that stuff get upstream now.
+That would be great.
+Very impressive indeed.
+But as you say, upstreaming and then later downstreaming into a distro I might actually
+use.
+That'll be the real test to my mind.
+I don't think I'll be buying an M1 to run Linux on just yet.
+Yeah, in the meantime, Wes, you can just save up all your doge and everyone else can go
+to LinuxActionNews.com slash subscribe for all the ways to get new episodes.
+And LinuxActionNews.com slash contact for ways to get in touch.
+Join Coder Radio's Coder Happy Hour every Monday at 5pm Pacific, 8pm Eastern.
+As for us, we'll be back next Monday with our weekly take on the latest Linux and open
+source news.
+Thanks for joining us and we will see you next week.

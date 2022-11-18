@@ -1,0 +1,1308 @@
+1
+00:00:00,000 --> 00:00:09,640
+Hello, and welcome to Linux Action News, episode 226, recorded on February 2nd, 2022.
+
+2
+00:00:09,640 --> 00:00:10,640
+I'm Chris.
+
+3
+00:00:10,640 --> 00:00:11,640
+And I'm Wes.
+
+4
+00:00:11,640 --> 00:00:12,640
+Hello, Wes.
+
+5
+00:00:12,640 --> 00:00:15,080
+Let's do the news.
+
+6
+00:00:15,080 --> 00:00:18,560
+And we start with more performance.
+
+7
+00:00:18,560 --> 00:00:24,360
+Or at least, that's the goal of System76's new Rust-based tool that's aimed at making
+
+8
+00:00:24,360 --> 00:00:27,040
+the desktop more responsive.
+
+9
+00:00:27,040 --> 00:00:30,420
+They're calling it the System76 Scheduler.
+
+10
+00:00:30,420 --> 00:00:35,560
+It's a service that runs in the background, and it continuously configures Linux's Completely
+
+11
+00:00:35,560 --> 00:00:36,960
+Fair Scheduler.
+
+12
+00:00:36,960 --> 00:00:40,000
+That's CFS or, you know, the Completely Fair Scheduler.
+
+13
+00:00:40,000 --> 00:00:45,680
+It's generally optimized for server workloads and certainly not optimized for a desktop
+
+14
+00:00:45,680 --> 00:00:47,480
+workload out of the box.
+
+15
+00:00:47,480 --> 00:00:52,900
+Yeah, in scheduling, unfortunately, you kind of often have to choose between latency or
+
+16
+00:00:52,900 --> 00:00:58,720
+throughput and, well, considering how Linux is used in production, it kind of makes sense
+
+17
+00:00:58,720 --> 00:01:01,880
+that the default is aimed more at throughput.
+
+18
+00:01:01,880 --> 00:01:06,200
+But here's hoping this new effort can change that because there's a few things it's trying
+
+19
+00:01:06,200 --> 00:01:09,240
+to do in the background that make that seem possible.
+
+20
+00:01:09,240 --> 00:01:14,840
+First, as you said, Chris, it's a background service that watches for battery status events.
+
+21
+00:01:14,840 --> 00:01:19,220
+When you plug in your AC power, for example, it's going to then tweak the CFS scheduler's
+
+22
+00:01:19,220 --> 00:01:23,240
+parameters to enable low latency scheduling.
+
+23
+00:01:23,240 --> 00:01:27,160
+That's based on some of the work the Zen kernel has done to the same effect.
+
+24
+00:01:27,160 --> 00:01:31,520
+Then when you pull that power cord out of your laptop and switch over to battery, the
+
+25
+00:01:31,520 --> 00:01:35,480
+service will notice and revert those parameters back to the mainline configuration, which
+
+26
+00:01:35,480 --> 00:01:38,640
+should be a little more gentle on your battery life.
+
+27
+00:01:38,640 --> 00:01:44,080
+Also, the new service does a periodic scan of all your running processes and is able
+
+28
+00:01:44,080 --> 00:01:49,880
+to apply relative priorities to those processes based on user configurable settings.
+
+29
+00:01:49,880 --> 00:01:55,920
+And finally, in combination with PopShell, which is required for this last trick to work,
+
+30
+00:01:55,920 --> 00:02:02,580
+the new setup is able to automatically assign a higher process priority to the focused window
+
+31
+00:02:02,580 --> 00:02:09,080
+on the desktop and any of its sub-processes, at the same time assigning a lower priority
+
+32
+00:02:09,080 --> 00:02:12,960
+to background processes that you're not actively interacting with.
+
+33
+00:02:12,960 --> 00:02:13,960
+Isn't that interesting?
+
+34
+00:02:13,960 --> 00:02:20,280
+I mean, this whole thing is a great idea and part of me just goes, oh, finally, finally
+
+35
+00:02:20,280 --> 00:02:22,540
+somebody is tackling this.
+
+36
+00:02:22,540 --> 00:02:28,240
+But the last bit there, with the integration into PopShell, where the window you click
+
+37
+00:02:28,240 --> 00:02:34,080
+on gets scheduled priority, this is really starting to give us some insights into like
+
+38
+00:02:34,080 --> 00:02:39,200
+where System76 is going with their desktop.
+
+39
+00:02:39,200 --> 00:02:44,100
+And we've seen some of the graphical elements, but now we're getting a little bit of at least
+
+40
+00:02:44,100 --> 00:02:48,800
+a hint, a little peek, if you will, at the technical side.
+
+41
+00:02:48,800 --> 00:02:51,240
+And I love this idea.
+
+42
+00:02:51,240 --> 00:02:56,520
+I've advocated for a desktop optimized scheduler for a very, very long time.
+
+43
+00:02:56,520 --> 00:03:01,040
+I've done segments on Linux Unplugged about swapping out my scheduler, trying to get better
+
+44
+00:03:01,040 --> 00:03:02,360
+performance.
+
+45
+00:03:02,360 --> 00:03:05,900
+And what they've done here, if you look at it, is they kind of have a list of like a
+
+46
+00:03:05,900 --> 00:03:09,560
+static list of applications that are going to get high priority or low priority.
+
+47
+00:03:09,560 --> 00:03:11,440
+Some of them may or may not make sense for you.
+
+48
+00:03:11,440 --> 00:03:15,520
+You'd kind of want to look at that because, again, this is early stuff here.
+
+49
+00:03:15,520 --> 00:03:20,060
+But the way that they're periodically checking your processes or paying attention to your
+
+50
+00:03:20,060 --> 00:03:24,840
+power level, that's sounding like some Mac OS level type stuff, where they're really
+
+51
+00:03:24,840 --> 00:03:29,320
+kind of taking a holistic approach from being aware of what the hardware is doing all the
+
+52
+00:03:29,320 --> 00:03:33,700
+way up to the individual applications through the OS, the entire stack.
+
+53
+00:03:33,700 --> 00:03:38,040
+And that's really the kind of product you get when you have a complete picture like
+
+54
+00:03:38,040 --> 00:03:39,840
+this being taken into account, right?
+
+55
+00:03:39,840 --> 00:03:41,680
+Like, that's interesting.
+
+56
+00:03:41,680 --> 00:03:44,920
+And it makes me excited about where they might be going.
+
+57
+00:03:44,920 --> 00:03:49,240
+Don't worry, though, you won't necessarily need a fancy new machine to get the benefits
+
+58
+00:03:49,240 --> 00:03:54,000
+because over on Reddit, System76's Michael Murphy, who, at least at this point, seems
+
+59
+00:03:54,000 --> 00:04:00,080
+to be something of a lead developer on this new effort, noted that, quote, through internal
+
+60
+00:04:00,080 --> 00:04:05,600
+testing, this noticeably improves desktop responsiveness for low-end hardware like the
+
+61
+00:04:05,600 --> 00:04:11,880
+Raspberry Pi, as well as the smoothness and frame rates of both games and VR.
+
+62
+00:04:11,880 --> 00:04:16,680
+Well, speaking of things that just seem like they're taking forever to finally get here,
+
+63
+00:04:16,680 --> 00:04:22,400
+it seems that the Raspberry Pi OS is getting the long-awaited upgrade to 64-bit.
+
+64
+00:04:22,400 --> 00:04:27,680
+Now I know what you're thinking, but Chris, the Raspberry Pis have been 64-bit since 2016.
+
+65
+00:04:27,680 --> 00:04:31,120
+Are you telling me that they're just now getting the OS upgraded?
+
+66
+00:04:31,120 --> 00:04:32,120
+Yes.
+
+67
+00:04:32,120 --> 00:04:36,240
+That's because not all of the hardware is actually 64-bit yet, but a good portion of
+
+68
+00:04:36,240 --> 00:04:41,040
+it is, and so it seems that the Raspberry Pi folks have decided to grace us with a 64-bit
+
+69
+00:04:41,040 --> 00:04:43,560
+OS to match their 64-bit hardware.
+
+70
+00:04:43,560 --> 00:04:48,440
+Yeah, up to now, you kind of had to look to an alternative operating system if you wanted
+
+71
+00:04:48,440 --> 00:04:50,960
+to take full advantage of your hardware.
+
+72
+00:04:50,960 --> 00:04:57,200
+The Raspberry Pi folks say that that was mostly to maximize compatibility, which I can understand.
+
+73
+00:04:57,200 --> 00:05:03,620
+They also say to, quote, avoid customer confusion, I don't know about that, but regardless, I'm
+
+74
+00:05:03,620 --> 00:05:08,120
+glad that they've come to realize that there actually are a whole host of reasons that
+
+75
+00:05:08,120 --> 00:05:15,280
+people are likely to want a 64-bit operating system and not to be stuck in last century.
+
+76
+00:05:15,280 --> 00:05:21,960
+Framework, the folks behind the Framework laptop, that plucky little module-based DIY
+
+77
+00:05:21,960 --> 00:05:25,960
+machine that runs Linux, has some great news this week.
+
+78
+00:05:25,960 --> 00:05:32,980
+They announced they just raised $18 million in Series A funding, and they say they didn't
+
+79
+00:05:32,980 --> 00:05:35,780
+have to raise this money to keep the lights on.
+
+80
+00:05:35,780 --> 00:05:42,120
+To put things in a little more context, Framework was founded back in January of 2020 and then
+
+81
+00:05:42,120 --> 00:05:48,020
+shipped their first product, the Framework laptop, in July 2021.
+
+82
+00:05:48,020 --> 00:05:53,000
+Now they're hoping to use this fresh injection of cash to fund development of upcoming product
+
+83
+00:05:53,000 --> 00:06:00,440
+categories, a long roadmap of more of those extensible modules, and geographic expansion
+
+84
+00:06:00,440 --> 00:06:02,780
+for the laptop itself.
+
+85
+00:06:02,780 --> 00:06:05,040
+Looks like they're also using that money to hire.
+
+86
+00:06:05,040 --> 00:06:09,720
+They say, quote, we're hiring across every area of the company, especially key areas
+
+87
+00:06:09,720 --> 00:06:15,920
+are product marketing manager, hardware engineering manager, and full stack developer roles.
+
+88
+00:06:15,920 --> 00:06:17,680
+That is huge, right?
+
+89
+00:06:17,680 --> 00:06:23,440
+Because realistically, this isn't the first time the Framework folks have raised money.
+
+90
+00:06:23,440 --> 00:06:30,080
+They've just raised smaller batches of money from independent investors, and now they're
+
+91
+00:06:30,080 --> 00:06:31,080
+getting a big chunk.
+
+92
+00:06:31,080 --> 00:06:35,740
+They're getting into the VC game because they've got a product that is proving itself.
+
+93
+00:06:35,740 --> 00:06:37,760
+They've sold a bit in the marketplace.
+
+94
+00:06:37,760 --> 00:06:38,760
+They've got investors.
+
+95
+00:06:38,760 --> 00:06:43,120
+They've already sort of demonstrated that they can work with them.
+
+96
+00:06:43,120 --> 00:06:47,920
+A lot of this stuff is lining up, and it seems to me like the future is pretty bright for
+
+97
+00:06:47,920 --> 00:06:52,640
+the Framework here, and the healthier they are as a company, the more likely there will
+
+98
+00:06:52,640 --> 00:06:57,480
+be this marketplace for modules that they have envisioned with all of this.
+
+99
+00:06:57,480 --> 00:07:02,080
+So it's great news, and it's one of these things where you don't really want to see
+
+100
+00:07:02,080 --> 00:07:03,400
+a lot of series of funding.
+
+101
+00:07:03,400 --> 00:07:09,020
+You know, if we start seeing a series C and a series D, then that means there's a lot
+
+102
+00:07:09,020 --> 00:07:12,280
+of cooks that are going to be in the kitchen, and that's going to be a red flag as far as
+
+103
+00:07:12,280 --> 00:07:13,680
+I'm concerned.
+
+104
+00:07:13,680 --> 00:07:19,480
+But a series A with a strong product and strong leadership, I think that's pretty manageable.
+
+105
+00:07:19,480 --> 00:07:23,480
+And so I think all in all, this is great news for Framework.
+
+106
+00:07:23,480 --> 00:07:27,880
+Well, it's finally happened.
+
+107
+00:07:27,880 --> 00:07:30,600
+Docker is coming to Linux.
+
+108
+00:07:30,600 --> 00:07:34,340
+Well, Docker Desktop, I should say.
+
+109
+00:07:34,340 --> 00:07:38,460
+This is something the Mac and Windows have had for quite a while, and I guess they just
+
+110
+00:07:38,460 --> 00:07:42,880
+didn't really see the need to release it on the Linux side.
+
+111
+00:07:42,880 --> 00:07:46,520
+But that's all changing now, so buckle up, everyone.
+
+112
+00:07:46,520 --> 00:07:49,520
+I should warn you, actually, it is very early days.
+
+113
+00:07:49,520 --> 00:07:53,840
+We gave it a go here on the show, had to make a few tweaks just to get it even running on
+
+114
+00:07:53,840 --> 00:07:58,240
+my system and go through an entire process of installing dependencies, changing groups
+
+115
+00:07:58,240 --> 00:07:59,240
+and all that kind of stuff.
+
+116
+00:07:59,240 --> 00:08:04,440
+But once you've done all of it, you get the Docker Desktop that you may know, love or
+
+117
+00:08:04,440 --> 00:08:08,040
+hate, depending on your relationship with it.
+
+118
+00:08:08,040 --> 00:08:13,240
+But you should also be aware, it's not Docker like you're typically used to it on a Linux
+
+119
+00:08:13,240 --> 00:08:14,240
+system.
+
+120
+00:08:14,240 --> 00:08:19,480
+No, much like its cousins on those other operating systems, Docker Desktop for Linux runs all
+
+121
+00:08:19,480 --> 00:08:23,800
+your containers in a separate Linux VM.
+
+122
+00:08:23,800 --> 00:08:27,480
+Now that may raise a skeptical eye or two out there in the audience.
+
+123
+00:08:27,480 --> 00:08:30,520
+I mean, I think it did for us too, Chris.
+
+124
+00:08:30,520 --> 00:08:35,120
+But anticipating this, they've got a long list of justifications for running in a virtual
+
+125
+00:08:35,120 --> 00:08:40,760
+machine, including to ensure that Docker Desktop has a consistent experience across platforms,
+
+126
+00:08:40,760 --> 00:08:45,000
+or just to enable the use of new fancy kernel features that you might not get if you are
+
+127
+00:08:45,000 --> 00:08:48,480
+restricted to whatever kernel you were running on the host.
+
+128
+00:08:48,480 --> 00:08:52,160
+That last one there caught my attention.
+
+129
+00:08:52,160 --> 00:08:56,640
+I'm trying to think of a use case where someone is developing, say, a server-side application
+
+130
+00:08:56,640 --> 00:09:01,400
+inside Docker Desktop, and they want it on the absolute latest kernel.
+
+131
+00:09:01,400 --> 00:09:04,240
+Perhaps it's a project they're working on years ahead of time, maybe.
+
+132
+00:09:04,240 --> 00:09:06,800
+But it's interesting they mention that nonetheless.
+
+133
+00:09:06,800 --> 00:09:08,960
+Inside a VM feels kind of gross.
+
+134
+00:09:08,960 --> 00:09:12,240
+Like why not just run a VM at that point?
+
+135
+00:09:12,240 --> 00:09:15,800
+And OK, consistent experience across platforms.
+
+136
+00:09:15,800 --> 00:09:17,040
+All right, I can see that.
+
+137
+00:09:17,040 --> 00:09:21,200
+That way, if you have a team that's got mixed desktops, Windows, Mac, and Linux, perhaps.
+
+138
+00:09:21,200 --> 00:09:25,080
+I don't know, Wes, you interface with this stuff more on the daily.
+
+139
+00:09:25,080 --> 00:09:27,400
+Does this feel kind of like a hack to you?
+
+140
+00:09:27,400 --> 00:09:31,160
+I don't know about a hack, but it's not very appealing to me.
+
+141
+00:09:31,160 --> 00:09:32,160
+I'll be honest.
+
+142
+00:09:32,160 --> 00:09:37,200
+I use Docker Desktop because I kind of have to when I'm developing on a Mac, but I don't
+
+143
+00:09:37,200 --> 00:09:38,200
+like it.
+
+144
+00:09:38,200 --> 00:09:42,120
+I don't like the extra impedance mismatch, the extra abstraction layers, all the things
+
+145
+00:09:42,120 --> 00:09:43,120
+in between.
+
+146
+00:09:43,120 --> 00:09:44,620
+Now, that's that.
+
+147
+00:09:44,620 --> 00:09:47,960
+If you're just focusing on development and you don't really care what the underlying
+
+148
+00:09:47,960 --> 00:09:51,360
+implementation is, then I don't think it matters, right?
+
+149
+00:09:51,360 --> 00:09:53,240
+You still get the local Docker command.
+
+150
+00:09:53,240 --> 00:09:56,760
+Pretty much everything works like it did, at least once you've jumped through the hoops
+
+151
+00:09:56,760 --> 00:10:01,040
+to get this early adopter version up and going.
+
+152
+00:10:01,040 --> 00:10:04,400
+But if you are a Linux enthusiast, someone who's been working with containers a long
+
+153
+00:10:04,400 --> 00:10:09,040
+time or might need to do some workflows that are a little bit out of the ordinary, yeah,
+
+154
+00:10:09,040 --> 00:10:12,200
+I think it just makes all that more complicated.
+
+155
+00:10:12,200 --> 00:10:16,120
+There seems to be something with the timing on the release of this as well.
+
+156
+00:10:16,120 --> 00:10:19,520
+Like one of the questions we had is why now?
+
+157
+00:10:19,520 --> 00:10:23,560
+Yeah, the timing is interesting.
+
+158
+00:10:23,560 --> 00:10:27,760
+Dockers just announced some pretty good annual recurring revenue, or at least better than
+
+159
+00:10:27,760 --> 00:10:30,320
+some of their financials in the past.
+
+160
+00:10:30,320 --> 00:10:34,140
+And we have seen that since they sold off their enterprise business, they've refocused
+
+161
+00:10:34,140 --> 00:10:36,040
+on developer tooling.
+
+162
+00:10:36,040 --> 00:10:40,120
+So maybe this is just an effort to fill the gap, you know, make their product line look
+
+163
+00:10:40,120 --> 00:10:44,920
+a little nicer, sell it to managers who might have individual developers who are on a variety
+
+164
+00:10:44,920 --> 00:10:46,600
+of operating systems.
+
+165
+00:10:46,600 --> 00:10:51,940
+But it also comes as we've just ran out of runway for that grace period they gave after
+
+166
+00:10:51,940 --> 00:10:54,080
+relicensing Docker Desktop.
+
+167
+00:10:54,080 --> 00:10:58,460
+Well, that's just it, Wes, you've got to make that subscription more and more appealing
+
+168
+00:10:58,460 --> 00:11:04,080
+all the time, plus, I mean, the elephant in the room here, Sousa just unveiled Rancher
+
+169
+00:11:04,080 --> 00:11:09,960
+Desktop 1.0, so they have competitors that are offering cross desktop tools like this.
+
+170
+00:11:09,960 --> 00:11:15,560
+So in a way, they're just kind of catching up with the market.
+
+171
+00:11:15,560 --> 00:11:21,100
+And just a few project updates to catch you up on, starting with Rust.
+
+172
+00:11:21,100 --> 00:11:26,760
+It seems three core team members have just recently decided to leave.
+
+173
+00:11:26,760 --> 00:11:31,760
+Rust Foundation board member and project director Florian Giltjer, Rust infrastructure team
+
+174
+00:11:31,760 --> 00:11:37,720
+lead Pietro Albini, and perhaps most notably, prominent author and community member Steve
+
+175
+00:11:37,720 --> 00:11:43,600
+Klabnik, who's off to join Brian Cantrill's hardware company, Oxide Computer.
+
+176
+00:11:43,600 --> 00:11:49,840
+Now, this news comes after some recent drama last year around the resignation of the Rust
+
+177
+00:11:49,840 --> 00:11:51,980
+moderation team.
+
+178
+00:11:51,980 --> 00:11:57,040
+And of course, this has led many to wonder if perhaps these two events are connected.
+
+179
+00:11:57,040 --> 00:12:02,320
+Yeah, well, we were kind of wondering too, to be honest, but a spokesperson has clarified
+
+180
+00:12:02,320 --> 00:12:08,360
+that the decision of the three to step down is not connected to last year's moderation
+
+181
+00:12:08,360 --> 00:12:11,640
+team event, at least according to them.
+
+182
+00:12:11,640 --> 00:12:18,480
+Now moving from Rust back to C for the moment, there's some big news in the world of Redis.
+
+183
+00:12:18,480 --> 00:12:26,120
+The release of Redis 7.0 RC1, which comes with some significant performance optimizations,
+
+184
+00:12:26,120 --> 00:12:28,040
+but also some breaking changes.
+
+185
+00:12:28,040 --> 00:12:31,760
+Well, those performance optimizations, they really seem to be coming from the general
+
+186
+00:12:31,760 --> 00:12:38,080
+category of memory savings, like significant memory savings across the board from various
+
+187
+00:12:38,080 --> 00:12:43,120
+optimizations, lower copy on write memory overhead, improvements to f-sync to avoid
+
+188
+00:12:43,120 --> 00:12:48,160
+large writes to disk, improve latency throughout and a lot more.
+
+189
+00:12:48,160 --> 00:12:51,480
+Looks like a great update, if you can manage those breaking changes.
+
+190
+00:12:51,480 --> 00:12:56,960
+Yeah, no kidding, I mean, Redis is used all over and well, more efficient use of memory
+
+191
+00:12:56,960 --> 00:13:01,200
+for an in memory database has got to be good.
+
+192
+00:13:01,200 --> 00:13:06,040
+But while we're talking about databases, we've got one last update here.
+
+193
+00:13:06,040 --> 00:13:13,120
+MariaDB, which started life out as a humble MySQL fork, but has become one of the fastest
+
+194
+00:13:13,120 --> 00:13:19,120
+growing and most popular open source databases, announced this week its intention to become
+
+195
+00:13:19,120 --> 00:13:21,040
+a publicly traded company.
+
+196
+00:13:21,040 --> 00:13:23,840
+Okay, so this is a complicated deal.
+
+197
+00:13:23,840 --> 00:13:30,840
+It involves Maria merging with this other group called Angel Pond Holdings, which is
+
+198
+00:13:30,840 --> 00:13:35,320
+a special purpose acquisition company or what's what's known as a SPAC.
+
+199
+00:13:35,320 --> 00:13:40,540
+Yeah, SPACs have been pretty popular recently, partially because they function as something
+
+200
+00:13:40,540 --> 00:13:46,000
+of an alternative to a traditional IPO, where you don't have to make the same kinds of disclaimers
+
+201
+00:13:46,000 --> 00:13:48,320
+and don't have to have as much vetting.
+
+202
+00:13:48,320 --> 00:13:52,520
+So in that sense, let's hope this goes a little better than some of the recent ones.
+
+203
+00:13:52,520 --> 00:13:58,320
+We'll see though, the combined company will be named MariaDB PLC, and will be led by MariaDB's
+
+204
+00:13:58,320 --> 00:14:04,460
+existing CEO, Michael Howard, and at least from what we know right now, the new company
+
+205
+00:14:04,460 --> 00:14:12,160
+once it's formed should be worth approximately $672 million.
+
+206
+00:14:12,160 --> 00:14:14,000
+Linode.com slash LAN.
+
+207
+00:14:14,000 --> 00:14:18,160
+Go there to get $100 in 60 day credit on a new account and you go there to support the
+
+208
+00:14:18,160 --> 00:14:19,160
+show.
+
+209
+00:14:19,160 --> 00:14:22,480
+So it's Linode.com slash LAN.
+
+210
+00:14:22,480 --> 00:14:25,680
+This show is made possible by you taking advantage of our sponsors offers like this and it's
+
+211
+00:14:25,680 --> 00:14:29,940
+a great opportunity for you to get $100 to really try out Linode.
+
+212
+00:14:29,940 --> 00:14:32,840
+It's how we deploy everything in the cloud now.
+
+213
+00:14:32,840 --> 00:14:36,760
+They started in 2003 and now 18 years later, they're the best at this.
+
+214
+00:14:36,760 --> 00:14:39,360
+They are the largest independent open cloud provider.
+
+215
+00:14:39,360 --> 00:14:43,920
+That checks a box, but they remain focused making cloud computing simple and approachable
+
+216
+00:14:43,920 --> 00:14:44,920
+and affordable.
+
+217
+00:14:44,920 --> 00:14:45,920
+Oh, yep.
+
+218
+00:14:45,920 --> 00:14:46,920
+That checks a box.
+
+219
+00:14:46,920 --> 00:14:50,600
+And they're dedicated on just expanding Linux and deploying it wherever possible.
+
+220
+00:14:50,600 --> 00:14:55,840
+And yeah, of course that checks a box and they have a great suite of features.
+
+221
+00:14:55,840 --> 00:14:57,200
+So their systems are super fast.
+
+222
+00:14:57,200 --> 00:14:59,000
+That was always number one for me.
+
+223
+00:14:59,000 --> 00:15:03,060
+They do have 11 data centers around the world and they also have a bunch of great backend
+
+224
+00:15:03,060 --> 00:15:05,280
+systems like S3 compatible object storage.
+
+225
+00:15:05,280 --> 00:15:06,280
+That's one I use all the time.
+
+226
+00:15:06,280 --> 00:15:10,420
+So I like to mention that one, like usually number one at the list, but also like just
+
+227
+00:15:10,420 --> 00:15:13,820
+thinking about like a multi-cloud strategy, they got a lot of nice stuff in there, including
+
+228
+00:15:13,820 --> 00:15:16,040
+Kubernetes and Terraform support.
+
+229
+00:15:16,040 --> 00:15:21,600
+And by the way, if that's something you're trying to learn, they have fantastic documentation
+
+230
+00:15:21,600 --> 00:15:22,600
+on that.
+
+231
+00:15:22,600 --> 00:15:25,840
+And it's a great opportunity to use that $100 credit.
+
+232
+00:15:25,840 --> 00:15:31,160
+You could really learn Kubernetes in an environment right there inside Linode using our $100 credit.
+
+233
+00:15:31,160 --> 00:15:34,080
+So go to linode.com slash land, take advantage of that.
+
+234
+00:15:34,080 --> 00:15:37,840
+Their pricing is 30 to 50% cheaper than the other major cloud providers out there.
+
+235
+00:15:37,840 --> 00:15:43,000
+They got fantastic customer support and they're not trying to lock you into their platform
+
+236
+00:15:43,000 --> 00:15:44,680
+like those big hyperscalers are.
+
+237
+00:15:44,680 --> 00:15:50,120
+They've got them weird looking UIs with them complicated verbal geologies.
+
+238
+00:15:50,120 --> 00:15:51,960
+You know what I'm talking about.
+
+239
+00:15:51,960 --> 00:15:56,080
+You go try them out because Linode is dedicated to offering the best in virtualized cloud
+
+240
+00:15:56,080 --> 00:15:57,080
+computing.
+
+241
+00:15:57,080 --> 00:15:59,200
+If it runs on Linux, it's going to run on Linode.
+
+242
+00:15:59,200 --> 00:16:03,520
+So sign up today and support the show at linode.com slash land.
+
+243
+00:16:03,520 --> 00:16:09,440
+So that's linode.com slash L-A-N and get $100 in 60 day credit on a new account while you
+
+244
+00:16:09,440 --> 00:16:12,860
+support the show.
+
+245
+00:16:12,860 --> 00:16:18,760
+And of course, a fantastically huge thank you to Ting, linux.ting.com, my mobile phone
+
+246
+00:16:18,760 --> 00:16:22,840
+provider since 2013, and it's simple.
+
+247
+00:16:22,840 --> 00:16:23,960
+Ting's the best out there.
+
+248
+00:16:23,960 --> 00:16:26,240
+It's smart, simple, mobile.
+
+249
+00:16:26,240 --> 00:16:30,640
+I don't want to invest a bunch of time even once a year to like go through my phone stuff.
+
+250
+00:16:30,640 --> 00:16:32,320
+I don't want to have to deal with that.
+
+251
+00:16:32,320 --> 00:16:37,200
+And really, the phone duopolies here in the United States should have to do business differently.
+
+252
+00:16:37,200 --> 00:16:40,120
+They just don't because no one's forced them to do it.
+
+253
+00:16:40,120 --> 00:16:42,100
+But Ting is changing that game.
+
+254
+00:16:42,100 --> 00:16:44,160
+They're putting pressure on the industry.
+
+255
+00:16:44,160 --> 00:16:49,840
+They're an MVNO and they ride on top of multiple networks, so you get great nationwide coverage,
+
+256
+00:16:49,840 --> 00:16:56,440
+LTE, 5G, but you work with Ting and their fantastic customer support and their unbelievably
+
+257
+00:16:56,440 --> 00:16:57,600
+great rates.
+
+258
+00:16:57,600 --> 00:17:03,800
+And Ting Mobile was recently named the number one carrier by Consumer Reports in 2021.
+
+259
+00:17:03,800 --> 00:17:06,780
+Congratulations Ting, that is awesome.
+
+260
+00:17:06,780 --> 00:17:08,400
+It really is just a smarter way to do mobile.
+
+261
+00:17:08,400 --> 00:17:13,720
+The pricing is fantastic and when you go to linux.ting.com, you get $25 towards a device
+
+262
+00:17:13,720 --> 00:17:14,720
+or a new plan.
+
+263
+00:17:14,720 --> 00:17:19,440
+Now, the reality is most the phones out there are going to work with Ting now just because
+
+264
+00:17:19,440 --> 00:17:21,320
+Ting supports so many networks.
+
+265
+00:17:21,320 --> 00:17:24,120
+So head over to linux.ting.com and check your current phone.
+
+266
+00:17:24,120 --> 00:17:26,920
+You create an account, you pick the plan that's right for you.
+
+267
+00:17:26,920 --> 00:17:32,320
+And then Ting, they just send you a SIM card right into the mail.
+
+268
+00:17:32,320 --> 00:17:36,200
+You pop that sucker into your phone, it may or may not make those noises and you'll be
+
+269
+00:17:36,200 --> 00:17:37,200
+activated in minutes.
+
+270
+00:17:37,200 --> 00:17:40,760
+You do it all through their website generally and it's just chef's kiss.
+
+271
+00:17:40,760 --> 00:17:42,980
+It is so, so slick.
+
+272
+00:17:42,980 --> 00:17:49,120
+So get started by going to linux.ting.com, support the show and get $25 off a great deal
+
+273
+00:17:49,120 --> 00:17:54,520
+at Ting, that's linux.ting.com.
+
+274
+00:17:54,520 --> 00:18:00,840
+So you may have heard this week about a butter FS bug that was hitting some folks running
+
+275
+00:18:00,840 --> 00:18:02,840
+the 516 kernel.
+
+276
+00:18:02,840 --> 00:18:09,320
+We thought we'd take a quick look and break down what went wrong and how it got fixed.
+
+277
+00:18:09,320 --> 00:18:14,160
+Thankfully 516 probably isn't deployed in very many enterprise environments, but definitely
+
+278
+00:18:14,160 --> 00:18:17,200
+some of us out there love to get their hands on the latest kernels.
+
+279
+00:18:17,200 --> 00:18:22,880
+And there were some changes in there that specifically related to butter FS defragmentation
+
+280
+00:18:22,880 --> 00:18:30,260
+code, which introduced a regression that causes an extreme right IO issue and eventually takes
+
+281
+00:18:30,260 --> 00:18:35,080
+up at least 100% of one of your CPU cores.
+
+282
+00:18:35,080 --> 00:18:36,080
+That's always great.
+
+283
+00:18:36,080 --> 00:18:42,000
+It apparently leaves you in some sort of defragmentation infinite loop.
+
+284
+00:18:42,000 --> 00:18:46,520
+In other words, a Windows user's worst nightmare.
+
+285
+00:18:46,520 --> 00:18:54,080
+Now before you fret too much, the good news here is that with the release of Linux 5 16.5,
+
+286
+00:18:54,080 --> 00:18:59,960
+this has all been fixed and for helping to fight off similar issues like this in the
+
+287
+00:18:59,960 --> 00:19:07,040
+future, there's now restored support for allowing defragmentation to be interrupted by a simple
+
+288
+00:19:07,040 --> 00:19:12,220
+signal from the user instead of having to reboot your whole darn system.
+
+289
+00:19:12,220 --> 00:19:17,360
+And because it's always good to know who's fixing your bugs, it looks like we can thank
+
+290
+00:19:17,360 --> 00:19:21,480
+two engineers at SUSE for all this good work.
+
+291
+00:19:21,480 --> 00:19:26,160
+It's great that butter FS has so many companies involved in making it better and better.
+
+292
+00:19:26,160 --> 00:19:29,360
+And tip of the hat to the SUSE developers for getting that fixed.
+
+293
+00:19:29,360 --> 00:19:30,920
+But you know what?
+
+294
+00:19:30,920 --> 00:19:33,840
+The news isn't all bug fixes for butter FS.
+
+295
+00:19:33,840 --> 00:19:36,860
+There's also some feature improvements that are being worked on.
+
+296
+00:19:36,860 --> 00:19:39,720
+We did cover some on disk format changes recently.
+
+297
+00:19:39,720 --> 00:19:42,480
+Well, just a small update here.
+
+298
+00:19:42,480 --> 00:19:45,800
+That extent tree version two work is progressing nicely.
+
+299
+00:19:45,800 --> 00:19:50,760
+And it's been queued up into the butter FS quote for next code hidden behind a debug
+
+300
+00:19:50,760 --> 00:19:51,760
+flag.
+
+301
+00:19:51,760 --> 00:19:56,880
+Yeah, when David started pulling this into for next, it could mean that some of this
+
+302
+00:19:56,880 --> 00:20:01,040
+initial work ends up in Linux kernel 518.
+
+303
+00:20:01,040 --> 00:20:05,880
+Although as you say, behind a debug flag, which would mean one might need to actually
+
+304
+00:20:05,880 --> 00:20:09,400
+compile their own kernel to actually play with this.
+
+305
+00:20:09,400 --> 00:20:14,480
+But given the story we just covered, and since this is all rather experimental, that's probably
+
+306
+00:20:14,480 --> 00:20:16,000
+a good thing.
+
+307
+00:20:16,000 --> 00:20:20,920
+Now there's a lot to like about these changes, since they're trying to address some long
+
+308
+00:20:20,920 --> 00:20:23,880
+standing issues with the on disk format.
+
+309
+00:20:23,880 --> 00:20:28,720
+But the initial shiny feature, at least in what's been queued up so far, is support for
+
+310
+00:20:28,720 --> 00:20:31,280
+multiple global routes.
+
+311
+00:20:31,280 --> 00:20:35,240
+Hmm, that sounds like an interesting feature.
+
+312
+00:20:35,240 --> 00:20:36,240
+Multiple global routes.
+
+313
+00:20:36,240 --> 00:20:40,080
+Yeah, this is definitely something we'll be keeping an eye on.
+
+314
+00:20:40,080 --> 00:20:44,240
+Very, very interested in watching any kind of improvements they can make, and any kind
+
+315
+00:20:44,240 --> 00:20:45,960
+of new features they can make.
+
+316
+00:20:45,960 --> 00:20:50,120
+And then of course, watching how they roll this out, how it impacts people that have
+
+317
+00:20:50,120 --> 00:20:54,560
+systems in production, and how all of that managed, that's going to be absolutely critical
+
+318
+00:20:54,560 --> 00:20:57,040
+to the story, and we'll be keeping an eye on that.
+
+319
+00:20:57,040 --> 00:21:00,600
+So make sure you go to linuxactionnews.com slash subscribe for all the ways to get new
+
+320
+00:21:00,600 --> 00:21:01,600
+episodes.
+
+321
+00:21:01,600 --> 00:21:07,400
+And linuxactionnews.com slash contact for ways to keep in touch.
+
+322
+00:21:07,400 --> 00:21:10,960
+If you'd like to get Linux action news ad free every single week, support the whole
+
+323
+00:21:10,960 --> 00:21:12,880
+network at Jupiter.party.
+
+324
+00:21:12,880 --> 00:21:17,000
+Become a member and get Linux action news ad free as a perk.
+
+325
+00:21:17,000 --> 00:21:21,640
+But don't worry, even if you can't right now, we'll be back next week with our take
+
+326
+00:21:21,640 --> 00:21:25,000
+on the latest Linux and open source news.
+
+327
+00:21:25,000 --> 00:21:50,600
+Thanks for joining us, and that's all the news for this week.
+

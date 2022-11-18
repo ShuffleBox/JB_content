@@ -1,0 +1,1480 @@
+1
+00:00:00,000 --> 00:00:15,960
+Hello, and welcome to Linux Action News, our weekly take on Linux and the open source world.
+
+2
+00:00:15,960 --> 00:00:19,560
+This is episode 48, recorded on April 8th, 2018.
+
+3
+00:00:19,560 --> 00:00:20,560
+I'm Chris.
+
+4
+00:00:20,560 --> 00:00:21,560
+And I'm Joe.
+
+5
+00:00:21,560 --> 00:00:22,560
+Hello, Joe.
+
+6
+00:00:22,560 --> 00:00:25,400
+It's good to be connected with you, especially on a day when we've got a big show and it
+
+7
+00:00:25,400 --> 00:00:29,200
+starts off with a big code cleanup in the Linux kernel.
+
+8
+00:00:29,200 --> 00:00:36,720
+Yeah, it's dropping support for quite a few very old and obscure architectures, none of
+
+9
+00:00:36,720 --> 00:00:39,520
+which I was really very familiar with, I must say.
+
+10
+00:00:39,520 --> 00:00:42,640
+Yeah, definitely some old hardware in here, probably things that most of us have never
+
+11
+00:00:42,640 --> 00:00:48,320
+even heard of, like Backfin and CRIs and FFRVs and things like that.
+
+12
+00:00:48,320 --> 00:00:53,560
+MR32R, obviously not very popular architectures anymore, but they had their day in the light.
+
+13
+00:00:53,560 --> 00:00:57,720
+Now, I think we all look at this as a good thing generally when these architectures aren't
+
+14
+00:00:57,720 --> 00:00:58,720
+widely used.
+
+15
+00:00:58,720 --> 00:01:03,080
+They're going to reduce the size of the kernel, which is always a common source of complaints.
+
+16
+00:01:03,080 --> 00:01:06,080
+Some say it reduces attack vector, others argue that.
+
+17
+00:01:06,080 --> 00:01:11,420
+But I think the more interesting aspect to this story is we often talk about how many
+
+18
+00:01:11,420 --> 00:01:13,880
+different architectures you can run Linux on.
+
+19
+00:01:13,880 --> 00:01:20,280
+We don't often talk about removing support, unless it's for like 32-bit support for x86.
+
+20
+00:01:20,280 --> 00:01:24,760
+This is the flip side to that, is there has to be a cleaning, a maintenance from time
+
+21
+00:01:24,760 --> 00:01:25,760
+to time.
+
+22
+00:01:25,760 --> 00:01:28,380
+And these are the kinds of things you never get to see in a commercial product.
+
+23
+00:01:28,380 --> 00:01:29,960
+It's all done behind the scenes.
+
+24
+00:01:29,960 --> 00:01:34,160
+But with Linux and the entire thing being done out in the open, we get to watch both
+
+25
+00:01:34,160 --> 00:01:35,160
+ends of this process.
+
+26
+00:01:35,160 --> 00:01:37,380
+Yeah, spring cleaning, if you will.
+
+27
+00:01:37,380 --> 00:01:41,140
+And it is necessary, really, you can't keep supporting these architectures forever.
+
+28
+00:01:41,140 --> 00:01:46,520
+And you mentioned 32-bit x86 there, you have to feel that that is coming.
+
+29
+00:01:46,520 --> 00:01:50,760
+Not anytime soon, you wouldn't have thought, but it can't be more than what, maybe another
+
+30
+00:01:50,760 --> 00:01:56,640
+10, 15 years max, really, before that's dropped, because that's just essentially obsolete.
+
+31
+00:01:56,640 --> 00:01:58,880
+And it's just the march of progress, isn't it?
+
+32
+00:01:58,880 --> 00:02:00,180
+These things happened.
+
+33
+00:02:00,180 --> 00:02:05,280
+And there might be a few of these systems that are still out there in embedded systems
+
+34
+00:02:05,280 --> 00:02:06,280
+or whatever.
+
+35
+00:02:06,280 --> 00:02:13,420
+But realistically, they can run older kernels, and maybe the last LTS or whatever, if necessary.
+
+36
+00:02:13,420 --> 00:02:17,080
+And really, how much life have they got left in them?
+
+37
+00:02:17,080 --> 00:02:20,500
+Probably not anything beyond the LTS kernel.
+
+38
+00:02:20,500 --> 00:02:23,920
+And otherwise, people just have to not really care about security if they don't want to
+
+39
+00:02:23,920 --> 00:02:24,920
+upgrade.
+
+40
+00:02:24,920 --> 00:02:28,520
+Well, speaking of the march of progress, we've also got to make room for new architectures.
+
+41
+00:02:28,520 --> 00:02:29,680
+We've talked about this before.
+
+42
+00:02:29,680 --> 00:02:34,680
+But this week, there's been some initial goodies landing in the most recent version of the
+
+43
+00:02:34,680 --> 00:02:35,680
+Linux kernel.
+
+44
+00:02:35,680 --> 00:02:42,560
+Yeah, RISC-V, which initially landed in 4.15, there's been some improvements in 4.17.
+
+45
+00:02:42,560 --> 00:02:47,640
+And keep in mind that this is the completely open royalty-free architecture, which I've
+
+46
+00:02:47,640 --> 00:02:52,100
+been pinning my hopes on for a totally free phone and routers and stuff like that.
+
+47
+00:02:52,100 --> 00:02:55,340
+So it's really great to see that there's improvements happening already.
+
+48
+00:02:55,340 --> 00:03:00,200
+So now in Linux kernel 4.17, there's support for dynamic F trace, they did some cleanup
+
+49
+00:03:00,200 --> 00:03:04,860
+to the atomic locking code, and module support loading is now enabled by default.
+
+50
+00:03:04,860 --> 00:03:08,360
+So it's still kind of early days with the things that we're implementing.
+
+51
+00:03:08,360 --> 00:03:10,880
+But they're things that are necessary and good to see.
+
+52
+00:03:10,880 --> 00:03:15,440
+The market is really picking up around RISC-V. There is a lot of momentum because like Joe
+
+53
+00:03:15,440 --> 00:03:18,240
+said, it's open source and royalty-free.
+
+54
+00:03:18,240 --> 00:03:22,660
+And there's three companies that appear to be the leaders, and Sci-5 is the leading of
+
+55
+00:03:22,660 --> 00:03:23,780
+those three.
+
+56
+00:03:23,780 --> 00:03:29,820
+They just closed $50 million in funding for their developer board that has kind of a unique
+
+57
+00:03:29,820 --> 00:03:30,820
+twist.
+
+58
+00:03:30,820 --> 00:03:34,960
+The idea here is they're gonna take the RISC-V processor architecture, royalty-free, so they
+
+59
+00:03:34,960 --> 00:03:40,960
+can rebuild and sell, and they're gonna make a processor board as a platform product.
+
+60
+00:03:40,960 --> 00:03:46,400
+I know that sounds crazy, but in simple terms, it's an app store where you choose the functionality
+
+61
+00:03:46,400 --> 00:03:52,120
+of that system, it downloads, it configures the RISC-V system for that functionality,
+
+62
+00:03:52,120 --> 00:03:56,640
+and out of the box, Bob's your uncle, you've now got a dedicated RISC-V board for a router
+
+63
+00:03:56,640 --> 00:04:00,200
+or to run a sign, a display.
+
+64
+00:04:00,200 --> 00:04:05,240
+The idea is they can build a couple of generic systems that just need a final configuration
+
+65
+00:04:05,240 --> 00:04:09,480
+that can be applied at the software level inside the CPU, which is something that the
+
+66
+00:04:09,480 --> 00:04:12,020
+RISC-V designers have promoted pretty heavily.
+
+67
+00:04:12,020 --> 00:04:15,400
+And then they'll just have different work cases or use cases in their quote-unquote
+
+68
+00:04:15,400 --> 00:04:18,360
+app store that you apply, boom, right onto the silicon.
+
+69
+00:04:18,360 --> 00:04:22,880
+Well, $50 million of VC funding really does inspire confidence in this company.
+
+70
+00:04:22,880 --> 00:04:23,880
+Yeah.
+
+71
+00:04:23,880 --> 00:04:27,720
+And so I'm glad to see that you've got them really pushing this forward because, like
+
+72
+00:04:27,720 --> 00:04:33,380
+I said, this is the real hope, isn't it, for a totally free device.
+
+73
+00:04:33,380 --> 00:04:34,980
+This is their third round of funding.
+
+74
+00:04:34,980 --> 00:04:37,760
+So I don't know their totals that they've raised here, but it shows that there is a
+
+75
+00:04:37,760 --> 00:04:40,000
+lot of investor interest in this market.
+
+76
+00:04:40,000 --> 00:04:44,560
+So this $50 million was a Series C round, so they've had an A and a B.
+
+77
+00:04:44,560 --> 00:04:48,720
+Yeah, and a pretty successful crowd funder for their development board as well.
+
+78
+00:04:48,720 --> 00:04:51,680
+So yeah, they're doing all right, which is good to see.
+
+79
+00:04:51,680 --> 00:04:56,960
+And also excellent RISC-V news this week is that Debian is now supported.
+
+80
+00:04:56,960 --> 00:05:01,480
+Yeah, 64-bit version of Debian for the RISC-V architecture.
+
+81
+00:05:01,480 --> 00:05:05,400
+It's early days, but it's essentially landed.
+
+82
+00:05:05,400 --> 00:05:08,840
+This was a post on the Debian mailing list, and it's here.
+
+83
+00:05:08,840 --> 00:05:11,900
+It's probably still got a lot of work to do, but it's actually here.
+
+84
+00:05:11,900 --> 00:05:14,840
+And it's bootable, it's unstable, but it's bootable.
+
+85
+00:05:14,840 --> 00:05:20,200
+Yeah, it's a huge step, isn't it, that we've got a real mainstream distribution that is
+
+86
+00:05:20,200 --> 00:05:21,200
+available.
+
+87
+00:05:21,200 --> 00:05:25,240
+As you say, early days, it's not working perfectly yet, but you know that that's just going to
+
+88
+00:05:25,240 --> 00:05:27,020
+continue to improve.
+
+89
+00:05:27,020 --> 00:05:31,920
+And we will hopefully, around the time that we've got affordable RISC-V hardware, have
+
+90
+00:05:31,920 --> 00:05:35,200
+a really good, solid version of Debian to run on it.
+
+91
+00:05:35,200 --> 00:05:39,520
+Speaking of kernel architectures and those architectures being free or not necessarily
+
+92
+00:05:39,520 --> 00:05:45,000
+free, how about one of the most popular architectures, x86, and running a special kernel that's going
+
+93
+00:05:45,000 --> 00:05:49,880
+to help you avoid all of those pesky alerts about patches for Meltdown and Spectre, amongst
+
+94
+00:05:49,880 --> 00:05:50,880
+other things.
+
+95
+00:05:50,880 --> 00:05:55,260
+Yeah, so the Linux Libre kernel, which is the totally blob-less, completely free software
+
+96
+00:05:55,260 --> 00:06:02,440
+kernel, they've decided that they're not going to alert you about the patches for Meltdown
+
+97
+00:06:02,440 --> 00:06:05,760
+and Spectre that require the proprietary microcode.
+
+98
+00:06:05,760 --> 00:06:11,520
+So they're very much prioritizing freedom over security, which is a huge surprise.
+
+99
+00:06:11,520 --> 00:06:12,520
+Not really.
+
+100
+00:06:12,520 --> 00:06:17,640
+So what they're doing with the GNU Linux Libre 4.16 kernel is they're taking the upstream
+
+101
+00:06:17,640 --> 00:06:23,200
+4.16 kernel and they're pulling out certain functionality, including just general microcode
+
+102
+00:06:23,200 --> 00:06:24,280
+update support.
+
+103
+00:06:24,280 --> 00:06:27,400
+So they're not specifically targeting Spectre and Meltdown.
+
+104
+00:06:27,400 --> 00:06:32,600
+It's just all microcode updates in the future, including future important updates, as well
+
+105
+00:06:32,600 --> 00:06:37,120
+as the ability to load binary-only modules, like NVIDIA drivers.
+
+106
+00:06:37,120 --> 00:06:41,600
+In the enterprise, I've had a lot of situations where a vendor has required a very specific
+
+107
+00:06:41,600 --> 00:06:45,880
+Linux kernel version and I've had to load the proprietary binary module.
+
+108
+00:06:45,880 --> 00:06:48,000
+So it sort of eliminates those use cases.
+
+109
+00:06:48,000 --> 00:06:53,400
+But on the other side, they have made changes to the firmware request code in the kernel,
+
+110
+00:06:53,400 --> 00:06:58,120
+potentially allowing some drivers to function better when they are capable of operating
+
+111
+00:06:58,120 --> 00:07:01,220
+without binary-only firmware in some cases.
+
+112
+00:07:01,220 --> 00:07:04,160
+So there is some take, but there's also some give.
+
+113
+00:07:04,160 --> 00:07:09,600
+And a lot of people have created a big stink about this and kind of for good reason.
+
+114
+00:07:09,600 --> 00:07:14,560
+But then again, is anybody accidentally using the Libre kernel?
+
+115
+00:07:14,560 --> 00:07:15,560
+I don't think so.
+
+116
+00:07:15,560 --> 00:07:19,160
+It's something that you're doing as a very conscious choice.
+
+117
+00:07:19,160 --> 00:07:23,940
+And so therefore you don't want these binaries that are proprietary and you've got no idea
+
+118
+00:07:23,940 --> 00:07:29,600
+what they're doing, even if it is going to supposedly increase your security.
+
+119
+00:07:29,600 --> 00:07:34,680
+I mean, we saw with the initial microcode updates that they were unstable and were a
+
+120
+00:07:34,680 --> 00:07:37,280
+bit useless and they ended up getting pulled.
+
+121
+00:07:37,280 --> 00:07:41,960
+So I don't think it's as much of a story as some people have made out, but it's something
+
+122
+00:07:41,960 --> 00:07:45,360
+certainly to be aware of if you are planning to use the Libre kernel.
+
+123
+00:07:45,360 --> 00:07:47,320
+Yep, I 100% agree with that.
+
+124
+00:07:47,320 --> 00:07:49,140
+You are intentionally running this kernel.
+
+125
+00:07:49,140 --> 00:07:52,720
+It's sometimes just a great way to validate that a piece of hardware like a new laptop
+
+126
+00:07:52,720 --> 00:07:55,000
+doesn't require any funky modules.
+
+127
+00:07:55,000 --> 00:07:59,200
+You know when you run this kernel, you are good to go if everything's working.
+
+128
+00:07:59,200 --> 00:08:03,800
+I'm not using this on my daily driver system and I'm not likely using this on a large virtual
+
+129
+00:08:03,800 --> 00:08:05,040
+environment either.
+
+130
+00:08:05,040 --> 00:08:06,840
+But it's nice to have it out there.
+
+131
+00:08:06,840 --> 00:08:11,400
+And for some folks that want raw performance without any meltdown, specter, microcode patch
+
+132
+00:08:11,400 --> 00:08:16,600
+slowdowns because they got to compute for days, this is a solution for them.
+
+133
+00:08:16,600 --> 00:08:21,840
+Yeah, who cares about security, eh?
+
+134
+00:08:21,840 --> 00:08:24,120
+dio.co slash action.
+
+135
+00:08:24,120 --> 00:08:27,180
+DigitalOcean is your cloud infrastructure on demand.
+
+136
+00:08:27,180 --> 00:08:28,440
+You can get started in seconds.
+
+137
+00:08:28,440 --> 00:08:33,560
+So when you go to dio.co slash action and sign up with a new account, you'll get $100
+
+138
+00:08:33,560 --> 00:08:34,560
+credit.
+
+139
+00:08:34,560 --> 00:08:37,600
+Now, that is a lot of DigitalOcean credit.
+
+140
+00:08:37,600 --> 00:08:42,080
+My favorite system is just three cents an hour and they've optimized the whole process
+
+141
+00:08:42,080 --> 00:08:43,560
+to save you time.
+
+142
+00:08:43,560 --> 00:08:47,780
+You can get systems up and running for testing and into production in minutes.
+
+143
+00:08:47,780 --> 00:08:53,400
+They have SSDs on every single system, 12 data centers all over the world, very well
+
+144
+00:08:53,400 --> 00:08:57,120
+positioned so that way you can place something near your users or near you so that way they
+
+145
+00:08:57,120 --> 00:09:01,280
+have unbelievable performance, 40 gigabit connections coming into these hypervisors,
+
+146
+00:09:01,280 --> 00:09:06,480
+Linux for the core, KVM for the virtualizer, and then a dashboard for days on top of all
+
+147
+00:09:06,480 --> 00:09:11,040
+of it, and a clear, easy to understand, well-documented API.
+
+148
+00:09:11,040 --> 00:09:14,780
+That's DigitalOcean in a snapshot, dio.co slash action.
+
+149
+00:09:14,780 --> 00:09:18,120
+You can deploy a base Linux system and build it from there or an entire application stack
+
+150
+00:09:18,120 --> 00:09:23,760
+like GitLab or Ghost, which is a killer WordPress replacement if you just need a simple, easy
+
+151
+00:09:23,760 --> 00:09:27,920
+blog or build out your entire infrastructure, host your business website.
+
+152
+00:09:27,920 --> 00:09:32,120
+Some of our favorite open source projects, entire backend and frontend, are hosted on
+
+153
+00:09:32,120 --> 00:09:35,220
+DigitalOcean, dio.co slash action.
+
+154
+00:09:35,220 --> 00:09:40,080
+Go try it out, get that $100 credit, build something fun, learn something new, and read
+
+155
+00:09:40,080 --> 00:09:43,960
+their clear documentation, dio.co slash action.
+
+156
+00:09:43,960 --> 00:09:48,840
+Okay, let's talk about Steam Machines.
+
+157
+00:09:48,840 --> 00:09:54,960
+This was a big story that turned out to maybe be a non-story this week, so Steam Machines
+
+158
+00:09:54,960 --> 00:10:00,400
+have disappeared from Valve's site, or at least that's what was reported, but then
+
+159
+00:10:00,400 --> 00:10:04,920
+Valve responded to that and said, no, it's fine, we're still doing it, we've just kind
+
+160
+00:10:04,920 --> 00:10:09,480
+of reorganized the site a bit, and yeah, they're not selling that well, but they're not dead,
+
+161
+00:10:09,480 --> 00:10:11,360
+it's fine, it's fine, they're not dead.
+
+162
+00:10:11,360 --> 00:10:16,320
+This is a hard one to read, so they've removed any possible way to navigate to them from
+
+163
+00:10:16,320 --> 00:10:20,200
+the front page, and they say, well, we've done that because user traffic was low.
+
+164
+00:10:20,200 --> 00:10:25,400
+Well, now user traffic's really going to be low, isn't it?
+
+165
+00:10:25,400 --> 00:10:29,160
+And it seems like maybe the solution there would be to make it more visible, but what
+
+166
+00:10:29,160 --> 00:10:30,160
+do I know?
+
+167
+00:10:30,160 --> 00:10:31,200
+I don't run the Steam store.
+
+168
+00:10:31,200 --> 00:10:34,800
+They also pulled down promotional language.
+
+169
+00:10:34,800 --> 00:10:38,560
+That was a little bit suspicious as well, and they did reveal that they've sold fewer
+
+170
+00:10:38,560 --> 00:10:44,040
+than 500,000 Steam Machines in seven monthish time, so that was a while ago, so we don't
+
+171
+00:10:44,040 --> 00:10:48,560
+know what the number is now, but it, in my sense, hasn't been that good.
+
+172
+00:10:48,560 --> 00:10:51,660
+So I think some of us have just sort of been anticipating this, and that's why the news
+
+173
+00:10:51,660 --> 00:10:55,320
+got so much traction, and Valve said, you know, it was just a routine cleanup, we were
+
+174
+00:10:55,320 --> 00:11:01,400
+just doing a routine cleanup, but we have taken a lot of feedback, and we've been real
+
+175
+00:11:01,400 --> 00:11:06,080
+heads down on addressing the shortcomings that we've observed with that rickety Linux.
+
+176
+00:11:06,080 --> 00:11:09,600
+Now I may have added a little emphasis there.
+
+177
+00:11:09,600 --> 00:11:14,240
+We think an important part of our efforts is our ongoing investment in making Vulkan
+
+178
+00:11:14,240 --> 00:11:18,480
+a competitive and well-supported graphics API, as well as making sure it has first-class
+
+179
+00:11:18,480 --> 00:11:20,080
+support on Linux platforms.
+
+180
+00:11:20,080 --> 00:11:24,860
+I solidly agree with that final statement there, that I completely agree with.
+
+181
+00:11:24,860 --> 00:11:30,680
+They essentially are trying to position as we came into this with a whole head of Steam
+
+182
+00:11:30,680 --> 00:11:33,600
+and thought we really had something great and developers were going to take off, but
+
+183
+00:11:33,600 --> 00:11:37,520
+then we realized that OpenGL was kind of crap on Linux, and then we realized that there
+
+184
+00:11:37,520 --> 00:11:44,920
+wasn't really a solid cross-platform competitive graphics API that competed with DirectX, so
+
+185
+00:11:44,920 --> 00:11:48,840
+we have to make that work first before we can make the whole Steam Machine thing work.
+
+186
+00:11:48,840 --> 00:11:51,120
+I do technically buy that argument.
+
+187
+00:11:51,120 --> 00:11:52,760
+I don't think it's going to work.
+
+188
+00:11:52,760 --> 00:11:59,440
+Do you think that anyone is really interested in running Steam games in a console-like form
+
+189
+00:11:59,440 --> 00:12:00,440
+factor?
+
+190
+00:12:00,440 --> 00:12:04,280
+It just seems that if you want to play Steam games, you're going to be doing that on a
+
+191
+00:12:04,280 --> 00:12:09,480
+PC or maybe with a PC running in a different room and then using a Steam Link.
+
+192
+00:12:09,480 --> 00:12:13,240
+I just don't see the market really for Steam Machines.
+
+193
+00:12:13,240 --> 00:12:18,080
+If you want to have a console, then people are going to get an Xbox or a PlayStation
+
+194
+00:12:18,080 --> 00:12:19,420
+or maybe even a Switch.
+
+195
+00:12:19,420 --> 00:12:24,480
+That's always been the core question with these Steam Machines, and I think the market
+
+196
+00:12:24,480 --> 00:12:27,480
+has shown us it's a bit of a mixed bag.
+
+197
+00:12:27,480 --> 00:12:31,280
+The Steam Link, as you just mentioned, has been a success for Valve, and they've sold
+
+198
+00:12:31,280 --> 00:12:32,280
+quite a few of them.
+
+199
+00:12:32,280 --> 00:12:34,640
+It's also about $100.
+
+200
+00:12:34,640 --> 00:12:39,120
+NVIDIA has their GeForce streaming stuff that they build into their NVIDIA cards on the
+
+201
+00:12:39,120 --> 00:12:41,720
+Windows platform and into their NVIDIA Shield TV.
+
+202
+00:12:41,720 --> 00:12:46,800
+You can stream from the NVIDIA Cloud PC games to an NVIDIA Shield TV.
+
+203
+00:12:46,800 --> 00:12:47,800
+Have you tried that?
+
+204
+00:12:47,800 --> 00:12:49,600
+Because I would always worry about latency there.
+
+205
+00:12:49,600 --> 00:12:50,600
+Yeah, it's not too bad.
+
+206
+00:12:50,600 --> 00:12:52,600
+You know, it really depends.
+
+207
+00:12:52,600 --> 00:12:58,840
+I am not a hardcore gamer like you are, Joe, but I didn't really have too many problems.
+
+208
+00:12:58,840 --> 00:13:02,440
+I played Batman Arkham City, and it looked great.
+
+209
+00:13:02,440 --> 00:13:06,880
+It played pretty well, but that game may be better positioned for it than sort of a twitchy
+
+210
+00:13:06,880 --> 00:13:10,500
+kind of first-person shooter where response time is really critical.
+
+211
+00:13:10,500 --> 00:13:11,500
+I'm not sure.
+
+212
+00:13:11,500 --> 00:13:15,440
+I can't speak to that, but it does seem that these companies are definitely pushing PC
+
+213
+00:13:15,440 --> 00:13:17,160
+games down to the TV.
+
+214
+00:13:17,160 --> 00:13:23,660
+Yeah, and SteamOS in and of itself was a hedge, wasn't it, against the possibility that Microsoft
+
+215
+00:13:23,660 --> 00:13:28,000
+would make it so that you could only install applications from the Microsoft App Store,
+
+216
+00:13:28,000 --> 00:13:29,600
+which we just haven't seen.
+
+217
+00:13:29,600 --> 00:13:33,840
+We've seen Windows 10 be as open as previous versions of Windows.
+
+218
+00:13:33,840 --> 00:13:38,560
+Open I don't mean as an open source, but I mean as in you can just download an exe and
+
+219
+00:13:38,560 --> 00:13:39,560
+run it.
+
+220
+00:13:39,560 --> 00:13:42,200
+You might get the odd warning or whatever, but you can install whatever you want.
+
+221
+00:13:42,200 --> 00:13:47,920
+And so really, SteamOS just hasn't really been relevant, has it?
+
+222
+00:13:47,920 --> 00:13:53,000
+I don't know any serious gamers who aren't sort of Linux first, if you know what I mean,
+
+223
+00:13:53,000 --> 00:13:56,000
+who are in the slightest bit interested.
+
+224
+00:13:56,000 --> 00:14:00,960
+If you're in the Linux world and you care about software freedom and you're running
+
+225
+00:14:00,960 --> 00:14:06,160
+Linux as a daily driver, then it makes sense to use Steam or Linux or SteamOS possibly.
+
+226
+00:14:06,160 --> 00:14:13,040
+But the kind of people who only care about gaming, they just don't care at all about
+
+227
+00:14:13,040 --> 00:14:14,040
+SteamOS.
+
+228
+00:14:14,040 --> 00:14:16,680
+They're like, based on Linux, why would you do that?
+
+229
+00:14:16,680 --> 00:14:18,440
+I don't think it's up to them to even care.
+
+230
+00:14:18,440 --> 00:14:22,280
+It's supposed to be an implementation detail on the part of Alienware or another provider,
+
+231
+00:14:22,280 --> 00:14:26,760
+just like the Xbox is running some old version of Windows underneath, but the users don't
+
+232
+00:14:26,760 --> 00:14:27,760
+care.
+
+233
+00:14:27,760 --> 00:14:32,560
+But to go back to your point about them hedging against Windows 10, I think that's the bigger
+
+234
+00:14:32,560 --> 00:14:33,560
+thing.
+
+235
+00:14:33,560 --> 00:14:37,720
+If I was going to bet a beer on what's really going on, my rampant speculation and personal
+
+236
+00:14:37,720 --> 00:14:43,480
+opinion would be the Windows 10 monster did not materialize, but Valve knows Microsoft
+
+237
+00:14:43,480 --> 00:14:49,160
+well enough to know that if they said they want to do it, they at some point will likely
+
+238
+00:14:49,160 --> 00:14:50,160
+get around to it.
+
+239
+00:14:50,160 --> 00:14:55,320
+They just take a very slow route to ease people into it, and so it's probably worth them continuing
+
+240
+00:14:55,320 --> 00:14:56,600
+to invest.
+
+241
+00:14:56,600 --> 00:15:00,440
+There's other benefits to investing in Vulkan besides the Linux desktop and Steam machines,
+
+242
+00:15:00,440 --> 00:15:05,000
+including Android and just helping crack the DirectX dominance.
+
+243
+00:15:05,000 --> 00:15:11,160
+So I don't really fully buy that they're doing this for desktop Linux or the future of Steam
+
+244
+00:15:11,160 --> 00:15:16,280
+machines more so than it's just a way to keep a hedge going in case they have to invest
+
+245
+00:15:16,280 --> 00:15:17,720
+all of their resources.
+
+246
+00:15:17,720 --> 00:15:22,120
+They could turn this thing into a pretty solid product within six months to a year, and that's
+
+247
+00:15:22,120 --> 00:15:24,360
+probably all they really need out of it right now.
+
+248
+00:15:24,360 --> 00:15:27,000
+Yeah, back burner is the phrase for that.
+
+249
+00:15:27,000 --> 00:15:30,440
+But we'll never know because they've obviously been using encrypted messengers to plan all
+
+250
+00:15:30,440 --> 00:15:33,280
+of their Steam machines maniacal plans, Joe.
+
+251
+00:15:33,280 --> 00:15:35,720
+Well, maybe not, but it made for a segue.
+
+252
+00:15:35,720 --> 00:15:41,200
+Yeah, well let's hope they weren't using Tor Messenger, which three years after launching
+
+253
+00:15:41,200 --> 00:15:45,240
+was still in beta and now has been abandoned.
+
+254
+00:15:45,240 --> 00:15:48,160
+There's been a lot of things leading to this, I think, the fact that it never got out of
+
+255
+00:15:48,160 --> 00:15:52,960
+beta, the fact that it wasn't the perfect messaging client because it had a quote unquote
+
+256
+00:15:52,960 --> 00:15:56,280
+metadata problem, as the project calls it.
+
+257
+00:15:56,280 --> 00:16:03,160
+But the real nail in the coffin here was that it's based on a project that is no longer.
+
+258
+00:16:03,160 --> 00:16:08,120
+Instant Bird was an open source messaging client developed in the Mozilla community,
+
+259
+00:16:08,120 --> 00:16:13,360
+and the lead developer in that Mozilla community announced last year he was stepping down,
+
+260
+00:16:13,360 --> 00:16:17,280
+wrapping up, hanging up the keyboard, he was done with the project.
+
+261
+00:16:17,280 --> 00:16:20,360
+And that really kind of sealed the fate of Tor Messenger.
+
+262
+00:16:20,360 --> 00:16:26,480
+I do wonder about this sort of general distrust of Tor that I seem to pick up from a lot of
+
+263
+00:16:26,480 --> 00:16:33,640
+people that people know that it is possible to work out some of the traffic and where
+
+264
+00:16:33,640 --> 00:16:37,560
+the traffic's coming from and that it's not totally foolproof.
+
+265
+00:16:37,560 --> 00:16:42,760
+And that kind of undermines faith in it, really, as a platform generally.
+
+266
+00:16:42,760 --> 00:16:48,060
+So I wonder to what extent that stopped people from adopting it.
+
+267
+00:16:48,060 --> 00:16:51,880
+And also the fact that there's just a million other messengers out there already that people
+
+268
+00:16:51,880 --> 00:16:52,880
+are using.
+
+269
+00:16:52,880 --> 00:16:53,880
+Did they really need another one?
+
+270
+00:16:53,880 --> 00:16:56,000
+Yeah, I definitely take your point.
+
+271
+00:16:56,000 --> 00:16:57,000
+And I think you're right.
+
+272
+00:16:57,000 --> 00:17:02,160
+I think the fact that this thing had a quote unquote metadata problem also sort of hurt
+
+273
+00:17:02,160 --> 00:17:04,580
+the brand of Tor, if you follow.
+
+274
+00:17:04,580 --> 00:17:08,880
+So this group that's supposed to be known for trying to keep you secure and private
+
+275
+00:17:08,880 --> 00:17:12,800
+online creates a messenger that essentially leaks metadata.
+
+276
+00:17:12,800 --> 00:17:17,640
+I mean, I use the term loosely leak, but that doesn't really play well to Tor trying to
+
+277
+00:17:17,640 --> 00:17:18,640
+protect your privacy.
+
+278
+00:17:18,640 --> 00:17:22,640
+Yeah, and in the meantime, we've seen the rise of Signal, and that's become really popular
+
+279
+00:17:22,640 --> 00:17:24,900
+with people who care about privacy.
+
+280
+00:17:24,900 --> 00:17:29,920
+So I think that it probably was a wise decision to just give up on this.
+
+281
+00:17:29,920 --> 00:17:33,300
+Mozilla's got another project in the works, though, and this is one that they really seem
+
+282
+00:17:33,300 --> 00:17:34,680
+to be passionate about.
+
+283
+00:17:34,680 --> 00:17:39,580
+It's bringing augmented reality and virtual reality to Firefox.
+
+284
+00:17:39,580 --> 00:17:45,700
+And they appear to be doing this with a dedicated augmented reality mixed reality browser called
+
+285
+00:17:45,700 --> 00:17:47,480
+Firefox reality.
+
+286
+00:17:47,480 --> 00:17:54,660
+Now am I some sort of old man or is it normal to not really have much interest in a mixed
+
+287
+00:17:54,660 --> 00:17:59,080
+reality or augmented reality or virtual reality browser?
+
+288
+00:17:59,080 --> 00:18:05,680
+It just feels very kind of 80s movie future, doesn't it, that really, I just, if I want
+
+289
+00:18:05,680 --> 00:18:07,840
+a browser, I just want a browser.
+
+290
+00:18:07,840 --> 00:18:12,220
+I don't see why it being in AR or VR.
+
+291
+00:18:12,220 --> 00:18:14,920
+I don't see any value add there.
+
+292
+00:18:14,920 --> 00:18:20,040
+I know this is something they've thought a lot about because I got a demo of Firefox
+
+293
+00:18:20,040 --> 00:18:26,240
+web VR, I think in 2013, 2014 at OSCON at the Mozilla booth, and they've been working
+
+294
+00:18:26,240 --> 00:18:28,880
+on it since then.
+
+295
+00:18:28,880 --> 00:18:34,960
+And I think they do a really bad job of explaining why this should exist.
+
+296
+00:18:34,960 --> 00:18:38,520
+And I've criticized them on the show before about the way they communicate.
+
+297
+00:18:38,520 --> 00:18:42,220
+They communicate like they're talking from one business to another business.
+
+298
+00:18:42,220 --> 00:18:46,740
+And it's totally the elegance of what they're trying to do is totally lost in the corporate
+
+299
+00:18:46,740 --> 00:18:51,680
+speak because they wax on about the future of the web and how it's going to be heavily
+
+300
+00:18:51,680 --> 00:18:54,820
+intertwined with virtual and augmented reality.
+
+301
+00:18:54,820 --> 00:18:57,580
+And that future is going to live through the browser.
+
+302
+00:18:57,580 --> 00:19:01,360
+And that's why they're building Firefox reality, a new kind of web browser designed from the
+
+303
+00:19:01,360 --> 00:19:05,480
+ground up to work with standalone virtual and augmented realities.
+
+304
+00:19:05,480 --> 00:19:12,520
+And the real purpose of this is in the augmented reality content creation process.
+
+305
+00:19:12,520 --> 00:19:14,340
+It's a very creative process.
+
+306
+00:19:14,340 --> 00:19:18,960
+You go in with some of the current editors and you actually edit in augmented reality.
+
+307
+00:19:18,960 --> 00:19:20,280
+You position things.
+
+308
+00:19:20,280 --> 00:19:25,260
+It's more like directing a movie and setting up a scene than it is writing code.
+
+309
+00:19:25,260 --> 00:19:30,200
+And what Mozilla's position here is locking all of this down to proprietary applications
+
+310
+00:19:30,200 --> 00:19:34,100
+that only work on Windows and the Mac would be a travesty.
+
+311
+00:19:34,100 --> 00:19:38,420
+And the best use of augmented reality is going to be like in enterprises and work cases where
+
+312
+00:19:38,420 --> 00:19:42,960
+people can focus on designing the augmented information around the office space they need
+
+313
+00:19:42,960 --> 00:19:44,540
+for the tools they're working on.
+
+314
+00:19:44,540 --> 00:19:47,560
+And they don't have to worry about creating some sort of proprietary application to run
+
+315
+00:19:47,560 --> 00:19:48,620
+it on Windows.
+
+316
+00:19:48,620 --> 00:19:53,080
+They can use open web standards and pop it in a web browser and people on Android, people
+
+317
+00:19:53,080 --> 00:19:59,260
+on Linux, people on Windows can all view the same augmented reality objects.
+
+318
+00:19:59,260 --> 00:20:02,740
+That seems like a good idea and you want that kind of thing to be an open source tool that
+
+319
+00:20:02,740 --> 00:20:04,780
+is cross platform.
+
+320
+00:20:04,780 --> 00:20:09,180
+And I agree that people should be focused on the content, not building applications.
+
+321
+00:20:09,180 --> 00:20:13,600
+And that you need somebody to do something like this if that's ever going to take off.
+
+322
+00:20:13,600 --> 00:20:17,180
+But I'm also like you, Joe, I just don't really ever see this going anywhere.
+
+323
+00:20:17,180 --> 00:20:20,920
+If it ever does, Mozilla needs to be pre-positioned and ready to run.
+
+324
+00:20:20,920 --> 00:20:23,300
+They need to have the groundwork laid.
+
+325
+00:20:23,300 --> 00:20:26,740
+And there needs to be some sort of standard ready to be proposed so that way something
+
+326
+00:20:26,740 --> 00:20:31,060
+open is adopted instead of something that's rammed down our throats by some major corporate
+
+327
+00:20:31,060 --> 00:20:32,060
+player.
+
+328
+00:20:32,060 --> 00:20:36,620
+But I still, I really have a hard time beyond the big picture getting worked up about this
+
+329
+00:20:36,620 --> 00:20:39,740
+and never see myself trying this unless something really changed.
+
+330
+00:20:39,740 --> 00:20:44,900
+Well, that's the key issue here, isn't it, that if you look at the situation right now,
+
+331
+00:20:44,900 --> 00:20:48,800
+it just seems like it's just way too early for this.
+
+332
+00:20:48,800 --> 00:20:51,620
+And it just seems totally irrelevant to right now.
+
+333
+00:20:51,620 --> 00:20:57,660
+But if you look at the mistakes that they made with Firefox OS, the major mistake was
+
+334
+00:20:57,660 --> 00:20:58,900
+waiting too late.
+
+335
+00:20:58,900 --> 00:21:03,740
+Android and iOS had already firmly cemented their place in the market.
+
+336
+00:21:03,740 --> 00:21:07,600
+Whereas with this, they're almost too early with it.
+
+337
+00:21:07,600 --> 00:21:11,080
+And it's way better to be too early than too late, right?
+
+338
+00:21:11,080 --> 00:21:12,920
+There's a lot of different use cases for stuff like this.
+
+339
+00:21:12,920 --> 00:21:17,860
+They're trying to build a framework, a standard, all of that with this.
+
+340
+00:21:17,860 --> 00:21:20,420
+And you could see use cases like on a phone, maybe you have an app.
+
+341
+00:21:20,420 --> 00:21:25,100
+You hold it up over a sign, uses the camera to capture the sign, and then it uses this
+
+342
+00:21:25,100 --> 00:21:26,680
+Firefox reality browser.
+
+343
+00:21:26,680 --> 00:21:30,060
+Maybe it's just a browser embed inside an app to do the translation and display the
+
+344
+00:21:30,060 --> 00:21:31,540
+translated text.
+
+345
+00:21:31,540 --> 00:21:34,900
+And the developers didn't have to ever worry about how to display that.
+
+346
+00:21:34,900 --> 00:21:38,380
+They just had to worry about how to do character recognition and do translation, which is a
+
+347
+00:21:38,380 --> 00:21:40,380
+very hard problem on its own.
+
+348
+00:21:40,380 --> 00:21:41,380
+I could see it.
+
+349
+00:21:41,380 --> 00:21:42,380
+I could.
+
+350
+00:21:42,380 --> 00:21:44,140
+But I think our hardware is going to have to get a lot better.
+
+351
+00:21:44,140 --> 00:21:45,140
+Hang on.
+
+352
+00:21:45,140 --> 00:21:46,420
+We've already got Google Translate for that.
+
+353
+00:21:46,420 --> 00:21:48,820
+What do we need an open source version for?
+
+354
+00:21:48,820 --> 00:21:51,700
+Yeah, what do we need an open source version for?
+
+355
+00:21:51,700 --> 00:21:52,700
+Famous last words.
+
+356
+00:21:52,700 --> 00:21:56,700
+Yeah, that's not running everything through Google servers, and so they know exactly what
+
+357
+00:21:56,700 --> 00:21:57,700
+we're up to.
+
+358
+00:21:57,700 --> 00:21:58,700
+Yeah.
+
+359
+00:21:58,700 --> 00:21:59,700
+What would be the point of that, eh?
+
+360
+00:21:59,700 --> 00:22:03,220
+Well, you can know exactly what's going on in the news, in the open source world every
+
+361
+00:22:03,220 --> 00:22:04,220
+single week.
+
+362
+00:22:04,220 --> 00:22:08,380
+Go to linuxactionnews.com slash subscribe for all the ways to get new episodes.
+
+363
+00:22:08,380 --> 00:22:12,140
+And go to linuxactionnews.com slash contact for ways to get in touch with us.
+
+364
+00:22:12,140 --> 00:22:17,260
+And while you're over on our site, linuxactionnews.com slash 48 for all of the links for anything
+
+365
+00:22:17,260 --> 00:22:22,540
+we talked about today, and consider supporting us on Patreon, patreon.com slash jupitersignal.
+
+366
+00:22:22,540 --> 00:22:26,300
+We'll be back next Monday with our weekly take on the latest Linux on open source news.
+
+367
+00:22:26,300 --> 00:22:27,860
+I'm at Chris LAS.
+
+368
+00:22:27,860 --> 00:22:29,340
+I'm at Joel Wessington.
+
+369
+00:22:29,340 --> 00:22:32,020
+Thank you for joining us, and we'll see you next week.
+
+370
+00:22:32,020 --> 00:22:50,340
+See you later.
+

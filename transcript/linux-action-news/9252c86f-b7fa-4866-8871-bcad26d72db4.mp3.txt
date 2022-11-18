@@ -1,0 +1,467 @@
+Hello, and welcome to Linux Action News, our weekly take on Linux and the open source world.
+This is episode 49, recorded on April 15th, 2018.
+I'm Chris.
+And I'm Joe.
+Hello, Joe.
+It's good to be connected with you, and sorry if I sound a little sleepy today.
+I was up all night playing video games.
+No doubt taking advantage of this new tool made by Feral Interactive called Game Mode.
+What can I say, Joe?
+I'm committed to research for every episode of Linux Action News.
+Yeah, it's what Aiki calls validation, I think, when he's playing games.
+And he actually had something to do with this.
+So that's part of the reason I wanted to mention this.
+If you look at the GitHub, you'll see that quite a lot of the commits are from Aiki.
+Oh, cool.
+I did not actually catch that.
+I was too busy actually testing it.
+So let me tell you the basic premises and warn you that it is early days.
+But the idea is so cool that I could think of it as more than game mode.
+I could think of it as development mode.
+I could think of it as system admin mode.
+But in its current incarnation, it's open source.
+And it's from the folks at Feral Interactive.
+And they're releasing it ahead of Rise of Tomb Raiders Linux release.
+And it's basic right now.
+It's a multi-part tool that's really designed to just take care of some of the most basic
+performance modes you can get out of your CPU.
+It does handy things like it tells your CPU to automatically run the performance governor
+in a mode that is highest performance rather than something like balanced or power saving.
+And it gets kind of neat because it has a front end and a back end.
+And you can set it up to automatically make these adjustments when you launch the game.
+But they have a plugin architecture as well that could automatically enable other functionality
+down the road when you launch a game.
+And for that, the possibilities are endless.
+Yeah, now another reason I wanted to mention this is because last week we were kind of
+down, weren't we, on Valve with their Steam machines and how Linux gaming in general isn't
+that important to a lot of people.
+But this kind of shows that a big player like Feral Interactive are obviously thinking about
+Linux.
+I also like thinking about other ways I could put my machine into a high performance state
+by launching just one application.
+So with gaming, I could think of plugins I could add to game mode that would make it
+really useful.
+Because the governor's stuff, if you're gaming on a desktop PC, you may already just have
+this hard set to performance mode.
+Why wouldn't you if you're a gamer?
+If they could do things like maybe change the Linux IO scheduler or disable my compositor's
+full screen effects when a game is running automatically.
+You could see lots of different plugins.
+Maybe turn off certain services in the background.
+When I launch a game, turn off NFS, Samba, and my MB server.
+I don't want them taking up extra CPU while I'm gaming.
+And then as soon as the game closes, have SystemD automatically bring those services
+back up.
+Things like that are totally doable, and it's open source so the community can contribute
+back.
+Well, maybe this will turn out to be a big thing, we'll have to see.
+But something else we've been pretty down on in the past is ButterFS.
+And we've always kind of said, oh, well, ZFS, CFS, that's the way forward.
+You don't get any data loss or anything with that.
+Well, that's not strictly the case unless you are totally up to date.
+This is an interesting bug that cropped up just on ZFS on Linux did not affect the BSD
+variants.
+And it's because of a collision with a change in core utils upstream with a change in ZFS
+upstream.
+And neither one of them had anything to do with each other.
+It's kind of funny.
+The ZFS change was related to just handling case insensitive file systems better.
+And the core utils change was a change to how CP worked when hashing the files that
+it was copying.
+These two changes came together to prevent what's called the ZFS attributes file from
+expanding properly.
+And when that couldn't expand properly and keep track of all the changes, my understanding
+is files just essentially got dropped on the floor.
+They were still moved, they still exist, but they were never added to the index of the
+file system.
+Now, the upstream developers, as of this recording, have a tool that they're working on to add
+those files back to the index, so there will actually be no data loss in totality.
+But what you get is a collision of two different upstream changes that really came together
+and collided on the most recent distributions, the most current RHEL snapshots and its derivatives,
+your Gen 2s, your Arch Linuxes.
+The Debian derivatives and Ubuntu were not affected because they were on ZFS 0.76.
+So the moral of the story here is if you're on a recent or a rolling distribution of Linux,
+you need to be on ZFS 0.7.8.
+You probably didn't lose any data.
+You can look further into the story if you think you might have.
+We will have links in the show notes.
+You go to linuxactionnews.com slash 49, dig down in there, you will find the link to the
+thread where developers are talking about that tool that will pick those files up that
+got dropped and add them back into the index.
+This, I think, Joe, might be our first kind of big ZFS on Linux bug-ish, which turned
+out to kind of be not that major, but it's still noteworthy, I think.
+It's definitely noteworthy because of the criticism that ButterFS has had in the past.
+And I don't know, when you have a file system that is as complicated as ZFS, then surely
+you are sort of lining yourself up for these bugs and maybe there will be other bugs in
+the future.
+Nobody could have really seen this coming, whereas with a much simpler file system like
+ext4, which is what I use more or less everywhere, or even XFS, you're not going to have these
+problems, are you?
+Fair enough.
+And I think for a lot of deployments like desktops and laptops, ext4 and XFS are the
+file systems to choose.
+But the use case of the server, it's a totally different thing here.
+So the ButterFS bug that they really got the most criticism for was a flaw with their
+RAID 5, if I recall.
+That is a fundamental design flaw in the file system, where this bug was two upstream issues
+that collided.
+It was technically, if core utils hadn't made that change, this bug wouldn't have been invoked.
+And if ZFS hadn't made that upstream change to be more compatible with case-insensitive
+file systems, this bug wouldn't have been invoked.
+But it wasn't a design issue with how ZFS writes to the RAID array.
+It was simply two upstream projects collided on their changes.
+Yeah, well, call me a Luddite, but I'm sticking with ext4, even on servers for now.
+All right.
+You tell me how that works for you when you're dealing with hundreds of terabytes worth of
+data.
+Well, yeah, that is true.
+That is true.
+There are very strong arguments for using these more modern file systems.
+But for the kind of deployments that I need, I just can't justify the complication and
+risk basically.
+You know, I can't really disagree if your use case doesn't require snapshots and compression
+and deduplication and copy-on-write.
+If those things don't even seem like useful aspects of a file system to you, then you
+just need a good file system and a good backup, and you're pretty much set.
+Well, yeah, exactly.
+I'm not saying that I couldn't take advantage of them, but you have to weigh up these pros
+and cons, don't you?
+And I think the complication aspect of it, you know, ZFS is something that does so many
+things that you can potentially do with other tools.
+And okay, maybe it's ultimately more complicated to use those other tools, but it's solving
+problems that can be solved in other ways that I'm used to solving them in that way,
+if that makes any sense.
+It actually does make sense to me, because when I'm working on a laptop with multiple
+drives or an editing rig that I want to share storage, I find I'm actually still going to
+LVM, more so than, say, a ButterFS volume setup or a ZFS pool.
+I just know LVM, I know it works, and I just want XFS on my drives and LVM to just bring
+all the disks together.
+In some ways, I'm a lot like you in that respect.
+On my local workstations, if I was dealing with a large enterprise in a data center,
+hands down, no doubt about it, ZFS all day long.
+Yeah, I think ultimately, I would be as well, but thankfully, I don't have that much data
+to deal with.
+Thankfully, it's not your problem.
+Yep.
+But something that Mozilla is trying to make their problem is the state of the internet,
+which they think is not great.
+Really, Mozilla is capitalizing on a perfect moment in time.
+Mark Zuckerberg just wrapped up his dominance of the news and his testimony for two days
+before the Senate and Congress, and the Mozilla Foundation is releasing their report that
+highlights the dangers posed by companies like Facebook to the internet about the centralization
+and concentration of control of how people experience the online world, and they say
+it's now in the hands of companies like Facebook, Amazon, and Twitter.
+This is the Internet Health Report, which they did a prototype of back in January 2017,
+and now they've released, I suppose, what's going to be an annual version of it now.
+This is the Rtake part of the show here.
+I went into this really wanting to like this report, because they start out with calling
+out how tracking your personal preferences and targeting ads and sort of making an echo
+chamber effect of the internet are bad things.
+I am so on board with that concept.
+I was like, yep, all right.
+I'll grab my pitchfork.
+Let me get the kerosene.
+I'll get my matches.
+I'm ready to go, Mozilla.
+You've got my attention.
+That's the mindset I went into this report with, and I walked out thinking, what the
+hell are they spending their money on?
+So they spend a lot of time talking about, quote unquote, fake news, which is a politically
+charged term, which immediately kind of gets me upset, because I think of Mozilla as a
+technology company, and now they're wandering off into the rabbit hole that never ends of
+politics, which can be a continuous money sink for these foundations, and they come
+back with Facebook dominating the web is a bad thing, Facebook tracking you and violating
+your privacy is a bad thing, and centralization of the web is a bad thing.
+Those are their fundamental takeaways in this internet health report, which they say is
+not a metric driven report.
+No, no, friends, that wouldn't make any sense.
+Instead, it's something that is more of an evaluation of what's helping and what's hurting
+the internet.
+It should be called state the bleeding obvious report, really, because of course, Facebook
+is this hub for billions of people who, that's their first port of call.
+When they open a web browser, they go straight to Facebook, and then everything goes from
+there, but for them to start making political statements like these companies should be
+broken up and regulated.
+Is that really Mozilla's place to start talking about that stuff?
+I don't feel like it is really.
+Yeah, let's talk about that, Joe.
+So that was sort of the takeaway is that fake news is bad MK, and we should probably break
+up the monopolies MK.
+And again, part of me sits here and reads this and goes, God, they're so right.
+Thank God somebody's saying this.
+I'll give you a line that I completely understand.
+They say, the network control of major internet services is only part of the grip they hold
+on our lives.
+The sheer size and diverse holdings a few companies, including Google, Facebook, and
+Amazon have become intertwined with not only our daily lives, but with all aspects of the
+global economy, civic discourse, and democracy itself.
+They are too big.
+And part of me agrees, when I watched Mark Zuckerberg testify in what was almost half
+of the US Senate, something really struck me, Joe.
+With half the US Senate there, you probably had representatives that in total represented
+150, 170 million individuals.
+And you had Mark Zuckerberg, who represented about 2 billion individuals.
+In a lot of ways, Mark Zuckerberg has more influence over the population than those 44
+US senators did in different aspects of their lives.
+There's a real sense of power differential.
+Mark Zuckerberg was the most powerful person in the room of half of the US Senate.
+And there is an actuality to that statement that is hard to ignore.
+And so to say that Facebook has too much power or too much influence over the internet isn't
+an accurate statement.
+The real fundamental problem here is that Mozilla isn't bringing up anything new or
+isn't giving us anything actionable.
+Yeah, because it's a pipe dream, isn't it, to try and break up Facebook?
+I mean, that's just not going to happen.
+They're an American US company dream.
+You know, a kid that started a company in the dorm of his college now is employing tens
+of thousands of people, making billions of dollars in revenue with billions of users.
+It's a great American accomplishment.
+No way you'd want to break that up right now.
+You just need to regulate.
+And that's where they're going with Facebook, for better or for worse, they're going for
+regulation.
+And that's what we're going to watch for a little while, is we're going to watch these
+companies fall under different areas of regulation.
+You are probably thinking a lot of GDPR these days, Joe.
+Facebook and Google have got to respond to that.
+Even Jupiter Broadcasting has to respond to GDPR.
+So it's going to be a couple of years of this.
+But do we need Mozilla to point that out?
+It just feels like that's not their place.
+I keep saying it, but that's their place is to concentrate on the web, OK, and keeping
+that free and everything.
+But surely they should be doing that by making a really good browser, not making political
+statements.
+Undoubtedly, that's the geek response.
+You and I, in our quote unquote production meeting last night over Telegram, I made the
+comment, I would have loved if they took the dozen or so people that worked on this report
+and just hired one more Thunderbird developer.
+One more Firefox developer.
+Just give me one more person writing code.
+And that's just what I want to see from the Mozilla Foundation.
+But they have, if you recall their architecture, they have two different sides, right?
+They have this sort of more aspirational public foundation aspect of the Mozilla group.
+And then they have the development side of the shop.
+It really is a right and a left hand.
+Yeah, but even if they hadn't hired a developer with the money that they could have saved
+by not writing this report, maybe they could have spent that money on advocacy.
+They could have paid for someone to go around the world to conferences and sell Firefox
+to developers.
+I could devil's advocate that.
+I could devil's advocate that.
+I mean, that seems pretty clear to me.
+You have to have something for them to cite.
+You have to give them some source material.
+And one does not preclude the other.
+You can have a report like this and you can still have advocacy.
+And having a quote unquote foundational report is usually more credible than somebody's opinion.
+So there is a functional aspect to this that they could actually, boots on the ground could
+utilize.
+Like this could become their weapons of knowledge that they use to convince people's opinions.
+I suppose that might be their hope.
+I think your first argument is better though.
+Is this their job?
+And I go back and I'll ask you this question.
+If Mozilla doesn't do it, and I'm not saying I want it to be Mozilla, but if Mozilla doesn't
+do this, who the hell else is going to do this?
+Nobody else is bringing these points up.
+I mean, you and I are, and people that just follow this stuff are thinking about it.
+But there's no large established organization that is making these points in a way that
+is consumable by businesses and politicians.
+What about the EFF?
+This is their line of thinking and this is their kind of beat, but they can only do so
+much and they're not talking about this specific issue like Mozilla is in such a refined way.
+Because Mozilla is a position of authority on this topic and they have this bullshit
+report that sells.
+I mean, that's the thing about when you're talking to a business, you're talking to a
+politician, having these quote unquote reports that they've worked super hard on and put
+a lot of effort into, they're sales material that people eat up.
+It starts the conversation.
+Yeah.
+So Mozilla have got a lot of money sloshing around and they've got to spend it on something,
+but I'm still not a hundred percent convinced this is the kind of thing that they should
+be spending it on.
+Linux Academy dot com slash unplugged.
+Go there to support this show and sign up for a free seven day trial of a platform that's
+built by Linux enthusiasts for Linux enthusiasts.
+And it is getting even better in the month of April.
+Twenty plus new courses, challenges and learning activities are coming to Linux Academy.
+Twenty new courses, fifty new cloud assessments, hands on learning activities and new challenges.
+Linux Academy dot com slash unplugged.
+A full featured training library with everything you need to learn new skills and advance your
+career.
+One of the best features that sets Linux Academy apart is their instructor mentoring full time
+human beings that are there and happy to help you whenever you get stuck.
+And their hands on scenario based labs that give you experience on real servers so that
+way when you go take the test or go do the work in the real world, you've seen it before.
+You've done it before.
+They have six plus Linux distributions that you can choose from the servers and the courseware
+automatically adjust to the distribution you want to learn on.
+That's my favorite feature of all of them.
+And then if you're busy, you got a lot going on, they have a core scheduler.
+You set a time frame, it'll fit your schedule and they'll create learning goals for you.
+And speaking of learning goals, they have a series of learning courseware for specific
+goals that you might have in mind.
+Like say you want to go down to a very specific niche of an area, they have learning paths
+that it's great for that flashcards that get customized by the community.
+They have nuggets which are deep dives into single topics when you've got just a little
+bit of time.
+And if you're offline, they've got downloadable comprehensive study guides, lesson audio and
+more linuxacademy.com slash unplugged sign up for a free seven day trial support the
+show and there's a lot coming in the month of April linuxacademy.com slash unplugged
+Okay, let's talk about Android security.
+And this week, I saw quite a lot of buzz about this.
+And that is a fair number of Android OMS are lying about the security patch levels.
+So if you go into the about phone or tablet, and then look, you'll see security patch level
+and it might say January 2018, or whatever.
+Well, quite a lot of OMS on certain devices are just telling out and out lies about that.
+Yeah, even some of the popular devices.
+So this is research that was done by hack in the box.
+And they're preparing to give a big demo at a conference in Amsterdam.
+And they're from the security research firm security research labs.
+And they they're going to give a whole overview of the data.
+But wired got early access to it.
+And going through it, they found what they call the researchers the patch gap.
+In many cases, certain vendors phones would just straight up tell users that they had
+all of the Android security updates, they were good to go.
+But in a lot of cases, in reality, they were missing as many as a dozen patches.
+They had the most recent quote unquote security update, but a subset of those patches would
+just simply not be installed.
+And so this they've nicknamed the patch gap.
+They tested the firmware of 1200 phones for more than a dozen phone manufacturers for
+every Android patch released since 2017.
+From devices that were made by Google themselves, including the pixel devices, and devices from
+Samsung down to the lower end lesser known Chinese owned devices.
+And some like the ZTEs and the TCLs, as well as in the mid range your HTC's and your Motorola.
+So it's a wide data sampling that they did this.
+And their testing found that other than Google's own flagship phones, like the pixel and the
+pixel two, even top tier phones sometimes like ones from Samsung failed to have all
+patches installed, and they actually lack some significant ones.
+And then of course, as you would expect, lower down the tier, it gets even worse.
+Well, it sounds very bad on the surface of things.
+But did you see what Google had to say in response to this?
+Yeah, I saw Google's response.
+So wired reached out to Google and said, What do you guys think about this?
+And Google's response was so typical, it sort of bothered me.
+First of all, they started with, Oh, we appreciate their research.
+But they didn't understand the complexity of the Android environment.
+That was essentially their response.
+And they argued that in some cases, patches may have been missing from devices just because
+the phone vendors didn't have those features to begin with.
+So there was nothing to patch.
+Or you know, some of these devices, they were never even certified by us to begin with.
+So you can't blame Android for that.
+But the researchers accounted for that.
+And their research shows it's in modern devices like Motorola devices, Samsung devices, totally
+certified devices by Google.
+So in my reading, that explanation barely holds water.
+Yeah, but one of the other potential explanations here is that it's not necessarily the OEM's
+fault.
+If you look at some of the cheaper phones that have like MediaTek processes and stuff,
+MediaTek are pretty bad at supplying patches to the OEM.
+So what can they do?
+Yeah, you are totally right about that.
+That's one of the things that this research truly demonstrates is that the further down
+you go on the price, the bigger problem just licensing patches or getting that that silicon
+vendor to write code become.
+And so if you have a Samsung device and Samsung is creating most of the chips, you are in
+the best position.
+If your device is loaded full of Qualcomm, you're in the next best position.
+It really begins to fall off.
+The worst offender is MediaTek.
+And now we have research data that clearly shows us that.
+And one of the things I appreciate about these researchers is they created visualizations
+to demonstrate this.
+We'll have a link in the show notes if you want to see that.
+And it's so obvious when you see it compared, Samsung is doing the best here as they should.
+They have unilateral control over a large portion of the silicon and the software.
+And MediaTek is doing the worst, which isn't surprising because they're the budget vendor.
+Yeah, whenever I see a phone, I think that it looks all right.
+And then I look down the specs and see MediaTek say, no, thank you.
+Not interested.
+Yeah.
+And this research just justified that.
+Yeah.
+Well, you mentioned that Google certifies certain devices and washes their hands of
+ones that they don't.
+Well, it looks like now with certain custom ROMs, you're going to struggle to use Google
+Play services, which if you are totally into freedom and just use an F-Droid, then it doesn't
+affect you.
+But if like me, you're kind of half pragmatic and you do have Google Play services installed,
+then you're going to have one more hoop to jump through when you install LineageOS, another
+similar custom ROMs.
+Yeah, I bet this isn't too surprising to anyone that has been listening to this show for a
+few weeks.
+And we go to the Lineage blog where they have broken down the state of play here.
+And they talk about Google Play certification, what it is and how it affects you.
+And their explanation of why it was done in the first place reads a little ominous.
+And they note that this is speculation on their part, but they say that some OEMs may
+have been shipping devices that contain Google Play services without device certification,
+which lowers the trust for app developers in being able to rely on the quality of devices
+running with Google Play services installed.
+Well, may have been shipping.
+We know that they have been shipping.
+There's tons of devices coming out of China that have got Google Play services and all
+the Play Store and everything that are not certified by Google.
+Well, this isn't exactly news, is it, that aspect of this?
+What's news here is that Google is starting to actually do something about it.
+I agree.
+It's not news.
+In fact, it's super obvious.
+To me, that's what's ominous about it.
+It to me reads as if the Lineage team heard from somebody at Google.
+They came a knocking and this is their response to it.
+Well, I don't think it's Google telling them.
+I think it's the community because people have been noticing over the last few weeks
+that certain devices and certain ROMs are just not working unless you take the Google
+services framework ID and go and register it on their certification page under your
+Google account.
+I've actually been keeping an eye on this over the last few weeks.
+It's only now that Lineage have actually posted about this that I thought we should talk about
+it because it was kind of a bit speculative, but now it's there in black and white on Lineage's
+blog.
+It's a serious issue that people are going to have to deal with.
+I mean, I say serious issue.
+For now, it's just a case of one hoop that you have to jump through, but you talk about
+it being ominous and yet it might be a case that Google will just stop Google Play services
+working if it's not a totally official certified device, which is not very good for people
+like me who don't want all the bloat of all the various other Google apps that I don't
+need.
+I only need a few Gmail and maps and stuff.
+I hope, I very much hope that this doesn't kill the custom ROM community because let's
+face it, how many people are running Google-less?
+Not very many.
+I know one failing from late night Linux, but most people in this whole community, the
+first thing they do is flash Google apps.
+So if that goes away, then it could just totally collapse as a community.
+You know, a year ago I did an experiment of no G apps on my Nexus device and it didn't
+end up working out for me, but I did take away one thing.
+I think I could have a two or three day battery life if I take off all of the Google apps
+and the Play API.
+It's a significant difference in the battery life, huge.
+That was my big takeaway.
+And so I've always kind of toyed with the idea of doing that again and just getting
+tremendous battery life out of my Nexus 6P and just extending it even longer.
+And I think we are getting a whiff of the way of the future here.
+This sort of continues a long-term trend we've seen with Android as they've pulled certain
+things out of the upstream and they've commercialized certain aspects of the Android ROM.
+Now we're going to have an official slot for the custom ROM community to fit in.
+You're going to be able to be legitimate citizens of the Play ecosystem, congratulations.
+You're also going to be controlled and over time systematically reduced in capabilities by Google.
+And I can't see it any other way.
+This has clearly been coming and now LineageOS, because they don't want to be crushed by Google,
+is clearly playing ball to this.
+Yeah, well I suppose we'll just have to stick to the stock ROMs or just not even use Android
+at all and just be an Apple fanboy like you and use an iPhone.
+Absolutely.
+And I completely endorse Overcast if you want to listen to this show every single week,
+Overcast.fm or just go to linuxactionnews.com slash subscribe for all the ways to get new
+episodes and listen to my Android hating ways.
+And go to linuxactionnews.com slash contact if you want to criticize him for using an iPhone.
+And consider supporting the whole network because you agree with my rebel alliance and
+the Nano Nation, nano-w for life, patreon.com slash jupitersignal.
+We'll be back next Monday with our weekly take on the latest Linux and open source news.
+I'm at Chris LAS.
+I'm at Joe Rissington.
+Thank you for joining us and we'll see you next week.
+Take care, bye-bye, see you later.
